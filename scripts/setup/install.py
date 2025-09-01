@@ -8,6 +8,7 @@ and selective installation capabilities.
 
 import logging
 import shutil
+import subprocess
 import sys
 import time
 from enum import Enum
@@ -267,7 +268,7 @@ class BackupManager:
 
         try:
             shutil.copy2(file_path, backup_path)
-            logger.info(f'Backed up: {file_path.name} → {backup_path.name}')
+            logger.info('Backed up: %s → %s', file_path.name, backup_path.name)
             return backup_path
         except Exception as e:
             msg = f'Failed to create backup of {file_path}: {e}'
@@ -301,7 +302,7 @@ class SymlinkManager:
             to_install.append(item)
 
         if not to_install:
-            console.print('ℹ️ No files to install')
+            console.print('i No files to install')
             return
 
         try:
@@ -351,7 +352,7 @@ class SymlinkManager:
         try:
             item.target_path.symlink_to(item.source_path)
             self._created_links.append(item.target_path)
-            logger.debug(f'Linked: {item.name}')
+            logger.debug('Linked: %s', item.name)
         except OSError as e:
             msg = f'Failed to create symlink {item.target_path} → {item.source_path}: {e}'
             raise RuntimeError(msg) from e
@@ -363,18 +364,18 @@ class SymlinkManager:
             try:
                 if link_path.is_symlink():
                     link_path.unlink()
-                    logger.info(f'Removed symlink during rollback: {link_path}')
+                    logger.info('Removed symlink during rollback: %s', link_path)
             except Exception as e:
-                logger.warning(f'Failed to remove symlink {link_path}: {e}')
+                logger.warning('Failed to remove symlink %s: %s', link_path, e)
 
         # Restore backups
         for original_path, backup_path in reversed(self._backups_created):
             try:
                 if backup_path.exists():
                     shutil.copy2(backup_path, original_path)
-                    logger.info(f'Restored backup: {original_path}')
+                    logger.info('Restored backup: %s', original_path)
             except Exception as e:
-                logger.warning(f'Failed to restore backup {backup_path}: {e}')
+                logger.warning('Failed to restore backup %s: %s', backup_path, e)
 
 
 def get_repo_root() -> Path:
@@ -449,7 +450,7 @@ def main(
         all_items = discovery.discover_installable_files()
 
         if not all_items:
-            console.print('ℹ️ No installable files found in repository')
+            console.print('i No installable files found in repository')
             return
 
         # Analyze conflicts
@@ -535,11 +536,9 @@ def main(
 
         if not force and Confirm.ask('\nInstall enhanced statusline?', default=True):
             try:
-                import subprocess
-
                 console.print('🚀 [blue]Installing and configuring statusline...[/blue]')
                 result = subprocess.run(
-                    ['make', 'force-install-statusline'],
+                    ['/usr/bin/make', 'force-install-statusline'],
                     check=False,
                     cwd=get_repo_root(),
                     capture_output=True,
@@ -563,10 +562,11 @@ def main(
                     )
                 else:
                     console.print(
-                        f'⚠️  [yellow]Statusline installation had issues:[/yellow] {result.stderr}'
+                        f'⚠️  [yellow]Statusline installation had issues:[/yellow] '
+                        f'{result.stderr}'
                     )
                     console.print('You can try again with: make install-statusline')
-            except Exception as e:
+            except (subprocess.CalledProcessError, OSError) as e:
                 console.print(
                     f'⚠️  [yellow]Could not install statusline automatically:[/yellow] {e}'
                 )
@@ -590,12 +590,10 @@ def main(
 
         if not force and Confirm.ask('\nSet up Claude Hi Scheduler?', default=True):
             try:
-                import subprocess
-
                 console.print('🚀 [blue]Setting up Claude Hi Scheduler...[/blue]')
 
                 result = subprocess.run(
-                    ['make', 'claude-hi-standard'],
+                    ['/usr/bin/make', 'claude-hi-standard'],
                     check=False,
                     cwd=get_repo_root(),
                     capture_output=True,
@@ -617,7 +615,7 @@ def main(
                     )
                     console.print('You can set up manually with: make claude-hi-setup')
 
-            except Exception as e:
+            except (subprocess.CalledProcessError, OSError) as e:
                 console.print(
                     f'⚠️  [yellow]Could not set up Claude Hi automatically:[/yellow] {e}'
                 )
@@ -630,7 +628,7 @@ def main(
 
     except Exception as e:
         console.print(f'❌ [bold red]Installation failed:[/bold red] {e}')
-        logger.error(f'Installation failed: {e}')
+        logger.error('Installation failed: %s', e)
         sys.exit(1)
 
 

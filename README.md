@@ -128,25 +128,25 @@ cc-arsenal/
 ### Installation
 
 1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/mgiovani/cc-arsenal.git
-   cd cc-arsenal
-   ```
+  ```bash
+  git clone https://github.com/mgiovani/cc-arsenal.git
+  cd cc-arsenal
+  ```
 
 2. **Quick start with preview**:
-   ```bash
-   make dry-run          # Preview what will be installed
-   ```
+  ```bash
+  make dry-run          # Preview what will be installed
+  ```
 
 3. **Install to Claude Code**:
-   ```bash
-   make install          # Install all components to ~/.claude
-   ```
+  ```bash
+  make install          # Install all components to ~/.claude
+  ```
 
 4. **Configure your setup** (optional):
-   ```bash
-   make configure        # Interactive configuration
-   ```
+  ```bash
+  make configure        # Interactive configuration
+  ```
 
 5. **Restart Claude Code** to load the new configuration
 

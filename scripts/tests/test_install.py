@@ -32,7 +32,7 @@ class TestInstallationConfig(unittest.TestCase):
 
     def test_nonexistent_repo_root_validation(self) -> None:
         """Test that nonexistent repo root raises validation error."""
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match='Repository root does not exist'):
             InstallationConfig(repo_root=Path('/nonexistent/path'))
 
     def test_claude_dir_expansion(self) -> None:
@@ -106,7 +106,8 @@ class TestFileDiscovery(unittest.TestCase):
         items = discovery.discover_installable_files()
 
         # Should find 3 files (.md and .py files only)
-        assert len(items) == 3
+        expected_file_count = 3
+        assert len(items) == expected_file_count
 
         # Check categories
         categories = {item.category for item in items}

@@ -19,7 +19,7 @@ This repository implements **Security-First Development** through coordinated se
 
 ```
 🔍 Security Scan → 🧪 Quality Check → 📋 Compliance Validation → ✅ Approval → 🚀 Deploy
-       ↓               ↓                      ↓                   ↓         ↓
+        ↓               ↓                      ↓                   ↓         ↓
 security-validator  code-reviewer      compliance-checker   test-orchestrator  deploy-safe
 ```
 

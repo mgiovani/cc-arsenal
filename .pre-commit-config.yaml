@@ -23,10 +23,12 @@ repos:
         entry: uv run ruff check --fix --unsafe-fixes
         language: system
         types: [python]
+        exclude: ^examples/
         require_serial: true
       - id: ruff-format
         name: ruff-format
         entry: uv run ruff format
         language: system
         types: [python]
+        exclude: ^examples/
         require_serial: true

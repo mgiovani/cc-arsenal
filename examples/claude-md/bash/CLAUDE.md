@@ -506,66 +506,66 @@ BLUE := \033[34m
 NC := \033[0m
 
 help: ## Show this help message
-	@echo "Available targets:"
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
-		awk 'BEGIN {FS = ":.*?## "}; {printf "  $(GREEN)%-15s$(NC) %s\n", $$1, $$2}'
+  @echo "Available targets:"
+  @grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
+    awk 'BEGIN {FS = ":.*?## "}; {printf "  $(GREEN)%-15s$(NC) %s\n", $$1, $$2}'
 
 install: ## Install scripts to system
-	@echo "$(BLUE)Installing to $(PREFIX)...$(NC)"
-	@install -d $(BIN_DIR) $(LIB_DIR) $(CONFIG_DIR)
-	@install -m 755 bin/* $(BIN_DIR)/
-	@install -m 644 lib/* $(LIB_DIR)/
-	@install -m 644 config/*.conf $(CONFIG_DIR)/
-	@echo "$(GREEN)Installation complete$(NC)"
+  @echo "$(BLUE)Installing to $(PREFIX)...$(NC)"
+  @install -d $(BIN_DIR) $(LIB_DIR) $(CONFIG_DIR)
+  @install -m 755 bin/* $(BIN_DIR)/
+  @install -m 644 lib/* $(LIB_DIR)/
+  @install -m 644 config/*.conf $(CONFIG_DIR)/
+  @echo "$(GREEN)Installation complete$(NC)"
 
 test: ## Run tests
-	@echo "$(BLUE)Running tests...$(NC)"
-	@if command -v bats >/dev/null 2>&1; then \
-		bats tests/; \
-	else \
-		echo "$(RED)BATS is not installed. Install it first.$(NC)"; \
-		exit 1; \
-	fi
+  @echo "$(BLUE)Running tests...$(NC)"
+  @if command -v bats >/dev/null 2>&1; then \
+    bats tests/; \
+  else \
+    echo "$(RED)BATS is not installed. Install it first.$(NC)"; \
+    exit 1; \
+  fi
 
 lint: ## Check scripts with shellcheck
-	@echo "$(BLUE)Linting scripts...$(NC)"
-	@if command -v shellcheck >/dev/null 2>&1; then \
-		shellcheck bin/* lib/*.sh scripts/*.sh; \
-		echo "$(GREEN)Linting complete$(NC)"; \
-	else \
-		echo "$(RED)ShellCheck is not installed. Install it first.$(NC)"; \
-		exit 1; \
-	fi
+  @echo "$(BLUE)Linting scripts...$(NC)"
+  @if command -v shellcheck >/dev/null 2>&1; then \
+    shellcheck bin/* lib/*.sh scripts/*.sh; \
+    echo "$(GREEN)Linting complete$(NC)"; \
+  else \
+    echo "$(RED)ShellCheck is not installed. Install it first.$(NC)"; \
+    exit 1; \
+  fi
 
 format: ## Format scripts with shfmt
-	@echo "$(BLUE)Formatting scripts...$(NC)"
-	@if command -v shfmt >/dev/null 2>&1; then \
-		shfmt -w -i 2 bin/* lib/*.sh scripts/*.sh; \
-		echo "$(GREEN)Formatting complete$(NC)"; \
-	else \
-		echo "$(YELLOW)shfmt is not installed. Skipping formatting.$(NC)"; \
-	fi
+  @echo "$(BLUE)Formatting scripts...$(NC)"
+  @if command -v shfmt >/dev/null 2>&1; then \
+    shfmt -w -i 2 bin/* lib/*.sh scripts/*.sh; \
+    echo "$(GREEN)Formatting complete$(NC)"; \
+  else \
+    echo "$(YELLOW)shfmt is not installed. Skipping formatting.$(NC)"; \
+  fi
 
 build: lint test ## Build and validate project
-	@echo "$(GREEN)Build complete$(NC)"
+  @echo "$(GREEN)Build complete$(NC)"
 
 clean: ## Clean build artifacts
-	@echo "$(BLUE)Cleaning...$(NC)"
-	@rm -rf dist/
-	@rm -f *.tar.gz
-	@echo "$(GREEN)Clean complete$(NC)"
+  @echo "$(BLUE)Cleaning...$(NC)"
+  @rm -rf dist/
+  @rm -f *.tar.gz
+  @echo "$(GREEN)Clean complete$(NC)"
 
 dist: build ## Create distribution package
-	@echo "$(BLUE)Creating distribution...$(NC)"
-	@mkdir -p dist
-	@tar -czf dist/project-$(shell date +%Y%m%d).tar.gz \
-		bin/ lib/ config/ docs/ README.md LICENSE
-	@echo "$(GREEN)Distribution created$(NC)"
+  @echo "$(BLUE)Creating distribution...$(NC)"
+  @mkdir -p dist
+  @tar -czf dist/project-$(shell date +%Y%m%d).tar.gz \
+    bin/ lib/ config/ docs/ README.md LICENSE
+  @echo "$(GREEN)Distribution created$(NC)"
 
 dev-setup: ## Set up development environment
-	@echo "$(BLUE)Setting up development environment...$(NC)"
-	@./scripts/setup.sh
-	@echo "$(GREEN)Development setup complete$(NC)"
+  @echo "$(BLUE)Setting up development environment...$(NC)"
+  @./scripts/setup.sh
+  @echo "$(GREEN)Development setup complete$(NC)"
 ```
 
 ## Environment Variables
