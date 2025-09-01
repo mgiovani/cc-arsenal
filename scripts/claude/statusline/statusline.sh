@@ -1,0 +1,233 @@
+#!/bin/bash
+
+# Claude Code Enhanced Statusline - Modular Architecture
+# Displays model info, git status, costs, daily usage, and 5-hour reset info
+# Usage: Add "statusline": "bash ~/.claude/scripts/claude/statusline/statusline.sh" to Claude Code settings
+
+set -euo pipefail
+
+# Get the directory containing this script
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Source all library modules
+source "$SCRIPT_DIR/lib/colors.sh"
+source "$SCRIPT_DIR/lib/utils.sh"
+source "$SCRIPT_DIR/lib/git_info.sh"
+source "$SCRIPT_DIR/lib/usage_tracker.sh"
+source "$SCRIPT_DIR/lib/components.sh"
+source "$SCRIPT_DIR/lib/config.sh"
+source "$SCRIPT_DIR/lib/cache_manager.sh"
+source "$SCRIPT_DIR/lib/cached_operations.sh"
+
+# Main statusline function
+build_statusline() {
+    local json_input="$1"
+    
+    # Initialize systems
+    setup_config
+    setup_usage_tracking
+    cleanup_old_data
+    update_window_tracking
+    
+    cache_warm_statusline
+    
+    # Extract data from JSON using correct Claude Code structure
+    local model_id model_display_name total_cost_usd current_dir
+    local total_duration_ms api_duration_ms lines_added lines_removed
+    local session_cost daily_usage next_reset context_percent
+    local session_cost_display daily_cost_display
+    
+    # Extract data from JSON using official Claude Code structure
+    model_id=$(get_json_field "$json_input" '.model.id' '')
+    model_display_name=$(get_json_field "$json_input" '.model.display_name' '')
+    session_cost_usd=$(get_json_number "$json_input" '.cost.total_cost_usd' 0)
+    
+    # Directory handling - prioritize workspace.current_dir, fallback to cwd, then pwd
+    current_dir=$(get_json_field "$json_input" '.workspace.current_dir' '')
+    if [[ -z "$current_dir" || "$current_dir" == "null" ]]; then
+        current_dir=$(get_json_field "$json_input" '.cwd' "$(pwd)")
+    fi
+    
+    # Duration and line change data
+    total_duration_ms=$(get_json_number "$json_input" '.cost.total_duration_ms' 0)
+    api_duration_ms=$(get_json_number "$json_input" '.cost.total_api_duration_ms' 0)
+    lines_added=$(get_json_number "$json_input" '.cost.total_lines_added' 0)
+    lines_removed=$(get_json_number "$json_input" '.cost.total_lines_removed' 0)
+    
+    # Extract additional fields for potential future use
+    session_id=$(get_json_field "$json_input" '.session_id' '')
+    claude_version=$(get_json_field "$json_input" '.version' '')
+    output_style=$(get_json_field "$json_input" '.output_style.name' '')
+    
+    # Claude Code doesn't provide token data, so context percentage is unavailable
+    local context_percent="unavailable"
+    
+    # Determine model display string
+    local model_display=""
+    local model_version=""
+    
+    if [[ -n "$model_display_name" && "$model_display_name" != "null" && "$model_display_name" != "" ]]; then
+        model_display="$model_display_name"
+        # Don't show version when we have a clean display name
+    elif [[ -n "$model_id" && "$model_id" != "null" && "$model_id" != "" ]]; then
+        # Clean up model ID for display
+        model_display=$(echo "$model_id" | sed 's/claude-//' | sed 's/-[0-9]\{8\}//')
+        # Extract version from model ID if present (only when using ID)
+        if [[ "$model_id" =~ -([0-9]{8})$ ]]; then
+            model_version="${BASH_REMATCH[1]}"
+        fi
+    else
+        model_display="unavailable"
+    fi
+    
+    session_cost="$session_cost_usd"
+    
+    # Update usage tracking
+    update_daily_usage "$session_cost"
+    
+    # Get calculated values directly
+    daily_usage=$(get_daily_usage)
+    next_reset=$(get_next_reset_time)
+    
+    # Format cost displays - use Claude Code values directly
+    session_cost_display=""
+    daily_cost_display=""
+    
+    # Use session cost directly as provided by Claude Code
+    if [[ -n "$session_cost_usd" && "$session_cost_usd" != "0" && "$session_cost_usd" != "0.000" ]]; then
+        session_cost_display="$session_cost_usd"
+    fi
+    
+    if (( $(echo "$daily_usage > 0" | bc -l 2>/dev/null || echo "0") )); then
+        local daily_decimal_places
+        daily_decimal_places=$(get_config '.formatting.daily_cost_decimal_places' '2')
+        daily_cost_display=$(printf "%.${daily_decimal_places}f" "$daily_usage")
+    fi
+    
+    # current_dir already extracted from JSON above
+    
+    # Build components based on configuration order
+    local components=()
+    local compact_components=()
+    
+    # Get component order from config (handle array properly)
+    local component_order_json config_file
+    config_file="${ACTIVE_CONFIG_FILE:-$CONFIG_FILE}"
+    
+    if [[ -f "$config_file" ]]; then
+        component_order_json=$(jq '.components.order // ["model","directory","git","session_cost","daily_cost","lines_changed","duration_info","reset_countdown"]' "$config_file" 2>/dev/null)
+    else
+        component_order_json='["model","directory","git","session_cost","daily_cost","lines_changed","duration_info","reset_countdown"]'
+    fi
+    
+    # Process each component in the specified order
+    while IFS= read -r component; do
+        component=$(echo "$component" | tr -d '"' | tr -d ' ')
+        [[ -z "$component" || "$component" == "null" ]] && continue
+        
+        # Check if component is enabled
+        if [[ "$(get_config_bool ".components.enabled.$component" 'false')" == "true" ]]; then
+            local full_component=""
+            local compact_component=""
+            
+            case "$component" in
+                "model")
+                    full_component=$(get_model_component "$model_display" "$model_version")
+                    compact_component=$(get_model_component_compact "$model_display")
+                    ;;
+                "directory")
+                    full_component=$(get_directory_component "$current_dir")
+                    compact_component=$(get_directory_component_compact "$current_dir")
+                    ;;
+                "git")
+                    full_component=$(get_git_component)
+                    compact_component=$(get_git_component_compact)
+                    ;;
+                "context")
+                    full_component=$(get_context_component "$context_percent")
+                    compact_component=$(get_context_component_compact "$context_percent")
+                    ;;
+                "session_cost")
+                    full_component=$(get_session_cost_component "$session_cost_display")
+                    compact_component=$(get_session_cost_component_compact "$session_cost_display")
+                    ;;
+                "daily_cost")
+                    full_component=$(get_daily_cost_component "$daily_cost_display")
+                    compact_component=$(get_daily_cost_component_compact "$daily_cost_display")
+                    ;;
+                "reset_countdown")
+                    full_component=$(get_reset_component "$next_reset")
+                    compact_component=$(get_reset_component_compact "$next_reset")
+                    ;;
+                "duration_info")
+                    full_component=$(get_duration_info_component "$total_duration_ms" "$api_duration_ms")
+                    compact_component=$(get_duration_info_component_compact "$total_duration_ms")
+                    ;;
+                "lines_changed")
+                    full_component=$(get_lines_changed_component "$lines_added" "$lines_removed")
+                    compact_component=$(get_lines_changed_component_compact "$lines_added" "$lines_removed")
+                    ;;
+            esac
+            
+            # Add non-empty components
+            [[ -n "$full_component" ]] && components+=("$full_component")
+            [[ -n "$compact_component" ]] && compact_components+=("$compact_component")
+        fi
+    done < <(echo "$component_order_json" | jq -r '.[]' 2>/dev/null)
+    
+    
+    # Determine if we should use compact format
+    local terminal_width max_width compact_threshold
+    terminal_width=$(get_terminal_width)
+    max_width=$(get_config '.display.max_width' '120')
+    compact_threshold=$(get_config '.display.compact_threshold' '80')
+    
+    local separator status_line
+    
+    if [[ $terminal_width -lt $compact_threshold ]]; then
+        # Use compact format
+        separator=$(get_config '.display.compact_separator' '│')
+        separator="${STATUSLINE_GRAY}${separator}${STATUSLINE_RESET}"
+        
+        status_line=""
+        for i in "${!compact_components[@]}"; do
+            if [[ $i -gt 0 ]]; then
+                status_line+="$separator"
+            fi
+            status_line+="${compact_components[$i]}"
+        done
+    else
+        # Use full format
+        separator=$(get_config '.display.separator' ' │ ')
+        separator="${STATUSLINE_GRAY}${separator}${STATUSLINE_RESET}"
+        
+        status_line=""
+        for i in "${!components[@]}"; do
+            if [[ $i -gt 0 ]]; then
+                status_line+="$separator"
+            fi
+            status_line+="${components[$i]}"
+        done
+    fi
+    
+    echo -e "$status_line"
+}
+
+# Main execution
+main() {
+    # Read JSON input from stdin
+    local json_input=""
+    while IFS= read -r line; do
+        json_input+="$line"
+    done
+    
+    # Fallback if no JSON input - use minimal valid structure
+    if [[ -z "$json_input" ]]; then
+        json_input='{"model":{},"workspace":{"current_dir":"'$(pwd)'"},"cost":{"total_cost_usd":0}}'
+    fi
+    
+    build_statusline "$json_input"
+}
+
+# Execute main function
+main "$@"
