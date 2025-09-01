@@ -1,62 +1,78 @@
 # Claude Code Arsenal
 
-A professional, production-ready collection of Claude Code agents, commands, and hooks. This repository provides essential tools for security, quality control, and development automation that can be easily integrated into any Claude Code project.
+🚀 **Lock and load your Claude Code workflow** with a fully-stocked arsenal of AI agents, commands, and security hooks. Deploy your coding firepower in minutes, not hours.
 
-## 🚀 Features
+✨ **Armed with excellence, one `make install` away** ✨
 
-- **🤖 Security Agents**: AI agents focused on code security, authentication validation, and vulnerability detection
-- **⚡ Quality Commands**: Automated commands for code quality, testing, and development workflows
-- **🔒 Safety Hooks**: Security, quality, and compliance validation scripts
-- **🛠️ Professional Tooling**: Modern Python scripts with UV, comprehensive error handling, and rich CLI interfaces
-- **📚 Comprehensive Documentation**: Detailed guides, examples, and best practices
-- **🔗 Symlink Architecture**: Clean installation via symbolic links for easy updates and customization
+## Features
 
-## 📁 Repository Structure
+- **Security Agents**: AI agents focused on code security, authentication validation, and vulnerability detection
+- **Quality Commands**: Automated commands for code quality, testing, and development workflows
+- **Safety Hooks**: Security, quality, and compliance validation scripts
+- **Professional Tooling**: Modern Python scripts with UV, comprehensive error handling, and rich CLI interfaces
+- **Comprehensive Documentation**: Detailed guides, examples, and best practices
+- **Symlink Architecture**: Clean installation via symbolic links for easy updates and customization
+
+## Available Commands
+
+Claude Code Arsenal includes a comprehensive Makefile with automated commands for installation, development, and maintenance. Run `make help` to see all available commands, or use these common ones:
+
+```bash
+make dry-run     # Preview installation without making changes
+make install     # Install all components to ~/.claude
+make dev         # Set up development environment
+make test        # Run comprehensive test suite
+make clean       # Clean up caches and temporary files
+```
+
+## Repository Structure
 
 ```
 cc-arsenal/
-├── 📖 README.md                 # This file
-├── 📋 AGENTS.md                 # Complete agents reference
-├── 📋 COMMANDS.md               # Complete commands reference  
-├── 📋 HOOKS.md                  # Complete hooks reference
-├── 🔗 CLAUDE.md → AGENTS.md     # Backward compatibility symlink
+├── README.md                    # This file
+├── AGENTS.md                    # Complete agents reference
+├── COMMANDS.md                  # Complete commands reference  
+├── HOOKS.md                     # Complete hooks reference
+├── CLAUDE.md → AGENTS.md        # Backward compatibility symlink
 │
-├── 🤖 agents/                   # AI agents organized by specialty
+├── agents/                      # AI agents organized by specialty
 │   ├── development/             # Development and engineering
 │   ├── architecture/            # System design and architecture
 │   ├── product/                 # Product management and analysis
 │   ├── ux/                      # User experience and design
 │   └── orchestration/           # Workflow coordination
 │
-├── ⚡ commands/                 # Workflow automation commands
+├── commands/                    # Workflow automation commands
 │   ├── security/                # Security scanning workflows
 │   ├── git/                     # Git operations (coming soon)
 │   ├── testing/                 # Testing workflows (coming soon)
 │   └── utility/                 # Development utilities (coming soon)
 │
-├── 🔒 hooks/                    # Safety and validation hooks
+├── hooks/                       # Safety and validation hooks
 │   ├── security/                # Security and access control
 │   ├── quality/                 # Code quality and standards
 │   ├── compliance/              # Regulatory and audit compliance
 │   └── project-specific/        # Domain-specific validations
 │
-├── 🐍 scripts/                  # Professional Python utilities
+├── scripts/                     # Professional Python utilities
 │   ├── setup/                   # Installation and configuration
 │   ├── generators/              # Code generation tools
 │   └── utilities/               # Helper scripts
 │
-└── 📚 docs/                     # Extended documentation
+└── docs/                        # Extended documentation
     ├── getting-started.md
     ├── agent-development.md
     ├── command-authoring.md
     └── troubleshooting.md
 ```
 
-## 🏃‍♂️ Quick Start
+## Quick Start
 
 ### Prerequisites
 - **Python 3.12+** (for modern language features and performance)
-- **UV** (for fast Python package management)
+- **UV** (for fast Python package management) - **REQUIRED**
+  - Install: `curl -LsSf https://astral.sh/uv/install.sh | sh`
+  - Docs: https://docs.astral.sh/uv/getting-started/installation/
 - **Claude Code** (Anthropic's official Claude CLI)
 
 ### Installation
@@ -67,37 +83,58 @@ cc-arsenal/
    cd cc-arsenal
    ```
 
-2. **Install Python dependencies**:
+2. **Quick start with preview**:
    ```bash
-   cd scripts
-   uv sync
+   make dry-run          # Preview what will be installed
    ```
 
-3. **Install Claude configuration**:
+3. **Install to Claude Code**:
    ```bash
-   uv run setup/install.py
+   make install          # Install all components to ~/.claude
    ```
 
 4. **Configure your setup** (optional):
    ```bash
-   uv run setup/configure.py
+   make configure        # Interactive configuration
    ```
 
 5. **Restart Claude Code** to load the new configuration
 
+### Alternative Installation Methods
+
+For more control over the installation process:
+
+```bash
+# Force install without prompts
+make force-install
+
+# Install specific components
+make install-statusline  # Just the statusline component
+
+# Backup and restore
+make backup             # Backup current ~/.claude
+make restore-latest     # Restore latest backup
+
+# See all available commands
+make help
+```
+
 ### Verification
 
-Test your installation by listing available agents:
+Test your installation by checking if the agents are installed:
 ```bash
-claude agents list
-```
+# Check if agents are installed in ~/.claude
+ls ~/.claude/agents/
 
-Or invoke a specific agent:
-```bash
+# Test by invoking a specific agent
 claude task "Use the security-validator agent to analyze this codebase structure"
+
+# Or check installation status
+make info              # Show repository information
+make validate-structure # Validate installation
 ```
 
-## 🎯 Core Components
+## Core Components
 
 ### 🤖 Agents
 
@@ -134,7 +171,7 @@ Safety and validation automation:
 
 [→ See complete hooks documentation](HOOKS.md)
 
-## 🔐 Security-First Development
+## Security-First Development
 
 Claude Code Arsenal emphasizes security and quality in all development workflows:
 
@@ -145,7 +182,7 @@ Claude Code Arsenal emphasizes security and quality in all development workflows
 - **Zero-Trust**: Assume all inputs are potentially malicious until validated
 - **Documentation-Driven**: Comprehensive logging and audit trails for all operations
 
-## 📖 Usage Examples
+## Usage Examples
 
 ### Development Workflow
 ```bash
@@ -172,13 +209,13 @@ claude task "
 ### Customization
 ```bash
 # Generate a new security agent for your domain
-uv run generators/agent_generator.py --name "crypto-validator" --category "security"
+make generate-agent NAME=crypto-validator CATEGORY=security
 
 # Configure which components to use
-uv run setup/configure.py --quick
+make configure
 ```
 
-## 🛠️ Development
+## Development
 
 ### Contributing
 
@@ -187,7 +224,7 @@ We welcome contributions! Please follow these steps:
 1. **Fork** the repository
 2. **Create** a feature branch: `git checkout -b feature/amazing-feature`
 3. **Develop** your changes with tests and documentation
-4. **Validate** with our quality checks: `uv run scripts/validate.py`
+4. **Validate** with our quality checks: `make check`
 5. **Submit** a pull request with detailed description
 
 ### Development Setup
@@ -195,21 +232,26 @@ We welcome contributions! Please follow these steps:
 ```bash
 # Clone for development
 git clone https://github.com/mgiovani/cc-arsenal.git
-cd cc-arsenal/scripts
+cd cc-arsenal
 
-# Install with dev dependencies
-uv sync --dev
+# Set up development environment (installs dev dependencies)
+make dev
 
-# Set up pre-commit hooks
-pre-commit install
+# Run all quality checks
+make check           # Runs lint + type-check
+make lint           # Linting only
+make format         # Code formatting
+make type-check     # Type checking only
 
 # Run tests
-pytest
+make test           # Unit tests
+make coverage       # Tests with coverage report
 
-# Code formatting and linting
-black .
-ruff check .
-mypy .
+# Validate repository structure
+make validate-structure
+
+# See all available development commands
+make help
 ```
 
 ### Quality Standards
@@ -221,7 +263,7 @@ mypy .
 - **Detailed documentation** with examples and troubleshooting
 - **Security-first** approach with input validation and error handling
 
-## 📚 Documentation
+## Documentation
 
 - **[AGENTS.md](AGENTS.md)**: Complete reference for all available agents
 - **[COMMANDS.md](COMMANDS.md)**: Workflow automation commands and usage
@@ -230,7 +272,7 @@ mypy .
 - **[docs/agent-development.md](docs/agent-development.md)**: Creating custom agents
 - **[docs/troubleshooting.md](docs/troubleshooting.md)**: Common issues and solutions
 
-## 🤝 Support
+## Support
 
 ### Getting Help
 - **🐛 Issues**: [Open a GitHub issue](https://github.com/mgiovani/cc-arsenal/issues) for bugs or feature requests
@@ -239,14 +281,14 @@ mypy .
 
 ### Common Issues
 - **Installation Problems**: See [troubleshooting guide](docs/troubleshooting.md)
-- **Configuration Issues**: Run `uv run setup/configure.py --help` for options
+- **Configuration Issues**: Run `make configure` for interactive setup or `make help` for all options
 - **Performance**: Monitor agent usage and consider selective installation
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - **Anthropic** for Claude Code and the Claude API
 - **Security Community** for best practices and vulnerability research
@@ -254,6 +296,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Ready to secure your Claude Code projects?** Start with `uv run setup/install.py` and deploy enterprise-grade security and quality automation.
+**Ready to secure your Claude Code projects?** Start with `make install` and deploy enterprise-grade security and quality automation.
 
-*Built with 🔐 for secure development*
+*Built with Claude for Claude*
