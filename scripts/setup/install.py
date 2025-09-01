@@ -34,6 +34,19 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+def check_uv_installation() -> None:
+    """Check if UV is installed and available."""
+    import subprocess
+    
+    try:
+        subprocess.run(['uv', '--version'], capture_output=True, check=True)
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        console.print("❌ [red]UV is required but not installed[/red]")
+        console.print("📦 [yellow]Install UV from: https://docs.astral.sh/uv/getting-started/installation/[/yellow]")
+        console.print("⚡ [yellow]Quick install: curl -LsSf https://astral.sh/uv/install.sh | sh[/yellow]")
+        sys.exit(1)
+
+
 class ConflictResolution(str, Enum):
     """Strategies for handling file conflicts."""
     SKIP = "skip"
@@ -405,6 +418,9 @@ def main(
     if verbose:
         logging.getLogger().setLevel(logging.DEBUG)
 
+    # Check UV requirement first
+    check_uv_installation()
+
     console.print("🚀 [bold blue]Claude Template Installation System[/bold blue]")
     if dry_run:
         console.print("🔍 [yellow]Dry run mode - no changes will be made[/yellow]")
@@ -482,7 +498,7 @@ def main(
         console.print("\n📋 Next Steps:")
         console.print("  1. Run `make configure` to customize your setup")
         console.print("  2. Restart Claude Code to load the new configuration")
-        console.print("  3. Use agents, commands, and hooks from the claude-dump repository")
+        console.print("  3. Use agents, commands, and hooks from the cc-arsenal repository")
         
         # Ask about statusline installation
         console.print("\n🎨 [bold yellow]Enhanced Statusline Available[/bold yellow]")
@@ -521,6 +537,45 @@ def main(
         else:
             console.print("⏭️  [yellow]Statusline installation skipped[/yellow]")
             console.print("You can install it later with: make install-statusline")
+
+        # Ask about claude-hi setup
+        console.print("\n🕐 [bold yellow]Claude Hi Scheduler Available[/bold yellow]")
+        console.print("Replace your cron workarounds with smart Claude session scheduling!")
+        console.print("Features:")
+        console.print("  • Automatically trigger Claude's 5-hour windows at optimal times")
+        console.print("  • Strategic timing for maximum token availability")
+        console.print("  • Multiple work patterns (early bird, night owl, heavy user)")
+        console.print("  • Clean management via Makefile commands")
+        
+        if not force and Confirm.ask("\nSet up Claude Hi Scheduler?", default=True):
+            try:
+                import subprocess
+                console.print("🚀 [blue]Setting up Claude Hi Scheduler...[/blue]")
+                
+                result = subprocess.run(
+                    ["make", "claude-hi-standard"], 
+                    cwd=get_repo_root(), 
+                    capture_output=True, 
+                    text=True
+                )
+                
+                if result.returncode == 0:
+                    console.print("✅ [bold green]Claude Hi Scheduler configured![/bold green]")
+                    console.print("\n🎉 [blue]Ready to use:[/blue]")
+                    console.print("  • Automatic 'hi' messages at your scheduled times")
+                    console.print("  • Check status: make claude-hi-status")
+                    console.print("  • Modify schedule: make claude-hi-setup")
+                    console.print("  • Send now: make claude-hi-now")
+                else:
+                    console.print(f"⚠️  [yellow]Claude Hi setup had issues:[/yellow] {result.stderr}")
+                    console.print("You can set up manually with: make claude-hi-setup")
+                    
+            except Exception as e:
+                console.print(f"⚠️  [yellow]Could not set up Claude Hi automatically:[/yellow] {e}")
+                console.print("You can set up manually with: make claude-hi-setup")
+        else:
+            console.print("⏭️  [yellow]Claude Hi setup skipped[/yellow]")
+            console.print("You can set up later with: make claude-hi-setup")
 
         logger.info("Claude template installation completed successfully")
 
