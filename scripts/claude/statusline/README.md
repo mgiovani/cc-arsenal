@@ -45,5 +45,5 @@ Edit the script to add/remove information or change colors and formatting to mat
 
 ## Example Output
 ```bash
-🤖 c3-5-s-202 │ 🌿 main● │ 📁 claude-dump │ 📊 22% │ 💰 $0.043 │ 📅 $1.23 │ 🔄 2h15m
+🤖 c3-5-s-202 │ 🌿 main● │ 📁 cc-arsenal │ 📊 22% │ 💰 $0.043 │ 📅 $1.23 │ 🔄 2h15m
 ```

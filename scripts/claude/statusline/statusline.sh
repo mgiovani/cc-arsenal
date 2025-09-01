@@ -18,6 +18,7 @@ source "$SCRIPT_DIR/lib/components.sh"
 source "$SCRIPT_DIR/lib/config.sh"
 source "$SCRIPT_DIR/lib/cache_manager.sh"
 source "$SCRIPT_DIR/lib/cached_operations.sh"
+source "$SCRIPT_DIR/lib/data_reader.sh"
 
 # Main statusline function
 build_statusline() {
@@ -40,12 +41,64 @@ build_statusline() {
     # Extract data from JSON using official Claude Code structure
     model_id=$(get_json_field "$json_input" '.model.id' '')
     model_display_name=$(get_json_field "$json_input" '.model.display_name' '')
-    session_cost_usd=$(get_json_number "$json_input" '.cost.total_cost_usd' 0)
+    total_cost_usd=$(get_json_number "$json_input" '.cost.total_cost_usd' 0)
     
     # Directory handling - prioritize workspace.current_dir, fallback to cwd, then pwd
     current_dir=$(get_json_field "$json_input" '.workspace.current_dir' '')
     if [[ -z "$current_dir" || "$current_dir" == "null" ]]; then
         current_dir=$(get_json_field "$json_input" '.cwd' "$(pwd)")
+    fi
+    
+    # Check if Claude Code provided insufficient data (empty model or zero cost)
+    local use_enhanced_data=false
+    if [[ -z "$model_id" || "$model_id" == "null" || "$model_id" == "{}" ]] && [[ "$total_cost_usd" == "0" || -z "$total_cost_usd" ]]; then
+        use_enhanced_data=true
+    fi
+    
+    # If Claude Code data is insufficient, try to get enhanced data from usage files
+    if [[ "$use_enhanced_data" == "true" ]]; then
+        local enhanced_data
+        enhanced_data=$(get_enhanced_usage_data "$current_dir" 2>/dev/null || echo "{}")
+        
+        if [[ -n "$enhanced_data" && "$enhanced_data" != "{}" ]]; then
+            # Override with enhanced data if available
+            model_id=$(echo "$enhanced_data" | jq -r '.model.id // empty' 2>/dev/null || echo '')
+            model_display_name=$(echo "$enhanced_data" | jq -r '.model.display_name // empty' 2>/dev/null || echo '')
+            total_cost_usd=$(echo "$enhanced_data" | jq -r '.cost.total_cost_usd // 0' 2>/dev/null || echo '0')
+            
+            # Get token data for context calculation
+            local input_tokens output_tokens
+            input_tokens=$(echo "$enhanced_data" | jq -r '.tokens.input // 0' 2>/dev/null || echo '0')
+            output_tokens=$(echo "$enhanced_data" | jq -r '.tokens.output // 0' 2>/dev/null || echo '0')
+            
+            # Calculate context percentage if we have token data
+            if [[ "$input_tokens" != "0" || "$output_tokens" != "0" ]]; then
+                local tokens_used context_window_size
+                tokens_used=$((input_tokens + output_tokens))
+                context_window_size=200000  # 200K tokens for paid Claude plans
+                context_percent=$((100 - (tokens_used * 100 / context_window_size)))
+                [[ $context_percent -lt 0 ]] && context_percent=0
+            else
+                context_percent="unavailable"
+            fi
+        else
+            context_percent="unavailable"
+        fi
+    else
+        # Use original logic for context percentage from token data if available
+        local input_tokens output_tokens
+        input_tokens=$(get_json_number "$json_input" '.cost.total_input_tokens' 0)
+        output_tokens=$(get_json_number "$json_input" '.cost.total_output_tokens' 0)
+        
+        if [[ $input_tokens -gt 0 || $output_tokens -gt 0 ]]; then
+            local tokens_used context_window_size
+            tokens_used=$((input_tokens + output_tokens))
+            context_window_size=200000
+            context_percent=$((100 - (tokens_used * 100 / context_window_size)))
+            [[ $context_percent -lt 0 ]] && context_percent=0
+        else
+            context_percent="unavailable"
+        fi
     fi
     
     # Duration and line change data
@@ -58,9 +111,6 @@ build_statusline() {
     session_id=$(get_json_field "$json_input" '.session_id' '')
     claude_version=$(get_json_field "$json_input" '.version' '')
     output_style=$(get_json_field "$json_input" '.output_style.name' '')
-    
-    # Claude Code doesn't provide token data, so context percentage is unavailable
-    local context_percent="unavailable"
     
     # Determine model display string
     local model_display=""
@@ -80,7 +130,7 @@ build_statusline() {
         model_display="unavailable"
     fi
     
-    session_cost="$session_cost_usd"
+    session_cost="$total_cost_usd"
     
     # Update usage tracking
     update_daily_usage "$session_cost"
@@ -94,8 +144,8 @@ build_statusline() {
     daily_cost_display=""
     
     # Use session cost directly as provided by Claude Code
-    if [[ -n "$session_cost_usd" && "$session_cost_usd" != "0" && "$session_cost_usd" != "0.000" ]]; then
-        session_cost_display="$session_cost_usd"
+    if [[ -n "$total_cost_usd" && "$total_cost_usd" != "0" && "$total_cost_usd" != "0.000" ]]; then
+        session_cost_display="$total_cost_usd"
     fi
     
     if (( $(echo "$daily_usage > 0" | bc -l 2>/dev/null || echo "0") )); then
