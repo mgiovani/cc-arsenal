@@ -213,27 +213,6 @@ build_statusline() {
     echo -e "$status_line"
 }
 
-# Debug logging function
-debug_log() {
-    local json_input="$1"
-    local log_file="/tmp/claude_statusline_debug.log"
-    
-    {
-        echo "=== $(date) ==="
-        echo "Raw JSON length: ${#json_input}"
-        echo "Raw JSON: $json_input"
-        echo
-        
-        # Test extractions
-        echo "Extractions:"
-        echo "  model.id: '$(get_json_field "$json_input" '.model.id' 'MISSING')'"
-        echo "  model.display_name: '$(get_json_field "$json_input" '.model.display_name' 'MISSING')'"
-        echo "  cost.total_cost_usd: '$(get_json_number "$json_input" '.cost.total_cost_usd' 'MISSING')'"
-        echo "=================================="
-        echo
-    } >> "$log_file"
-}
-
 # Main execution
 main() {
     # Read JSON input from stdin
@@ -242,14 +221,9 @@ main() {
         json_input+="$line"
     done
     
-    # Log the actual data for debugging (temporary)
-    if [[ -n "$json_input" ]]; then
-        debug_log "$json_input"
-    fi
-    
     # Fallback if no JSON input - use minimal valid structure
     if [[ -z "$json_input" ]]; then
-        json_input='{"model":{},"workspace":{"current_dir":"'$(pwd)'"},"cost":{}}'
+        json_input='{"model":{},"workspace":{"current_dir":"'$(pwd)'"},"cost":{"total_cost_usd":0}}'
     fi
     
     build_statusline "$json_input"
