@@ -1,4 +1,4 @@
-.PHONY: help install configure test clean dev lint format check dry-run backup restore
+.PHONY: help install configure test clean dev lint format check dry-run backup restore check-uv
 
 # Default Python and UV commands
 PYTHON := python3
@@ -12,17 +12,31 @@ YELLOW := \033[33m
 RED := \033[31m
 RESET := \033[0m
 
+# Check UV installation
+check-uv:
+	@which $(UV) > /dev/null || { \
+		echo "$(RED)Error: UV is required but not installed$(RESET)"; \
+		echo "$(YELLOW)Install UV: https://docs.astral.sh/uv/getting-started/installation/$(RESET)"; \
+		echo "$(YELLOW)Quick install: curl -LsSf https://astral.sh/uv/install.sh | sh$(RESET)"; \
+		exit 1; \
+	}
+
 help: ## Show this help message
 	@echo "$(BLUE)Claude Code Arsenal - Available Commands$(RESET)"
 	@echo
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
 		awk 'BEGIN {FS = ":.*?## "}; {printf "$(GREEN)%-20s$(RESET) %s\n", $$1, $$2}'
 	@echo
-	@echo "$(YELLOW)Examples:$(RESET)"
-	@echo "  make dry-run          # Preview installation"
-	@echo "  make install          # Install to ~/.claude"
-	@echo "  make test             # Run unit tests"
-	@echo "  make dev              # Set up development environment"
+	@echo "$(YELLOW)Quick Start Examples:$(RESET)"
+	@echo "  make install              # Install Claude Code Arsenal"
+	@echo "  make claude-hi-setup      # Replace cron workarounds with smart scheduling"
+	@echo "  make claude-hi-standard   # Quick 9am/2pm/7pm schedule"
+	@echo "  make statusline-install   # Add enhanced statusline"
+	@echo
+	@echo "$(YELLOW)Development Examples:$(RESET)"
+	@echo "  make dry-run              # Preview installation"
+	@echo "  make test                 # Run unit tests" 
+	@echo "  make dev                  # Set up development environment"
 
 # Installation
 install: setup-env ## Install Claude Code Arsenal to ~/.claude
@@ -70,17 +84,12 @@ list-backups: ## List available ~/.claude backups
 # Development
 dev: setup-env ## Set up development environment
 	@echo "$(BLUE)Setting up development environment...$(RESET)"
-	@cd $(SCRIPTS_DIR) && \
-	.venv/bin/pip install pytest pytest-cov black ruff mypy
+	@cd $(SCRIPTS_DIR) && $(UV) sync --group dev
 	@echo "$(GREEN)Development environment ready$(RESET)"
 
-setup-env: ## Set up Python environment
+setup-env: check-uv ## Set up Python environment
 	@echo "$(BLUE)Setting up Python environment...$(RESET)"
-	@cd $(SCRIPTS_DIR) && \
-	if [ ! -d .venv ]; then \
-		$(PYTHON) -m venv .venv && \
-		.venv/bin/pip install click rich pydantic; \
-	fi
+	@cd $(SCRIPTS_DIR) && $(UV) sync
 
 # Quality
 lint: dev ## Run linting checks
@@ -312,7 +321,7 @@ info: ## Show repository information
 	@echo "Agents:   $$(find agents -name '*.md' 2>/dev/null | wc -l) files"
 	@echo "Commands: $$(find commands -name '*.md' 2>/dev/null | wc -l) files"
 	@echo "Hooks:    $$(find hooks -name '*.py' 2>/dev/null | wc -l) files"
-	@echo "Scripts:  $$(find scripts -name '*.py' 2>/dev/null | wc -l) files"
+	@echo "Scripts:  $$(find scripts -maxdepth 2 -name '*.py' -not -path '*/__pycache__/*' -not -path '*/.*' -not -name 'test_*' -not -name '__init__.py' 2>/dev/null | wc -l) files"
 
 quick-start: validate-structure setup-env dry-run ## Complete quick start setup
 	@echo "$(GREEN)Quick start complete!$(RESET)"
@@ -320,6 +329,45 @@ quick-start: validate-structure setup-env dry-run ## Complete quick start setup
 	@echo "  1. Review the dry-run output above"
 	@echo "  2. Run 'make install' to install"
 	@echo "  3. Run 'make configure' to customize"
+
+# Claude Hi Cron - Simple session trigger replacement
+claude-hi-setup: ## Interactive setup for Claude 'hi' cron scheduler
+	@echo "$(BLUE)Setting up Claude 'Hi' Cron Scheduler...$(RESET)"
+	@chmod +x scripts/claude-hi/claude_hi_cron.sh
+	@scripts/claude-hi/claude_hi_cron.sh setup
+
+claude-hi-status: ## Show Claude 'hi' cron status
+	@echo "$(BLUE)Claude 'Hi' Cron Status:$(RESET)"
+	@chmod +x scripts/claude-hi/claude_hi_cron.sh
+	@scripts/claude-hi/claude_hi_cron.sh status
+
+claude-hi-remove: ## Remove Claude 'hi' cron schedule
+	@echo "$(YELLOW)Removing Claude 'Hi' Cron Schedule...$(RESET)"
+	@chmod +x scripts/claude-hi/claude_hi_cron.sh
+	@scripts/claude-hi/claude_hi_cron.sh remove
+	@echo "$(GREEN)Claude 'hi' schedule removed$(RESET)"
+
+claude-hi-now: ## Send 'hi' to Claude right now
+	@echo "$(BLUE)Sending 'hi' to Claude...$(RESET)"
+	@chmod +x scripts/claude-hi/claude_hi_cron.sh
+	@scripts/claude-hi/claude_hi_cron.sh now
+
+claude-hi-standard: ## Quick setup work hours (9,14,19) - triggers 5h before resets
+	@echo "$(BLUE)Setting up work hours schedule...$(RESET)"
+	@chmod +x scripts/claude-hi/claude_hi_cron.sh
+	@scripts/claude-hi/claude_hi_cron.sh setup "9,14,19"
+	@echo "$(GREEN)Work schedule: 9am/2pm/7pm triggers → 2pm/7pm/12am resets$(RESET)"
+
+claude-hi-extended: ## Quick setup extended day (4,9,14,19) - full coverage
+	@echo "$(BLUE)Setting up extended day schedule...$(RESET)"
+	@chmod +x scripts/claude-hi/claude_hi_cron.sh
+	@scripts/claude-hi/claude_hi_cron.sh setup "4,9,14,19"
+	@echo "$(GREEN)Extended schedule: 4am/9am/2pm/7pm triggers → 9am/2pm/7pm/12am resets$(RESET)"
+
+claude-hi-custom: ## Custom schedule helper for different work patterns
+	@echo "$(BLUE)Custom Schedule Helper...$(RESET)"
+	@chmod +x scripts/claude-hi/claude_hi_cron.sh
+	@scripts/claude-hi/claude_hi_cron.sh custom
 
 # Default target
 all: help

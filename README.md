@@ -13,16 +13,66 @@
 - **Comprehensive Documentation**: Detailed guides, examples, and best practices
 - **Symlink Architecture**: Clean installation via symbolic links for easy updates and customization
 
-## Available Commands
+## ⚡ Quick Start
+
+### 1. Install the Arsenal
+```bash
+make install              # Install Claude Code Arsenal to ~/.claude
+```
+
+### 2. Replace Manual Cron Workarounds  
+```bash
+make claude-hi-setup      # Interactive smart scheduling setup
+# OR
+make claude-hi-standard   # Quick 9am/2pm/7pm schedule
+```
+
+### 3. Add Enhanced Statusline (Optional)
+```bash
+make statusline-install   # Enhanced statusline with usage tracking
+```
+
+## 🕐 Claude Hi Cron - Smart Session Scheduler
+
+**Stop manually managing cron jobs!** The Claude Hi system automatically triggers Claude's 5-hour usage windows at optimal times.
+
+### Key Benefits
+- **🎯 Strategic Timing**: Triggers 5 hours before resets for maximum token availability
+- **⚡ Heavy Work Periods**: Last 2 hours of each window = intensive coding time
+- **🔄 Clean Management**: Replace ugly cron workarounds with smart scheduling
+- **📊 Multiple Patterns**: Early bird, night owl, traditional, freelancer, power user
+
+### Quick Setup Options
+```bash
+make claude-hi-setup      # Interactive setup with guided options
+make claude-hi-standard   # 9am/2pm/7pm → 2pm/7pm/12am resets  
+make claude-hi-extended   # 4am/9am/2pm/7pm → full day coverage
+make claude-hi-custom     # Custom patterns for different work styles
+make claude-hi-status     # Check current schedule
+```
+
+**Example**: Extended schedule triggers "hi" at 4am, 9am, 2pm, 7pm daily
+- **Light usage**: 4-7am, 9am-12pm, 2-5pm, 7-10pm  
+- **Heavy coding**: **7-9am**, **12-2pm**, 5-7pm, **10pm-12am** (maximum tokens available)
+
+*Perfect for developers who do intensive coding during peak token periods!*
+
+👉 **[Complete Claude Hi Documentation →](scripts/claude-hi/README.md)**
+
+## 🛠️ Available Commands
 
 Claude Code Arsenal includes a comprehensive Makefile with automated commands for installation, development, and maintenance. Run `make help` to see all available commands, or use these common ones:
 
 ```bash
-make dry-run     # Preview installation without making changes
-make install     # Install all components to ~/.claude
-make dev         # Set up development environment
-make test        # Run comprehensive test suite
-make clean       # Clean up caches and temporary files
+# Installation & Setup
+make install              # Install all components to ~/.claude
+make dry-run              # Preview installation without making changes
+make claude-hi-setup      # Smart session scheduler (replaces cron)
+
+# Development  
+make dev                  # Set up development environment
+make test                 # Run comprehensive test suite
+make clean                # Clean up caches and temporary files
 ```
 
 ## Repository Structure
@@ -126,8 +176,8 @@ Test your installation by checking if the agents are installed:
 # Check if agents are installed in ~/.claude
 ls ~/.claude/agents/
 
-# Test by invoking a specific agent
-claude task "Use the security-validator agent to analyze this codebase structure"
+# Test by requesting an agent in Claude Code
+# (Direct request in Claude Code CLI - no shell command needed)
 
 # Or check installation status
 make info              # Show repository information
@@ -197,13 +247,9 @@ claude /test:runner "--coverage --security"
 ```
 
 ### Agent Collaboration
-```bash
-# Security validation workflow
-claude task "
-1. Use security-validator to check authentication patterns
-2. Use code-reviewer to analyze implementation security
-3. Use test-orchestrator to run comprehensive security tests
-"
+```
+# Security validation workflow (direct request to Claude Code)
+"Use security-validator to check authentication patterns, then code-reviewer to analyze implementation security, then test-orchestrator to run comprehensive security tests"
 ```
 
 ### Customization
