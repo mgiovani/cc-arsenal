@@ -17,13 +17,12 @@ repos:
   #     - id: editorconfig-checker
   #       alias: ec
 
-  # Temporarily disabled until code quality issues are resolved
-  # - repo: https://github.com/astral-sh/ruff-pre-commit
-  #   rev: v0.12.11
-  #   hooks:
-  #     - id: ruff
-  #       args: [--fix, --unsafe-fixes]
-  #     - id: ruff-format
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.12.11
+    hooks:
+      - id: ruff
+        args: [--fix, --unsafe-fixes]
+      - id: ruff-format
 
   # Temporarily disabled until type errors are resolved
   # - repo: local
