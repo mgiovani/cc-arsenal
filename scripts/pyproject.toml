@@ -39,33 +39,94 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["setup", "generators", "utilities"]
 
-[tool.black]
-line-length = 100
-target-version = ['py312']
-skip-string-normalization = true
-
 [tool.ruff]
 target-version = "py312"
-line-length = 100
-select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # pyflakes
-    "I",   # isort
-    "N",   # pep8-naming
-    "D",   # pydocstyle
-    "UP",  # pyupgrade
-    "B",   # flake8-bugbear
-    "C4",  # flake8-comprehensions
+exclude = ["alembic"]
+line-length = 90
+indent-width = 4
+show-fixes = true
+
+[tool.ruff.format]
+line-ending = "lf"
+quote-style = "single"
+indent-style = "space"
+skip-magic-trailing-comma = false
+
+[tool.ruff.lint]
+extend-select = [
+    # PEP-8 and Flake8
+    "A", # builtins
+    "ANN", # annotations
+    "ARG", # unused arguments
+    "ASYNC", # flake8-async
+    "BLE", # blind-except
+    "C4", # comprehensions
+    "DTZ", # datetime timezone
+    "FBT", # boolean-trap
+    "G", # flake8-logging-format
+    "I", # isort
+    "INP", # implicit-namespace-package
+    "ISC", # implicit-str-concat
+    "N", # naming
+    "PIE", # flake8-pie
+    "PT", # flake8-pytest
+    "PTH", # flake8-pathlib
+    "PYI", # flake-8pyi
+    "RET", # flake8-return
+    "RSE", # flake8-raise
+    "RUF", # ruff
+    "S", # bandit
     "SIM", # flake8-simplify
+    "SLF", # flake8-self
+    "T10", # debugger
+    "T20", # prints
     "TCH", # flake8-type-checking
+    "TID", # tidy imports
+
+    # Bugs and errors
+    "B", # bugbear
+    "E", # pycodestyle errors
+    "F", # pyflakes
+    "PL", # pylint
+
+    # Other
+    "C90", # mccabe complexity
+    "ERA", # commented out code
+    "UP", # pyupgrade
+    "W", # pycodestyle warnings
 ]
 ignore = [
     "D100", # Missing docstring in public module
     "D104", # Missing docstring in public package
 ]
 
-[tool.ruff.pydocstyle]
+fixable = ["ALL"]
+unfixable = []
+
+[tool.ruff.lint.isort]
+known-first-party = ["src", "app"]
+case-sensitive = true
+combine-as-imports = true
+
+[tool.ruff.lint.flake8-quotes]
+docstring-quotes = "double"
+inline-quotes = "single"
+
+[tool.ruff.lint.pycodestyle]
+max-line-length = 90
+
+[tool.ruff.lint.flake8-pytest-style]
+fixture-parentheses = false
+mark-parentheses = false
+
+[tool.ruff.lint.flake8-tidy-imports]
+ban-relative-imports = "all"
+
+[tool.ruff.lint.flake8-annotations]
+allow-star-arg-any = true
+suppress-dummy-args = true
+
+[tool.ruff.lint.pydocstyle]
 convention = "google"
 
 [tool.mypy]

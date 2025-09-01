@@ -9,54 +9,54 @@ HI_SCRIPT="$HOME/.claude/cc-arsenal/claude-hi/send_hi.sh"
 # Create the simple hi sender
 create_hi_sender() {
     mkdir -p "$(dirname "$HI_SCRIPT")"
-    
+
     cat > "$HI_SCRIPT" << 'EOF'
 #!/bin/bash
 # Send "hi" to Claude to trigger 5-hour window
 echo "hi"
 echo "[$(date)] hi sent to trigger Claude window" >> "$HOME/.claude/cc-arsenal/claude-hi/hi_log.txt"
 EOF
-    
+
     chmod +x "$HI_SCRIPT"
 }
 
 # Setup cron jobs
 setup_cron() {
     local times="$1"
-    
+
     echo "Setting up Claude 'hi' cron jobs..."
-    
+
     create_hi_sender
-    
+
     # Generate cron entries
     local cron_entries=""
     IFS=',' read -ra HOURS <<< "$times"
-    
+
     for hour in "${HOURS[@]}"; do
         hour=$(echo "$hour" | tr -d ' ')
         cron_entries+="0 $hour * * * $HI_SCRIPT"$'\n'
     done
-    
+
     # Update crontab - create a proper temp file
     local temp_cron=$(mktemp)
-    
+
     # Add existing crontab (excluding old claude entries)
     crontab -l 2>/dev/null | grep -v "$HI_SCRIPT" > "$temp_cron" || true
-    
+
     # Add our entries
     echo "" >> "$temp_cron"
     echo "# Claude Hi Triggers" >> "$temp_cron"
     echo -n "$cron_entries" >> "$temp_cron"
-    
+
     # Install the new crontab
     crontab "$temp_cron"
     rm "$temp_cron"
-    
+
     echo "✅ Scheduled 'hi' at hours: $times (daily)"
     echo "✅ Replaces your manual cron workaround!"
 }
 
-# Remove cron jobs  
+# Remove cron jobs
 remove_cron() {
     echo "Removing Claude 'hi' cron jobs..."
     crontab -l 2>/dev/null | grep -v "$HI_SCRIPT" | grep -v "# Claude Hi Triggers" | crontab - || true
@@ -69,7 +69,7 @@ show_status() {
     echo "========================="
     echo "Active cron jobs:"
     crontab -l 2>/dev/null | grep -E "send_hi.sh|Claude Hi" || echo "  No schedules found"
-    
+
     echo
     echo "Recent activity:"
     tail -5 "$HOME/.claude/cc-arsenal/claude-hi/hi_log.txt" 2>/dev/null || echo "  No activity logged"
@@ -89,16 +89,16 @@ interactive_setup() {
     echo "This replaces your manual cron workaround with automatic 'hi' scheduling"
     echo "to trigger Claude's 5-hour usage windows at optimal times."
     echo
-    
+
     echo "Choose your schedule (triggers 5 hours before Claude resets):"
     echo "1) Work Hours (9,14,19)         - 9am, 2pm, 7pm triggers (resets: 2pm, 7pm, 12am)"
-    echo "2) Extended Day (4,9,14,19)     - 4am, 9am, 2pm, 7pm triggers (resets: 9am, 2pm, 7pm, 12am)" 
+    echo "2) Extended Day (4,9,14,19)     - 4am, 9am, 2pm, 7pm triggers (resets: 9am, 2pm, 7pm, 12am)"
     echo "3) Business Hours (9,14)        - 9am, 2pm triggers (resets: 2pm, 7pm)"
     echo "4) Custom times"
     echo
-    
+
     read -r -p "Choice (1-4): " choice
-    
+
     case "$choice" in
         1)
             times="9,14,19"
@@ -129,13 +129,13 @@ interactive_setup() {
             echo "📝 Format: 24-hour, comma-separated (e.g., 9,14,19)"
             echo
             read -r -p "Your custom hours: " times
-            
+
             # Validate input
             if [[ ! "$times" =~ ^[0-9,]+$ ]]; then
                 echo "❌ Invalid format. Use numbers and commas only (e.g., 9,14,19)"
                 exit 1
             fi
-            
+
             desc="Custom schedule ($times)"
             ;;
         *)
@@ -143,14 +143,14 @@ interactive_setup() {
             exit 1
             ;;
     esac
-    
+
     echo
     echo "📅 Schedule: $desc"
     echo "⏰ Times: $times"
     echo "🌍 Frequency: Daily"
     echo "📝 Message: 'hi'"
     echo
-    
+
     # Show coverage with reset times
     echo "🕐 Window schedule (last 2 hours = heavy usage):"
     IFS=',' read -ra HOURS <<< "$times"
@@ -161,7 +161,7 @@ interactive_setup() {
         printf "   %02d:00 'hi' → %02d:00-%02d:00 heavy work → %02d:00 reset\n" "$hour" "$heavy_start" "$reset_hour" "$reset_hour"
     done
     echo
-    
+
     read -r -p "Confirm setup? (y/n): " confirm
     if [[ "$confirm" =~ ^[Yy]$ ]]; then
         setup_cron "$times"
@@ -180,18 +180,18 @@ custom_setup_helper() {
     echo "===================================="
     echo "This tool helps you create a custom schedule based on your work pattern."
     echo
-    
+
     echo "What's your work style?"
     echo "1) Early bird (start early, finish early)"
     echo "2) Developer Pro (intensive coding 7-9am, 12-2pm, 10pm-12am)"
     echo "3) Traditional 9-5 with breaks"
-    echo "4) Night owl (start late, work late)"  
+    echo "4) Night owl (start late, work late)"
     echo "5) Heavy user (maximum windows)"
     echo "6) I know exactly what I want"
     echo
-    
+
     read -r -p "Choice (1-6): " style
-    
+
     case "$style" in
         1)
             suggested="6,11,16"
@@ -231,13 +231,13 @@ custom_setup_helper() {
             exit 1
             ;;
     esac
-    
+
     echo
     echo "📅 Suggested schedule: $pattern"
     echo "⏰ Trigger times: $suggested"
     echo "💡 $explanation"
     echo
-    
+
     read -r -p "Use this schedule? (y/n): " confirm
     if [[ "$confirm" =~ ^[Yy]$ ]]; then
         setup_cron "$suggested"

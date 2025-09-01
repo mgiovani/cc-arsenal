@@ -25,7 +25,7 @@ Choose from preset schedules or create custom patterns.
 # Standard work hours
 make claude-hi-standard    # 9am/2pm/7pm triggers → 2pm/7pm/12am resets
 
-# Extended coverage  
+# Extended coverage
 make claude-hi-extended    # 4am/9am/2pm/7pm triggers → 9am/2pm/7pm/12am resets
 
 # Custom patterns
@@ -42,7 +42,7 @@ make claude-hi-custom      # Guided custom setup for different work styles
 - **Perfect for**: Traditional 9-5 workers with evening flexibility
 
 **Extended Day (`make claude-hi-extended`)**
-- **Triggers**: 4am, 9am, 2pm, 7pm  
+- **Triggers**: 4am, 9am, 2pm, 7pm
 - **Heavy coding periods**: **7am-9am**, **12pm-2pm**, 5pm-7pm, **10pm-12am**
 - **Perfect for**: Developers who do intensive coding during peak token hours
 
@@ -55,7 +55,7 @@ The system includes guided setup for different work styles:
 - **Heavy work**: 9am-1pm, 2pm-6pm, 7pm-11pm
 - **Perfect for**: Those who start early and finish by 11pm
 
-#### 🦉 Night Owl Schedule  
+#### 🦉 Night Owl Schedule
 - **Triggers**: `10,15,20` (10am, 3pm, 8pm)
 - **Heavy work**: 1pm-5pm, 6pm-10pm, 11pm-3am
 - **Perfect for**: Late risers who work into the night
@@ -81,7 +81,7 @@ The system includes guided setup for different work styles:
 # Check what's scheduled
 make claude-hi-status
 
-# Send 'hi' immediately  
+# Send 'hi' immediately
 make claude-hi-now
 
 # Remove all schedules
@@ -98,7 +98,7 @@ The system creates clean cron jobs that run daily:
 ```bash
 # Example for standard schedule (9,14,19)
 0 9 * * * ~/.claude/send_hi.sh    # 9am trigger
-0 14 * * * ~/.claude/send_hi.sh   # 2pm trigger  
+0 14 * * * ~/.claude/send_hi.sh   # 2pm trigger
 0 19 * * * ~/.claude/send_hi.sh   # 7pm trigger
 ```
 
@@ -115,7 +115,7 @@ If direct "hi" sending fails, the system:
 4-7am   → Light usage: planning, documentation, setup
 7-9am   → 💪 HEAVY CODING: complex development, problem-solving
 9:00am  → Window resets, send new "hi"
-9-12pm  → Light usage: meetings, research, testing  
+9-12pm  → Light usage: meetings, research, testing
 12-2pm  → 💪 HEAVY CODING: intensive development work
 2:00pm  → Window resets, send new "hi"
 2-5pm   → Light usage: reviews, documentation
@@ -172,7 +172,7 @@ Schedule: 9,14,19 (daily)
 
 Cron Jobs:
 0 9 * * * ~/.claude/send_hi.sh
-0 14 * * * ~/.claude/send_hi.sh  
+0 14 * * * ~/.claude/send_hi.sh
 0 19 * * * ~/.claude/send_hi.sh
 
 Recent Activity:
@@ -185,7 +185,7 @@ Recent Activity:
 
 If you currently have manual cron jobs, the system will:
 1. Backup your existing crontab
-2. Remove old claude-related entries  
+2. Remove old claude-related entries
 3. Add clean new entries
 4. Verify installation
 
@@ -194,7 +194,7 @@ If you currently have manual cron jobs, the system will:
 # Instead of manually editing crontab
 make claude-hi-standard
 
-# Instead of remembering complex schedules  
+# Instead of remembering complex schedules
 make claude-hi-custom
 ```
 
@@ -207,7 +207,7 @@ make claude-hi-custom
 
 ### Work Pattern Optimization
 - **Morning person**: Use early bird schedule (6,11,16)
-- **Night worker**: Use night owl schedule (10,15,20)  
+- **Night worker**: Use night owl schedule (10,15,20)
 - **Focused sprints**: Use traditional schedule (9,14)
 - **Maximum productivity**: Use heavy user schedule (6,9,12,15,18)
 
