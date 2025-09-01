@@ -286,3 +286,80 @@ get_session_duration_component() {
         echo "${STATUSLINE_GRAY}⏰ ${session_duration}${STATUSLINE_RESET}"
     fi
 }
+
+# Schedule component - shows next scheduled task or current window info
+get_schedule_component() {
+    local schedule_info="$1"
+    
+    if [[ -z "$schedule_info" || "$schedule_info" == "null" ]]; then
+        # Try to get schedule info from the scheduler
+        schedule_info=$(get_current_schedule_info 2>/dev/null || echo "")
+    fi
+    
+    if [[ -n "$schedule_info" ]]; then
+        echo "${STATUSLINE_BRIGHT_PURPLE}📅 ${schedule_info}${STATUSLINE_RESET}"
+    fi
+}
+
+get_schedule_component_compact() {
+    local schedule_info="$1"
+    
+    if [[ -z "$schedule_info" || "$schedule_info" == "null" ]]; then
+        schedule_info=$(get_current_schedule_info 2>/dev/null || echo "")
+    fi
+    
+    if [[ -n "$schedule_info" ]]; then
+        # Compact format - truncate if too long
+        local compact_info="$schedule_info"
+        if [[ ${#compact_info} -gt 15 ]]; then
+            compact_info="${compact_info:0:12}..."
+        fi
+        echo "${STATUSLINE_BRIGHT_PURPLE}📅${compact_info}${STATUSLINE_RESET}"
+    fi
+}
+
+# Helper function to get current schedule information
+get_current_schedule_info() {
+    local schedule_dir="$HOME/.claude/schedule"
+    local schedule_config="$schedule_dir/config.json"
+    local schedule_tasks="$schedule_dir/tasks.json"
+    
+    # Check if scheduler is configured
+    if [[ ! -f "$schedule_config" ]]; then
+        return
+    fi
+    
+    # Check for next scheduled task
+    if [[ -f "$schedule_tasks" ]] && command -v jq >/dev/null 2>&1; then
+        local next_task
+        next_task=$(jq -r '
+            .tasks[]? 
+            | select(.enabled == true and .status == "pending" and .next_run != null)
+            | {name: .name, next_run: .next_run, priority: .priority}
+        ' "$schedule_tasks" 2>/dev/null | jq -r '
+            select(.next_run > now | todate)
+            | "\(.name) @ \(.next_run | fromdateiso8601 | strftime("%H:%M"))"
+        ' 2>/dev/null | head -1)
+        
+        if [[ -n "$next_task" ]]; then
+            echo "$next_task"
+            return
+        fi
+    fi
+    
+    # Fallback: show current Claude window info
+    local current_hour
+    current_hour=$(date +%H | sed 's/^0//')
+    
+    if [[ $current_hour -ge 9 && $current_hour -lt 14 ]]; then
+        echo "Morning Window"
+    elif [[ $current_hour -ge 14 && $current_hour -lt 19 ]]; then
+        echo "Afternoon Window" 
+    elif [[ $current_hour -ge 19 ]]; then
+        echo "Evening Window"
+    elif [[ $current_hour -ge 0 && $current_hour -lt 5 ]]; then
+        echo "Night Window"
+    else
+        echo "Early Morning Window"
+    fi
+}

@@ -24,7 +24,8 @@ class StatuslineConfigurator:
             "daily_cost": "📅 Daily usage cost total",
             "reset_countdown": "🔄 Time until 5-hour window resets",
             "duration_info": "⏱️ Request processing time (total/API)",
-            "lines_changed": "📝 Lines added/removed in session"
+            "lines_changed": "📝 Lines added/removed in session",
+            "schedule": "📅 Next scheduled task or current Claude window"
         }
         
         self.separator_options = {
