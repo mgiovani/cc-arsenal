@@ -100,6 +100,9 @@ ignore = [
     "D104", # Missing docstring in public package
 ]
 
+[tool.ruff.lint.per-file-ignores]
+"**/tests/*.py" = ["S101"]  # Allow asserts in test files
+
 fixable = ["ALL"]
 unfixable = []
 

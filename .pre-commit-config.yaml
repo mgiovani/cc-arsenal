@@ -10,18 +10,17 @@ repos:
       - id: check-merge-conflict
       - id: check-added-large-files
 
-  # Temporarily disabled for initial commit - will re-enable after cleanup
-  # - repo: https://github.com/editorconfig-checker/editorconfig-checker.python
-  #   rev: 2.7.3
-  #   hooks:
-  #     - id: editorconfig-checker
-  #       alias: ec
+  - repo: https://github.com/editorconfig-checker/editorconfig-checker.python
+    rev: 2.7.3
+    hooks:
+      - id: editorconfig-checker
+        alias: ec
 
   - repo: local
     hooks:
       - id: ruff-check
         name: ruff-check
-        entry: uv run ruff check --fix --unsafe-fixes --exit-zero
+        entry: uv run ruff check --fix --unsafe-fixes
         language: system
         types: [python]
         require_serial: true
