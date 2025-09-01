@@ -281,7 +281,7 @@ git clone https://github.com/mgiovani/cc-arsenal.git
 cd cc-arsenal
 
 # Set up development environment (installs dev dependencies)
-make dev
+uv sync
 
 # Run all quality checks
 make check           # Runs lint + type-check
@@ -292,6 +292,9 @@ make type-check     # Type checking only
 # Run tests
 make test           # Unit tests
 make coverage       # Tests with coverage report
+
+# Install pre-commit hooks for automatic code quality
+pre-commit install
 
 # Validate repository structure
 make validate-structure

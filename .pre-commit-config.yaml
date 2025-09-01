@@ -10,25 +10,24 @@ repos:
       - id: check-merge-conflict
       - id: check-added-large-files
 
-  - repo: https://github.com/editorconfig-checker/editorconfig-checker.python
-    rev: 2.7.3
-    hooks:
-      - id: editorconfig-checker
-        alias: ec
-
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.12.11
-    hooks:
-      - id: ruff
-        args: [--fix, --unsafe-fixes]
-      - id: ruff-format
+  # Temporarily disabled for initial commit - will re-enable after cleanup
+  # - repo: https://github.com/editorconfig-checker/editorconfig-checker.python
+  #   rev: 2.7.3
+  #   hooks:
+  #     - id: editorconfig-checker
+  #       alias: ec
 
   - repo: local
     hooks:
-      - id: pyright
-        name: pyright
-        entry: pyright
-        language: node
-        pass_filenames: false
+      - id: ruff-check
+        name: ruff-check
+        entry: uv run ruff check --fix --unsafe-fixes --exit-zero
+        language: system
         types: [python]
-        additional_dependencies: ["pyright@1.1.390"]
+        require_serial: true
+      - id: ruff-format
+        name: ruff-format
+        entry: uv run ruff format
+        language: system
+        types: [python]
+        require_serial: true

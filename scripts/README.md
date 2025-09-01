@@ -19,19 +19,26 @@ scripts/
 
 ## Installation
 
+From the project root:
+
 ```bash
 uv sync
 ```
 
 ## Usage
 
+From the project root:
+
 ```bash
 # Install template to ~/.claude
-uv run setup/install.py
+uv run python -m scripts.setup.install
 
 # Configure installed components
-uv run setup/configure.py
+uv run python -m scripts.setup.configure
 
 # Preview installation without changes
-uv run setup/install.py --dry-run
+uv run python -m scripts.setup.install --dry-run
+
+# Generate new agent
+uv run python -m scripts.generators.agent_generator --name "my-agent" --category "development"
 ```
