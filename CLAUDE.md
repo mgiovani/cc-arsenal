@@ -18,13 +18,13 @@ This is the **Claude Code Arsenal** - a professional collection of security-focu
 ### Installation and Setup
 ```bash
 # Install Python dependencies
-cd scripts && uv sync
+uv sync --extra dev
 
 # Install to ~/.claude directory
-uv run scripts/setup/install.py
+uv run python -m scripts.setup.install
 
 # Configure components (optional)
-uv run scripts/setup/configure.py
+uv run python -m scripts.setup.configure
 
 # Quick start with preview
 make dry-run
@@ -52,7 +52,7 @@ make coverage             # Tests with coverage report
 ```bash
 # Generate new agent
 make generate-agent NAME=my-agent CATEGORY=development
-uv run scripts/generators/agent_generator.py --name "agent-name" --category "development"
+uv run python -m scripts.generators.agent_generator --name "agent-name" --category "development"
 
 # Validate repository structure
 make validate-structure

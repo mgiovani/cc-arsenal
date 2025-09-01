@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up UV
+      uses: astral-sh/setup-uv@v3
+      with:
+        enable-cache: true
+
+    - name: Set up Python
+      run: uv python install
+
+    - name: Install dependencies
+      run: uv sync --extra dev
+
+    - name: Run pre-commit hooks
+      run: uv run pre-commit run --all-files
+
+    - name: Run tests
+      run: uv run pytest scripts/tests/ -v --cov=scripts --cov-report=term
+
+    - name: Check package build
+      run: uv build --check
+
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up UV
+      uses: astral-sh/setup-uv@v3
+      with:
+        enable-cache: true
+
+    - name: Set up Python
+      run: uv python install
+
+    - name: Install dependencies
+      run: uv sync --extra dev
+
+    - name: Run ruff linting
+      run: uv run ruff check .
+
+    - name: Run ruff formatting check
+      run: uv run ruff format --check .
+
+    - name: Run type checking
+      run: uv run mypy scripts/
