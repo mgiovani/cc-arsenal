@@ -165,9 +165,9 @@ build_statusline() {
     config_file="${ACTIVE_CONFIG_FILE:-$CONFIG_FILE}"
     
     if [[ -f "$config_file" ]]; then
-        component_order_json=$(jq '.components.order // ["model","directory","git","session_cost","daily_cost","lines_changed","duration_info","reset_countdown"]' "$config_file" 2>/dev/null)
+        component_order_json=$(jq '.components.order // ["model","directory","git","session_cost","daily_cost","lines_changed","duration_info","reset_countdown","schedule"]' "$config_file" 2>/dev/null)
     else
-        component_order_json='["model","directory","git","session_cost","daily_cost","lines_changed","duration_info","reset_countdown"]'
+        component_order_json='["model","directory","git","session_cost","daily_cost","lines_changed","duration_info","reset_countdown","schedule"]'
     fi
     
     # Process each component in the specified order
@@ -182,28 +182,28 @@ build_statusline() {
             
             case "$component" in
                 "model")
-                    full_component=$(get_model_component "$model_display" "$model_version")
-                    compact_component=$(get_model_component_compact "$model_display")
+                    full_component=$(get_model_component_cached "$model_display" "$model_version")
+                    compact_component=$(get_model_component_cached "$model_display")
                     ;;
                 "directory")
-                    full_component=$(get_directory_component "$current_dir")
-                    compact_component=$(get_directory_component_compact "$current_dir")
+                    full_component=$(get_directory_component_cached "$current_dir")
+                    compact_component=$(get_directory_component_cached "$current_dir")
                     ;;
                 "git")
-                    full_component=$(get_git_component)
-                    compact_component=$(get_git_component_compact)
+                    full_component=$(get_git_component_cached)
+                    compact_component=$(get_git_component_cached)
                     ;;
                 "context")
-                    full_component=$(get_context_component "$context_percent")
-                    compact_component=$(get_context_component_compact "$context_percent")
+                    full_component=$(get_context_component_cached "$context_percent")
+                    compact_component=$(get_context_component_cached "$context_percent")
                     ;;
                 "session_cost")
-                    full_component=$(get_session_cost_component "$session_cost_display")
-                    compact_component=$(get_session_cost_component_compact "$session_cost_display")
+                    full_component=$(get_session_cost_component_cached "$session_cost_display")
+                    compact_component=$(get_session_cost_component_cached "$session_cost_display")
                     ;;
                 "daily_cost")
-                    full_component=$(get_daily_cost_component "$daily_cost_display")
-                    compact_component=$(get_daily_cost_component_compact "$daily_cost_display")
+                    full_component=$(get_daily_cost_component_cached "$daily_cost_display")
+                    compact_component=$(get_daily_cost_component_cached "$daily_cost_display")
                     ;;
                 "reset_countdown")
                     full_component=$(get_reset_component "$next_reset")
@@ -216,6 +216,10 @@ build_statusline() {
                 "lines_changed")
                     full_component=$(get_lines_changed_component "$lines_added" "$lines_removed")
                     compact_component=$(get_lines_changed_component_compact "$lines_added" "$lines_removed")
+                    ;;
+                "schedule")
+                    full_component=$(get_schedule_component "")
+                    compact_component=$(get_schedule_component_compact "")
                     ;;
             esac
             
