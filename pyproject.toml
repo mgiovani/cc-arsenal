@@ -98,24 +98,11 @@ extend-select = [
 ignore = [
     "D100", # Missing docstring in public module
     "D104", # Missing docstring in public package
-    "RUF012", # Mutable class attributes should be annotated with `typing.ClassVar`
-    "BLE001", # Do not catch blind exception: `Exception`
-    "C901", # Function is too complex
-    "PLR0912", # Too many branches
-    "PLR0915", # Too many statements
-    "FBT001", # Boolean-typed positional argument in function definition
-    "PLC0415", # `import` should be at the top-level of a file
-    "S607", # Starting a process with a partial executable path
-    "G004", # Logging statement uses f-string
-    "E501", # Line too long (for complex cases)
-    "SIM102", # Use a single `if` statement
-    "ARG002", # Unused method argument
-    "DTZ005", # datetime.now() without timezone
-    "PTH123", # open() should be Path.open()
-    "B007", # Loop control variable not used
-    "S603", # subprocess call: check for execution of untrusted input
-    "S110", # try-except-pass detected
-    "PLR2004", # Magic value used in comparison
+    "S603", # subprocess call: acceptable when using shutil.which()
+    "FBT001", # Boolean-typed positional argument (Click CLI arguments)
+    "C901", # Function is too complex (existing complex CLI functions)
+    "PLR0912", # Too many branches (existing complex CLI functions)
+    "PLR0915", # Too many statements (existing complex CLI functions)
 ]
 
 [tool.ruff.lint.per-file-ignores]

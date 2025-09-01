@@ -126,10 +126,11 @@ def main(name: str, category: str, description: str) -> None:
 
     agent_file = category_dir / f'{name}.md'
 
-    if agent_file.exists():
-        if not Confirm.ask(f'Agent {name} already exists. Overwrite?'):
-            console.print('❌ Generation cancelled')
-            return
+    if agent_file.exists() and not Confirm.ask(
+        f'Agent {name} already exists. Overwrite?'
+    ):
+        console.print('❌ Generation cancelled')
+        return
 
     # Generate content
     template = Template(AGENT_TEMPLATE)

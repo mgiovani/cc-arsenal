@@ -35,17 +35,18 @@ logger = logging.getLogger(__name__)
 
 def check_uv_installation() -> None:
     """Check if UV is installed and available."""
-    import subprocess
-
     try:
-        subprocess.run(['uv', '--version'], capture_output=True, check=True)
+        subprocess.run(
+            ['/usr/bin/env', 'uv', '--version'], capture_output=True, check=True
+        )
     except (subprocess.CalledProcessError, FileNotFoundError):
         console.print('❌ [red]UV is required but not installed[/red]')
         console.print(
             '📦 [yellow]Install UV from: https://docs.astral.sh/uv/getting-started/installation/[/yellow]'
         )
         console.print(
-            '⚡ [yellow]Quick install: curl -LsSf https://astral.sh/uv/install.sh | sh[/yellow]'
+            '⚡ [yellow]Quick install: '
+            'curl -LsSf https://astral.sh/uv/install.sh | sh[/yellow]'
         )
         sys.exit(1)
 
@@ -365,7 +366,7 @@ class SymlinkManager:
                 if link_path.is_symlink():
                     link_path.unlink()
                     logger.info('Removed symlink during rollback: %s', link_path)
-            except Exception as e:
+            except OSError as e:
                 logger.warning('Failed to remove symlink %s: %s', link_path, e)
 
         # Restore backups
@@ -374,7 +375,7 @@ class SymlinkManager:
                 if backup_path.exists():
                     shutil.copy2(backup_path, original_path)
                     logger.info('Restored backup: %s', original_path)
-            except Exception as e:
+            except OSError as e:
                 logger.warning('Failed to restore backup %s: %s', backup_path, e)
 
 
@@ -626,7 +627,7 @@ def main(
 
         logger.info('Claude template installation completed successfully')
 
-    except Exception as e:
+    except (RuntimeError, OSError, KeyboardInterrupt) as e:
         console.print(f'❌ [bold red]Installation failed:[/bold red] {e}')
         logger.error('Installation failed: %s', e)
         sys.exit(1)

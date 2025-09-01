@@ -151,7 +151,7 @@ def main(quick: bool) -> None:
 
     # Write settings file
     settings_file = claude_dir / 'settings.json'
-    with open(settings_file, 'w') as f:
+    with settings_file.open('w') as f:
         json.dump(config, f, indent=2)
 
     console.print(f'✅ Configuration saved to {settings_file}')

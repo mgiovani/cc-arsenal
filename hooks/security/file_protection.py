@@ -9,13 +9,14 @@ import re
 import sys
 from datetime import datetime
 from pathlib import Path
+from typing import ClassVar
 
 
 class FileProtector:
     """Protects sensitive files from accidental modification."""
 
     # Files that should never be modified
-    PROTECTED_FILES = {
+    PROTECTED_FILES: ClassVar[set[str]] = {
         '.env',
         '.env.production',
         '.env.prod',
@@ -36,7 +37,7 @@ class FileProtector:
     }
 
     # Directories that should be protected
-    PROTECTED_DIRS = {
+    PROTECTED_DIRS: ClassVar[set[str]] = {
         '.git/',
         '.aws/',
         'node_modules/',
@@ -56,7 +57,7 @@ class FileProtector:
     }
 
     # Patterns for sensitive files
-    SENSITIVE_PATTERNS = [
+    SENSITIVE_PATTERNS: ClassVar[list[str]] = [
         r'.*\.key$',  # Private keys
         r'.*\.pem$',  # Certificates
         r'.*\.p12$',  # Certificate bundles
@@ -79,7 +80,7 @@ class FileProtector:
     ]
 
     # Files that are OK to modify but need special attention
-    WARNING_FILES = {
+    WARNING_FILES: ClassVar[set[str]] = {
         'requirements.txt',
         'pyproject.toml',
         'setup.py',
@@ -127,7 +128,9 @@ class FileProtector:
                         'type': 'protected_directory',
                         'file': file_path,
                         'operation': operation,
-                        'reason': f'Directory "{protected_dir}" is protected from modification',
+                        'reason': (
+                            f'Directory "{protected_dir}" is protected from modification'
+                        ),
                     }
                 )
                 return False
@@ -212,7 +215,7 @@ def main() -> None:
     log_file.parent.mkdir(parents=True, exist_ok=True)
 
     log_entry = {
-        'timestamp': datetime.now().isoformat(),
+        'timestamp': datetime.now(datetime.UTC).isoformat(),
         'tool': tool_name,
         'file': file_path,
         'allowed': is_allowed,
@@ -221,14 +224,14 @@ def main() -> None:
 
     # Append to log
     if log_file.exists():
-        with open(log_file) as f:
+        with log_file.open() as f:
             logs = json.load(f)
     else:
         logs = []
 
     logs.append(log_entry)
 
-    with open(log_file, 'w') as f:
+    with log_file.open('w') as f:
         json.dump(logs, f, indent=2)
 
     # Handle violations

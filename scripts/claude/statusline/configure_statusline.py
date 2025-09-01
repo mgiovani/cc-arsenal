@@ -41,7 +41,7 @@ class StatuslineConfigurator:
         """Load existing configuration or create default"""
         if self.config_path.exists():
             try:
-                with open(self.config_path) as f:
+                with self.config_path.open() as f:
                     return json.load(f)
             except (OSError, json.JSONDecodeError):
                 pass
@@ -91,7 +91,7 @@ class StatuslineConfigurator:
         """Save configuration to file"""
         self.config_path.parent.mkdir(parents=True, exist_ok=True)
         try:
-            with open(self.config_path, 'w') as f:
+            with self.config_path.open('w') as f:
                 json.dump(self.config, f, indent=2)
         except OSError:
             return False
@@ -187,7 +187,7 @@ class StatuslineConfigurator:
 
             self.config['components']['order'] = new_order
 
-            for _i, component in enumerate(new_order, 1):
+            for _i, _component in enumerate(new_order, 1):
                 pass
 
         except ValueError:
@@ -382,7 +382,7 @@ def main() -> None:
         configurator.main_menu()
     except KeyboardInterrupt:
         pass
-    except Exception:
+    except (OSError, RuntimeError):
         sys.exit(1)
 
 
