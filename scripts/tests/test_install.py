@@ -5,7 +5,8 @@ import unittest
 from pathlib import Path
 
 import pytest
-from setup.install import (
+
+from scripts.setup.install import (
     BackupManager,
     ConflictManager,
     ConflictResolution,

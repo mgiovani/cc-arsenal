@@ -167,7 +167,7 @@ class ConflictManager:
         self, items: list[InstallationItem]
     ) -> dict[str, list[InstallationItem]]:
         """Analyze and categorize conflicts."""
-        conflicts = {
+        conflicts: dict[str, list[InstallationItem]] = {
             'new_files': [],
             'existing_files': [],
             'existing_symlinks': [],
@@ -218,7 +218,7 @@ class ConflictManager:
         self, conflicted_items: list[InstallationItem]
     ) -> dict[InstallationItem, ConflictResolution]:
         """Resolve conflicts through interactive user prompts."""
-        resolutions = {}
+        resolutions: dict[InstallationItem, ConflictResolution] = {}
 
         if not conflicted_items:
             return resolutions
@@ -226,7 +226,7 @@ class ConflictManager:
         console.print('\n🔍 [bold]Conflict Resolution Required[/bold]')
 
         # Group conflicts by category for easier review
-        by_category = {}
+        by_category: dict[str, list[InstallationItem]] = {}
         for item in conflicted_items:
             if item.category not in by_category:
                 by_category[item.category] = []

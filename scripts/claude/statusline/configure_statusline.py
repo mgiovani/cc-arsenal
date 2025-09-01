@@ -42,7 +42,7 @@ class StatuslineConfigurator:
         if self.config_path.exists():
             try:
                 with self.config_path.open() as f:
-                    return json.load(f)
+                    return json.load(f)  # type: ignore[no-any-return]
             except (OSError, json.JSONDecodeError):
                 pass
 
