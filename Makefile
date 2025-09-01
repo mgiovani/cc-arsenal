@@ -1,9 +1,7 @@
-.PHONY: help install configure test clean dev lint format check dry-run backup restore check-uv
+.PHONY: help install configure test clean dev lint format check dry-run backup restore check-uv setup-dev pre-commit-install pre-commit-update
 
-# Default Python and UV commands
-PYTHON := python3
+# Default commands
 UV := uv
-SCRIPTS_DIR := scripts
 
 # Colors for output
 BLUE := \033[36m
@@ -34,27 +32,28 @@ help: ## Show this help message
 	@echo "  make statusline-install   # Add enhanced statusline"
 	@echo
 	@echo "$(YELLOW)Development Examples:$(RESET)"
-	@echo "  make dry-run              # Preview installation"
-	@echo "  make test                 # Run unit tests"
 	@echo "  make dev                  # Set up development environment"
+	@echo "  make pre-commit-install   # Install pre-commit hooks"
+	@echo "  make lint                 # Run code quality checks"
+	@echo "  make test                 # Run unit tests"
+	@echo "  make dry-run              # Preview installation"
 
 # Installation
-install: setup-env ## Install Claude Code Arsenal to ~/.claude
+install: setup-dev ## Install Claude Code Arsenal to ~/.claude
 	@echo "$(BLUE)Installing Claude Code Arsenal...$(RESET)"
-	cd $(SCRIPTS_DIR) && .venv/bin/python setup/install.py
+	$(UV) run python -m scripts.setup.install
 
-
-configure: setup-env ## Configure installed Claude Code Arsenal
+configure: setup-dev ## Configure installed Claude Code Arsenal
 	@echo "$(BLUE)Configuring Claude Code Arsenal...$(RESET)"
-	cd $(SCRIPTS_DIR) && .venv/bin/python setup/configure.py
+	$(UV) run python -m scripts.setup.configure
 
-force-install: setup-env ## Force install without prompts
+force-install: setup-dev ## Force install without prompts
 	@echo "$(YELLOW)Force installing (no prompts)...$(RESET)"
-	cd $(SCRIPTS_DIR) && .venv/bin/python setup/install.py --force --conflict-resolution backup
+	$(UV) run python -m scripts.setup.install --force --conflict-resolution backup
 
-dry-run: setup-env ## Preview what would be installed (no changes made)
+dry-run: setup-dev ## Preview what would be installed (no changes made)
 	@echo "$(BLUE)Running installation preview...$(RESET)"
-	cd $(SCRIPTS_DIR) && .venv/bin/python setup/install.py --dry-run --verbose
+	$(UV) run python -m scripts.setup.install --dry-run --verbose
 
 # Backup
 backup: ## Backup current ~/.claude configuration
@@ -82,51 +81,122 @@ list-backups: ## List available ~/.claude backups
 	@ls -la ~/.claude-backup-* 2>/dev/null || echo "$(YELLOW)No backups found$(RESET)"
 
 # Development
-dev: setup-env ## Set up development environment
+setup-dev: check-uv ## Set up development environment with all dependencies
 	@echo "$(BLUE)Setting up development environment...$(RESET)"
-	@cd $(SCRIPTS_DIR) && $(UV) sync --group dev
+	@$(UV) sync --extra dev
 	@echo "$(GREEN)Development environment ready$(RESET)"
+	@echo "$(YELLOW)Run 'make pre-commit-install' to set up pre-commit hooks$(RESET)"
 
-setup-env: check-uv ## Set up Python environment
-	@echo "$(BLUE)Setting up Python environment...$(RESET)"
-	@cd $(SCRIPTS_DIR) && $(UV) sync
+dev: setup-dev ## Alias for setup-dev
+	@echo "$(GREEN)Development setup complete$(RESET)"
+
+# Pre-commit management
+pre-commit-install: setup-dev ## Install pre-commit hooks
+	@echo "$(BLUE)Installing pre-commit hooks...$(RESET)"
+	$(UV) run pre-commit install
+	@echo "$(GREEN)Pre-commit hooks installed$(RESET)"
+
+pre-commit-update: setup-dev ## Update pre-commit hooks to latest versions
+	@echo "$(BLUE)Updating pre-commit hooks...$(RESET)"
+	$(UV) run pre-commit autoupdate
+	@echo "$(GREEN)Pre-commit hooks updated$(RESET)"
+
+pre-commit-run: setup-dev ## Run pre-commit hooks on all files
+	@echo "$(BLUE)Running pre-commit hooks on all files...$(RESET)"
+	$(UV) run pre-commit run --all-files
 
 # Quality
-lint: dev ## Run linting checks
+lint: setup-dev ## Run linting checks
 	@echo "$(BLUE)Running linting checks...$(RESET)"
-	cd $(SCRIPTS_DIR) && .venv/bin/ruff check .
+	$(UV) run ruff check .
 
-format: dev ## Format code
+format: setup-dev ## Format code
 	@echo "$(BLUE)Formatting code...$(RESET)"
-	cd $(SCRIPTS_DIR) && .venv/bin/black .
-	cd $(SCRIPTS_DIR) && .venv/bin/ruff check --fix .
+	$(UV) run ruff format .
+	$(UV) run ruff check --fix .
 
-type-check: dev ## Run type checking
+type-check: setup-dev ## Run type checking
 	@echo "$(BLUE)Running type checks...$(RESET)"
-	cd $(SCRIPTS_DIR) && .venv/bin/mypy .
+	$(UV) run mypy scripts/
 
 check: lint type-check ## Run all code quality checks
 	@echo "$(GREEN)All checks passed!$(RESET)"
 
 # Testing
-test: dev ## Run unit test suite
+test: setup-dev ## Run unit test suite
 	@echo "$(BLUE)Running unit tests...$(RESET)"
-	cd $(SCRIPTS_DIR) && .venv/bin/pytest tests/ -v
+	$(UV) run pytest scripts/tests/ -v
 
-coverage: dev ## Run tests with coverage report
+coverage: setup-dev ## Run tests with coverage report
 	@echo "$(BLUE)Running tests with coverage...$(RESET)"
-	cd $(SCRIPTS_DIR) && .venv/bin/pytest tests/ --cov=setup --cov=generators --cov-report=html --cov-report=term
+	$(UV) run pytest scripts/tests/ --cov=scripts --cov-report=html --cov-report=term
 
 # Utility
 clean: ## Clean up test environments and caches
 	@echo "$(BLUE)Cleaning up...$(RESET)"
 	@rm -rf test-env/
-	@rm -rf $(SCRIPTS_DIR)/.venv
-	@rm -rf $(SCRIPTS_DIR)/__pycache__
-	@rm -rf $(SCRIPTS_DIR)/*/__pycache__
-	@rm -rf $(SCRIPTS_DIR)/.pytest_cache
-	@rm -rf $(SCRIPTS_DIR)/htmlcov
+	@rm -rf .venv
+	@rm -rf __pycache__
+	@find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
+	@rm -rf .pytest_cache
+	@rm -rf htmlcov
+	@rm -rf .coverage
+	@rm -rf .ruff_cache
 	@echo "$(GREEN)Cleanup complete$(RESET)"
+
+# UV-specific commands
+uv-sync: check-uv ## Sync dependencies (basic)
+	@echo "$(BLUE)Syncing UV dependencies...$(RESET)"
+	$(UV) sync
+
+uv-sync-dev: check-uv ## Sync dependencies with dev extras
+	@echo "$(BLUE)Syncing UV dependencies with dev extras...$(RESET)"
+	$(UV) sync --extra dev
+
+uv-add: check-uv ## Add a dependency (usage: make uv-add PACKAGE=package-name)
+	@if [ -z "$(PACKAGE)" ]; then \
+		echo "$(RED)Usage: make uv-add PACKAGE=package-name$(RESET)"; \
+		exit 1; \
+	fi
+	@echo "$(BLUE)Adding package: $(PACKAGE)$(RESET)"
+	$(UV) add $(PACKAGE)
+
+uv-add-dev: check-uv ## Add a dev dependency (usage: make uv-add-dev PACKAGE=package-name)
+	@if [ -z "$(PACKAGE)" ]; then \
+		echo "$(RED)Usage: make uv-add-dev PACKAGE=package-name$(RESET)"; \
+		exit 1; \
+	fi
+	@echo "$(BLUE)Adding dev package: $(PACKAGE)$(RESET)"
+	$(UV) add --group dev $(PACKAGE)
+
+uv-remove: check-uv ## Remove a dependency (usage: make uv-remove PACKAGE=package-name)
+	@if [ -z "$(PACKAGE)" ]; then \
+		echo "$(RED)Usage: make uv-remove PACKAGE=package-name$(RESET)"; \
+		exit 1; \
+	fi
+	@echo "$(BLUE)Removing package: $(PACKAGE)$(RESET)"
+	$(UV) remove $(PACKAGE)
+
+uv-update: check-uv ## Update all dependencies
+	@echo "$(BLUE)Updating UV dependencies...$(RESET)"
+	$(UV) sync --upgrade
+
+uv-lock: check-uv ## Update lock file
+	@echo "$(BLUE)Updating UV lock file...$(RESET)"
+	$(UV) lock
+
+uv-tree: setup-dev ## Show dependency tree
+	@echo "$(BLUE)UV Dependency Tree:$(RESET)"
+	$(UV) tree
+
+uv-run: setup-dev ## Run a command in UV environment (usage: make uv-run CMD="command")
+	@if [ -z "$(CMD)" ]; then \
+		echo "$(RED)Usage: make uv-run CMD=\"command\"$(RESET)"; \
+		echo "$(YELLOW)Example: make uv-run CMD=\"python --version\"$(RESET)"; \
+		exit 1; \
+	fi
+	@echo "$(BLUE)Running: $(CMD)$(RESET)"
+	$(UV) run $(CMD)
 
 show-structure: ## Show repository structure
 	@echo "$(BLUE)Repository structure:$(RESET)"
@@ -155,13 +225,13 @@ validate-structure: ## Validate repository structure
 	fi
 
 # Generation
-generate-agent: setup-env ## Generate a new agent (make generate-agent NAME=my-agent CATEGORY=development)
+generate-agent: setup-dev ## Generate a new agent (make generate-agent NAME=my-agent CATEGORY=development)
 	@if [ -z "$(NAME)" ]; then \
 		echo "$(RED)Usage: make generate-agent NAME=agent-name CATEGORY=development$(RESET)"; \
 		exit 1; \
 	fi
 	@echo "$(BLUE)Generating agent: $(NAME)$(RESET)"
-	cd $(SCRIPTS_DIR) && .venv/bin/python generators/agent_generator.py --name "$(NAME)" --category "$(or $(CATEGORY),development)"
+	$(UV) run python -m scripts.generators.agent_generator --name "$(NAME)" --category "$(or $(CATEGORY),development)"
 
 # Statusline Management
 install-statusline: validate-structure ## Install statusline to ~/.claude (symlink with conflict resolution)
