@@ -12,7 +12,7 @@ A comprehensive bash+jq statusline that displays model info, git status, costs, 
 - 🤖 Current model and version
 - 🌿 Git branch and status with ahead/behind indicators
 - 📁 Current directory (shortened for long paths)
-- 💰 Session costs and token usage  
+- 💰 Session costs and token usage
 - 📅 Daily usage total with persistent tracking
 - 🔄 5-hour window reset countdown with color coding
 - 📊 Context remaining percentage
@@ -26,7 +26,7 @@ A comprehensive bash+jq statusline that displays model info, git status, costs, 
 ## JSON Input
 The script receives Claude Code session data as JSON via stdin and parses it with jq to extract:
 - Model information and version
-- Session costs (total_cost_usd or total_cost)  
+- Session costs (total_cost_usd or total_cost)
 - Token usage (input_tokens, output_tokens)
 - Context usage (used/total)
 - Session start time for duration calculation
@@ -36,7 +36,7 @@ The script receives Claude Code session data as JSON via stdin and parses it wit
 - **5-Hour Windows**: Tracks sessions to calculate when your 5-hour usage window resets
 - **Reset Countdown**: Shows time remaining until your usage window resets
   - 🔴 Red: Less than 1 hour remaining
-  - 🟡 Yellow: 1-2 hours remaining  
+  - 🟡 Yellow: 1-2 hours remaining
   - 🔵 Blue: More than 2 hours remaining
   - 🟢 Green: Reset available now
 

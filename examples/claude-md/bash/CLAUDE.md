@@ -154,13 +154,13 @@ source "${LIB_DIR}/logging.sh"
 function_name() {
   local arg1="${1:-}"
   local arg2="${2:-}"
-  
+
   # Validate arguments
   if [[ -z "${arg1}" ]]; then
     log_error "First argument is required"
     return 1
   fi
-  
+
   # Function logic here
   echo "Processing ${arg1} with ${arg2}"
 }
@@ -179,7 +179,7 @@ function_name() {
 die() {
   local message="${1:-}"
   local code="${2:-1}"
-  
+
   echo "ERROR: ${message}" >&2
   exit "${code}"
 }
@@ -211,17 +211,17 @@ is_readable() {
 #######################################
 cleanup() {
   local exit_code=$?
-  
+
   # Cleanup temporary files
   [[ -n "${TEMP_DIR:-}" ]] && rm -rf "${TEMP_DIR}"
-  
+
   # Log completion
   if [[ ${exit_code} -eq 0 ]]; then
     log_info "Script completed successfully"
   else
     log_error "Script failed with exit code ${exit_code}"
   fi
-  
+
   exit ${exit_code}
 }
 
@@ -240,16 +240,16 @@ trap cleanup EXIT INT TERM
 #######################################
 load_config() {
   local config_file="${1:-}"
-  
+
   if [[ ! -r "${config_file}" ]]; then
     log_warn "Config file not found or not readable: ${config_file}"
     return 1
   fi
-  
+
   # Source configuration file safely
   # shellcheck disable=SC1090
   source "${config_file}"
-  
+
   log_info "Configuration loaded from ${config_file}"
 }
 
@@ -264,7 +264,7 @@ load_config() {
 get_config() {
   local var_name="${1:-}"
   local default_value="${2:-}"
-  
+
   if [[ -n "${!var_name:-}" ]]; then
     echo "${!var_name}"
   else
@@ -315,11 +315,11 @@ _log() {
   local level="$1"
   local color="$2"
   local message="$3"
-  
+
   if [[ ${LOG_LEVEL} -ge ${level} ]]; then
     local timestamp
     timestamp=$(date '+%Y-%m-%d %H:%M:%S')
-    
+
     if [[ -t 1 ]]; then  # If stdout is a terminal
       printf "${color}[%s] %s${NC}\n" "${timestamp}" "${message}" >&2
     else
@@ -353,7 +353,7 @@ OPTIONS:
     -d, --debug         Enable debug mode
     -c, --config FILE   Configuration file path
     -o, --output DIR    Output directory
-    
+
 ARGUMENTS:
     input_file          Input file to process
 
@@ -406,12 +406,12 @@ parse_args() {
         ;;
     esac
   done
-  
+
   # Validate required arguments
   if [[ ${#POSITIONAL_ARGS[@]} -eq 0 ]]; then
     die "Input file is required"
   fi
-  
+
   INPUT_FILE="${POSITIONAL_ARGS[0]}"
 }
 
@@ -438,10 +438,10 @@ parse_args "$@"
 setup() {
   # Create temporary directory for test
   export TEST_TEMP_DIR="$(mktemp -d)"
-  
+
   # Source the script functions
   source "${BATS_TEST_DIRNAME}/../lib/common.sh"
-  
+
   # Set up test data
   echo "test data" > "${TEST_TEMP_DIR}/test_file.txt"
 }
@@ -454,30 +454,30 @@ teardown() {
 
 @test "function returns success for valid input" {
   run function_name "valid_input"
-  
+
   [ "$status" -eq 0 ]
   [ "${lines[0]}" = "Expected output" ]
 }
 
 @test "function fails with invalid input" {
   run function_name ""
-  
+
   [ "$status" -eq 1 ]
   [[ "$output" =~ "ERROR:" ]]
 }
 
 @test "script processes file correctly" {
   local test_file="${TEST_TEMP_DIR}/test_file.txt"
-  
+
   run "${BATS_TEST_DIRNAME}/../bin/main-script" "${test_file}"
-  
+
   [ "$status" -eq 0 ]
   [ -f "${TEST_TEMP_DIR}/output.txt" ]
 }
 
 @test "script handles missing file gracefully" {
   run "${BATS_TEST_DIRNAME}/../bin/main-script" "nonexistent.txt"
-  
+
   [ "$status" -ne 0 ]
   [[ "$output" =~ "File not found" ]]
 }

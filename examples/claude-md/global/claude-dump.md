@@ -9,7 +9,7 @@ This is a **Claude Code template repository** that provides a professional colle
 ### Core Components
 
 - **Agents** (`agents/`): Specialized AI assistants organized by domain (development, architecture, product, UX, orchestration)
-- **Commands** (`commands/`): Security and quality workflow automation  
+- **Commands** (`commands/`): Security and quality workflow automation
 - **Hooks** (`hooks/`): Safety and validation scripts that run automatically on Claude Code events
 - **Scripts** (`scripts/`): Professional Python utilities for installation, configuration, and code generation
 

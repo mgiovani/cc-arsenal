@@ -194,10 +194,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 class BaseService(ABC):
     def __init__(self, db: AsyncSession):
         self.db = db
-        
+
     async def commit(self):
         await self.db.commit()
-        
+
     async def rollback(self):
         await self.db.rollback()
 ```
@@ -252,7 +252,7 @@ class Settings(BaseSettings):
     secret_key: str
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 30
-    
+
     class Config:
         env_file = ".env"
 

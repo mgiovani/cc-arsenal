@@ -30,12 +30,12 @@ print_header() {
 run_test_suite() {
     local test_file="$1"
     local suite_name="$2"
-    
+
     echo -e "${YELLOW}Running $suite_name tests...${RESET}"
     echo "----------------------------------------"
-    
+
     TOTAL_SUITES=$((TOTAL_SUITES + 1))
-    
+
     if bash "$test_file"; then
         echo -e "${GREEN}✅ $suite_name: ALL TESTS PASSED${RESET}"
         PASSED_SUITES=$((PASSED_SUITES + 1))
@@ -44,7 +44,7 @@ run_test_suite() {
         FAILED_SUITES=$((FAILED_SUITES + 1))
         FAILED_SUITES_LIST+=("$suite_name")
     fi
-    
+
     echo
 }
 
@@ -57,7 +57,7 @@ print_summary() {
     echo -e "Passed: ${GREEN}$PASSED_SUITES${RESET}"
     echo -e "Failed: ${RED}$FAILED_SUITES${RESET}"
     echo
-    
+
     if [[ $FAILED_SUITES -gt 0 ]]; then
         echo -e "${RED}Failed Test Suites:${RESET}"
         for suite in "${FAILED_SUITES_LIST[@]}"; do
@@ -74,30 +74,30 @@ print_summary() {
 
 check_dependencies() {
     echo "Checking dependencies..."
-    
+
     local missing_deps=0
-    
+
     # Check for jq
     if ! command -v jq >/dev/null 2>&1; then
         echo -e "${RED}❌ jq is required but not installed${RESET}"
         missing_deps=$((missing_deps + 1))
     fi
-    
+
     # Check for git
     if ! command -v git >/dev/null 2>&1; then
         echo -e "${YELLOW}⚠️  git not found - some git tests may be skipped${RESET}"
     fi
-    
+
     # Check for bc (for floating point arithmetic)
     if ! command -v bc >/dev/null 2>&1; then
         echo -e "${YELLOW}⚠️  bc not found - some cost calculation tests may be skipped${RESET}"
     fi
-    
+
     if [[ $missing_deps -gt 0 ]]; then
         echo -e "${RED}Please install missing dependencies and try again.${RESET}"
         exit 1
     fi
-    
+
     echo -e "${GREEN}✅ Dependencies OK${RESET}"
     echo
 }
@@ -105,7 +105,7 @@ check_dependencies() {
 run_integration_test() {
     echo -e "${YELLOW}Running integration test...${RESET}"
     echo "----------------------------------------"
-    
+
     # Test the main statusline script with official Claude Code JSON structure
     local test_json='{
         "hook_event_name": "Status",
@@ -132,20 +132,20 @@ run_integration_test() {
             "total_lines_removed": 23
         }
     }'
-    
+
     local statusline_script="$SCRIPT_DIR/../statusline.sh"
-    
+
     if [[ ! -f "$statusline_script" ]]; then
         echo -e "${RED}❌ Main statusline script not found: $statusline_script${RESET}"
         return 1
     fi
-    
+
     # Run statusline and capture output
     local output
     if output=$(echo "$test_json" | "$statusline_script" 2>&1); then
         echo -e "${GREEN}✅ Integration test: Statusline executed successfully${RESET}"
         echo "Output: $output"
-        
+
         # Basic validation that output contains expected elements
         if [[ "$output" == *"🤖"* && "$output" == *"📁"* && "$output" == *"📊"* ]]; then
             echo -e "${GREEN}✅ Integration test: Output contains expected components${RESET}"
@@ -164,14 +164,14 @@ run_integration_test() {
 main() {
     print_header
     check_dependencies
-    
+
     # Run individual test suites
     run_test_suite "$SCRIPT_DIR/test_colors.sh" "Colors Module"
     run_test_suite "$SCRIPT_DIR/test_utils.sh" "Utils Module"
     run_test_suite "$SCRIPT_DIR/test_git_info.sh" "Git Info Module"
     run_test_suite "$SCRIPT_DIR/test_usage_tracker.sh" "Usage Tracker Module"
     run_test_suite "$SCRIPT_DIR/test_components.sh" "Components Module"
-    
+
     # Run integration test
     if run_integration_test; then
         echo -e "${GREEN}✅ Integration Test: PASSED${RESET}"
@@ -184,7 +184,7 @@ main() {
         FAILED_SUITES_LIST+=("Integration Test")
     fi
     echo
-    
+
     print_summary
 }
 

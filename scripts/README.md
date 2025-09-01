@@ -1,12 +1,21 @@
-# Claude Template Scripts
+# Scripts
 
-Professional Python utilities for managing Claude template repository installations and configurations.
+Professional Python utilities for managing Claude Code Arsenal installations and configurations.
 
-## Scripts
+## Structure
 
-- **setup/install.py**: Safe installation with conflict detection and file-level symlinks
-- **setup/configure.py**: Interactive configuration wizard
-- **generators/**: Code generation tools for new agents/commands/hooks
+```
+scripts/
+├── setup/           # Installation and configuration
+│   ├── install.py      # Safe installation with symlink management
+│   └── configure.py    # Interactive configuration wizard
+├── generators/      # Code generation tools
+│   └── agent_generator.py  # Generate new agents
+├── claude/          # Claude Code utilities
+│   └── statusline/     # Status line configuration tool
+└── claude-hi/       # Smart session scheduler
+    └── README.md       # Session window management
+```
 
 ## Installation
 

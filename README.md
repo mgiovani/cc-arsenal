@@ -20,7 +20,7 @@
 make install              # Install Claude Code Arsenal to ~/.claude
 ```
 
-### 2. Replace Manual Cron Workarounds  
+### 2. Replace Manual Cron Workarounds
 ```bash
 make claude-hi-setup      # Interactive smart scheduling setup
 # OR
@@ -45,14 +45,14 @@ make statusline-install   # Enhanced statusline with usage tracking
 ### Quick Setup Options
 ```bash
 make claude-hi-setup      # Interactive setup with guided options
-make claude-hi-standard   # 9am/2pm/7pm → 2pm/7pm/12am resets  
+make claude-hi-standard   # 9am/2pm/7pm → 2pm/7pm/12am resets
 make claude-hi-extended   # 4am/9am/2pm/7pm → full day coverage
 make claude-hi-custom     # Custom patterns for different work styles
 make claude-hi-status     # Check current schedule
 ```
 
 **Example**: Extended schedule triggers "hi" at 4am, 9am, 2pm, 7pm daily
-- **Light usage**: 4-7am, 9am-12pm, 2-5pm, 7-10pm  
+- **Light usage**: 4-7am, 9am-12pm, 2-5pm, 7-10pm
 - **Heavy coding**: **7-9am**, **12-2pm**, 5-7pm, **10pm-12am** (maximum tokens available)
 
 *Perfect for developers who do intensive coding during peak token periods!*
@@ -69,7 +69,7 @@ make install              # Install all components to ~/.claude
 make dry-run              # Preview installation without making changes
 make claude-hi-setup      # Smart session scheduler (replaces cron)
 
-# Development  
+# Development
 make dev                  # Set up development environment
 make test                 # Run comprehensive test suite
 make clean                # Clean up caches and temporary files
@@ -81,7 +81,7 @@ make clean                # Clean up caches and temporary files
 cc-arsenal/
 ├── README.md                    # This file
 ├── AGENTS.md                    # Complete agents reference
-├── COMMANDS.md                  # Complete commands reference  
+├── COMMANDS.md                  # Complete commands reference
 ├── HOOKS.md                     # Complete hooks reference
 ├── CLAUDE.md → AGENTS.md        # Backward compatibility symlink
 │

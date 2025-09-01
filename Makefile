@@ -35,7 +35,7 @@ help: ## Show this help message
 	@echo
 	@echo "$(YELLOW)Development Examples:$(RESET)"
 	@echo "  make dry-run              # Preview installation"
-	@echo "  make test                 # Run unit tests" 
+	@echo "  make test                 # Run unit tests"
 	@echo "  make dev                  # Set up development environment"
 
 # Installation
