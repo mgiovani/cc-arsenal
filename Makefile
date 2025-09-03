@@ -211,7 +211,7 @@ validate-structure: ## Validate repository structure
 			errors=$$((errors + 1)); \
 		fi; \
 	done; \
-	for file in README.md AGENTS.md COMMANDS.md HOOKS.md; do \
+	for file in README.md; do \
 		if [ ! -f "$$file" ]; then \
 			echo "$(RED)Missing file: $$file$(RESET)"; \
 			errors=$$((errors + 1)); \
@@ -234,6 +234,62 @@ generate-agent: setup-dev ## Generate a new agent (make generate-agent NAME=my-a
 	$(UV) run python -m scripts.generators.agent_generator --name "$(NAME)" --category "$(or $(CATEGORY),development)"
 
 # Statusline Management
+install-statusline-force: ## Install statusline to ~/.claude (symlink with conflict resolution, skip validation)
+	@echo "$(BLUE)Installing statusline to ~/.claude...$(RESET)"
+	@if [ ! -d ~/.claude ]; then \
+		echo "$(YELLOW)Creating ~/.claude directory$(RESET)"; \
+		mkdir -p ~/.claude; \
+	fi
+	@# Check for existing statusline installation
+	@if [ -L ~/.claude/scripts/claude/statusline ] || [ -d ~/.claude/scripts/claude/statusline ]; then \
+		echo "$(YELLOW)⚠️  Existing statusline installation found$(RESET)"; \
+		if [ -L ~/.claude/scripts/claude/statusline ]; then \
+			echo "  Current installation: $$(readlink ~/.claude/scripts/claude/statusline) (symlink)"; \
+		else \
+			echo "  Current installation: ~/.claude/scripts/claude/statusline (directory)"; \
+		fi; \
+		echo; \
+		read -p "Do you want to replace the existing installation? (y/N): " replace; \
+		if [ "$$replace" != "y" ] && [ "$$replace" != "Y" ]; then \
+			echo "$(YELLOW)Installation cancelled by user$(RESET)"; \
+			exit 0; \
+		fi; \
+		echo; \
+		read -p "Create backup of existing installation? (Y/n): " backup; \
+		if [ "$$backup" != "n" ] && [ "$$backup" != "N" ]; then \
+			mkdir -p ~/.claude/backups/statusline; \
+			backup_name="backup-$$(date +%s)"; \
+			echo "$(BLUE)Creating backup: ~/.claude/backups/statusline/$$backup_name$(RESET)"; \
+			if [ -L ~/.claude/scripts/claude/statusline ]; then \
+				echo "Existing installation is a symlink, copying target content"; \
+				cp -r "$$(readlink ~/.claude/scripts/claude/statusline)" ~/.claude/backups/statusline/$$backup_name; \
+			else \
+				cp -r ~/.claude/scripts/claude/statusline ~/.claude/backups/statusline/$$backup_name; \
+			fi; \
+			echo "$(GREEN)Backup created: ~/.claude/backups/statusline/$$backup_name$(RESET)"; \
+		else \
+			echo "$(YELLOW)Skipping backup creation$(RESET)"; \
+		fi; \
+		echo "$(YELLOW)Removing existing statusline installation$(RESET)"; \
+		rm -rf ~/.claude/scripts/claude/statusline; \
+	fi
+	@echo "$(GREEN)Creating statusline symlink$(RESET)"
+	@mkdir -p ~/.claude/scripts/claude
+	@ln -sf "$$(pwd)/scripts/claude/statusline" ~/.claude/scripts/claude/statusline
+	@echo "$(GREEN)🔧 Configuring Claude Code settings...$(RESET)"
+	@scripts/claude/statusline/lib/claude_config.sh install force
+	@echo "$(GREEN)✅ Statusline fully installed and configured!$(RESET)"
+	@echo
+	@echo "$(BLUE)🎉 Ready to use:$(RESET)"
+	@echo "  • Statusline is automatically active in Claude Code"
+	@echo "  • No manual configuration needed"
+	@echo "  • Restart Claude Code to see the statusline"
+	@echo
+	@echo "$(BLUE)💡 Files created:$(RESET)"
+	@echo "  • Settings: ~/.claude/settings.json"
+	@echo "  • Config: ~/.claude/cc-arsenal/statusline_config.json"
+	@echo "  • Usage data: ~/.claude/cc-arsenal/usage_tracking.json"
+
 install-statusline: validate-structure ## Install statusline to ~/.claude (symlink with conflict resolution)
 	@echo "$(BLUE)Installing statusline to ~/.claude...$(RESET)"
 	@if [ ! -d ~/.claude ]; then \
@@ -287,8 +343,8 @@ install-statusline: validate-structure ## Install statusline to ~/.claude (symli
 	@echo
 	@echo "$(BLUE)💡 Files created:$(RESET)"
 	@echo "  • Settings: ~/.claude/settings.json"
-	@echo "  • Config: ~/.claude/claude_dump/statusline_config.json"
-	@echo "  • Usage data: ~/.claude/claude_dump/usage_tracking.json"
+	@echo "  • Config: ~/.claude/cc-arsenal/statusline_config.json"
+	@echo "  • Usage data: ~/.claude/cc-arsenal/usage_tracking.json"
 
 force-install-statusline: validate-structure ## Force install statusline without prompts (with backup)
 	@echo "$(YELLOW)Force installing statusline (no prompts)...$(RESET)"

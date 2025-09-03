@@ -80,10 +80,7 @@ make clean                # Clean up caches and temporary files
 ```
 cc-arsenal/
 ├── README.md                    # This file
-├── AGENTS.md                    # Complete agents reference
-├── COMMANDS.md                  # Complete commands reference
-├── HOOKS.md                     # Complete hooks reference
-├── CLAUDE.md → AGENTS.md        # Backward compatibility symlink
+├── CLAUDE.md                     # Claude Code configuration
 │
 ├── agents/                      # AI agents organized by specialty
 │   ├── development/             # Development and engineering
@@ -196,7 +193,7 @@ Specialized AI assistants for different domains:
 
 *Additional specialized agents available for enterprise users - contact for access*
 
-[→ See complete agents documentation](AGENTS.md)
+See agents/ directory for available AI assistants
 
 ### ⚡ Commands
 
@@ -208,7 +205,7 @@ Security and quality workflow automation:
 
 *Advanced workflow commands available for enterprise users - contact for access*
 
-[→ See complete commands documentation](COMMANDS.md)
+See commands/ directory for workflow automation
 
 ### 🔒 Hooks
 
@@ -219,7 +216,7 @@ Safety and validation automation:
 - **Compliance**: Regulatory requirements, audit trails
 - **Project-Specific**: Domain-specific validations (healthcare, finance, etc.)
 
-[→ See complete hooks documentation](HOOKS.md)
+See hooks/ directory for safety and validation
 
 ## Security-First Development
 
@@ -314,9 +311,9 @@ make help
 
 ## Documentation
 
-- **[AGENTS.md](AGENTS.md)**: Complete reference for all available agents
-- **[COMMANDS.md](COMMANDS.md)**: Workflow automation commands and usage
-- **[HOOKS.md](HOOKS.md)**: Safety hooks and validation automation
+- **agents/**: AI development assistants organized by specialty
+- **commands/**: Workflow automation and development utilities
+- **hooks/**: Safety validation and quality enforcement
 - **[docs/getting-started.md](docs/getting-started.md)**: Detailed setup and configuration guide
 - **[docs/agent-development.md](docs/agent-development.md)**: Creating custom agents
 - **[docs/troubleshooting.md](docs/troubleshooting.md)**: Common issues and solutions
