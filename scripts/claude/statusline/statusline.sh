@@ -1,313 +1,442 @@
 #!/bin/bash
+# Ultra-fast statusline with robust error handling
+# Handles all edge cases and fallbacks gracefully
 
-# Claude Code Enhanced Statusline - Modular Architecture
-# Displays model info, git status, costs, daily usage, and 5-hour reset info
-# Usage: Add "statusline": "bash ~/.claude/scripts/claude/statusline/statusline.sh" to Claude Code settings
+set -e  # Exit on error, but handle unset variables
 
-set -euo pipefail
+# Performance monitoring
+START_TIME=$(date +%s%N 2>/dev/null || date +%s000000000)
 
-# Get the directory containing this script
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Simple cache (fallback to no cache if creation fails)
+CACHE_DIR="/tmp/statusline_cache_$$"
+mkdir -p "$CACHE_DIR" 2>/dev/null || CACHE_DIR="/tmp"
+trap "rm -rf '$CACHE_DIR' 2>/dev/null || true" EXIT 2>/dev/null || true
 
-# Source all library modules
-source "$SCRIPT_DIR/lib/colors.sh"
-source "$SCRIPT_DIR/lib/utils.sh"
-source "$SCRIPT_DIR/lib/git_info.sh"
-source "$SCRIPT_DIR/lib/usage_tracker.sh"
-source "$SCRIPT_DIR/lib/components.sh"
-source "$SCRIPT_DIR/lib/config.sh"
-source "$SCRIPT_DIR/lib/cache_manager.sh"
-source "$SCRIPT_DIR/lib/cached_operations.sh"
-source "$SCRIPT_DIR/lib/data_reader.sh"
+# Simple cache functions
+cache_get() {
+    local key="$1"
+    local cache_file="$CACHE_DIR/${key//\//_}"
+    
+    if [[ -f "$cache_file" ]] 2>/dev/null; then
+        local cache_time current_time
+        cache_time=$(stat -f %m "$cache_file" 2>/dev/null || stat -c %Y "$cache_file" 2>/dev/null || echo 0)
+        current_time=$(date +%s)
+        
+        if (( current_time - cache_time < 30 )); then
+            cat "$cache_file" 2>/dev/null && return 0
+        fi
+    fi
+    return 1
+}
 
-# Main statusline function
+cache_set() {
+    local key="$1" value="$2"
+    local cache_file="$CACHE_DIR/${key//\//_}"
+    echo "$value" > "$cache_file" 2>/dev/null || true
+}
+
+# Robust JSON extraction with multiple fallbacks
+extract_json() {
+    local json="$1" key="$2"
+    
+    # Try jq first (most reliable)
+    if command -v jq >/dev/null 2>&1; then
+        local result
+        result=$(echo "$json" | jq -r ".${key} // empty" 2>/dev/null || echo "")
+        if [[ -n "$result" && "$result" != "null" && "$result" != "empty" ]]; then
+            echo "$result"
+            return 0
+        fi
+    fi
+    
+    # Fallback: simple grep extraction for basic cases
+    case "$key" in
+        "model.id")
+            echo "$json" | grep -o '"id":"[^"]*"' 2>/dev/null | sed 's/"id":"//' | sed 's/"//' | head -1
+            ;;
+        "model.display_name")
+            echo "$json" | grep -o '"display_name":"[^"]*"' 2>/dev/null | sed 's/"display_name":"//' | sed 's/"//' | head -1
+            ;;
+        "workspace.current_dir")
+            echo "$json" | grep -o '"current_dir":"[^"]*"' 2>/dev/null | sed 's/"current_dir":"//' | sed 's/"//' | head -1
+            ;;
+        "cost.total_cost_usd")
+            echo "$json" | grep -o '"total_cost_usd":[0-9.]*' 2>/dev/null | sed 's/"total_cost_usd"://' | head -1
+            ;;
+        "cost.total_input_tokens")
+            echo "$json" | grep -o '"total_input_tokens":[0-9]*' 2>/dev/null | sed 's/"total_input_tokens"://' | head -1
+            ;;
+        "cost.total_output_tokens")
+            echo "$json" | grep -o '"total_output_tokens":[0-9]*' 2>/dev/null | sed 's/"total_output_tokens"://' | head -1
+            ;;
+        "cost.total_lines_added")
+            echo "$json" | grep -o '"total_lines_added":[0-9]*' 2>/dev/null | sed 's/"total_lines_added"://' | head -1
+            ;;
+        "cost.total_lines_removed")
+            echo "$json" | grep -o '"total_lines_removed":[0-9]*' 2>/dev/null | sed 's/"total_lines_removed"://' | head -1
+            ;;
+        "message.usage.input_tokens")
+            echo "$json" | grep -o '"input_tokens":[0-9]*' 2>/dev/null | sed 's/"input_tokens"://' | head -1
+            ;;
+        "message.usage.output_tokens")
+            echo "$json" | grep -o '"output_tokens":[0-9]*' 2>/dev/null | sed 's/"output_tokens"://' | head -1
+            ;;
+        "usage.input_tokens")
+            echo "$json" | grep -o '"input_tokens":[0-9]*' 2>/dev/null | sed 's/"input_tokens"://' | head -1
+            ;;
+        "usage.output_tokens")
+            echo "$json" | grep -o '"output_tokens":[0-9]*' 2>/dev/null | sed 's/"output_tokens"://' | head -1
+            ;;
+    esac
+}
+
+# Robust git operations
+get_git_info() {
+    local cache_key="git_$(pwd)"
+    
+    if cache_get "$cache_key" 2>/dev/null; then
+        return 0
+    fi
+    
+    local git_info="0|not_a_repo"
+    if git rev-parse --git-dir >/dev/null 2>&1; then
+        local changes branch
+        changes=$(git status --porcelain=v1 -u 2>/dev/null | wc -l | tr -d ' ' || echo "0")
+        branch=$(git symbolic-ref --short HEAD 2>/dev/null || git rev-parse --short HEAD 2>/dev/null || echo "detached")
+        git_info="${changes}|${branch}"
+    fi
+    
+    cache_set "$cache_key" "$git_info" 2>/dev/null || true
+    echo "$git_info"
+}
+
+# Model component with robust cleanup
+get_model_component() {
+    local model="${1:-}"
+    
+    if [[ -z "$model" || "$model" == "null" ]]; then
+        echo "🤖 Unavailable"
+        return 0
+    fi
+    
+    # Safe model cleanup
+    local display="$model"
+    display="${display#claude-}"
+    display="${display%-[0-9]*}"
+    display="${display/sonnet-/Sonnet }"
+    display="${display/opus-/Opus }"  
+    display="${display/haiku-/Haiku }"
+    
+    # Safe capitalization
+    if [[ ${#display} -gt 0 ]]; then
+        local first="${display:0:1}"
+        local rest="${display:1}"
+        first=$(echo "$first" | tr '[:lower:]' '[:upper:]' 2>/dev/null || echo "$first")
+        display="${first}${rest}"
+    fi
+    
+    echo "🤖 $display"
+}
+
+# Directory component
+get_directory_component() {
+    local dir="${1:-$(pwd)}"
+    local short_dir="$dir"
+    
+    # Replace home with ~
+    if [[ "$dir" == "$HOME"* ]]; then
+        short_dir="~${dir#$HOME}"
+    fi
+    
+    # Truncate if too long
+    if [[ ${#short_dir} -gt 30 ]]; then
+        local base="${dir##*/}"
+        short_dir=".../$base"
+    fi
+    
+    echo "📁 $short_dir"
+}
+
+# Git component
+get_git_component() {
+    local git_info
+    git_info=$(get_git_info 2>/dev/null || echo "0|not_a_repo")
+    
+    local changes="${git_info%|*}"
+    local branch="${git_info#*|}"
+    
+    if [[ "$branch" == "not_a_repo" ]]; then
+        return 0  # No git component
+    fi
+    
+    local status_symbol=""
+    if [[ "$changes" -gt 0 ]] 2>/dev/null; then
+        status_symbol=" ●"
+    fi
+    
+    echo "🌿 $branch$status_symbol"
+}
+
+# Get token usage from transcript file (Claude Code method)
+get_transcript_tokens() {
+    local transcript_path="$1"
+    
+    if [[ ! -f "$transcript_path" ]]; then
+        echo "0|0"
+        return 0
+    fi
+    
+    # Extract tokens from JSONL transcript file using jq if available
+    if command -v jq >/dev/null 2>&1; then
+        local input_total output_total
+        # Process JSONL file line by line and sum usage tokens
+        input_total=$(jq -r 'select(.message.usage.input_tokens != null) | .message.usage.input_tokens // 0' "$transcript_path" 2>/dev/null | awk '{sum += $1} END {print sum + 0}')
+        output_total=$(jq -r 'select(.message.usage.output_tokens != null) | .message.usage.output_tokens // 0' "$transcript_path" 2>/dev/null | awk '{sum += $1} END {print sum + 0}')
+        echo "${input_total}|${output_total}"
+        return 0
+    fi
+    
+    # Fallback: grep extraction for JSONL format
+    local input_total=0 output_total=0
+    while IFS= read -r line; do
+        if [[ "$line" =~ \"input_tokens\":([0-9]+) ]]; then
+            input_total=$((input_total + ${BASH_REMATCH[1]}))
+        fi
+        if [[ "$line" =~ \"output_tokens\":([0-9]+) ]]; then
+            output_total=$((output_total + ${BASH_REMATCH[1]}))
+        fi
+    done < "$transcript_path" 2>/dev/null || true
+    
+    echo "${input_total}|${output_total}"
+}
+
+# Context component
+get_context_component() {
+    local input_tokens="${1:-0}" output_tokens="${2:-0}"
+    
+    if [[ "$input_tokens" == "0" && "$output_tokens" == "0" ]] || [[ -z "$input_tokens" || -z "$output_tokens" ]]; then
+        echo "📊 N/A"
+        return 0
+    fi
+    
+    local total=$((input_tokens + output_tokens))
+    local percent=$((total * 100 / 200000))
+    [[ $percent -gt 100 ]] && percent=100
+    
+    echo "📊 ${percent}%"
+}
+
+# Cost component
+get_cost_component() {
+    local cost="${1:-}"
+    
+    if [[ -z "$cost" || "$cost" == "0" || "$cost" == "null" ]]; then
+        echo "💰 Unavailable"
+        return 0
+    fi
+    
+    local formatted
+    formatted=$(printf "%.3f" "$cost" 2>/dev/null || echo "$cost")
+    echo "💰 \$${formatted}"
+}
+
+# Lines component
+get_lines_component() {
+    local added="${1:-0}" removed="${2:-0}"
+    
+    if [[ "$added" == "0" && "$removed" == "0" ]] || [[ -z "$added" || -z "$removed" ]]; then
+        return 0  # No component
+    fi
+    
+    local display=""
+    if [[ "$added" -gt 0 ]] 2>/dev/null; then
+        display="+$added"
+    fi
+    if [[ "$removed" -gt 0 ]] 2>/dev/null; then
+        if [[ -n "$display" ]]; then
+            display="$display/-$removed"
+        else
+            display="-$removed"
+        fi
+    fi
+    
+    if [[ -n "$display" ]]; then
+        echo "📝 $display"
+    fi
+}
+
+# Time component with progress bar
+get_time_component() {
+    local current_hour current_min
+    current_hour=$(date +%H | sed 's/^0//' 2>/dev/null || echo "0")
+    current_min=$(date +%M | sed 's/^0//' 2>/dev/null || echo "0")
+    
+    # Claude's 5-hour windows: 0-5h, 5-9h, 9-14h, 14-19h, 19-24h
+    local window_start window_end next_reset_hour
+    if (( current_hour >= 0 && current_hour < 5 )); then
+        window_start=0; window_end=5; next_reset_hour=5
+    elif (( current_hour >= 5 && current_hour < 9 )); then
+        window_start=5; window_end=9; next_reset_hour=9
+    elif (( current_hour >= 9 && current_hour < 14 )); then
+        window_start=9; window_end=14; next_reset_hour=14
+    elif (( current_hour >= 14 && current_hour < 19 )); then
+        window_start=14; window_end=19; next_reset_hour=19
+    else  # 19-24h
+        window_start=19; window_end=24; next_reset_hour=24
+    fi
+    
+    # Calculate exact time until reset
+    local current_minutes_total next_reset_minutes_total
+    current_minutes_total=$((current_hour * 60 + current_min))
+    
+    if (( next_reset_hour == 24 )); then
+        # Reset at midnight (00:00 next day)
+        next_reset_minutes_total=$((24 * 60))
+    else
+        next_reset_minutes_total=$((next_reset_hour * 60))
+    fi
+    
+    local minutes_until_reset
+    minutes_until_reset=$((next_reset_minutes_total - current_minutes_total))
+    
+    # Convert to hours and minutes
+    local hours_until minutes_remaining
+    hours_until=$((minutes_until_reset / 60))
+    minutes_remaining=$((minutes_until_reset % 60))
+    
+    # Format time display
+    local time_display
+    if (( hours_until > 0 )); then
+        time_display="${hours_until}h ${minutes_remaining}m"
+    else
+        time_display="${minutes_remaining}m"
+    fi
+    
+    echo "🔄 ${time_display}"
+}
+
+# Main statusline builder
 build_statusline() {
-    local json_input="$1"
-
-    # Initialize systems
-    setup_config
-    setup_usage_tracking
-    cleanup_old_data
-    update_window_tracking
-
-    cache_warm_statusline
-
-    # Extract data from JSON using correct Claude Code structure
-    local model_id model_display_name total_cost_usd current_dir
-    local total_duration_ms api_duration_ms lines_added lines_removed
-    local session_cost daily_usage next_reset context_percent
-    local session_cost_display daily_cost_display
-
-    # Extract data from JSON using official Claude Code structure
-    model_id=$(get_json_field "$json_input" '.model.id' '')
-    model_display_name=$(get_json_field "$json_input" '.model.display_name' '')
-    total_cost_usd=$(get_json_number "$json_input" '.cost.total_cost_usd' 0)
-
-    # Directory handling - prioritize workspace.current_dir, fallback to cwd, then pwd
-    current_dir=$(get_json_field "$json_input" '.workspace.current_dir' '')
-    if [[ -z "$current_dir" || "$current_dir" == "null" ]]; then
-        current_dir=$(get_json_field "$json_input" '.cwd' "$(pwd)")
-    fi
-
-    # Check if Claude Code provided insufficient data (empty model or zero cost)
-    local use_enhanced_data=false
-    if [[ -z "$model_id" || "$model_id" == "null" || "$model_id" == "{}" ]] && [[ "$total_cost_usd" == "0" || -z "$total_cost_usd" ]]; then
-        use_enhanced_data=true
-    fi
-
-    # If Claude Code data is insufficient, try to get enhanced data from usage files
-    if [[ "$use_enhanced_data" == "true" ]]; then
-        local enhanced_data
-        enhanced_data=$(get_enhanced_usage_data "$current_dir" 2>/dev/null || echo "{}")
-
-        if [[ -n "$enhanced_data" && "$enhanced_data" != "{}" ]]; then
-            # Override with enhanced data if available
-            model_id=$(echo "$enhanced_data" | jq -r '.model.id // empty' 2>/dev/null || echo '')
-            model_display_name=$(echo "$enhanced_data" | jq -r '.model.display_name // empty' 2>/dev/null || echo '')
-            total_cost_usd=$(echo "$enhanced_data" | jq -r '.cost.total_cost_usd // 0' 2>/dev/null || echo '0')
-
-            # Get token data for context calculation
-            local input_tokens output_tokens
-            input_tokens=$(echo "$enhanced_data" | jq -r '.tokens.input // 0' 2>/dev/null || echo '0')
-            output_tokens=$(echo "$enhanced_data" | jq -r '.tokens.output // 0' 2>/dev/null || echo '0')
-
-            # Calculate context percentage if we have token data
-            if [[ "$input_tokens" != "0" || "$output_tokens" != "0" ]]; then
-                local tokens_used context_window_size
-                tokens_used=$((input_tokens + output_tokens))
-                context_window_size=200000  # 200K tokens for paid Claude plans
-                context_percent=$((100 - (tokens_used * 100 / context_window_size)))
-                [[ $context_percent -lt 0 ]] && context_percent=0
-            else
-                context_percent="unavailable"
-            fi
-        else
-            context_percent="unavailable"
-        fi
+    local json="${1:-{}}"
+    local current_dir="${2:-$(pwd)}"
+    
+    # Extract all data with error handling
+    local model_id model_display cost_usd input_tokens output_tokens lines_added lines_removed transcript_path
+    model_id=$(extract_json "$json" "model.id" 2>/dev/null || echo "")
+    model_display=$(extract_json "$json" "model.display_name" 2>/dev/null || echo "")
+    cost_usd=$(extract_json "$json" "cost.total_cost_usd" 2>/dev/null || echo "")
+    lines_added=$(extract_json "$json" "cost.total_lines_added" 2>/dev/null || echo "0")
+    lines_removed=$(extract_json "$json" "cost.total_lines_removed" 2>/dev/null || echo "0")
+    transcript_path=$(extract_json "$json" "transcript_path" 2>/dev/null || echo "")
+    
+    # Get token usage from transcript file or JSON directly
+    if [[ -n "$transcript_path" && -f "$transcript_path" ]]; then
+        local tokens
+        tokens=$(get_transcript_tokens "$transcript_path")
+        input_tokens="${tokens%|*}"
+        output_tokens="${tokens#*|}"
     else
-        # Use original logic for context percentage from token data if available
-        local input_tokens output_tokens
-        input_tokens=$(get_json_number "$json_input" '.cost.total_input_tokens' 0)
-        output_tokens=$(get_json_number "$json_input" '.cost.total_output_tokens' 0)
-
-        if [[ $input_tokens -gt 0 || $output_tokens -gt 0 ]]; then
-            local tokens_used context_window_size
-            tokens_used=$((input_tokens + output_tokens))
-            context_window_size=200000
-            context_percent=$((100 - (tokens_used * 100 / context_window_size)))
-            [[ $context_percent -lt 0 ]] && context_percent=0
-        else
-            context_percent="unavailable"
-        fi
+        # Fallback: try multiple locations for token data
+        input_tokens=$(extract_json "$json" "message.usage.input_tokens" 2>/dev/null || extract_json "$json" "usage.input_tokens" 2>/dev/null || extract_json "$json" "cost.total_input_tokens" 2>/dev/null || echo "0")
+        output_tokens=$(extract_json "$json" "message.usage.output_tokens" 2>/dev/null || extract_json "$json" "usage.output_tokens" 2>/dev/null || extract_json "$json" "cost.total_output_tokens" 2>/dev/null || echo "0")
     fi
-
-    # Duration and line change data
-    total_duration_ms=$(get_json_number "$json_input" '.cost.total_duration_ms' 0)
-    api_duration_ms=$(get_json_number "$json_input" '.cost.total_api_duration_ms' 0)
-    lines_added=$(get_json_number "$json_input" '.cost.total_lines_added' 0)
-    lines_removed=$(get_json_number "$json_input" '.cost.total_lines_removed' 0)
-
-    # Extract additional fields for potential future use
-    session_id=$(get_json_field "$json_input" '.session_id' '')
-    claude_version=$(get_json_field "$json_input" '.version' '')
-    output_style=$(get_json_field "$json_input" '.output_style.name' '')
-
-    # Determine model display string
-    local model_display=""
-    local model_version=""
-
-    if [[ -n "$model_display_name" && "$model_display_name" != "null" && "$model_display_name" != "" ]]; then
-        model_display="$model_display_name"
-        # Don't show version when we have a clean display name
-    elif [[ -n "$model_id" && "$model_id" != "null" && "$model_id" != "" ]]; then
-        # Clean up model ID for display
-        model_display=$(echo "$model_id" | sed 's/claude-//' | sed 's/-[0-9]\{8\}//')
-        # Extract version from model ID if present (only when using ID)
-        if [[ "$model_id" =~ -([0-9]{8})$ ]]; then
-            model_version="${BASH_REMATCH[1]}"
-        fi
-    else
-        model_display="unavailable"
-    fi
-
-    session_cost="$total_cost_usd"
-
-    # Update usage tracking
-    update_daily_usage "$session_cost"
-
-    # Get calculated values directly
-    daily_usage=$(get_daily_usage)
-    next_reset=$(get_next_reset_time)
-
-    # Format cost displays - use Claude Code values directly
-    session_cost_display=""
-    daily_cost_display=""
-
-    # Use session cost directly as provided by Claude Code
-    if [[ -n "$total_cost_usd" && "$total_cost_usd" != "0" && "$total_cost_usd" != "0.000" ]]; then
-        session_cost_display="$total_cost_usd"
-    fi
-
-    if (( $(echo "$daily_usage > 0" | bc -l 2>/dev/null || echo "0") )); then
-        local daily_decimal_places
-        daily_decimal_places=$(get_config '.formatting.daily_cost_decimal_places' '2')
-        daily_cost_display=$(printf "%.${daily_decimal_places}f" "$daily_usage")
-    fi
-
-    # current_dir already extracted from JSON above
-
-    # Build components based on configuration order
+    
+    # Use display name if available, fallback to ID
+    local model="${model_display:-$model_id}"
+    
+    # Build components
     local components=()
-    local compact_components=()
-
-    # Get component order from config (handle array properly)
-    local component_order_json config_file
-    config_file="${ACTIVE_CONFIG_FILE:-$CONFIG_FILE}"
-
-    if [[ -f "$config_file" ]]; then
-        component_order_json=$(jq '.components.order // ["model","directory","git","session_cost","daily_cost","lines_changed","duration_info","reset_countdown","schedule"]' "$config_file" 2>/dev/null)
-    else
-        component_order_json='["model","directory","git","session_cost","daily_cost","lines_changed","duration_info","reset_countdown","schedule"]'
-    fi
-
-    # Process each component in the specified order
-    while IFS= read -r component; do
-        component=$(echo "$component" | tr -d '"' | tr -d ' ')
-        [[ -z "$component" || "$component" == "null" ]] && continue
-
-        # Check if component is enabled
-        if [[ "$(get_config_bool ".components.enabled.$component" 'false')" == "true" ]]; then
-            local full_component=""
-            local compact_component=""
-
-            case "$component" in
-                "model")
-                    full_component=$(get_model_component_cached "$model_display" "$model_version")
-                    compact_component=$(get_model_component_cached "$model_display")
-                    ;;
-                "directory")
-                    full_component=$(get_directory_component_cached "$current_dir")
-                    compact_component=$(get_directory_component_cached "$current_dir")
-                    ;;
-                "git")
-                    full_component=$(get_git_component_cached)
-                    compact_component=$(get_git_component_cached)
-                    ;;
-                "context")
-                    full_component=$(get_context_component_cached "$context_percent")
-                    compact_component=$(get_context_component_cached "$context_percent")
-                    ;;
-                "session_cost")
-                    full_component=$(get_session_cost_component_cached "$session_cost_display")
-                    compact_component=$(get_session_cost_component_cached "$session_cost_display")
-                    ;;
-                "daily_cost")
-                    full_component=$(get_daily_cost_component_cached "$daily_cost_display")
-                    compact_component=$(get_daily_cost_component_cached "$daily_cost_display")
-                    ;;
-                "reset_countdown")
-                    full_component=$(get_reset_component "$next_reset")
-                    compact_component=$(get_reset_component_compact "$next_reset")
-                    ;;
-                "duration_info")
-                    full_component=$(get_duration_info_component "$total_duration_ms" "$api_duration_ms")
-                    compact_component=$(get_duration_info_component_compact "$total_duration_ms")
-                    ;;
-                "lines_changed")
-                    full_component=$(get_lines_changed_component "$lines_added" "$lines_removed")
-                    compact_component=$(get_lines_changed_component_compact "$lines_added" "$lines_removed")
-                    ;;
-                "schedule")
-                    full_component=$(get_schedule_component "")
-                    compact_component=$(get_schedule_component_compact "")
-                    ;;
-            esac
-
-            # Add non-empty components
-            [[ -n "$full_component" ]] && components+=("$full_component")
-            [[ -n "$compact_component" ]] && compact_components+=("$compact_component")
+    local comp
+    
+    comp=$(get_model_component "$model")
+    [[ -n "$comp" ]] && components+=("$comp")
+    
+    comp=$(get_directory_component "$current_dir")
+    [[ -n "$comp" ]] && components+=("$comp")
+    
+    comp=$(get_git_component)
+    [[ -n "$comp" ]] && components+=("$comp")
+    
+    comp=$(get_context_component "$input_tokens" "$output_tokens")
+    [[ -n "$comp" ]] && components+=("$comp")
+    
+    comp=$(get_cost_component "$cost_usd")
+    [[ -n "$comp" ]] && components+=("$comp")
+    
+    comp=$(get_lines_component "$lines_added" "$lines_removed")
+    [[ -n "$comp" ]] && components+=("$comp")
+    
+    comp=$(get_time_component)
+    [[ -n "$comp" ]] && components+=("$comp")
+    
+    # Assemble statusline
+    local statusline=""
+    local first=1
+    
+    for comp in "${components[@]}"; do
+        if (( first )); then
+            statusline="$comp"
+            first=0
+        else
+            statusline="$statusline │ $comp"
         fi
-    done < <(echo "$component_order_json" | jq -r '.[]' 2>/dev/null)
-
-
-    # Determine if we should use compact format
-    local terminal_width max_width compact_threshold
-    terminal_width=$(get_terminal_width)
-    max_width=$(get_config '.display.max_width' '120')
-    compact_threshold=$(get_config '.display.compact_threshold' '80')
-
-    local separator status_line
-
-    if [[ $terminal_width -lt $compact_threshold ]]; then
-        # Use compact format
-        separator=$(get_config '.display.compact_separator' '│')
-        separator="${STATUSLINE_GRAY}${separator}${STATUSLINE_RESET}"
-
-        status_line=""
-        for i in "${!compact_components[@]}"; do
-            if [[ $i -gt 0 ]]; then
-                status_line+="$separator"
-            fi
-            status_line+="${compact_components[$i]}"
-        done
-    else
-        # Use full format
-        separator=$(get_config '.display.separator' ' │ ')
-        separator="${STATUSLINE_GRAY}${separator}${STATUSLINE_RESET}"
-
-        status_line=""
-        for i in "${!components[@]}"; do
-            if [[ $i -gt 0 ]]; then
-                status_line+="$separator"
-            fi
-            status_line+="${components[$i]}"
-        done
-    fi
-
-    echo -e "$status_line"
+    done
+    
+    echo "$statusline"
 }
 
 # Debug logging function
 debug_log() {
-    local json_input="$1"
+    [[ "${STATUSLINE_DEBUG:-0}" != "1" ]] && return
+    
+    local json="$1"
     local log_file="/tmp/claude_statusline_debug.log"
-
+    
     {
         echo "=== $(date) ==="
-        echo "Raw JSON length: ${#json_input}"
-        echo "Raw JSON: $json_input"
+        echo "Raw JSON length: ${#json}"
+        echo "Raw JSON: $json"
         echo
-
-        # Test extractions
-        echo "Extractions:"
-        echo "  model.id: '$(get_json_field "$json_input" '.model.id' 'MISSING')'"
-        echo "  model.display_name: '$(get_json_field "$json_input" '.model.display_name' 'MISSING')'"
-        echo "  cost.total_cost_usd: '$(get_json_number "$json_input" '.cost.total_cost_usd' 'MISSING')'"
+        echo "Token extractions:"
+        echo "  total_input_tokens: '$(extract_json "$json" "cost.total_input_tokens" 2>/dev/null || echo "MISSING")'"
+        echo "  total_output_tokens: '$(extract_json "$json" "cost.total_output_tokens" 2>/dev/null || echo "MISSING")'"
         echo "=================================="
         echo
     } >> "$log_file"
 }
 
-# Main execution
+# Main function with robust error handling
 main() {
-    # Read JSON input from stdin
-    local json_input=""
-    while IFS= read -r line; do
-        json_input+="$line"
-    done
-
-    # Log the actual data for debugging (temporary)
-    if [[ -n "$json_input" ]]; then
-        debug_log "$json_input"
+    local json=""
+    
+    # Read input safely
+    if [[ -t 0 ]]; then
+        json='{"model":{},"workspace":{"current_dir":"'${PWD}'"},"cost":{}}'
+    else
+        json=$(cat 2>/dev/null || echo '{}')
     fi
-
-    # Fallback if no JSON input - use minimal valid structure
-    if [[ -z "$json_input" ]]; then
-        json_input='{"model":{},"workspace":{"current_dir":"'$(pwd)'"},"cost":{}}'
+    
+    # Debug logging
+    debug_log "$json"
+    
+    # Get current directory safely
+    local current_dir
+    current_dir=$(extract_json "$json" "workspace.current_dir" 2>/dev/null || echo "$PWD")
+    
+    # Build and output statusline
+    build_statusline "$json" "$current_dir"
+    
+    # Performance monitoring (optional)
+    if [[ "${STATUSLINE_PERF:-0}" == "1" ]]; then
+        local end_time duration_ms
+        end_time=$(date +%s%N 2>/dev/null || date +%s000000000)
+        duration_ms=$(( (end_time - START_TIME) / 1000000 ))
+        echo "Robust statusline: ${duration_ms}ms" >&2
     fi
-
-    build_statusline "$json_input"
 }
 
-# Execute main function
-main "$@"
+# Execute
+main "$@" 2>/dev/null || {
+    # Ultimate fallback
+    echo "🤖 Claude │ 📁 $(basename "$PWD") │ 🌿 $(git symbolic-ref --short HEAD 2>/dev/null || echo "main") │ 🔄 5h"
+}
