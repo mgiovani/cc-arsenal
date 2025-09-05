@@ -41,7 +41,7 @@ setup_cron() {
     local temp_cron=$(mktemp)
 
     # Add existing crontab (excluding old claude entries)
-    crontab -l 2>/dev/null | grep -v "$HI_SCRIPT" > "$temp_cron" || true
+    crontab -l 2>/dev/null | grep -v "$HI_SCRIPT" | grep -v "# Claude Hi Triggers" > "$temp_cron" || true
 
     # Add our entries
     echo "" >> "$temp_cron"
@@ -91,8 +91,8 @@ interactive_setup() {
     echo
 
     echo "Choose your schedule (triggers 5 hours before Claude resets):"
-    echo "1) Work Hours (9,14,19)         - 9am, 2pm, 7pm triggers (resets: 2pm, 7pm, 12am)"
-    echo "2) Extended Day (4,9,14,19)     - 4am, 9am, 2pm, 7pm triggers (resets: 9am, 2pm, 7pm, 12am)"
+    echo "1) Extended Day (4,9,14,19)     - 4am, 9am, 2pm, 7pm triggers (resets: 9am, 2pm, 7pm, 12am) [RECOMMENDED]"
+    echo "2) Work Hours (9,14,19)         - 9am, 2pm, 7pm triggers (resets: 2pm, 7pm, 12am)"
     echo "3) Business Hours (9,14)        - 9am, 2pm triggers (resets: 2pm, 7pm)"
     echo "4) Custom times"
     echo
@@ -101,12 +101,12 @@ interactive_setup() {
 
     case "$choice" in
         1)
-            times="9,14,19"
-            desc="Work Hours (triggers at 9am/2pm/7pm, resets at 2pm/7pm/12am)"
-            ;;
-        2)
             times="4,9,14,19"
             desc="Extended Day (triggers at 4am/9am/2pm/7pm, resets at 9am/2pm/7pm/12am)"
+            ;;
+        2)
+            times="9,14,19"
+            desc="Work Hours (triggers at 9am/2pm/7pm, resets at 2pm/7pm/12am)"
             ;;
         3)
             times="9,14"

@@ -187,16 +187,61 @@ get_git_component() {
 get_session_file() {
     local dir_hash
     dir_hash=$(echo "$PWD" | md5 -q 2>/dev/null || echo "$PWD" | md5sum | cut -d' ' -f1 2>/dev/null || echo "default")
-    # Session duration should persist across rate limit windows
     echo "/tmp/claude_session_${dir_hash}"
+}
+
+# Get session ID file for tracking current session
+get_session_id_file() {
+    local dir_hash
+    dir_hash=$(echo "$PWD" | md5 -q 2>/dev/null || echo "$PWD" | md5sum | cut -d' ' -f1 2>/dev/null || echo "default")
+    echo "/tmp/claude_session_id_${dir_hash}"
+}
+
+# Extract session ID from JSON data
+get_current_session_id() {
+    local json="$1"
+
+    # Try multiple possible session ID fields
+    local session_id
+    session_id=$(extract_json "$json" "conversation_uuid" 2>/dev/null ||
+                  extract_json "$json" "session_id" 2>/dev/null ||
+                  extract_json "$json" "conversation_id" 2>/dev/null ||
+                  extract_json "$json" "workspace.conversation_uuid" 2>/dev/null ||
+                  echo "")
+
+    echo "$session_id"
 }
 
 # Initialize or get session start time
 get_session_start() {
     # If we have valid usage data (tokens > 0), session has started
-    local input_tokens="$1" output_tokens="$2"
-    local session_file
+    local input_tokens="$1" output_tokens="$2" json="${3:-}"
+    local session_file session_id_file
     session_file=$(get_session_file)
+    session_id_file=$(get_session_id_file)
+
+    # Check if we have a session ID and if it's changed
+    if [[ -n "$json" ]]; then
+        local current_session_id
+        current_session_id=$(get_current_session_id "$json")
+
+        if [[ -n "$current_session_id" && "$current_session_id" != "null" ]]; then
+            local stored_session_id=""
+
+            if [[ -f "$session_id_file" ]]; then
+                stored_session_id=$(cat "$session_id_file" 2>/dev/null || echo "")
+            fi
+
+            # If session ID changed, start new session
+            if [[ "$current_session_id" != "$stored_session_id" ]]; then
+                if [[ "$input_tokens" -gt 0 ]] || [[ "$output_tokens" -gt 0 ]] 2>/dev/null; then
+                    date +%s > "$session_file" 2>/dev/null || echo "$(date +%s)" > "$session_file"
+                    echo "$current_session_id" > "$session_id_file" 2>/dev/null
+                fi
+            fi
+        fi
+    fi
+
 
     if [[ ! -f "$session_file" ]]; then
         # Check for old windowed session files and migrate the earliest one
@@ -236,9 +281,9 @@ get_session_start() {
 
 # Get session duration
 get_session_duration() {
-    local input_tokens="$1" output_tokens="$2"
+    local input_tokens="$1" output_tokens="$2" json="${3:-}"
     local session_start
-    session_start=$(get_session_start "$input_tokens" "$output_tokens")
+    session_start=$(get_session_start "$input_tokens" "$output_tokens" "$json")
 
     if [[ "$session_start" == "0" ]]; then
         echo "0"
@@ -358,9 +403,9 @@ get_lines_component() {
 
 # Session duration component
 get_session_component() {
-    local input_tokens="$1" output_tokens="$2"
+    local input_tokens="$1" output_tokens="$2" json="${3:-}"
     local duration
-    duration=$(get_session_duration "$input_tokens" "$output_tokens")
+    duration=$(get_session_duration "$input_tokens" "$output_tokens" "$json")
 
 
     if [[ "$duration" == "0" ]]; then
@@ -522,7 +567,7 @@ build_statusline() {
     comp=$(get_lines_component "$lines_added" "$lines_removed")
     [[ -n "$comp" ]] && components+=("$comp")
 
-    comp=$(get_session_component "$input_tokens" "$output_tokens")
+    comp=$(get_session_component "$input_tokens" "$output_tokens" "$json")
     [[ -n "$comp" ]] && components+=("$comp")
 
     comp=$(get_time_component "$input_tokens" "$output_tokens")

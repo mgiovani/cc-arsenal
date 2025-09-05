@@ -29,6 +29,7 @@ help: ## Show this help message
 	@echo "  make install              # Install Claude Code Arsenal"
 	@echo "  make claude-hi-setup      # Replace cron workarounds with smart scheduling"
 	@echo "  make claude-hi-standard   # Quick 9am/2pm/7pm schedule"
+	@echo "  make claude-slash-setup   # Automate custom slash commands daily"
 	@echo "  make statusline-install   # Add enhanced statusline"
 	@echo
 	@echo "$(YELLOW)Development Examples:$(RESET)"
@@ -494,6 +495,33 @@ claude-hi-custom: ## Custom schedule helper for different work patterns
 	@echo "$(BLUE)Custom Schedule Helper...$(RESET)"
 	@chmod +x scripts/claude-hi/claude_hi_cron.sh
 	@scripts/claude-hi/claude_hi_cron.sh custom
+
+# ============================================================================
+# Claude Slash Command Automation
+# ============================================================================
+
+claude-slash-setup: ## Interactive setup for automated slash commands
+	@echo "$(BLUE)Setting up automated slash command execution...$(RESET)"
+	@chmod +x scripts/claude-hi/claude_slash_cron.sh
+	@scripts/claude-hi/claude_slash_cron.sh setup
+
+claude-slash-status: ## Show automated slash commands status
+	@echo "$(BLUE)Checking slash command automation status...$(RESET)"
+	@chmod +x scripts/claude-hi/claude_slash_cron.sh
+	@scripts/claude-hi/claude_slash_cron.sh status
+
+claude-slash-list: ## List all automated slash commands
+	@echo "$(BLUE)Listing automated slash commands...$(RESET)"
+	@chmod +x scripts/claude-hi/claude_slash_cron.sh
+	@scripts/claude-hi/claude_slash_cron.sh list
+
+claude-slash-remove: ## Remove specific slash command automation
+	@echo "$(BLUE)Removing slash command automation...$(RESET)"
+	@chmod +x scripts/claude-hi/claude_slash_cron.sh
+	@echo "Available automations:"
+	@scripts/claude-hi/claude_slash_cron.sh list
+	@echo ""
+	@scripts/claude-hi/claude_slash_cron.sh remove
 
 # Default target
 all: help

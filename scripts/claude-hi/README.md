@@ -96,7 +96,8 @@ make claude-hi-custom    # Interactive custom helper
 ### Cron Integration
 The system creates clean cron jobs that run daily:
 ```bash
-# Example for standard schedule (9,14,19)
+# Example for extended day schedule (4,9,14,19) - RECOMMENDED
+0 4 * * * ~/.claude/send_hi.sh    # 4am trigger
 0 9 * * * ~/.claude/send_hi.sh    # 9am trigger
 0 14 * * * ~/.claude/send_hi.sh   # 2pm trigger
 0 19 * * * ~/.claude/send_hi.sh   # 7pm trigger
@@ -168,9 +169,10 @@ make claude-hi-status
 📊 Claude 'Hi' Cron Status
 ====================
 Status: enabled
-Schedule: 9,14,19 (daily)
+Schedule: 4,9,14,19 (daily)
 
 Cron Jobs:
+0 4 * * * ~/.claude/send_hi.sh
 0 9 * * * ~/.claude/send_hi.sh
 0 14 * * * ~/.claude/send_hi.sh
 0 19 * * * ~/.claude/send_hi.sh
