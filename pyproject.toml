@@ -3,7 +3,7 @@ name = "cc-arsenal"
 version = "0.1.0"
 description = "Professional utility scripts for Claude Code"
 authors = [
-    { name = "CC Arsenal Team", email = "contact@mgiovani.com" }
+    { name = "CC Arsenal Team", email = "contact@example.com" }
 ]
 readme = "README.md"
 license = { text = "MIT" }
