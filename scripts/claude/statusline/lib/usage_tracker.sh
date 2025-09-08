@@ -10,7 +10,7 @@ readonly USAGE_TRACKER_LOADED=1
 source "$(dirname "${BASH_SOURCE[0]}")/utils.sh"
 
 # Constants (allow test overrides)
-readonly USAGE_DIR="${TEST_USAGE_DIR:-$HOME/.claude/claude_dump}"
+readonly USAGE_DIR="${TEST_USAGE_DIR:-$HOME/.claude/cc-arsenal}"
 readonly USAGE_DB="${TEST_USAGE_DB:-$USAGE_DIR/usage_tracking.json}"
 readonly CLAUDE_DIR="${TEST_CLAUDE_DIR:-$HOME/.claude}"
 
@@ -38,7 +38,7 @@ update_daily_usage() {
 
     if [[ -f "$USAGE_DB" ]]; then
         jq --arg date "$current_date" --arg cost "$cost" '
-            .daily_usage[$date] = ((.daily_usage[$date] // 0) + ($cost | tonumber))
+            .daily_usage[$date] = ((((.daily_usage[$date] // 0) + ($cost | tonumber)) * 10000) | round) / 10000
         ' "$USAGE_DB" > "$temp_file" && mv "$temp_file" "$USAGE_DB"
     fi
 }
@@ -54,6 +54,7 @@ get_daily_usage() {
         echo "0"
     fi
 }
+
 
 # Update 5-hour window tracking
 update_window_tracking() {
@@ -143,6 +144,163 @@ get_next_reset_time() {
     else
         echo "5h0m"
     fi
+}
+
+# Extract model name from multiple data sources
+extract_model_name() {
+    local json_input="$1"
+
+    # Try multiple model extraction paths - Claude Code uses different structures
+    local model_candidates=(
+        "$(get_json_field "$json_input" '.model.id' '')"
+        "$(get_json_field "$json_input" '.model.display_name' '')"
+        "$(get_json_field "$json_input" '.message.model' '')"
+        "$(get_json_field "$json_input" '.Model' '')"
+        "$(get_json_field "$json_input" '.usage.model' '')"
+        "$(get_json_field "$json_input" '.request.model' '')"
+        "$(get_json_field "$json_input" '.modelName' '')"
+        "$(get_json_field "$json_input" '.model_name' '')"
+        "$(get_json_field "$json_input" '.model' '')"
+    )
+
+    # Return first non-empty candidate, or empty if none found
+    for candidate in "${model_candidates[@]}"; do
+        if [[ -n "$candidate" && "$candidate" != "null" && "$candidate" != "" ]]; then
+            echo "$candidate"
+            return
+        fi
+    done
+
+    # No model found - return empty instead of fake data
+    echo ""
+}
+
+# Normalize model name for consistent usage
+normalize_model_name() {
+    local model="$1"
+
+    if [[ -z "$model" ]]; then
+        echo ""
+        return
+    fi
+
+    local model_lower
+    model_lower=$(echo "$model" | tr '[:upper:]' '[:lower:]')
+
+    # Handle various model name formats and map to standard keys
+    if [[ "$model_lower" == *"opus"* ]]; then
+        if [[ "$model_lower" == *"3.5"* ]]; then
+            echo "claude-3-5-opus"
+        elif [[ "$model_lower" == *"4"* ]]; then
+            echo "claude-4-opus"
+        else
+            echo "claude-3-opus"
+        fi
+    elif [[ "$model_lower" == *"sonnet"* ]]; then
+        if [[ "$model_lower" == *"3.5"* ]]; then
+            echo "claude-3-5-sonnet"
+        elif [[ "$model_lower" == *"4"* ]]; then
+            echo "claude-4-sonnet"
+        else
+            echo "claude-3-sonnet"
+        fi
+    elif [[ "$model_lower" == *"haiku"* ]]; then
+        if [[ "$model_lower" == *"3.5"* ]]; then
+            echo "claude-3-5-haiku"
+        elif [[ "$model_lower" == *"4"* ]]; then
+            echo "claude-4-haiku"
+        else
+            echo "claude-3-haiku"
+        fi
+    else
+        # Remove common prefixes and suffixes, keep essential parts
+        echo "$model_lower" | sed 's/^claude-//' | sed 's/-[0-9]\{8\}$//'
+    fi
+}
+
+# Calculate session cost from active session data
+calculate_session_cost() {
+    local json_input="$1"
+
+    # Extract session cost from active block data
+    local session_cost
+    session_cost=$(get_json_field "$json_input" '.costUSD' '')
+
+    # If not found, try alternative Claude Code format
+    if [[ -z "$session_cost" || "$session_cost" == "null" || "$session_cost" == "0" ]]; then
+        session_cost=$(get_json_field "$json_input" '.cost.total_cost_usd' '0')
+    fi
+
+    # Validate we have real cost data
+    if [[ "$session_cost" != "0" && "$session_cost" != "0.000" && "$session_cost" != "null" && -n "$session_cost" ]]; then
+        echo "$session_cost"
+    else
+        echo "0"
+    fi
+}
+
+# Calculate daily cost by aggregating usage entries from Claude Code data
+calculate_daily_cost() {
+    # Simply return our own tracking data for now (real data only)
+    # File system search was causing performance issues
+    get_daily_usage
+}
+
+# Get enhanced usage data from Claude dump files
+get_enhanced_usage_data() {
+    local current_dir="$1"
+
+    # Try to find the most recent Claude dump file in the usage directory
+    if [[ ! -d "$USAGE_DIR" ]]; then
+        echo "{}"
+        return
+    fi
+
+    # Look for recent dump files (within last hour)
+    local recent_file=""
+    local current_timestamp
+    current_timestamp=$(get_current_timestamp)
+
+    # Find the most recent file that's not too old (within last hour = 3600 seconds)
+    while IFS= read -r -d '' file; do
+        if [[ -f "$file" ]]; then
+            local file_timestamp
+            file_timestamp=$(stat -f "%m" "$file" 2>/dev/null || stat -c "%Y" "$file" 2>/dev/null || echo "0")
+
+            if [[ $((current_timestamp - file_timestamp)) -lt 3600 ]]; then
+                if [[ -z "$recent_file" || "$file_timestamp" -gt "$(stat -f "%m" "$recent_file" 2>/dev/null || stat -c "%Y" "$recent_file" 2>/dev/null || echo "0")" ]]; then
+                    recent_file="$file"
+                fi
+            fi
+        fi
+    done < <(find "$USAGE_DIR" -name "*.json" -print0 2>/dev/null)
+
+    # If we found a recent file, try to extract usage data from it
+    if [[ -n "$recent_file" && -f "$recent_file" ]]; then
+        # Try to extract Claude Code session data from the dump file
+        local enhanced_data
+        enhanced_data=$(jq -c '{
+            model: .model,
+            cost: .cost,
+            tokens: {
+                input: (.cost.total_input_tokens // 0),
+                output: (.cost.total_output_tokens // 0)
+            }
+        }' "$recent_file" 2>/dev/null || echo "{}")
+
+        # Validate that we got meaningful data
+        local model_id cost_value
+        model_id=$(echo "$enhanced_data" | jq -r '.model.id // empty' 2>/dev/null)
+        cost_value=$(echo "$enhanced_data" | jq -r '.cost.total_cost_usd // "0"' 2>/dev/null)
+
+        if [[ -n "$model_id" && "$model_id" != "null" ]] || [[ "$cost_value" != "0" && "$cost_value" != "0.000" ]]; then
+            echo "$enhanced_data"
+            return
+        fi
+    fi
+
+    # No enhanced data available
+    echo "{}"
 }
 
 # Clean up old data

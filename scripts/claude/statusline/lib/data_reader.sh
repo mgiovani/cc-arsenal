@@ -32,10 +32,8 @@ get_project_data_dir() {
     if [[ -d "$project_dir" ]]; then
         echo "$project_dir"
     else
-        # Try to find a similar directory (in case of slight naming differences)
-        local basename_project
-        basename_project=$(basename "$current_dir")
-        find "$data_dir" -type d -name "*$basename_project*" | head -1
+        # Skip expensive fallback search for performance
+        echo ""
     fi
 }
 
@@ -51,7 +49,7 @@ get_latest_session_data() {
 
     # Find the most recent JSONL file
     local latest_file
-    latest_file=$(find "$project_dir" -name "*.jsonl" -type f -exec stat -f "%m %N" {} \; 2>/dev/null | sort -nr | head -1 | cut -d' ' -f2-)
+    latest_file=$(find "$project_dir" -name "*.jsonl" -type f -print0 2>/dev/null | xargs -0 ls -t 2>/dev/null | head -1)
 
     if [[ -z "$latest_file" || ! -f "$latest_file" ]]; then
         return 1
@@ -114,7 +112,7 @@ calculate_session_cost() {
 
     # Find the most recent JSONL file
     local latest_file
-    latest_file=$(find "$project_dir" -name "*.jsonl" -type f -exec stat -f "%m %N" {} \; 2>/dev/null | sort -nr | head -1 | cut -d' ' -f2-)
+    latest_file=$(find "$project_dir" -name "*.jsonl" -type f -print0 2>/dev/null | xargs -0 ls -t 2>/dev/null | head -1)
 
     if [[ -z "$latest_file" || ! -f "$latest_file" ]]; then
         echo "0"

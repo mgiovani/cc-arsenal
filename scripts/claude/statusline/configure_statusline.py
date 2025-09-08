@@ -10,7 +10,7 @@ from typing import Any
 class StatuslineConfigurator:
     def __init__(self) -> None:
         self.config_path = (
-            Path.home() / '.claude' / 'claude_dump' / 'statusline_config.json'
+            Path.home() / '.claude' / 'cc-arsenal' / 'statusline_config.json'
         )
         self.config = self.load_config()
 

@@ -8,21 +8,21 @@ source "$(dirname "${BASH_SOURCE[0]}")/git_info.sh"
 # Model component
 get_model_component() {
     local model="$1"
-    local model_version="$2"
+    local model_version="${2:-}"
     local model_short
 
     # If no model data available, show unavailable
     if [[ "$model" == "unavailable" || -z "$model" ]]; then
-        echo "${STATUSLINE_DIM}🤖 Unavailable${STATUSLINE_RESET}"
+        printf '%s' "${STATUSLINE_DIM}🤖 Unavailable${STATUSLINE_RESET}"
         return
     fi
 
     model_short=$(echo "$model" | sed 's/claude-//' | sed 's/-20[0-9]\{6\}//')
 
-    if [[ -n "$model_version" && "$model_version" != "$model" ]]; then
-        echo "${STATUSLINE_BRIGHT_BLUE}🤖 ${model_short}${STATUSLINE_GRAY}@${model_version}${STATUSLINE_RESET}"
+    if [[ -n "$model_version" && "$model_version" != "$model" && "$model_version" != "" ]]; then
+        printf '%s' "${STATUSLINE_BRIGHT_BLUE}🤖 ${model_short}${STATUSLINE_GRAY}@${model_version}${STATUSLINE_RESET}"
     else
-        echo "${STATUSLINE_BRIGHT_BLUE}🤖 ${model_short}${STATUSLINE_RESET}"
+        printf '%s' "${STATUSLINE_BRIGHT_BLUE}🤖 ${model_short}${STATUSLINE_RESET}"
     fi
 }
 
@@ -32,12 +32,12 @@ get_model_component_compact() {
 
     # If no model data available, show unavailable
     if [[ "$model" == "unavailable" || -z "$model" ]]; then
-        echo "${STATUSLINE_DIM}🤖Unavailable${STATUSLINE_RESET}"
+        printf '%s' "${STATUSLINE_DIM}🤖Unavailable${STATUSLINE_RESET}"
         return
     fi
 
     model_short=$(echo "$model" | sed 's/claude-/c/' | sed 's/sonnet/s/' | sed 's/haiku/h/' | sed 's/opus/o/' | head -c 10)
-    echo "${STATUSLINE_BRIGHT_BLUE}🤖${model_short}${STATUSLINE_RESET}"
+    printf '%s' "${STATUSLINE_BRIGHT_BLUE}🤖${model_short}${STATUSLINE_RESET}"
 }
 
 # Directory component
@@ -58,7 +58,7 @@ get_directory_component() {
             ;;
     esac
 
-    echo "${STATUSLINE_BRIGHT_CYAN}📁 ${dir_display}${STATUSLINE_RESET}"
+    printf '%s' "${STATUSLINE_BRIGHT_CYAN}📁 ${dir_display}${STATUSLINE_RESET}"
 }
 
 get_directory_component_compact() {
@@ -69,7 +69,7 @@ get_directory_component_compact() {
     if [[ ${#dir_short} -gt 12 ]]; then
         dir_short="${dir_short:0:9}..."
     fi
-    echo "${STATUSLINE_BRIGHT_CYAN}📁${dir_short}${STATUSLINE_RESET}"
+    printf '%s' "${STATUSLINE_BRIGHT_CYAN}📁${dir_short}${STATUSLINE_RESET}"
 }
 
 # Context component
@@ -79,18 +79,24 @@ get_context_component() {
 
     # Handle unavailable context data
     if [[ "$context_percent" == "unavailable" ]]; then
-        echo "${STATUSLINE_DIM}📊 N/A${STATUSLINE_RESET}"
+        printf '%s' "${STATUSLINE_DIM}📊 N/A${STATUSLINE_RESET}"
         return
     fi
 
-    # If context_percent is empty or not a number, show unavailable
-    if [[ -z "$context_percent" || ! "$context_percent" =~ ^[0-9]+$ ]]; then
-        echo "${STATUSLINE_DIM}📊 N/A${STATUSLINE_RESET}"
+    # If context_percent is empty, treat as 0% for new sessions
+    if [[ -z "$context_percent" ]]; then
+        printf '%s' "${STATUSLINE_GRAY}📊 0%${STATUSLINE_RESET}"
+        return
+    fi
+
+    # If not a number, show N/A
+    if [[ ! "$context_percent" =~ ^[0-9]+$ ]]; then
+        printf '%s' "${STATUSLINE_DIM}📊 N/A${STATUSLINE_RESET}"
         return
     fi
 
     color=$(get_context_color "$context_percent")
-    echo "${color}📊 ${context_percent}%${STATUSLINE_RESET}"
+    printf '%s' "${color}📊 ${context_percent}%${STATUSLINE_RESET}"
 }
 
 get_context_component_compact() {
@@ -99,67 +105,91 @@ get_context_component_compact() {
 
     # Handle unavailable context data
     if [[ "$context_percent" == "unavailable" ]]; then
-        echo "${STATUSLINE_DIM}📊N/A${STATUSLINE_RESET}"
+        printf '%s' "${STATUSLINE_DIM}📊N/A${STATUSLINE_RESET}"
         return
     fi
 
-    # If context_percent is empty or not a number, show unavailable
-    if [[ -z "$context_percent" || ! "$context_percent" =~ ^[0-9]+$ ]]; then
-        echo "${STATUSLINE_DIM}📊N/A${STATUSLINE_RESET}"
+    # If context_percent is empty, treat as 0% for new sessions
+    if [[ -z "$context_percent" ]]; then
+        printf '%s' "${STATUSLINE_GRAY}📊0%${STATUSLINE_RESET}"
+        return
+    fi
+
+    # If not a number, show N/A
+    if [[ ! "$context_percent" =~ ^[0-9]+$ ]]; then
+        printf '%s' "${STATUSLINE_DIM}📊N/A${STATUSLINE_RESET}"
         return
     fi
 
     color=$(get_context_color "$context_percent")
-    echo "${color}📊${context_percent}%${STATUSLINE_RESET}"
+    printf '%s' "${color}📊${context_percent}%${STATUSLINE_RESET}"
 }
 
 # Cost components
 get_session_cost_component() {
     local session_cost_display="$1"
 
-    if [[ -n "$session_cost_display" && "$session_cost_display" != "0.000" && "$session_cost_display" != "0.00" ]]; then
-        if [[ "$session_cost_display" =~ ^[0-9]+→[0-9]+$ ]]; then
-            echo "${STATUSLINE_YELLOW}🎯 ${session_cost_display}${STATUSLINE_RESET}"
-        else
-            echo "${STATUSLINE_YELLOW}💰 \$${session_cost_display}${STATUSLINE_RESET}"
-        fi
+    # Show $0.00 for new sessions (zero cost is valid for new sessions)
+    if [[ -z "$session_cost_display" || "$session_cost_display" == "''" ]]; then
+        printf '%s' "${STATUSLINE_GRAY}💰 \$0.00${STATUSLINE_RESET}"
+        return
+    fi
+
+    # Handle zero values - show $0.00 instead of unavailable
+    if [[ "$session_cost_display" == "0" || "$session_cost_display" == "0.000" || "$session_cost_display" == "0.00" ]]; then
+        printf '%s' "${STATUSLINE_GRAY}💰 \$0.00${STATUSLINE_RESET}"
+        return
+    fi
+
+    # Show valid costs
+    if [[ "$session_cost_display" =~ ^[0-9]+→[0-9]+$ ]]; then
+        printf '%s' "${STATUSLINE_YELLOW}🎯 ${session_cost_display}${STATUSLINE_RESET}"
     else
-        echo "${STATUSLINE_DIM}💰 Unavailable${STATUSLINE_RESET}"
+        printf '%s' "${STATUSLINE_YELLOW}💰 \$${session_cost_display}${STATUSLINE_RESET}"
     fi
 }
 
 get_session_cost_component_compact() {
     local session_cost_display="$1"
 
-    if [[ -n "$session_cost_display" && "$session_cost_display" != "0.000" && "$session_cost_display" != "0.00" ]]; then
-        if [[ "$session_cost_display" =~ ^[0-9]+→[0-9]+$ ]]; then
-            echo "${STATUSLINE_YELLOW}🎯${session_cost_display}${STATUSLINE_RESET}"
-        else
-            echo "${STATUSLINE_YELLOW}💰\$${session_cost_display}${STATUSLINE_RESET}"
-        fi
+    # Show $0.00 for new sessions (zero cost is valid for new sessions)
+    if [[ -z "$session_cost_display" || "$session_cost_display" == "''" ]]; then
+        printf '%s' "${STATUSLINE_GRAY}💰\$0.00${STATUSLINE_RESET}"
+        return
+    fi
+
+    # Handle zero values - show $0.00 instead of unavailable
+    if [[ "$session_cost_display" == "0" || "$session_cost_display" == "0.000" || "$session_cost_display" == "0.00" ]]; then
+        printf '%s' "${STATUSLINE_GRAY}💰\$0.00${STATUSLINE_RESET}"
+        return
+    fi
+
+    # Show valid costs
+    if [[ "$session_cost_display" =~ ^[0-9]+→[0-9]+$ ]]; then
+        printf '%s' "${STATUSLINE_YELLOW}🎯${session_cost_display}${STATUSLINE_RESET}"
     else
-        echo "${STATUSLINE_DIM}💰Unavailable${STATUSLINE_RESET}"
+        printf '%s' "${STATUSLINE_YELLOW}💰\$${session_cost_display}${STATUSLINE_RESET}"
     fi
 }
 
 # Daily cost component
 get_daily_cost_component() {
-    local daily_cost_display="$1"
+    local daily_cost_display="${1:-}"
 
-    if [[ -n "$daily_cost_display" && "$daily_cost_display" != "0.00" ]]; then
-        echo "${STATUSLINE_BRIGHT_YELLOW}📅 \$${daily_cost_display}${STATUSLINE_RESET}"
+    if [[ -n "$daily_cost_display" && "$daily_cost_display" != "0.00" && "$daily_cost_display" != "" ]]; then
+        printf '%s' "${STATUSLINE_BRIGHT_YELLOW}📅 \$${daily_cost_display}${STATUSLINE_RESET}"
     else
-        echo "${STATUSLINE_GRAY}📅 \$0.00${STATUSLINE_RESET}"
+        printf '%s' "${STATUSLINE_GRAY}📅 \$0.00${STATUSLINE_RESET}"
     fi
 }
 
 get_daily_cost_component_compact() {
-    local daily_cost_display="$1"
+    local daily_cost_display="${1:-}"
 
-    if [[ -n "$daily_cost_display" && "$daily_cost_display" != "0.00" ]]; then
-        echo "${STATUSLINE_BRIGHT_YELLOW}📅\$${daily_cost_display}${STATUSLINE_RESET}"
+    if [[ -n "$daily_cost_display" && "$daily_cost_display" != "0.00" && "$daily_cost_display" != "" ]]; then
+        printf '%s' "${STATUSLINE_BRIGHT_YELLOW}📅\$${daily_cost_display}${STATUSLINE_RESET}"
     else
-        echo "${STATUSLINE_GRAY}📅\$0.00${STATUSLINE_RESET}"
+        printf '%s' "${STATUSLINE_GRAY}📅\$0.00${STATUSLINE_RESET}"
     fi
 }
 
@@ -178,9 +208,9 @@ get_duration_info_component() {
 
     if [[ $total_sec -gt 0 ]]; then
         if [[ $api_sec -gt 0 ]]; then
-            echo "${STATUSLINE_GRAY}⏱️ ${total_sec}s (${api_sec}s)${STATUSLINE_RESET}"
+            printf '%s' "${STATUSLINE_GRAY}⏱️ ${total_sec}s (${api_sec}s)${STATUSLINE_RESET}"
         else
-            echo "${STATUSLINE_GRAY}⏱️ ${total_sec}s${STATUSLINE_RESET}"
+            printf '%s' "${STATUSLINE_GRAY}⏱️ ${total_sec}s${STATUSLINE_RESET}"
         fi
     fi
 }
@@ -194,7 +224,7 @@ get_duration_info_component_compact() {
 
     local total_sec=$((total_duration_ms / 1000))
     if [[ $total_sec -gt 0 ]]; then
-        echo "${STATUSLINE_GRAY}⏱️${total_sec}s${STATUSLINE_RESET}"
+        printf '%s' "${STATUSLINE_GRAY}⏱️${total_sec}s${STATUSLINE_RESET}"
     fi
 }
 
@@ -220,7 +250,7 @@ get_lines_changed_component() {
     fi
 
     if [[ -n "$display" ]]; then
-        echo "${STATUSLINE_GRAY}📝 ${display}${STATUSLINE_RESET}"
+        printf '%s' "${STATUSLINE_GRAY}📝 ${display}${STATUSLINE_RESET}"
     fi
 }
 
@@ -245,7 +275,7 @@ get_lines_changed_component_compact() {
     fi
 
     if [[ -n "$display" ]]; then
-        echo "${STATUSLINE_GRAY}📝${display}${STATUSLINE_RESET}"
+        printf '%s' "${STATUSLINE_GRAY}📝${display}${STATUSLINE_RESET}"
     fi
 }
 
@@ -256,10 +286,10 @@ get_reset_component() {
 
     if [[ -n "$next_reset" && "$next_reset" != "5h0m" ]]; then
         if [[ "$next_reset" == "now" ]]; then
-            echo "${STATUSLINE_BRIGHT_GREEN}🔄 reset!${STATUSLINE_RESET}"
+            printf '%s' "${STATUSLINE_BRIGHT_GREEN}🔄 reset!${STATUSLINE_RESET}"
         else
             reset_color=$(get_reset_color "$next_reset")
-            echo "${reset_color}🔄 ${next_reset}${STATUSLINE_RESET}"
+            printf '%s' "${reset_color}🔄 ${next_reset}${STATUSLINE_RESET}"
         fi
     fi
 }
@@ -270,10 +300,10 @@ get_reset_component_compact() {
 
     if [[ -n "$next_reset" && "$next_reset" != "5h0m" ]]; then
         if [[ "$next_reset" == "now" ]]; then
-            echo "${STATUSLINE_BRIGHT_GREEN}🔄!${STATUSLINE_RESET}"
+            printf '%s' "${STATUSLINE_BRIGHT_GREEN}🔄!${STATUSLINE_RESET}"
         else
             reset_color=$(get_reset_color "$next_reset")
-            echo "${reset_color}🔄${next_reset}${STATUSLINE_RESET}"
+            printf '%s' "${reset_color}🔄${next_reset}${STATUSLINE_RESET}"
         fi
     fi
 }
@@ -283,7 +313,7 @@ get_session_duration_component() {
     local session_duration="$1"
 
     if [[ -n "$session_duration" ]]; then
-        echo "${STATUSLINE_GRAY}⏰ ${session_duration}${STATUSLINE_RESET}"
+        printf '%s' "${STATUSLINE_GRAY}⏰ ${session_duration}${STATUSLINE_RESET}"
     fi
 }
 
@@ -297,7 +327,7 @@ get_schedule_component() {
     fi
 
     if [[ -n "$schedule_info" ]]; then
-        echo "${STATUSLINE_BRIGHT_PURPLE}📅 ${schedule_info}${STATUSLINE_RESET}"
+        printf '%s' "${STATUSLINE_BRIGHT_PURPLE}📅 ${schedule_info}${STATUSLINE_RESET}"
     fi
 }
 
@@ -314,7 +344,7 @@ get_schedule_component_compact() {
         if [[ ${#compact_info} -gt 15 ]]; then
             compact_info="${compact_info:0:12}..."
         fi
-        echo "${STATUSLINE_BRIGHT_PURPLE}📅${compact_info}${STATUSLINE_RESET}"
+        printf '%s' "${STATUSLINE_BRIGHT_PURPLE}📅${compact_info}${STATUSLINE_RESET}"
     fi
 }
 
@@ -342,7 +372,7 @@ get_current_schedule_info() {
         ' 2>/dev/null | head -1)
 
         if [[ -n "$next_task" ]]; then
-            echo "$next_task"
+            printf '%s' "$next_task"
             return
         fi
     fi
@@ -352,14 +382,14 @@ get_current_schedule_info() {
     current_hour=$(date +%H | sed 's/^0//')
 
     if [[ $current_hour -ge 9 && $current_hour -lt 14 ]]; then
-        echo "Morning Window"
+        printf '%s' "Morning Window"
     elif [[ $current_hour -ge 14 && $current_hour -lt 19 ]]; then
-        echo "Afternoon Window"
+        printf '%s' "Afternoon Window"
     elif [[ $current_hour -ge 19 ]]; then
-        echo "Evening Window"
+        printf '%s' "Evening Window"
     elif [[ $current_hour -ge 0 && $current_hour -lt 5 ]]; then
-        echo "Night Window"
+        printf '%s' "Night Window"
     else
-        echo "Early Morning Window"
+        printf '%s' "Early Morning Window"
     fi
 }

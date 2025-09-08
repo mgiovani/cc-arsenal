@@ -556,10 +556,10 @@ def main(
                     console.print('\n💡 [dim]Files created:[/dim]')
                     console.print('  • Settings: ~/.claude/settings.json')
                     console.print(
-                        '  • Config: ~/.claude/claude_dump/statusline_config.json'
+                        '  • Config: ~/.claude/cc-arsenal/statusline_config.json'
                     )
                     console.print(
-                        '  • Usage data: ~/.claude/claude_dump/usage_tracking.json'
+                        '  • Usage data: ~/.claude/cc-arsenal/usage_tracking.json'
                     )
                 else:
                     console.print(
