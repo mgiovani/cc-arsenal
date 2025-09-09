@@ -264,8 +264,18 @@ get_session_start() {
         done
 
         if [[ -n "$earliest_file" && "$earliest_timestamp" != "999999999999" ]]; then
-            # Migrate the earliest session
-            echo "$earliest_timestamp" > "$session_file"
+            # Only migrate if the session is recent (within last 12 hours = 43200 seconds)
+            local current_time
+            current_time=$(date +%s)
+            local session_age=$((current_time - earliest_timestamp))
+
+            if [[ $session_age -le 43200 ]]; then
+                # Migrate the recent session
+                echo "$earliest_timestamp" > "$session_file"
+            elif [[ "$input_tokens" -gt 0 ]] || [[ "$output_tokens" -gt 0 ]] 2>/dev/null; then
+                # Old session too old, start new one
+                date +%s > "$session_file" 2>/dev/null || echo "$(date +%s)" > "$session_file"
+            fi
         elif [[ "$input_tokens" -gt 0 ]] || [[ "$output_tokens" -gt 0 ]] 2>/dev/null; then
             # No old session found, start new one
             date +%s > "$session_file" 2>/dev/null || echo "$(date +%s)" > "$session_file"

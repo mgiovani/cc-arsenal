@@ -88,62 +88,115 @@ update_window_tracking() {
 
 # Get next reset time (based on 5-hour windows starting at hour boundaries)
 get_next_reset_time() {
-    local current_timestamp current_hour_start hours_since_start
+    # Get the earliest active session timestamp (account-wide)
+    local earliest_session_timestamp
+    earliest_session_timestamp=$(get_earliest_active_session_timestamp)
+
+    if [[ -z "$earliest_session_timestamp" ]] || [[ "$earliest_session_timestamp" == "0" ]]; then
+        # No active sessions found
+        echo "5h0m"
+        return
+    fi
+
+    local current_timestamp
     current_timestamp=$(get_current_timestamp)
 
-    # Find current hour boundary
+    if [[ -z "$current_timestamp" ]] || [[ ! "$current_timestamp" =~ ^[0-9]+$ ]]; then
+        echo "5h0m"
+        return
+    fi
+
+    # Calculate when the 5-hour window will reset (next full hour after earliest_session + 5 hours)
+    local five_hours_later=$((earliest_session_timestamp + 18000))  # 5 hours = 18000 seconds
+
+    # Round up to the next full hour boundary
+    local reset_timestamp
     if command -v date >/dev/null 2>&1; then
-        # Get the timestamp of the current hour start (e.g., if it's 15:12, get 15:00:00)
-        current_hour_start=$(date -j -f "%H:%M:%S" "$(date +%H):00:00" +%s 2>/dev/null)
+        # Get the hour after the 5-hour mark
+        local reset_hour
+        reset_hour=$(date -r $five_hours_later "+%H" 2>/dev/null)
+        local reset_date
+        reset_date=$(date -r $five_hours_later "+%Y-%m-%d" 2>/dev/null)
 
-        if [[ -z "$current_hour_start" ]]; then
-            echo "5h0m"
-            return
+        if [[ -n "$reset_hour" && -n "$reset_date" ]]; then
+            # Reset at the beginning of the hour that contains the 5-hour mark
+            # (i.e., round DOWN to the hour boundary)
+            reset_timestamp=$(date -j -f "%Y-%m-%d %H:%M:%S" "$reset_date $(printf "%02d:00:00" $reset_hour)" "+%s" 2>/dev/null)
         fi
+    fi
 
-        # Find which 5-hour window we're in
-        # Claude's windows appear to be: 9-14h, 14-19h, 19-24h, 0-5h, 5-9h
-        local current_hour
-        current_hour=$(date +%H | sed 's/^0//')  # Remove leading zero
+    # Only proceed if we have a valid reset timestamp
+    if [[ -n "$reset_timestamp" ]]; then
+        local time_until_reset=$((reset_timestamp - current_timestamp))
 
-        # Calculate which window we're in and when it ends
-        local next_window_hour
-        if [[ $current_hour -ge 9 && $current_hour -lt 14 ]]; then
-            next_window_hour=14  # 9-14h window, resets at 14:00
-        elif [[ $current_hour -ge 14 && $current_hour -lt 19 ]]; then
-            next_window_hour=19  # 14-19h window, resets at 19:00
-        elif [[ $current_hour -ge 19 ]]; then
-            next_window_hour=24  # 19-24h window, resets at 0:00
-        elif [[ $current_hour -ge 0 && $current_hour -lt 5 ]]; then
-            next_window_hour=5   # 0-5h window, resets at 5:00
+        if [[ $time_until_reset -le 0 ]]; then
+            echo "now"
         else
-            next_window_hour=9   # 5-9h window, resets at 9:00
-        fi
-
-        # Calculate next reset time
-        local next_reset_timestamp
-        if [[ $next_window_hour -eq 24 ]]; then
-            # Next day at midnight
-            next_reset_timestamp=$(date -j -f "%Y-%m-%d %H:%M:%S" "$(date -v+1d +%Y-%m-%d) 00:00:00" +%s 2>/dev/null)
-        else
-            # Today at the next window hour
-            next_reset_timestamp=$(date -j -f "%H:%M:%S" "$(printf "%02d:00:00" $next_window_hour)" +%s 2>/dev/null)
-        fi
-
-        if [[ -n "$next_reset_timestamp" ]]; then
-            local time_until_reset=$((next_reset_timestamp - current_timestamp))
-
-            if [[ $time_until_reset -gt 0 ]]; then
-                format_duration "$time_until_reset"
-            else
-                echo "now"
-            fi
-        else
-            echo "5h0m"
+            format_duration "$time_until_reset"
         fi
     else
-        echo "5h0m"
+        echo "Unavailable"
     fi
+}
+
+# Get session file path for current directory
+get_session_file() {
+    local dir_hash
+    dir_hash=$(echo "$PWD" | md5 -q 2>/dev/null || echo "$PWD" | md5sum | cut -d' ' -f1 2>/dev/null || echo "default")
+    echo "/tmp/claude_session_${dir_hash}"
+}
+
+# Get the timestamp of the earliest active Claude session (account-wide)
+get_earliest_active_session_timestamp() {
+    local current_timestamp
+    current_timestamp=$(get_current_timestamp)
+    local earliest_timestamp=0
+
+    # Look through all session files across all directories
+    for session_file in /tmp/claude_session_*; do
+        if [[ -f "$session_file" ]]; then
+            local session_timestamp
+            session_timestamp=$(cat "$session_file" 2>/dev/null || echo "0")
+
+            if [[ "$session_timestamp" != "0" ]] && [[ "$session_timestamp" =~ ^[0-9]+$ ]]; then
+                local session_age=$((current_timestamp - session_timestamp))
+
+                # Only consider sessions within the last 5 hours (18000 seconds)
+                if [[ $session_age -le 18000 ]] && [[ $session_age -ge 0 ]]; then
+                    if [[ $earliest_timestamp -eq 0 ]] || [[ $session_timestamp -lt $earliest_timestamp ]]; then
+                        earliest_timestamp=$session_timestamp
+                    fi
+                fi
+            fi
+        fi
+    done
+
+    # If no active sessions found, fallback to recent Claude dump files
+    if [[ $earliest_timestamp -eq 0 ]] && [[ -d "$USAGE_DIR" ]]; then
+        # Look for dump files within the last 5 hours (18000 seconds)
+        while IFS= read -r -d '' file; do
+            if [[ -f "$file" ]]; then
+                local file_timestamp
+                file_timestamp=$(stat -f "%m" "$file" 2>/dev/null || stat -c "%Y" "$file" 2>/dev/null || echo "0")
+                local file_age=$((current_timestamp - file_timestamp))
+
+                # Only consider files within 5-hour window
+                if [[ $file_age -le 18000 ]] && [[ $file_age -ge 0 ]]; then
+                    # Check if the file contains actual usage data
+                    local cost_data
+                    cost_data=$(jq -r '.cost.total_cost_usd // "0"' "$file" 2>/dev/null || echo "0")
+
+                    if [[ "$cost_data" != "0" && "$cost_data" != "0.000" && "$cost_data" != "null" ]]; then
+                        if [[ $earliest_timestamp -eq 0 ]] || [[ $file_timestamp -lt $earliest_timestamp ]]; then
+                            earliest_timestamp=$file_timestamp
+                        fi
+                    fi
+                fi
+            fi
+        done < <(find "$USAGE_DIR" -name "*.json" -print0 2>/dev/null)
+    fi
+
+    echo "$earliest_timestamp"
 }
 
 # Extract model name from multiple data sources
