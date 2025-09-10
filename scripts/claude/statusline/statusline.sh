@@ -81,6 +81,9 @@ extract_json() {
         "cost.total_lines_removed")
             echo "$json" | grep -o '"total_lines_removed":[0-9]*' 2>/dev/null | sed 's/"total_lines_removed"://' | head -1
             ;;
+        "cost.total_duration_ms")
+            echo "$json" | grep -o '"total_duration_ms":[0-9]*' 2>/dev/null | sed 's/"total_duration_ms"://' | head -1
+            ;;
         "message.usage.input_tokens")
             echo "$json" | grep -o '"input_tokens":[0-9]*' 2>/dev/null | sed 's/"input_tokens"://' | head -1
             ;;
@@ -244,40 +247,9 @@ get_session_start() {
 
 
     if [[ ! -f "$session_file" ]]; then
-        # Check for old windowed session files and migrate the earliest one
-        local dir_hash
-        dir_hash=$(echo "$PWD" | md5 -q 2>/dev/null || echo "$PWD" | md5sum | cut -d' ' -f1 2>/dev/null || echo "default")
-
-        # Find the earliest session file from windowed versions
-        local earliest_file=""
-        local earliest_timestamp=999999999999
-
-        for old_file in /tmp/claude_session_${dir_hash}_*; do
-            if [[ -f "$old_file" ]]; then
-                local timestamp
-                timestamp=$(cat "$old_file" 2>/dev/null || echo "999999999999")
-                if [[ "$timestamp" -lt "$earliest_timestamp" ]]; then
-                    earliest_timestamp="$timestamp"
-                    earliest_file="$old_file"
-                fi
-            fi
-        done
-
-        if [[ -n "$earliest_file" && "$earliest_timestamp" != "999999999999" ]]; then
-            # Only migrate if the session is recent (within last 12 hours = 43200 seconds)
-            local current_time
-            current_time=$(date +%s)
-            local session_age=$((current_time - earliest_timestamp))
-
-            if [[ $session_age -le 43200 ]]; then
-                # Migrate the recent session
-                echo "$earliest_timestamp" > "$session_file"
-            elif [[ "$input_tokens" -gt 0 ]] || [[ "$output_tokens" -gt 0 ]] 2>/dev/null; then
-                # Old session too old, start new one
-                date +%s > "$session_file" 2>/dev/null || echo "$(date +%s)" > "$session_file"
-            fi
-        elif [[ "$input_tokens" -gt 0 ]] || [[ "$output_tokens" -gt 0 ]] 2>/dev/null; then
-            # No old session found, start new one
+        # For new sessions, only start tracking if we have actual usage
+        if [[ "$input_tokens" -gt 0 ]] || [[ "$output_tokens" -gt 0 ]] 2>/dev/null; then
+            # Start new session
             date +%s > "$session_file" 2>/dev/null || echo "$(date +%s)" > "$session_file"
         fi
     fi
@@ -411,18 +383,36 @@ get_lines_component() {
     fi
 }
 
-# Session duration component
+# Session duration component using Claude Code's total_duration_ms
 get_session_component() {
-    local input_tokens="$1" output_tokens="$2" json="${3:-}"
-    local duration
-    duration=$(get_session_duration "$input_tokens" "$output_tokens" "$json")
+    local json="${1:-}"
+    local duration_ms
+    duration_ms=$(extract_json "$json" "cost.total_duration_ms" 2>/dev/null || echo "0")
 
-
-    if [[ "$duration" == "0" ]]; then
+    if [[ "$duration_ms" == "0" || -z "$duration_ms" || "$duration_ms" == "null" ]]; then
         return 0  # Don't show component until session starts
-    else
-        echo "⏱️ $duration"
     fi
+
+    # Convert milliseconds to human readable format
+    local seconds=$((duration_ms / 1000))
+    local minutes=$((seconds / 60))
+    local hours=$((minutes / 60))
+
+    local duration_display
+    if [[ $hours -gt 0 ]]; then
+        local remaining_minutes=$((minutes % 60))
+        if [[ $remaining_minutes -gt 0 ]]; then
+            duration_display="${hours}h${remaining_minutes}m"
+        else
+            duration_display="${hours}h"
+        fi
+    elif [[ $minutes -gt 0 ]]; then
+        duration_display="${minutes}m"
+    else
+        duration_display="${seconds}s"
+    fi
+
+    echo "⏱️ $duration_display"
 }
 
 # Get actual Claude window start time (when first tokens were received)
@@ -577,7 +567,7 @@ build_statusline() {
     comp=$(get_lines_component "$lines_added" "$lines_removed")
     [[ -n "$comp" ]] && components+=("$comp")
 
-    comp=$(get_session_component "$input_tokens" "$output_tokens" "$json")
+    comp=$(get_session_component "$json")
     [[ -n "$comp" ]] && components+=("$comp")
 
     comp=$(get_time_component "$input_tokens" "$output_tokens")
