@@ -84,6 +84,18 @@ extract_json() {
         "cost.total_duration_ms")
             echo "$json" | grep -o '"total_duration_ms":[0-9]*' 2>/dev/null | sed 's/"total_duration_ms"://' | head -1
             ;;
+        "usage.total_input_tokens")
+            echo "$json" | grep -o '"total_input_tokens":[0-9]*' 2>/dev/null | sed 's/"total_input_tokens"://' | head -1
+            ;;
+        "usage.total_output_tokens")
+            echo "$json" | grep -o '"total_output_tokens":[0-9]*' 2>/dev/null | sed 's/"total_output_tokens"://' | head -1
+            ;;
+        "total_input_tokens")
+            echo "$json" | grep -o '"total_input_tokens":[0-9]*' 2>/dev/null | sed 's/"total_input_tokens"://' | head -1
+            ;;
+        "total_output_tokens")
+            echo "$json" | grep -o '"total_output_tokens":[0-9]*' 2>/dev/null | sed 's/"total_output_tokens"://' | head -1
+            ;;
         "message.usage.input_tokens")
             echo "$json" | grep -o '"input_tokens":[0-9]*' 2>/dev/null | sed 's/"input_tokens"://' | head -1
             ;;
@@ -304,26 +316,31 @@ get_transcript_tokens() {
 
     # Extract tokens from JSONL transcript file using jq if available
     if command -v jq >/dev/null 2>&1; then
-        local input_total output_total
-        # Process JSONL file line by line and sum usage tokens
-        input_total=$(jq -r 'select(.message.usage.input_tokens != null) | .message.usage.input_tokens // 0' "$transcript_path" 2>/dev/null | awk '{sum += $1} END {print sum + 0}')
-        output_total=$(jq -r 'select(.message.usage.output_tokens != null) | .message.usage.output_tokens // 0' "$transcript_path" 2>/dev/null | awk '{sum += $1} END {print sum + 0}')
-        echo "${input_total}|${output_total}"
+        # Get the latest message's context tokens
+        local latest_context_tokens latest_output_tokens
+        latest_context_tokens=$(tail -1 "$transcript_path" | jq -r 'select(.message.usage) | .message.usage | ((.input_tokens // 0) + (.cache_read_input_tokens // 0))' 2>/dev/null || echo "0")
+        latest_output_tokens=$(tail -1 "$transcript_path" | jq -r 'select(.message.usage) | .message.usage.output_tokens // 0' 2>/dev/null || echo "0")
+        echo "${latest_context_tokens}|${latest_output_tokens}"
         return 0
     fi
 
-    # Fallback: grep extraction for JSONL format
-    local input_total=0 output_total=0
-    while IFS= read -r line; do
-        if [[ "$line" =~ \"input_tokens\":([0-9]+) ]]; then
-            input_total=$((input_total + ${BASH_REMATCH[1]}))
-        fi
-        if [[ "$line" =~ \"output_tokens\":([0-9]+) ]]; then
-            output_total=$((output_total + ${BASH_REMATCH[1]}))
-        fi
-    done < "$transcript_path" 2>/dev/null || true
+    # Fallback: get latest message context tokens using grep
+    local latest_input=0 latest_cache=0 latest_output=0
+    local last_line
+    last_line=$(tail -1 "$transcript_path" 2>/dev/null || echo "")
 
-    echo "${input_total}|${output_total}"
+    if [[ "$last_line" =~ \"input_tokens\":([0-9]+) ]]; then
+        latest_input=${BASH_REMATCH[1]}
+    fi
+    if [[ "$last_line" =~ \"cache_read_input_tokens\":([0-9]+) ]]; then
+        latest_cache=${BASH_REMATCH[1]}
+    fi
+    if [[ "$last_line" =~ \"output_tokens\":([0-9]+) ]]; then
+        latest_output=${BASH_REMATCH[1]}
+    fi
+
+    local total_context=$((latest_input + latest_cache))
+    echo "${total_context}|${latest_output}"
 }
 
 # Context component
@@ -356,6 +373,26 @@ get_cost_component() {
     local formatted
     formatted=$(printf "%.3f" "$cost" 2>/dev/null || echo "$cost")
     echo "💰 \$${formatted}"
+}
+
+# Daily cost component - read from Claude usage tracking
+get_daily_cost() {
+    local usage_file="$HOME/.claude/usage_tracking.json"
+    local today=$(date +"%Y-%m-%d")
+
+    if [[ -f "$usage_file" ]] && command -v jq >/dev/null 2>&1; then
+        # Extract today's usage from the JSON file
+        local daily_usage
+        daily_usage=$(jq -r ".daily_usage.\"$today\" // 0" "$usage_file" 2>/dev/null || echo "0")
+
+        if [[ "$daily_usage" != "0" ]] && [[ "$daily_usage" =~ ^[0-9.]+$ ]]; then
+            printf "%.2f" "$daily_usage"
+        else
+            echo "0.00"
+        fi
+    else
+        echo "0.00"
+    fi
 }
 
 # Lines component
@@ -422,9 +459,112 @@ get_window_start_file() {
     echo "/tmp/claude_window_start_${dir_hash}"
 }
 
-# Track when the 5-hour Claude window actually started (first successful API call)
+# Get current active block start using session block detection
+get_claude_session_start() {
+    local current_time
+    current_time=$(date +%s)
+    local session_duration_ms=18000000  # 5 hours in milliseconds
+    local session_duration_s=18000      # 5 hours in seconds
+
+    # Collect timestamps from recent session files (last 6 hours)
+    local all_timestamps=()
+    local cutoff_time=$((current_time - 21600))  # 6 hours ago
+
+    # Check Claude data directories for recent JSONL files
+    for claude_dir in "$HOME/.config/claude/projects" "$HOME/.claude/projects"; do
+        if [[ -d "$claude_dir" ]]; then
+            while IFS= read -r -d '' jsonl_file; do
+                if [[ -f "$jsonl_file" ]] && [[ $(stat -f %m "$jsonl_file" 2>/dev/null || echo "0") -gt $cutoff_time ]]; then
+                    # Extract timestamps and convert to epoch
+                    while IFS= read -r timestamp_line; do
+                        if [[ -n "$timestamp_line" ]]; then
+                            local timestamp_epoch
+                            timestamp_epoch=$(TZ=UTC date -j -f "%Y-%m-%dT%H:%M:%S" "${timestamp_line%.*}" +%s 2>/dev/null || echo "0")
+                            if [[ "$timestamp_epoch" -gt $cutoff_time ]]; then
+                                all_timestamps+=("$timestamp_epoch")
+                            fi
+                        fi
+                    done < <(grep -o '"timestamp":"[^"]*"' "$jsonl_file" 2>/dev/null | cut -d'"' -f4)
+                fi
+            done < <(find "$claude_dir" -name "*.jsonl" -type f -print0 2>/dev/null)
+        fi
+    done
+
+    # If no timestamps found, return current hour floored
+    if [[ ${#all_timestamps[@]} -eq 0 ]]; then
+        local current_hour_floored
+        current_hour_floored=$(TZ=UTC date -r "$current_time" "+%Y-%m-%d %H:00:00")
+        TZ=UTC date -j -f "%Y-%m-%d %H:%M:%S" "$current_hour_floored" +%s 2>/dev/null || echo "$current_time"
+        return
+    fi
+
+    # Sort timestamps chronologically
+    IFS=$'\n' all_timestamps=($(sort -n <<< "${all_timestamps[*]}")); unset IFS
+
+    # Apply session block detection algorithm
+    local current_block_start=0
+    local current_block_entries=()
+    local last_entry_time=0
+
+    for timestamp in "${all_timestamps[@]}"; do
+        if [[ "$current_block_start" -eq 0 ]]; then
+            # First timestamp - start new block (floored to hour)
+            current_block_start=$(floor_to_hour "$timestamp")
+            last_entry_time="$timestamp"
+        else
+            # Check if this timestamp should start a new block
+            local time_since_block_start=$((timestamp - current_block_start))
+            local time_since_last_entry=$((timestamp - last_entry_time))
+
+            # If time since block start > 5h OR time since last entry > 5h, start new block
+            if [[ "$time_since_block_start" -gt $session_duration_s ]] || [[ "$time_since_last_entry" -gt $session_duration_s ]]; then
+                # Start new block (floored to hour)
+                current_block_start=$(floor_to_hour "$timestamp")
+            fi
+            last_entry_time="$timestamp"
+        fi
+    done
+
+    # Check if current block is still active
+    if [[ "$current_block_start" -gt 0 ]] && [[ "$last_entry_time" -gt 0 ]]; then
+        local time_since_last_activity=$((current_time - last_entry_time))
+        local block_end_time=$((current_block_start + session_duration_s))
+
+        # Block is active if: time since last activity < 5h AND current time < block end
+        if [[ "$time_since_last_activity" -lt $session_duration_s ]] && [[ "$current_time" -lt $block_end_time ]]; then
+            echo "$current_block_start"
+            return
+        fi
+    fi
+
+    # No active block found, return current hour floored
+    local current_hour_floored
+    current_hour_floored=$(TZ=UTC date -r "$current_time" "+%Y-%m-%d %H:00:00")
+    TZ=UTC date -j -f "%Y-%m-%d %H:%M:%S" "$current_hour_floored" +%s 2>/dev/null || echo "$current_time"
+}
+
+# Helper function to floor timestamp to hour boundary
+floor_to_hour() {
+    local timestamp="$1"
+    local hour_floored
+    hour_floored=$(TZ=UTC date -r "$timestamp" "+%Y-%m-%d %H:00:00")
+    TZ=UTC date -j -f "%Y-%m-%d %H:%M:%S" "$hour_floored" +%s 2>/dev/null || echo "$timestamp"
+}
+
+# Track when the 5-hour Claude window actually started (using Claude Code session data)
 get_window_start() {
-    local input_tokens="$1" output_tokens="$2"
+    local input_tokens="${1:-0}" output_tokens="${2:-0}"
+
+    # First try to get the actual start time from Claude Code session data
+    local claude_start
+    claude_start=$(get_claude_session_start)
+
+    if [[ "$claude_start" -gt 0 ]]; then
+        echo "$claude_start"
+        return 0
+    fi
+
+    # Fallback to our own tracking if Claude data not available
     local window_file
     window_file=$(get_window_start_file)
 
@@ -442,13 +582,13 @@ get_window_start() {
         current_time=$(date +%s)
 
         # Check if window has expired (more than 5 hours = 18000 seconds)
-        if [[ $((current_time - window_start)) -gt 18000 ]]; then
+        if [[ "$window_start" -gt 0 ]] && [[ $((current_time - window_start)) -gt 18000 ]]; then
             # Window expired, start new one if we have usage
             if [[ "$input_tokens" -gt 0 ]] || [[ "$output_tokens" -gt 0 ]] 2>/dev/null; then
                 date +%s > "$window_file" 2>/dev/null || echo "$(date +%s)" > "$window_file"
                 cat "$window_file" 2>/dev/null || echo "$current_time"
             else
-                echo "0"  # No new usage, no active window
+                echo "0"
             fi
         else
             echo "$window_start"
@@ -469,11 +609,17 @@ get_time_component() {
         return 0
     fi
 
-    # Claude uses a 5-hour rolling window that starts when you first use Claude
-    # The window resets exactly 5 hours (18000 seconds) after the first message
+    # Claude uses a 5-hour rolling window that resets at the top of full hours
     local current_time reset_timestamp
     current_time=$(date +%s)
-    reset_timestamp=$((window_start + 18000))  # 5 hours = 18000 seconds
+
+    # Calculate when the window should reset (next full hour after 5 hours from start)
+    local exact_reset_time next_full_hour
+    exact_reset_time=$((window_start + 18000))  # 5 hours = 18000 seconds
+
+    # Round down to the previous full hour (Claude resets at or before the 5-hour mark)
+    prev_full_hour=$(( exact_reset_time / 3600 * 3600 ))
+    reset_timestamp=$prev_full_hour
 
     local seconds_until_reset
     seconds_until_reset=$((reset_timestamp - current_time))
@@ -483,12 +629,34 @@ get_time_component() {
         return 0
     fi
 
-    # Convert to hours and minutes
+    # Convert to hours and minutes for remaining time
     local hours_until minutes_remaining
     hours_until=$((seconds_until_reset / 3600))
     minutes_remaining=$(((seconds_until_reset % 3600) / 60))
 
-    # Format time display
+    # Calculate progress percentage based on actual window duration
+    local total_window_seconds elapsed_seconds progress_pct
+    total_window_seconds=$((reset_timestamp - window_start))
+    elapsed_seconds=$((current_time - window_start))
+    progress_pct=$((elapsed_seconds * 100 / total_window_seconds))
+
+    # Ensure progress percentage is within bounds
+    if (( progress_pct < 0 )); then
+        progress_pct=0
+    elif (( progress_pct > 100 )); then
+        progress_pct=100
+    fi
+
+    # Format reset time as HH:MM
+    local reset_time_display
+    if command -v date >/dev/null 2>&1; then
+        # Try macOS format first, then Linux format
+        reset_time_display=$(date -r "$reset_timestamp" "+%H:%M" 2>/dev/null || date -d "@$reset_timestamp" "+%H:%M" 2>/dev/null || echo "??:??")
+    else
+        reset_time_display="??:??"
+    fi
+
+    # Format remaining time display
     local time_display
     if (( hours_until > 0 )); then
         if (( minutes_remaining > 0 )); then
@@ -500,7 +668,7 @@ get_time_component() {
         time_display="${minutes_remaining}m"
     fi
 
-    echo "🔄 ${time_display}"
+    echo "🔄 ${time_display} until reset at ${reset_time_display}"
 }
 
 # Main statusline builder
@@ -526,8 +694,14 @@ build_statusline() {
         output_tokens="${tokens#*|}"
     else
         # Fallback: try multiple locations for token data
-        input_tokens=$(extract_json "$json" "cost.total_input_tokens" || echo "0")
-        output_tokens=$(extract_json "$json" "cost.total_output_tokens" || echo "0")
+        input_tokens=$(extract_json "$json" "cost.total_input_tokens" 2>/dev/null ||
+                        extract_json "$json" "usage.total_input_tokens" 2>/dev/null ||
+                        extract_json "$json" "total_input_tokens" 2>/dev/null ||
+                        echo "0")
+        output_tokens=$(extract_json "$json" "cost.total_output_tokens" 2>/dev/null ||
+                        extract_json "$json" "usage.total_output_tokens" 2>/dev/null ||
+                        extract_json "$json" "total_output_tokens" 2>/dev/null ||
+                        echo "0")
     fi
 
 
@@ -555,12 +729,7 @@ build_statusline() {
 
     # Add daily cost component (always show, like session cost)
     local daily_cost="0.00"
-    if command -v get_daily_usage >/dev/null 2>&1; then
-        daily_cost=$(get_daily_usage 2>/dev/null || echo "0.00")
-        if [[ "$daily_cost" == "0" ]]; then
-            daily_cost="0.00"
-        fi
-    fi
+    daily_cost=$(get_daily_cost)
     comp="📅 \$${daily_cost}"
     components+=("$comp")
 

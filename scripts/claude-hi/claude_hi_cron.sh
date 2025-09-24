@@ -13,7 +13,7 @@ create_hi_sender() {
     cat > "$HI_SCRIPT" << 'EOF'
 #!/bin/bash
 # Send "hi" to Claude to trigger 5-hour window
-echo "hi"
+claude -p hi
 echo "[$(date)] hi sent to trigger Claude window" >> "$HOME/.claude/cc-arsenal/claude-hi/hi_log.txt"
 EOF
 
