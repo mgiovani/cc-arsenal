@@ -126,7 +126,7 @@ cc-arsenal/
 
 1. **Clone the repository**:
   ```bash
-  git clone https://github.com/your-org/cc-arsenal.git
+  git clone https://github.com/mgiovani/cc-arsenal.git
   cd cc-arsenal
   ```
 
@@ -274,7 +274,7 @@ We welcome contributions! Please follow these steps:
 
 ```bash
 # Clone for development
-git clone https://github.com/your-org/cc-arsenal.git
+git clone https://github.com/mgiovani/cc-arsenal.git
 cd cc-arsenal
 
 # Set up development environment (installs dev dependencies)
@@ -321,8 +321,8 @@ make help
 ## Support
 
 ### Getting Help
-- **🐛 Issues**: [Open a GitHub issue](https://github.com/your-org/cc-arsenal/issues) for bugs or feature requests
-- **💬 Discussions**: [GitHub Discussions](https://github.com/your-org/cc-arsenal/discussions) for questions and ideas
+- **🐛 Issues**: [Open a GitHub issue](https://github.com/mgiovani/cc-arsenal/issues) for bugs or feature requests
+- **💬 Discussions**: [GitHub Discussions](https://github.com/mgiovani/cc-arsenal/discussions) for questions and ideas
 - **📖 Documentation**: Check the `docs/` directory for detailed guides
 
 ### Common Issues
