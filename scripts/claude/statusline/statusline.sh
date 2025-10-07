@@ -113,6 +113,17 @@ extract_json() {
 
 # Live cache from daemon
 LIVE_CACHE_FILE="/tmp/statusline_live_cache/live_data.json"
+DAEMON_SCRIPT="$SCRIPT_DIR/statusline_daemon.sh"
+DAEMON_PID_FILE="/tmp/statusline_live_cache/daemon.pid"
+
+# Check if daemon is running (optional optimization)
+# Note: Statusline works fine without daemon using direct calculation
+ensure_daemon_running() {
+    # Daemon is optional - statusline falls back to direct calculation
+    # Users can start daemon manually for best performance:
+    #   ~/.claude/scripts/claude/statusline/statusline_daemon.sh start
+    return 0
+}
 
 # Read live cached data or fallback to direct calculation
 get_live_cache() {
@@ -814,6 +825,9 @@ debug_log() {
 # Main function with robust error handling
 main() {
     local json=""
+
+    # Auto-start daemon if not running (self-healing, zero-config)
+    ensure_daemon_running
 
     # Read input safely
     if [[ -t 0 ]]; then

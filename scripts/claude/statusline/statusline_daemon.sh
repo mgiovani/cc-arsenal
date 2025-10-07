@@ -143,6 +143,23 @@ update_cache() {
 # DAEMON CONTROL (Dependency Inversion - control flow separated from logic)
 # ============================================================================
 
+# Internal function to start daemon loop (for auto-start)
+# This function never returns - it runs the daemon loop
+_daemon_loop() {
+    # Register PID
+    printf "%d" $$ > "$PID_FILE" 2>/dev/null
+    log_message "Daemon started with PID $$"
+
+    # Initial update
+    update_cache || log_message "WARNING: Initial cache update failed"
+
+    # Main event loop
+    while true; do
+        update_cache || log_message "ERROR: Cache update failed"
+        sleep "$UPDATE_INTERVAL"
+    done
+}
+
 # Starts the daemon background process
 # Returns: 0 on success, 1 if already running
 daemon_start() {
@@ -154,25 +171,54 @@ daemon_start() {
     printf "Starting statusline daemon...\n"
     log_message "Starting daemon"
 
-    # Initial cache update (synchronous)
-    update_cache || log_message "WARNING: Initial cache update failed"
-
     # Fork background process (daemon mode)
-    (
-        # Register PID
-        printf "%d" $$ > "$PID_FILE"
-        log_message "Daemon started with PID $$"
-
-        # Main event loop
-        while true; do
-            update_cache || log_message "ERROR: Cache update failed"
-            sleep "$UPDATE_INTERVAL"
-        done
-    ) &
+    _daemon_loop &
 
     local -r daemon_pid=$!
+    sleep 0.5  # Give daemon time to register PID
     printf "Statusline daemon started (PID: %d)\n" "$daemon_pid"
     printf "Live data refreshing every %ds\n" "$UPDATE_INTERVAL"
+}
+
+# Silent start for auto-start (no output, fork-safe)
+daemon_autostart() {
+    # Double-check not already running (race condition protection)
+    is_running && return 0
+
+    # Create lock to prevent multiple simultaneous starts
+    local lock_file="/tmp/statusline_live_cache/autostart.lock"
+    mkdir -p "$(dirname "$lock_file")" 2>/dev/null
+
+    # Try to acquire lock (atomic operation)
+    if ! mkdir "$lock_file" 2>/dev/null; then
+        # Another process is starting daemon
+        return 0
+    fi
+
+    # We have the lock - start daemon using double-fork pattern
+    # This ensures the daemon becomes a child of init and survives parent exit
+    log_message "Auto-starting daemon"
+
+    # First fork - parent continues, child becomes intermediate process
+    (
+        # Second fork - intermediate process exits, grandchild becomes orphan
+        (
+            # Grandchild: close file descriptors and run daemon loop
+            exec </dev/null >/dev/null 2>&1
+            cd / 2>/dev/null || true
+            _daemon_loop
+        ) &
+
+        # Intermediate process exits immediately
+        exit 0
+    ) &
+
+    # Wait for intermediate process to exit
+    wait $! 2>/dev/null
+
+    # Release lock
+    sleep 0.5
+    rmdir "$lock_file" 2>/dev/null || true
 }
 
 # Stops the daemon background process
@@ -236,6 +282,10 @@ main() {
         start)
             daemon_start
             ;;
+        autostart)
+            # Silent auto-start (called by statusline)
+            daemon_autostart
+            ;;
         stop)
             daemon_stop
             ;;
@@ -259,7 +309,8 @@ main() {
         *)
             printf "Usage: %s {start|stop|restart|status|update}\n" "$0" >&2
             printf "\nCommands:\n"
-            printf "  start   - Start the background daemon\n"
+            printf "  start   - Start the background daemon (interactive)\n"
+            printf "  autostart - Auto-start daemon (silent, fork-safe)\n"
             printf "  stop    - Stop the background daemon\n"
             printf "  restart - Restart the daemon\n"
             printf "  status  - Show daemon status and cache contents\n"
