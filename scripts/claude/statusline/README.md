@@ -40,6 +40,38 @@ The script receives Claude Code session data as JSON via stdin and parses it wit
   - 🔵 Blue: More than 2 hours remaining
   - 🟢 Green: Reset available now
 
+## Update Behavior
+
+### Current Behavior
+Claude Code calls the statusline script **only when conversation messages update** (e.g., when you send a message to Claude). The script calculates both event-dependent and event-independent components on each call:
+
+**Event-Dependent Components** (from Claude events):
+- 🤖 Model information
+- 💰 Session cost
+- 📊 Context usage
+- ⏱️ Session duration
+
+**Event-Independent Components** (calculated fresh):
+- 🌿 **Git status** - Current branch and uncommitted changes
+- 📅 **Daily cost** - Read from `~/.claude/usage_tracking.json`
+- 🔄 **Window reset timer** - Countdown to next 5-hour reset
+- 📁 **Current directory**
+
+### Automatic Refresh Feature Request
+There's an open feature request ([Issue #5685](https://github.com/anthropics/claude-code/issues/5685)) for automatic periodic refresh:
+
+```json
+{
+  "statusLine": {
+    "type": "command",
+    "command": "bash ~/.claude/scripts/statusline.sh",
+    "refreshIntervalSeconds": 60
+  }
+}
+```
+
+**This is not yet implemented.** Until then, the statusline only updates when you interact with Claude Code.
+
 ## Customization
 Edit the script to add/remove information or change colors and formatting to match your terminal theme.
 

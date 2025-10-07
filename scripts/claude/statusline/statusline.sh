@@ -111,14 +111,8 @@ extract_json() {
     esac
 }
 
-# Robust git operations
+# Robust git operations (always fresh - no caching)
 get_git_info() {
-    local cache_key="git_$(pwd)"
-
-    if cache_get "$cache_key" 2>/dev/null; then
-        return 0
-    fi
-
     local git_info="0|not_a_repo"
     if git rev-parse --git-dir >/dev/null 2>&1; then
         local changes branch
@@ -127,7 +121,6 @@ get_git_info() {
         git_info="${changes}|${branch}"
     fi
 
-    cache_set "$cache_key" "$git_info" 2>/dev/null || true
     echo "$git_info"
 }
 
