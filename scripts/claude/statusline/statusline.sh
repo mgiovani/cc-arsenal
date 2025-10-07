@@ -111,8 +111,39 @@ extract_json() {
     esac
 }
 
-# Robust git operations (always fresh - no caching)
+# Live cache from daemon
+LIVE_CACHE_FILE="/tmp/statusline_live_cache/live_data.json"
+
+# Read live cached data or fallback to direct calculation
+get_live_cache() {
+    local key="$1"
+    if [[ -f "$LIVE_CACHE_FILE" ]] && command -v jq >/dev/null 2>&1; then
+        local value=$(jq -r ".$key // empty" "$LIVE_CACHE_FILE" 2>/dev/null || echo "")
+        if [[ -n "$value" && "$value" != "null" ]]; then
+            echo "$value"
+            return 0
+        fi
+    fi
+    return 1
+}
+
+# Robust git operations - reads from live cache or calculates directly
 get_git_info() {
+    # Try live cache first (instant)
+    if [[ -f "$LIVE_CACHE_FILE" ]] && command -v jq >/dev/null 2>&1; then
+        local in_repo=$(jq -r '.git.in_repo // false' "$LIVE_CACHE_FILE" 2>/dev/null || echo "false")
+        if [[ "$in_repo" == "true" ]]; then
+            local branch=$(jq -r '.git.branch // "main"' "$LIVE_CACHE_FILE" 2>/dev/null || echo "main")
+            local changes=$(jq -r '.git.changes // 0' "$LIVE_CACHE_FILE" 2>/dev/null || echo "0")
+            echo "${changes}|${branch}"
+            return 0
+        elif [[ "$in_repo" == "false" ]]; then
+            echo "0|not_a_repo"
+            return 0
+        fi
+    fi
+
+    # Fallback: calculate directly (slower but works if daemon not running)
     local git_info="0|not_a_repo"
     if git rev-parse --git-dir >/dev/null 2>&1; then
         local changes branch
@@ -368,13 +399,22 @@ get_cost_component() {
     echo "💰 \$${formatted}"
 }
 
-# Daily cost component - read from Claude usage tracking
+# Daily cost component - read from live cache or Claude usage tracking
 get_daily_cost() {
+    # Try live cache first (instant)
+    if [[ -f "$LIVE_CACHE_FILE" ]] && command -v jq >/dev/null 2>&1; then
+        local cached_cost=$(jq -r '.cost.daily_cost // empty' "$LIVE_CACHE_FILE" 2>/dev/null || echo "")
+        if [[ -n "$cached_cost" && "$cached_cost" != "null" ]]; then
+            echo "$cached_cost"
+            return 0
+        fi
+    fi
+
+    # Fallback: read directly from usage tracking
     local usage_file="$HOME/.claude/usage_tracking.json"
     local today=$(date +"%Y-%m-%d")
 
     if [[ -f "$usage_file" ]] && command -v jq >/dev/null 2>&1; then
-        # Extract today's usage from the JSON file
         local daily_usage
         daily_usage=$(jq -r ".daily_usage.\"$today\" // 0" "$usage_file" 2>/dev/null || echo "0")
 
