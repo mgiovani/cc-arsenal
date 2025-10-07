@@ -138,18 +138,20 @@ ensure_daemon_running() {
         return 0
     fi
 
-    # We have the lock - start daemon if script exists
+    # We have the lock - start daemon completely asynchronously
+    # Spawn in subshell to avoid blocking statusline
     if [[ -x "$DAEMON_SCRIPT" ]]; then
-        # Start daemon using nohup (survives terminal close)
-        # Redirect all output to avoid blocking
-        nohup "$DAEMON_SCRIPT" start </dev/null >/dev/null 2>&1 &
-
-        # Wait a moment for daemon to register PID
-        sleep 0.5
+        (
+            # Start daemon and clean up lock in background
+            "$DAEMON_SCRIPT" start </dev/null >/dev/null 2>&1
+            sleep 1
+            rmdir "$lock_file" 2>/dev/null || true
+        ) &
+        # Don't wait - return immediately so statusline is fast
+    else
+        # No daemon script, release lock immediately
+        rmdir "$lock_file" 2>/dev/null || true
     fi
-
-    # Release lock
-    rmdir "$lock_file" 2>/dev/null || true
 }
 
 # Read live cached data or fallback to direct calculation
