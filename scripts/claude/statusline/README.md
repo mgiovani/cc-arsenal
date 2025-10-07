@@ -42,21 +42,34 @@ The script receives Claude Code session data as JSON via stdin and parses it wit
 
 ## Architecture & Performance
 
+### Zero-Config Design
+
+The statusline **automatically manages everything** - no setup required!
+
+When you first use Claude Code, the statusline:
+1. Detects the daemon is not running
+2. Auto-starts it silently in the background
+3. Uses fallback calculation until cache is ready
+4. Subsequent calls use the live cache (instant)
+
+**Self-Healing:** If your system restarts or the daemon crashes, the next statusline call automatically restarts it.
+
 ### Two-Tier Architecture
 
 The statusline uses a **cache-based architecture** for optimal performance:
 
-1. **Live Cache Daemon** (`statusline_daemon.sh`) - Optional but recommended
-  - Run once after installation: `~/.claude/scripts/claude/statusline/statusline_daemon.sh start`
+1. **Live Cache Daemon** (`statusline_daemon.sh`)
+  - Auto-starts on first statusline call
   - Updates cache every 60 seconds in background
   - Maintains fresh data for event-independent components
   - Battery-efficient: <0.1% CPU usage
-  - Survives system restarts (add to login items if desired)
+  - Auto-restarts after system reboot
 
 2. **Statusline Script** (`statusline.sh`)
   - Called by Claude Code (max 300ms refresh rate per docs)
+  - Ensures daemon is running (auto-start if needed)
   - Reads from live cache if available (instant, ~1ms)
-  - Falls back to direct calculation if daemon not running (~50ms)
+  - Falls back to direct calculation if cache not ready (~50ms)
   - Combines cached data with Claude event data
 
 ### Component Types
@@ -77,34 +90,29 @@ The statusline uses a **cache-based architecture** for optimal performance:
 
 ### Quick Start
 
-After installation, start the live cache daemon once:
+**No setup required!** Just install and use Claude Code - everything works automatically.
+
+The daemon auto-starts when you first use the statusline and keeps running in the background.
+
+### Daemon Management (Optional)
+
+You can manually control the daemon if needed:
 
 ```bash
-~/.claude/scripts/claude/statusline/statusline_daemon.sh start
-```
-
-That's it! The daemon runs in the background and keeps your statusline data fresh.
-
-### Daemon Management
-
-```bash
-# Start daemon (run once after installation)
-~/.claude/scripts/claude/statusline/statusline_daemon.sh start
-
 # Check daemon status and view cache
 ~/.claude/scripts/claude/statusline/statusline_daemon.sh status
 
-# Stop daemon
+# Manually stop daemon (auto-restarts on next statusline call)
 ~/.claude/scripts/claude/statusline/statusline_daemon.sh stop
 
-# Restart daemon
+# Manually restart daemon
 ~/.claude/scripts/claude/statusline/statusline_daemon.sh restart
 
 # Force cache update (for testing)
 ~/.claude/scripts/claude/statusline/statusline_daemon.sh update
 ```
 
-**Note:** The statusline works perfectly without the daemon (using direct calculation). The daemon is optional but recommended for best performance.
+**Note:** Manual control is rarely needed - the daemon auto-starts and self-heals automatically.
 
 **Performance & Battery Impact:**
 - Update interval: 60 seconds (configurable)

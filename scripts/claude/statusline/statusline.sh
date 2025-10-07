@@ -116,13 +116,40 @@ LIVE_CACHE_FILE="/tmp/statusline_live_cache/live_data.json"
 DAEMON_SCRIPT="$SCRIPT_DIR/statusline_daemon.sh"
 DAEMON_PID_FILE="/tmp/statusline_live_cache/daemon.pid"
 
-# Check if daemon is running (optional optimization)
-# Note: Statusline works fine without daemon using direct calculation
+# Auto-start daemon if not running (zero-config, self-healing)
 ensure_daemon_running() {
-    # Daemon is optional - statusline falls back to direct calculation
-    # Users can start daemon manually for best performance:
-    #   ~/.claude/scripts/claude/statusline/statusline_daemon.sh start
-    return 0
+    # Quick check: is daemon already running?
+    # Note: kill -0 just checks if process exists, doesn't kill it
+    if [[ -f "$DAEMON_PID_FILE" ]]; then
+        local pid=$(cat "$DAEMON_PID_FILE" 2>/dev/null || echo "")
+        if [[ -n "$pid" ]] && kill -0 "$pid" 2>/dev/null; then
+            return 0  # Daemon is running
+        fi
+    fi
+
+    # Use a lock file to prevent multiple simultaneous starts
+    local lock_file="/tmp/statusline_live_cache/start.lock"
+    local cache_dir=$(dirname "$lock_file")
+    mkdir -p "$cache_dir" 2>/dev/null
+
+    # Try to acquire lock (atomic operation using mkdir)
+    if ! mkdir "$lock_file" 2>/dev/null; then
+        # Another statusline call is already starting the daemon
+        return 0
+    fi
+
+    # We have the lock - start daemon if script exists
+    if [[ -x "$DAEMON_SCRIPT" ]]; then
+        # Start daemon using nohup (survives terminal close)
+        # Redirect all output to avoid blocking
+        nohup "$DAEMON_SCRIPT" start </dev/null >/dev/null 2>&1 &
+
+        # Wait a moment for daemon to register PID
+        sleep 0.5
+    fi
+
+    # Release lock
+    rmdir "$lock_file" 2>/dev/null || true
 }
 
 # Read live cached data or fallback to direct calculation
