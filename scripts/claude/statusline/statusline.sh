@@ -138,20 +138,15 @@ ensure_daemon_running() {
         return 0
     fi
 
-    # We have the lock - start daemon completely asynchronously
-    # Spawn in subshell to avoid blocking statusline
+    # We have the lock - start daemon using autostart (non-blocking)
     if [[ -x "$DAEMON_SCRIPT" ]]; then
-        (
-            # Start daemon and clean up lock in background
-            "$DAEMON_SCRIPT" start </dev/null >/dev/null 2>&1
-            sleep 1
-            rmdir "$lock_file" 2>/dev/null || true
-        ) &
-        # Don't wait - return immediately so statusline is fast
-    else
-        # No daemon script, release lock immediately
-        rmdir "$lock_file" 2>/dev/null || true
+        # Use autostart command which is optimized for non-blocking start
+        "$DAEMON_SCRIPT" autostart </dev/null >/dev/null 2>&1 &
+        # Don't wait - return immediately
     fi
+
+    # Release lock immediately
+    rmdir "$lock_file" 2>/dev/null || true
 }
 
 # Read live cached data or fallback to direct calculation
@@ -855,8 +850,9 @@ debug_log() {
 main() {
     local json=""
 
-    # Auto-start daemon if not running (self-healing, zero-config)
-    ensure_daemon_running
+    # Daemon disabled - direct calculation is fast enough (<50ms)
+    # Git operations are quick and Claude calls statusline frequently
+    # No need for background daemon complexity
 
     # Read input safely
     if [[ -t 0 ]]; then

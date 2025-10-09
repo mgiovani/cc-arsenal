@@ -180,7 +180,7 @@ daemon_start() {
     printf "Live data refreshing every %ds\n" "$UPDATE_INTERVAL"
 }
 
-# Silent start for auto-start (no output, fork-safe)
+# Silent start for auto-start (no output, fork-safe, non-blocking)
 daemon_autostart() {
     # Double-check not already running (race condition protection)
     is_running && return 0
@@ -195,29 +195,14 @@ daemon_autostart() {
         return 0
     fi
 
-    # We have the lock - start daemon using double-fork pattern
-    # This ensures the daemon becomes a child of init and survives parent exit
+    # Start daemon loop directly without any waits or sleeps
+    # This is the fastest, simplest approach
     log_message "Auto-starting daemon"
 
-    # First fork - parent continues, child becomes intermediate process
-    (
-        # Second fork - intermediate process exits, grandchild becomes orphan
-        (
-            # Grandchild: close file descriptors and run daemon loop
-            exec </dev/null >/dev/null 2>&1
-            cd / 2>/dev/null || true
-            _daemon_loop
-        ) &
+    # Direct background fork - no intermediate process needed
+    _daemon_loop </dev/null >/dev/null 2>&1 &
 
-        # Intermediate process exits immediately
-        exit 0
-    ) &
-
-    # Wait for intermediate process to exit
-    wait $! 2>/dev/null
-
-    # Release lock
-    sleep 0.5
+    # Release lock immediately - don't wait for anything
     rmdir "$lock_file" 2>/dev/null || true
 }
 
