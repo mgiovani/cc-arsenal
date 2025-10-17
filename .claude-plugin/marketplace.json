@@ -1,0 +1,49 @@
+{
+  "name": "cc-arsenal-marketplace",
+  "owner": {
+    "name": "Giovani Moutinho",
+    "email": "contact@giovani.dev"
+  },
+  "metadata": {
+    "description": "Claude Code Arsenal - Professional security agents, quality automation, and development workflows",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "cc-arsenal",
+      "source": "./",
+      "description": "Security-focused AI agents, quality automation commands, and safety hooks for professional Claude Code development. Includes BMAD methodology agents, git workflow commands, and comprehensive security/compliance hooks.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Giovani Moutinho",
+        "email": "contact@giovani.dev"
+      },
+      "homepage": "https://github.com/mgiovani/cc-arsenal",
+      "repository": "https://github.com/mgiovani/cc-arsenal",
+      "license": "MIT",
+      "category": "productivity",
+      "tags": [
+        "security",
+        "agents",
+        "automation",
+        "bmad",
+        "quality",
+        "hooks",
+        "git",
+        "development"
+      ],
+      "keywords": [
+        "security",
+        "agents",
+        "hooks",
+        "automation",
+        "quality",
+        "bmad",
+        "development",
+        "productivity",
+        "git",
+        "testing"
+      ]
+    }
+  ]
+}

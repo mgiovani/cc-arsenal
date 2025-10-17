@@ -1,0 +1,59 @@
+{
+  "name": "cc-arsenal",
+  "version": "1.0.0",
+  "description": "Security-focused AI agents, quality automation commands, and safety hooks for Claude Code",
+  "author": {
+    "name": "Giovani Moutinho",
+    "email": "contact@giovani.dev"
+  },
+  "homepage": "https://github.com/mgiovani/cc-arsenal",
+  "repository": "https://github.com/mgiovani/cc-arsenal",
+  "license": "MIT",
+  "keywords": [
+    "security",
+    "agents",
+    "hooks",
+    "automation",
+    "quality",
+    "bmad",
+    "development",
+    "productivity"
+  ],
+  "agents": "./agents/",
+  "commands": "./commands/",
+  "skills": "./skills/",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|MultiEdit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "uv run ${CLAUDE_PLUGIN_ROOT}/hooks/security/auth_checker.py"
+          },
+          {
+            "type": "command",
+            "command": "uv run ${CLAUDE_PLUGIN_ROOT}/hooks/security/file_protection.py"
+          },
+          {
+            "type": "command",
+            "command": "uv run ${CLAUDE_PLUGIN_ROOT}/hooks/quality/pre_commit_validate.py"
+          }
+        ]
+      },
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "uv run ${CLAUDE_PLUGIN_ROOT}/hooks/compliance/audit_enforcer.py"
+          },
+          {
+            "type": "command",
+            "command": "uv run ${CLAUDE_PLUGIN_ROOT}/hooks/compliance/migration_safety.py"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -2,7 +2,7 @@
 
 🚀 **Lock and load your Claude Code workflow** with a fully-stocked arsenal of AI agents, commands, and security hooks. Deploy your coding firepower in minutes, not hours.
 
-✨ **Armed with excellence, one `make install` away** ✨
+✨ **Armed with excellence, one command away** ✨
 
 ## Features
 
@@ -15,20 +15,39 @@
 
 ## ⚡ Quick Start
 
-### 1. Install the Arsenal
+### 1. Install the Arsenal (Plugin Method - Recommended)
 ```bash
+# Install UV (prerequisite for Python hooks)
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Install the plugin
+/plugin install github:mgiovani/cc-arsenal
+```
+
+**Or via marketplace:**
+```bash
+/plugin marketplace add mgiovani/cc-arsenal
+/plugin install cc-arsenal
+```
+
+### 2. Alternative Installation (Make Method)
+```bash
+git clone https://github.com/mgiovani/cc-arsenal.git
+cd cc-arsenal
 make install              # Install Claude Code Arsenal to ~/.claude
 ```
 
-### 2. Replace Manual Cron Workarounds
+### 3. Optional Features
+
+After installation, you can enable additional features:
+
 ```bash
+# Replace Manual Cron Workarounds
 make claude-hi-setup      # Interactive smart scheduling setup
 # OR
 make claude-hi-standard   # Quick 9am/2pm/7pm schedule
-```
 
-### 3. Add Enhanced Statusline (Optional)
-```bash
+# Add Enhanced Statusline
 make statusline-install   # Enhanced statusline with usage tracking
 ```
 
@@ -113,16 +132,38 @@ cc-arsenal/
     └── troubleshooting.md
 ```
 
-## Quick Start
+## Installation
 
 ### Prerequisites
-- **Python 3.12+** (for modern language features and performance)
-- **UV** (for fast Python package management) - **REQUIRED**
+- **UV** (for Python hooks) - **REQUIRED**
   - Install: `curl -LsSf https://astral.sh/uv/install.sh | sh`
   - Docs: https://docs.astral.sh/uv/getting-started/installation/
 - **Claude Code** (Anthropic's official Claude CLI)
 
-### Installation
+### Method 1: Plugin Installation (Recommended)
+
+The easiest way to install CC-Arsenal is via Claude Code's plugin system:
+
+```bash
+# Direct installation from GitHub
+/plugin install github:mgiovani/cc-arsenal
+
+# Or add the marketplace first for better discoverability
+/plugin marketplace add mgiovani/cc-arsenal
+/plugin install cc-arsenal
+```
+
+**Benefits of plugin installation:**
+- ✅ One-command installation
+- ✅ Built-in version management
+- ✅ Easy updates via Claude Code
+- ✅ No manual symlink management
+
+**After plugin installation**, restart Claude Code and you're ready to go! All agents, commands, and hooks are automatically available.
+
+### Method 2: Manual Installation (Advanced)
+
+For users who prefer more control or want to customize the installation:
 
 1. **Clone the repository**:
   ```bash
@@ -137,7 +178,7 @@ cc-arsenal/
 
 3. **Install to Claude Code**:
   ```bash
-  make install          # Install all components to ~/.claude
+  make install          # Install all components to ~/.claude via symlinks
   ```
 
 4. **Configure your setup** (optional):
@@ -147,16 +188,11 @@ cc-arsenal/
 
 5. **Restart Claude Code** to load the new configuration
 
-### Alternative Installation Methods
-
-For more control over the installation process:
+**Additional make commands:**
 
 ```bash
 # Force install without prompts
 make force-install
-
-# Install specific components
-make install-statusline  # Just the statusline component
 
 # Backup and restore
 make backup             # Backup current ~/.claude
@@ -168,17 +204,18 @@ make help
 
 ### Verification
 
-Test your installation by checking if the agents are installed:
+Test your installation by trying to use an agent or command:
 ```bash
-# Check if agents are installed in ~/.claude
+# In Claude Code, try using an agent
+# Example: "Use the skill-creator to help me create a new skill"
+
+# Or check the plugin installation (for plugin method)
+/plugin list
+
+# For manual installation, check the files
 ls ~/.claude/agents/
-
-# Test by requesting an agent in Claude Code
-# (Direct request in Claude Code CLI - no shell command needed)
-
-# Or check installation status
-make info              # Show repository information
-make validate-structure # Validate installation
+ls ~/.claude/commands/
+ls ~/.claude/hooks/
 ```
 
 ## Core Components
@@ -342,6 +379,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Ready to secure your Claude Code projects?** Start with `make install` and deploy enterprise-grade security and quality automation.
+**Ready to secure your Claude Code projects?** Install with `/plugin install github:mgiovani/cc-arsenal` and deploy enterprise-grade security and quality automation.
 
 *Built with Claude for Claude*
