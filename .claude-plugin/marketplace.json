@@ -12,6 +12,7 @@
     {
       "name": "cc-arsenal",
       "source": "./",
+      "strict": true,
       "description": "Security-focused AI agents, quality automation commands, and safety hooks for professional Claude Code development. Includes BMAD methodology agents, git workflow commands, and comprehensive security/compliance hooks.",
       "version": "1.0.0",
       "author": {
