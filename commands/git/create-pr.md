@@ -15,7 +15,7 @@ Create a GitHub Pull Request following conventional commits specification, pre-f
    - Get current branch: `git branch --show-current`
    - Verify branch is not main/master
    - Check commits exist: `git log origin/<base>..HEAD --oneline`
-   - Extract ticket ID from branch name (e.g., `FC-2524` from `feature/FC-2524-description`)
+   - Extract ticket ID from branch name (e.g., `ABC-123` from `feature/ABC-123-description`)
    - Display compact validation summary (max 60 chars per line)
 
 2. **Ask for Confirmation** (after validation):
@@ -39,7 +39,7 @@ Create a GitHub Pull Request following conventional commits specification, pre-f
    - Or: `type(scope): description` (if no ticket)
    - Types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`
    - Examples:
-     - `feat(workflow): [FC-2524] prioritize care plan IDs`
+     - `feat(auth): [ABC-123] add OAuth2 login support`
      - `fix(api): resolve null pointer in user endpoint`
 
 6. **Fill PR Template**:
@@ -96,7 +96,7 @@ Parse optional arguments from the command invocation:
 
 - **Template Preservation**: Fill the existing PR template WITHOUT changing its structure
 - **Conventional Commits**: PR title MUST follow conventional commit format
-- **Ticket Integration**: Extract ticket number from branch name (patterns: `FC-2524`, `PROJ-123`, etc.) and place after type/scope
+- **Ticket Integration**: Extract ticket number from branch name (patterns: `ABC-123`, `PROJ-456`, etc.) and place after type/scope
 - **Browser Review**: Always use `--web` to let user finalize the PR
 - **Multiple Commits**: Summarize all commits in the PR, focus on the overall change
 - **Breaking Changes**: Clearly indicate if the PR contains breaking changes
@@ -105,10 +105,10 @@ Parse optional arguments from the command invocation:
 
 **Validation Summary** (keep lines under 60 chars):
 ```
-✅ Branch: feature/FC-2524-description
-✅ Ticket: FC-2524 (In Progress)
-✅ Commits: 15 commits ready
-⚠️ Authors: William Cui, Giovani Moutinho
+✅ Branch: feature/ABC-123-add-authentication
+✅ Ticket: ABC-123 (In Progress)
+✅ Commits: 8 commits ready
+⚠️ Authors: Multiple authors detected
 
 Create PR? (y/n/e to edit):
 ```
