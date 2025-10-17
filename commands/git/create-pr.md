@@ -10,102 +10,87 @@ Create a GitHub Pull Request following conventional commits specification, pre-f
 
 ## Your Task
 
-1. **Extract Jira Ticket** (if present):
-   - Get current branch name using `git branch --show-current`
-   - Extract Jira ticket pattern (e.g., `ABC-123`, `PROJ-456`) from branch name
-   - Format: `[TICKET-123]` for PR title prefix
+1. **Validate Preconditions**:
+   - Check working tree is clean: `git status --porcelain`
+   - Get current branch: `git branch --show-current`
+   - Verify branch is not main/master
+   - Check commits exist: `git log origin/<base>..HEAD --oneline`
+   - Extract ticket ID from branch name (e.g., `FC-2524` from `feature/FC-2524-description`)
+   - Display compact validation summary (max 60 chars per line)
 
-2. **Determine Base Branch**:
+2. **Ask for Confirmation** (after validation):
+   - Show compact summary with ticket, commits count, authors
+   - Ask: `Create PR? (y/n/e to edit):`
+   - Accept: `y`, `yes`, `n`, `no`, `e`, `edit`
+   - On `e`: ask for custom title/body modifications
+
+3. **Determine Base Branch**:
    - Use `--base` argument if provided
-   - Otherwise, detect repository default branch using `gh repo view --json defaultBranchRef --jq .defaultBranchRef.name`
+   - Otherwise use: `gh repo view --json defaultBranchRef -q .defaultBranchRef.name`
    - Fall back to `main` if detection fails
 
-3. **Analyze Changes**:
-   - Run `git log origin/<base-branch>..HEAD` to get all commits in the branch
-   - Run `git diff origin/<base-branch>...HEAD` to understand the full scope of changes
-   - Identify the primary change type for the PR title
+4. **Analyze Changes**:
+   - Run `git log origin/<base>..HEAD --format="%h %s"` to get commits
+   - Run `git diff origin/<base>...HEAD --stat` for file changes
+   - Identify primary change type for PR title
 
-4. **Generate PR Title** (Conventional Commit Format):
-   - Format: `[JIRA-123] type(scope): description` (if Jira ticket found)
-   - Or: `type(scope): description` (if no Jira ticket)
-   - Type: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`
-   - Scope: Component/module affected (optional but recommended)
-   - Description: Concise summary in imperative mood (max 50 chars after prefix)
+5. **Generate PR Title** (Conventional Commit Format):
+   - Format: `[TICKET-123] type(scope): description` (max 72 chars)
+   - Or: `type(scope): description` (if no ticket)
+   - Types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`
    - Examples:
-     - `[ABC-123] feat(auth): add OAuth2 login support`
-     - `[PROJ-456] fix(api): resolve null pointer in user endpoint`
-     - `refactor(parser): extract validation logic`
+     - `[FC-2524] feat(workflow): prioritize care plan IDs`
+     - `fix(api): resolve null pointer in user endpoint`
 
-5. **Fill PR Template**:
-   - Look for `.github/pull_request_template.md` or `.github/PULL_REQUEST_TEMPLATE.md`
-   - If template exists: Fill it based on the changes, preserving the template structure
-   - If no template: Create a standard body with:
+6. **Fill PR Template**:
+   - Look for `.github/pull_request_template.md`
+   - Fill based on commits and changes
+   - Save to `/tmp/pr-body-$(date +%s).md`
+   - If no template, use:
      ```markdown
      ## Summary
-     [Brief description of changes]
+     [Brief description]
 
      ## Changes
-     - Change 1
-     - Change 2
+     - [Bullet points from commits]
 
      ## Testing
      - [ ] Tests added/updated
      - [ ] Manual testing completed
-
-     ## Breaking Changes
-     [If applicable, describe breaking changes]
      ```
-   - Analyze commits and changes to fill each section appropriately
-   - Keep the original template structure intact - DO NOT deviate from it
 
-6. **Create PR with gh CLI**:
-   - **ALWAYS use `--web` flag**: This opens the browser for user to finish PR creation
-   - **Pre-populate with `--title` and `--body-file`**: These work WITH `--web` to pre-fill the web form
-   - **YOU MUST generate the title and body** based on the analysis of changes and conventional commit rules
-   - Steps:
-     1. Analyze changes and generate conventional commit title following the format rules
-     2. Fill PR template based on changes and save to `/tmp/pr-body-{timestamp}.md`
-     3. Display the generated content to user
-     4. Open browser with pre-filled title and body using `--title` and `--body-file` flags
-   - Support optional arguments that work with `--web`:
-     - `--base branch` → `--base branch` (specify target branch)
-     - `--title string` → Pre-fills the PR title in web form
-     - `--body-file file` → Pre-fills the PR body from file in web form
-     - `--reviewer handle` → `--reviewer user1 --reviewer user2` (one flag per reviewer)
-     - `--label name` → `--label label1 --label label2` (one flag per label)
-     - `--assignee handle` → `--assignee user1 --assignee user2` (one flag per assignee)
-     - `--draft` → `--draft` (create as draft PR)
-   - Example:
+7. **Push and Create PR**:
+   - **CRITICAL Step 1**: Push branch FIRST: `git push -u origin <branch>`
+   - **Step 2**: Write body to temp file: `/tmp/pr-body-$(date +%s).md`
+   - **Step 3**: Open PR in browser with --web (for user to finish):
      ```bash
-     # Generate and save body
-     cat > /tmp/pr-body-20250108.md << 'EOF'
-     ## Summary
-     Added OAuth2 authentication support...
-     EOF
+     # Push first (MUST DO THIS)
+     git push -u origin $(git branch --show-current)
 
-     # Display to user
-     echo "Title: [ABC-123] feat(auth): add OAuth2 support"
-     echo "Body saved to: /tmp/pr-body-20250108.md"
+     # Create temp body file
+     cat > /tmp/pr-body-$(date +%s).md << 'EOF'
+     ## Summary
+     [Your generated content here]
+     EOF
 
      # Open in browser with pre-filled data
      gh pr create \
-       --title "[ABC-123] feat(auth): add OAuth2 support" \
-       --body-file /tmp/pr-body-20250108.md \
-       --base develop \
-       --reviewer john --reviewer jane \
-       --label enhancement --label security \
+       --title "[TICKET] type: description" \
+       --body-file /tmp/pr-body-<timestamp>.md \
+       --base main \
        --web
      ```
-   - Note: User can still edit title and body in browser before creating
+   - **CRITICAL**: DO NOT use --reviewer, --assignee, or --label with --web (they conflict!)
+   - User will add reviewers/labels in the web UI
+   - Display: "Opening PR in browser for final review..."
 
 ## Argument Parsing
 
 Parse optional arguments from the command invocation:
 - `--base branch` or `-b branch` (target branch, defaults to repo default)
-- `--reviewers user1,user2` or `-r user1,user2` (comma-separated list)
-- `--labels label1,label2` or `-l label1,label2` (comma-separated list)
-- `--assignees user1,user2` or `-a user1,user2` (comma-separated list)
 - `--draft` or `-d` (create as draft PR)
+
+**Note**: Reviewers, labels, and assignees must be added in the web UI due to gh CLI limitations with --web flag.
 
 ## Important Notes
 
@@ -116,6 +101,18 @@ Parse optional arguments from the command invocation:
 - **Multiple Commits**: Summarize all commits in the PR, focus on the overall change
 - **Breaking Changes**: Clearly indicate if the PR contains breaking changes
 
+## Output Format
+
+**Validation Summary** (keep lines under 60 chars):
+```
+✅ Branch: feature/FC-2524-description
+✅ Ticket: FC-2524 (In Progress)
+✅ Commits: 15 commits ready
+⚠️ Authors: William Cui, Giovani Moutinho
+
+Create PR? (y/n/e to edit):
+```
+
 ## Examples
 
 ```bash
@@ -125,11 +122,11 @@ Parse optional arguments from the command invocation:
 # Target specific base branch
 /create-pr --base develop
 
-# With reviewers and labels
-/create-pr --reviewers john,jane --labels bug,urgent
+# Create as draft PR
+/create-pr --draft
 
-# Full options
-/create-pr -b develop -r alice,bob -l enhancement,security -a alice
+# Specify base branch and draft
+/create-pr -b develop -d
 ```
 
-Create the PR with pre-filled information and open in browser for final review and submission.
+After pushing the branch, the PR will open in your browser pre-filled with title and body. Add reviewers/labels in the web UI before creating.

@@ -56,7 +56,7 @@ BREAKING CHANGE: calculate() has been removed, use computeTotal() instead
 - **Multiple Commits**: If you identify different types of changes (e.g., feat + fix + docs), create separate commits for each type
 - **Staging**: Use `git add <specific-files>` to stage only relevant files for each commit
 - **Imperative Mood**: Use "add" not "added", "fix" not "fixed"
-- **Breaking Changes**: Use `!` after type/scope and include `BREAKING CHANGE:` footer
+- **Breaking Changes**: Append an exclamation mark after type/scope and add a `BREAKING CHANGE:` footer
 - **Scope**: Optional but recommended for clarity (e.g., component name, module name)
 - **Body**: Use for complex changes to explain the "what" and "why", not "how"
 
