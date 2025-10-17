@@ -20,12 +20,7 @@
 # Install UV (prerequisite for Python hooks)
 curl -LsSf https://astral.sh/uv/install.sh | sh
 
-# Install the plugin
-/plugin install github:mgiovani/cc-arsenal
-```
-
-**Or via marketplace:**
-```bash
+# Add the marketplace and install the plugin
 /plugin marketplace add mgiovani/cc-arsenal
 /plugin install cc-arsenal
 ```
@@ -145,10 +140,7 @@ cc-arsenal/
 The easiest way to install CC-Arsenal is via Claude Code's plugin system:
 
 ```bash
-# Direct installation from GitHub
-/plugin install github:mgiovani/cc-arsenal
-
-# Or add the marketplace first for better discoverability
+# Add the marketplace and install
 /plugin marketplace add mgiovani/cc-arsenal
 /plugin install cc-arsenal
 ```
@@ -379,6 +371,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Ready to secure your Claude Code projects?** Install with `/plugin install github:mgiovani/cc-arsenal` and deploy enterprise-grade security and quality automation.
+**Ready to secure your Claude Code projects?** Install with `/plugin marketplace add mgiovani/cc-arsenal` and deploy enterprise-grade security and quality automation.
 
 *Built with Claude for Claude*
