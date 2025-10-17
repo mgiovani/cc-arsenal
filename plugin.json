@@ -19,9 +19,23 @@
     "development",
     "productivity"
   ],
-  "agents": "./agents/",
-  "commands": "./commands/",
-  "skills": "./skills/",
+  "agents": [
+    "./agents/architecture/",
+    "./agents/development/",
+    "./agents/orchestration/",
+    "./agents/product/",
+    "./agents/productivity/",
+    "./agents/ux/"
+  ],
+  "commands": [
+    "./commands/git/",
+    "./commands/testing/",
+    "./commands/utility/"
+  ],
+  "skills": [
+    "./skills/skill-creator/",
+    "./skills/jira-cli/"
+  ],
   "hooks": {
     "PostToolUse": [
       {
