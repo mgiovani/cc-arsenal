@@ -11,6 +11,7 @@ This is the **Claude Code Arsenal** - a professional collection of security-focu
 - **Agents** (`agents/`): AI assistants for specialized development tasks
 - **Commands** (`commands/`): Quality automation and workflow commands
 - **Hooks** (`hooks/`): Safety and validation scripts that run automatically on Claude Code events
+- **Skills** (`skills/`): Model-invoked capabilities that Claude automatically loads when relevant
 - **Scripts** (`scripts/`): Professional Python utilities for installation, configuration, and code generation
 
 ## Development Commands
@@ -85,13 +86,48 @@ Safety and validation automation:
 - **Quality hooks**: Code standards and pre-commit validation
 - **Compliance hooks**: Audit trails and regulatory compliance
 
+### Skills
+Modular, self-contained capabilities that Claude automatically invokes when relevant:
+- **skill-creator**: Guide for creating effective skills with specialized knowledge, workflows, or tool integrations
+- **jira-cli**: Interactive command-line tool for Atlassian Jira with comprehensive issue, epic, and sprint management
+- Progressive disclosure design: loads only what's needed to save context
+- Can bundle scripts, references, and assets for complex tasks
+
 ## Development Patterns
+
+### Understanding Component Types
+
+**When to use each component:**
+
+- **Skills** - Use for model-invoked capabilities that Claude automatically loads when relevant
+  - Claude decides when to activate based on context
+  - Best for: Domain expertise, tool integrations, specialized workflows
+  - Example: skill-creator activates when you want to create a new skill
+
+- **Agents** - Use for complex, multi-step tasks requiring autonomous execution
+  - Explicitly invoked via Task tool
+  - Stateless, single-shot assistants
+  - Best for: Architecture design, code implementation, workflow orchestration
+
+- **Commands** - Use for explicit user-invoked operations
+  - Slash commands (e.g., `/commit`, `/test`)
+  - Direct user control
+  - Best for: Git operations, testing, utilities
+
+- **Hooks** - Use for automatic event-driven validation
+  - Triggered by Claude Code events
+  - Background safety and quality gates
+  - Best for: Security validation, pre-commit checks, compliance audits
 
 ### Agent Usage
 ```bash
 # Use specialized agents via Task tool
 claude task "Use the bmad-dev agent to implement user authentication"
 ```
+
+### Skills Usage
+
+Skills are **automatically invoked** by Claude when relevant to the task - you don't need to explicitly call them. Claude discovers skills through their `name` and `description` in the SKILL.md frontmatter.
 
 ### Quality Assurance
 All code changes should go through integrated quality gates:
@@ -125,9 +161,41 @@ cc-arsenal/
 │   ├── security/       # Authentication and protection
 │   ├── quality/        # Code standards and validation
 │   └── compliance/     # Audit and regulatory
+├── skills/         # Model-invoked capabilities
+│   ├── skill-creator/  # Guide and tools for creating skills
+│   │   ├── SKILL.md       # Comprehensive skill creation guide
+│   │   ├── LICENSE.txt    # Apache 2.0 license
+│   │   └── scripts/       # Skill management utilities
+│   │       ├── init_skill.py      # Generate new skill templates
+│   │       ├── quick_validate.py  # Validate skill structure
+│   │       └── package_skill.py   # Package skills for distribution
+│   └── jira-cli/       # Jira CLI tool integration
+│       └── SKILL.md       # Interactive Jira command-line guide
 ├── scripts/        # Installation and utilities
 │   ├── setup/          # install.py, configure.py
 │   ├── generators/     # agent_generator.py
 │   ├── claude/         # Claude Code utilities
 │   └── claude-hi/      # Session management
 ```
+
+## Skills Architecture
+
+Skills are modular capabilities organized with this structure:
+
+```
+skill-name/
+├── SKILL.md (required)
+│   ├── YAML frontmatter (name, description)
+│   └── Markdown instructions
+└── Bundled Resources (optional)
+    ├── scripts/      - Executable code (Python/Bash/etc.)
+    ├── references/   - Documentation loaded as needed
+    └── assets/       - Files used in output (templates, etc.)
+```
+
+### Progressive Disclosure
+
+Skills use a three-level loading system:
+1. **Metadata** (name + description) - Always in context (~100 words)
+2. **SKILL.md body** - Loaded when skill activates (<5k words)
+3. **Bundled resources** - Loaded only when Claude needs them
