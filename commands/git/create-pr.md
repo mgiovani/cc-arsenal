@@ -35,11 +35,11 @@ Create a GitHub Pull Request following conventional commits specification, pre-f
    - Identify primary change type for PR title
 
 5. **Generate PR Title** (Conventional Commit Format):
-   - Format: `[TICKET-123] type(scope): description` (max 72 chars)
+   - Format: `type(scope): [TICKET-123] description` (max 72 chars)
    - Or: `type(scope): description` (if no ticket)
    - Types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`
    - Examples:
-     - `[FC-2524] feat(workflow): prioritize care plan IDs`
+     - `feat(workflow): [FC-2524] prioritize care plan IDs`
      - `fix(api): resolve null pointer in user endpoint`
 
 6. **Fill PR Template**:
@@ -75,7 +75,7 @@ Create a GitHub Pull Request following conventional commits specification, pre-f
 
      # Open in browser with pre-filled data
      gh pr create \
-       --title "[TICKET] type: description" \
+       --title "type(scope): [TICKET] description" \
        --body-file /tmp/pr-body-<timestamp>.md \
        --base main \
        --web
@@ -96,7 +96,7 @@ Parse optional arguments from the command invocation:
 
 - **Template Preservation**: Fill the existing PR template WITHOUT changing its structure
 - **Conventional Commits**: PR title MUST follow conventional commit format
-- **Jira Integration**: Extract ticket number from branch name (patterns: `PROJ-123`, `ABC-456`, etc.)
+- **Ticket Integration**: Extract ticket number from branch name (patterns: `FC-2524`, `PROJ-123`, etc.) and place after type/scope
 - **Browser Review**: Always use `--web` to let user finalize the PR
 - **Multiple Commits**: Summarize all commits in the PR, focus on the overall change
 - **Breaking Changes**: Clearly indicate if the PR contains breaking changes
