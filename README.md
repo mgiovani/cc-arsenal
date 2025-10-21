@@ -77,7 +77,6 @@ Pre-built AI assistants and automation for your development workflow.
 **Commands** - Workflow automation via slash commands:
 - `/git:commit` - Generate conventional commits automatically
 - `/git:create-pr` - Create pull requests with templates
-- More commands in `commands/` directory
 
 **Skills** - Domain-specific tools Claude loads when needed:
 - `jira-cli` - Manage Jira issues, sprints, and epics

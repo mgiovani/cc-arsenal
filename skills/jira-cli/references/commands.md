@@ -11,20 +11,21 @@ Use powerful filters to find exactly what you need:
 ```bash
 # Basic listing
 jira issue list                          # Recent issues
+jira issue list "Feature Request"        # Search by specific text
 jira issue list --created -7d            # Last 7 days
-jira issue list -s"To Do"               # Specific status
+jira issue list -s"To Do"                # Specific status
 jira issue list -yHigh                   # High priority
 
 # Personal queries
-jira issue list -a$(jira me)            # Assigned to me
-jira issue list -r$(jira me)            # Reported by me
+jira issue list -a$(jira me)             # Assigned to me
+jira issue list -r$(jira me)             # Reported by me
 jira issue list -w                       # Issues I'm watching
 
 # Filtering by fields
 jira issue list -lbackend                # With label
 jira issue list -CBackend                # With component
 jira issue list -tBug                    # Bug type
-jira issue list -R"Won't do"            # With resolution
+jira issue list -R"Won't do"             # With resolution
 
 # Combined filters (high priority, In Progress, created this month, with labels)
 jira issue list -yHigh -s"In Progress" --created month -lbackend -l"high-prio"
@@ -37,7 +38,7 @@ jira issue list --created month          # Created this month
 jira issue list --created-before -24w    # Created before 24 weeks ago
 
 # Advanced queries
-jira issue list -a"User A" -r"User B"   # Assigned to A, reported by B
+jira issue list -a"User A" -r"User B"    # Assigned to A, reported by B
 jira issue list -ax                      # Unassigned issues
 jira issue list -a~x                     # Assigned to anyone
 jira issue list -s~Done                  # Status NOT done (~ is NOT)
