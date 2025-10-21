@@ -102,6 +102,85 @@ jira issue list --plain -s~Done --created-before -24w
 
 # Filter by multiple criteria
 jira issue list --plain -yHigh,Critical -s"In Progress" -lbug
+
+# List issues I'm watching
+jira issue list --plain -w
+
+# List issues assigned to no one created this week
+jira issue list --plain -ax --created week
+
+# List issues created within an hour
+jira issue list --plain --created -1h
+
+# List issues from history (recently viewed)
+jira issue list --plain --history
+```
+
+### Sprint Management
+
+```bash
+# List current active sprint issues
+jira sprint list --plain --current
+
+# List current sprint issues assigned to me
+jira sprint list --plain --current -a$(jira me)
+
+# List previous sprint issues
+jira sprint list --plain --prev
+
+# List next planned sprint issues
+jira sprint list --plain --next
+
+# List future and active sprints
+jira sprint list --plain --state future,active
+
+# List issues in a specific sprint (use sprint ID)
+jira sprint list --plain SPRINT_ID
+
+# Add issues to a sprint
+jira sprint add SPRINT_ID ISSUE-1 ISSUE-2
+```
+
+### Epic Management
+
+```bash
+# List epics in table view
+jira epic list --plain --table
+
+# List issues in an epic
+jira epic list --plain KEY-1
+
+# List unassigned high priority issues in an epic
+jira epic list --plain KEY-1 -ax -yHigh
+
+# Add issues to an epic (up to 50 at once)
+jira epic add EPIC-KEY ISSUE-1 ISSUE-2
+
+# Remove issues from an epic
+jira epic remove ISSUE-1 ISSUE-2
+```
+
+### Useful Scripts
+
+```bash
+# Get ticket count per sprint
+sprints=$(jira sprint list --table --plain --columns id,name --no-headers)
+echo "${sprints}" | while read -r id name; do
+  count=$(jira sprint list "${id}" --plain --no-headers 2>/dev/null | wc -l)
+  printf "%s: %d\n" "${name}" "${count}"
+done
+
+# List tickets created today
+jira issue list --plain --created -1d
+
+# List high priority bugs assigned to me
+jira issue list --plain -a$(jira me) -tBug -yHigh
+
+# Get issues by date range
+jira issue list --plain --created week
+jira issue list --plain --created month
+jira issue list --plain --created -7d
+jira issue list --plain --updated -30m
 ```
 
 ## Resources
