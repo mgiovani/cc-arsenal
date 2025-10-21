@@ -76,29 +76,6 @@ get_git_data() {
     printf '{"in_repo":true,"branch":"%s","changes":%d}' "$branch" "${changes:-0}"
 }
 
-# Collects daily cost from Claude usage tracking
-# Returns: JSON string with daily cost
-# Performance: Single jq invocation, fail-fast checks
-get_daily_cost_data() {
-    local -r usage_file="$HOME/.claude/usage_tracking.json"
-    local -r today=$(date +"%Y-%m-%d")
-
-    # Fail-fast: check if file exists and jq is available
-    [[ -f "$usage_file" ]] || { printf '{"daily_cost":"0.00"}'; return 0; }
-    command -v jq >/dev/null 2>&1 || { printf '{"daily_cost":"0.00"}'; return 0; }
-
-    # Extract and format cost (single jq call)
-    local daily_cost
-    daily_cost=$(jq -r ".daily_usage.\"$today\" // 0" "$usage_file" 2>/dev/null)
-
-    # Validate and format
-    if [[ "$daily_cost" =~ ^[0-9.]+$ ]]; then
-        printf '{"daily_cost":"%.2f"}' "$daily_cost"
-    else
-        printf '{"daily_cost":"0.00"}'
-    fi
-}
-
 # Collects current directory information
 # Returns: JSON string with directory paths
 # Performance: Pure bash string operations, no subshells
@@ -126,14 +103,13 @@ update_cache() {
     local -r timestamp=$(date +%s)
 
     # Collect all data (fail-safe: use defaults if collection fails)
-    local git_data daily_cost_data dir_data
+    local git_data dir_data
     git_data=$(get_git_data 2>/dev/null || printf '{"in_repo":false}')
-    daily_cost_data=$(get_daily_cost_data 2>/dev/null || printf '{"daily_cost":"0.00"}')
     dir_data=$(get_directory_data 2>/dev/null || printf '{"current_dir":"~"}')
 
     # Assemble JSON in a single operation (no heredoc for performance)
-    printf '{"timestamp":%d,"git":%s,"cost":%s,"directory":%s}\n' \
-        "$timestamp" "$git_data" "$daily_cost_data" "$dir_data" > "$CACHE_FILE_TMP" 2>/dev/null || return 1
+    printf '{"timestamp":%d,"git":%s,"directory":%s}\n' \
+        "$timestamp" "$git_data" "$dir_data" > "$CACHE_FILE_TMP" 2>/dev/null || return 1
 
     # Atomic move (ensures readers never see partial data)
     mv "$CACHE_FILE_TMP" "$CACHE_FILE" 2>/dev/null

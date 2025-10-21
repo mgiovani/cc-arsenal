@@ -186,18 +186,9 @@ test_cost_components() {
     assert_contains "🎯" "$result" "Token cost component includes target emoji"
     assert_contains "1500→950" "$result" "Token cost component includes token counts"
 
-    # Test daily cost component
-    result=$(get_daily_cost_component "2.50")
-    assert_contains "📅" "$result" "Daily cost component includes calendar emoji"
-    assert_contains "\$2.50" "$result" "Daily cost component includes amount"
-    assert_contains "$STATUSLINE_BRIGHT_YELLOW" "$result" "Daily cost uses bright yellow color"
-
     # Test empty cost components (should show N/A after our improvements)
     result=$(get_session_cost_component "")
     assert_contains "💰 N/A" "$result" "Empty session cost shows unavailable"
-
-    result=$(get_daily_cost_component "0.00")
-    assert_equals "" "$result" "Zero daily cost returns empty"
 }
 
 # Test reset components
@@ -261,7 +252,6 @@ test_component_colors() {
         "$(get_directory_component "/test/path")"
         "$(get_context_component 50)"
         "$(get_session_cost_component "0.05")"
-        "$(get_daily_cost_component "1.00")"
         "$(get_reset_component "2h30m")"
         "$(get_session_duration_component "1h30m")"
     )
@@ -271,7 +261,6 @@ test_component_colors() {
         "directory"
         "context"
         "session_cost"
-        "daily_cost"
         "reset"
         "session_duration"
     )

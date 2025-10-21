@@ -170,21 +170,37 @@ get_git_info() {
         if [[ "$in_repo" == "true" ]]; then
             local branch=$(jq -r '.git.branch // "main"' "$LIVE_CACHE_FILE" 2>/dev/null || echo "main")
             local changes=$(jq -r '.git.changes // 0' "$LIVE_CACHE_FILE" 2>/dev/null || echo "0")
-            echo "${changes}|${branch}"
+            local worktree=$(jq -r '.git.worktree // ""' "$LIVE_CACHE_FILE" 2>/dev/null || echo "")
+            echo "${changes}|${branch}|${worktree}"
             return 0
         elif [[ "$in_repo" == "false" ]]; then
-            echo "0|not_a_repo"
+            echo "0|not_a_repo|"
             return 0
         fi
     fi
 
     # Fallback: calculate directly (slower but works if daemon not running)
-    local git_info="0|not_a_repo"
+    local git_info="0|not_a_repo|"
     if git rev-parse --git-dir >/dev/null 2>&1; then
-        local changes branch
+        local changes branch worktree
         changes=$(git status --porcelain=v1 -u 2>/dev/null | wc -l | tr -d ' ' || echo "0")
         branch=$(git symbolic-ref --short HEAD 2>/dev/null || git rev-parse --short HEAD 2>/dev/null || echo "detached")
-        git_info="${changes}|${branch}"
+
+        # Detect if we're in a worktree (not the main working tree)
+        worktree=""
+        if git rev-parse --git-common-dir >/dev/null 2>&1; then
+            local git_dir git_common_dir
+            git_dir=$(git rev-parse --git-dir 2>/dev/null)
+            git_common_dir=$(git rev-parse --git-common-dir 2>/dev/null)
+
+            # If git-dir != git-common-dir, we're in a worktree
+            if [[ "$git_dir" != "$git_common_dir" ]] && [[ -n "$git_common_dir" ]]; then
+                # Get the worktree name (basename of current directory)
+                worktree=$(basename "$PWD")
+            fi
+        fi
+
+        git_info="${changes}|${branch}|${worktree}"
     fi
 
     echo "$git_info"
@@ -240,10 +256,14 @@ get_directory_component() {
 # Git component
 get_git_component() {
     local git_info
-    git_info=$(get_git_info 2>/dev/null || echo "0|not_a_repo")
+    git_info=$(get_git_info 2>/dev/null || echo "0|not_a_repo|")
 
-    local changes="${git_info%|*}"
-    local branch="${git_info#*|}"
+    # Parse the pipe-separated values: changes|branch|worktree
+    local changes branch worktree
+    changes="${git_info%%|*}"
+    local rest="${git_info#*|}"
+    branch="${rest%%|*}"
+    worktree="${rest#*|}"
 
     if [[ "$branch" == "not_a_repo" ]]; then
         return 0  # No git component
@@ -255,6 +275,22 @@ get_git_component() {
     fi
 
     echo "🌿 $branch$status_symbol"
+}
+
+# Worktree component - separate from git branch
+get_worktree_component() {
+    local git_info
+    git_info=$(get_git_info 2>/dev/null || echo "0|not_a_repo|")
+
+    # Parse the pipe-separated values: changes|branch|worktree
+    local rest="${git_info#*|}"
+    rest="${rest#*|}"
+    local worktree="$rest"
+
+    # Only show if we're in a worktree
+    if [[ -n "$worktree" ]]; then
+        echo "🌳 $worktree"
+    fi
 }
 
 # Session duration tracking - use persistent identifier (not tied to 5-hour windows)
@@ -432,35 +468,6 @@ get_cost_component() {
     local formatted
     formatted=$(printf "%.3f" "$cost" 2>/dev/null || echo "$cost")
     echo "💰 \$${formatted}"
-}
-
-# Daily cost component - read from live cache or Claude usage tracking
-get_daily_cost() {
-    # Try live cache first (instant)
-    if [[ -f "$LIVE_CACHE_FILE" ]] && command -v jq >/dev/null 2>&1; then
-        local cached_cost=$(jq -r '.cost.daily_cost // empty' "$LIVE_CACHE_FILE" 2>/dev/null || echo "")
-        if [[ -n "$cached_cost" && "$cached_cost" != "null" ]]; then
-            echo "$cached_cost"
-            return 0
-        fi
-    fi
-
-    # Fallback: read directly from usage tracking
-    local usage_file="$HOME/.claude/usage_tracking.json"
-    local today=$(date +"%Y-%m-%d")
-
-    if [[ -f "$usage_file" ]] && command -v jq >/dev/null 2>&1; then
-        local daily_usage
-        daily_usage=$(jq -r ".daily_usage.\"$today\" // 0" "$usage_file" 2>/dev/null || echo "0")
-
-        if [[ "$daily_usage" != "0" ]] && [[ "$daily_usage" =~ ^[0-9.]+$ ]]; then
-            printf "%.2f" "$daily_usage"
-        else
-            echo "0.00"
-        fi
-    else
-        echo "0.00"
-    fi
 }
 
 # Lines component
@@ -789,17 +796,14 @@ build_statusline() {
     comp=$(get_git_component)
     [[ -n "$comp" ]] && components+=("$comp")
 
+    comp=$(get_worktree_component)
+    [[ -n "$comp" ]] && components+=("$comp")
+
     comp=$(get_context_component "$input_tokens" "$output_tokens")
     [[ -n "$comp" ]] && components+=("$comp")
 
     comp=$(get_cost_component "$cost_usd")
     [[ -n "$comp" ]] && components+=("$comp")
-
-    # Add daily cost component (always show, like session cost)
-    local daily_cost="0.00"
-    daily_cost=$(get_daily_cost)
-    comp="📅 \$${daily_cost}"
-    components+=("$comp")
 
     comp=$(get_lines_component "$lines_added" "$lines_removed")
     [[ -n "$comp" ]] && components+=("$comp")

@@ -21,7 +21,6 @@ class StatuslineConfigurator:
             'git': '🌿 Git branch and status (clean/dirty/ahead/behind)',
             'context': '📊 Context window usage percentage remaining',
             'session_cost': '💰 Current session cost in USD',
-            'daily_cost': '📅 Daily usage cost total',
             'reset_countdown': '🔄 Time until 5-hour window resets',
             'duration_info': '⏱️ Request processing time (total/API)',
             'lines_changed': '📝 Lines added/removed in session',
@@ -55,7 +54,6 @@ class StatuslineConfigurator:
                     'git',
                     'context',
                     'session_cost',
-                    'daily_cost',
                     'lines_changed',
                     'duration_info',
                     'reset_countdown',
@@ -66,7 +64,6 @@ class StatuslineConfigurator:
                     'git': True,
                     'context': True,
                     'session_cost': True,
-                    'daily_cost': True,
                     'reset_countdown': True,
                     'duration_info': False,
                     'lines_changed': False,
@@ -83,7 +80,6 @@ class StatuslineConfigurator:
                 'directory_display_mode': 'short',
                 'git_branch_max_length': 15,
                 'cost_decimal_places': 3,
-                'daily_cost_decimal_places': 2,
             },
         }
 
@@ -302,8 +298,6 @@ class StatuslineConfigurator:
                 components.append('📊 73%')
             elif component == 'session_cost':
                 components.append('💰 $0.023')
-            elif component == 'daily_cost':
-                components.append('📅 $1.47')
             elif component == 'lines_changed':
                 components.append('📝 +42/-8')
             elif component == 'duration_info':
@@ -340,8 +334,6 @@ class StatuslineConfigurator:
                     compact_components.append('📊73%')
                 elif component == 'session_cost':
                     compact_components.append('💰$0.023')
-                elif component == 'daily_cost':
-                    compact_components.append('📅$1.47')
                 elif component == 'lines_changed':
                     compact_components.append('📝+42-8')
                 elif component == 'duration_info':

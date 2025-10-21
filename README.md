@@ -1,376 +1,148 @@
 # Claude Code Arsenal
 
-🚀 **Lock and load your Claude Code workflow** with a fully-stocked arsenal of AI agents, commands, and security hooks. Deploy your coding firepower in minutes, not hours.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
+[![Code style: ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
-✨ **Armed with excellence, one command away** ✨
+Tools to make Claude Code more useful: track your usage costs, schedule optimal coding windows, and organize your AI agents.
 
-## Features
+## What's included
 
-- **Security Agents**: AI agents focused on code security, authentication validation, and vulnerability detection
-- **Quality Commands**: Automated commands for code quality, testing, and development workflows
-- **Safety Hooks**: Security, quality, and compliance validation scripts
-- **Professional Tooling**: Modern Python scripts with UV, comprehensive error handling, and rich CLI interfaces
-- **Comprehensive Documentation**: Detailed guides, examples, and best practices
-- **Symlink Architecture**: Clean installation via symbolic links for easy updates and customization
+**Statusline** - See your usage and costs in real-time
+- Shows costs, context usage, and time until reset
+- Git branch and worktree info
+- Example: `🤖 Sonnet 4.5 │ 📁 cc-arsenal │ 🌿 main │ 📊 22% │ 💰 $0.043 │ 🔄 2h15m`
 
-## ⚡ Quick Start
+**Claude Hi Scheduler** - Maximize your 5-hour usage windows
+- Auto-triggers fresh windows at optimal times
+- Choose from preset schedules or customize your own
+- Perfect for planning intensive coding sessions
 
-### 1. Install the Arsenal (Plugin Method - Recommended)
-```bash
-# Install UV (prerequisite for Python hooks)
-curl -LsSf https://astral.sh/uv/install.sh | sh
-
-# Add the marketplace and install the plugin
-/plugin marketplace add mgiovani/cc-arsenal
-/plugin install cc-arsenal
-```
-
-### 2. Alternative Installation (Make Method)
-```bash
-git clone https://github.com/mgiovani/cc-arsenal.git
-cd cc-arsenal
-make install              # Install Claude Code Arsenal to ~/.claude
-```
-
-### 3. Optional Features
-
-After installation, you can enable additional features:
-
-```bash
-# Replace Manual Cron Workarounds
-make claude-hi-setup      # Interactive smart scheduling setup
-# OR
-make claude-hi-standard   # Quick 9am/2pm/7pm schedule
-
-# Add Enhanced Statusline
-make statusline-install   # Enhanced statusline with usage tracking
-```
-
-## 🕐 Claude Hi Cron - Smart Session Scheduler
-
-**Stop manually managing cron jobs!** The Claude Hi system automatically triggers Claude's 5-hour usage windows at optimal times.
-
-### Key Benefits
-- **🎯 Strategic Timing**: Triggers 5 hours before resets for maximum token availability
-- **⚡ Heavy Work Periods**: Last 2 hours of each window = intensive coding time
-- **🔄 Clean Management**: Replace ugly cron workarounds with smart scheduling
-- **📊 Multiple Patterns**: Early bird, night owl, traditional, freelancer, power user
-
-### Quick Setup Options
-```bash
-make claude-hi-setup      # Interactive setup with guided options
-make claude-hi-standard   # 9am/2pm/7pm → 2pm/7pm/12am resets
-make claude-hi-extended   # 4am/9am/2pm/7pm → full day coverage
-make claude-hi-custom     # Custom patterns for different work styles
-make claude-hi-status     # Check current schedule
-```
-
-**Example**: Extended schedule triggers "hi" at 4am, 9am, 2pm, 7pm daily
-- **Light usage**: 4-7am, 9am-12pm, 2-5pm, 7-10pm
-- **Heavy coding**: **7-9am**, **12-2pm**, 5-7pm, **10pm-12am** (maximum tokens available)
-
-*Perfect for developers who do intensive coding during peak token periods!*
-
-👉 **[Complete Claude Hi Documentation →](scripts/claude-hi/README.md)**
-
-## 🛠️ Available Commands
-
-Claude Code Arsenal includes a comprehensive Makefile with automated commands for installation, development, and maintenance. Run `make help` to see all available commands, or use these common ones:
-
-```bash
-# Installation & Setup
-make install              # Install all components to ~/.claude
-make dry-run              # Preview installation without making changes
-make claude-hi-setup      # Smart session scheduler (replaces cron)
-
-# Development
-make dev                  # Set up development environment
-make test                 # Run comprehensive test suite
-make clean                # Clean up caches and temporary files
-```
-
-## Repository Structure
-
-```
-cc-arsenal/
-├── README.md                    # This file
-├── CLAUDE.md                     # Claude Code configuration
-│
-├── agents/                      # AI agents organized by specialty
-│   ├── development/             # Development and engineering
-│   ├── architecture/            # System design and architecture
-│   ├── product/                 # Product management and analysis
-│   ├── ux/                      # User experience and design
-│   └── orchestration/           # Workflow coordination
-│
-├── commands/                    # Workflow automation commands
-│   ├── security/                # Security scanning workflows
-│   ├── git/                     # Git operations (coming soon)
-│   ├── testing/                 # Testing workflows (coming soon)
-│   └── utility/                 # Development utilities (coming soon)
-│
-├── hooks/                       # Safety and validation hooks
-│   ├── security/                # Security and access control
-│   ├── quality/                 # Code quality and standards
-│   ├── compliance/              # Regulatory and audit compliance
-│   └── project-specific/        # Domain-specific validations
-│
-├── scripts/                     # Professional Python utilities
-│   ├── setup/                   # Installation and configuration
-│   ├── generators/              # Code generation tools
-│   └── utilities/               # Helper scripts
-│
-└── docs/                        # Extended documentation
-    ├── getting-started.md
-    ├── agent-development.md
-    ├── command-authoring.md
-    └── troubleshooting.md
-```
+**Agents, Commands & Skills** - Pre-built AI assistants and tools
+- Security validation, code review, testing
+- Jira CLI integration, skill creation guide
+- Organized by specialty: development, architecture, UX, product
+- Easy to customize or create your own
 
 ## Installation
 
-### Prerequisites
-- **UV** (for Python hooks) - **REQUIRED**
-  - Install: `curl -LsSf https://astral.sh/uv/install.sh | sh`
-  - Docs: https://docs.astral.sh/uv/getting-started/installation/
-- **Claude Code** (Anthropic's official Claude CLI)
-
-### Method 1: Plugin Installation (Recommended)
-
-The easiest way to install CC-Arsenal is via Claude Code's plugin system:
-
+**Prerequisites:** Install UV first
 ```bash
-# Add the marketplace and install
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+**Install via plugin:**
+```bash
 /plugin marketplace add mgiovani/cc-arsenal
 /plugin install cc-arsenal
 ```
 
-**Benefits of plugin installation:**
-- ✅ One-command installation
-- ✅ Built-in version management
-- ✅ Easy updates via Claude Code
-- ✅ No manual symlink management
-
-**After plugin installation**, restart Claude Code and you're ready to go! All agents, commands, and hooks are automatically available.
-
-### Method 2: Manual Installation (Advanced)
-
-For users who prefer more control or want to customize the installation:
-
-1. **Clone the repository**:
-  ```bash
-  git clone https://github.com/mgiovani/cc-arsenal.git
-  cd cc-arsenal
-  ```
-
-2. **Quick start with preview**:
-  ```bash
-  make dry-run          # Preview what will be installed
-  ```
-
-3. **Install to Claude Code**:
-  ```bash
-  make install          # Install all components to ~/.claude via symlinks
-  ```
-
-4. **Configure your setup** (optional):
-  ```bash
-  make configure        # Interactive configuration
-  ```
-
-5. **Restart Claude Code** to load the new configuration
-
-**Additional make commands:**
-
+**Or clone and install:**
 ```bash
-# Force install without prompts
-make force-install
-
-# Backup and restore
-make backup             # Backup current ~/.claude
-make restore-latest     # Restore latest backup
-
-# See all available commands
-make help
-```
-
-### Verification
-
-Test your installation by trying to use an agent or command:
-```bash
-# In Claude Code, try using an agent
-# Example: "Use the skill-creator to help me create a new skill"
-
-# Or check the plugin installation (for plugin method)
-/plugin list
-
-# For manual installation, check the files
-ls ~/.claude/agents/
-ls ~/.claude/commands/
-ls ~/.claude/hooks/
-```
-
-## Core Components
-
-### 🤖 Agents
-
-Specialized AI assistants for different domains:
-
-- **security-validator**: Authentication and access control validation
-- **code-reviewer**: Code quality analysis and security scanning
-- **test-orchestrator**: Test automation and quality assurance coordination
-
-*Additional specialized agents available for enterprise users - contact for access*
-
-See agents/ directory for available AI assistants
-
-### ⚡ Commands
-
-Security and quality workflow automation:
-
-- **security-scan**: Automated security vulnerability scanning
-- **quality-check**: Code quality and standards validation
-- **test-runner**: Comprehensive test execution and reporting
-
-*Advanced workflow commands available for enterprise users - contact for access*
-
-See commands/ directory for workflow automation
-
-### 🔒 Hooks
-
-Safety and validation automation:
-
-- **Security**: Authentication, file protection, access control
-- **Quality**: Code standards, testing, documentation validation
-- **Compliance**: Regulatory requirements, audit trails
-- **Project-Specific**: Domain-specific validations (healthcare, finance, etc.)
-
-See hooks/ directory for safety and validation
-
-## Security-First Development
-
-Claude Code Arsenal emphasizes security and quality in all development workflows:
-
-### Core Principles
-- **Security First**: All code changes validated for security vulnerabilities and sensitive data
-- **Quality Gates**: Automated quality checks integrated into every workflow
-- **Compliance Ready**: Built-in hooks for regulatory compliance (HIPAA, SOX, etc.)
-- **Zero-Trust**: Assume all inputs are potentially malicious until validated
-- **Documentation-Driven**: Comprehensive logging and audit trails for all operations
-
-## Usage Examples
-
-### Development Workflow
-```bash
-# Run security scan
-claude /security:scan "src/"
-
-# Validate code quality
-claude /quality:check "src/auth/"
-
-# Run comprehensive tests
-claude /test:runner "--coverage --security"
-```
-
-### Agent Collaboration
-```
-# Security validation workflow (direct request to Claude Code)
-"Use security-validator to check authentication patterns, then code-reviewer to analyze implementation security, then test-orchestrator to run comprehensive security tests"
-```
-
-### Customization
-```bash
-# Generate a new security agent for your domain
-make generate-agent NAME=crypto-validator CATEGORY=security
-
-# Configure which components to use
-make configure
-```
-
-## Development
-
-### Contributing
-
-We welcome contributions! Please follow these steps:
-
-1. **Fork** the repository
-2. **Create** a feature branch: `git checkout -b feature/amazing-feature`
-3. **Develop** your changes with tests and documentation
-4. **Validate** with our quality checks: `make check`
-5. **Submit** a pull request with detailed description
-
-### Development Setup
-
-```bash
-# Clone for development
 git clone https://github.com/mgiovani/cc-arsenal.git
 cd cc-arsenal
-
-# Set up development environment (installs dev dependencies)
-make dev
-
-# Install pre-commit hooks for automatic code quality
-make pre-commit-install
-
-# Run all quality checks
-make check           # Runs lint + type-check
-make lint           # Linting only
-make format         # Code formatting
-make type-check     # Type checking only
-
-# Run tests
-make test           # Unit tests
-make coverage       # Tests with coverage report
-
-# Validate repository structure
-make validate-structure
-
-# See all available development commands
-make help
+make install
 ```
 
-### Quality Standards
+## Optional Features
 
-- **Python 3.12+** with modern language features
-- **Type hints** for all functions and classes
-- **Comprehensive tests** with >90% coverage
-- **Rich CLI interfaces** with progress indicators and error handling
-- **Detailed documentation** with examples and troubleshooting
-- **Security-first** approach with input validation and error handling
+After installation, add these features if you want them:
+
+**Statusline** (track usage, cost, and other useful info):
+```bash
+make statusline-install
+```
+
+**Claude Hi Scheduler** (manage 5-hour windows):
+```bash
+make claude-hi-setup      # Interactive setup
+make claude-hi-standard   # Quick 9am/2pm/7pm schedule
+```
+
+## Features
+
+### 📊 Statusline
+
+Track costs and usage in your Claude Code prompt:
+- Model name and version
+- Current directory
+- Git branch with uncommitted changes (●)
+- Git worktree name (when in worktrees)
+- Context window usage percentage
+- Session costs
+- Lines changed (+added/-removed)
+- Session duration
+- Time until 5-hour reset
+
+**Example:**
+```
+🤖 Sonnet 4.5 │ 📁 ~/projects/cc-arsenal │ 🌿 main ● │ 📊 66% │ 💰 $3.169 │ 📝 +719/-545 │ ⏱️ 21m │ 🔄 4h 23m until reset at 13:00
+```
+
+**In a git worktree:**
+```
+🤖 Sonnet 4.5 │ 📁 ~/projects/feature │ 🌿 feat-branch ● │ 🌳 feature │ 📊 45% │ 💰 $1.234 │ 📝 +120/-80 │ ⏱️ 15m │ 🔄 2h 10m until reset at 14:00
+```
+
+👉 [Statusline documentation](scripts/claude/statusline/STATUSLINE.md)
+
+### 🕐 Claude Hi Scheduler
+
+Automatically start fresh 5-hour windows before your peak coding times:
+
+```bash
+make claude-hi-setup      # Choose your schedule
+make claude-hi-standard   # Quick 9am/2pm/7pm setup
+```
+
+👉 [Claude Hi documentation](scripts/claude-hi/README.md)
+
+### 🤖 Agents, Commands, Skills & Hooks
+
+Pre-configured AI assistants and automation:
+- **Agents**: Specialized assistants (security, architecture, UX, product)
+- **Commands**: Workflow automation (security scans, quality checks, testing)
+- **Skills**: Domain-specific tools (Jira CLI, skill creation guide)
+- **Hooks**: Event-driven validation (security, quality, compliance)
+
+See the `agents/`, `commands/`, `skills/`, and `hooks/` directories.
 
 ## Documentation
 
-- **agents/**: AI development assistants organized by specialty
-- **commands/**: Workflow automation and development utilities
-- **hooks/**: Safety validation and quality enforcement
-- **[docs/getting-started.md](docs/getting-started.md)**: Detailed setup and configuration guide
-- **[docs/agent-development.md](docs/agent-development.md)**: Creating custom agents
-- **[docs/troubleshooting.md](docs/troubleshooting.md)**: Common issues and solutions
+- [Getting Started](docs/getting-started.md) - Setup and configuration
+- [Statusline Guide](scripts/claude/statusline/STATUSLINE.md) - Usage tracking and configuration
+- [Claude Hi Guide](scripts/claude-hi/README.md) - Session scheduling
+- [Agent Development](docs/agent-development.md) - Create custom agents
+- [Troubleshooting](docs/troubleshooting.md) - Common issues
+- [Security Policy](docs/SECURITY.md) - Vulnerability reporting
+- [Changelog](docs/CHANGELOG.md) - Version history
+- [Code of Conduct](docs/CODE_OF_CONDUCT.md) - Community guidelines
+
+## Contributing
+
+Contributions welcome! Fork the repo, make your changes, and submit a PR.
+
+```bash
+git clone https://github.com/mgiovani/cc-arsenal.git
+cd cc-arsenal
+make dev        # Set up development environment
+make test       # Run tests
+make check      # Run quality checks
+```
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for details. Please also review our [Code of Conduct](docs/CODE_OF_CONDUCT.md).
 
 ## Support
 
-### Getting Help
-- **🐛 Issues**: [Open a GitHub issue](https://github.com/mgiovani/cc-arsenal/issues) for bugs or feature requests
-- **💬 Discussions**: [GitHub Discussions](https://github.com/mgiovani/cc-arsenal/discussions) for questions and ideas
-- **📖 Documentation**: Check the `docs/` directory for detailed guides
-
-### Common Issues
-- **Installation Problems**: See [troubleshooting guide](docs/troubleshooting.md)
-- **Configuration Issues**: Run `make configure` for interactive setup or `make help` for all options
-- **Performance**: Monitor agent usage and consider selective installation
+- 🐛 [Report bugs](https://github.com/mgiovani/cc-arsenal/issues)
+- 🔒 [Report security vulnerabilities](docs/SECURITY.md)
+- 💬 [Discussions](https://github.com/mgiovani/cc-arsenal/discussions)
+- 📖 Check `docs/` for guides
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Acknowledgments
-
-- **Anthropic** for Claude Code and the Claude API
-- **Security Community** for best practices and vulnerability research
-- **Contributors** who help improve and extend this arsenal
+MIT License - see [LICENSE](LICENSE) for details.
 
 ---
 
-**Ready to secure your Claude Code projects?** Install with `/plugin marketplace add mgiovani/cc-arsenal` and deploy enterprise-grade security and quality automation.
-
-*Built with Claude for Claude*
+*Built with Claude for Claude users*

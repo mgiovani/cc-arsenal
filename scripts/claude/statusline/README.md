@@ -9,16 +9,16 @@ A comprehensive bash+jq statusline that displays model info, git status, costs, 
 ```
 
 ## Features
-- 🤖 Current model and version
-- 🌿 Git branch and status with ahead/behind indicators
-- 📁 Current directory (shortened for long paths)
-- 💰 Session costs and token usage
-- 📅 Daily usage total with persistent tracking
-- 🔄 5-hour window reset countdown with color coding
-- 📊 Context remaining percentage
-- ⏰ Session duration (if available)
-- 🎨 ANSI colors and emojis
-- 📱 Responsive width adjustment with compact format
+- 🤖 Model name and version
+- 🌿 Git branch with uncommitted changes (●)
+- 🌳 Git worktree name
+- 📁 Current directory
+- 💰 Session costs
+- 🔄 5-hour window reset countdown
+- 📊 Context window usage
+- ⏰ Session duration
+
+👉 **[Complete documentation →](STATUSLINE.md)**
 
 ## Script Location
 `~/.claude/scripts/claude/statusline/statusline.sh`
@@ -32,7 +32,6 @@ The script receives Claude Code session data as JSON via stdin and parses it wit
 - Session start time for duration calculation
 
 ## Usage Tracking
-- **Daily Usage**: Persistent tracking of daily costs in `~/.claude/usage_tracking.json`
 - **5-Hour Windows**: Tracks sessions to calculate when your 5-hour usage window resets
 - **Reset Countdown**: Shows time remaining until your usage window resets
   - 🔴 Red: Less than 1 hour remaining
@@ -81,9 +80,9 @@ The statusline uses a **cache-based architecture** for optimal performance:
 - ⏱️ Session duration
 
 **Event-Independent** (cached by daemon):
-- 🌿 **Git status** - Current branch and uncommitted changes
-- 📅 **Daily cost** - Read from `~/.claude/usage_tracking.json`
-- 📁 **Current directory** - With home directory shortening
+- 🌿 **Git status** - Branch and uncommitted changes (●)
+- 🌳 **Worktree** - Worktree name (only when in a worktree)
+- 📁 **Directory** - Current directory
 
 **Always Calculated** (lightweight):
 - 🔄 **Window reset timer** - Countdown to next 5-hour reset
@@ -130,6 +129,23 @@ You can manually control the daemon if needed:
 Edit the script to add/remove information or change colors and formatting to match your terminal theme.
 
 ## Example Output
+
+**Regular repository:**
 ```bash
-🤖 c3-5-s-202 │ 🌿 main● │ 📁 cc-arsenal │ 📊 22% │ 💰 $0.043 │ 📅 $1.23 │ 🔄 2h15m
+🤖 Sonnet 4.5 │ 📁 cc-arsenal │ 🌿 main │ 📊 22% │ 💰 $0.043 │ 🔄 2h15m
+```
+
+**With uncommitted changes:**
+```bash
+🤖 Sonnet 4.5 │ 📁 cc-arsenal │ 🌿 main ● │ 📊 22% │ 💰 $0.043 │ 🔄 2h15m
+```
+
+**In a git worktree:**
+```bash
+🤖 Sonnet 4.5 │ 📁 feature-impl │ 🌿 feature-branch │ 🌳 feature-impl │ 📊 22% │ 💰 $0.043 │ 🔄 2h15m
+```
+
+**Worktree with uncommitted changes:**
+```bash
+🤖 Sonnet 4.5 │ 📁 feature-impl │ 🌿 feature-branch ● │ 🌳 feature-impl │ 📊 22% │ 💰 $0.043 │ 🔄 2h15m
 ```
