@@ -49,10 +49,9 @@ When using cc-arsenal:
 ### For Users
 
 - **Keep Updated** - Always use the latest version to get security patches
-- **Review Hooks** - Audit hook configurations for your specific security requirements
-- **Use File Protection** - Enable the file protection hooks to prevent committing sensitive data
+- **Review Hooks** - Review hook configurations for your specific security requirements
+- **Use File Protection** - Enable the file protection hook to prevent committing sensitive data
 - **Environment Variables** - Never commit `.env` files or credentials
-- **Access Control** - Review authentication checker settings in your setup
 
 ### For Contributors
 
@@ -66,10 +65,7 @@ When using cc-arsenal:
 
 cc-arsenal includes built-in security features:
 
-- **Authentication Checker** - Validates authentication patterns in code
-- **File Protection Hook** - Prevents committing sensitive files
-- **Pre-commit Validation** - Catches security issues before they're committed
-- **Audit Enforcer** - Maintains audit trails for compliance
+- **File Protection Hook** - Prevents committing sensitive files like .env, credentials, and API keys
 
 See our [documentation](getting-started.md) for configuration details.
 
@@ -78,7 +74,7 @@ See our [documentation](getting-started.md) for configuration details.
 ### Hooks and Automation
 
 - Hooks run with your local permissions - review code before enabling
-- Custom agents have access to your codebase - audit agent configurations
+- Custom agents have access to your codebase - review agent configurations
 - Claude Hi scheduler creates cron jobs - review scheduling before setup
 
 ### Data Handling

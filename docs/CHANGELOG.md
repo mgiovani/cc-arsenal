@@ -48,10 +48,7 @@ Nothing yet.
 - Skill packaging and validation utilities
 
 **Hooks**
-- Security hooks: authentication validation, file protection
-- Quality hooks: pre-commit validation, code standards
-- Compliance hooks: audit enforcement, migration safety
-- Project-specific hooks for domain validation
+- Security hook: file protection for sensitive data
 
 **Documentation**
 - Comprehensive installation and setup guides

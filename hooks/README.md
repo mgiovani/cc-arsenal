@@ -1,33 +1,19 @@
 # Hooks
 
-Security, quality, and compliance automation hooks for Claude Code.
+Security automation hooks for Claude Code.
 
 ## Structure
 
 ```
 hooks/
-├── security/      # Authentication and data protection
-│   ├── auth_checker.py      # Authentication validation
-│   └── file_protection.py   # Sensitive file protection
-├── quality/       # Code standards and validation
-│   └── pre_commit_validate.py  # Pre-commit quality checks
-└── compliance/    # Regulatory and audit requirements
-    ├── audit_enforcer.py    # Audit trail generation
-    └── migration_safety.py  # Safe database migrations
+└── security/      # Data protection
+    └── file_protection.py   # Sensitive file protection
 ```
 
 ## Available Hooks
 
 ### Security Hooks
-- **auth_checker**: Validates authentication for sensitive operations
-- **file_protection**: Prevents modification of sensitive files
-
-### Quality Hooks
-- **pre_commit_validate**: Enforces code quality before commits
-
-### Compliance Hooks
-- **audit_enforcer**: Maintains audit trails for compliance
-- **migration_safety**: Ensures safe database migrations
+- **file_protection**: Prevents modification of sensitive files like .env, credentials, and other protected patterns
 
 ## Installation
 
@@ -45,12 +31,9 @@ file_protection:
   protected_patterns:
     - "*.env*"
     - "secrets.*"
-
-audit_enforcer:
-  enabled: true
-  compliance_standards:
-    - "GDPR"
-    - "SOX"
+    - "credentials.*"
+    - "*.key"
+    - "*.pem"
 ```
 
 ## Development

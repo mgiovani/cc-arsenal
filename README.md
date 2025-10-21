@@ -103,7 +103,7 @@ Pre-configured AI assistants and automation:
 - **Agents**: Specialized assistants (security, architecture, UX, product)
 - **Commands**: Workflow automation (security scans, quality checks, testing)
 - **Skills**: Domain-specific tools (Jira CLI, skill creation guide)
-- **Hooks**: Event-driven validation (security, quality, compliance)
+- **Hooks**: File protection for sensitive data
 
 See the `agents/`, `commands/`, `skills/`, and `hooks/` directories.
 
