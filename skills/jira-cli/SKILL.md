@@ -9,7 +9,9 @@ Interactive command-line tool for Atlassian Jira that minimizes reliance on the 
 
 ## Overview
 
-JiraCLI (`jira-cli`) is a feature-rich interactive command line tool for managing Jira issues, epics, and sprints. Supports both Jira Cloud and on-premise installations with multiple authentication methods.
+JiraCLI (`jira-cli`) is a command line tool for managing Jira issues, epics, and sprints. Supports both Jira Cloud and on-premise installations with multiple authentication methods.
+
+**For AI/automation use, always use non-interactive mode with `--no-input` flag and plain output formats (`--plain`, `--csv`, `--raw`).**
 
 ## When to Use This Skill
 
@@ -21,26 +23,29 @@ Use this skill when:
 - Users mention "jira", "ticket", "issue", "epic", or "sprint"
 - Writing scripts for Jira automation
 
-## Essential Commands
+## Essential Commands (Non-Interactive)
 
 ```bash
-# List recent issues
-jira issue list
+# List recent issues (plain output for parsing)
+jira issue list --plain
 
 # View issue details
 jira issue view ISSUE-1
 
-# Create an issue interactively
-jira issue create
+# Create an issue non-interactively
+jira issue create -tBug -s"Bug title" -yHigh -b"Description" --no-input
 
 # Assign issue to yourself
 jira issue assign ISSUE-1 $(jira me)
 
 # Move issue to "In Progress"
-jira issue move ISSUE-1 "In Progress"
+jira issue move ISSUE-1 "In Progress" --no-input
 
 # Add comment
-jira issue comment add ISSUE-1 "My comment"
+jira issue comment add ISSUE-1 --comment "My comment" --no-input
+
+# Add worklog
+jira issue worklog add ISSUE-1 "2h" --comment "Implementation work" --no-input
 ```
 
 ## How to Use This Skill
@@ -58,8 +63,8 @@ Use this file when you need:
 - Epic management (list, create, add/remove issues)
 - Sprint management (list, add issues)
 - Release management
-- Navigation and keyboard shortcuts
 - Output format options
+- Non-interactive command patterns
 
 ### 2. Common Workflow Examples
 
@@ -101,14 +106,14 @@ jira issue list --csv                # Spreadsheet-friendly
 jira issue list --columns key,status # Custom columns
 ```
 
-### Interactive UI Navigation
+### Important Flags for AI/Automation
 
-- **Arrow keys** or `j,k,h,l` - Navigate
-- **v** - View issue details
-- **m** - Transition issue
-- **ENTER** - Open in browser
-- **c** - Copy URL, **CTRL+k** - Copy key
-- **?** - Show help
+- `--no-input` - Run in non-interactive mode (required for AI use)
+- `--plain` - Plain text output without interactive UI
+- `--csv` - CSV format for structured data
+- `--raw` - Raw JSON output for parsing
+- `--columns key,summary,status` - Custom column selection
+- `--no-headers` - Remove headers (useful with --plain)
 
 ## Resources
 
