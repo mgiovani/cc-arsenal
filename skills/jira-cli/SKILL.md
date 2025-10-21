@@ -11,7 +11,7 @@ Interactive command-line tool for Atlassian Jira that minimizes reliance on the 
 
 JiraCLI (`jira-cli`) is a command line tool for managing Jira issues, epics, and sprints. Supports both Jira Cloud and on-premise installations with multiple authentication methods.
 
-**For AI/automation use, always use non-interactive mode with `--no-input` flag and plain output formats (`--plain`, `--csv`, `--raw`).**
+**For AI use, always add `--plain` flag to get plain text output suitable for parsing.**
 
 ## When to Use This Skill
 
@@ -23,29 +23,29 @@ Use this skill when:
 - Users mention "jira", "ticket", "issue", "epic", or "sprint"
 - Writing scripts for Jira automation
 
-## Essential Commands (Non-Interactive)
+## Essential Commands
 
 ```bash
-# List recent issues (plain output for parsing)
+# List recent issues (always use --plain for AI)
 jira issue list --plain
 
 # View issue details
-jira issue view ISSUE-1
+jira issue view ISSUE-1 --plain
 
-# Create an issue non-interactively
-jira issue create -tBug -s"Bug title" -yHigh -b"Description" --no-input
+# Create an issue
+jira issue create -tBug -s"Bug title" -yHigh -b"Description"
 
 # Assign issue to yourself
 jira issue assign ISSUE-1 $(jira me)
 
 # Move issue to "In Progress"
-jira issue move ISSUE-1 "In Progress" --no-input
+jira issue move ISSUE-1 "In Progress"
 
 # Add comment
-jira issue comment add ISSUE-1 --comment "My comment" --no-input
+jira issue comment add ISSUE-1 --comment "My comment"
 
 # Add worklog
-jira issue worklog add ISSUE-1 "2h" --comment "Implementation work" --no-input
+jira issue worklog add ISSUE-1 "2h" --comment "Implementation work"
 ```
 
 ## How to Use This Skill
@@ -94,26 +94,15 @@ Use this file when you need:
 ### Powerful List Filters
 
 ```bash
-# Combine flags for precise queries
-jira issue list -a$(jira me) -yHigh -s"To Do" --created -7d -lbackend
+# Combine flags for precise queries (always add --plain)
+jira issue list --plain -a$(jira me) -yHigh -s"To Do" --created -7d -lbackend
 
 # Use tilde (~) as NOT operator
-jira issue list -s~Done --created-before -24w
+jira issue list --plain -s~Done --created-before -24w
 
-# Output formats
-jira issue list --plain              # For scripts
-jira issue list --csv                # Spreadsheet-friendly
-jira issue list --columns key,status # Custom columns
+# Filter by multiple criteria
+jira issue list --plain -yHigh,Critical -s"In Progress" -lbug
 ```
-
-### Important Flags for AI/Automation
-
-- `--no-input` - Run in non-interactive mode (required for AI use)
-- `--plain` - Plain text output without interactive UI
-- `--csv` - CSV format for structured data
-- `--raw` - Raw JSON output for parsing
-- `--columns key,summary,status` - Custom column selection
-- `--no-headers` - Remove headers (useful with --plain)
 
 ## Resources
 
