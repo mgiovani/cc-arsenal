@@ -1,7 +1,7 @@
 ---
 description: "Generate conventional commits following conventionalcommits.org specification"
 argument-hint: ""
-allowed-tools: ["Bash", "Read", "Edit", "Write"]
+allowed-tools: ["Bash(git *)", "Read", "Edit", "Write"]
 ---
 
 # Conventional Commit Command

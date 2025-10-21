@@ -1,7 +1,7 @@
 ---
 description: "Create a PR with conventional commit format and pre-filled template"
 argument-hint: "[--base branch] [--reviewers user1,user2] [--labels label1,label2] [--assignees user1,user2]"
-allowed-tools: ["Bash", "Read", "Write"]
+allowed-tools: ["Bash(git *)", "Bash(gh *)", "Read", "Write"]
 ---
 
 # Create Pull Request Command
@@ -15,7 +15,7 @@ Create a GitHub Pull Request following conventional commits specification, pre-f
    - Get current branch: `git branch --show-current`
    - Verify branch is not main/master
    - Check commits exist: `git log origin/<base>..HEAD --oneline`
-   - Extract ticket ID from branch name (e.g., `ABC-123` from `feature/ABC-123-description`)
+   - Extract ticket ID from branch name (e.g., `ABC-123` from `feature/ABC-123_description`)
    - Display compact validation summary (max 60 chars per line)
 
 2. **Ask for Confirmation** (after validation):
