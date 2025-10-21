@@ -8,21 +8,22 @@ Tools to make Claude Code more useful: track your usage costs, schedule optimal 
 
 ## What's included
 
-**Statusline** - See your usage and costs in real-time
+**Agents, Commands, Skills & Hooks** - Pre-built AI assistants and automation
+- 30+ specialized agents (architecture, development, UX, product)
+- Git commands with conventional commits and PR creation
+- Jira CLI integration and skill creation guide
+- File protection hook for sensitive data
+- Easy to customize or create your own
+
+**Statusline** - Track your usage and costs in real-time (optional)
 - Shows costs, context usage, and time until reset
 - Git branch and worktree info
 - Example: `🤖 Sonnet 4.5 │ 📁 cc-arsenal │ 🌿 main │ 📊 22% │ 💰 $0.043 │ 🔄 2h15m`
 
-**Claude Hi Scheduler** - Maximize your 5-hour usage windows
+**Claude Hi Scheduler** - Maximize your 5-hour usage windows (optional)
 - Auto-triggers fresh windows at optimal times
 - Choose from preset schedules or customize your own
 - Perfect for planning intensive coding sessions
-
-**Agents, Commands & Skills** - Pre-built AI assistants and tools
-- Security validation, code review, testing
-- Jira CLI integration, skill creation guide
-- Organized by specialty: development, architecture, UX, product
-- Easy to customize or create your own
 
 ## Installation
 
@@ -61,7 +62,33 @@ make claude-hi-standard   # Quick 9am/2pm/7pm schedule
 
 ## Features
 
-### 📊 Statusline
+### 🤖 Agents, Commands, Skills & Hooks
+
+Pre-built AI assistants and automation for your development workflow.
+
+**Agents** - Specialized AI assistants organized by domain:
+- **Architecture**: System design, technical planning, infrastructure
+- **Development**: Code implementation, debugging, refactoring
+- **Orchestration**: Workflow coordination, automation
+- **Product**: Requirements, planning, prioritization
+- **Productivity**: Development optimization, efficiency
+- **UX**: User experience, design systems
+
+**Commands** - Workflow automation via slash commands:
+- `/git:commit` - Generate conventional commits automatically
+- `/git:create-pr` - Create pull requests with templates
+- More commands in `commands/` directory
+
+**Skills** - Domain-specific tools Claude loads when needed:
+- `jira-cli` - Manage Jira issues, sprints, and epics
+- `skill-creator` - Guide for creating custom skills
+
+**Hooks** - Event-driven automation:
+- `file_protection` - Prevent committing sensitive files
+
+See the `agents/`, `commands/`, `skills/`, and `hooks/` directories for details.
+
+### 📊 Statusline (Optional)
 
 Track costs and usage in your Claude Code prompt:
 - Model name and version
@@ -86,7 +113,7 @@ Track costs and usage in your Claude Code prompt:
 
 👉 [Statusline documentation](scripts/claude/statusline/STATUSLINE.md)
 
-### 🕐 Claude Hi Scheduler
+### 🕐 Claude Hi Scheduler (Optional)
 
 Automatically start fresh 5-hour windows before your peak coding times:
 
@@ -96,16 +123,6 @@ make claude-hi-standard   # Quick 9am/2pm/7pm setup
 ```
 
 👉 [Claude Hi documentation](scripts/claude-hi/README.md)
-
-### 🤖 Agents, Commands, Skills & Hooks
-
-Pre-configured AI assistants and automation:
-- **Agents**: Specialized assistants (security, architecture, UX, product)
-- **Commands**: Workflow automation (security scans, quality checks, testing)
-- **Skills**: Domain-specific tools (Jira CLI, skill creation guide)
-- **Hooks**: File protection for sensitive data
-
-See the `agents/`, `commands/`, `skills/`, and `hooks/` directories.
 
 ## Documentation
 
