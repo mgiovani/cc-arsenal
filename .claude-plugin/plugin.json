@@ -1,0 +1,35 @@
+{
+  "name": "cc-arsenal",
+  "version": "1.0.0",
+  "description": "Security-focused AI agents, quality automation commands, and safety hooks for Claude Code",
+  "author": {
+    "name": "Giovani Moutinho",
+    "email": "contact@giovani.dev"
+  },
+  "homepage": "https://github.com/mgiovani/cc-arsenal",
+  "repository": "https://github.com/mgiovani/cc-arsenal",
+  "license": "MIT",
+  "keywords": [
+    "security",
+    "hooks",
+    "automation",
+    "quality",
+    "development",
+    "productivity"
+  ],
+  "commands": [
+    "./commands/docs/adr.md",
+    "./commands/docs/check.md",
+    "./commands/docs/diagram.md",
+    "./commands/docs/init.md",
+    "./commands/docs/rfc.md",
+    "./commands/docs/update.md",
+    "./commands/git/commit.md",
+    "./commands/git/create-pr.md"
+  ],
+  "skills": [
+    "./skills/skill-creator/",
+    "./skills/jira-cli/"
+  ],
+  "hooks": "./hooks/hooks.json"
+}
