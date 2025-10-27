@@ -7,7 +7,67 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-Nothing yet.
+### Added
+
+- **Documentation Plugin**: Comprehensive documentation generation and management system
+  - 6 slash commands: `/docs:init`, `/docs:adr`, `/docs:rfc`, `/docs:diagram`, `/docs:check`, `/docs:update`
+  - 12 templates for ADRs, RFCs, architecture, onboarding, data models, API docs, etc.
+  - Zero-config with smart project detection and Git-aware freshness tracking
+  - Mermaid diagram generation from codebase analysis (ER, architecture, deployment, security)
+  - Health scoring and validation for documentation quality
+- **Modular Makefile Architecture**: Feature-specific commands in dedicated Makefiles
+  - `scripts/claude/statusline/Makefile`: 9 commands for statusline management
+  - `scripts/claude-hi/Makefile`: 12 commands for session scheduler
+  - Core Makefile delegates to feature Makefiles for clean organization
+- **Plugin Validation**: `make validate-plugins` target for marketplace and plugin manifest validation
+- **Meta-ADR**: ADR-0001 documenting the decision to use Architecture Decision Records
+- **Selective Installation Guide**: Documentation for `make configure` to choose specific components
+- **Architecture Documentation**: Comprehensive system design documentation in docs/architecture.md
+
+### Changed
+
+- **Makefile Simplification**: Core Makefile reduced from 300+ to 120 lines
+  - Removed commands: `backup`, `restore`, `list-backups`, `uv-*`, `debug-install`, `show-structure`, `generate-agent`, `docs`, `quick-start`
+  - Core workflows: dev, pre-commit, quality (lint/format/type-check), testing, installation, utilities
+  - Use `make -C <feature-dir> help` to access feature-specific commands
+- **Hook System Simplified**: Focused on essential security and quality validation
+  - Kept: `file_protection.py` (sensitive file protection), `pre_commit_validate.py` (quality gates)
+  - Removed: `auth_checker.py`, `audit_enforcer.py`, `migration_safety.py`
+  - Extracted hook configuration to dedicated `hooks/hooks.json` file
+  - Added explicit tool matchers, timeouts, and descriptions
+- **Templates Relocated**: Moved from user config (`.claude/`) to plugin resources (`commands/docs/templates/`)
+- **Plugin Structure**: `plugin.json` moved to `.claude-plugin/` directory (required location)
+- **Configure Script**: Now reads components from repository source instead of ~/.claude installation
+  - Allows configuration before installation
+  - Filters out README.md files from component lists
+  - Added skills discovery support
+- **CI Workflow**: Uses Makefile targets for consistency, pinned Python 3.13, switched to pyright
+
+### Fixed
+
+- **configure.py**: Now reads from repository source, enabling pre-installation configuration
+- **create-pr command**: Reordered workflow, fixed hardcoded base branch, fixed body file reference
+- **Plugin validation errors**: Corrected plugin.json location and command organization
+- Template path references in all 5 documentation commands
+- Line length issues in configure.py (90 char limit compliance)
+- Indentation compliance with editorconfig (2-space multiples)
+
+### Removed
+
+- **Component README files**: Removed from `agents/`, `commands/`, `skills/`, `hooks/` directories
+  - Claude Code was incorrectly loading them as components
+  - Documentation moved to `docs/` directory instead
+- **Specialized hooks**: `auth_checker`, `audit_enforcer`, `migration_safety` (simplified to core security/quality)
+- **Outdated methodology references**: Cleaned up marketplace metadata and descriptions
+
+### Documentation
+
+- Added comprehensive installation methods (plugin system + direct installation)
+- Updated all examples to use generic agent category references
+- Added pre-commit hook best practice notes (never use `--no-verify`)
+- Synchronized CLAUDE.md, README.md, and architecture.md with new structure
+- Updated troubleshooting examples to reference actual files
+- Documented changes and migration paths
 
 ## [1.0.0] - 2025-10-21
 
