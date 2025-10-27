@@ -45,8 +45,5 @@ Thumbs.db
 *.log
 
 # Claude Code local settings and temporary files
-.claude/settings.local.json
-.claude/slash_cron/
-.claude/run_slash_command.sh
-.claude/slash_cron.log
+.claude/
 /tmp/claude_*
