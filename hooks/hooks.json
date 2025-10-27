@@ -1,0 +1,61 @@
+{
+  "description": "Safety and quality hooks for Claude Code Arsenal",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "description": "Security validation: Ensures authentication decorators on APIs and protects sensitive files",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "uv run --directory ${CLAUDE_PLUGIN_ROOT} ${CLAUDE_PLUGIN_ROOT}/hooks/security/auth_checker.py",
+            "description": "Validates that API endpoints have proper authentication decorators",
+            "timeout": 30
+          },
+          {
+            "type": "command",
+            "command": "uv run --directory ${CLAUDE_PLUGIN_ROOT} ${CLAUDE_PLUGIN_ROOT}/hooks/security/file_protection.py",
+            "description": "Prevents modification of sensitive files (.env, keys, production configs)",
+            "timeout": 30
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "description": "Compliance validation: Ensures audit logging and data protection requirements",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "uv run --directory ${CLAUDE_PLUGIN_ROOT} ${CLAUDE_PLUGIN_ROOT}/hooks/compliance/audit_enforcer.py",
+            "description": "Enforces audit logging requirements for medical data operations",
+            "timeout": 30
+          },
+          {
+            "type": "command",
+            "command": "uv run --directory ${CLAUDE_PLUGIN_ROOT} ${CLAUDE_PLUGIN_ROOT}/hooks/compliance/migration_safety.py",
+            "description": "Validates database migration files for safety issues",
+            "timeout": 30
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "description": "Quality and compliance validation: Pre-commit checks and migration safety",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "uv run --directory ${CLAUDE_PLUGIN_ROOT} ${CLAUDE_PLUGIN_ROOT}/hooks/quality/pre_commit_validate.py",
+            "description": "Runs linting and tests before git commits",
+            "timeout": 120
+          },
+          {
+            "type": "command",
+            "command": "uv run --directory ${CLAUDE_PLUGIN_ROOT} ${CLAUDE_PLUGIN_ROOT}/hooks/compliance/migration_safety.py",
+            "description": "Validates database migration commands for safety",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}
