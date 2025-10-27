@@ -83,36 +83,102 @@ For automatic installation across team members, add to `.claude/settings.json`:
 
 When team members trust the repository folder, Claude Code automatically installs the marketplace and plugin.
 
-## Development Commands
+### Selective Installation (Advanced)
 
-### Development Environment
+By default, `make install` installs **all components**. If you want to selectively enable specific commands or skills, use the interactive configuration wizard:
+
 ```bash
-# Set up development environment
-make dev
-
-# Run quality checks
-make check                # Run all checks
-make lint                 # Linting only
-make format               # Code formatting
-make type-check           # Type checking
-
-# Run tests
-make test                 # Unit tests
-make coverage             # Tests with coverage report
+# Interactive configuration - choose specific components
+make configure
 ```
 
-### Project Management
+**What it does:**
+- Shows only cc-arsenal's own components (commands, skills)
+- Lets you selectively enable/disable each component
+- Creates `~/.claude/settings.json` with your preferences
+- Useful for minimal installations or testing specific features
+
+**When to use:**
+- You only want specific commands (e.g., just git commands, not docs)
+- Testing individual skills without installing everything
+- Creating a lightweight installation
+- For everything, just use `make install` instead
+
+**Example session:**
+```
+📦 CC-Arsenal Components:
+   • Commands: 8 across 2 categories
+   • Skills: 2
+
+🔧 Configure commands
+
+📁 Docs
+  Enable adr? [y/n] (y): y
+  Enable rfc? [y/n] (y): n
+  Enable diagram? [y/n] (y): y
+  ...
+
+✅ Configuration saved to ~/.claude/settings.json
+```
+
+**Note:** This is separate from the plugin system. Plugin installation always includes everything. Use `make configure` when installing via `make install` for selective control.
+
+## Development Commands
+
+The repository uses a **modular Makefile architecture** with focused command sets:
+
+- **Core Makefile** (19 commands): Essential development, testing, and installation
+- **Feature Makefiles**: Optional tools with their own command sets
+  - `scripts/claude/statusline/Makefile` (9 commands): Statusline management
+  - `scripts/claude-hi/Makefile` (12 commands): Session scheduler and automation
+
+### Core Development Workflow
+
 ```bash
-# Generate new agent
-make generate-agent NAME=my-agent CATEGORY=development
-uv run python -m scripts.generators.agent_generator --name "agent-name" --category "development"
+# Development Environment
+make dev                  # Set up development with all dependencies
+make pre-commit-install   # Install pre-commit hooks
+make pre-commit-run       # Run pre-commit on all files
 
-# Validate repository structure
-make validate-structure
+# Code Quality
+make check                # Run all checks (lint + type-check)
+make lint                 # Run ruff linting
+make format               # Format code with ruff
+make type-check           # Run pyright type checking
 
-# Show repository information
-make info
-make show-structure
+# Testing
+make test                 # Run unit tests
+make coverage             # Tests with coverage report
+
+# Installation
+make install              # Install all components to ~/.claude
+make dry-run              # Preview installation
+make configure            # Interactive: choose specific commands/skills to enable
+
+# Utilities
+make clean                # Clean caches and build artifacts
+make info                 # Show repository statistics
+make validate-structure   # Validate repository structure
+make validate-plugins     # Validate plugin manifests
+```
+
+### Optional Features
+
+```bash
+# Statusline Management
+make install-statusline           # Install statusline (delegates to feature Makefile)
+make uninstall-statusline         # Uninstall statusline (delegates to feature Makefile)
+make -C scripts/claude/statusline help           # Show all statusline commands
+make -C scripts/claude/statusline status         # Show statusline configuration
+make -C scripts/claude/statusline test           # Test statusline
+make -C scripts/claude/statusline list-backups   # List backups
+
+# Session Scheduler (Claude Hi)
+make -C scripts/claude-hi help      # Show all scheduler commands
+make -C scripts/claude-hi standard  # Set up 9am/2pm/7pm schedule
+make -C scripts/claude-hi status    # Check current schedule
+make -C scripts/claude-hi remove    # Remove schedule
+make -C scripts/claude-hi now       # Send 'hi' immediately
 ```
 
 ## Available Components
@@ -200,6 +266,7 @@ All code changes should go through integrated quality gates:
 - Code quality enforcement via pre-commit hooks
 - Comprehensive testing and validation
 - Documentation requirements
+- **CHANGELOG updates**: Update CHANGELOG.md after big changes or when opening PRs
 
 ### Technology Stack
 - **Python 3.12+** with UV package management

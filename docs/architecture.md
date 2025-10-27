@@ -101,16 +101,16 @@ graph TB
 
         subgraph "Commands Layer"
             GitCommands["Git Commands (2)"]
-            GitCommit[/git:commit]
-            GitPR[/git:create-pr]
+            GitCommit["git:commit"]
+            GitPR["git:create-pr"]
 
             DocsCommands["Docs Commands (6)"]
-            DocsADR[/docs:adr]
-            DocsRFC[/docs:rfc]
-            DocsDiagram[/docs:diagram]
-            DocsUpdate[/docs:update]
-            DocsCheck[/docs:check]
-            DocsInit[/docs:init]
+            DocsADR["docs:adr"]
+            DocsRFC["docs:rfc"]
+            DocsDiagram["docs:diagram"]
+            DocsUpdate["docs:update"]
+            DocsCheck["docs:check"]
+            DocsInit["docs:init"]
         end
 
         subgraph "Hooks Layer"

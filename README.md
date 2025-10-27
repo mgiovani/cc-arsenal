@@ -42,7 +42,8 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 ```bash
 git clone https://github.com/mgiovani/cc-arsenal.git
 cd cc-arsenal
-make install
+make install              # Install all components
+make configure            # Optional: interactively choose specific components
 ```
 
 ## Optional Features
