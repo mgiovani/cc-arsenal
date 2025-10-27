@@ -77,6 +77,7 @@ Create a GitHub Pull Request following conventional commits specification, pre-f
     EOF
 
     # Open in browser with pre-filled data (use determined base branch)
+    # Add --draft if user specified --draft or -d flag
     gh pr create \
       --title "type(scope): [TICKET] description" \
       --body-file "$BODY_FILE" \
@@ -91,7 +92,7 @@ Create a GitHub Pull Request following conventional commits specification, pre-f
 
 Parse optional arguments from the command invocation:
 - `--base branch` or `-b branch` (target branch, defaults to repo default)
-- `--draft` or `-d` (create as draft PR)
+- `--draft` or `-d` (if present, add `--draft` flag to gh pr create command)
 
 **Note**: Reviewers, labels, and assignees must be added in the web UI due to gh CLI limitations with --web flag.
 
