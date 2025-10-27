@@ -97,7 +97,7 @@ make info
 make validate-structure
 
 # Test agent availability (in Claude Code)
-# Request an agent like: "Use the bmad-dev agent to help with authentication"
+# Request an agent like: "Use the development agent to help with authentication"
 ```
 
 ## Core Components
@@ -120,7 +120,7 @@ Specialized AI assistants organized by domain:
 Request agents directly in Claude Code:
 
 ```
-Use the bmad-dev agent to implement user authentication with JWT tokens
+Use the development agent to implement user authentication with JWT tokens
 ```
 
 ```

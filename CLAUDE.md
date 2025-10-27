@@ -122,7 +122,7 @@ Modular, self-contained capabilities that Claude automatically invokes when rele
 ### Agent Usage
 ```bash
 # Use specialized agents via Task tool
-claude task "Use the bmad-dev agent to implement user authentication"
+claude task "Use the development agent to implement user authentication"
 ```
 
 ### Skills Usage

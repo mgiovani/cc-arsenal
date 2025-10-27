@@ -219,8 +219,8 @@ make install  # Creates default configs
 # Check agent installation
 ls -la ~/.claude/agents/
 
-# Verify agent file format
-head -20 ~/.claude/agents/development/bmad-dev.md
+# Verify agent file format (example with skills)
+head -20 ~/.claude/skills/skill-creator/SKILL.md
 
 # Restart Claude Code completely
 # Close all Claude Code windows and restart

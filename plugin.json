@@ -15,7 +15,6 @@
     "hooks",
     "automation",
     "quality",
-    "bmad",
     "development",
     "productivity"
   ],
@@ -36,38 +35,5 @@
     "./skills/skill-creator/",
     "./skills/jira-cli/"
   ],
-  "hooks": {
-    "PostToolUse": [
-      {
-        "matcher": "Edit|MultiEdit|Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "uv run ${CLAUDE_PLUGIN_ROOT}/hooks/security/auth_checker.py"
-          },
-          {
-            "type": "command",
-            "command": "uv run ${CLAUDE_PLUGIN_ROOT}/hooks/security/file_protection.py"
-          },
-          {
-            "type": "command",
-            "command": "uv run ${CLAUDE_PLUGIN_ROOT}/hooks/quality/pre_commit_validate.py"
-          }
-        ]
-      },
-      {
-        "matcher": ".*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "uv run ${CLAUDE_PLUGIN_ROOT}/hooks/compliance/audit_enforcer.py"
-          },
-          {
-            "type": "command",
-            "command": "uv run ${CLAUDE_PLUGIN_ROOT}/hooks/compliance/migration_safety.py"
-          }
-        ]
-      }
-    ]
-  }
+  "hooks": "./hooks/hooks.json"
 }

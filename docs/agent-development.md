@@ -105,7 +105,7 @@ tools: ["Read", "Write", "Glob", "Grep", "TodoWrite"]
 
 ### Development
 **Purpose**: Code implementation and debugging
-**Examples**: bmad-dev, code-reviewer, debug-specialist
+**Examples**: code-reviewer, debug-specialist, feature-builder
 
 ```yaml
 capabilities: ["code_implementation", "debugging", "testing", "refactoring"]
