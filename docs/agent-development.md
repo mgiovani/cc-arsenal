@@ -13,9 +13,7 @@ Agents in Claude Code Arsenal are specialized AI assistants designed for specifi
 ```
 agents/
 ├── category/
-│   ├── README.md           # Category overview
 │   └── agent-name.md       # Individual agent
-└── README.md               # Agents overview
 ```
 
 ### Agent File Format
@@ -82,7 +80,6 @@ The generator will:
 1. Create the agent file in the correct category directory
 2. Generate appropriate YAML frontmatter
 3. Provide a basic template to customize
-4. Update category README if needed
 
 ### Method 2: Manual Creation
 
