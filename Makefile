@@ -118,7 +118,7 @@ format: setup-dev ## Format code
 
 type-check: setup-dev ## Run type checking
 	@echo "$(BLUE)Running type checks...$(RESET)"
-	$(UV) run mypy scripts/
+	$(UV) run pyright scripts/
 
 check: lint type-check ## Run all code quality checks
 	@echo "$(GREEN)All checks passed!$(RESET)"

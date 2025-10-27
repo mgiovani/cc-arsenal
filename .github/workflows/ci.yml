@@ -19,16 +19,16 @@ jobs:
         enable-cache: true
 
     - name: Set up Python
-      run: uv python install
+      run: uv python install 3.13
 
     - name: Install dependencies
-      run: uv sync --extra dev
+      run: make setup-dev
 
     - name: Run pre-commit hooks
-      run: uv run pre-commit run --all-files
+      run: make pre-commit-run
 
     - name: Run tests
-      run: uv run pytest scripts/tests/ -v --cov=scripts --cov-report=term
+      run: make test
 
     - name: Check package build
       run: uv build --check
@@ -45,16 +45,10 @@ jobs:
         enable-cache: true
 
     - name: Set up Python
-      run: uv python install
+      run: uv python install 3.13
 
     - name: Install dependencies
-      run: uv sync --extra dev
+      run: make setup-dev
 
-    - name: Run ruff linting
-      run: uv run ruff check .
-
-    - name: Run ruff formatting check
-      run: uv run ruff format --check .
-
-    - name: Run type checking
-      run: uv run mypy scripts/
+    - name: Run code quality checks
+      run: make check
