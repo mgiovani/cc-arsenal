@@ -1,0 +1,24 @@
+{
+  "name": "docs",
+  "version": "1.0.0",
+  "description": "Professional documentation generation and management for software projects",
+  "author": "CC Arsenal",
+  "license": "MIT",
+  "commands": [
+    "init",
+    "adr",
+    "rfc",
+    "diagram",
+    "check",
+    "update"
+  ],
+  "dependencies": {},
+  "keywords": [
+    "documentation",
+    "adr",
+    "rfc",
+    "architecture",
+    "diagrams",
+    "onboarding"
+  ]
+}

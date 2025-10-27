@@ -1,0 +1,217 @@
+---
+description: "Create numbered ADR documenting architectural decision"
+argument-hint: "<title> [variant]"
+allowed-tools: ["Read", "Write", "Grep", "Glob"]
+---
+
+# Create Architecture Decision Record
+
+Create a new Architecture Decision Record (ADR) documenting an architectural decision.
+
+## Your Task
+
+1. **Parse Arguments**:
+   - Extract decision title from `$ARGUMENTS`
+   - Check for variant keyword: `lightweight`, `full`, or `madr`
+   - If variant found, remove it from title
+   - Default variant: `nygard` (Nygard style)
+
+2. **Determine ADR Number**:
+   - Scan `docs/adr/` directory
+   - Find highest existing ADR number (format: `XXXX-*`)
+   - Increment by 1
+   - If no ADRs exist, start with `0001`
+   - Format as 4-digit padded number (e.g., `0001`, `0023`)
+
+3. **Sanitize Title for Filename**:
+   - Convert title to kebab-case
+   - Remove special characters
+   - Lowercase all letters
+   - Example: "Use Redis for Caching" → `use-redis-for-caching`
+
+4. **Gather Context**:
+   - Search codebase for relevant information about the decision topic
+   - Look for related code, configs, or documentation
+   - Understand current state and alternatives
+   - Keep context concise but informative
+
+5. **Load Template**:
+   - Template location: `.claude/ai-docs/templates/adr/`
+   - Select based on variant:
+     - `nygard` → `nygard.md` (default)
+     - `lightweight` → `lightweight.md`
+     - `full` → `full.md`
+     - `madr` → `madr.md`
+
+6. **Populate Template**:
+   Replace placeholders:
+   - `{{ADR_NUMBER}}` - 4-digit number
+   - `{{ADR_TITLE}}` - Original title (Title Case)
+   - `{{DATE}}` - Current date (YYYY-MM-DD)
+   - `{{CONTEXT}}` - Gathered context from codebase
+   - `{{PROJECT_NAME}}` - Git repo or directory name
+
+7. **Create ADR File**:
+   - Filename: `docs/adr/XXXX-kebab-case-title.md`
+   - Ensure `docs/adr/` directory exists
+   - Write populated content
+   - Set initial status to "Proposed"
+
+8. **Report Creation**:
+   - Show ADR number and title
+   - Display file path
+   - Provide next steps
+
+## Template Variants
+
+### Nygard Style (Default)
+Michael Nygard's ADR format - concise and focused.
+
+**Sections:**
+- Title with number
+- Status
+- Context
+- Decision
+- Consequences
+
+**Use when:** Most decisions, balanced detail
+
+### Lightweight
+Minimal ADR for quick decisions.
+
+**Sections:**
+- Title with number
+- Status
+- Decision
+- Rationale
+
+**Use when:** Simple, straightforward decisions
+
+### Full
+Comprehensive ADR with detailed sections.
+
+**Sections:**
+- Title with number
+- Status
+- Context
+- Decision Drivers
+- Considered Options
+- Decision
+- Consequences (Positive, Negative, Neutral)
+- Pros and Cons
+- Related Decisions
+- References
+
+**Use when:** Complex, high-impact decisions
+
+### MADR
+Markdown Architectural Decision Records format.
+
+**Sections:**
+- Title with number
+- Status
+- Context and Problem Statement
+- Decision Drivers
+- Considered Options
+- Decision Outcome
+- Consequences
+
+**Use when:** Following MADR standard
+
+## Usage
+
+Basic ADR creation (uses Nygard template):
+```
+/docs:adr "Database Migration Strategy"
+/docs:adr "API Authentication Approach"
+/docs:adr "Microservices Communication Pattern"
+```
+
+With template variant override:
+```
+/docs:adr lightweight "Use Redis for Session Storage"
+/docs:adr full "Adopt Event-Driven Architecture"
+/docs:adr madr "Select Database Technology"
+```
+
+## ADR Numbering
+
+- **First ADR**: `0001-record-architecture-decisions.md` (meta-ADR)
+- **Subsequent ADRs**: Auto-incremented (0002, 0003, etc.)
+- **Format**: `XXXX-kebab-case-title.md`
+
+## ADR Status Lifecycle
+
+Update status in the ADR as the decision progresses:
+
+1. **Proposed** - Initial proposal (default)
+2. **Accepted** - Decision approved
+3. **Deprecated** - No longer recommended
+4. **Superseded** - Replaced by another ADR
+
+## Context Gathering Examples
+
+```bash
+# For database decisions
+!`find . -name "*.sql" -o -name "*models.py" -o -name "*schema.prisma" | head -10`
+
+# For API decisions
+!`grep -r "router\|endpoint\|api" --include="*.py" --include="*.ts" --include="*.js" . | head -20`
+
+# For architecture decisions
+!`find . -name "docker-compose.yml" -o -name "*.config.js" -o -name "*.config.ts" | head -10`
+```
+
+## Important Notes
+
+- **One Decision per ADR**: Keep focused on a single decision
+- **Context Matters**: Include "why" even if it seems obvious
+- **Link Related ADRs**: Reference superseded or related decisions
+- **Early Documentation**: Create ADRs early in decision process
+- **Imperative Language**: Use "we will" not "we should"
+- **Status Updates**: Update status as decision progresses
+
+## Example Output
+
+```
+Architecture Decision Record Created ✓
+
+ADR-0006: Use Redis for Session Storage
+File: docs/adr/0006-use-redis-for-session-storage.md
+Status: Proposed
+Template: Nygard Style
+
+Next Steps:
+  1. Review and refine the decision context
+  2. Fill in consequences (positive/negative)
+  3. Discuss with team
+  4. Update status to "Accepted" when approved
+  5. Reference this ADR in related code/docs
+```
+
+## When to Create ADRs
+
+Create an ADR when making:
+- Technology stack decisions
+- Architecture pattern choices
+- Database or storage decisions
+- API design choices
+- Security architecture decisions
+- Deployment strategy decisions
+- Major library/framework selections
+- Cross-cutting concerns (logging, caching, etc.)
+
+## Best Practices
+
+- **Create early**: Document decisions before implementation
+- **Be honest**: Document the real reasons, not ideal reasons
+- **Include alternatives**: Show what was considered
+- **Accept trade-offs**: Acknowledge negative consequences
+- **Link to code**: Reference implementation in the ADR
+- **Review regularly**: Revisit ADRs during retrospectives
+- **Update status**: Keep status current as decisions evolve
+
+---
+
+**Template Location**: `.claude/ai-docs/templates/adr/`
+**Output Directory**: `docs/adr/`
