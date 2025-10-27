@@ -1,4 +1,4 @@
-.PHONY: help install configure test clean dev lint format check dry-run backup restore check-uv setup-dev pre-commit-install pre-commit-update
+.PHONY: help install configure test clean dev lint format check dry-run backup restore check-uv setup-dev pre-commit-install pre-commit-update validate-plugins
 
 # Default commands
 UV := uv
@@ -222,6 +222,37 @@ validate-structure: ## Validate repository structure
 		echo "$(GREEN)Repository structure is valid$(RESET)"; \
 	else \
 		echo "$(RED)Found $$errors structural issues$(RESET)"; \
+		exit 1; \
+	fi
+
+validate-plugins: ## Validate both marketplace and plugin manifests
+	@echo "$(BLUE)Validating Claude Code plugin manifests...$(RESET)"
+	@echo
+	@echo "$(BLUE)1. Validating marketplace manifest...$(RESET)"
+	@if claude plugin validate . 2>&1 | tee /tmp/marketplace-validation.log; then \
+		echo "$(GREEN)✔ Marketplace manifest validation passed$(RESET)"; \
+		marketplace_valid=1; \
+	else \
+		echo "$(RED)✘ Marketplace manifest validation failed$(RESET)"; \
+		marketplace_valid=0; \
+	fi; \
+	echo; \
+	echo "$(BLUE)2. Validating plugin manifest...$(RESET)"; \
+	if claude plugin validate .claude-plugin/plugin.json 2>&1 | tee /tmp/plugin-validation.log; then \
+		echo "$(GREEN)✔ Plugin manifest validation passed$(RESET)"; \
+		plugin_valid=1; \
+	else \
+		echo "$(RED)✘ Plugin manifest validation failed$(RESET)"; \
+		plugin_valid=0; \
+	fi; \
+	echo; \
+	if [ $$marketplace_valid -eq 1 ] && [ $$plugin_valid -eq 1 ]; then \
+		echo "$(GREEN)✅ All plugin manifests are valid!$(RESET)"; \
+		exit 0; \
+	else \
+		echo "$(RED)❌ Plugin validation failed$(RESET)"; \
+		[ $$marketplace_valid -eq 0 ] && echo "  • Marketplace manifest has errors"; \
+		[ $$plugin_valid -eq 0 ] && echo "  • Plugin manifest has errors"; \
 		exit 1; \
 	fi
 
