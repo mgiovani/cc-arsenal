@@ -297,7 +297,7 @@ which git npm pytest ruff
 cat ~/.claude/hook-config.yaml
 
 # Test hook manually
-echo '{"event": "test"}' | ~/.claude/hooks/security/auth_checker.py
+echo '{"event": "test"}' | ~/.claude/hooks/security/file_protection.py
 
 # Check hook logs
 tail -f ~/.claude/logs/hooks.log
@@ -309,7 +309,7 @@ tail -f ~/.claude/logs/hooks.log
 # Solution: Debug hook execution
 
 # Test hook with verbose output
-python3 -v ~/.claude/hooks/security/auth_checker.py < test_input.json
+python3 -v ~/.claude/hooks/security/file_protection.py < test_input.json
 
 # Check Python path and dependencies
 python3 -c "import sys; print(sys.path)"
@@ -616,7 +616,7 @@ make claude-hi-status          # Session scheduler status
 # Test components
 make test                      # Run test suite
 make dry-run                   # Preview installation
-echo "test" | ~/.claude/hooks/security/auth_checker.py  # Test hook
+echo "test" | ~/.claude/hooks/security/file_protection.py  # Test hook
 ```
 
 ## Getting Help

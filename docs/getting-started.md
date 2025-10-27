@@ -170,12 +170,6 @@ file_protection:
   protected_patterns:
     - "*.env*"
     - "secrets.*"
-
-audit_enforcer:
-  enabled: true
-  compliance_standards:
-    - "GDPR"
-    - "SOX"
 ```
 
 ## Advanced Setup
@@ -331,7 +325,7 @@ cat ~/.claude/hook-config.yaml
 ls -la ~/.claude/hooks/
 
 # Test hook manually
-echo '{"test": true}' | ~/.claude/hooks/security/auth_checker.py
+echo '{"test": true}' | ~/.claude/hooks/security/file_protection.py
 ```
 
 #### Commands Not Working
