@@ -14,14 +14,39 @@ This is the **Claude Code Arsenal** - a professional collection of security-focu
 - **Skills** (`skills/`): Model-invoked capabilities that Claude automatically loads when relevant
 - **Scripts** (`scripts/`): Professional Python utilities for installation, configuration, and code generation
 
-## Development Commands
+## Installation
 
-### Installation and Setup
+### Method 1: Plugin System (Recommended for Users)
+
+Install cc-arsenal as a Claude Code plugin using the marketplace system:
+
+```bash
+# Add the cc-arsenal marketplace
+/plugin marketplace add mgiovani/cc-arsenal
+
+# Install the plugin
+/plugin install cc-arsenal@cc-arsenal-marketplace
+
+# Or install from local directory
+/plugin marketplace add /path/to/cc-arsenal
+/plugin install cc-arsenal@cc-arsenal-marketplace
+```
+
+**Benefits:**
+- Clean, managed installation
+- Automatic updates
+- Easy to enable/disable
+- No system-wide symlinks
+
+### Method 2: Direct Installation (For Development)
+
+For local development with immediate file updates:
+
 ```bash
 # Install Python dependencies
 uv sync --extra dev
 
-# Install to ~/.claude directory
+# Install to ~/.claude directory (creates symlinks)
 uv run python -m scripts.setup.install
 
 # Configure components (optional)
@@ -32,6 +57,33 @@ make dry-run
 make install
 make configure
 ```
+
+**Benefits:**
+- Immediate file updates (no reinstall needed)
+- Better for development and testing
+- Direct access to source code
+
+### Team Configuration
+
+For automatic installation across team members, add to `.claude/settings.json`:
+
+```json
+{
+  "extraKnownMarketplaces": {
+    "cc-arsenal": {
+      "source": {
+        "source": "github",
+        "repo": "mgiovani/cc-arsenal"
+      }
+    }
+  },
+  "enabledPlugins": ["cc-arsenal"]
+}
+```
+
+When team members trust the repository folder, Claude Code automatically installs the marketplace and plugin.
+
+## Development Commands
 
 ### Development Environment
 ```bash
@@ -75,8 +127,9 @@ AI-powered development assistants organized by specialty:
 - **UX**: User experience and design
 
 ### Commands
-Workflow automation commands (currently in development):
-- **Git operations**: Repository management
+Workflow automation commands:
+- **Documentation**: ADR, RFC, architecture diagrams, and onboarding guides
+- **Git operations**: Repository management and conventional commits
 - **Testing**: Test automation and quality assurance
 - **Utility**: General-purpose development helpers
 
@@ -129,6 +182,18 @@ claude task "Use the development agent to implement user authentication"
 
 Skills are **automatically invoked** by Claude when relevant to the task - you don't need to explicitly call them. Claude discovers skills through their `name` and `description` in the SKILL.md frontmatter.
 
+### Documentation Guidelines
+
+**IMPORTANT: No README files in component directories**
+
+Do not add README.md files inside key component folders (`agents/`, `commands/`, `hooks/`, `skills/`). Claude Code will incorrectly detect them as actual components.
+
+Instead:
+- All documentation goes in the `docs/` folder
+- Reference documentation in the main project README.md if needed
+- Use CLAUDE.md for development guidance
+- Individual components use their native format (AGENT.md, COMMAND.md, HOOK.md, SKILL.md)
+
 ### Quality Assurance
 All code changes should go through integrated quality gates:
 - Security validation via hooks
@@ -154,6 +219,7 @@ cc-arsenal/
 │   ├── productivity/    # Efficiency optimization
 │   └── ux/             # User experience design
 ├── commands/        # Workflow automation
+│   ├── docs/           # Documentation generation (ADR, RFC, diagrams)
 │   ├── git/            # Git operations
 │   ├── testing/        # Test automation
 │   └── utility/        # Development utilities
