@@ -59,7 +59,7 @@ Generate Mermaid diagrams including architecture, database schema, deployment, a
    - Keep diagram readable (not too complex)
 
 5. **Load Template**:
-   - Template location: `.claude/ai-docs/templates/`
+   - Template location: `commands/docs/templates/`
    - Select based on diagram type:
      - `er` → `data-model.md`
      - `arch` → `architecture.md`
@@ -323,5 +323,5 @@ Run when:
 
 ---
 
-**Template Location**: `.claude/ai-docs/templates/`
+**Template Location**: `commands/docs/templates/`
 **Output Directory**: `docs/`

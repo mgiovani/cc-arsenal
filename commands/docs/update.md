@@ -51,7 +51,7 @@ Synchronize documentation with the current codebase state. Can update all docs, 
    - Prioritize updates
 
 5. **Load Templates**:
-   - Template location: `.claude/ai-docs/templates/`
+   - Template location: `commands/docs/templates/`
    - Load appropriate templates based on docs being updated
 
 6. **Update Each Document**:
@@ -303,6 +303,6 @@ Run this command:
 
 ---
 
-**Template Location**: `.claude/ai-docs/templates/`
+**Template Location**: `commands/docs/templates/`
 **Output Directory**: `docs/`
 **Safe Mode**: Always preserves custom content

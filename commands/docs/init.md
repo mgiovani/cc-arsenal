@@ -39,7 +39,7 @@ Generate comprehensive documentation structure for your project based on detecte
    - Show what will be created vs what exists
 
 4. **Load Templates**:
-   - Templates are in `.claude/ai-docs/templates/`
+   - Templates are in `commands/docs/templates/`
    - Use appropriate template for each document type
    - Replace placeholders with project-specific values
 
@@ -101,7 +101,7 @@ With additional context:
 
 ## Template Locations
 
-Templates are loaded from `.claude/ai-docs/templates/`:
+Templates are loaded from `commands/docs/templates/`:
 
 | Document Type | Template File |
 |--------------|---------------|

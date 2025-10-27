@@ -36,7 +36,7 @@ Create a new Architecture Decision Record (ADR) documenting an architectural dec
    - Keep context concise but informative
 
 5. **Load Template**:
-   - Template location: `.claude/ai-docs/templates/adr/`
+   - Template location: `commands/docs/templates/adr/`
    - Select based on variant:
      - `nygard` → `nygard.md` (default)
      - `lightweight` → `lightweight.md`
@@ -213,5 +213,5 @@ Create an ADR when making:
 
 ---
 
-**Template Location**: `.claude/ai-docs/templates/adr/`
+**Template Location**: `commands/docs/templates/adr/`
 **Output Directory**: `docs/adr/`

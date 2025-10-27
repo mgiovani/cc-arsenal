@@ -42,7 +42,7 @@ Create a new RFC (Request For Comments) document for proposing and discussing ch
    ```
 
 6. **Load Template**:
-   - Template location: `.claude/ai-docs/templates/rfc/`
+   - Template location: `commands/docs/templates/rfc/`
    - Select based on variant:
      - `minimal` → `minimal.md`
      - `standard` → `standard.md` (default)
@@ -254,5 +254,5 @@ Create an RFC when proposing:
 
 ---
 
-**Template Location**: `.claude/ai-docs/templates/rfc/`
+**Template Location**: `commands/docs/templates/rfc/`
 **Output Directory**: `docs/rfc/`
