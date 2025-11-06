@@ -85,43 +85,75 @@ When team members trust the repository folder, Claude Code automatically install
 
 ### Selective Installation (Advanced)
 
-By default, `make install` installs **all components**. If you want to selectively enable specific commands or skills, use the interactive configuration wizard:
+By default, `make install` installs **all components** by symlinking everything to `~/.claude/`. If you want to selectively install only specific components, use the interactive configuration wizard:
 
 ```bash
-# Interactive configuration - choose specific components
+# Interactive configuration - choose specific components to symlink
 make configure
 ```
 
 **What it does:**
-- Shows only cc-arsenal's own components (commands, skills)
-- Lets you selectively enable/disable each component
-- Creates `~/.claude/settings.json` with your preferences
-- Useful for minimal installations or testing specific features
+- Discovers all available components from the repository
+- Shows components organized by category (commands, hooks, skills)
+- Lets you interactively select which items to symlink
+- **Never modifies** your `~/.claude/settings.json` file
+- Creates symlinks only for selected components
 
 **When to use:**
 - You only want specific commands (e.g., just git commands, not docs)
-- Testing individual skills without installing everything
-- Creating a lightweight installation
-- For everything, just use `make install` instead
+- Testing individual components without installing everything
+- Creating a lightweight installation with minimal disk usage
+- For full installation, use `make install` instead
 
 **Example session:**
 ```
-📦 CC-Arsenal Components:
-   • Commands: 8 across 2 categories
-   • Skills: 2
+⚙️  Claude Code Arsenal - Selective Installation
+This wizard lets you choose which components to symlink to ~/.claude/
 
-🔧 Configure commands
+🔍 Discovering available components...
+                     CC-Arsenal Components
+┌──────────┬──────────────────────────────────────────┬───────┐
+│ Category │ Component                                │ Count │
+├──────────┼──────────────────────────────────────────┼───────┤
+│ commands │                                          │    20 │
+│          │   docs: adr, check, diagram, ...         │    18 │
+│          │   git: commit, create-pr                 │     2 │
+│ hooks    │                                          │     2 │
+│          │   quality: pre_commit_validate           │     1 │
+│          │   security: file_protection              │     1 │
+└──────────┴──────────────────────────────────────────┴───────┘
 
-📁 Docs
-  Enable adr? [y/n] (y): y
-  Enable rfc? [y/n] (y): n
-  Enable diagram? [y/n] (y): y
+🔧 Select Components to Install
+Choose which components to symlink to ~/.claude/
+
+📁 Commands
+  Install all 18 items from docs? [y/n] (y): n
+    Install adr? [y/n] (n): y
+    Install rfc? [y/n] (n): y
+    Install diagram? [y/n] (n): n
   ...
 
-✅ Configuration saved to ~/.claude/settings.json
+📋 Installation Preview
+commands (2 items)
+  ✨ docs/adr.md
+  ✨ docs/rfc.md
+
+📊 Summary: 2 components selected
+Proceed with installation? [y/n] (y): y
+
+✅ Installation complete!
+🔗 2 components symlinked to ~/.claude
+💡 Note: Your settings.json was not modified
 ```
 
-**Note:** This is separate from the plugin system. Plugin installation always includes everything. Use `make configure` when installing via `make install` for selective control.
+**How it works:**
+- `make install` creates symlinks for **all** components
+- `make configure` lets you choose **which** components to symlink
+- Both methods create symlinks; the difference is selectivity
+- Your `settings.json` controls which symlinked components are *enabled*
+- **Never** overwrites or modifies your personal `settings.json`
+
+**Note:** This is separate from the plugin system. Plugin installation always includes everything. Use `make configure` when you want granular control over which files are symlinked.
 
 ## Development Commands
 
