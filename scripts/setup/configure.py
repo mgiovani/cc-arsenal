@@ -1,18 +1,33 @@
 #!/usr/bin/env python3
-"""Configuration wizard for Claude template repository.
-Helps users set up their preferred agents and commands.
+"""Selective installation wizard for Claude Code Arsenal.
+
+Allows users to interactively choose which components to symlink
+to their ~/.claude directory, without modifying settings.json.
 """
 
-import json
+import sys
+from collections import defaultdict
 from pathlib import Path
-from typing import Any
 
 import click
 from rich.console import Console
 from rich.prompt import Confirm
 from rich.table import Table
 
+# Import from install.py to reuse proven architecture
+from scripts.setup.install import (
+    ConflictManager,
+    ConflictResolution,
+    FileDiscovery,
+    InstallationConfig,
+    InstallationItem,
+    SymlinkManager,
+)
+
 console = Console()
+
+# Constants
+MAX_PREVIEW_ITEMS = 3  # Max items to show in component preview
 
 
 def get_repo_root() -> Path:
@@ -21,183 +36,200 @@ def get_repo_root() -> Path:
     return Path(__file__).parent.parent.parent
 
 
-def get_claude_dir() -> Path:
-    """Get the user's ~/.claude directory."""
-    return Path.home() / '.claude'
+def organize_by_category(
+    items: list[InstallationItem],
+) -> dict[str, dict[str, list[InstallationItem]]]:
+    """Organize installation items by category and subcategory.
+
+    Returns:
+        Dict structure: {category: {subcategory: [items]}}
+        Example: {'commands': {'docs': [item1, item2], 'git': [item3]}}
+    """
+    organized: dict[str, dict[str, list[InstallationItem]]] = defaultdict(
+        lambda: defaultdict(list)
+    )
+
+    for item in items:
+        # Extract subcategory from path (e.g., "commands/docs/adr.md" -> "docs")
+        parts = Path(item.name).parts
+        if len(parts) > 1:
+            subcategory = parts[0]
+            organized[item.category][subcategory].append(item)
+        else:
+            # No subcategory, use "other"
+            organized[item.category]['other'].append(item)
+
+    return organized
 
 
-def get_available_agents() -> dict[str, list[str]]:
-    """Get available agents organized by category from the repository."""
-    repo_root = get_repo_root()
-    agents_dir = repo_root / 'agents'
+def display_component_tree(
+    organized: dict[str, dict[str, list[InstallationItem]]],
+) -> None:
+    """Display available components in a tree structure."""
+    table = Table(title='CC-Arsenal Components')
+    table.add_column('Category', style='cyan', no_wrap=True)
+    table.add_column('Component', style='green')
+    table.add_column('Count', style='yellow', justify='right')
 
-    if not agents_dir.exists():
-        return {}
+    for category in sorted(organized.keys()):
+        subcategories = organized[category]
+        category_total = sum(len(items) for items in subcategories.values())
 
-    agents = {}
-    for category_dir in agents_dir.iterdir():
-        if category_dir.is_dir():
-            category_agents = []
-            for agent_file in category_dir.glob('*.md'):
-                # Skip README files - they're documentation, not agents
-                if agent_file.stem.upper() != 'README':
-                    category_agents.append(agent_file.stem)
-            if category_agents:
-                agents[category_dir.name] = category_agents
+        # Add category header
+        table.add_row(f'[bold]{category}[/bold]', '', str(category_total))
 
-    return agents
-
-
-def get_available_commands() -> dict[str, list[str]]:
-    """Get available commands organized by category from the repository."""
-    repo_root = get_repo_root()
-    commands_dir = repo_root / 'commands'
-
-    if not commands_dir.exists():
-        return {}
-
-    commands = {}
-    for category_dir in commands_dir.iterdir():
-        if category_dir.is_dir():
-            category_commands = []
-            for command_file in category_dir.glob('*.md'):
-                # Skip README files - they're documentation, not commands
-                if command_file.stem.upper() != 'README':
-                    category_commands.append(command_file.stem)
-            if category_commands:
-                commands[category_dir.name] = category_commands
-
-    return commands
-
-
-def get_available_skills() -> list[str]:
-    """Get available skills from the repository."""
-    repo_root = get_repo_root()
-    skills_dir = repo_root / 'skills'
-
-    if not skills_dir.exists():
-        return []
-
-    skills = []
-    for skill_dir in skills_dir.iterdir():
-        if skill_dir.is_dir() and (skill_dir / 'SKILL.md').exists():
-            skills.append(skill_dir.name)
-
-    return skills
-
-
-def create_settings_config(
-    selected_agents: list[str], selected_commands: list[str]
-) -> dict[str, Any]:
-    """Create a settings.json configuration."""
-    return {
-        'version': '1.0',
-        'agents': {
-            'enabled': selected_agents,
-            'default_tools': ['Read', 'Write', 'Edit', 'Bash', 'Grep', 'Glob'],
-        },
-        'commands': {'enabled': selected_commands},
-        'hooks': {'enabled': True, 'security_level': 'medium'},
-        'ui': {'theme': 'dark', 'show_agent_descriptions': True},
-    }
-
-
-def display_available_items(items: dict[str, list[str]], item_type: str) -> None:
-    """Display available agents or commands in a table."""
-    table = Table(title=f'Available {item_type.title()}')
-    table.add_column('Category', style='cyan')
-    table.add_column('Items', style='green')
-
-    for category, item_list in items.items():
-        table.add_row(category, ', '.join(item_list))
+        # Add subcategories
+        for subcat in sorted(subcategories.keys()):
+            items = subcategories[subcat]
+            preview_items = items[:MAX_PREVIEW_ITEMS]
+            item_names = ', '.join(sorted(Path(item.name).stem for item in preview_items))
+            if len(items) > MAX_PREVIEW_ITEMS:
+                remaining = len(items) - MAX_PREVIEW_ITEMS
+                item_names += f', ... (+{remaining} more)'
+            table.add_row('', f'  {subcat}: {item_names}', str(len(items)))
 
     console.print(table)
 
 
-def select_items(items: dict[str, list[str]], item_type: str) -> list[str]:
-    """Allow user to select which items to enable."""
-    selected = []
+def select_components(
+    organized: dict[str, dict[str, list[InstallationItem]]],
+) -> list[InstallationItem]:
+    """Interactively select which components to install."""
+    selected: list[InstallationItem] = []
 
-    console.print(f'\n🔧 Configure {item_type}')
+    console.print('\n🔧 [bold]Select Components to Install[/bold]')
+    console.print('Choose which components to symlink to ~/.claude/\n')
 
-    for category, item_list in items.items():
-        console.print(f'\n📁 [bold]{category.title()}[/bold]')
-        for item in item_list:
-            if Confirm.ask(f'  Enable {item}?', default=True):
-                selected.append(f'{category}/{item}')
+    for category in sorted(organized.keys()):
+        console.print(f'📁 [bold cyan]{category.title()}[/bold cyan]')
+        subcategories = organized[category]
+
+        for subcat in sorted(subcategories.keys()):
+            items = subcategories[subcat]
+            subcat_display = subcat if subcat != 'other' else f'{category} (root)'
+
+            # Ask about entire subcategory
+            if Confirm.ask(
+                f'  Install all {len(items)} items from [green]{subcat_display}[/green]?',
+                default=True,
+            ):
+                selected.extend(items)
+            else:
+                # Ask about individual items
+                for item in items:
+                    item_name = Path(item.name).stem
+                    if Confirm.ask(
+                        f'    Install [green]{item_name}[/green]?', default=False
+                    ):
+                        selected.append(item)
+
+        console.print()  # Blank line between categories
 
     return selected
 
 
+def preview_installation(selected: list[InstallationItem]) -> None:
+    """Show what will be installed."""
+    console.print('\n📋 [bold]Installation Preview[/bold]')
+
+    # Group by category
+    by_category: dict[str, list[InstallationItem]] = defaultdict(list)
+    for item in selected:
+        by_category[item.category].append(item)
+
+    for category in sorted(by_category.keys()):
+        items = by_category[category]
+        console.print(f'\n[cyan]{category}[/cyan] ({len(items)} items)')
+        for item in sorted(items, key=lambda x: x.name):
+            status = '🔄' if item.existing_is_symlink else '✨'
+            console.print(f'  {status} {item.name}')
+
+
 @click.command()
-@click.option('--quick', is_flag=True, help='Quick setup with defaults')
-def main(quick: bool) -> None:
-    """Configure Claude template settings."""
-    console.print('⚙️  [bold blue]Claude Configuration Wizard[/bold blue]')
+@click.option(
+    '--dry-run',
+    is_flag=True,
+    help='Preview selection without creating symlinks',
+)
+def main(dry_run: bool) -> None:
+    """Configure Claude Code Arsenal with selective component installation."""
+    title = '⚙️  [bold blue]Claude Code Arsenal - Selective Installation[/bold blue]'
+    console.print(title)
+    console.print(
+        'This wizard lets you choose which components to symlink to ~/.claude/\n'
+    )
 
-    claude_dir = get_claude_dir()
+    # Set up configuration
+    repo_root = get_repo_root()
+    config = InstallationConfig(
+        repo_root=repo_root,
+        conflict_resolution=ConflictResolution.INTERACTIVE,
+        backup_enabled=True,
+    )
 
-    if not claude_dir.exists():
-        console.print('❌ Claude directory not found. Please run `claude-install` first.')
-        return
+    # Check if ~/.claude exists
+    if not config.claude_dir.exists():
+        console.print(f'❌ [red]Claude directory not found at {config.claude_dir}[/red]')
+        console.print('Create it first or run with `make install` for full installation')
+        sys.exit(1)
 
-    # Get available items from repository
-    agents = get_available_agents()
-    commands = get_available_commands()
-    skills = get_available_skills()
+    # Discover available components
+    console.print('🔍 Discovering available components...')
+    discovery = FileDiscovery(config)
+    all_items = discovery.discover_installable_files()
 
-    if not agents and not commands and not skills:
-        console.print('❌ No components found in repository. Check your installation.')
-        return
+    if not all_items:
+        console.print('❌ [red]No installable components found[/red]')
+        sys.exit(1)
 
-    console.print('\n📦 [bold]CC-Arsenal Components:[/bold]')
-    cmd_count = sum(len(v) for v in commands.values())
-    console.print(f'   • Commands: {cmd_count} across {len(commands)} categories')
-    console.print(f'   • Skills: {len(skills)}')
-    if agents:
-        agent_count = sum(len(v) for v in agents.values())
-        console.print(f'   • Agents: {agent_count} across {len(agents)} categories')
-    console.print()
+    # Organize and display
+    organized = organize_by_category(all_items)
+    display_component_tree(organized)
 
-    if quick:
-        # Quick setup - enable everything
-        selected_agents = [
-            f'{cat}/{agent}' for cat, agent_list in agents.items() for agent in agent_list
-        ]
-        selected_commands = [
-            f'{cat}/{cmd}' for cat, cmd_list in commands.items() for cmd in cmd_list
-        ]
-        console.print('🚀 Quick setup: enabling all agents and commands')
-    else:
-        # Interactive setup
-        if agents:
-            display_available_items(agents, 'agents')
-            selected_agents = select_items(agents, 'agents')
-        else:
-            selected_agents = []
+    # Interactive selection
+    selected_items = select_components(organized)
 
-        if commands:
-            display_available_items(commands, 'commands')
-            selected_commands = select_items(commands, 'commands')
-        else:
-            selected_commands = []
+    if not selected_items:
+        console.print('\n⚠️  [yellow]No components selected. Exiting.[/yellow]')
+        sys.exit(0)
 
-    # Create configuration
-    config = create_settings_config(selected_agents, selected_commands)
-
-    # Write settings file
-    settings_file = claude_dir / 'settings.json'
-    with settings_file.open('w') as f:
-        json.dump(config, f, indent=2)
-
-    console.print(f'✅ Configuration saved to {settings_file}')
+    # Preview
+    preview_installation(selected_items)
 
     # Summary
-    console.print('\n📊 Configuration Summary:')
-    console.print(f'   • {len(selected_agents)} agents enabled')
-    console.print(f'   • {len(selected_commands)} commands enabled')
+    console.print(f'\n📊 [bold]Summary:[/bold] {len(selected_items)} components selected')
 
-    console.print('\n🔄 Please restart Claude Code to apply changes.')
+    if dry_run:
+        console.print('\n🏁 [yellow]Dry run complete - no changes made[/yellow]')
+        return
+
+    # Confirm
+    if not Confirm.ask('\nProceed with installation?', default=True):
+        console.print('Installation cancelled')
+        return
+
+    # Handle conflicts
+    conflict_manager = ConflictManager(config)
+    conflicts = conflict_manager.analyze_conflicts(selected_items)
+    resolutions = conflict_manager.resolve_conflicts(conflicts)
+
+    # Install selected components
+    console.print('\n🚀 Installing selected components...')
+    symlink_manager = SymlinkManager(config)
+    try:
+        symlink_manager.install_files(selected_items, resolutions)
+        console.print('\n✅ [bold green]Installation complete![/bold green]')
+        console.print(
+            f'🔗 {len(selected_items)} components symlinked to {config.claude_dir}'
+        )
+        console.print('\n💡 [yellow]Note:[/yellow] Your settings.json was not modified')
+        console.print(
+            '   To enable/disable components, edit ~/.claude/settings.json manually'
+        )
+        console.print('\n🔄 Please restart Claude Code to see changes')
+    except (OSError, RuntimeError) as e:
+        console.print(f'\n❌ [red]Installation failed: {e}[/red]')
+        sys.exit(1)
 
 
 if __name__ == '__main__':
