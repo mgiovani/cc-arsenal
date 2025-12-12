@@ -7,6 +7,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2025-12-12
+
+### Added
+
+- **Selective Plugin Installation**: Multiple installable plugin sets from single marketplace
+  - `cc-arsenal` - Complete toolkit (all commands, skills, and hooks)
+  - `cc-arsenal-docs` - Documentation commands only (ADR, RFC, diagrams)
+  - `cc-arsenal-git` - Git workflow commands only (commits, PRs)
+  - `cc-arsenal-skills` - Skills only (Jira CLI, skill creator)
+- **Plugin Browser Integration**: `marketplace add` now opens interactive plugin selector
+- **Resources Directory**: New `resources/templates/` for non-command assets
+
+### Changed
+
+- **Plugin Architecture**: Removed `plugin.json` in favor of marketplace-only configuration
+  - All plugins now use `strict: false` with explicit component paths
+  - Follows anthropics/skills pattern for better compatibility
+- **Templates Location**: Moved from `commands/docs/templates/` to `resources/templates/`
+  - Prevents templates from being discovered as commands
+  - Cleaner separation of assets from executable commands
+- **README Installation Instructions**: Simplified plugin installation flow
+  - Single command opens interactive plugin browser
+  - Table showing available plugin options
+  - Warning about not installing complete + selective plugins together
+- **Command Prefix**: Plugin commands now use `cc-arsenal:` prefix (e.g., `/cc-arsenal:docs:adr`)
+
+### Fixed
+
+- **Conflicting Manifests Error**: Resolved "both plugin.json and marketplace entry specify components" error
+- **Duplicate Commands**: Fixed templates appearing as commands in plugin discovery
+- **Template Path References**: Updated all 5 documentation commands to use `resources/templates/`
+- **Plugin Cache Issues**: Documented cache clearing for troubleshooting stale installations
+
+### Documentation
+
+- Updated CLAUDE.md with selective install options
+- Updated README with plugin browser workflow and options table
+- Updated docs/architecture.md with new plugin installation steps
+- Added note about avoiding duplicate installations
+
 ## [1.1.0] - 2025-12-12
 
 ### Added
@@ -49,7 +89,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Removed: `auth_checker.py`, `audit_enforcer.py`, `migration_safety.py`
   - Extracted hook configuration to dedicated `hooks/hooks.json` file
   - Added explicit tool matchers, timeouts, and descriptions
-- **Templates Relocated**: Moved from user config (`.claude/`) to plugin resources (`commands/docs/templates/`)
+- **Templates Relocated**: Moved from user config (`.claude/`) to plugin resources (`resources/templates/`)
 - **Plugin Structure**: `plugin.json` moved to `.claude-plugin/` directory (required location)
 - **Configure Script**: Now reads components from repository source instead of ~/.claude installation
   - Allows configuration before installation
@@ -164,6 +204,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Version History
 
-[Unreleased]: https://github.com/mgiovani/cc-arsenal/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/mgiovani/cc-arsenal/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/mgiovani/cc-arsenal/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/mgiovani/cc-arsenal/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/mgiovani/cc-arsenal/releases/tag/v1.0.0

@@ -36,9 +36,9 @@ Shows session information at a glance:
 
 ### How it works
 - Updates automatically with each Claude interaction
-- Background daemon caches git info for speed (<1ms)
-- Auto-restarts if needed
-- Low resource usage (<0.1% CPU)
+- Direct calculation for all components (~50ms)
+- No background daemon required
+- Minimal resource usage
 
 ## Installation
 
@@ -59,7 +59,6 @@ make statusline-install
 This will:
 1. Install the statusline script to `~/.claude/scripts/claude/statusline/`
 2. Configure Claude Code to use the statusline
-3. Start the background daemon (auto-managed)
 
 ### Manual Installation
 
@@ -67,8 +66,7 @@ This will:
   ```bash
   mkdir -p ~/.claude/scripts/claude/statusline/
   cp scripts/claude/statusline/statusline.sh ~/.claude/scripts/claude/statusline/
-  cp scripts/claude/statusline/statusline_daemon.sh ~/.claude/scripts/claude/statusline/
-  chmod +x ~/.claude/scripts/claude/statusline/*.sh
+  chmod +x ~/.claude/scripts/claude/statusline/statusline.sh
   ```
 
 2. **Configure Claude Code settings**:
@@ -81,8 +79,6 @@ This will:
 
 3. **Restart Claude Code** to apply changes
 
-The daemon will auto-start on first use - no manual configuration needed!
-
 ### Verification
 
 Test the installation:
@@ -90,9 +86,6 @@ Test the installation:
 ```bash
 # Test the statusline directly
 echo '{"model":{"id":"claude-sonnet-4.5"},"workspace":{"current_dir":"'$PWD'"},"cost":{}}' | bash ~/.claude/scripts/claude/statusline/statusline.sh
-
-# Check daemon status
-bash ~/.claude/scripts/claude/statusline/statusline_daemon.sh status
 ```
 
 ## Usage
@@ -123,112 +116,41 @@ The statusline runs automatically - Claude Code calls it on every interaction. N
 🤖 Sonnet 4.5 │ 📁 feature-impl │ 🌿 feature-branch ● │ 🌳 feature-impl │ 📊 22% │ 💰 $0.043 │ 🔄 2h15m
 ```
 
-### Daemon Management
+### Optional: Background Daemon (Advanced)
 
-While the daemon auto-manages itself, you can control it manually if needed:
+The statusline includes an optional background daemon for caching git information. However, **the daemon is not enabled by default** as direct calculation is fast enough (~50ms).
+
+If you want to enable the daemon for slightly faster performance (~1ms), you can manually start it:
 
 ```bash
-# Check daemon status and view cache
+# Start the daemon manually (optional)
+bash ~/.claude/scripts/claude/statusline/statusline_daemon.sh start
+
+# Check daemon status
 bash ~/.claude/scripts/claude/statusline/statusline_daemon.sh status
 
-# Manually stop daemon (auto-restarts on next statusline call)
+# Stop daemon
 bash ~/.claude/scripts/claude/statusline/statusline_daemon.sh stop
-
-# Manually restart daemon
-bash ~/.claude/scripts/claude/statusline/statusline_daemon.sh restart
-
-# Force cache update (for testing)
-bash ~/.claude/scripts/claude/statusline/statusline_daemon.sh update
 ```
 
-**Note:** Manual control is rarely needed - the daemon auto-starts and self-heals automatically.
+**Note:** The daemon is completely optional. The statusline works perfectly fine without it.
 
 ## Configuration
 
-### Interactive Configuration
+**Note:** The statusline currently has a fixed component layout and is not user-configurable. A configuration tool (`configure_statusline.py`) exists but is not yet integrated with the statusline script.
 
-Use the configuration tool for easy customization:
-
-```bash
-python ~/.claude/scripts/claude/statusline/configure_statusline.py
-```
-
-This allows you to:
-- Enable/disable specific components
-- Reorder component display
-- Customize separators and formatting
-- Set display thresholds
-- Configure truncation behavior
-
-### Component Configuration
-
-**Available Components:**
+The statusline displays these components in order:
 - `model` - Model name/version
 - `directory` - Current working directory
 - `git` - Git branch and status
 - `worktree` - Git worktree name (only shown when in a worktree)
 - `context` - Context window usage %
 - `session_cost` - Current session cost
-- `lines_changed` - Lines added/removed
-- `duration_info` - Request processing time
+- `lines_changed` - Lines added/removed (when non-zero)
+- `session_duration` - Session duration (when available)
 - `reset_countdown` - Time until window reset
 
-### Display Settings
-
-**Separators:**
-- Default: ` │ ` (vertical bar with spaces)
-- Options: `|`, `•`, `▶`, `→`, or custom
-
-**Width Management:**
-- `max_width`: Maximum statusline width (default: 120)
-- `compact_threshold`: When to switch to compact mode (default: 80)
-
-**Formatting Options:**
-- `directory_max_length`: Truncate directory names (default: 25)
-- `directory_display_mode`: `short` (~/projects) or `full` (/Users/you/projects)
-- `git_branch_max_length`: Truncate long branch names (default: 15)
-- `cost_decimal_places`: Cost precision (default: 3)
-
-### Manual Configuration
-
-Edit `~/.claude/cc-arsenal/statusline_config.json`:
-
-```json
-{
-  "components": {
-    "order": [
-      "model",
-      "directory",
-      "git",
-      "context",
-      "session_cost",
-      "reset_countdown"
-    ],
-    "enabled": {
-      "model": true,
-      "directory": true,
-      "git": true,
-      "context": true,
-      "session_cost": true,
-      "reset_countdown": true,
-      "lines_changed": false,
-      "duration_info": false
-    }
-  },
-  "display": {
-    "separator": " │ ",
-    "compact_separator": "│",
-    "max_width": 120,
-    "compact_threshold": 80
-  },
-  "formatting": {
-    "directory_max_length": 25,
-    "directory_display_mode": "short",
-    "git_branch_max_length": 15,
-    "cost_decimal_places": 3
-  }
-}
-```
+The separator is fixed as ` │ ` (vertical bar with spaces).
 
 ## Components
 
@@ -240,16 +162,14 @@ Edit `~/.claude/cc-arsenal/statusline_config.json`:
 - **📊 Context Usage** - Percentage of 200K context window used
 - **⏱️ Session Duration** - Time spent in current session
 
-### Event-Independent Components
-(cached by daemon)
+### Git Components
 
 - **🌿 Git Status** - Branch and uncommitted changes (●)
 - **🌳 Worktree** - Worktree name (only when in a worktree)
+
+### Other Components
+
 - **📁 Directory** - Current directory
-
-### Always Calculated Components
-(calculated on-demand)
-
 - **🔄 Window Reset Timer** - Time until 5-hour reset
   - Format: `2h15m until reset at 14:00`
 
@@ -276,43 +196,35 @@ The 🌳 worktree indicator only appears when needed.
 
 ## Architecture
 
-### Zero-Config Design
+### Simple Direct Calculation Design
 
-The statusline **automatically manages everything** - no setup required!
+The statusline uses a **direct calculation approach** for simplicity and reliability:
 
-When you first use Claude Code, the statusline:
-1. Detects the daemon is not running
-2. Auto-starts it silently in the background
-3. Uses fallback calculation until cache is ready
-4. Subsequent calls use the live cache (instant)
+**Statusline Script** (`statusline.sh`)
+- Called by Claude Code on each interaction
+- Calculates all components on-demand
+- Response time: ~50ms (fast enough for real-time display)
+- No background processes or daemon management needed
+- Combines git data with Claude event data
 
-**Self-Healing:** If your system restarts or the daemon crashes, the next statusline call automatically restarts it.
+### Optional Cache Support
 
-### Two-Tier Architecture
+For advanced users who want faster performance, a daemon is available:
 
-The statusline uses a **cache-based architecture** for optimal performance:
-
-**1. Live Cache Daemon** (`statusline_daemon.sh`)
-- Auto-starts on first statusline call
+**Live Cache Daemon** (`statusline_daemon.sh`) - **Optional, not enabled by default**
 - Updates cache every 60 seconds in background
-- Maintains fresh data for event-independent components
+- Can reduce statusline response to ~1ms
 - Battery-efficient: <0.1% CPU usage
-- Auto-restarts after system reboot
+- Must be manually started
 
-**2. Statusline Script** (`statusline.sh`)
-- Called by Claude Code (max 300ms refresh rate per docs)
-- Ensures daemon is running (auto-start if needed)
-- Reads from live cache if available (instant, ~1ms)
-- Falls back to direct calculation if cache not ready (~50ms)
-- Combines cached data with Claude event data
+The statusline will opportunistically use cached data if the daemon is running, but works perfectly fine without it.
 
-### Performance & Battery Impact
+### Performance
 
-- **Update interval**: 60 seconds (configurable)
-- **CPU usage**: <0.1% average
-- **Memory**: ~2MB
-- **Battery impact**: Negligible (equivalent to checking time every minute)
-- **Statusline response**: <1ms with cache, ~50ms without
+- **Statusline response**: ~50ms (direct calculation)
+- **With optional daemon**: ~1ms (cached)
+- **CPU usage**: Negligible (only runs on Claude interactions)
+- **Memory**: Minimal (~1-2MB if daemon is used)
 
 ### Design Principles
 
@@ -345,19 +257,20 @@ chmod +x ~/.claude/scripts/claude/statusline/statusline.sh
 
 #### Slow Performance
 
-**Check if daemon is running:**
-```bash
-bash ~/.claude/scripts/claude/statusline/statusline_daemon.sh status
-```
+The statusline typically responds in ~50ms which should be fast enough. If you're experiencing slower performance:
 
-**If not running, start it:**
+**Optional: Start the cache daemon for faster performance:**
 ```bash
 bash ~/.claude/scripts/claude/statusline/statusline_daemon.sh start
 ```
 
-The daemon should auto-start, but you can restart it manually if needed.
+This is completely optional and will reduce response time to ~1ms.
 
 #### Incorrect Information
+
+The statusline calculates information directly on each call, so stale data should not occur.
+
+If you're using the optional daemon and see stale data:
 
 **Force cache update:**
 ```bash
@@ -366,7 +279,7 @@ bash ~/.claude/scripts/claude/statusline/statusline_daemon.sh update
 
 **Check daemon logs:**
 ```bash
-tail ~/.claude/scripts/claude/statusline/daemon.log
+tail /tmp/statusline_live_cache/daemon.log
 ```
 
 #### Git Worktree Not Detected
@@ -377,10 +290,7 @@ git rev-parse --git-dir
 git rev-parse --git-common-dir
 ```
 
-If these return different paths, you're in a worktree. If the statusline still doesn't show it, restart the daemon:
-```bash
-bash ~/.claude/scripts/claude/statusline/statusline_daemon.sh restart
-```
+If these return different paths, you're in a worktree. The statusline should detect this automatically since it calculates git information directly on each call.
 
 ### Debug Mode
 
@@ -399,7 +309,9 @@ export STATUSLINE_PERF=1
 echo '{"model":{"id":"test"}}' | bash ~/.claude/scripts/claude/statusline/statusline.sh
 ```
 
-### Cache Issues
+### Cache Issues (Only if using optional daemon)
+
+If you're using the optional daemon and experiencing issues:
 
 **Inspect cache contents:**
 ```bash
@@ -412,16 +324,18 @@ rm -rf /tmp/statusline_live_cache/
 bash ~/.claude/scripts/claude/statusline/statusline_daemon.sh restart
 ```
 
+**Note:** If you're not using the daemon, there's no cache to troubleshoot.
+
 ### Getting Help
 
 If you encounter issues:
 
 1. Check the [troubleshooting section](#troubleshooting) above
-2. Review daemon status: `bash ~/.claude/scripts/claude/statusline/statusline_daemon.sh status`
-3. Check logs in `/tmp/statusline_live_cache/` and `~/.claude/scripts/claude/statusline/`
+2. Test the statusline directly with debug mode enabled
+3. If using the optional daemon, check its status: `bash ~/.claude/scripts/claude/statusline/statusline_daemon.sh status`
 4. Open an issue on GitHub with:
-  - Output of `status` command
-  - Relevant log files
+  - Debug log output (`STATUSLINE_DEBUG=1`)
+  - Your Claude Code settings
   - Steps to reproduce the issue
 
 ---

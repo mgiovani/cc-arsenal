@@ -1,16 +1,42 @@
 ---
 description: "Initialize comprehensive documentation structure for project"
 argument-hint: "[context]"
-allowed-tools: ["Read", "Write", "Grep", "Glob", "Bash(git *)"]
+allowed-tools: ["Read", "Write", "Grep", "Glob", "Bash(git *)", "Task"]
 ---
 
 # Initialize Project Documentation
 
 Generate comprehensive documentation structure for your project based on detected technologies and configuration.
 
+## Anti-Hallucination Guidelines
+
+**CRITICAL**: Before documenting ANY feature, component, or capability:
+1. **Verify existence** - Read the actual file/directory to confirm it exists
+2. **Count accurately** - Use `ls` or `find` to get exact counts, don't estimate
+3. **Quote actual code** - Reference real function names, not assumed ones
+4. **Check empty directories** - A directory existing ≠ content existing
+5. **Never assume** - If you can't verify it, don't document it
+
 ## Your Task
 
-1. **Detect Project Characteristics**:
+### Phase 1: Deep Codebase Exploration (Use Explore Agent)
+
+**IMPORTANT**: Use the Task tool with `subagent_type: "Explore"` to thoroughly analyze the codebase before generating any documentation.
+
+```
+Use Task tool with Explore agent:
+- prompt: "Analyze this codebase structure. Find: 1) All source directories with actual code files, 2) Package manager files (package.json, pyproject.toml, etc.), 3) Database/ORM files, 4) Infrastructure configs (Docker, K8s), 5) Existing documentation. Return ONLY verified findings with file paths."
+- subagent_type: "Explore"
+```
+
+### Phase 2: Verify Findings
+
+After exploration, **verify each finding by reading the actual files**:
+- Read package.json/pyproject.toml to confirm tech stack
+- Read model files to confirm database entities exist
+- Check directories are not empty before claiming components exist
+
+### Phase 3: Detect Project Characteristics
    - Technology stack (language, frameworks, databases)
    - Project type (web app, CLI, library, microservice, etc.)
    - Infrastructure (Docker, K8s, cloud configs)
@@ -39,7 +65,7 @@ Generate comprehensive documentation structure for your project based on detecte
    - Show what will be created vs what exists
 
 4. **Load Templates**:
-   - Templates are in `commands/docs/templates/`
+   - Templates are in `resources/templates/`
    - Use appropriate template for each document type
    - Replace placeholders with project-specific values
 
@@ -56,6 +82,17 @@ Generate comprehensive documentation structure for your project based on detecte
    - `{{TECH_STACK}}` - Detected technologies
    - `{{DESCRIPTION}}` - Brief project description from README or git
    - `{{CONTEXT}}` - Gathered context from codebase analysis
+
+### Phase 4: Verify Before Writing
+
+**Before writing each document**, verify your claims:
+```
+For each major claim in the document:
+1. Re-read the source file to confirm the claim
+2. If claiming "X components exist", verify the count with ls/find
+3. If referencing a function/class, grep to confirm it exists
+4. Remove any claims you cannot verify
+```
 
 7. **Report Results**:
    - List all documentation files created
@@ -101,7 +138,7 @@ With additional context:
 
 ## Template Locations
 
-Templates are loaded from `commands/docs/templates/`:
+Templates are loaded from `resources/templates/`:
 
 | Document Type | Template File |
 |--------------|---------------|

@@ -1,14 +1,66 @@
 ---
 description: "Create a PR with conventional commit format and pre-filled template"
 argument-hint: "[--base branch] [--draft]"
-allowed-tools: ["Bash(git *)", "Bash(gh *)", "Read", "Write"]
+allowed-tools: ["Bash(git *)", "Bash(gh *)", "Read", "Write", "Task", "TodoWrite"]
 ---
 
 # Create Pull Request Command
 
 Create a GitHub Pull Request following conventional commits specification, pre-filled with the PR template, and opened in the browser for final review.
 
+## Quality Guidelines
+
+**CRITICAL**: PR descriptions must accurately reflect ACTUAL changes:
+1. **Verify every claim** - Each bullet point must correspond to real code changes
+2. **Check commit messages** - Use actual commit messages, don't paraphrase incorrectly
+3. **Accurate scope** - Only mention files/modules that actually changed
+4. **No hallucinated features** - Don't describe functionality that wasn't implemented
+
 ## Your Task
+
+### Phase 1: Deep Change Analysis (Use SubAgents for Comprehensive PRs)
+
+For PRs with multiple commits or complex changes, spawn parallel agents:
+
+```
+If branch has >3 commits or >10 files changed:
+
+Agent 1 - Feature Analysis:
+- prompt: "Analyze all commits in this branch. What user-facing features or fixes were implemented? Focus on WHAT changed for users, not HOW the code changed."
+- subagent_type: "general-purpose"
+
+Agent 2 - Technical Analysis:
+- prompt: "Analyze the code changes. What architectural or technical changes were made? Look for: new dependencies, API changes, database migrations, config changes."
+- subagent_type: "general-purpose"
+
+Agent 3 - Risk Assessment:
+- prompt: "Identify risks in these changes: breaking changes, security implications, performance impacts, areas needing extra review. Check for removed tests or skipped validations."
+- subagent_type: "general-purpose"
+
+Agent 4 - Test Coverage:
+- prompt: "Check if changes include tests. For each modified file, is there a corresponding test change? List untested changes that should have tests."
+- subagent_type: "Explore"
+
+Merge results → Generate accurate, comprehensive PR description
+```
+
+### Track Progress with TodoWrite
+
+Use TodoWrite to track PR creation steps:
+
+```
+TodoWrite:
+- [ ] Validate preconditions (clean tree, correct branch)
+- [ ] Analyze commits and changes
+- [ ] Generate PR title (conventional format)
+- [ ] Fill PR template with accurate description
+- [ ] Get user confirmation
+- [ ] Push branch and create PR
+
+Mark each as in_progress → completed as you proceed.
+```
+
+### Phase 2: Validate Preconditions
 
 1. **Validate Preconditions**:
   - Check working tree is clean: `git status --porcelain`
@@ -53,7 +105,17 @@ Create a GitHub Pull Request following conventional commits specification, pre-f
     - [ ] Manual testing completed
     ```
 
-6. **Ask for Confirmation**:
+6. **Verify PR Description Accuracy**:
+  Before showing to user, verify each claim:
+  ```
+  For each bullet point in PR description:
+  1. Find the corresponding commit or code change
+  2. If no evidence found, remove the claim
+  3. Verify file paths mentioned actually exist
+  4. Check that feature descriptions match actual code behavior
+  ```
+
+7. **Ask for Confirmation**:
   - Show compact summary with ticket, commits count, authors
   - Display preview of generated PR title
   - Display preview of generated PR body
@@ -61,7 +123,7 @@ Create a GitHub Pull Request following conventional commits specification, pre-f
   - Accept: `y`, `yes`, `n`, `no`, `e`, `edit`
   - On `e`: ask for custom title/body modifications
 
-7. **Push and Create PR** (after user confirms):
+8. **Push and Create PR** (after user confirms):
   - **CRITICAL Step 1**: Push branch FIRST: `git push -u origin <branch>`
   - **Step 2**: Create temp body file with timestamp variable
   - **Step 3**: Open PR in browser with --web (for user to finish):

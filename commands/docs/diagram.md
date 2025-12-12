@@ -1,16 +1,35 @@
 ---
 description: "Generate Mermaid diagrams from codebase analysis"
 argument-hint: "<type> [context]"
-allowed-tools: ["Read", "Write", "Grep", "Glob"]
+allowed-tools: ["Read", "Write", "Grep", "Glob", "Task"]
 ---
 
 # Generate System Diagrams
 
 Generate Mermaid diagrams including architecture, database schema, deployment, and security architecture.
 
+## Anti-Hallucination Guidelines
+
+**CRITICAL**: Diagrams must represent REAL components. Before adding ANY element:
+1. **Verify component exists** - Read the actual file before adding it to diagram
+2. **Confirm relationships** - Check imports/references to verify connections
+3. **Count entities accurately** - Use find/glob to get exact counts
+4. **No placeholder components** - Only include verified, existing elements
+5. **Empty directories ≠ components** - Check directories have actual content
+
 ## Your Task
 
-1. **Parse Arguments**:
+### Phase 1: Deep Analysis (Use Explore Agent)
+
+**IMPORTANT**: Use the Explore agent to thoroughly analyze the codebase before generating diagrams:
+
+```
+Use Task tool with Explore agent:
+- prompt: "For [DIAGRAM_TYPE] diagram, find all relevant components. For ER: find model/entity files and their relationships. For arch: find services, APIs, databases. For deployment: find Docker/K8s configs. Return ONLY verified files with their actual content structure."
+- subagent_type: "Explore"
+```
+
+### Phase 2: Parse Arguments
    - Extract diagram type from `$ARGUMENTS`
    - Supported types: `er`, `arch`, `deployment`, `security`
    - Extract optional context (remaining arguments)
@@ -52,14 +71,63 @@ Generate Mermaid diagrams including architecture, database schema, deployment, a
    - Identify data encryption points
    - Document security controls
 
+### Phase 3: Parallel Verification (Use SubAgents)
+
+**Before generating, spawn parallel agents to verify different aspects**:
+
+```
+Example: Generating an architecture diagram
+
+Agent 1 - Verify Services:
+- prompt: "Find all actual service files/classes in the codebase. Return a list of verified service names with their file paths. Do NOT assume - only return what you can find."
+- subagent_type: "Explore"
+
+Agent 2 - Verify Databases:
+- prompt: "Find all database configurations and connections. Look for DB URLs, ORM configs, connection pools. Return verified database technologies with evidence."
+- subagent_type: "Explore"
+
+Agent 3 - Verify External Integrations:
+- prompt: "Find all external API calls, third-party service integrations. Look for HTTP clients, SDK imports, webhook handlers. Return verified external dependencies."
+- subagent_type: "Explore"
+
+Agent 4 - Verify Data Flow:
+- prompt: "Trace how data flows between components. Look at imports, function calls, event handlers. Return verified connections between components."
+- subagent_type: "Explore"
+
+Merge results → Only include verified entities in diagram
+```
+
+**For ER diagrams specifically**:
+```
+Agent 1 - Find Models:
+- prompt: "Find all ORM model/entity files. Extract table names and column definitions."
+- subagent_type: "Explore"
+
+Agent 2 - Find Relationships:
+- prompt: "In the model files found, identify all foreign keys and relationship decorators. Map actual relationships."
+- subagent_type: "Explore"
+
+Only include entities and relationships that both agents confirm exist.
+```
+
+**Verification checklist before adding to diagram**:
+```
+For each entity/component you plan to include:
+1. Read the actual source file to confirm it exists
+2. For relationships, verify the import/reference exists in code
+3. For counts (e.g., "5 services"), run: find . -name "*service*" | wc -l
+4. Remove any component you cannot verify with actual code
+```
+
 4. **Generate Mermaid Diagram**:
    - Create appropriate Mermaid syntax based on type
+   - **ONLY include verified components** - no assumptions
    - Include meaningful labels and relationships
    - Add comments for clarity
    - Keep diagram readable (not too complex)
 
 5. **Load Template**:
-   - Template location: `commands/docs/templates/`
+   - Template location: `resources/templates/`
    - Select based on diagram type:
      - `er` → `data-model.md`
      - `arch` → `architecture.md`
@@ -323,5 +391,5 @@ Run when:
 
 ---
 
-**Template Location**: `commands/docs/templates/`
+**Template Location**: `resources/templates/`
 **Output Directory**: `docs/`

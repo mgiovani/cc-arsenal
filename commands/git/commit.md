@@ -1,14 +1,61 @@
 ---
 description: "Generate conventional commits following conventionalcommits.org specification"
 argument-hint: ""
-allowed-tools: ["Bash(git *)", "Read", "Edit", "Write"]
+allowed-tools: ["Bash(git *)", "Read", "Edit", "Write", "Task", "TodoWrite"]
 ---
 
 # Conventional Commit Command
 
 Generate a conventional commit message following https://www.conventionalcommits.org/en/v1.0.0/ specification and create commits automatically.
 
+## Quality Guidelines
+
+**CRITICAL**: Commit messages must accurately describe ACTUAL changes:
+1. **Read the diff** - Base message ONLY on what you see in the diff, not assumptions
+2. **Verify scope** - Check which files/modules actually changed before setting scope
+3. **Check breaking changes** - Look for removed exports, changed APIs, deleted functions
+4. **No guessing** - If unsure about change purpose, ask user rather than assume
+
 ## Your Task
+
+### Phase 1: Parallel Change Analysis (Use SubAgents for Complex Changes)
+
+For changes spanning multiple files or concerns, spawn parallel agents:
+
+```
+If git diff shows >100 lines or >5 files changed:
+
+Agent 1 - Semantic Analysis:
+- prompt: "Analyze this git diff and explain what the code changes actually DO. Focus on behavior changes, not just file names. What features were added? What bugs were fixed?"
+- subagent_type: "general-purpose"
+
+Agent 2 - Breaking Change Detection:
+- prompt: "Check this git diff for breaking changes: removed public functions, changed function signatures, deleted exports, renamed APIs. List any breaking changes found."
+- subagent_type: "general-purpose"
+
+Agent 3 - Commit Splitting Analysis:
+- prompt: "Should these changes be split into multiple commits? Look for: mixing features with fixes, unrelated changes, docs mixed with code. Recommend how to split if needed."
+- subagent_type: "general-purpose"
+
+Merge results → Generate accurate commit message(s)
+```
+
+### Track Progress with TodoWrite (For Multiple Commits)
+
+When changes need to be split into multiple commits, use TodoWrite:
+
+```
+Example: Changes include a feature, a fix, and docs update
+
+TodoWrite:
+- [ ] Commit 1: feat(auth): add OAuth2 support
+- [ ] Commit 2: fix(api): resolve null pointer exception
+- [ ] Commit 3: docs: update authentication guide
+
+Mark each as in_progress → completed as you stage and commit.
+```
+
+### Phase 2: Analyze Changes
 
 1. **Analyze Changes**: Run `git status` and `git diff --staged` to understand current changes
 2. **Group Related Changes**: Identify logically separate changes that should be committed individually (e.g., separate feature additions from bug fixes, documentation updates from code changes)

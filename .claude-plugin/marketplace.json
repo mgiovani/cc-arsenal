@@ -5,16 +5,16 @@
     "email": "contact@giovani.dev"
   },
   "metadata": {
-    "description": "Claude Code Arsenal - Professional security agents, quality automation, and development workflows",
-    "version": "1.0.0"
+    "description": "Claude Code Arsenal - Professional commands, skills, and hooks for development workflows",
+    "version": "1.2.0"
   },
   "plugins": [
     {
       "name": "cc-arsenal",
       "source": "./",
-      "strict": true,
-      "description": "Security-focused AI agents, quality automation commands, and safety hooks for professional Claude Code development. Includes specialized agents, git workflow commands, and comprehensive security/compliance hooks.",
-      "version": "1.0.0",
+      "strict": false,
+      "description": "Complete toolkit: all commands (docs, git, claude, jira), skills (jira-cli, skill-creator), and safety hooks",
+      "version": "1.2.0",
       "author": {
         "name": "Giovani Moutinho",
         "email": "contact@giovani.dev"
@@ -23,25 +23,58 @@
       "repository": "https://github.com/mgiovani/cc-arsenal",
       "license": "MIT",
       "category": "productivity",
-      "tags": [
-        "security",
-        "agents",
-        "automation",
-        "quality",
-        "hooks",
-        "git",
-        "development"
+      "commands": [
+        "./commands/docs/",
+        "./commands/git/",
+        "./commands/claude/",
+        "./commands/jira/"
       ],
-      "keywords": [
-        "security",
-        "agents",
-        "hooks",
-        "automation",
-        "quality",
-        "development",
-        "productivity",
-        "git",
-        "testing"
+      "skills": [
+        "./skills/skill-creator",
+        "./skills/jira-cli"
+      ],
+      "hooks": "./hooks/hooks.json"
+    },
+    {
+      "name": "cc-arsenal-docs",
+      "source": "./",
+      "strict": false,
+      "description": "Documentation commands only: ADR, RFC, diagrams, init, check, and update",
+      "version": "1.2.0",
+      "author": {
+        "name": "Giovani Moutinho"
+      },
+      "category": "documentation",
+      "commands": [
+        "./commands/docs/"
+      ]
+    },
+    {
+      "name": "cc-arsenal-git",
+      "source": "./",
+      "strict": false,
+      "description": "Git workflow commands: conventional commits and PR creation",
+      "version": "1.2.0",
+      "author": {
+        "name": "Giovani Moutinho"
+      },
+      "category": "development",
+      "commands": [
+        "./commands/git/"
+      ]
+    },
+    {
+      "name": "cc-arsenal-skills",
+      "source": "./",
+      "strict": false,
+      "description": "Skills only: Jira CLI integration and skill creation guide",
+      "version": "1.2.0",
+      "author": {
+        "name": "Giovani Moutinho"
+      },
+      "category": "productivity",
+      "skills": [
+        "./skills/"
       ]
     }
   ]

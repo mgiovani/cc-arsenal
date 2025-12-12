@@ -4,7 +4,7 @@ A comprehensive guide to setting up and using the Claude Code Arsenal for secure
 
 ## Overview
 
-Claude Code Arsenal is a professional collection of security-focused AI agents, quality automation commands, and safety hooks designed to enhance your Claude Code development experience with enterprise-grade security and automation.
+Claude Code Arsenal is a professional collection of quality automation commands, safety hooks, and specialized skills designed to enhance your Claude Code development experience with enterprise-grade security and automation.
 
 ## Prerequisites
 
@@ -78,8 +78,6 @@ uv run python -m scripts.setup.configure
 ```bash
 # Install only specific components
 make install-statusline    # Enhanced statusline only
-make install-agents        # AI agents only
-make install-hooks         # Safety hooks only
 ```
 
 ## Verification
@@ -88,44 +86,16 @@ After installation, verify everything is working:
 
 ```bash
 # Check if components are installed
-ls ~/.claude/agents/
 ls ~/.claude/commands/
 ls ~/.claude/hooks/
+ls ~/.claude/skills/
 
 # Validate installation
 make info
 make validate-structure
-
-# Test agent availability (in Claude Code)
-# Request an agent like: "Use the development agent to help with authentication"
 ```
 
 ## Core Components
-
-### 🤖 AI Agents
-
-Specialized AI assistants organized by domain:
-
-#### Available Categories
-
-- **Architecture**: System design and technical architecture specialists
-- **Development**: Code implementation and debugging experts
-- **Orchestration**: Workflow coordination and automation masters
-- **Product**: Product management and requirements analysts
-- **Productivity**: Development efficiency and optimization specialists
-- **UX**: User experience and design experts
-
-#### Using Agents
-
-Request agents directly in Claude Code:
-
-```
-Use the development agent to implement user authentication with JWT tokens
-```
-
-```
-Use the security-validator to check authentication patterns in the codebase
-```
 
 ### ⚡ Commands
 
@@ -133,44 +103,50 @@ Workflow automation for common development tasks:
 
 #### Available Commands
 
-- **Security Scan**: Automated vulnerability scanning
-- **Quality Check**: Code standards validation
-- **Test Runner**: Comprehensive test execution
+**Documentation Commands** (`/docs:*`):
+- `/docs:init` - Initialize comprehensive documentation structure
+- `/docs:adr` - Create numbered ADR for architectural decisions
+- `/docs:rfc` - Create numbered RFC for proposing changes
+- `/docs:diagram` - Generate Mermaid diagrams from codebase analysis
+- `/docs:check` - Validate documentation freshness and completeness
+- `/docs:update` - Update documentation by syncing with codebase
+
+**Git Commands** (`/git:*`):
+- `/git:commit` - Generate conventional commits following conventionalcommits.org
+- `/git:create-pr` - Create PR with conventional commit format and pre-filled template
 
 #### Using Commands
 
 ```bash
-# Run security scan
-claude /security:scan "src/"
+# Create an architectural decision record
+/docs:adr "Use PostgreSQL for primary database"
 
-# Validate code quality
-claude /quality:check "src/auth/"
+# Generate architecture diagram
+/docs:diagram architecture
 
-# Run comprehensive tests
-claude /test:runner "--coverage --security"
+# Create a pull request
+/git:create-pr --base main
 ```
 
 ### 🔒 Hooks
 
-Automated safety and validation:
+Automated safety and validation hooks that run on Claude Code events:
 
-#### Hook Categories
+#### Available Hooks
 
-- **Security**: Authentication, file protection, access control
-- **Quality**: Code standards, testing, documentation validation
-- **Compliance**: Regulatory requirements, audit trails
+- **file_protection** (security): Prevents commits containing sensitive files (.env, secrets, credentials)
+- **pre_commit_validate** (quality): Validates code quality before commits
 
-#### Hook Configuration
+### 🎯 Skills
 
-Configure hooks via `~/.claude/hook-config.yaml`:
+Model-invoked capabilities that Claude automatically loads when relevant:
 
-```yaml
-file_protection:
-  enabled: true
-  protected_patterns:
-    - "*.env*"
-    - "secrets.*"
-```
+#### Available Skills
+
+- **skill-creator**: Comprehensive guide for creating effective skills with specialized knowledge, workflows, or tool integrations
+- **jira-cli**: Interactive command-line tool for Atlassian Jira with issue, epic, and sprint management
+
+Skills use progressive disclosure - Claude decides when to activate them based on task context.
 
 ## Advanced Setup
 
@@ -179,15 +155,18 @@ file_protection:
 Replace manual cron workarounds with intelligent scheduling:
 
 ```bash
+# Navigate to the claude-hi directory
+cd scripts/claude-hi
+
 # Interactive setup with guided options
-make claude-hi-setup
+make setup
 
 # Quick presets
-make claude-hi-standard    # 9am/2pm/7pm schedule
-make claude-hi-extended    # 4am/9am/2pm/7pm schedule
+make standard    # 9am/2pm/7pm schedule
+make extended    # 4am/9am/2pm/7pm schedule
 
 # Check current status
-make claude-hi-status
+make status
 ```
 
 ### Enhanced Statusline
@@ -196,7 +175,7 @@ Add comprehensive usage tracking:
 
 ```bash
 # Install enhanced statusline
-make statusline-install
+make install-statusline
 
 # The statusline will show:
 # - Session costs and token usage
@@ -221,18 +200,7 @@ make configure
 
 ### Manual Configuration
 
-Edit configuration files directly:
-
-```bash
-# Agent configuration
-~/.claude/agent-config.yaml
-
-# Hook configuration
-~/.claude/hook-config.yaml
-
-# Command configuration
-~/.claude/command-config.yaml
-```
+Configuration is primarily managed through the interactive `make configure` wizard, which helps you select specific components to symlink to `~/.claude/`.
 
 ## Development Workflow Integration
 
@@ -241,38 +209,32 @@ Edit configuration files directly:
 When starting a new project:
 
 ```bash
-# 1. Initialize your project with quality tools
-make project-init
+# 1. Initialize documentation structure
+/docs:init
 
-# 2. Set up security scanning
-claude /security:scan --setup
+# 2. Set up quality checks
+make pre-commit-install
 
-# 3. Configure quality gates
-claude /quality:check --setup
-
-# 4. Enable relevant hooks for your project type
-make configure-hooks
+# 3. Enable relevant hooks
+# Hooks are automatically enabled when installed to ~/.claude
 ```
 
 ### Daily Development
 
 Your enhanced workflow will include:
 
-1. **Automatic Security Validation**: Hooks prevent commits with secrets or vulnerabilities
-2. **Quality Enforcement**: Code standards validated automatically
-3. **Smart Session Management**: Optimal timing for intensive coding work
-4. **AI Agent Assistance**: Specialized help for different development tasks
+1. **Automatic Security Validation**: Hooks prevent commits with secrets or sensitive files
+2. **Quality Enforcement**: Code standards validated automatically before commits
+3. **Smart Documentation**: Generate ADRs, RFCs, and diagrams with slash commands
+4. **Specialized Skills**: Claude automatically invokes relevant skills when needed
 
 ### Code Review Process
 
 ```bash
 # Run comprehensive checks before commits
-make check                 # All quality checks
-make security-scan         # Security vulnerability scan
+make check                 # All quality checks (lint + type-check)
 make test                  # Full test suite
-
-# Use AI agents for review
-# "Use code-reviewer to analyze this authentication implementation"
+make pre-commit-run        # Run pre-commit hooks manually
 ```
 
 ## Troubleshooting
@@ -304,28 +266,13 @@ python3 --version  # Should be 3.12+
 
 ### Component Issues
 
-#### Agents Not Available
-```bash
-# Verify agent installation
-ls ~/.claude/agents/
-
-# Reinstall if needed
-make install-agents
-
-# Test specific agent
-# In Claude Code: "List available agents"
-```
-
 #### Hooks Not Triggering
 ```bash
-# Check hook configuration
-cat ~/.claude/hook-config.yaml
-
-# Verify hook permissions
+# Verify hook installation
 ls -la ~/.claude/hooks/
 
-# Test hook manually
-echo '{"test": true}' | ~/.claude/hooks/security/file_protection.py
+# Reinstall hooks if needed
+make install
 ```
 
 #### Commands Not Working
@@ -338,11 +285,6 @@ ls ~/.claude/commands/
 ```
 
 ### Performance Issues
-
-#### Slow Agent Response
-- Check available tokens: Enhanced statusline shows usage
-- Consider using lighter agents for simple tasks
-- Schedule intensive work during fresh usage windows
 
 #### High Resource Usage
 ```bash
@@ -357,10 +299,10 @@ make configure
 
 ### Explore Advanced Features
 
-1. **Create Custom Agents**: Use `make generate-agent` to create specialized agents
+1. **Create Custom Skills**: Use the skill-creator skill to build specialized capabilities
 2. **Set Up Team Workflows**: Configure consistent settings across team members
 3. **Integrate with CI/CD**: Use hooks and commands in automated pipelines
-4. **Monitor Security**: Set up automated security scanning and compliance
+4. **Enhanced Statusline**: Track token usage and session costs with `make install-statusline`
 
 ### Community and Support
 
@@ -401,10 +343,9 @@ make configure
 
 ### Token Usage Optimization
 
-1. **Use Smart Scheduling**: `make claude-hi-setup` for optimal timing
-2. **Choose Appropriate Agents**: Use specialized agents for specific tasks
-3. **Monitor Usage**: Enhanced statusline shows token consumption patterns
-4. **Plan Intensive Work**: Schedule complex tasks during fresh usage windows
+1. **Use Smart Scheduling**: Navigate to `scripts/claude-hi` and run `make setup` for optimal timing
+2. **Monitor Usage**: Enhanced statusline shows token consumption patterns (install with `make install-statusline`)
+3. **Plan Intensive Work**: Schedule complex tasks during fresh usage windows
 
 ### System Performance
 
@@ -416,7 +357,6 @@ make configure
 
 You're now ready to leverage the full power of Claude Code Arsenal for secure, automated development workflows!
 
-For detailed component guides, see:
-- [Agent Development](agent-development.md)
+For detailed guides, see:
 - [Troubleshooting](troubleshooting.md)
 - [Contributing](../CONTRIBUTING.md)

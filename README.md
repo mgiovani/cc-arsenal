@@ -4,21 +4,21 @@
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![Code style: ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
-Tools to make Claude Code more useful: track your usage costs, schedule optimal coding windows, and organize your AI agents.
+Tools to make Claude Code more useful: track your usage costs, schedule optimal coding windows, and automate common workflows.
 
 ## What's included
 
-**Agents, Commands, Skills & Hooks** - Pre-built AI assistants and automation
-- 30+ specialized agents (architecture, development, UX, product)
+**Commands, Skills & Hooks** - Workflow automation and safety
 - Git commands with conventional commits and PR creation
+- Documentation commands (ADR, RFC, diagrams, and more)
 - Jira CLI integration and skill creation guide
-- File protection hook for sensitive data
+- File protection and pre-commit validation hooks
 - Easy to customize or create your own
 
 **Statusline** - Track your usage and costs in real-time (optional)
 - Shows costs, context usage, and time until reset
 - Git branch and worktree info
-- Example: `🤖 Sonnet 4.5 │ 📁 cc-arsenal │ 🌿 main │ 📊 22% │ 💰 $0.043 │ 🔄 2h15m`
+- Example: `🤖 Opus 4.5 │ 📁 cc-arsenal │ 🌿 main │ 📊 22% │ 💰 $0.043 │ 🔄 2h15m`
 
 **Claude Hi Scheduler** - Maximize your 5-hour usage windows (optional)
 - Auto-triggers fresh windows at optimal times
@@ -33,10 +33,28 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
 **Install via plugin:**
+
+Add the marketplace and select which plugins to install:
 ```bash
 /plugin marketplace add mgiovani/cc-arsenal
-/plugin install cc-arsenal
 ```
+
+This opens the plugin browser where you can select:
+| Plugin | Description |
+|--------|-------------|
+| **cc-arsenal** | Complete toolkit (all commands, skills, and hooks) |
+| **cc-arsenal-docs** | Documentation commands only (ADR, RFC, diagrams) |
+| **cc-arsenal-git** | Git workflow commands only (commits, PRs) |
+| **cc-arsenal-skills** | Skills only (Jira CLI, skill creator) |
+
+> **Note:** Install either the complete toolkit OR individual plugins - not both, to avoid duplicate commands.
+
+**Alternative:** Direct install via command:
+```bash
+/plugin install cc-arsenal@cc-arsenal-marketplace
+```
+
+After installing, use commands like `/cc-arsenal:docs:adr`, `/cc-arsenal:git:commit`, etc. Skills activate automatically when relevant.
 
 **Or clone and install:**
 ```bash
@@ -63,30 +81,23 @@ make claude-hi-standard   # Quick 9am/2pm/7pm schedule
 
 ## Features
 
-### 🤖 Agents, Commands, Skills & Hooks
+### 🛠️ Commands, Skills & Hooks
 
-Pre-built AI assistants and automation for your development workflow.
-
-**Agents** - Specialized AI assistants organized by domain:
-- **Architecture**: System design, technical planning, infrastructure
-- **Development**: Code implementation, debugging, refactoring
-- **Orchestration**: Workflow coordination, automation
-- **Product**: Requirements, planning, prioritization
-- **Productivity**: Development optimization, efficiency
-- **UX**: User experience, design systems
+Workflow automation and safety for your development workflow.
 
 **Commands** - Workflow automation via slash commands:
-- `/git:commit` - Generate conventional commits automatically
-- `/git:create-pr` - Create pull requests with templates
+- **Git**: `/git:commit` (conventional commits), `/git:create-pr` (PR with templates)
+- **Documentation**: `/docs:init`, `/docs:adr`, `/docs:rfc`, `/docs:diagram`, `/docs:check`, `/docs:update`
 
 **Skills** - Domain-specific tools Claude loads when needed:
 - `jira-cli` - Manage Jira issues, sprints, and epics
 - `skill-creator` - Guide for creating custom skills
 
 **Hooks** - Event-driven automation:
-- `file_protection` - Prevent committing sensitive files
+- `file_protection` - Prevent modification of sensitive files (.env, keys, configs)
+- `pre_commit_validate` - Run linting and tests before git commits
 
-See the `agents/`, `commands/`, `skills/`, and `hooks/` directories for details.
+See the `commands/`, `skills/`, and `hooks/` directories for details.
 
 ### 📊 Statusline (Optional)
 
@@ -103,12 +114,12 @@ Track costs and usage in your Claude Code prompt:
 
 **Example:**
 ```
-🤖 Sonnet 4.5 │ 📁 ~/projects/cc-arsenal │ 🌿 main ● │ 📊 66% │ 💰 $3.169 │ 📝 +719/-545 │ ⏱️ 21m │ 🔄 4h 23m until reset at 13:00
+🤖 Opus 4.5 │ 📁 ~/projects/cc-arsenal │ 🌿 main ● │ 📊 66% │ 💰 $3.169 │ 📝 +719/-545 │ ⏱️ 21m │ 🔄 4h 23m until reset at 13:00
 ```
 
 **In a git worktree:**
 ```
-🤖 Sonnet 4.5 │ 📁 ~/projects/feature │ 🌿 feat-branch ● │ 🌳 feature │ 📊 45% │ 💰 $1.234 │ 📝 +120/-80 │ ⏱️ 15m │ 🔄 2h 10m until reset at 14:00
+🤖 Opus 4.5 │ 📁 ~/projects/feature │ 🌿 feat-branch ● │ 🌳 feature │ 📊 45% │ 💰 $1.234 │ 📝 +120/-80 │ ⏱️ 15m │ 🔄 2h 10m until reset at 14:00
 ```
 
 👉 [Statusline documentation](scripts/claude/statusline/STATUSLINE.md)
@@ -129,7 +140,6 @@ make claude-hi-standard   # Quick 9am/2pm/7pm setup
 - [Getting Started](docs/getting-started.md) - Setup and configuration
 - [Statusline Guide](scripts/claude/statusline/STATUSLINE.md) - Usage tracking and configuration
 - [Claude Hi Guide](scripts/claude-hi/README.md) - Session scheduling
-- [Agent Development](docs/agent-development.md) - Create custom agents
 - [Troubleshooting](docs/troubleshooting.md) - Common issues
 - [Security Policy](docs/SECURITY.md) - Vulnerability reporting
 - [Changelog](docs/CHANGELOG.md) - Version history

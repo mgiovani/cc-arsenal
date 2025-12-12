@@ -1,16 +1,34 @@
 ---
 description: "Create numbered RFC for proposing and discussing changes"
 argument-hint: "<title> [variant]"
-allowed-tools: ["Read", "Write", "Grep", "Glob", "Bash(git *)"]
+allowed-tools: ["Read", "Write", "Grep", "Glob", "Bash(git *)", "Task"]
 ---
 
 # Create Request For Comments
 
 Create a new RFC (Request For Comments) document for proposing and discussing changes.
 
+## Anti-Hallucination Guidelines
+
+**CRITICAL**: RFCs propose changes to REAL systems. Before writing:
+1. **Verify current state** - Explore the codebase to understand what exists today
+2. **Reference actual code** - Don't invent APIs or patterns; find real examples
+3. **Check dependencies** - Verify libraries/tools mentioned actually exist in project
+4. **Validate assumptions** - Each claim about current state must be verified
+
 ## Your Task
 
-1. **Parse Arguments**:
+### Phase 1: Explore Current State (Use Explore Agent)
+
+**IMPORTANT**: Before writing an RFC, thoroughly explore the codebase to understand current state:
+
+```
+Use Task tool with Explore agent:
+- prompt: "Analyze the codebase to understand [RFC_TOPIC]. Find: 1) Current implementation patterns, 2) Related components and their interactions, 3) Existing similar features, 4) Technical constraints. Return verified findings with file paths."
+- subagent_type: "Explore"
+```
+
+### Phase 2: Parse Arguments
    - Extract proposal title from `$ARGUMENTS`
    - Check for variant keyword: `minimal`, `standard`, or `detailed`
    - If variant found, remove it from title
@@ -42,7 +60,7 @@ Create a new RFC (Request For Comments) document for proposing and discussing ch
    ```
 
 6. **Load Template**:
-   - Template location: `commands/docs/templates/rfc/`
+   - Template location: `resources/templates/rfc/`
    - Select based on variant:
      - `minimal` → `minimal.md`
      - `standard` → `standard.md` (default)
@@ -254,5 +272,5 @@ Create an RFC when proposing:
 
 ---
 
-**Template Location**: `commands/docs/templates/rfc/`
+**Template Location**: `resources/templates/rfc/`
 **Output Directory**: `docs/rfc/`

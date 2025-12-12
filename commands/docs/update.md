@@ -1,16 +1,42 @@
 ---
 description: "Update documentation by syncing with current codebase state"
 argument-hint: "[all|<doc-name>|category:<name>]"
-allowed-tools: ["Read", "Write", "Grep", "Glob", "Bash(git *)"]
+allowed-tools: ["Read", "Write", "Grep", "Glob", "Bash(git *)", "Task", "TodoWrite"]
 ---
 
 # Update Documentation
 
 Synchronize documentation with the current codebase state. Can update all docs, specific files, or entire categories.
 
+## Anti-Hallucination Guidelines
+
+**CRITICAL**: Documentation updates must reflect REALITY, not assumptions:
+1. **Explore before updating** - Use Explore agent to understand actual codebase state
+2. **Verify every claim** - Before writing any statement, verify it with code
+3. **Count accurately** - Use find/glob for exact counts, never estimate
+4. **Remove stale content** - Delete claims about features that no longer exist
+5. **Cross-reference** - After updating, verify the update matches reality
+
 ## Your Task
 
-1. **Parse Arguments**:
+### Phase 1: Deep Codebase Analysis (Use Explore Agent)
+
+**IMPORTANT**: Before updating ANY documentation, thoroughly explore the codebase:
+
+```
+Use Task tool with Explore agent:
+- prompt: "Comprehensively analyze this codebase. Find: 1) All actual source files and their purposes, 2) Real component counts (services, models, APIs), 3) Actual directory structure with content verification, 4) Technologies actually in use (check package files). Return ONLY verified facts with file paths as evidence."
+- subagent_type: "Explore"
+```
+
+### Phase 2: Track Progress (Use TodoWrite)
+
+For updating multiple documents, use TodoWrite to track progress:
+```
+Create todos for each document to update, marking them in_progress as you work
+```
+
+### Phase 3: Parse Arguments
    - Extract update mode from `$ARGUMENTS`
    - Modes:
      - No args or `all` → Update all relevant docs
@@ -51,14 +77,85 @@ Synchronize documentation with the current codebase state. Can update all docs, 
    - Prioritize updates
 
 5. **Load Templates**:
-   - Template location: `commands/docs/templates/`
+   - Template location: `resources/templates/`
    - Load appropriate templates based on docs being updated
+
+### Phase 4: Parallel Updates (Use SubAgents)
+
+#### For Multiple Documents ("all" or "category" mode)
+
+Spawn parallel subagents for each document:
+
+```
+Use Task tool with multiple parallel agents:
+
+Agent 1 - Architecture Update:
+- prompt: "Update docs/architecture.md. Explore codebase, verify claims, remove false info, add missing components."
+- subagent_type: "general-purpose"
+
+Agent 2 - Data Model Update:
+- prompt: "Update docs/data-model.md. Find actual models, verify ER diagram accuracy."
+- subagent_type: "general-purpose"
+
+Agent 3 - Onboarding Update:
+- prompt: "Update docs/onboarding.md. Verify setup instructions and commands exist."
+- subagent_type: "general-purpose"
+```
+
+#### For Single Document (Section-Level Parallelization)
+
+**Even when updating ONE document**, spawn subagents for each major section:
+
+```
+Example: Updating docs/architecture.md
+
+First, read the document and identify logical sections, then spawn parallel agents:
+
+Agent 1 - Components Section:
+- prompt: "Verify the 'Components' section in docs/architecture.md. For each component listed, confirm it exists in the codebase. Report which are real and which are hallucinations."
+- subagent_type: "Explore"
+
+Agent 2 - Technology Stack Section:
+- prompt: "Verify the 'Technology Stack' section in docs/architecture.md. Check package.json/pyproject.toml for actual dependencies. Report mismatches."
+- subagent_type: "Explore"
+
+Agent 3 - Diagrams Section:
+- prompt: "Verify all diagrams in docs/architecture.md. For each node/entity in diagrams, confirm it exists in code. Report diagram elements that don't exist."
+- subagent_type: "Explore"
+
+Agent 4 - Data Flow Section:
+- prompt: "Verify the 'Data Flow' section. Trace actual imports and function calls to confirm the described flow is accurate."
+- subagent_type: "Explore"
+
+After all agents return, merge their findings and update the document.
+```
+
+**Section identification pattern**:
+```
+1. Read the target document
+2. Identify H2 (##) sections as logical blocks
+3. For each section with verifiable claims, spawn an Explore agent
+4. Collect results and apply updates
+```
 
 6. **Update Each Document**:
    - Re-analyze relevant parts of codebase
+   - **Verify each claim before writing** - Read actual files
    - Regenerate diagrams if needed
    - Update content while preserving custom sections
    - Replace placeholders with current values
+   - **Remove claims that cannot be verified**
+
+### Phase 5: Post-Update Verification
+
+**After updating, verify the updates are accurate**:
+```
+For each updated document:
+1. Re-read the document
+2. For each major claim, verify against actual code
+3. If any claim cannot be verified, remove it
+4. Run /docs:check to validate
+```
 
 7. **Preserve Custom Content** (Important):
    - Keep manually added sections
@@ -303,6 +400,6 @@ Run this command:
 
 ---
 
-**Template Location**: `commands/docs/templates/`
+**Template Location**: `resources/templates/`
 **Output Directory**: `docs/`
 **Safe Mode**: Always preserves custom content

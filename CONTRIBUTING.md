@@ -68,30 +68,33 @@ All contributions must meet these standards:
 
 ## Contributing Different Types of Components
 
-### Creating New Agents
+The CC-Arsenal currently supports three types of components:
 
-Generate a new agent using the built-in generator:
+- **Skills** (2): Model-invoked capabilities that Claude automatically loads when relevant
+- **Commands** (8): User-invoked workflow automation (git operations, documentation tools)
+- **Hooks** (2): Event-driven safety and validation scripts
+
+### Creating New Skills
+
+Skills are modular capabilities that Claude automatically invokes when relevant. To create a new skill, use the skill-creator skill for guidance:
 
 ```bash
-# Generate a new security agent
-make generate-agent NAME=crypto-validator CATEGORY=security
-
-# Generate using Python module directly
-uv run python -m scripts.generators.agent_generator --name "agent-name" --category "development"
+# The skill-creator provides comprehensive guidance and templates
+# See skills/skill-creator/SKILL.md for detailed instructions
 ```
 
-Each agent should be a `.md` file with YAML frontmatter:
+Each skill should have a `SKILL.md` file with YAML frontmatter:
 
 ```yaml
 ---
-name: "agent-name"
-description: "Agent description"
-capabilities: ["capability1", "capability2"]
-tools: ["Tool1", "Tool2"]
+name: "skill-name"
+description: "Skill description"
 ---
 
-# Agent implementation...
+# Skill implementation with progressive disclosure...
 ```
+
+Skills can bundle scripts, references, and assets in subdirectories.
 
 ### Creating New Commands
 
@@ -109,23 +112,55 @@ allowed-tools: ["Tool1", "Tool2"]
 
 ### Creating New Hooks
 
-Hooks are Python scripts that receive JSON input via stdin and return JSON responses:
+Hooks are Python scripts placed in category subdirectories under `hooks/` (e.g., `hooks/security/`, `hooks/quality/`). They should follow this structure:
 
 ```python
 #!/usr/bin/env python3
-import sys
-import json
+"""
+Hook description and purpose.
 
-def main():
+Exit codes:
+- 0: Validation passed or hook skipped (not applicable)
+- 2: Validation failed, blocks the operation (Claude sees stderr feedback)
+- 1: Error in hook execution (non-blocking)
+"""
+
+import json
+import sys
+from pathlib import Path
+
+
+class MyHookValidator:
+    """Hook implementation with validation logic."""
+
+    def __init__(self, project_root: Path) -> None:
+        self.project_root = project_root
+        self.issues = []
+
+    def validate(self) -> bool:
+        """Run validation checks. Returns True if passed."""
+        # Hook logic here
+        return len(self.issues) == 0
+
+
+def main() -> None:
+    """Hook entry point."""
     event_data = json.loads(sys.stdin.read())
-    # Hook logic here
-    result = {"allowed": True, "message": "OK"}
-    print(json.dumps(result))
-    sys.exit(0 if result["allowed"] else 1)
+    project_root = Path(event_data.get('cwd', '.')).resolve()
+
+    validator = MyHookValidator(project_root)
+    if validator.validate():
+        sys.exit(0)
+    else:
+        print(json.dumps({'issues': validator.issues}), file=sys.stderr)
+        sys.exit(2)
+
 
 if __name__ == "__main__":
     main()
 ```
+
+After creating a hook, register it in `hooks/hooks.json`.
 
 ## Code Style Guidelines
 

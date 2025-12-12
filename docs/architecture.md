@@ -11,8 +11,8 @@ Claude Code Arsenal is a professional collection of workflow automation commands
 ## System Context
 
 Claude Code Arsenal operates as an extension layer on top of Claude Code, providing:
-- **Automation Commands**: Git operations, documentation generation (ADR, RFC, diagrams), and testing workflows
-- **Safety Hooks**: Event-driven validation for security, quality, and compliance
+- **Workflow Commands**: Git operations and documentation generation (ADR, RFC, diagrams)
+- **Safety Hooks**: Event-driven validation for security and quality
 - **Skills**: Model-invoked capabilities that Claude automatically loads when relevant (Jira CLI, skill creator)
 
 The system integrates with:
@@ -35,7 +35,7 @@ The system integrates with:
 
 - **IDE Integration**: This is a CLI tool, not an IDE plugin
 - **Language-Specific Tools**: Focuses on workflow automation, not language-specific tooling
-- **Code Execution**: Agents and commands coordinate work; they don't execute untrusted code
+- **Code Execution**: Commands coordinate work; they don't execute untrusted code
 - **Cloud Services**: Runs entirely locally; no cloud dependencies
 
 ## High-Level Design
@@ -52,8 +52,6 @@ graph TB
     Commands --> CmdTypes[Command Categories]
     CmdTypes --> Git[Git Operations]
     CmdTypes --> Docs[Documentation]
-    CmdTypes --> Test[Testing]
-    CmdTypes --> Util[Utility]
 
     Hooks --> HookTypes[Hook Categories]
     HookTypes --> Security[Security Hooks]
@@ -134,7 +132,6 @@ graph TB
 
         subgraph "Scripts Layer"
             Setup[setup/<br/>install.py]
-            Generators[generators/<br/>agent_generator.py]
             Utils[claude/<br/>utilities]
         end
     end
@@ -207,7 +204,7 @@ graph TB
 
 **Component Count:**
 - **8 Commands**: 2 Git + 6 Documentation
-- **2 Hook Categories**: Security + Quality
+- **2 Hooks**: Security (file_protection) + Quality (pre_commit_validate)
 - **2 Skills**: Jira CLI + Skill Creator
 - **12 Templates**: 3 ADR + 3 RFC + 6 Documentation
 
@@ -254,8 +251,8 @@ graph TB
 **Available Commands:**
 - `git/` - **2 commands**: `commit`, `create-pr`
 - `docs/` - **6 commands**: `adr`, `rfc`, `diagram`, `update`, `check`, `init`
-- `testing/` - Test automation commands (planned)
-- `utility/` - General development helpers (planned)
+
+**Note:** Empty `testing/` and `utility/` directories exist for future expansion.
 
 #### Hooks System
 
@@ -276,9 +273,8 @@ graph TB
 - Git hooks for pre-commit checks
 
 **Available Hooks:**
-- `security/` - File protection (prevent committing sensitive files)
-- `quality/` - Pre-commit validation for code quality
-- `compliance/` - Audit and regulatory (planned)
+- `file_protection` (security) - Prevents modification of sensitive files (.env, keys, production configs)
+- `pre_commit_validate` (quality) - Runs linting and tests before git commits
 
 #### Skills System
 
@@ -408,7 +404,7 @@ graph TB
 
 ### Performance Requirements
 
-- **Agent Load Time**: <100ms to load AGENT.md file
+- **Component Load Time**: <100ms to load command/hook/skill files
 - **Command Execution**: <1s for local commands, variable for Git/API operations
 - **Hook Validation**: <50ms to prevent blocking workflow
 
@@ -420,9 +416,9 @@ graph TB
 
 ### Bottlenecks and Limitations
 
-- **File System I/O**: Agent/command loading depends on disk speed
+- **File System I/O**: Command/skill loading depends on disk speed
 - **External APIs**: GitHub/Jira operations limited by API rate limits
-- **Context Window**: Large agents may consume significant context
+- **Context Window**: Skills with large bundled resources may consume significant context
 
 ## Reliability and Monitoring
 
@@ -450,9 +446,11 @@ graph TB
 ### Deployment Strategy
 
 **Plugin Installation (Recommended):**
+
 ```bash
-# Via Claude Code marketplace
 /plugin marketplace add mgiovani/cc-arsenal
+```
+```bash
 /plugin install cc-arsenal@cc-arsenal-marketplace
 ```
 
@@ -477,7 +475,7 @@ make validate-plugins
 
 - **Plugin Descriptor**: `.claude-plugin/plugin.json` in repository
 - **Hook Configuration**: `hooks/hooks.json` for hook definitions
-- **Documentation Templates**: `commands/docs/templates/` for doc generation
+- **Documentation Templates**: `resources/templates/` for doc generation
 - **Command Definitions**: Individual `.md` files in `commands/` directories
 
 ### Development Workflow
@@ -511,7 +509,7 @@ make validate-plugins
 
 ### Alternative 2: Cloud-Based Service
 
-**Description:** Host agents/commands in cloud with API access
+**Description:** Host commands and skills in cloud with API access
 
 **Pros:**
 - Centralized updates

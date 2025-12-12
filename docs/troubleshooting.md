@@ -24,9 +24,9 @@ claude --version
 
 ```bash
 # Check what's installed
-ls ~/.claude/agents/
 ls ~/.claude/commands/
 ls ~/.claude/hooks/
+ls ~/.claude/skills/
 
 # Test basic functionality
 make dry-run
@@ -209,32 +209,32 @@ make configure
 make install  # Creates default configs
 ```
 
-### Agent Issues
+### Skill Issues
 
-#### Agents Not Available in Claude Code
+#### Skills Not Available in Claude Code
 ```bash
-# Error: Agents not showing up
+# Error: Skills not showing up
 # Solution: Verify installation and restart
 
-# Check agent installation
-ls -la ~/.claude/agents/
+# Check skill installation
+ls -la ~/.claude/skills/
 
-# Verify agent file format (example with skills)
+# Verify skill file format
 head -20 ~/.claude/skills/skill-creator/SKILL.md
 
 # Restart Claude Code completely
 # Close all Claude Code windows and restart
 ```
 
-#### Agent File Format Errors
+#### Skill File Format Errors
 ```bash
-# Error: Invalid agent file format
-# Solution: Validate agent YAML frontmatter
+# Error: Invalid skill file format
+# Solution: Validate skill YAML frontmatter
 
 # Check YAML frontmatter
 python3 -c "
 import yaml
-with open('agent.md') as f:
+with open('SKILL.md') as f:
     content = f.read()
     if '---' in content:
         yaml_part = content.split('---')[1]
@@ -243,16 +243,16 @@ with open('agent.md') as f:
 "
 ```
 
-#### Agent Permissions
+#### Skill Permissions
 ```bash
-# Error: Cannot read agent files
+# Error: Cannot read skill files
 # Solution: Fix file permissions
 
-# Fix agent file permissions
-find ~/.claude/agents -name "*.md" -exec chmod 644 {} \;
+# Fix skill file permissions
+find ~/.claude/skills -name "*.md" -exec chmod 644 {} \;
 
 # Fix directory permissions
-find ~/.claude/agents -type d -exec chmod 755 {} \;
+find ~/.claude/skills -type d -exec chmod 755 {} \;
 ```
 
 ## Runtime Issues
@@ -320,9 +320,9 @@ uv sync
 
 ### Performance Issues
 
-#### Slow Agent Response
+#### Slow Skill Response
 ```bash
-# Error: Agents take too long to respond
+# Error: Skills take too long to load
 # Solution: Optimize usage and check resources
 
 # Check system resources
@@ -340,9 +340,6 @@ ping claude.ai
 ```bash
 # Error: High memory consumption
 # Solution: Optimize configuration
-
-# Reduce concurrent agents
-# Edit ~/.claude/agent-config.yaml to limit concurrent agents
 
 # Clear caches
 make clean
@@ -585,7 +582,7 @@ git checkout v1.0.0  # or latest stable tag
 export CC_ARSENAL_DEBUG=1
 
 # Enable component-specific debugging
-export CC_ARSENAL_DEBUG_AGENTS=1
+export CC_ARSENAL_DEBUG_SKILLS=1
 export CC_ARSENAL_DEBUG_HOOKS=1
 export CC_ARSENAL_DEBUG_COMMANDS=1
 ```
@@ -595,7 +592,7 @@ export CC_ARSENAL_DEBUG_COMMANDS=1
 ```bash
 # Main logs
 ~/.claude/logs/arsenal.log      # Main application log
-~/.claude/logs/agents.log       # Agent execution log
+~/.claude/logs/skills.log       # Skill execution log
 ~/.claude/logs/hooks.log        # Hook execution log
 ~/.claude/logs/commands.log     # Command execution log
 
@@ -663,7 +660,7 @@ cat ~/.claude/hook-config.yaml  # Remove sensitive data
 cp -r ~/.claude ~/.claude.backup.$(date +%Y%m%d)
 
 # Remove all Arsenal components
-rm -rf ~/.claude/agents ~/.claude/commands ~/.claude/hooks
+rm -rf ~/.claude/skills ~/.claude/commands ~/.claude/hooks
 
 # Reinstall clean
 make install
@@ -714,5 +711,5 @@ git status
 
 For additional help:
 - [Getting Started](getting-started.md)
-- [Agent Development](agent-development.md)
+- [Skill Development](skill-development.md)
 - [Contributing](../CONTRIBUTING.md)

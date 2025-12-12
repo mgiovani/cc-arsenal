@@ -1,16 +1,34 @@
 ---
 description: "Create numbered ADR documenting architectural decision"
 argument-hint: "<title> [variant]"
-allowed-tools: ["Read", "Write", "Grep", "Glob"]
+allowed-tools: ["Read", "Write", "Grep", "Glob", "Task"]
 ---
 
 # Create Architecture Decision Record
 
 Create a new Architecture Decision Record (ADR) documenting an architectural decision.
 
+## Anti-Hallucination Guidelines
+
+**CRITICAL**: ADRs document REAL decisions about REAL code. Before writing:
+1. **Verify the technology exists** - If ADR mentions "Redis", confirm Redis is actually used
+2. **Reference actual files** - Don't invent file paths; grep/glob to find real ones
+3. **Quote real code** - If mentioning a pattern, find an actual example
+4. **Check current state** - The "Context" section must reflect verified reality
+
 ## Your Task
 
-1. **Parse Arguments**:
+### Phase 1: Explore Context (Use Explore Agent)
+
+**IMPORTANT**: Before writing an ADR, use the Explore agent to understand the relevant codebase context:
+
+```
+Use Task tool with Explore agent:
+- prompt: "Search for code related to [DECISION_TOPIC]. Find: 1) Current implementation if any, 2) Related configuration files, 3) Dependencies involved, 4) Any existing documentation. Return verified file paths and relevant code snippets."
+- subagent_type: "Explore"
+```
+
+### Phase 2: Parse Arguments
    - Extract decision title from `$ARGUMENTS`
    - Check for variant keyword: `lightweight`, `full`, or `madr`
    - If variant found, remove it from title
@@ -36,7 +54,7 @@ Create a new Architecture Decision Record (ADR) documenting an architectural dec
    - Keep context concise but informative
 
 5. **Load Template**:
-   - Template location: `commands/docs/templates/adr/`
+   - Template location: `resources/templates/adr/`
    - Select based on variant:
      - `nygard` → `nygard.md` (default)
      - `lightweight` → `lightweight.md`
@@ -213,5 +231,5 @@ Create an ADR when making:
 
 ---
 
-**Template Location**: `commands/docs/templates/adr/`
+**Template Location**: `resources/templates/adr/`
 **Output Directory**: `docs/adr/`

@@ -1,16 +1,82 @@
 ---
 description: "Validate documentation freshness, completeness, and quality"
 argument-hint: "[focus]"
-allowed-tools: ["Read", "Grep", "Glob", "Bash(git *, find *)"]
+allowed-tools: ["Read", "Grep", "Glob", "Bash(git *, find *)", "Task"]
 ---
 
 # Check Documentation Quality
 
 Validate documentation freshness, completeness, and quality against current codebase state.
 
+## Anti-Hallucination Detection
+
+**CRITICAL**: This command should DETECT hallucinations in existing docs:
+1. **Cross-reference claims** - For each claim in docs, verify against actual code
+2. **Verify component counts** - If docs say "5 services", count actual services
+3. **Check file references** - Verify all referenced files actually exist
+4. **Validate diagrams** - Ensure diagram components match real codebase
+
 ## Your Task
 
-1. **Parse Arguments**:
+### Phase 1: Parallel Documentation Analysis (Use SubAgents)
+
+#### For Multiple Documents
+
+Spawn parallel subagents for each documentation file:
+
+```
+Use Task tool with multiple parallel agents:
+
+Agent 1 - Core Docs Verification:
+- prompt: "Read docs/architecture.md and verify EVERY claim against the actual codebase. For each component mentioned, confirm it exists. For each count, verify with find/glob. Report any claims that cannot be verified."
+- subagent_type: "general-purpose"
+
+Agent 2 - Data Docs Verification:
+- prompt: "Read docs/data-model.md and verify all entities exist in actual model files. Check each relationship claimed is real. Report mismatches."
+- subagent_type: "general-purpose"
+
+Agent 3 - Explore Codebase Reality:
+- prompt: "Analyze the actual codebase structure. Count real components, services, models. This will be compared against documentation claims."
+- subagent_type: "Explore"
+```
+
+#### For Single Document (Section-Level Verification)
+
+**Even when checking ONE document**, spawn subagents for each logical section:
+
+```
+Example: Checking docs/architecture.md
+
+First, read the document and identify sections with verifiable claims:
+
+Agent 1 - Verify Components:
+- prompt: "Check the 'Components' section of docs/architecture.md. For EACH component name, search the codebase to verify it exists. Return: component_name -> exists (true/false) with evidence."
+- subagent_type: "Explore"
+
+Agent 2 - Verify Counts:
+- prompt: "Find all numeric claims in docs/architecture.md (e.g., '5 services', '3 databases'). For each, run actual counts with find/glob. Return: claimed_count vs actual_count."
+- subagent_type: "Explore"
+
+Agent 3 - Verify Diagrams:
+- prompt: "Extract all entities from Mermaid diagrams in docs/architecture.md. For each entity, verify it exists in the codebase. Return list of real vs hallucinated diagram elements."
+- subagent_type: "Explore"
+
+Agent 4 - Verify File References:
+- prompt: "Find all file path references in docs/architecture.md. Check if each referenced file exists. Return: path -> exists (true/false)."
+- subagent_type: "Explore"
+
+Merge results into comprehensive verification report.
+```
+
+**Verification categories to parallelize**:
+- Component/service names → Do they exist?
+- Numeric counts → Are they accurate?
+- Diagram entities → Are they real?
+- File/path references → Do files exist?
+- Technology claims → Are they in package files?
+- Relationship claims → Do the connections exist in code?
+
+### Phase 2: Parse Arguments
    - Extract optional focus area from `$ARGUMENTS`
    - Focus areas: `core`, `data`, `infrastructure`, `all`
    - Default: check all documentation
@@ -85,8 +151,30 @@ Validate documentation freshness, completeness, and quality against current code
 6. **Generate Report**:
    - Status summary with overall score
    - List of documents by status (Good, Needs Attention, Missing)
+   - **Hallucination Report** - Claims that don't match reality
    - Quality issues with specific locations
    - Actionable recommendations
+
+### Hallucination Report Section
+
+Include a dedicated section for detected hallucinations:
+```
+🚨 Hallucinations Detected:
+
+docs/architecture.md:
+  - Line 45: Claims "6 microservices" but only 3 found
+  - Line 78: References "AuthService" which doesn't exist
+  - Line 102: Diagram shows "Redis" but no Redis config found
+
+docs/data-model.md:
+  - Line 23: Claims "User has many Orders" but no Order model exists
+  - Line 56: ER diagram shows "Payment" table not in schema
+
+Verification commands used:
+  - find . -name "*service*" -type f | wc -l → 3 (not 6)
+  - grep -r "class AuthService" . → no results
+  - find . -name "*redis*" -o -name "*.redis.*" → no results
+```
 
 ## Validation Checks Detail
 

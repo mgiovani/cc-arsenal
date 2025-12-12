@@ -1,10 +1,10 @@
 # Claude Code Arsenal - Developer Onboarding Guide
 
-**Last Updated:** 2025-10-27
+**Last Updated:** 2025-12-12
 
 ## Welcome to Claude Code Arsenal! 🎉
 
-This guide will help you get started as a developer on the Claude Code Arsenal project. Whether you're contributing new agents, commands, hooks, or skills, this guide will walk you through everything you need to know.
+This guide will help you get started as a developer on the Claude Code Arsenal project. Whether you're contributing new commands, hooks, or skills, this guide will walk you through everything you need to know.
 
 ## Prerequisites
 
@@ -79,7 +79,6 @@ make install
 uv run python -m scripts.setup.install
 
 # Verify installation
-ls -la ~/.claude/agents/
 ls -la ~/.claude/commands/
 ls -la ~/.claude/hooks/
 ls -la ~/.claude/skills/
@@ -95,7 +94,7 @@ make test
 make check
 
 # Test a specific component
-uv run pytest tests/test_agents.py -v
+uv run pytest tests/test_agent_generator.py -v
 ```
 
 ## Development Workflow
@@ -109,15 +108,15 @@ gitgraph
     checkout develop
     commit id: "Setup"
 
-    branch feature/new-agent
-    checkout feature/new-agent
-    commit id: "Create agent"
+    branch feature/new-command
+    checkout feature/new-command
+    commit id: "Create command"
     commit id: "Add tests"
     commit id: "Update docs"
 
     checkout develop
-    merge feature/new-agent
-    commit id: "Agent merged"
+    merge feature/new-command
+    commit id: "Command merged"
 
     checkout main
     merge develop
@@ -128,7 +127,7 @@ gitgraph
 
 - `main` - Production-ready, stable releases
 - `develop` - Integration branch for features
-- `feature/*` - New features (agents, commands, hooks, skills)
+- `feature/*` - New features (commands, hooks, skills)
 - `fix/*` - Bug fixes
 - `docs/*` - Documentation improvements
 
@@ -146,7 +145,7 @@ Follow [Conventional Commits](https://www.conventionalcommits.org/):
 
 ```bash
 # Examples
-git commit -m "feat(agents): add api-design-agent for REST API planning"
+git commit -m "feat(commands): add new documentation command"
 git commit -m "fix(hooks): correct file protection pattern matching"
 git commit -m "docs(onboarding): add development workflow section"
 git commit -m "test(commands): add tests for git:commit command"
@@ -154,7 +153,7 @@ git commit -m "chore(deps): update pydantic to 2.5.1"
 ```
 
 **Commit Types:**
-- `feat:` - New feature (agent, command, hook, skill)
+- `feat:` - New feature (command, hook, skill)
 - `fix:` - Bug fix
 - `docs:` - Documentation only
 - `style:` - Code style changes (formatting)
@@ -170,13 +169,10 @@ cc-arsenal/
 │   └── plugin.json        # Plugin descriptor
 ├── commands/           # Workflow automation
 │   ├── docs/              # Documentation generation
-│   ├── git/               # Git operations
-│   ├── testing/           # Test automation
-│   └── utility/           # Development utilities
+│   └── git/               # Git operations
 ├── hooks/             # Safety and validation
 │   ├── security/          # Authentication and protection
-│   ├── quality/           # Code standards
-│   └── compliance/        # Audit and regulatory
+│   └── quality/           # Code standards
 ├── skills/            # Model-invoked capabilities
 │   ├── skill-creator/     # Guide for creating skills
 │   └── jira-cli/          # Jira CLI integration
@@ -197,7 +193,7 @@ cc-arsenal/
 
 - `.claude-plugin/` - Plugin configuration and descriptor
 - `commands/` - Slash command files (.md format)
-  - `commands/docs/templates/` - Documentation generation templates (ADR, RFC, docs)
+  - `resources/templates/` - Documentation generation templates (ADR, RFC, docs)
 - `hooks/` - Event-driven validation hooks
 - `skills/` - Model-invoked skills with bundled resources
 - `scripts/` - Python utilities for setup and generators
@@ -268,10 +264,12 @@ make format        # Formats code in place
 make dry-run
 
 # Check symlinks
-ls -la ~/.claude/agents/
+ls -la ~/.claude/commands/
+ls -la ~/.claude/hooks/
+ls -la ~/.claude/skills/
 
-# Verify agent is loadable
-cat ~/.claude/agents/development/code-reviewer.md
+# Verify command is loadable
+cat ~/.claude/commands/git/commit.md
 ```
 
 **Debug Tests:**
@@ -406,12 +404,12 @@ uv run python -m scripts.setup.install
 uv run pytest
 ```
 
-#### Issue: Agent not showing up in Claude Code
+#### Issue: Command not showing up in Claude Code
 
 **Solution:**
 ```bash
 # Verify symlink was created
-ls -la ~/.claude/agents/
+ls -la ~/.claude/commands/
 
 # Reinstall
 make install
@@ -458,7 +456,7 @@ make type-check
 
 - [Architecture Documentation](./architecture.md) - System design and components
 - [Contributing Guidelines](./contributing.md) - How to contribute
-- [Agent Development Guide](./agent-development.md) - Creating effective agents
+- [Agent Development Guide](./agent-development.md) - Creating agents (for future development)
 - [Security Policy](./SECURITY.md) - Security practices and reporting
 
 ### External Resources
@@ -479,8 +477,8 @@ make type-check
 ## Next Steps
 
 1. ✅ **Complete Setup**: Ensure all prerequisites are installed and tests pass
-2. 🔍 **Explore Codebase**: Browse agents, commands, hooks, and skills
-3. 🧪 **Run Examples**: Try using existing agents and commands in Claude Code
+2. 🔍 **Explore Codebase**: Browse commands, hooks, and skills
+3. 🧪 **Run Examples**: Try using existing commands in Claude Code
 4. 🎯 **Pick First Issue**: Look for ["good first issue"](https://github.com/mgiovani/cc-arsenal/labels/good%20first%20issue) labels
 5. 💬 **Join Community**: Introduce yourself in GitHub Discussions
 
