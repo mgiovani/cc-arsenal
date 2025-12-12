@@ -618,6 +618,145 @@ get_window_start_file() {
 SESSION_CACHE_FILE="/tmp/claude_session_start_cache"
 SESSION_CACHE_TTL=60  # 60 seconds max
 
+# =============================================================================
+# OAuth Usage API Integration
+# Uses the official Anthropic API to get accurate usage limits and reset times
+# =============================================================================
+
+# Cache for OAuth usage data (avoid calling API too frequently)
+OAUTH_USAGE_CACHE_FILE="/tmp/claude_oauth_usage_cache.json"
+OAUTH_USAGE_CACHE_TTL=60  # 60 seconds (1 minute) cache TTL
+
+# Get OAuth credentials - cross-platform (macOS Keychain / Linux secret-tool / file)
+get_oauth_credentials() {
+    local creds=""
+
+    # Method 1: macOS Keychain
+    if command -v security >/dev/null 2>&1; then
+        creds=$(security find-generic-password -s "Claude Code-credentials" -w 2>/dev/null || echo "")
+        if [[ -n "$creds" ]]; then
+            echo "$creds"
+            return 0
+        fi
+    fi
+
+    # Method 2: Linux secret-tool (GNOME Keyring / libsecret)
+    if command -v secret-tool >/dev/null 2>&1; then
+        creds=$(secret-tool lookup service "Claude Code-credentials" 2>/dev/null || echo "")
+        if [[ -n "$creds" ]]; then
+            echo "$creds"
+            return 0
+        fi
+    fi
+
+    # Method 3: File-based credentials (Linux / fallback)
+    # On Linux, Claude Code stores OAuth tokens in ~/.claude/.credentials.json
+    local cred_files=(
+        "$HOME/.claude/.credentials.json"
+        "$HOME/.claude/credentials.json"
+        "$HOME/.config/claude-code/credentials.json"
+        "$HOME/.local/share/claude-code/credentials.json"
+    )
+    for cred_file in "${cred_files[@]}"; do
+        if [[ -f "$cred_file" ]]; then
+            creds=$(cat "$cred_file" 2>/dev/null || echo "")
+            if [[ -n "$creds" ]]; then
+                echo "$creds"
+                return 0
+            fi
+        fi
+    done
+
+    return 1
+}
+
+# Fetch usage data from Anthropic OAuth API
+# Returns JSON with five_hour and seven_day usage data
+fetch_oauth_usage() {
+    local current_time
+    current_time=$(date +%s)
+
+    # Check cache first
+    if [[ -f "$OAUTH_USAGE_CACHE_FILE" ]]; then
+        local cache_mtime cache_age
+        cache_mtime=$(get_file_mtime "$OAUTH_USAGE_CACHE_FILE")
+        cache_age=$((current_time - cache_mtime))
+        if [[ "$cache_age" -lt "$OAUTH_USAGE_CACHE_TTL" ]]; then
+            cat "$OAUTH_USAGE_CACHE_FILE" 2>/dev/null
+            return 0
+        fi
+    fi
+
+    # Get OAuth credentials (cross-platform)
+    local creds token
+    creds=$(get_oauth_credentials)
+    if [[ -z "$creds" ]]; then
+        return 1
+    fi
+
+    # Extract access token using jq
+    if ! check_jq; then
+        return 1
+    fi
+
+    token=$(echo "$creds" | jq -r '.claudeAiOauth.accessToken // empty' 2>/dev/null)
+    if [[ -z "$token" || "$token" == "null" ]]; then
+        return 1
+    fi
+
+    # Call the OAuth usage API
+    local response
+    response=$(curl -s --max-time 5 "https://api.anthropic.com/api/oauth/usage" \
+        -H "Accept: application/json, text/plain, */*" \
+        -H "Content-Type: application/json" \
+        -H "User-Agent: claude-code/2.0.67" \
+        -H "Authorization: Bearer $token" \
+        -H "anthropic-beta: oauth-2025-04-20" 2>/dev/null)
+
+    if [[ -n "$response" ]] && echo "$response" | jq -e '.five_hour' >/dev/null 2>&1; then
+        # Cache the response
+        echo "$response" > "$OAUTH_USAGE_CACHE_FILE" 2>/dev/null
+        echo "$response"
+        return 0
+    fi
+
+    return 1
+}
+
+# Get five-hour usage info from OAuth API
+# Returns: utilization|resets_at_epoch or empty if unavailable
+get_oauth_five_hour_usage() {
+    local usage_json
+    usage_json=$(fetch_oauth_usage 2>/dev/null)
+
+    if [[ -z "$usage_json" ]]; then
+        return 1
+    fi
+
+    local utilization resets_at resets_at_epoch
+    utilization=$(echo "$usage_json" | jq -r '.five_hour.utilization // empty' 2>/dev/null)
+    resets_at=$(echo "$usage_json" | jq -r '.five_hour.resets_at // empty' 2>/dev/null)
+
+    if [[ -z "$utilization" || -z "$resets_at" || "$resets_at" == "null" ]]; then
+        return 1
+    fi
+
+    # Parse the ISO 8601 timestamp to epoch
+    # Format: "2025-12-13T01:59:59.874295+00:00"
+    local clean_ts
+    clean_ts="${resets_at%.*}"  # Remove fractional seconds
+    clean_ts="${clean_ts%+*}"   # Remove timezone offset (we'll treat as UTC)
+
+    resets_at_epoch=$(parse_iso_timestamp "${clean_ts}")
+
+    if [[ "$resets_at_epoch" -gt 0 ]]; then
+        echo "${utilization}|${resets_at_epoch}"
+        return 0
+    fi
+
+    return 1
+}
+
 # Get current active block start using session block detection
 # OPTIMIZED: Uses find -mmin (fast) instead of stat loop, with 60s caching
 get_claude_session_start() {
@@ -770,26 +909,70 @@ get_window_start() {
     fi
 }
 
-# Time component with actual Claude window tracking
-get_time_component() {
+# Usage line component - returns the second line with detailed usage info
+# Format: 🔄 5h: 16% → 23:00 │ 📅 7d: 39% → Dec 15
+get_usage_line() {
     local input_tokens="${1:-0}" output_tokens="${2:-0}"
+    local current_time
+    current_time=$(date +%s)
+
+    # Try OAuth API first (most accurate)
+    local usage_json
+    usage_json=$(fetch_oauth_usage 2>/dev/null)
+
+    if [[ -n "$usage_json" ]] && check_jq; then
+        local five_hour_util five_hour_reset seven_day_util seven_day_reset
+
+        # Extract 5-hour data
+        five_hour_util=$(echo "$usage_json" | jq -r '.five_hour.utilization // empty' 2>/dev/null)
+        five_hour_reset=$(echo "$usage_json" | jq -r '.five_hour.resets_at // empty' 2>/dev/null)
+
+        # Extract 7-day data
+        seven_day_util=$(echo "$usage_json" | jq -r '.seven_day.utilization // empty' 2>/dev/null)
+        seven_day_reset=$(echo "$usage_json" | jq -r '.seven_day.resets_at // empty' 2>/dev/null)
+
+        if [[ -n "$five_hour_util" && -n "$five_hour_reset" && "$five_hour_reset" != "null" ]]; then
+            # Parse 5-hour reset time
+            local clean_ts five_hour_epoch five_hour_display
+            clean_ts="${five_hour_reset%.*}"
+            clean_ts="${clean_ts%+*}"
+            five_hour_epoch=$(parse_iso_timestamp "$clean_ts")
+            five_hour_display=$(epoch_to_time_display "$five_hour_epoch" "+%H:%M")
+
+            # Parse 7-day reset time (show as date)
+            local seven_day_display=""
+            if [[ -n "$seven_day_reset" && "$seven_day_reset" != "null" ]]; then
+                clean_ts="${seven_day_reset%.*}"
+                clean_ts="${clean_ts%+*}"
+                local seven_day_epoch
+                seven_day_epoch=$(parse_iso_timestamp "$clean_ts")
+                seven_day_display=$(epoch_to_time_display "$seven_day_epoch" "+%b %d")
+            fi
+
+            # Build the usage line
+            local usage_line="🔄 5h: ${five_hour_util}% → ${five_hour_display}"
+
+            if [[ -n "$seven_day_util" && -n "$seven_day_display" ]]; then
+                usage_line="${usage_line} │ 📅 7d: ${seven_day_util}% → ${seven_day_display}"
+            fi
+
+            echo "$usage_line"
+            return 0
+        fi
+    fi
+
+    # Fallback: Use heuristic calculation from JSONL timestamps
     local window_start
     window_start=$(get_window_start "$input_tokens" "$output_tokens")
 
     if [[ "$window_start" == "0" ]]; then
-        echo "🔄 N/A"  # No active window
+        echo "🔄 5h: N/A"
         return 0
     fi
 
-    # Claude uses a 5-hour rolling window that resets at the top of full hours
-    local current_time reset_timestamp
-    current_time=$(date +%s)
-
-    # Calculate when the window should reset (next full hour after 5 hours from start)
-    local exact_reset_time next_full_hour
-    exact_reset_time=$((window_start + 18000))  # 5 hours = 18000 seconds
-
-    # Round down to the previous full hour (Claude resets at or before the 5-hour mark)
+    # Calculate when the window should reset
+    local exact_reset_time prev_full_hour reset_timestamp
+    exact_reset_time=$((window_start + 18000))
     prev_full_hour=$(( exact_reset_time / 3600 * 3600 ))
     reset_timestamp=$prev_full_hour
 
@@ -797,50 +980,15 @@ get_time_component() {
     seconds_until_reset=$((reset_timestamp - current_time))
 
     if [[ $seconds_until_reset -le 0 ]]; then
-        echo "🔄 Reset"  # Window expired
+        echo "🔄 5h: Reset"
         return 0
-    fi
-
-    # Convert to hours and minutes for remaining time
-    local hours_until minutes_remaining
-    hours_until=$((seconds_until_reset / 3600))
-    minutes_remaining=$(((seconds_until_reset % 3600) / 60))
-
-    # Calculate progress percentage based on actual window duration
-    local total_window_seconds elapsed_seconds progress_pct
-    total_window_seconds=$((reset_timestamp - window_start))
-    elapsed_seconds=$((current_time - window_start))
-    progress_pct=$((elapsed_seconds * 100 / total_window_seconds))
-
-    # Ensure progress percentage is within bounds
-    if (( progress_pct < 0 )); then
-        progress_pct=0
-    elif (( progress_pct > 100 )); then
-        progress_pct=100
     fi
 
     # Format reset time as HH:MM
     local reset_time_display
-    if command -v date >/dev/null 2>&1; then
-        # Try macOS format first, then Linux format
-        reset_time_display=$(date -r "$reset_timestamp" "+%H:%M" 2>/dev/null || date -d "@$reset_timestamp" "+%H:%M" 2>/dev/null || echo "??:??")
-    else
-        reset_time_display="??:??"
-    fi
+    reset_time_display=$(epoch_to_time_display "$reset_timestamp" "+%H:%M")
 
-    # Format remaining time display
-    local time_display
-    if (( hours_until > 0 )); then
-        if (( minutes_remaining > 0 )); then
-            time_display="${hours_until}h ${minutes_remaining}m"
-        else
-            time_display="${hours_until}h"
-        fi
-    else
-        time_display="${minutes_remaining}m"
-    fi
-
-    echo "🔄 ${time_display} until reset at ${reset_time_display}"
+    echo "🔄 5h: ??% → ${reset_time_display} (estimated)"
 }
 
 # Main statusline builder
@@ -922,10 +1070,9 @@ build_statusline() {
     comp=$(get_session_component "$json")
     [[ -n "$comp" ]] && components+=("$comp")
 
-    comp=$(get_time_component "$input_tokens" "$output_tokens")
-    [[ -n "$comp" ]] && components+=("$comp")
+    # Note: Time/usage component moved to second line
 
-    # Assemble statusline
+    # Assemble statusline (line 1)
     local statusline=""
     local first=1
 
@@ -938,7 +1085,15 @@ build_statusline() {
         fi
     done
 
+    # Output line 1
     echo "$statusline"
+
+    # Output line 2 (usage details)
+    local usage_line
+    usage_line=$(get_usage_line "$input_tokens" "$output_tokens")
+    if [[ -n "$usage_line" ]]; then
+        echo "$usage_line"
+    fi
 }
 
 # Debug logging function
