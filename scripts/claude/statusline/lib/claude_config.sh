@@ -5,6 +5,37 @@
 readonly CLAUDE_SETTINGS="$HOME/.claude/settings.json"
 readonly STATUSLINE_SCRIPT="$HOME/.claude/scripts/claude/statusline/statusline.sh"
 
+# Check if jq is available and provide installation instructions if not
+require_jq() {
+    if command -v jq >/dev/null 2>&1; then
+        return 0
+    fi
+
+    echo "❌ Error: 'jq' is required but not installed."
+    echo
+    echo "📦 Install jq using one of these methods:"
+    echo
+    echo "  macOS (Homebrew):"
+    echo "    brew install jq"
+    echo
+    echo "  macOS (MacPorts):"
+    echo "    sudo port install jq"
+    echo
+    echo "  Ubuntu/Debian:"
+    echo "    sudo apt-get install jq"
+    echo
+    echo "  Fedora/RHEL:"
+    echo "    sudo dnf install jq"
+    echo
+    echo "  Arch Linux:"
+    echo "    sudo pacman -S jq"
+    echo
+    echo "🔗 More info: https://jqlang.github.io/jq/download/"
+    echo
+    echo "💡 After installing jq, run this command again."
+    return 1
+}
+
 # Backup settings before modification
 backup_claude_settings() {
     if [[ -f "$CLAUDE_SETTINGS" ]]; then
@@ -204,6 +235,15 @@ show_statusline_config() {
 main() {
     local action="$1"
     local force="$2"
+
+    # Check jq dependency once for all commands that need it
+    case "$action" in
+        "install"|"uninstall"|"show"|"status"|"is-configured")
+            if ! require_jq; then
+                exit 1
+            fi
+            ;;
+    esac
 
     case "$action" in
         "install")
