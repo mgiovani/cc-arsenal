@@ -68,12 +68,33 @@ get_git_data() {
     }
 
     # Collect data efficiently (parallel execution where possible)
-    local branch changes
+    local branch changes worktree
     branch=$(git symbolic-ref --short HEAD 2>/dev/null || git rev-parse --short HEAD 2>/dev/null || printf "detached")
     changes=$(git status --porcelain=v1 -u 2>/dev/null | wc -l | tr -d ' ')
 
+    # Detect worktree: compare git-dir with git-common-dir
+    # In a worktree, git-dir points to .git/worktrees/<name>, common-dir points to .git
+    worktree=""
+    local git_dir git_common_dir
+    git_dir=$(git rev-parse --git-dir 2>/dev/null)
+    git_common_dir=$(git rev-parse --git-common-dir 2>/dev/null)
+
+    if [[ -n "$git_dir" && -n "$git_common_dir" && "$git_dir" != "$git_common_dir" ]]; then
+        # We're in a worktree - extract name from git-dir path
+        # git-dir is typically: /path/to/repo/.git/worktrees/<worktree-name>
+        if [[ "$git_dir" == *"/worktrees/"* ]]; then
+            worktree="${git_dir##*/worktrees/}"
+            # Remove any trailing slashes or paths
+            worktree="${worktree%%/*}"
+        fi
+    fi
+
     # Output as JSON (using printf for efficiency)
-    printf '{"in_repo":true,"branch":"%s","changes":%d}' "$branch" "${changes:-0}"
+    if [[ -n "$worktree" ]]; then
+        printf '{"in_repo":true,"branch":"%s","changes":%d,"worktree":"%s"}' "$branch" "${changes:-0}" "$worktree"
+    else
+        printf '{"in_repo":true,"branch":"%s","changes":%d}' "$branch" "${changes:-0}"
+    fi
 }
 
 # Collects current directory information

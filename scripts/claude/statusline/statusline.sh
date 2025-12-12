@@ -41,74 +41,93 @@ cache_set() {
     echo "$value" > "$cache_file" 2>/dev/null || true
 }
 
-# Robust JSON extraction with multiple fallbacks
+# =============================================================================
+# JSON Extraction Functions
+# Primary: jq (reliable, supports nested paths)
+# Fallback: grep patterns (for environments without jq)
+# =============================================================================
+
+# Check if jq is available (cached for performance)
+HAS_JQ=""
+check_jq() {
+    if [[ -z "$HAS_JQ" ]]; then
+        HAS_JQ=$(command -v jq >/dev/null 2>&1 && echo "true" || echo "false")
+    fi
+    [[ "$HAS_JQ" == "true" ]]
+}
+
+# JSON extraction using jq (primary method)
+# Supports any nested path like "context_window.total_input_tokens"
+extract_json_jq() {
+    local json="$1" key="$2"
+    local result
+    result=$(echo "$json" | jq -r ".${key} // empty" 2>/dev/null) || return 1
+    [[ -n "$result" && "$result" != "null" ]] && echo "$result" && return 0
+    return 1
+}
+
+# DRY helper: extract string value from JSON using grep
+# Usage: grep_string "$json" "field_name"
+# Handles both compact JSON ("key":"value") and pretty JSON ("key": "value")
+grep_string() {
+    local json="$1" field="$2"
+    echo "$json" | grep -oE "\"${field}\":[[:space:]]*\"[^\"]*\"" 2>/dev/null | sed -E "s/\"${field}\":[[:space:]]*//" | sed 's/^"//' | sed 's/"$//' | head -1
+}
+
+# DRY helper: extract numeric value from JSON using grep
+# Usage: grep_number "$json" "field_name"
+# Handles both compact JSON ("key":123) and pretty JSON ("key": 123)
+grep_number() {
+    local json="$1" field="$2"
+    echo "$json" | grep -oE "\"${field}\":[[:space:]]*[0-9.]+" 2>/dev/null | sed -E "s/\"${field}\":[[:space:]]*//" | head -1
+}
+
+# JSON extraction using grep (fallback when jq unavailable)
+# Maps JSON paths to their leaf field names for grep extraction
+extract_json_grep() {
+    local json="$1" key="$2"
+
+    # Map paths to field names and types
+    case "$key" in
+        # String fields
+        "model.id")                     grep_string "$json" "id" ;;
+        "model.display_name")           grep_string "$json" "display_name" ;;
+        "workspace.current_dir")        grep_string "$json" "current_dir" ;;
+
+        # Numeric fields - cost object
+        "cost.total_cost_usd")          grep_number "$json" "total_cost_usd" ;;
+        "cost.total_lines_added")       grep_number "$json" "total_lines_added" ;;
+        "cost.total_lines_removed")     grep_number "$json" "total_lines_removed" ;;
+        "cost.total_duration_ms")       grep_number "$json" "total_duration_ms" ;;
+
+        # Numeric fields - context_window object (primary source for tokens)
+        "context_window.total_input_tokens")   grep_number "$json" "total_input_tokens" ;;
+        "context_window.total_output_tokens")  grep_number "$json" "total_output_tokens" ;;
+        "context_window.context_window_size")  grep_number "$json" "context_window_size" ;;
+
+        # Unknown key - no grep pattern available
+        *) return 1 ;;
+    esac
+}
+
+# Main JSON extraction function
+# Uses jq by default, falls back to grep if jq is unavailable
 extract_json() {
     local json="$1" key="$2"
 
-    # Try jq first (most reliable)
-    if command -v jq >/dev/null 2>&1; then
-        local result
-        result=$(echo "$json" | jq -r ".${key} // empty" 2>/dev/null || echo "")
-        if [[ -n "$result" && "$result" != "null" && "$result" != "empty" ]]; then
-            echo "$result"
+    # Primary: use jq for reliable JSON parsing
+    if check_jq; then
+        local jq_result
+        jq_result=$(extract_json_jq "$json" "$key")
+        local jq_status=$?
+        if [[ $jq_status -eq 0 && -n "$jq_result" ]]; then
+            echo "$jq_result"
             return 0
         fi
     fi
 
-    # Fallback: simple grep extraction for basic cases
-    case "$key" in
-        "model.id")
-            echo "$json" | grep -o '"id":"[^"]*"' 2>/dev/null | sed 's/"id":"//' | sed 's/"//' | head -1
-            ;;
-        "model.display_name")
-            echo "$json" | grep -o '"display_name":"[^"]*"' 2>/dev/null | sed 's/"display_name":"//' | sed 's/"//' | head -1
-            ;;
-        "workspace.current_dir")
-            echo "$json" | grep -o '"current_dir":"[^"]*"' 2>/dev/null | sed 's/"current_dir":"//' | sed 's/"//' | head -1
-            ;;
-        "cost.total_cost_usd")
-            echo "$json" | grep -o '"total_cost_usd":[0-9.]*' 2>/dev/null | sed 's/"total_cost_usd"://' | head -1
-            ;;
-        "cost.total_input_tokens")
-            echo "$json" | grep -o '"total_input_tokens":[0-9]*' 2>/dev/null | sed 's/"total_input_tokens"://' | head -1
-            ;;
-        "cost.total_output_tokens")
-            echo "$json" | grep -o '"total_output_tokens":[0-9]*' 2>/dev/null | sed 's/"total_output_tokens"://' | head -1
-            ;;
-        "cost.total_lines_added")
-            echo "$json" | grep -o '"total_lines_added":[0-9]*' 2>/dev/null | sed 's/"total_lines_added"://' | head -1
-            ;;
-        "cost.total_lines_removed")
-            echo "$json" | grep -o '"total_lines_removed":[0-9]*' 2>/dev/null | sed 's/"total_lines_removed"://' | head -1
-            ;;
-        "cost.total_duration_ms")
-            echo "$json" | grep -o '"total_duration_ms":[0-9]*' 2>/dev/null | sed 's/"total_duration_ms"://' | head -1
-            ;;
-        "usage.total_input_tokens")
-            echo "$json" | grep -o '"total_input_tokens":[0-9]*' 2>/dev/null | sed 's/"total_input_tokens"://' | head -1
-            ;;
-        "usage.total_output_tokens")
-            echo "$json" | grep -o '"total_output_tokens":[0-9]*' 2>/dev/null | sed 's/"total_output_tokens"://' | head -1
-            ;;
-        "total_input_tokens")
-            echo "$json" | grep -o '"total_input_tokens":[0-9]*' 2>/dev/null | sed 's/"total_input_tokens"://' | head -1
-            ;;
-        "total_output_tokens")
-            echo "$json" | grep -o '"total_output_tokens":[0-9]*' 2>/dev/null | sed 's/"total_output_tokens"://' | head -1
-            ;;
-        "message.usage.input_tokens")
-            echo "$json" | grep -o '"input_tokens":[0-9]*' 2>/dev/null | sed 's/"input_tokens"://' | head -1
-            ;;
-        "message.usage.output_tokens")
-            echo "$json" | grep -o '"output_tokens":[0-9]*' 2>/dev/null | sed 's/"output_tokens"://' | head -1
-            ;;
-        "usage.input_tokens")
-            echo "$json" | grep -o '"input_tokens":[0-9]*' 2>/dev/null | sed 's/"input_tokens"://' | head -1
-            ;;
-        "usage.output_tokens")
-            echo "$json" | grep -o '"output_tokens":[0-9]*' 2>/dev/null | sed 's/"output_tokens"://' | head -1
-            ;;
-    esac
+    # Fallback: use grep patterns when jq unavailable or fails
+    extract_json_grep "$json" "$key"
 }
 
 # Live cache from daemon
@@ -187,16 +206,20 @@ get_git_info() {
         branch=$(git symbolic-ref --short HEAD 2>/dev/null || git rev-parse --short HEAD 2>/dev/null || echo "detached")
 
         # Detect if we're in a worktree (not the main working tree)
+        # Compare git-dir with git-common-dir: in a worktree, git-dir is .git/worktrees/<name>
         worktree=""
-        if git rev-parse --git-common-dir >/dev/null 2>&1; then
-            local git_dir git_common_dir
-            git_dir=$(git rev-parse --git-dir 2>/dev/null)
-            git_common_dir=$(git rev-parse --git-common-dir 2>/dev/null)
+        local git_dir git_common_dir
+        git_dir=$(git rev-parse --git-dir 2>/dev/null)
+        git_common_dir=$(git rev-parse --git-common-dir 2>/dev/null)
 
-            # If git-dir != git-common-dir, we're in a worktree
-            if [[ "$git_dir" != "$git_common_dir" ]] && [[ -n "$git_common_dir" ]]; then
-                # Get the worktree name (basename of current directory)
-                worktree=$(basename "$PWD")
+        # If git-dir != git-common-dir, we're in a worktree
+        if [[ -n "$git_dir" && -n "$git_common_dir" && "$git_dir" != "$git_common_dir" ]]; then
+            # Extract worktree name from git-dir path
+            # git-dir is typically: /path/to/repo/.git/worktrees/<worktree-name>
+            if [[ "$git_dir" == *"/worktrees/"* ]]; then
+                worktree="${git_dir##*/worktrees/}"
+                # Remove any trailing slashes or paths
+                worktree="${worktree%%/*}"
             fi
         fi
 
@@ -206,7 +229,7 @@ get_git_info() {
     echo "$git_info"
 }
 
-# Model component with robust cleanup
+# Model component - uses display_name directly when provided by Claude Code
 get_model_component() {
     local model="${1:-}"
 
@@ -215,7 +238,14 @@ get_model_component() {
         return 0
     fi
 
-    # Safe model cleanup
+    # If model looks like a display name (e.g., "Opus", "Sonnet"), use it directly
+    # Claude Code now provides model.display_name in the JSON
+    if [[ "$model" =~ ^[A-Z][a-z]+$ ]]; then
+        echo "🤖 $model"
+        return 0
+    fi
+
+    # Fallback: process model.id for backwards compatibility
     local display="$model"
     display="${display#claude-}"
     display="${display%-[0-9]*}"
@@ -438,9 +468,9 @@ get_transcript_tokens() {
     echo "${total_context}|${latest_output}"
 }
 
-# Context component
+# Context component - now uses dynamic context_window_size from Claude Code
 get_context_component() {
-    local input_tokens="${1:-0}" output_tokens="${2:-0}"
+    local input_tokens="${1:-0}" output_tokens="${2:-0}" context_window_size="${3:-200000}"
 
     # For new sessions with no usage, show 0%
     if [[ "$input_tokens" == "0" && "$output_tokens" == "0" ]] || [[ -z "$input_tokens" || -z "$output_tokens" ]]; then
@@ -448,8 +478,13 @@ get_context_component() {
         return 0
     fi
 
+    # Ensure context_window_size is valid (fallback to 200000 if invalid)
+    if [[ -z "$context_window_size" || "$context_window_size" == "0" || "$context_window_size" == "null" ]]; then
+        context_window_size=200000
+    fi
+
     local total=$((input_tokens + output_tokens))
-    local percent=$((total * 100 / 200000))
+    local percent=$((total * 100 / context_window_size))
     [[ $percent -gt 100 ]] && percent=100
 
     echo "📊 ${percent}%"
@@ -748,12 +783,14 @@ get_time_component() {
 
 # Main statusline builder
 build_statusline() {
-    local json="${1:-{}}"
+    local json="$1"
     local current_dir="${2:-$(pwd)}"
+    [[ -z "$json" ]] && json='{}'
+
 
     # Extract all data with error handling
     local model_id model_display cost_usd lines_added lines_removed transcript_path
-    local input_tokens output_tokens
+    local input_tokens output_tokens context_window_size
     model_id=$(extract_json "$json" "model.id" 2>/dev/null || echo "")
     model_display=$(extract_json "$json" "model.display_name" 2>/dev/null || echo "")
     cost_usd=$(extract_json "$json" "cost.total_cost_usd" 2>/dev/null || echo "")
@@ -761,26 +798,38 @@ build_statusline() {
     lines_removed=$(extract_json "$json" "cost.total_lines_removed" 2>/dev/null || echo "0")
     transcript_path=$(extract_json "$json" "transcript_path" 2>/dev/null || echo "")
 
-    # Get token usage from transcript file or JSON directly
-    if [[ -n "$transcript_path" && -f "$transcript_path" ]]; then
-        local tokens
-        tokens=$(get_transcript_tokens "$transcript_path")
-        input_tokens="${tokens%|*}"
-        output_tokens="${tokens#*|}"
-    else
-        # Fallback: try multiple locations for token data
-        input_tokens=$(extract_json "$json" "cost.total_input_tokens" 2>/dev/null ||
-                        extract_json "$json" "usage.total_input_tokens" 2>/dev/null ||
-                        extract_json "$json" "total_input_tokens" 2>/dev/null ||
-                        echo "0")
-        output_tokens=$(extract_json "$json" "cost.total_output_tokens" 2>/dev/null ||
-                        extract_json "$json" "usage.total_output_tokens" 2>/dev/null ||
-                        extract_json "$json" "total_output_tokens" 2>/dev/null ||
-                        echo "0")
+    # Extract context window size (new in Claude Code JSON structure)
+    context_window_size=$(extract_json "$json" "context_window.context_window_size" 2>/dev/null || echo "200000")
+
+    # Get token usage - prioritize context_window.* fields (new structure), then fallback
+    input_tokens=$(extract_json "$json" "context_window.total_input_tokens" 2>/dev/null || echo "")
+    output_tokens=$(extract_json "$json" "context_window.total_output_tokens" 2>/dev/null || echo "")
+
+    # If context_window.* fields not available, try transcript file or other locations
+    if [[ -z "$input_tokens" || "$input_tokens" == "null" ]]; then
+        if [[ -n "$transcript_path" && -f "$transcript_path" ]]; then
+            local tokens
+            tokens=$(get_transcript_tokens "$transcript_path")
+            input_tokens="${tokens%|*}"
+            output_tokens="${tokens#*|}"
+        else
+            # Fallback: try legacy locations for token data
+            input_tokens=$(extract_json "$json" "cost.total_input_tokens" 2>/dev/null ||
+                            extract_json "$json" "usage.total_input_tokens" 2>/dev/null ||
+                            extract_json "$json" "total_input_tokens" 2>/dev/null ||
+                            echo "0")
+            output_tokens=$(extract_json "$json" "cost.total_output_tokens" 2>/dev/null ||
+                            extract_json "$json" "usage.total_output_tokens" 2>/dev/null ||
+                            extract_json "$json" "total_output_tokens" 2>/dev/null ||
+                            echo "0")
+        fi
     fi
 
+    # Ensure tokens have default values
+    input_tokens="${input_tokens:-0}"
+    output_tokens="${output_tokens:-0}"
 
-    # Use display name if available, fallback to ID
+    # Use display name directly if available (Claude Code now provides this)
     local model="${model_display:-$model_id}"
 
     # Build components
@@ -799,7 +848,7 @@ build_statusline() {
     comp=$(get_worktree_component)
     [[ -n "$comp" ]] && components+=("$comp")
 
-    comp=$(get_context_component "$input_tokens" "$output_tokens")
+    comp=$(get_context_component "$input_tokens" "$output_tokens" "$context_window_size")
     [[ -n "$comp" ]] && components+=("$comp")
 
     comp=$(get_cost_component "$cost_usd")
@@ -842,9 +891,11 @@ debug_log() {
         echo "Raw JSON length: ${#json}"
         echo "Raw JSON: $json"
         echo
-        echo "Token extractions:"
-        echo "  total_input_tokens: '$(extract_json "$json" "cost.total_input_tokens" 2>/dev/null || echo "MISSING")'"
-        echo "  total_output_tokens: '$(extract_json "$json" "cost.total_output_tokens" 2>/dev/null || echo "MISSING")'"
+        echo "Token extractions (context_window priority):"
+        echo "  context_window.total_input_tokens: '$(extract_json "$json" "context_window.total_input_tokens" 2>/dev/null || echo "MISSING")'"
+        echo "  context_window.total_output_tokens: '$(extract_json "$json" "context_window.total_output_tokens" 2>/dev/null || echo "MISSING")'"
+        echo "  context_window.context_window_size: '$(extract_json "$json" "context_window.context_window_size" 2>/dev/null || echo "MISSING")'"
+        echo "  cost.total_input_tokens (fallback): '$(extract_json "$json" "cost.total_input_tokens" 2>/dev/null || echo "MISSING")'"
         echo "=================================="
         echo
     } >> "$log_file"

@@ -149,7 +149,7 @@ list-backups: ## List available statusline backups
 
 test: ## Test statusline with official Claude Code JSON structure
 	@echo "$(BLUE)Testing statusline...$(RESET)"
-	@echo "{\"hook_event_name\":\"Status\",\"session_id\":\"test123\",\"model\":{\"id\":\"claude-opus-4-1\",\"display_name\":\"Opus\"},\"workspace\":{\"current_dir\":\"$$(pwd)\",\"project_dir\":\"$$(pwd)\"},\"version\":\"1.0.80\",\"output_style\":{\"name\":\"default\"},\"cost\":{\"total_cost_usd\":0.01234,\"total_duration_ms\":45000,\"total_api_duration_ms\":2300,\"total_lines_added\":156,\"total_lines_removed\":23}}" | $(STATUSLINE_DIR)/statusline.sh
+	@echo "{\"hook_event_name\":\"Status\",\"session_id\":\"test123\",\"transcript_path\":\"/path/to/transcript.json\",\"cwd\":\"$$(pwd)\",\"model\":{\"id\":\"claude-opus-4-1\",\"display_name\":\"Opus\"},\"workspace\":{\"current_dir\":\"$$(pwd)\",\"project_dir\":\"$$(pwd)\"},\"version\":\"1.0.80\",\"output_style\":{\"name\":\"default\"},\"cost\":{\"total_cost_usd\":0.01234,\"total_duration_ms\":45000,\"total_api_duration_ms\":2300,\"total_lines_added\":156,\"total_lines_removed\":23},\"context_window\":{\"total_input_tokens\":15234,\"total_output_tokens\":4521,\"context_window_size\":200000}}" | $(STATUSLINE_DIR)/statusline.sh
 
 test-units: ## Run comprehensive unit tests for statusline modules
 	@echo "$(BLUE)Running statusline unit tests...$(RESET)"

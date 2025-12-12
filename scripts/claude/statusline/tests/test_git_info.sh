@@ -184,7 +184,16 @@ test_get_git_component() {
 
     # Should contain git emoji, branch name, and status
     assert_contains "🌿" "$result" "get_git_component includes git emoji"
-    assert_contains "main" "$result" "get_git_component includes branch name" || assert_contains "master" "$result" "get_git_component includes branch name"
+    # Branch name could be "main" or "master" depending on git version
+    if [[ "$result" == *"main"* || "$result" == *"master"* ]]; then
+        echo "✅ PASS: get_git_component includes branch name (main or master)"
+        TESTS_PASSED=$((TESTS_PASSED + 1))
+    else
+        echo "❌ FAIL: get_git_component should include branch name"
+        echo "   Actual: '$result'"
+        TESTS_FAILED=$((TESTS_FAILED + 1))
+    fi
+    TESTS_RUN=$((TESTS_RUN + 1))
     assert_contains "✓" "$result" "get_git_component includes status indicator"
 
     # Should include ANSI color codes
@@ -224,17 +233,67 @@ test_get_git_component_compact() {
     local branch_part
     branch_part=$(echo "$result" | sed 's/.*🌿\([^ ]*\) .*/\1/')
 
-    if [[ ${#branch_part} -le 8 ]]; then
+    # Code truncates to 12 chars (see lib/git_info.sh line 131)
+    if [[ ${#branch_part} -le 12 ]]; then
         echo "✅ PASS: get_git_component_compact truncates long branch names"
         TESTS_PASSED=$((TESTS_PASSED + 1))
     else
-        echo "❌ FAIL: get_git_component_compact should truncate branch names to 8 chars, got: '$branch_part' (${#branch_part} chars)"
+        echo "❌ FAIL: get_git_component_compact should truncate branch names to 12 chars, got: '$branch_part' (${#branch_part} chars)"
         TESTS_FAILED=$((TESTS_FAILED + 1))
     fi
     TESTS_RUN=$((TESTS_RUN + 1))
 
     cd "$original_dir"  # Return to original directory
     cleanup_test_repo "$test_repo"
+}
+
+# Test get_git_worktree function
+test_get_git_worktree() {
+    echo "Testing get_git_worktree function..."
+
+    # Test in main git repository (not a worktree)
+    local test_repo original_dir
+    original_dir=$(pwd)
+    test_repo=$(setup_test_repo)
+    cd "$test_repo"
+
+    local result
+    result=$(get_git_worktree)
+
+    # Should return empty in main repository (not a worktree)
+    assert_equals "" "$result" "get_git_worktree returns empty in main repo"
+
+    # Create a worktree and test
+    local worktree_dir="$test_repo-worktree"
+    git worktree add --quiet "$worktree_dir" -b test-worktree-branch 2>/dev/null
+    cd "$worktree_dir"
+
+    result=$(get_git_worktree)
+
+    # Should return the worktree name (extracted from git-dir path)
+    # The worktree name is the basename of the git-dir inside .git/worktrees/
+    assert_not_empty "$result" "get_git_worktree returns worktree name in worktree"
+
+    # Verify it's extracting from git-dir path, not PWD
+    local git_dir expected_name
+    git_dir=$(git rev-parse --git-dir 2>/dev/null)
+    if [[ "$git_dir" == *"/worktrees/"* ]]; then
+        expected_name="${git_dir##*/worktrees/}"
+        expected_name="${expected_name%%/*}"
+        assert_equals "$expected_name" "$result" "get_git_worktree extracts name from git-dir path"
+    else
+        echo "⚠️  SKIP: Could not verify worktree name extraction (git-dir: $git_dir)"
+    fi
+
+    # Cleanup
+    cd "$original_dir"
+    git -C "$test_repo" worktree remove "$worktree_dir" --force 2>/dev/null || rm -rf "$worktree_dir"
+    cleanup_test_repo "$test_repo"
+
+    # Test outside git repository
+    cd /tmp
+    result=$(get_git_worktree)
+    assert_equals "" "$result" "get_git_worktree returns empty outside git repo"
 }
 
 # Run all tests
@@ -248,6 +307,7 @@ main() {
 
     test_get_git_branch
     test_get_git_status
+    test_get_git_worktree
     test_get_git_component
     test_get_git_component_compact
 

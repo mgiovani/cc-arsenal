@@ -107,9 +107,10 @@ run_integration_test() {
     echo "----------------------------------------"
 
     # Test the main statusline script with official Claude Code JSON structure
+    # Includes context_window fields for dynamic context size calculation
     local test_json='{
         "hook_event_name": "Status",
-        "session_id": "test123",
+        "session_id": "abc123",
         "transcript_path": "/path/to/transcript.json",
         "cwd": "/current/working/directory",
         "model": {
@@ -130,6 +131,11 @@ run_integration_test() {
             "total_api_duration_ms": 2300,
             "total_lines_added": 156,
             "total_lines_removed": 23
+        },
+        "context_window": {
+            "total_input_tokens": 15234,
+            "total_output_tokens": 4521,
+            "context_window_size": 200000
         }
     }'
 
@@ -171,6 +177,7 @@ main() {
     run_test_suite "$SCRIPT_DIR/test_git_info.sh" "Git Info Module"
     run_test_suite "$SCRIPT_DIR/test_usage_tracker.sh" "Usage Tracker Module"
     run_test_suite "$SCRIPT_DIR/test_components.sh" "Components Module"
+    run_test_suite "$SCRIPT_DIR/test_context_window.sh" "Context Window Module"
 
     # Run integration test
     if run_integration_test; then

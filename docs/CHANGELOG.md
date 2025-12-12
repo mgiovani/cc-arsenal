@@ -7,8 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2025-12-12
+
 ### Added
 
+- **Statusline Context Window Support**: Dynamic context size calculation from Claude Code's `context_window` JSON fields
+  - Uses `context_window.context_window_size` for accurate percentage calculation (supports 200K and 1M contexts)
+  - Prioritizes `context_window.total_input_tokens` and `context_window.total_output_tokens` over legacy fields
+  - Fallback to 200K context size when not provided
+- **Statusline Model Display Name**: Uses `model.display_name` directly when provided by Claude Code (e.g., "Opus", "Sonnet")
+- **Statusline Context Window Tests**: Comprehensive test suite (`test_context_window.sh`) for the new context window feature
 - **Documentation Plugin**: Comprehensive documentation generation and management system
   - 6 slash commands: `/docs:init`, `/docs:adr`, `/docs:rfc`, `/docs:diagram`, `/docs:check`, `/docs:update`
   - 12 templates for ADRs, RFCs, architecture, onboarding, data models, API docs, etc.
@@ -26,6 +34,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Statusline JSON Extraction**: Refactored to use DRY helpers (`grep_string`, `grep_number`) for cleaner fallback parsing
+  - Cached jq availability check for performance
+  - Better handling of nested JSON paths
+- **Statusline Worktree Detection**: Fixed to extract worktree name from git-dir path instead of PWD basename
+  - Now correctly identifies worktree name from `.git/worktrees/<name>` path structure
+  - Added worktree detection to daemon (`statusline_daemon.sh`)
 - **Makefile Simplification**: Core Makefile reduced from 300+ to 120 lines
   - Removed commands: `backup`, `restore`, `list-backups`, `uv-*`, `debug-install`, `show-structure`, `generate-agent`, `docs`, `quick-start`
   - Core workflows: dev, pre-commit, quality (lint/format/type-check), testing, installation, utilities
@@ -45,6 +59,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Statusline Git Tests**: Fixed branch name assertion to handle both "main" and "master" defaults
+- **Statusline Git Tests**: Corrected truncation test expectation (12 chars, not 8) to match actual implementation
 - **configure.py**: Now reads from repository source, enabling pre-installation configuration
 - **create-pr command**: Reordered workflow, fixed hardcoded base branch, fixed body file reference
 - **Plugin validation errors**: Corrected plugin.json location and command organization
@@ -148,5 +164,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Version History
 
-[Unreleased]: https://github.com/mgiovani/cc-arsenal/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/mgiovani/cc-arsenal/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/mgiovani/cc-arsenal/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/mgiovani/cc-arsenal/releases/tag/v1.0.0
