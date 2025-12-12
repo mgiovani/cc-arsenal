@@ -42,6 +42,51 @@ cache_set() {
 }
 
 # =============================================================================
+# Cross-Platform Helpers
+# macOS and Linux have different commands for stat and date parsing
+# =============================================================================
+
+# Get file modification time (epoch seconds) - cross-platform
+# Usage: get_file_mtime "/path/to/file"
+get_file_mtime() {
+    local file="$1"
+    stat -f %m "$file" 2>/dev/null || stat -c %Y "$file" 2>/dev/null || echo "0"
+}
+
+# Parse ISO 8601 timestamp to epoch - cross-platform
+# Usage: parse_iso_timestamp "2025-01-01T12:00:00.123Z"
+parse_iso_timestamp() {
+    local ts="$1"
+    # Remove milliseconds and Z suffix: "2025-01-01T12:00:00.123Z" -> "2025-01-01T12:00:00"
+    local clean_ts="${ts%.*}"
+    clean_ts="${clean_ts%Z}"
+
+    # Try macOS format first, then Linux
+    TZ=UTC date -j -f "%Y-%m-%dT%H:%M:%S" "$clean_ts" +%s 2>/dev/null || \
+    TZ=UTC date -d "$clean_ts" +%s 2>/dev/null || \
+    echo "0"
+}
+
+# Floor epoch timestamp to hour boundary - cross-platform
+# Usage: floor_epoch_to_hour 1704110400
+floor_epoch_to_hour() {
+    local epoch="$1"
+    # Pure arithmetic: floor to hour (3600 seconds)
+    echo $(( (epoch / 3600) * 3600 ))
+}
+
+# Convert epoch to formatted date string - cross-platform
+# Usage: epoch_to_time_display 1704110400 "+%H:%M"
+epoch_to_time_display() {
+    local epoch="$1"
+    local format="${2:-+%H:%M}"
+    # Try macOS format first (-r), then Linux (-d @)
+    date -r "$epoch" "$format" 2>/dev/null || \
+    date -d "@$epoch" "$format" 2>/dev/null || \
+    echo "??:??"
+}
+
+# =============================================================================
 # JSON Extraction Functions
 # Primary: jq (reliable, supports nested paths)
 # Fallback: grep patterns (for environments without jq)
@@ -569,42 +614,61 @@ get_window_start_file() {
     echo "/tmp/claude_window_start_${dir_hash}"
 }
 
+# Session start cache configuration
+SESSION_CACHE_FILE="/tmp/claude_session_start_cache"
+SESSION_CACHE_TTL=60  # 60 seconds max
+
 # Get current active block start using session block detection
+# OPTIMIZED: Uses find -mmin (fast) instead of stat loop, with 60s caching
 get_claude_session_start() {
     local current_time
     current_time=$(date +%s)
-    local session_duration_ms=18000000  # 5 hours in milliseconds
-    local session_duration_s=18000      # 5 hours in seconds
 
-    # Collect timestamps from recent session files (last 6 hours)
+    # Check cache first (60 second TTL)
+    if [[ -f "$SESSION_CACHE_FILE" ]]; then
+        local cache_mtime cache_age cached_value
+        cache_mtime=$(get_file_mtime "$SESSION_CACHE_FILE")
+        cache_age=$((current_time - cache_mtime))
+        if [[ "$cache_age" -lt "$SESSION_CACHE_TTL" ]]; then
+            cached_value=$(cat "$SESSION_CACHE_FILE" 2>/dev/null)
+            if [[ -n "$cached_value" && "$cached_value" != "0" ]]; then
+                echo "$cached_value"
+                return
+            fi
+        fi
+    fi
+
+    # Cache miss - do the expensive calculation
+    local session_duration_s=18000  # 5 hours in seconds
     local all_timestamps=()
     local cutoff_time=$((current_time - 21600))  # 6 hours ago
 
-    # Check Claude data directories for recent JSONL files
+    # Use find -mmin for FAST file filtering (instead of slow stat loop)
+    # -mmin -360 = modified within last 360 minutes (6 hours)
     for claude_dir in "$HOME/.config/claude/projects" "$HOME/.claude/projects"; do
         if [[ -d "$claude_dir" ]]; then
-            while IFS= read -r -d '' jsonl_file; do
-                if [[ -f "$jsonl_file" ]] && [[ $(stat -f %m "$jsonl_file" 2>/dev/null || echo "0") -gt $cutoff_time ]]; then
-                    # Extract timestamps and convert to epoch
-                    while IFS= read -r timestamp_line; do
-                        if [[ -n "$timestamp_line" ]]; then
-                            local timestamp_epoch
-                            timestamp_epoch=$(TZ=UTC date -j -f "%Y-%m-%dT%H:%M:%S" "${timestamp_line%.*}" +%s 2>/dev/null || echo "0")
-                            if [[ "$timestamp_epoch" -gt $cutoff_time ]]; then
-                                all_timestamps+=("$timestamp_epoch")
-                            fi
+            while IFS= read -r jsonl_file; do
+                [[ -z "$jsonl_file" ]] && continue
+                # Extract timestamps and convert to epoch using cross-platform helper
+                while IFS= read -r timestamp_line; do
+                    if [[ -n "$timestamp_line" ]]; then
+                        local timestamp_epoch
+                        timestamp_epoch=$(parse_iso_timestamp "$timestamp_line")
+                        if [[ "$timestamp_epoch" -gt "$cutoff_time" ]]; then
+                            all_timestamps+=("$timestamp_epoch")
                         fi
-                    done < <(grep -o '"timestamp":"[^"]*"' "$jsonl_file" 2>/dev/null | cut -d'"' -f4)
-                fi
-            done < <(find "$claude_dir" -name "*.jsonl" -type f -print0 2>/dev/null)
+                    fi
+                done < <(grep -o '"timestamp":"[^"]*"' "$jsonl_file" 2>/dev/null | cut -d'"' -f4)
+            done < <(find "$claude_dir" -name "*.jsonl" -type f -mmin -360 2>/dev/null)
         fi
     done
 
     # If no timestamps found, return current hour floored
     if [[ ${#all_timestamps[@]} -eq 0 ]]; then
-        local current_hour_floored
-        current_hour_floored=$(TZ=UTC date -r "$current_time" "+%Y-%m-%d %H:00:00")
-        TZ=UTC date -j -f "%Y-%m-%d %H:%M:%S" "$current_hour_floored" +%s 2>/dev/null || echo "$current_time"
+        local result
+        result=$(floor_epoch_to_hour "$current_time")
+        echo "$result" > "$SESSION_CACHE_FILE" 2>/dev/null
+        echo "$result"
         return
     fi
 
@@ -613,13 +677,12 @@ get_claude_session_start() {
 
     # Apply session block detection algorithm
     local current_block_start=0
-    local current_block_entries=()
     local last_entry_time=0
 
     for timestamp in "${all_timestamps[@]}"; do
         if [[ "$current_block_start" -eq 0 ]]; then
             # First timestamp - start new block (floored to hour)
-            current_block_start=$(floor_to_hour "$timestamp")
+            current_block_start=$(floor_epoch_to_hour "$timestamp")
             last_entry_time="$timestamp"
         else
             # Check if this timestamp should start a new block
@@ -627,38 +690,37 @@ get_claude_session_start() {
             local time_since_last_entry=$((timestamp - last_entry_time))
 
             # If time since block start > 5h OR time since last entry > 5h, start new block
-            if [[ "$time_since_block_start" -gt $session_duration_s ]] || [[ "$time_since_last_entry" -gt $session_duration_s ]]; then
-                # Start new block (floored to hour)
-                current_block_start=$(floor_to_hour "$timestamp")
+            if [[ "$time_since_block_start" -gt "$session_duration_s" ]] || [[ "$time_since_last_entry" -gt "$session_duration_s" ]]; then
+                current_block_start=$(floor_epoch_to_hour "$timestamp")
             fi
             last_entry_time="$timestamp"
         fi
     done
 
     # Check if current block is still active
+    local result="$current_time"
     if [[ "$current_block_start" -gt 0 ]] && [[ "$last_entry_time" -gt 0 ]]; then
         local time_since_last_activity=$((current_time - last_entry_time))
         local block_end_time=$((current_block_start + session_duration_s))
 
         # Block is active if: time since last activity < 5h AND current time < block end
-        if [[ "$time_since_last_activity" -lt $session_duration_s ]] && [[ "$current_time" -lt $block_end_time ]]; then
-            echo "$current_block_start"
-            return
+        if [[ "$time_since_last_activity" -lt "$session_duration_s" ]] && [[ "$current_time" -lt "$block_end_time" ]]; then
+            result="$current_block_start"
+        else
+            result=$(floor_epoch_to_hour "$current_time")
         fi
+    else
+        result=$(floor_epoch_to_hour "$current_time")
     fi
 
-    # No active block found, return current hour floored
-    local current_hour_floored
-    current_hour_floored=$(TZ=UTC date -r "$current_time" "+%Y-%m-%d %H:00:00")
-    TZ=UTC date -j -f "%Y-%m-%d %H:%M:%S" "$current_hour_floored" +%s 2>/dev/null || echo "$current_time"
+    # Save to cache and return
+    echo "$result" > "$SESSION_CACHE_FILE" 2>/dev/null
+    echo "$result"
 }
 
-# Helper function to floor timestamp to hour boundary
+# Legacy helper - now uses cross-platform floor_epoch_to_hour
 floor_to_hour() {
-    local timestamp="$1"
-    local hour_floored
-    hour_floored=$(TZ=UTC date -r "$timestamp" "+%Y-%m-%d %H:00:00")
-    TZ=UTC date -j -f "%Y-%m-%d %H:%M:%S" "$hour_floored" +%s 2>/dev/null || echo "$timestamp"
+    floor_epoch_to_hour "$1"
 }
 
 # Track when the 5-hour Claude window actually started (using Claude Code session data)
