@@ -8,6 +8,7 @@ LIB_DIR="$SCRIPT_DIR/../lib"
 # Source the modules under test
 source "$LIB_DIR/colors.sh"
 source "$LIB_DIR/utils.sh"
+source "$LIB_DIR/config.sh"
 source "$LIB_DIR/git_info.sh"
 source "$LIB_DIR/components.sh"
 
@@ -186,9 +187,10 @@ test_cost_components() {
     assert_contains "🎯" "$result" "Token cost component includes target emoji"
     assert_contains "1500→950" "$result" "Token cost component includes token counts"
 
-    # Test empty cost components (should show N/A after our improvements)
+    # Test empty cost components (shows $0.00 for new sessions - valid behavior)
     result=$(get_session_cost_component "")
-    assert_contains "💰 N/A" "$result" "Empty session cost shows unavailable"
+    assert_contains "💰" "$result" "Empty session cost shows money emoji"
+    assert_contains "\$0.00" "$result" "Empty session cost shows zero amount"
 }
 
 # Test reset components

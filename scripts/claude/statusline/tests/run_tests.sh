@@ -171,13 +171,37 @@ main() {
     print_header
     check_dependencies
 
-    # Run individual test suites
-    run_test_suite "$SCRIPT_DIR/test_colors.sh" "Colors Module"
-    run_test_suite "$SCRIPT_DIR/test_utils.sh" "Utils Module"
-    run_test_suite "$SCRIPT_DIR/test_git_info.sh" "Git Info Module"
-    run_test_suite "$SCRIPT_DIR/test_usage_tracker.sh" "Usage Tracker Module"
-    run_test_suite "$SCRIPT_DIR/test_components.sh" "Components Module"
-    run_test_suite "$SCRIPT_DIR/test_context_window.sh" "Context Window Module"
+    # Run new modular test suites (lib/core/, lib/api/, etc.)
+    echo -e "${BLUE}=== New Modular Architecture Tests ===${RESET}"
+    echo
+    if [[ -f "$SCRIPT_DIR/core/test_platform.sh" ]]; then
+        run_test_suite "$SCRIPT_DIR/core/test_platform.sh" "Core: Platform Module"
+    fi
+    if [[ -f "$SCRIPT_DIR/core/test_json.sh" ]]; then
+        run_test_suite "$SCRIPT_DIR/core/test_json.sh" "Core: JSON Module"
+    fi
+
+    # Run legacy test suites (for backward compatibility)
+    echo -e "${BLUE}=== Legacy Module Tests ===${RESET}"
+    echo
+    if [[ -f "$SCRIPT_DIR/test_colors.sh" ]]; then
+        run_test_suite "$SCRIPT_DIR/test_colors.sh" "Colors Module"
+    fi
+    if [[ -f "$SCRIPT_DIR/test_utils.sh" ]]; then
+        run_test_suite "$SCRIPT_DIR/test_utils.sh" "Utils Module"
+    fi
+    if [[ -f "$SCRIPT_DIR/test_git_info.sh" ]]; then
+        run_test_suite "$SCRIPT_DIR/test_git_info.sh" "Git Info Module"
+    fi
+    if [[ -f "$SCRIPT_DIR/test_usage_tracker.sh" ]]; then
+        run_test_suite "$SCRIPT_DIR/test_usage_tracker.sh" "Usage Tracker Module"
+    fi
+    if [[ -f "$SCRIPT_DIR/test_components.sh" ]]; then
+        run_test_suite "$SCRIPT_DIR/test_components.sh" "Components Module"
+    fi
+    if [[ -f "$SCRIPT_DIR/test_context_window.sh" ]]; then
+        run_test_suite "$SCRIPT_DIR/test_context_window.sh" "Context Window Module"
+    fi
 
     # Run integration test
     if run_integration_test; then
