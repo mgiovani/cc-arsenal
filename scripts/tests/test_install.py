@@ -75,7 +75,6 @@ class TestFileDiscovery(unittest.TestCase):
         # Create test structure
         (self.repo_root / 'agents' / 'development').mkdir(parents=True)
         (self.repo_root / 'commands' / 'security').mkdir(parents=True)
-        (self.repo_root / 'hooks' / 'security').mkdir(parents=True)
 
         # Create test files
         (self.repo_root / 'agents' / 'development' / 'test-agent.md').write_text(
@@ -84,7 +83,6 @@ class TestFileDiscovery(unittest.TestCase):
         (self.repo_root / 'commands' / 'security' / 'test-command.md').write_text(
             '# Test Command'
         )
-        (self.repo_root / 'hooks' / 'security' / 'test-hook.py').write_text('# Test Hook')
 
         # Create non-matching files (should be ignored)
         (self.repo_root / 'agents' / 'development' / 'readme.txt').write_text(
@@ -106,17 +104,17 @@ class TestFileDiscovery(unittest.TestCase):
         discovery = FileDiscovery(self.config)
         items = discovery.discover_installable_files()
 
-        # Should find 3 files (.md and .py files only)
-        expected_file_count = 3
+        # Should find 2 files (.md files only)
+        expected_file_count = 2
         assert len(items) == expected_file_count
 
         # Check categories
         categories = {item.category for item in items}
-        assert categories == {'agents', 'commands', 'hooks'}
+        assert categories == {'agents', 'commands'}
 
         # Check file extensions
         extensions = {item.source_path.suffix for item in items}
-        assert extensions == {'.md', '.py'}
+        assert extensions == {'.md'}
 
     def test_conflict_detection(self) -> None:
         """Test conflict detection when target files exist."""

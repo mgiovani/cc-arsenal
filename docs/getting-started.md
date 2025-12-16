@@ -4,7 +4,7 @@ A comprehensive guide to setting up and using the Claude Code Arsenal for secure
 
 ## Overview
 
-Claude Code Arsenal is a professional collection of quality automation commands, safety hooks, and specialized skills designed to enhance your Claude Code development experience with enterprise-grade security and automation.
+Claude Code Arsenal is a professional collection of quality automation commands and specialized skills designed to enhance your Claude Code development experience with enterprise-grade automation.
 
 ## Prerequisites
 
@@ -87,7 +87,6 @@ After installation, verify everything is working:
 ```bash
 # Check if components are installed
 ls ~/.claude/commands/
-ls ~/.claude/hooks/
 ls ~/.claude/skills/
 
 # Validate installation
@@ -127,15 +126,6 @@ Workflow automation for common development tasks:
 # Create a pull request
 /git:create-pr --base main
 ```
-
-### 🔒 Hooks
-
-Automated safety and validation hooks that run on Claude Code events:
-
-#### Available Hooks
-
-- **file_protection** (security): Prevents commits containing sensitive files (.env, secrets, credentials)
-- **pre_commit_validate** (quality): Validates code quality before commits
 
 ### 🎯 Skills
 
@@ -195,7 +185,6 @@ make configure
 # - Select which components to enable
 # - Configure security settings
 # - Set up development preferences
-# - Choose hook policies
 ```
 
 ### Manual Configuration
@@ -214,19 +203,15 @@ When starting a new project:
 
 # 2. Set up quality checks
 make pre-commit-install
-
-# 3. Enable relevant hooks
-# Hooks are automatically enabled when installed to ~/.claude
 ```
 
 ### Daily Development
 
 Your enhanced workflow will include:
 
-1. **Automatic Security Validation**: Hooks prevent commits with secrets or sensitive files
-2. **Quality Enforcement**: Code standards validated automatically before commits
-3. **Smart Documentation**: Generate ADRs, RFCs, and diagrams with slash commands
-4. **Specialized Skills**: Claude automatically invokes relevant skills when needed
+1. **Quality Enforcement**: Code standards validated automatically before commits
+2. **Smart Documentation**: Generate ADRs, RFCs, and diagrams with slash commands
+3. **Specialized Skills**: Claude automatically invokes relevant skills when needed
 
 ### Code Review Process
 
@@ -234,7 +219,7 @@ Your enhanced workflow will include:
 # Run comprehensive checks before commits
 make check                 # All quality checks (lint + type-check)
 make test                  # Full test suite
-make pre-commit-run        # Run pre-commit hooks manually
+make pre-commit-run        # Run pre-commit checks manually
 ```
 
 ## Troubleshooting
@@ -266,15 +251,6 @@ python3 --version  # Should be 3.12+
 
 ### Component Issues
 
-#### Hooks Not Triggering
-```bash
-# Verify hook installation
-ls -la ~/.claude/hooks/
-
-# Reinstall hooks if needed
-make install
-```
-
 #### Commands Not Working
 ```bash
 # Verify command installation
@@ -301,7 +277,7 @@ make configure
 
 1. **Create Custom Skills**: Use the skill-creator skill to build specialized capabilities
 2. **Set Up Team Workflows**: Configure consistent settings across team members
-3. **Integrate with CI/CD**: Use hooks and commands in automated pipelines
+3. **Integrate with CI/CD**: Use commands in automated pipelines
 4. **Enhanced Statusline**: Track token usage and session costs with `make install-statusline`
 
 ### Community and Support
@@ -327,16 +303,12 @@ make configure
 
 ### Initial Security Setup
 
-1. **Review Hook Configuration**: Ensure appropriate security policies are enabled
-2. **Test Secret Detection**: Verify hooks prevent committing sensitive data
-3. **Configure Access Controls**: Set up appropriate file protection patterns
-4. **Enable Audit Trails**: Turn on compliance logging for regulated environments
+1. **Configure Access Controls**: Set up appropriate file protection patterns
+2. **Enable Audit Trails**: Turn on compliance logging for regulated environments
 
 ### Ongoing Security
 
 - Regularly update the arsenal: `git pull && make install`
-- Review security scan results: `claude /security:scan`
-- Monitor hook logs for security events
 - Keep dependencies updated: `uv sync --upgrade`
 
 ## Performance Optimization
@@ -350,7 +322,6 @@ make configure
 ### System Performance
 
 - **Selective Installation**: Only install components you need
-- **Hook Optimization**: Disable unnecessary hooks for faster operations
 - **Resource Monitoring**: Use `make status` to check system load
 
 ---

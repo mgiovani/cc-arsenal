@@ -5,7 +5,7 @@
     "email": "contact@giovani.dev"
   },
   "metadata": {
-    "description": "Claude Code Arsenal - Professional commands, skills, and hooks for development workflows",
+    "description": "Claude Code Arsenal - Professional commands and skills for development workflows",
     "version": "1.2.0"
   },
   "plugins": [
@@ -13,7 +13,7 @@
       "name": "cc-arsenal",
       "source": "./",
       "strict": false,
-      "description": "Complete toolkit: all commands (docs, git, claude, jira), skills (jira-cli, skill-creator), and safety hooks",
+      "description": "Complete toolkit: all commands (dev, docs, git, claude, jira) and skills (jira-cli, skill-creator)",
       "version": "1.2.0",
       "author": {
         "name": "Giovani Moutinho",
@@ -23,17 +23,24 @@
       "repository": "https://github.com/mgiovani/cc-arsenal",
       "license": "MIT",
       "category": "productivity",
-      "commands": [
-        "./commands/docs/",
-        "./commands/git/",
-        "./commands/claude/",
-        "./commands/jira/"
-      ],
       "skills": [
         "./skills/skill-creator",
         "./skills/jira-cli"
-      ],
-      "hooks": "./hooks/hooks.json"
+      ]
+    },
+    {
+      "name": "cc-arsenal-dev",
+      "source": "./",
+      "strict": false,
+      "description": "Development commands: feature implementation with subagents and automatic project discovery",
+      "version": "1.2.0",
+      "author": {
+        "name": "Giovani Moutinho"
+      },
+      "category": "development",
+      "commands": [
+        "./commands/dev/"
+      ]
     },
     {
       "name": "cc-arsenal-docs",

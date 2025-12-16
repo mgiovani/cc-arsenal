@@ -58,7 +58,7 @@ Document decisions that:
 **Examples of ADR-worthy decisions:**
 - Choosing symlink-based installation vs. file copying
 - Plugin system architecture
-- Component categories (agents, commands, hooks, skills)
+- Component categories (agents, commands, skills)
 - Testing strategy and coverage requirements
 - Python version requirements
 

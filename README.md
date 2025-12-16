@@ -8,11 +8,10 @@ Tools to make Claude Code more useful: track your usage costs, schedule optimal 
 
 ## What's included
 
-**Commands, Skills & Hooks** - Workflow automation and safety
+**Commands & Skills** - Workflow automation
 - Git commands with conventional commits and PR creation
 - Documentation commands (ADR, RFC, diagrams, and more)
 - Jira CLI integration and skill creation guide
-- File protection and pre-commit validation hooks
 - Easy to customize or create your own
 
 **Statusline** - Track your usage and costs in real-time (optional)
@@ -42,7 +41,7 @@ Add the marketplace and select which plugins to install:
 This opens the plugin browser where you can select:
 | Plugin | Description |
 |--------|-------------|
-| **cc-arsenal** | Complete toolkit (all commands, skills, and hooks) |
+| **cc-arsenal** | Complete toolkit (all commands and skills) |
 | **cc-arsenal-docs** | Documentation commands only (ADR, RFC, diagrams) |
 | **cc-arsenal-git** | Git workflow commands only (commits, PRs) |
 | **cc-arsenal-skills** | Skills only (Jira CLI, skill creator) |
@@ -81,9 +80,9 @@ make claude-hi-standard   # Quick 9am/2pm/7pm schedule
 
 ## Features
 
-### 🛠️ Commands, Skills & Hooks
+### 🛠️ Commands & Skills
 
-Workflow automation and safety for your development workflow.
+Workflow automation for your development workflow.
 
 **Commands** - Workflow automation via slash commands:
 - **Git**: `/git:commit` (conventional commits), `/git:create-pr` (PR with templates)
@@ -93,11 +92,7 @@ Workflow automation and safety for your development workflow.
 - `jira-cli` - Manage Jira issues, sprints, and epics
 - `skill-creator` - Guide for creating custom skills
 
-**Hooks** - Event-driven automation:
-- `file_protection` - Prevent modification of sensitive files (.env, keys, configs)
-- `pre_commit_validate` - Run linting and tests before git commits
-
-See the `commands/`, `skills/`, and `hooks/` directories for details.
+See the `commands/` and `skills/` directories for details.
 
 ### 📊 Statusline (Optional)
 

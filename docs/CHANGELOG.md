@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - **Selective Plugin Installation**: Multiple installable plugin sets from single marketplace
-  - `cc-arsenal` - Complete toolkit (all commands, skills, and hooks)
+  - `cc-arsenal` - Complete toolkit (all commands and skills)
   - `cc-arsenal-docs` - Documentation commands only (ADR, RFC, diagrams)
   - `cc-arsenal-git` - Git workflow commands only (commits, PRs)
   - `cc-arsenal-skills` - Skills only (Jira CLI, skill creator)

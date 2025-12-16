@@ -4,7 +4,7 @@
 
 ## Welcome to Claude Code Arsenal! 🎉
 
-This guide will help you get started as a developer on the Claude Code Arsenal project. Whether you're contributing new commands, hooks, or skills, this guide will walk you through everything you need to know.
+This guide will help you get started as a developer on the Claude Code Arsenal project. Whether you're contributing new commands or skills, this guide will walk you through everything you need to know.
 
 ## Prerequisites
 
@@ -80,7 +80,6 @@ uv run python -m scripts.setup.install
 
 # Verify installation
 ls -la ~/.claude/commands/
-ls -la ~/.claude/hooks/
 ls -la ~/.claude/skills/
 ```
 
@@ -127,7 +126,7 @@ gitgraph
 
 - `main` - Production-ready, stable releases
 - `develop` - Integration branch for features
-- `feature/*` - New features (commands, hooks, skills)
+- `feature/*` - New features (commands, skills)
 - `fix/*` - Bug fixes
 - `docs/*` - Documentation improvements
 
@@ -146,14 +145,13 @@ Follow [Conventional Commits](https://www.conventionalcommits.org/):
 ```bash
 # Examples
 git commit -m "feat(commands): add new documentation command"
-git commit -m "fix(hooks): correct file protection pattern matching"
 git commit -m "docs(onboarding): add development workflow section"
 git commit -m "test(commands): add tests for git:commit command"
 git commit -m "chore(deps): update pydantic to 2.5.1"
 ```
 
 **Commit Types:**
-- `feat:` - New feature (command, hook, skill)
+- `feat:` - New feature (command, skill)
 - `fix:` - Bug fix
 - `docs:` - Documentation only
 - `style:` - Code style changes (formatting)
@@ -170,9 +168,6 @@ cc-arsenal/
 ├── commands/           # Workflow automation
 │   ├── docs/              # Documentation generation
 │   └── git/               # Git operations
-├── hooks/             # Safety and validation
-│   ├── security/          # Authentication and protection
-│   └── quality/           # Code standards
 ├── skills/            # Model-invoked capabilities
 │   ├── skill-creator/     # Guide for creating skills
 │   └── jira-cli/          # Jira CLI integration
@@ -194,7 +189,6 @@ cc-arsenal/
 - `.claude-plugin/` - Plugin configuration and descriptor
 - `commands/` - Slash command files (.md format)
   - `resources/templates/` - Documentation generation templates (ADR, RFC, docs)
-- `hooks/` - Event-driven validation hooks
 - `skills/` - Model-invoked skills with bundled resources
 - `scripts/` - Python utilities for setup and generators
 - `tests/` - pytest test files
@@ -265,7 +259,6 @@ make dry-run
 
 # Check symlinks
 ls -la ~/.claude/commands/
-ls -la ~/.claude/hooks/
 ls -la ~/.claude/skills/
 
 # Verify command is loadable
@@ -291,12 +284,11 @@ Claude Code Arsenal uses a **plugin-based architecture** for modular component l
 **Installation Flow:**
 1. User installs via Claude Code marketplace (recommended) or `make install` (alternative)
 2. Plugin descriptor (`plugin.json`) declares available components
-3. Claude Code discovers commands, hooks, and skills from plugin
+3. Claude Code discovers commands and skills from plugin
 4. Components are loaded on-demand when needed
 
 **Component Types:**
 - **Commands**: Slash commands for user-invoked operations (e.g., `/git:commit`)
-- **Hooks**: Event-driven validation (e.g., pre-commit checks)
 - **Skills**: Auto-loaded by Claude when context matches (e.g., Jira CLI)
 
 See [architecture.md](./architecture.md) for detailed system design.
@@ -477,7 +469,7 @@ make type-check
 ## Next Steps
 
 1. ✅ **Complete Setup**: Ensure all prerequisites are installed and tests pass
-2. 🔍 **Explore Codebase**: Browse commands, hooks, and skills
+2. 🔍 **Explore Codebase**: Browse commands and skills
 3. 🧪 **Run Examples**: Try using existing commands in Claude Code
 4. 🎯 **Pick First Issue**: Look for ["good first issue"](https://github.com/mgiovani/cc-arsenal/labels/good%20first%20issue) labels
 5. 💬 **Join Community**: Introduce yourself in GitHub Discussions

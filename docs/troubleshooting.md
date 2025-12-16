@@ -25,7 +25,6 @@ claude --version
 ```bash
 # Check what's installed
 ls ~/.claude/commands/
-ls ~/.claude/hooks/
 ls ~/.claude/skills/
 
 # Test basic functionality
@@ -170,18 +169,6 @@ chmod 755 ~/.claude
 sudo chown -R $USER:$USER ~/.claude
 ```
 
-#### Hook Execution Permissions
-```bash
-# Error: Hook scripts not executable
-# Solution: Set execute permissions
-
-# Make all hooks executable
-chmod +x ~/.claude/hooks/**/*.py
-
-# Or fix during installation
-make install  # This sets correct permissions
-```
-
 ### Configuration File Issues
 
 #### Invalid YAML Syntax
@@ -286,37 +273,6 @@ chmod +x ~/.claude/commands/**/*.sh
 which git npm pytest ruff
 ```
 
-### Hook Problems
-
-#### Hooks Not Triggering
-```bash
-# Error: Hooks don't run on events
-# Solution: Debug hook configuration
-
-# Check hook configuration
-cat ~/.claude/hook-config.yaml
-
-# Test hook manually
-echo '{"event": "test"}' | ~/.claude/hooks/security/file_protection.py
-
-# Check hook logs
-tail -f ~/.claude/logs/hooks.log
-```
-
-#### Hook Execution Failures
-```bash
-# Error: Hook fails with error
-# Solution: Debug hook execution
-
-# Test hook with verbose output
-python3 -v ~/.claude/hooks/security/file_protection.py < test_input.json
-
-# Check Python path and dependencies
-python3 -c "import sys; print(sys.path)"
-
-# Install missing dependencies
-uv sync
-```
 
 ### Performance Issues
 
@@ -593,7 +549,6 @@ export CC_ARSENAL_DEBUG_COMMANDS=1
 # Main logs
 ~/.claude/logs/arsenal.log      # Main application log
 ~/.claude/logs/skills.log       # Skill execution log
-~/.claude/logs/hooks.log        # Hook execution log
 ~/.claude/logs/commands.log     # Command execution log
 
 # Component logs
@@ -613,7 +568,6 @@ make claude-hi-status          # Session scheduler status
 # Test components
 make test                      # Run test suite
 make dry-run                   # Preview installation
-echo "test" | ~/.claude/hooks/security/file_protection.py  # Test hook
 ```
 
 ## Getting Help
@@ -644,7 +598,6 @@ tail -50 ~/.claude/logs/arsenal.log
 
 # Configuration
 ls -la ~/.claude/
-cat ~/.claude/hook-config.yaml  # Remove sensitive data
 
 # Reproduction steps
 # Clear description of what you were trying to do
@@ -660,7 +613,7 @@ cat ~/.claude/hook-config.yaml  # Remove sensitive data
 cp -r ~/.claude ~/.claude.backup.$(date +%Y%m%d)
 
 # Remove all Arsenal components
-rm -rf ~/.claude/skills ~/.claude/commands ~/.claude/hooks
+rm -rf ~/.claude/skills ~/.claude/commands
 
 # Reinstall clean
 make install

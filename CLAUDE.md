@@ -4,12 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Architecture
 
-This is the **Claude Code Arsenal** - a professional collection of quality automation commands, safety hooks, and specialized skills. The codebase is organized using a **symlink architecture** for clean installation and modular configuration.
+This is the **Claude Code Arsenal** - a professional collection of quality automation commands and specialized skills. The codebase is organized using a **symlink architecture** for clean installation and modular configuration.
 
 ### Core Components
 
-- **Commands** (`commands/`): Quality automation and workflow commands (12 commands total)
-- **Hooks** (`hooks/`): Safety and validation scripts that run automatically on Claude Code events (2 hooks)
+- **Commands** (`commands/`): Quality automation and workflow commands (13 commands total)
 - **Skills** (`skills/`): Model-invoked capabilities that Claude automatically loads when relevant (2 skills)
 - **Scripts** (`scripts/`): Professional Python utilities for installation, configuration, and code generation
 
@@ -26,7 +25,8 @@ Then, to install a specific plugin set:
 1. Select **Browse and install plugins**
 2. Select **cc-arsenal-marketplace**
 3. Select one of:
-   - **cc-arsenal** - Complete toolkit (all commands, skills, and hooks)
+   - **cc-arsenal** - Complete toolkit (all commands and skills)
+   - **cc-arsenal-dev** - Development commands only (feature implementation)
    - **cc-arsenal-docs** - Documentation commands only
    - **cc-arsenal-git** - Git workflow commands only
    - **cc-arsenal-skills** - Skills only (Jira CLI, skill creator)
@@ -103,7 +103,7 @@ make configure
 ```
 
 **What it does:**
-- Discovers all available components from the repository (commands, hooks, skills)
+- Discovers all available components from the repository (commands, skills)
 - Shows components organized by category
 - Lets you interactively select which items to symlink
 - **Never modifies** your `~/.claude/settings.json` file
@@ -128,9 +128,6 @@ This wizard lets you choose which components to symlink to ~/.claude/
 │ commands │                                          │     8 │
 │          │   docs: adr, check, diagram, init, ...   │     6 │
 │          │   git: commit, create-pr                 │     2 │
-│ hooks    │                                          │     2 │
-│          │   quality: pre_commit_validate           │     1 │
-│          │   security: file_protection              │     1 │
 │ skills   │                                          │     2 │
 │          │   jira-cli, skill-creator                │     2 │
 └──────────┴──────────────────────────────────────────┴───────┘
@@ -228,8 +225,12 @@ make -C scripts/claude-hi now       # Send 'hi' immediately
 
 ## Available Components
 
-### Commands (12 total)
+### Commands (13 total)
 Workflow automation commands organized by category:
+- **Development** (1 command): `implement-feature`
+  - Feature implementation with senior staff engineer best practices
+  - Parallel subagent orchestration for complex features
+  - Automatic project discovery (Makefile, package.json, pyproject.toml, etc.)
 - **Documentation** (6 commands): `adr`, `check`, `diagram`, `init`, `rfc`, `update`
   - ADR (Architecture Decision Records) creation and management
   - RFC (Request for Comments) documentation
@@ -244,11 +245,6 @@ Workflow automation commands organized by category:
 - **Jira integration** (2 commands): `todo`, `daily`
   - Todo management synced with Jira issues
   - Daily standup report generation
-
-### Hooks (2 total)
-Safety and validation automation triggered by Claude Code events:
-- **Security**: `file_protection` - Prevents accidental modification of sensitive files
-- **Quality**: `pre_commit_validate` - Code standards and validation before commits
 
 ### Skills (2 total)
 Modular, self-contained capabilities that Claude automatically invokes when relevant:
@@ -275,12 +271,6 @@ Modular, self-contained capabilities that Claude automatically invokes when rele
   - Best for: Git operations, documentation generation, testing, utilities
   - 8 commands available across docs and git categories
 
-- **Hooks** - Automatic event-driven validation
-  - Triggered by Claude Code events (pre-commit, file access, etc.)
-  - Background safety and quality gates
-  - Best for: Security validation, pre-commit checks, file protection
-  - 2 hooks: `file_protection`, `pre_commit_validate`
-
 ### Skills Usage
 
 Skills are **automatically invoked** by Claude when relevant to the task - you don't need to explicitly call them. Claude discovers skills through their `name` and `description` in the SKILL.md frontmatter.
@@ -289,7 +279,7 @@ Skills are **automatically invoked** by Claude when relevant to the task - you d
 
 **IMPORTANT: No README files in component directories**
 
-Do not add README.md files inside key component folders (`commands/`, `hooks/`, `skills/`). Claude Code will incorrectly detect them as actual components.
+Do not add README.md files inside key component folders (`commands/`, `skills/`). Claude Code will incorrectly detect them as actual components.
 
 Instead:
 - All documentation goes in the `docs/` folder
@@ -299,7 +289,6 @@ Instead:
 
 ### Quality Assurance
 All code changes should go through integrated quality gates:
-- Security validation via hooks
 - Code quality enforcement via pre-commit hooks
 - Comprehensive testing and validation
 - Documentation requirements
@@ -315,7 +304,9 @@ All code changes should go through integrated quality gates:
 ## File Organization
 ```
 cc-arsenal/
-├── commands/        # Workflow automation (12 commands)
+├── commands/        # Workflow automation (13 commands)
+│   ├── dev/            # Development workflow (1 command)
+│   │   └── implement-feature.md  # Feature implementation with subagents
 │   ├── docs/           # Documentation generation (6 commands)
 │   │   ├── adr.md         # Architecture Decision Records
 │   │   ├── check.md       # Documentation validation
@@ -332,12 +323,6 @@ cc-arsenal/
 │   └── jira/           # Jira integration (2 commands)
 │       ├── todo.md        # Todo management
 │       └── daily.md       # Daily standup reports
-├── hooks/          # Safety and validation (2 hooks)
-│   ├── hooks.json         # Hook configuration
-│   ├── security/          # Security automation
-│   │   └── file_protection.py    # Sensitive file protection
-│   └── quality/           # Quality automation
-│       └── pre_commit_validate.py  # Pre-commit validation
 ├── skills/         # Model-invoked capabilities (2 skills)
 │   ├── skill-creator/  # Guide and tools for creating skills
 │   │   ├── SKILL.md       # Comprehensive skill creation guide

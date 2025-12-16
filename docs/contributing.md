@@ -282,7 +282,6 @@ type(scope): subject
 
 **Scopes:**
 - `commands` - Command-related changes
-- `hooks` - Hook-related changes
 - `skills` - Skill-related changes
 - `plugin` - Plugin configuration changes
 - `scripts` - Installation/generation scripts
@@ -293,7 +292,6 @@ type(scope): subject
 ```bash
 git commit -m "feat(commands): add docs:api command for API documentation"
 git commit -m "feat(skills): add Linear integration skill"
-git commit -m "fix(hooks): correct file protection regex pattern"
 git commit -m "docs(onboarding): add troubleshooting section"
 git commit -m "test(commands): add integration tests for git:commit"
 git commit -m "chore(deps): update pydantic to 2.5.1"

@@ -98,7 +98,7 @@ class InstallationConfig(BaseModel):
     conflict_resolution: ConflictResolution = Field(
         default=ConflictResolution.INTERACTIVE
     )
-    required_dirs: list[str] = Field(default=['agents', 'commands', 'hooks'])
+    required_dirs: list[str] = Field(default=['agents', 'commands'])
 
     @field_validator('repo_root')
     @classmethod
@@ -416,7 +416,7 @@ def main(
 ) -> None:
     """Install Claude template configuration via individual file symlinks.
 
-    This command safely installs agents, commands, and hooks by creating
+    This command safely installs agents and commands by creating
     individual symlinks for each file. It detects conflicts, offers resolution
     options, and maintains backups to ensure no data is lost.
 
@@ -523,9 +523,7 @@ def main(
         console.print('\n📋 Next Steps:')
         console.print('  1. Run `make configure` to customize your setup')
         console.print('  2. Restart Claude Code to load the new configuration')
-        console.print(
-            '  3. Use agents, commands, and hooks from the cc-arsenal repository'
-        )
+        console.print('  3. Use agents and commands from the cc-arsenal repository')
 
         # Ask about statusline installation
         console.print('\n🎨 [bold yellow]Enhanced Statusline Available[/bold yellow]')

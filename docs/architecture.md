@@ -6,13 +6,12 @@
 
 ## Overview
 
-Claude Code Arsenal is a professional collection of workflow automation commands, safety hooks, and skills designed to enhance Claude Code's capabilities. The system uses a plugin-based architecture for clean installation and modular configuration, distributed via the Claude Code marketplace.
+Claude Code Arsenal is a professional collection of workflow automation commands and skills designed to enhance Claude Code's capabilities. The system uses a plugin-based architecture for clean installation and modular configuration, distributed via the Claude Code marketplace.
 
 ## System Context
 
 Claude Code Arsenal operates as an extension layer on top of Claude Code, providing:
 - **Workflow Commands**: Git operations and documentation generation (ADR, RFC, diagrams)
-- **Safety Hooks**: Event-driven validation for security and quality
 - **Skills**: Model-invoked capabilities that Claude automatically loads when relevant (Jira CLI, skill creator)
 
 The system integrates with:
@@ -28,8 +27,7 @@ The system integrates with:
 - **Developer Experience**: Provide seamless, zero-config installation via Claude Code marketplace
 - **Documentation Automation**: Generate and maintain architecture documentation, ADRs, RFCs, and diagrams
 - **Git Workflow Automation**: Streamline commit and PR creation with conventional commit standards
-- **Safety**: Prevent common mistakes through automated validation hooks
-- **Quality**: Enforce coding standards and best practices automatically
+- **Quality**: Enforce coding standards and best practices
 
 ### Non-Goals
 
@@ -46,16 +44,11 @@ graph TB
     Claude -->|Loads| Arsenal[Claude Code Arsenal]
 
     Arsenal --> Commands[Commands Layer]
-    Arsenal --> Hooks[Hooks Layer]
     Arsenal --> Skills[Skills Layer]
 
     Commands --> CmdTypes[Command Categories]
     CmdTypes --> Git[Git Operations]
     CmdTypes --> Docs[Documentation]
-
-    Hooks --> HookTypes[Hook Categories]
-    HookTypes --> Security[Security Hooks]
-    HookTypes --> Quality[Quality Hooks]
 
     Skills --> SkillTypes[Available Skills]
     SkillTypes --> Jira[Jira CLI]
@@ -77,7 +70,7 @@ graph TB
 
 The system uses a **plugin-based architecture** with clear separation between:
 1. **Installation Layer**: Claude Code marketplace plugin system
-2. **Component Layer**: Commands, hooks, skills
+2. **Component Layer**: Commands, skills
 3. **Execution Layer**: Claude Code runtime
 4. **Integration Layer**: External tools (Git, GitHub, Jira, etc.)
 
@@ -109,14 +102,6 @@ graph TB
             DocsUpdate["docs:update"]
             DocsCheck["docs:check"]
             DocsInit["docs:init"]
-        end
-
-        subgraph "Hooks Layer"
-            HookConfig[hooks.json]
-            SecurityHooks[Security Hooks]
-            FileProtection[file_protection.py]
-            QualityHooks[Quality Hooks]
-            PreCommit[pre_commit_validate.py]
         end
 
         subgraph "Skills Layer"
@@ -166,14 +151,6 @@ graph TB
     DocsCommands --> DocsCheck
     DocsCommands --> DocsInit
 
-    %% Hook triggers
-    EventSystem -->|PostToolUse: Edit/Write| HookConfig
-    EventSystem -->|PostToolUse: Bash| HookConfig
-    HookConfig --> SecurityHooks
-    HookConfig --> QualityHooks
-    SecurityHooks --> FileProtection
-    QualityHooks --> PreCommit
-
     %% Template usage
     DocsADR --> ADRTemplates
     DocsRFC --> RFCTemplates
@@ -185,18 +162,14 @@ graph TB
     GitPR -->|"gh pr create"| GitHubCLI
     JiraSkill -->|REST API| JiraAPI
     Setup -->|"create symlinks"| FileSystem
-    FileProtection -->|"validate paths"| FileSystem
-    PreCommit -->|"run linters"| GitCLI
 
     %% Styling
     classDef commandStyle fill:#e1f5ff,stroke:#0288d1,stroke-width:2px
-    classDef hookStyle fill:#fff3e0,stroke:#f57c00,stroke-width:2px
     classDef skillStyle fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
     classDef externalStyle fill:#e8f5e9,stroke:#388e3c,stroke-width:2px
     classDef templateStyle fill:#fce4ec,stroke:#c2185b,stroke-width:2px
 
     class GitCommands,DocsCommands,GitCommit,GitPR,DocsADR,DocsRFC,DocsDiagram,DocsUpdate,DocsCheck,DocsInit commandStyle
-    class HookConfig,SecurityHooks,QualityHooks,FileProtection,PreCommit hookStyle
     class JiraSkill,CreatorSkill skillStyle
     class GitCLI,GitHubCLI,JiraAPI,FileSystem externalStyle
     class ADRTemplates,RFCTemplates,DocTemplates templateStyle
@@ -204,7 +177,6 @@ graph TB
 
 **Component Count:**
 - **8 Commands**: 2 Git + 6 Documentation
-- **2 Hooks**: Security (file_protection) + Quality (pre_commit_validate)
 - **2 Skills**: Jira CLI + Skill Creator
 - **12 Templates**: 3 ADR + 3 RFC + 6 Documentation
 
@@ -221,7 +193,7 @@ graph TB
 - Configuration management and validation
 
 **Interfaces:**
-- **Plugin Descriptor**: `plugin.json` - Declares commands, skills, and hooks
+- **Plugin Descriptor**: `plugin.json` - Declares commands and skills
 - **Marketplace Integration**: Distributed via Claude Code marketplace
 - **Makefile**: Development and validation commands
 
@@ -253,28 +225,6 @@ graph TB
 - `docs/` - **6 commands**: `adr`, `rfc`, `diagram`, `update`, `check`, `init`
 
 **Note:** Empty `testing/` and `utility/` directories exist for future expansion.
-
-#### Hooks System
-
-**Responsibilities:**
-- Provide event-driven validation and automation
-- Prevent security issues (file protection, authentication)
-- Enforce quality standards (pre-commit validation)
-- Ensure compliance (audit trails, regulatory requirements)
-
-**Interfaces:**
-- **HOOK.md Format**: Markdown files with hook definitions
-- **Event Triggers**: Claude Code event system
-- **Configuration**: JSON/YAML configuration files
-
-**Dependencies:**
-- Claude Code hook system
-- File system access for validation
-- Git hooks for pre-commit checks
-
-**Available Hooks:**
-- `file_protection` (security) - Prevents modification of sensitive files (.env, keys, production configs)
-- `pre_commit_validate` (quality) - Runs linting and tests before git commits
 
 #### Skills System
 
@@ -308,14 +258,6 @@ graph TB
 4. Claude executes command logic
 5. Results are presented to user
 
-#### Hook Trigger Flow
-
-1. Claude Code event occurs (e.g., file modification, tool call)
-2. Hook system detects event and loads relevant HOOK.md
-3. Hook validation logic executes
-4. If validation fails, hook blocks operation and reports error
-5. If validation passes, operation continues
-
 #### Skill Activation Flow
 
 1. User request matches skill description/context
@@ -334,8 +276,7 @@ graph TB
     "name": "cc-arsenal",
     "version": "1.0.0",
     "commands": ["./commands/git/commit.md"],
-    "skills": ["./skills/jira-cli/"],
-    "hooks": "./hooks/hooks.json"
+    "skills": ["./skills/jira-cli/"]
   }
   ```
 
@@ -385,13 +326,11 @@ graph TB
 ### Authentication & Authorization
 
 - **No Authentication Required**: Runs locally with user's file system permissions
-- **File Protection Hook**: Prevents committing sensitive files (.env, credentials, etc.)
 - **Permission Model**: Relies on OS-level file permissions
 
 ### Data Protection
 
 - **No Data Collection**: All operations are local; no telemetry
-- **Sensitive File Detection**: Hooks scan for common sensitive file patterns
 - **Secure Defaults**: Git operations use user's existing Git configuration
 
 ### Network Security
@@ -404,9 +343,8 @@ graph TB
 
 ### Performance Requirements
 
-- **Component Load Time**: <100ms to load command/hook/skill files
+- **Component Load Time**: <100ms to load command/skill files
 - **Command Execution**: <1s for local commands, variable for Git/API operations
-- **Hook Validation**: <50ms to prevent blocking workflow
 
 ### Scaling Strategy
 
@@ -424,7 +362,6 @@ graph TB
 
 ### Error Handling
 
-- **Graceful Failures**: Hooks fail open (allow operation) if hook fails
 - **User Feedback**: Rich CLI output with clear error messages
 - **Logging**: Structured logging for debugging
 
@@ -474,7 +411,6 @@ make validate-plugins
 ### Configuration Management
 
 - **Plugin Descriptor**: `.claude-plugin/plugin.json` in repository
-- **Hook Configuration**: `hooks/hooks.json` for hook definitions
 - **Documentation Templates**: `resources/templates/` for doc generation
 - **Command Definitions**: Individual `.md` files in `commands/` directories
 
@@ -482,7 +418,7 @@ make validate-plugins
 
 1. **Clone Repository**: Fork and clone cc-arsenal
 2. **Install Dependencies**: `uv sync --extra dev`
-3. **Make Changes**: Edit commands, hooks, or skills
+3. **Make Changes**: Edit commands or skills
 4. **Validate Plugin**: `make validate-plugins` checks structure
 5. **Run Quality Checks**: `make check` (lint, format, type-check, test)
 6. **Test in Claude Code**: Install plugin locally and test
@@ -545,7 +481,6 @@ make validate-plugins
 ### Planned Improvements
 
 - **Extended Command Library**: More testing and utility commands
-- **Advanced Hooks**: Additional quality and compliance hooks
 - **Template Library**: More documentation templates (API docs, testing guides)
 - **Integration Testing**: E2E tests for command workflows
 - **Documentation Site**: Dedicated docs site with examples and tutorials
@@ -561,7 +496,6 @@ make validate-plugins
 
 **6-Month Goals:**
 - 20+ commands covering testing, deployment, and code analysis workflows
-- Advanced security and compliance hooks with customizable rules
 - Community-contributed skill library for common integrations
 - Automated command testing framework with E2E scenarios
 - Comprehensive documentation with video tutorials
@@ -583,9 +517,8 @@ make validate-plugins
 
 ## Glossary
 
-- **Plugin**: Claude Code extension installed via marketplace, containing commands, hooks, and skills
+- **Plugin**: Claude Code extension installed via marketplace, containing commands and skills
 - **Command**: User-invoked slash command for explicit workflow automation (e.g., `/git:commit`)
-- **Hook**: Event-driven validation script that runs automatically on Claude Code events
 - **Skill**: Model-invoked capability that Claude automatically loads when context matches
 - **Plugin Descriptor**: `plugin.json` file declaring plugin components and metadata
 - **Progressive Disclosure**: Loading only necessary information to save context window
