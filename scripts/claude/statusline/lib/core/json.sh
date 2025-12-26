@@ -106,6 +106,12 @@ extract_json_grep() {
         "context_window.total_output_tokens")  grep_number "$json" "total_output_tokens" ;;
         "context_window.context_window_size")  grep_number "$json" "context_window_size" ;;
 
+        # Numeric fields - context_window.current_usage object
+        "context_window.current_usage.input_tokens")              grep_number "$json" "input_tokens" ;;
+        "context_window.current_usage.output_tokens")             grep_number "$json" "output_tokens" ;;
+        "context_window.current_usage.cache_creation_input_tokens") grep_number "$json" "cache_creation_input_tokens" ;;
+        "context_window.current_usage.cache_read_input_tokens")   grep_number "$json" "cache_read_input_tokens" ;;
+
         # Numeric fields - usage object
         "usage.total_input_tokens")     grep_number "$json" "total_input_tokens" ;;
         "usage.total_output_tokens")    grep_number "$json" "total_output_tokens" ;;

@@ -240,6 +240,105 @@ test_context_caps_at_100() {
     assert_contains "100%" "$output" "Context percentage caps at 100%"
 }
 
+# Test current_usage fields (new JSON structure)
+test_current_usage_basic() {
+    echo "Testing current_usage fields..."
+
+    local json='{
+        "model": {"display_name": "Sonnet"},
+        "workspace": {"current_dir": "/test"},
+        "context_window": {
+            "total_input_tokens": 100000,
+            "total_output_tokens": 50000,
+            "context_window_size": 200000,
+            "current_usage": {
+                "input_tokens": 8000,
+                "output_tokens": 2000,
+                "cache_read_input_tokens": 0,
+                "cache_creation_input_tokens": 0
+            }
+        }
+    }'
+
+    local output
+    output=$(echo "$json" | "$STATUSLINE_SCRIPT" 2>/dev/null)
+
+    # Should use current_usage: (8000 + 0) + 2000 = 10000 / 200000 = 5%
+    assert_contains "5%" "$output" "current_usage: 10000 tokens = 5%"
+}
+
+# Test current_usage with cache reads
+test_current_usage_with_cache() {
+    echo "Testing current_usage with cache reads..."
+
+    local json='{
+        "model": {"display_name": "Opus"},
+        "workspace": {"current_dir": "/test"},
+        "context_window": {
+            "context_window_size": 200000,
+            "current_usage": {
+                "input_tokens": 10000,
+                "output_tokens": 5000,
+                "cache_read_input_tokens": 5000,
+                "cache_creation_input_tokens": 2000
+            }
+        }
+    }'
+
+    local output
+    output=$(echo "$json" | "$STATUSLINE_SCRIPT" 2>/dev/null)
+
+    # input + cache_read + output = (10000 + 5000) + 5000 = 20000 / 200000 = 10%
+    assert_contains "10%" "$output" "current_usage with cache: 20000 tokens = 10%"
+}
+
+# Test current_usage takes priority over total_* fields
+test_current_usage_priority() {
+    echo "Testing current_usage priority over total_*..."
+
+    local json='{
+        "model": {"display_name": "Sonnet"},
+        "workspace": {"current_dir": "/test"},
+        "context_window": {
+            "total_input_tokens": 100000,
+            "total_output_tokens": 50000,
+            "context_window_size": 200000,
+            "current_usage": {
+                "input_tokens": 5000,
+                "output_tokens": 5000,
+                "cache_read_input_tokens": 0
+            }
+        }
+    }'
+
+    local output
+    output=$(echo "$json" | "$STATUSLINE_SCRIPT" 2>/dev/null)
+
+    # Should use current_usage: 10000 / 200000 = 5% (not 75% from total_*)
+    assert_contains "5%" "$output" "current_usage takes priority over total_*"
+}
+
+# Test backward compatibility when current_usage is missing
+test_backward_compatibility() {
+    echo "Testing backward compatibility without current_usage..."
+
+    local json='{
+        "model": {"display_name": "Opus"},
+        "workspace": {"current_dir": "/test"},
+        "context_window": {
+            "total_input_tokens": 15000,
+            "total_output_tokens": 5000,
+            "context_window_size": 200000
+        }
+    }'
+
+    local output
+    output=$(echo "$json" | "$STATUSLINE_SCRIPT" 2>/dev/null)
+
+    # Falls back to total_*: 20000 / 200000 = 10%
+    assert_contains "10%" "$output" "Backward compatibility: uses total_* when current_usage missing"
+}
+
 # Run all tests
 main() {
     echo "Running Context Window Module Tests..."
@@ -253,6 +352,10 @@ main() {
     test_context_window_priority
     test_high_context_usage
     test_context_caps_at_100
+    test_current_usage_basic
+    test_current_usage_with_cache
+    test_current_usage_priority
+    test_backward_compatibility
 
     print_results
 }

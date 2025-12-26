@@ -82,45 +82,6 @@ get_daily_usage() {
 # =============================================================================
 
 # Get token usage from transcript file
-# Usage: get_transcript_tokens "/path/to/transcript.jsonl"
-# Returns: "input_tokens|output_tokens"
-get_transcript_tokens() {
-    local transcript_path="$1"
-
-    if [[ ! -f "$transcript_path" ]]; then
-        echo "0|0"
-        return 0
-    fi
-
-    # Extract tokens from JSONL transcript file using jq if available
-    if check_jq; then
-        # Get the latest message's context tokens
-        local latest_context_tokens latest_output_tokens
-        latest_context_tokens=$(tail -1 "$transcript_path" | jq -r 'select(.message.usage) | .message.usage | ((.input_tokens // 0) + (.cache_read_input_tokens // 0))' 2>/dev/null || echo "0")
-        latest_output_tokens=$(tail -1 "$transcript_path" | jq -r 'select(.message.usage) | .message.usage.output_tokens // 0' 2>/dev/null || echo "0")
-        echo "${latest_context_tokens}|${latest_output_tokens}"
-        return 0
-    fi
-
-    # Fallback: get latest message context tokens using grep
-    local latest_input=0 latest_cache=0 latest_output=0
-    local last_line
-    last_line=$(tail -1 "$transcript_path" 2>/dev/null || echo "")
-
-    if [[ "$last_line" =~ \"input_tokens\":([0-9]+) ]]; then
-        latest_input=${BASH_REMATCH[1]}
-    fi
-    if [[ "$last_line" =~ \"cache_read_input_tokens\":([0-9]+) ]]; then
-        latest_cache=${BASH_REMATCH[1]}
-    fi
-    if [[ "$last_line" =~ \"output_tokens\":([0-9]+) ]]; then
-        latest_output=${BASH_REMATCH[1]}
-    fi
-
-    local total_context=$((latest_input + latest_cache))
-    echo "${total_context}|${latest_output}"
-}
-
 # =============================================================================
 # Window Tracking (integrated with usage)
 # =============================================================================

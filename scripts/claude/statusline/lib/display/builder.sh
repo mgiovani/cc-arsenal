@@ -14,7 +14,6 @@ readonly STATUSLINE_BUILDER_LOADED=1
 STATUSLINE_DISPLAY_DIR="$(dirname "${BASH_SOURCE[0]}")"
 source "$STATUSLINE_DISPLAY_DIR/components.sh"
 source "$STATUSLINE_DISPLAY_DIR/../core/json.sh"
-source "$STATUSLINE_DISPLAY_DIR/../tracking/usage.sh"
 
 # =============================================================================
 # Configuration
@@ -68,34 +67,23 @@ extract_statusline_data() {
     LINES_ADDED=$(extract_json "$json" "cost.total_lines_added" 2>/dev/null || echo "0")
     LINES_REMOVED=$(extract_json "$json" "cost.total_lines_removed" 2>/dev/null || echo "0")
 
-    # Transcript path
-    TRANSCRIPT_PATH=$(extract_json "$json" "transcript_path" 2>/dev/null || echo "")
-
     # Context window size
     CONTEXT_WINDOW_SIZE=$(extract_json "$json" "context_window.context_window_size" 2>/dev/null || echo "200000")
 
-    # Token usage - prioritize context_window.* fields (new structure), then fallback
-    INPUT_TOKENS=$(extract_json "$json" "context_window.total_input_tokens" 2>/dev/null || echo "")
-    OUTPUT_TOKENS=$(extract_json "$json" "context_window.total_output_tokens" 2>/dev/null || echo "")
+    # Token usage - prioritize current_usage fields (most accurate), then fallback to total_*
+    local current_input current_output cache_read
+    current_input=$(extract_json "$json" "context_window.current_usage.input_tokens" 2>/dev/null || echo "")
+    current_output=$(extract_json "$json" "context_window.current_usage.output_tokens" 2>/dev/null || echo "")
+    cache_read=$(extract_json "$json" "context_window.current_usage.cache_read_input_tokens" 2>/dev/null || echo "0")
 
-    # If context_window.* fields not available, try transcript file or other locations
-    if [[ -z "$INPUT_TOKENS" || "$INPUT_TOKENS" == "null" ]]; then
-        if [[ -n "$TRANSCRIPT_PATH" && -f "$TRANSCRIPT_PATH" ]]; then
-            local tokens
-            tokens=$(get_transcript_tokens "$TRANSCRIPT_PATH")
-            INPUT_TOKENS="${tokens%|*}"
-            OUTPUT_TOKENS="${tokens#*|}"
-        else
-            # Fallback: try legacy locations for token data
-            INPUT_TOKENS=$(extract_json "$json" "cost.total_input_tokens" 2>/dev/null || \
-                            extract_json "$json" "usage.total_input_tokens" 2>/dev/null || \
-                            extract_json "$json" "total_input_tokens" 2>/dev/null || \
-                            echo "0")
-            OUTPUT_TOKENS=$(extract_json "$json" "cost.total_output_tokens" 2>/dev/null || \
-                            extract_json "$json" "usage.total_output_tokens" 2>/dev/null || \
-                            extract_json "$json" "total_output_tokens" 2>/dev/null || \
-                            echo "0")
-        fi
+    if [[ -n "$current_input" && "$current_input" != "null" ]]; then
+        # Use current_usage (includes cache reads in input)
+        INPUT_TOKENS=$((current_input + cache_read))
+        OUTPUT_TOKENS="${current_output:-0}"
+    else
+        # Fallback: Use total_* fields for backward compatibility
+        INPUT_TOKENS=$(extract_json "$json" "context_window.total_input_tokens" 2>/dev/null || echo "0")
+        OUTPUT_TOKENS=$(extract_json "$json" "context_window.total_output_tokens" 2>/dev/null || echo "0")
     fi
 
     # Ensure tokens have default values
