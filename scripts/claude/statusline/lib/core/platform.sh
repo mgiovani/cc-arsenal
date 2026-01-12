@@ -40,9 +40,20 @@ is_linux() {
 # Returns: epoch seconds or "0" if file doesn't exist
 get_file_mtime() {
     local file="$1"
-    # macOS: stat -f %m
-    # Linux: stat -c %Y
-    stat -f %m "$file" 2>/dev/null || stat -c %Y "$file" 2>/dev/null || echo "0"
+
+    if [[ ! -f "$file" ]]; then
+        echo "0"
+        return
+    fi
+
+    # Use platform-specific command
+    if is_macos; then
+        # macOS: stat -f %m
+        stat -f %m "$file" 2>/dev/null || echo "0"
+    else
+        # Linux: stat -c %Y
+        stat -c %Y "$file" 2>/dev/null || echo "0"
+    fi
 }
 
 # =============================================================================
