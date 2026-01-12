@@ -130,14 +130,13 @@ info: ## Show repository information
 		echo "Agents:   $$(find agents -name '*.md' 2>/dev/null | wc -l) files"; \
 	fi
 	@echo "Commands: $$(find commands -name '*.md' 2>/dev/null | wc -l) files"
-	@echo "Hooks:    $$(find hooks -name '*.py' 2>/dev/null | wc -l) files"
 	@echo "Skills:   $$(find skills -name 'SKILL.md' 2>/dev/null | wc -l) files"
 	@echo "Scripts:  $$(find scripts -maxdepth 2 -name '*.py' -not -path '*/__pycache__/*' -not -path '*/.*' -not -name 'test_*' -not -name '__init__.py' 2>/dev/null | wc -l) files"
 
 validate-structure: ## Validate repository structure
 	@echo "$(BLUE)Validating repository structure...$(RESET)"
 	@errors=0; \
-	for dir in commands hooks skills scripts; do \
+	for dir in commands skills scripts; do \
 		if [ ! -d "$$dir" ]; then \
 			echo "$(RED)Missing directory: $$dir$(RESET)"; \
 			errors=$$((errors + 1)); \
