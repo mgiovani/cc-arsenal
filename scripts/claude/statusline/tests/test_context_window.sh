@@ -138,9 +138,7 @@ test_model_display_name() {
         "model": {"id": "claude-opus-4-5-20251101", "display_name": "Opus"},
         "workspace": {"current_dir": "/test"},
         "context_window": {
-            "total_input_tokens": 1000,
-            "total_output_tokens": 500,
-            "context_window_size": 200000
+            "used_percentage": 5.0
         }
     }'
 
@@ -159,9 +157,7 @@ test_model_display_names() {
             \"model\": {\"display_name\": \"$display_name\"},
             \"workspace\": {\"current_dir\": \"/test\"},
             \"context_window\": {
-                \"total_input_tokens\": 1000,
-                \"total_output_tokens\": 500,
-                \"context_window_size\": 200000
+                \"used_percentage\": 10.0
             }
         }"
 
@@ -339,23 +335,131 @@ test_backward_compatibility() {
     assert_contains "10%" "$output" "Backward compatibility: uses total_* when current_usage missing"
 }
 
+# Test used_percentage field (most accurate)
+test_used_percentage_direct() {
+    echo "Testing used_percentage field..."
+
+    local json='{
+        "model": {"display_name": "Opus"},
+        "workspace": {"current_dir": "/test"},
+        "context_window": {
+            "used_percentage": 42.5,
+            "remaining_percentage": 57.5,
+            "total_input_tokens": 15000,
+            "total_output_tokens": 5000,
+            "context_window_size": 200000
+        }
+    }'
+
+    local output
+    output=$(echo "$json" | "$STATUSLINE_SCRIPT" 2>/dev/null)
+
+    # Should use used_percentage directly: 42.5% rounded to 43%
+    assert_contains "43%" "$output" "used_percentage: 42.5 rounds to 43%"
+}
+
+# Test used_percentage is used directly
+test_used_percentage_priority() {
+    echo "Testing used_percentage is used directly..."
+
+    local json='{
+        "model": {"display_name": "Sonnet"},
+        "workspace": {"current_dir": "/test"},
+        "context_window": {
+            "used_percentage": 25.0
+        }
+    }'
+
+    local output
+    output=$(echo "$json" | "$STATUSLINE_SCRIPT" 2>/dev/null)
+
+    # Should use used_percentage: 25%
+    assert_contains "25%" "$output" "used_percentage: 25.0 shows as 25%"
+}
+
+# Test used_percentage with decimal values
+test_used_percentage_decimals() {
+    echo "Testing used_percentage with various decimal values..."
+
+    # Test 1.2% rounds to 1%
+    local json1='{
+        "model": {"display_name": "Opus"},
+        "workspace": {"current_dir": "/test"},
+        "context_window": {
+            "used_percentage": 1.2,
+            "context_window_size": 200000
+        }
+    }'
+
+    local output1
+    output1=$(echo "$json1" | "$STATUSLINE_SCRIPT" 2>/dev/null)
+    assert_contains "1%" "$output1" "used_percentage: 1.2 rounds to 1%"
+
+    # Test 99.8% rounds to 100%
+    local json2='{
+        "model": {"display_name": "Haiku"},
+        "workspace": {"current_dir": "/test"},
+        "context_window": {
+            "used_percentage": 99.8,
+            "context_window_size": 200000
+        }
+    }'
+
+    local output2
+    output2=$(echo "$json2" | "$STATUSLINE_SCRIPT" 2>/dev/null)
+    assert_contains "100%" "$output2" "used_percentage: 99.8 rounds to 100%"
+}
+
+# Test used_percentage at 0%
+test_used_percentage_zero() {
+    echo "Testing used_percentage at 0%..."
+
+    local json='{
+        "model": {"display_name": "Sonnet"},
+        "workspace": {"current_dir": "/test"},
+        "context_window": {
+            "used_percentage": 0.0
+        }
+    }'
+
+    local output
+    output=$(echo "$json" | "$STATUSLINE_SCRIPT" 2>/dev/null)
+
+    assert_contains "0%" "$output" "used_percentage: 0.0 shows as 0%"
+}
+
+# Test fallback when used_percentage is missing
+test_missing_percentage_fallback() {
+    echo "Testing fallback when used_percentage is missing..."
+
+    local json='{
+        "model": {"display_name": "Opus"},
+        "workspace": {"current_dir": "/test"},
+        "context_window": {}
+    }'
+
+    local output
+    output=$(echo "$json" | "$STATUSLINE_SCRIPT" 2>/dev/null)
+
+    # Should show 0% as fallback
+    assert_contains "0%" "$output" "Missing used_percentage shows 0% fallback"
+}
+
 # Run all tests
 main() {
     echo "Running Context Window Module Tests..."
     echo
 
-    test_context_window_200k
-    test_context_window_1m
-    test_context_window_fallback
+    # Model display tests
     test_model_display_name
     test_model_display_names
-    test_context_window_priority
-    test_high_context_usage
-    test_context_caps_at_100
-    test_current_usage_basic
-    test_current_usage_with_cache
-    test_current_usage_priority
-    test_backward_compatibility
+
+    # used_percentage tests (current implementation)
+    test_used_percentage_direct
+    test_used_percentage_priority
+    test_used_percentage_decimals
+    test_used_percentage_zero
+    test_missing_percentage_fallback
 
     print_results
 }

@@ -137,27 +137,21 @@ get_worktree_component() {
 # =============================================================================
 
 # Display context window usage percentage
-# Usage: get_context_component "$input_tokens" "$output_tokens" "$context_window_size"
+# Usage: get_context_component "$used_percentage"
 get_context_component() {
-    local input_tokens="${1:-0}" output_tokens="${2:-0}" context_window_size="${3:-200000}"
+    local used_percentage="${1:-}"
 
-    # For new sessions with no usage, show 0%
-    if [[ "$input_tokens" == "0" && "$output_tokens" == "0" ]] || \
-        [[ -z "$input_tokens" || -z "$output_tokens" ]]; then
-        echo "📊 0%"
+    # Use percentage from Claude Code
+    if [[ -n "$used_percentage" && "$used_percentage" != "null" ]]; then
+        # Round to integer for display (add 0.5 and truncate using awk)
+        local percent
+        percent=$(awk -v n="$used_percentage" 'BEGIN { printf "%d", n + 0.5 }' 2>/dev/null || echo "${used_percentage%.*}")
+        echo "📊 ${percent}%"
         return 0
     fi
 
-    # Ensure context_window_size is valid
-    if [[ -z "$context_window_size" || "$context_window_size" == "0" || "$context_window_size" == "null" ]]; then
-        context_window_size=200000
-    fi
-
-    local total=$((input_tokens + output_tokens))
-    local percent=$((total * 100 / context_window_size))
-    [[ $percent -gt 100 ]] && percent=100
-
-    echo "📊 ${percent}%"
+    # Fallback: show 0% for new sessions
+    echo "📊 0%"
 }
 
 # =============================================================================
