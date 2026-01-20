@@ -1,18 +1,5 @@
 {
   "$schema": "https://claude.ai/schemas/hooks.json",
   "description": "CC-Arsenal hooks for enhanced development workflow",
-  "hooks": {
-    "PostToolUse": [
-      {
-        "matcher": "Edit|Write|NotebookEdit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/diff-pane/scripts/diff-pane.sh",
-            "timeout": 5
-          }
-        ]
-      }
-    ]
-  }
+  "hooks": {}
 }

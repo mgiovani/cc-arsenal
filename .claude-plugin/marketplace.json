@@ -14,7 +14,7 @@
       "name": "cc-arsenal",
       "source": "./",
       "strict": true,
-      "description": "Complete toolkit: all commands (dev, docs, git, claude, jira), skills (jira-cli, skill-creator), and hooks (diff-pane)",
+      "description": "Complete toolkit: all commands (dev, docs, git, claude, jira) and skills (jira-cli, skill-creator)",
       "version": "1.2.5",
       "author": {
         "name": "Giovani Moutinho",

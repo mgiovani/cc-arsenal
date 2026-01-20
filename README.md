@@ -82,10 +82,7 @@ Workflow automation for your development workflow.
 - `jira-cli` - Manage Jira issues, sprints, and epics
 - `skill-creator` - Guide for creating custom skills
 
-**Hooks** - Automatic triggers for enhanced development experience:
-- `diff-pane` - Zero-token tmux pane showing git diff on file edits (requires tmux)
-
-See the `commands/`, `skills/`, and `hooks/` directories for details.
+See the `commands/` and `skills/` directories for details.
 
 ### 📊 Statusline (Optional)
 
