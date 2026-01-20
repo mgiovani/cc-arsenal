@@ -9,6 +9,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Root Plugin Manifest**: Added `.claude-plugin/plugin.json` with complete metadata (name, version, description, author, homepage, repository, license, keywords)
+- **Enhanced Marketplace Manifest**: Updated all plugin variants with consistent author metadata, keywords, and URLs for better discoverability
+- **Plugin Variants Documentation**: Added comprehensive documentation in CLAUDE.md and README.md explaining the plugin variants pattern
+
+### Fixed
+
+- **Plugin Installation Issues**: Fixed multiple installation blockers:
+  - Removed root `.venv/` directory (118MB) causing EACCES permission errors
+  - Removed `scripts/.venv/` directory causing EACCES permission errors
+  - Removed circular symlink `scripts/claude/statusline/statusline` causing ENOENT symlink errors
+  - Deleted unsupported `.claudeignore` file (Claude Code doesn't support this feature)
+- **Development Artifacts Cleanup**: Ensured development files (.venv, build artifacts, symlinks) are properly excluded from plugin distribution
+- **Hooks Configuration**: Moved hooks field from marketplace.json to root plugin.json (correct location per spec)
+
+### Changed
+
+- **Marketplace Metadata**: All 5 plugin variants now include complete author information (name, email, URL) and targeted keywords
+- **Documentation Structure**: Enhanced installation instructions with clear plugin variant comparison tables
+- **Hooks Architecture**: Refactored to consolidated `hooks/hooks.json` for better scalability
+  - Moved from `hooks/diff-pane/hooks.json` to `hooks/hooks.json`
+  - Centralized location supports multiple hook groups
+  - Old location marked as deprecated but kept for reference
+- **Plugin Architecture (2026 Best Practices)**: Aligned with current Claude Code standards
+  - Root `plugin.json` contains only metadata (no component paths)
+  - All component paths specified in `marketplace.json` variants
+  - Complete variant now includes explicit `commands`, `skills`, and `hooks` fields
+  - Enables proper selective installation per variant
+
+### Added (Previous)
+
 - **Git Diff Pane Hook**: Zero-token-cost hook that automatically opens a tmux side pane showing `git diff` whenever files are modified
   - Triggers on `Edit`, `Write`, and `NotebookEdit` tool usage via PostToolUse hook
   - Automatically creates and manages a dedicated tmux pane for git diff output

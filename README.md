@@ -26,42 +26,29 @@ Tools to make Claude Code more useful: track your usage costs, schedule optimal 
 
 ## Installation
 
-**Prerequisites:** Install UV first
-```bash
-curl -LsSf https://astral.sh/uv/install.sh | sh
-```
-
-**Install via plugin:**
-
 Add the marketplace and select which plugins to install:
 ```bash
 /plugin marketplace add mgiovani/cc-arsenal
 ```
 
 This opens the plugin browser where you can select:
-| Plugin | Description |
-|--------|-------------|
-| **cc-arsenal** | Complete toolkit (all commands and skills) |
-| **cc-arsenal-docs** | Documentation commands only (ADR, RFC, diagrams) |
-| **cc-arsenal-git** | Git workflow commands only (commits, PRs) |
-| **cc-arsenal-skills** | Skills only (Jira CLI, skill creator) |
 
-> **Note:** Install either the complete toolkit OR individual plugins - not both, to avoid duplicate commands.
+| Plugin | What's Included | Best For |
+|--------|----------------|----------|
+| **cc-arsenal** | All 13 commands + 2 skills + hooks | Complete workflow automation |
+| **cc-arsenal-dev** | `/dev:implement-feature` | Feature implementation with parallel subagents |
+| **cc-arsenal-docs** | 6 documentation commands | ADR, RFC, diagrams, init, check, update |
+| **cc-arsenal-git** | 2 git workflow commands | Conventional commits, PR creation |
+| **cc-arsenal-skills** | jira-cli + skill-creator | Model-invoked capabilities only |
 
-**Alternative:** Direct install via command:
+> **Plugin Variants Pattern:** All variants install from the same repository but load different subsets of components. Install the complete toolkit OR pick individual variants based on your needs. You can also install multiple variants together (e.g., git + docs).
+
+**Quick install (complete toolkit):**
 ```bash
 /plugin install cc-arsenal@cc-arsenal-marketplace
 ```
 
-After installing, use commands like `/cc-arsenal:docs:adr`, `/cc-arsenal:git:commit`, etc. Skills activate automatically when relevant.
-
-**Or clone and install:**
-```bash
-git clone https://github.com/mgiovani/cc-arsenal.git
-cd cc-arsenal
-make install              # Install all components
-make configure            # Optional: interactively choose specific components
-```
+After installing, use commands like `/cc-arsenal:docs:adr`, `/cc-arsenal:git:commit`, etc. Skills and hooks activate automatically when relevant.
 
 ## Optional Features
 
@@ -80,19 +67,25 @@ make claude-hi-standard   # Quick 9am/2pm/7pm schedule
 
 ## Features
 
-### 🛠️ Commands & Skills
+### 🛠️ Commands, Skills & Hooks
 
 Workflow automation for your development workflow.
 
 **Commands** - Workflow automation via slash commands:
+- **Development**: `/dev:implement-feature` (feature implementation with subagents)
 - **Git**: `/git:commit` (conventional commits), `/git:create-pr` (PR with templates)
 - **Documentation**: `/docs:init`, `/docs:adr`, `/docs:rfc`, `/docs:diagram`, `/docs:check`, `/docs:update`
+- **Claude**: `/claude:create-command`, `/claude:create-rule`
+- **Jira**: `/jira:todo`, `/jira:daily`
 
 **Skills** - Domain-specific tools Claude loads when needed:
 - `jira-cli` - Manage Jira issues, sprints, and epics
 - `skill-creator` - Guide for creating custom skills
 
-See the `commands/` and `skills/` directories for details.
+**Hooks** - Automatic triggers for enhanced development experience:
+- `diff-pane` - Zero-token tmux pane showing git diff on file edits (requires tmux)
+
+See the `commands/`, `skills/`, and `hooks/` directories for details.
 
 ### 📊 Statusline (Optional)
 

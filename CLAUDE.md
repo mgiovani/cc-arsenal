@@ -14,9 +14,9 @@ This is the **Claude Code Arsenal** - a professional collection of quality autom
 
 ## Installation
 
-### Method 1: Plugin System (Recommended for Users)
+### Plugin System (Recommended)
 
-Register this repository as a Claude Code Plugin marketplace:
+This is the primary installation method for all users. Register this repository as a Claude Code Plugin marketplace:
 ```bash
 /plugin marketplace add mgiovani/cc-arsenal
 ```
@@ -48,9 +48,34 @@ For local development, add a local marketplace instead:
 - Easy to enable/disable
 - No system-wide symlinks
 
-### Method 2: Direct Installation (For Development)
+**Plugin Variants Pattern:**
 
-For local development with immediate file updates:
+This repository uses a "plugin variants" architecture where multiple installation options are provided from a single source repository. All variants point to the same codebase (`"source": "./"`) but expose different subsets of components:
+
+| Plugin | Components Loaded | Use Case |
+|--------|------------------|----------|
+| `cc-arsenal` | All commands, skills, hooks | Full toolkit for complete workflow automation |
+| `cc-arsenal-dev` | `/dev:implement-feature` command | Feature implementation with subagents |
+| `cc-arsenal-docs` | `/docs:*` commands (ADR, RFC, diagram, etc.) | Documentation generation only |
+| `cc-arsenal-git` | `/git:*` commands (commit, create-pr) | Git workflow automation |
+| `cc-arsenal-skills` | Skills only (jira-cli, skill-creator) | Skill-based capabilities without commands |
+
+**How It Works:**
+- Single repository with all components in standard locations (`commands/`, `skills/`, `hooks/`)
+- Marketplace manifest (`.claude-plugin/marketplace.json`) defines multiple "plugins"
+- Each plugin entry specifies which components to load via `commands`, `skills`, `hooks` fields
+- Users install only what they need without duplicating code
+
+**When to Use Each Variant:**
+- **Full installation** (`cc-arsenal`): Development teams wanting complete automation
+- **Selective installation** (variant plugins): Minimalist setups, focused workflows, or avoiding namespace pollution
+- **Custom combinations**: Install multiple variants (e.g., `cc-arsenal-git` + `cc-arsenal-docs`)
+
+### Development Installation (Symlink Method)
+
+**Only use this if you're developing cc-arsenal itself.** Regular users should use the plugin system above.
+
+This method creates symlinks to `~/.claude/` for immediate file updates during development:
 
 ```bash
 # Install Python dependencies
