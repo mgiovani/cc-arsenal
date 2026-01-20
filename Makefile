@@ -1,4 +1,4 @@
-.PHONY: help install configure dev test lint format type-check check coverage clean pre-commit-install pre-commit-run dry-run info validate-structure validate-plugins install-statusline uninstall-statusline
+.PHONY: help install configure dev test lint format type-check check coverage clean pre-commit-install pre-commit-run dry-run info validate-structure validate-plugins install-statusline uninstall-statusline test-diff-pane status-diff-pane
 
 # Default commands
 UV := uv
@@ -34,6 +34,7 @@ help: ## Show this help message
 	@echo "$(YELLOW)Optional Features:$(RESET)"
 	@echo "  make -C scripts/claude/statusline help    # Statusline commands"
 	@echo "  make -C scripts/claude-hi help            # Session scheduler commands"
+	@echo "  make -C hooks/diff-pane help              # Git diff pane commands"
 
 # ============================================================================
 # Installation
@@ -113,6 +114,16 @@ install-statusline: validate-structure ## Install statusline to ~/.claude
 uninstall-statusline: ## Remove statusline from ~/.claude
 	@echo "$(BLUE)Uninstalling statusline...$(RESET)"
 	@make -C scripts/claude/statusline uninstall
+
+# ============================================================================
+# Git Diff Pane Hook (Development Commands Only)
+# ============================================================================
+
+test-diff-pane: ## Test git diff pane hook
+	@make -C hooks/diff-pane test
+
+status-diff-pane: ## Show git diff pane hook status
+	@make -C hooks/diff-pane status
 
 # ============================================================================
 # Utilities

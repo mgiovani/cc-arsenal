@@ -1,0 +1,17 @@
+{
+  "$schema": "https://claude.ai/schemas/hooks.json",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/diff-pane/scripts/diff-pane.sh",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}
