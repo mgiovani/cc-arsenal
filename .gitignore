@@ -42,6 +42,12 @@ htmlcov/
 .DS_Store
 Thumbs.db
 
+# Virtual environments (prevents symlink errors during plugin installation)
+.venv/
+venv/
+env/
+ENV/
+
 # Environment
 .env
 .env.*

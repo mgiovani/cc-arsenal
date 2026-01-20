@@ -1,4 +1,5 @@
 {
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "cc-arsenal-marketplace",
   "owner": {
     "name": "Giovani Moutinho",
@@ -13,7 +14,7 @@
       "name": "cc-arsenal",
       "source": "./",
       "strict": false,
-      "description": "Complete toolkit: all commands (dev, docs, git, claude, jira) and skills (jira-cli, skill-creator)",
+      "description": "Complete toolkit: all commands (dev, docs, git, claude, jira), skills (jira-cli, skill-creator), and hooks (diff-pane)",
       "version": "1.2.0",
       "author": {
         "name": "Giovani Moutinho",
@@ -26,7 +27,8 @@
       "skills": [
         "./skills/skill-creator",
         "./skills/jira-cli"
-      ]
+      ],
+      "hooks": "./hooks/diff-pane/hooks.json"
     },
     {
       "name": "cc-arsenal-dev",
