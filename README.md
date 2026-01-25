@@ -35,11 +35,11 @@ This opens the plugin browser where you can select:
 
 | Plugin | What's Included | Best For |
 |--------|----------------|----------|
-| **cc-arsenal** | All 13 commands + 2 skills + hooks | Complete workflow automation |
+| **cc-arsenal** | All 13 commands + 3 skills + hooks | Complete workflow automation |
 | **cc-arsenal-dev** | `/dev:implement-feature` | Feature implementation with parallel subagents |
 | **cc-arsenal-docs** | 6 documentation commands | ADR, RFC, diagrams, init, check, update |
 | **cc-arsenal-git** | 2 git workflow commands | Conventional commits, PR creation |
-| **cc-arsenal-skills** | jira-cli + skill-creator | Model-invoked capabilities only |
+| **cc-arsenal-skills** | agent-browser + jira-cli + skill-creator | Model-invoked capabilities only |
 
 > **Plugin Variants Pattern:** All variants install from the same repository but load different subsets of components. Install the complete toolkit OR pick individual variants based on your needs. You can also install multiple variants together (e.g., git + docs).
 
@@ -79,6 +79,7 @@ Workflow automation for your development workflow.
 - **Jira**: `/jira:todo`, `/jira:daily`
 
 **Skills** - Domain-specific tools Claude loads when needed:
+- `agent-browser` - AI-optimized browser automation (93% less context than Playwright)
 - `jira-cli` - Manage Jira issues, sprints, and epics
 - `skill-creator` - Guide for creating custom skills
 

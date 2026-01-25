@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **agent-browser Skill**: Browser automation skill with 93% less context overhead than Playwright MCP
+  - Core SKILL.md with progressive disclosure design (<1.5k words)
+  - Comprehensive command reference (commands.md, ~500 lines)
+  - Practical workflow patterns (workflows.md, ~350 lines)
+  - Advanced topics and Playwright comparison (advanced.md, ~400 lines)
+  - Uses snapshot + refs system for AI-optimized element selection
+  - Covers navigation, interaction, data extraction, authentication, debugging
+  - Detailed Playwright MCP comparison table showing context overhead differences
 - **Root Plugin Manifest**: Added `.claude-plugin/plugin.json` with complete metadata (name, version, description, author, homepage, repository, license, keywords)
 - **Enhanced Marketplace Manifest**: Updated all plugin variants with consistent author metadata, keywords, and URLs for better discoverability
 - **Plugin Variants Documentation**: Added comprehensive documentation in CLAUDE.md and README.md explaining the plugin variants pattern

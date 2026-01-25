@@ -14,7 +14,7 @@
       "name": "cc-arsenal",
       "source": "./",
       "strict": true,
-      "description": "Complete toolkit: all commands (dev, docs, git, claude, jira) and skills (jira-cli, skill-creator)",
+      "description": "Complete toolkit: all commands (dev, docs, git, claude, jira) and skills (agent-browser, jira-cli, skill-creator)",
       "version": "1.2.5",
       "author": {
         "name": "Giovani Moutinho",
@@ -24,7 +24,7 @@
       "homepage": "https://github.com/mgiovani/cc-arsenal",
       "repository": "https://github.com/mgiovani/cc-arsenal",
       "license": "MIT",
-      "keywords": ["productivity", "git", "documentation", "jira", "workflow", "automation"],
+      "keywords": ["productivity", "git", "documentation", "jira", "workflow", "automation", "browser-automation"],
       "category": "productivity"
     },
     {
@@ -89,7 +89,7 @@
       "name": "cc-arsenal-skills",
       "source": "./",
       "strict": false,
-      "description": "Skills only: Jira CLI integration and skill creation guide",
+      "description": "Skills only: Browser automation (agent-browser), Jira CLI integration, and skill creation guide",
       "version": "1.2.5",
       "author": {
         "name": "Giovani Moutinho",
@@ -99,7 +99,7 @@
       "homepage": "https://github.com/mgiovani/cc-arsenal",
       "repository": "https://github.com/mgiovani/cc-arsenal",
       "license": "MIT",
-      "keywords": ["skills", "jira", "skill-creator", "productivity"],
+      "keywords": ["skills", "jira", "skill-creator", "browser-automation", "agent-browser", "productivity"],
       "category": "productivity",
       "skills": [
         "./skills/"

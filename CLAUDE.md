@@ -58,7 +58,7 @@ This repository uses a "plugin variants" architecture where multiple installatio
 | `cc-arsenal-dev` | `/dev:implement-feature` command | Feature implementation with subagents |
 | `cc-arsenal-docs` | `/docs:*` commands (ADR, RFC, diagram, etc.) | Documentation generation only |
 | `cc-arsenal-git` | `/git:*` commands (commit, create-pr) | Git workflow automation |
-| `cc-arsenal-skills` | Skills only (jira-cli, skill-creator) | Skill-based capabilities without commands |
+| `cc-arsenal-skills` | Skills only (agent-browser, jira-cli, skill-creator) | Skill-based capabilities without commands |
 
 **How It Works:**
 - Single repository with all components in standard locations (`commands/`, `skills/`, `hooks/`)
@@ -70,6 +70,19 @@ This repository uses a "plugin variants" architecture where multiple installatio
 - **Full installation** (`cc-arsenal`): Development teams wanting complete automation
 - **Selective installation** (variant plugins): Minimalist setups, focused workflows, or avoiding namespace pollution
 - **Custom combinations**: Install multiple variants (e.g., `cc-arsenal-git` + `cc-arsenal-docs`)
+
+**Troubleshooting Plugin Updates:**
+
+If plugin updates from a local marketplace don't show new components:
+```bash
+# Clear the plugin cache to force reload
+rm -rf ~/.claude/plugins/cache/cc-arsenal-marketplace/
+
+# Then update the plugin in Claude Code
+/plugin → Update now
+```
+
+This happens when the cache contains an older version and doesn't detect local changes.
 
 ### Development Installation (Symlink Method)
 
@@ -271,8 +284,9 @@ Workflow automation commands organized by category:
   - Todo management synced with Jira issues
   - Daily standup report generation
 
-### Skills (2 total)
+### Skills (3 total)
 Modular, self-contained capabilities that Claude automatically invokes when relevant:
+- **agent-browser**: AI-optimized browser automation with 93% less context overhead than Playwright MCP. Uses snapshot + refs system for web testing, form automation, screenshots, and data extraction.
 - **skill-creator**: Comprehensive guide for creating effective skills with specialized knowledge, workflows, or tool integrations. Includes scripts for initialization, validation, and packaging.
 - **jira-cli**: Interactive command-line tool for Atlassian Jira with comprehensive issue, epic, and sprint management
 - Progressive disclosure design: loads only what's needed to save context
@@ -348,7 +362,13 @@ cc-arsenal/
 │   └── jira/           # Jira integration (2 commands)
 │       ├── todo.md        # Todo management
 │       └── daily.md       # Daily standup reports
-├── skills/         # Model-invoked capabilities (2 skills)
+├── skills/         # Model-invoked capabilities (3 skills)
+│   ├── agent-browser/  # Browser automation skill
+│   │   ├── SKILL.md       # AI-optimized browser automation guide
+│   │   └── references/    # Progressive disclosure documentation
+│   │       ├── commands.md   # Complete command reference
+│   │       ├── workflows.md  # Automation patterns
+│   │       └── advanced.md   # Advanced topics and Playwright comparison
 │   ├── skill-creator/  # Guide and tools for creating skills
 │   │   ├── SKILL.md       # Comprehensive skill creation guide
 │   │   ├── LICENSE.txt    # Apache 2.0 license
