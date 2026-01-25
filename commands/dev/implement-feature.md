@@ -158,14 +158,14 @@ Only proceed when all checks pass:
 
 ### Phase 6: Manual Testing (Optional - For UI Features)
 
-If the feature has a UI component and Playwright MCP is available:
+If the feature has a UI component, use the `agent-browser` skill for browser automation:
 
 1. **Start the Development Server** (using discovered dev command)
-2. **Navigate to the Feature**: Use `mcp__playwright__browser_navigate`
-3. **Visual Verification**: Use `mcp__playwright__browser_snapshot`
-4. **Interactive Testing**: Test main user flows
-5. **Screenshot Evidence**: Use `mcp__playwright__browser_take_screenshot`
-6. **Cleanup**: Close browser with `mcp__playwright__browser_close`
+2. **Navigate to the Feature**: `agent-browser open <url>`
+3. **Visual Verification**: `agent-browser snapshot -i`
+4. **Interactive Testing**: Use refs to interact with elements (`agent-browser click @e1`)
+5. **Screenshot Evidence**: `agent-browser screenshot page.png`
+6. **Cleanup**: `agent-browser close`
 
 **When to Skip Manual Testing:**
 - Backend-only changes (API routes, server actions)
