@@ -9,6 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **/dev:fix-bug Command**: Comprehensive bug fixing command with test-driven debugging workflow
+  - Phase 0: Project Discovery - Auto-discovers test/lint/dev commands from any project type
+  - Phase 1: Bug Analysis & Reproduction - TDD approach requiring failing test verification
+  - Phase 2: Fix Planning - Minimal, focused solution design with user approval for non-trivial fixes
+  - Phase 3: Implementation - Fix with comprehensive test coverage
+  - Phase 4: Quality Verification - All tests pass, no lint/type errors
+  - Phase 5: Conventional Commit - Proper git commit with `fix:` type
+  - Phase 6: Optional browser testing integration with agent-browser skill
+  - Anti-hallucination guidelines enforce evidence-based debugging (file paths, line numbers)
+  - Parallel subagents for bug location, impact analysis, and fix design
+  - Works across Python (pytest), Node.js (npm/bun test), and other ecosystems
+  - Quality gates ensure no regressions introduced
+  - Optional `--branch`, `--interactive`, and `--test-only` flags
+  - Based on /dev:implement-feature pattern with debugging-specific phases
 - **agent-browser Skill**: Browser automation skill with 93% less context overhead than Playwright MCP
   - Core SKILL.md with progressive disclosure design (<1.5k words)
   - Comprehensive command reference (commands.md, ~500 lines)
