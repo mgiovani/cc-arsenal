@@ -314,6 +314,28 @@ Modular, self-contained capabilities that Claude automatically invokes when rele
 
 Skills are **automatically invoked** by Claude when relevant to the task - you don't need to explicitly call them. Claude discovers skills through their `name` and `description` in the SKILL.md frontmatter.
 
+### Local Development Cache Management
+
+**CRITICAL: When developing with a local directory marketplace, you must manually clear the cache after any changes.**
+
+Local directory marketplaces (`"source": "directory"`) do NOT support auto-update or version detection. After creating new commands, skills, or bumping versions:
+
+```bash
+# Clear the plugin cache to force reload
+rm -rf ~/.claude/plugins/cache/cc-arsenal-marketplace/
+
+# Then update the plugin in Claude Code
+/plugin → Update now
+```
+
+**Why this is needed:**
+- Claude Code caches the marketplace.json metadata on first install
+- Changes to local files don't trigger cache invalidation
+- Auto-update and manual "Update now" only work for remote GitHub sources
+- Without clearing cache, new components won't appear
+
+**Alternative:** Use GitHub remote marketplace for automatic updates (recommended for production use).
+
 ### Documentation Guidelines
 
 **IMPORTANT: No README files in component directories**
