@@ -1,7 +1,7 @@
 ---
 description: "Implement a feature using senior staff engineer best practices with parallel subagents"
 argument-hint: "<feature_description>"
-allowed-tools: ["Read", "Write", "Edit", "Bash", "Grep", "Glob", "Task", "TodoWrite", "WebSearch", "WebFetch", "EnterPlanMode", "AskUserQuestion"]
+allowed-tools: ["Read", "Write", "Edit", "Bash", "Grep", "Glob", "Task", "TodoWrite", "WebFetch", "EnterPlanMode", "AskUserQuestion"]
 ---
 
 # Feature Implementation Command
@@ -55,21 +55,33 @@ Project Commands:
 
 ### Phase 1: Research & Discovery
 
-1. **Web Search**: Search for "2025 best practices" related to the feature being implemented
-2. **Context7 Validation**: If using external libraries/frameworks, use the Context7 MCP (if available) to fetch up-to-date documentation and validate usage patterns
-3. **Codebase Exploration**: Use the Explore agent to understand:
-   - Existing patterns and conventions in the codebase
-   - Related code that might be affected
-   - Dependencies and integrations
+Before implementing, research best practices and understand the codebase context by spawning an Explore agent:
 
 ```
 Use Task tool with Explore agent:
-- prompt: "For implementing [FEATURE], explore the codebase to find:
-    1. Similar existing implementations we can reference
-    2. Coding patterns and conventions used
-    3. Test patterns and fixtures used
-    4. File organization and naming conventions
-    Return specific file paths and patterns to follow."
+- prompt: "Research and gather context for implementing [FEATURE]:
+
+    1. **Best Practices Research**: Search the web for 'latest best practices' and 'current year best practices' related to [FEATURE]. Look for:
+       - Current industry standards and patterns
+       - Security considerations
+       - Performance recommendations
+       - Common pitfalls to avoid
+
+    2. **Library Documentation** (if using external libraries/frameworks):
+       - Use Context7 MCP to fetch up-to-date documentation
+       - Validate API usage patterns against current docs
+       - Check for deprecated methods or breaking changes
+
+    3. **Codebase Exploration**:
+       - Find similar existing implementations to reference
+       - Identify coding patterns and conventions used
+       - Locate test patterns and fixtures
+       - Note file organization and naming conventions
+
+    Return a comprehensive summary with:
+    - Relevant best practices (with sources)
+    - Library API patterns to follow (if applicable)
+    - Specific file paths and existing patterns from the codebase"
 - subagent_type: "Explore"
 ```
 

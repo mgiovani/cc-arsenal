@@ -1,7 +1,7 @@
 ---
 description: "Fix bugs using test-driven debugging and verification"
 argument-hint: "[bug_description_or_issue_id] [--branch name] [--interactive]"
-allowed-tools: ["Read", "Write", "Edit", "Bash", "Grep", "Glob", "Task", "TodoWrite", "WebSearch", "WebFetch", "AskUserQuestion"]
+allowed-tools: ["Read", "Write", "Edit", "Bash", "Grep", "Glob", "Task", "TodoWrite", "WebFetch", "AskUserQuestion"]
 ---
 
 # Bug Fix Command
