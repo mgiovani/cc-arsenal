@@ -14,6 +14,38 @@ Claude Code slash commands documentation: https://code.claude.com/docs/en/slash-
 
 ## Your Task
 
+### Phase 0: Gather Up-to-Date Documentation (Use claude-code-guide Agent)
+
+**CRITICAL**: Before creating any command, fetch the latest official documentation:
+
+```
+Use Task tool with claude-code-guide agent:
+- prompt: "I need to create a new Claude Code slash command. Please research and provide:
+
+    1. **COMMAND.md Specification**:
+       - Current frontmatter fields (required vs optional)
+       - Exact format and syntax for each field
+       - Any new fields added recently
+       - Any deprecated fields to avoid
+
+    2. **allowed-tools Best Practices**:
+       - Complete list of available tools
+       - Tool permission patterns (e.g., 'Bash(git *)' syntax)
+       - Security recommendations for tool access
+
+    3. **Command Design Patterns**:
+       - Current recommended structure for command content
+       - Best practices for subagent usage in commands
+       - Anti-hallucination patterns
+
+    4. **Recent Changes**:
+       - Any breaking changes in command format
+       - New features or capabilities
+
+    Return specific, actionable information with examples that match the current API."
+- subagent_type: "claude-code-guide"
+```
+
 ### Phase 1: Understand Requirements (Use Explore Agent)
 
 First, understand what the user wants to create:
@@ -22,6 +54,7 @@ First, understand what the user wants to create:
 Use Task tool with Explore agent:
 - prompt: "The user wants to create a command called [COMMAND_NAME] with description: [DESCRIPTION]. Search the codebase to understand: 1) Similar existing commands we can reference, 2) Relevant code/configs the command might interact with, 3) What tools the command will likely need. Return findings with file paths."
 - subagent_type: "Explore"
+- model: "haiku"
 ```
 
 ### Phase 2: Parse Arguments
@@ -49,20 +82,23 @@ Questions to determine:
 
 ### Phase 4: Analyze Similar Commands (Use SubAgents)
 
-Spawn parallel agents to gather patterns from existing commands:
+Spawn parallel Explore agents with model: haiku to gather patterns from existing commands:
 
 ```
 Agent 1 - Analyze Existing Commands:
 - prompt: "Read the commands in commands/ directory. Extract common patterns: frontmatter structure, phase organization, tool usage. Return best practices observed."
 - subagent_type: "Explore"
+- model: "haiku"
 
-Agent 2 - Identify Required Tools:
-- prompt: "Based on the command description '[DESCRIPTION]', what Claude Code tools would be needed? Consider: Read, Write, Edit, Grep, Glob, Bash, Task, TodoWrite, WebFetch, WebSearch. Return recommended allowed-tools list."
-- subagent_type: "general-purpose"
+Agent 2 - Analyze Tool Requirements:
+- prompt: "Based on command description '[DESCRIPTION]', analyze existing commands that have similar functionality. What tools do they use? Return recommended allowed-tools list based on actual usage patterns."
+- subagent_type: "Explore"
+- model: "haiku"
 
-Agent 3 - Design Anti-Hallucination Strategy:
-- prompt: "For a command that [DESCRIPTION], what are the risks of hallucination? Design verification steps to prevent false claims. Return specific checks."
-- subagent_type: "general-purpose"
+Agent 3 - Analyze Verification Patterns:
+- prompt: "For a command that [DESCRIPTION], search existing commands for anti-hallucination and verification patterns. Return specific verification checks used in similar commands."
+- subagent_type: "Explore"
+- model: "haiku"
 ```
 
 ### Phase 5: Generate Command Structure
