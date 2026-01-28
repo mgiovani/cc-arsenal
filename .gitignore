@@ -1,5 +1,6 @@
 # Private content
 ignored/
+ideas/
 
 # Python artifacts
 __pycache__/
