@@ -9,6 +9,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **/dev:review-security Command**: Comprehensive security review command targeting OWASP Top 10 2025 and bytecode vulnerabilities
+  - Phase 0: Scan Scope Determination - Supports PR numbers, commit SHAs, or entire codebase scanning
+  - Phase 1: Technology Discovery - Auto-discovers tech stack to prioritize relevant vulnerabilities
+  - Phase 2: Progress Tracking - TodoWrite-based tracking for all OWASP categories and bytecode analysis
+  - Phase 3: Parallel Vulnerability Scanning - 6 parallel agents for comprehensive coverage:
+    - Agent 1: Access Control & Authentication (A01, A07)
+    - Agent 2: Configuration & Insecure Design (A02, A06)
+    - Agent 3: Injection & Data Integrity (A05, A08)
+    - Agent 4: Cryptography & Supply Chain (A04, A03)
+    - Agent 5: Bytecode Security (Python .pyc, JS/TS compilation, Java bytecode)
+    - Agent 6: Logging & Exception Handling (A09, A10)
+  - Phase 4: Findings Consolidation - Deduplication, severity prioritization, OWASP categorization
+  - Phase 5: Security Report Generation - Comprehensive markdown report with statistics, fixes, and references
+  - Phase 6: Verification & Quality Check - 10-point quality checklist before report delivery
+  - **Analysis-only approach**: Identifies vulnerabilities, explains findings, suggests multiple fix approaches (no code changes)
+  - Anti-hallucination guidelines enforce evidence-based findings (file paths, line numbers, code snippets)
+  - Covers all OWASP Top 10 2025 categories (including 2 new: Supply Chain, Exception Handling)
+  - Bytecode-specific scanning for Python, JavaScript/TypeScript, and Java compiled code vulnerabilities
+  - Scope options: `--scope [web|api|mobile|backend|frontend]` for focused analysis
+  - References latest CVEs, CWEs, and security best practices (2025 research)
+  - Comprehensive tooling recommendations (SAST, SCA, secret scanning)
 - **/dev:fix-bug Command**: Comprehensive bug fixing command with test-driven debugging workflow
   - Phase 0: Project Discovery - Auto-discovers test/lint/dev commands from any project type
   - Phase 1: Bug Analysis & Reproduction - TDD approach requiring failing test verification
