@@ -11,7 +11,7 @@ readonly CACHE_MANAGER_LOADED=1
 set -euo pipefail
 
 # Cache directory structure
-readonly CACHE_BASE_DIR="$HOME/.claude/claude_dump/cache"
+readonly CACHE_BASE_DIR="$HOME/.claude/cc-arsenal/cache"
 readonly CACHE_L1_DIR="$CACHE_BASE_DIR/l1_process"
 readonly CACHE_L2_DIR="$CACHE_BASE_DIR/l2_session"
 readonly CACHE_L3_DIR="$CACHE_BASE_DIR/l3_persistent"

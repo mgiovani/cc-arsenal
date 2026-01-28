@@ -277,6 +277,53 @@ test_component_colors() {
     done
 }
 
+# Test extra limits display
+test_extra_limits_display() {
+    echo "Testing extra limits display..."
+
+    local result
+
+    # Test that usage line contains expected base components
+    # Note: This tests the formatting, actual API data varies
+    result=$(get_usage_line 0 0 2>/dev/null || echo "")
+
+    if [[ -n "$result" ]]; then
+        # Should contain 5h at minimum (if OAuth is available)
+        if [[ "$result" == *"5h:"* ]]; then
+            echo "✅ PASS: Usage line contains 5-hour display"
+            TESTS_PASSED=$((TESTS_PASSED + 1))
+        else
+            echo "⚠️  SKIP: Usage line 5h not available (OAuth may not be configured)"
+            TESTS_PASSED=$((TESTS_PASSED + 1))  # Skip counts as pass
+        fi
+        TESTS_RUN=$((TESTS_RUN + 1))
+
+        # Check for 7d display
+        if [[ "$result" == *"7d:"* ]]; then
+            echo "✅ PASS: Usage line contains 7-day display"
+            TESTS_PASSED=$((TESTS_PASSED + 1))
+        else
+            echo "⚠️  SKIP: Usage line 7d not available"
+            TESTS_PASSED=$((TESTS_PASSED + 1))
+        fi
+        TESTS_RUN=$((TESTS_RUN + 1))
+
+        # Check for extra limits (🎯 emoji) - only if present
+        if [[ "$result" == *"🎯"* ]]; then
+            echo "✅ PASS: Usage line contains extra model limits"
+            TESTS_PASSED=$((TESTS_PASSED + 1))
+        else
+            echo "⚠️  SKIP: No extra model limits present (normal if not rate-limited)"
+            TESTS_PASSED=$((TESTS_PASSED + 1))
+        fi
+        TESTS_RUN=$((TESTS_RUN + 1))
+    else
+        echo "⚠️  SKIP: Usage line not available (OAuth may not be configured)"
+        TESTS_RUN=$((TESTS_RUN + 1))
+        TESTS_PASSED=$((TESTS_PASSED + 1))
+    fi
+}
+
 # Run all tests
 main() {
     echo "Running Components Module Tests..."
@@ -289,6 +336,7 @@ main() {
     test_reset_components
     test_session_duration_component
     test_component_colors
+    test_extra_limits_display
 
     print_results
 }

@@ -70,6 +70,7 @@ class StatuslineConfigurator:
                 },
             },
             'display': {
+                'display_mode': 'emoji',
                 'separator': ' │ ',
                 'compact_separator': '│',
                 'max_width': 120,
@@ -193,22 +194,40 @@ class StatuslineConfigurator:
         """Configure display settings"""
 
         while True:
-            choice = input('\nEnter choice (1-6): ').strip()
+            choice = input('\nEnter choice (1-7): ').strip()
 
             if choice == '1':
-                self.change_separator()
+                self.toggle_text_mode()
             elif choice == '2':
-                self.change_compact_separator()
+                self.change_separator()
             elif choice == '3':
-                self.change_max_width()
+                self.change_compact_separator()
             elif choice == '4':
-                self.change_compact_threshold()
+                self.change_max_width()
             elif choice == '5':
-                self.change_directory_display_mode()
+                self.change_compact_threshold()
             elif choice == '6':
+                self.change_directory_display_mode()
+            elif choice == '7':
                 break
             else:
                 pass
+
+    def toggle_text_mode(self) -> None:
+        """Cycle through display modes: emoji -> text -> ascii -> emoji"""
+        current = self.config.get('display', {}).get('display_mode', 'emoji')
+
+        # Handle legacy text_mode boolean
+        if 'text_mode' in self.config.get('display', {}):
+            if self.config['display']['text_mode']:
+                current = 'text'
+            del self.config['display']['text_mode']
+
+        # Cycle through modes
+        mode_cycle = {'emoji': 'text', 'text': 'ascii', 'ascii': 'emoji'}
+        new_mode = mode_cycle.get(current, 'emoji')
+
+        self.config.setdefault('display', {})['display_mode'] = new_mode
 
     def change_separator(self) -> None:
         """Change main separator"""
@@ -276,6 +295,15 @@ class StatuslineConfigurator:
 
     def _show_mock_statusline_preview(self) -> None:
         """Show a realistic mock preview of the statusline"""
+        display_mode = self.config.get('display', {}).get('display_mode', 'emoji')
+
+        # Handle legacy text_mode boolean
+        if (
+            'text_mode' in self.config.get('display', {})
+            and self.config['display']['text_mode']
+        ):
+            display_mode = 'text'
+
         components = []
 
         for component in self.config['components']['order']:
@@ -283,27 +311,63 @@ class StatuslineConfigurator:
                 continue
 
             if component == 'model':
-                components.append('🤖 Opus')
+                if display_mode == 'ascii':
+                    components.append('[M] Opus')
+                elif display_mode == 'text':
+                    components.append('Mod: Opus')
+                else:
+                    components.append('🤖 Opus')
             elif component == 'directory':
                 if (
                     self.config['formatting'].get('directory_display_mode', 'short')
                     == 'full'
                 ):
-                    components.append('📁 /Users/user/projects/my-project')
+                    path = '/Users/user/projects/my-project'
                 else:
-                    components.append('📁 ~/projects/my-project')
+                    path = '~/projects/my-project'
+                if display_mode == 'ascii':
+                    components.append(f'[D] {path}')
+                elif display_mode == 'text':
+                    components.append(f'Dir: {path}')
+                else:
+                    components.append(f'📁 {path}')
             elif component == 'git':
-                components.append('🌿 main ●')
+                dirty = '*' if display_mode == 'ascii' else ' ●'
+                if display_mode == 'ascii':
+                    components.append(f'[G] main{dirty}')
+                elif display_mode == 'text':
+                    components.append(f'Git: main{dirty}')
+                else:
+                    components.append(f'🌿 main{dirty}')
             elif component == 'context':
-                components.append('📊 73%')
+                if display_mode == 'ascii':
+                    components.append('[C] 73%')
+                elif display_mode == 'text':
+                    components.append('Ctx: 73%')
+                else:
+                    components.append('📊 73%')
             elif component == 'session_cost':
-                components.append('💰 $0.023')
+                if display_mode in ('ascii', 'text'):
+                    components.append('$0.023')
+                else:
+                    components.append('💰 $0.023')
             elif component == 'lines_changed':
-                components.append('📝 +42/-8')
+                if display_mode == 'ascii':
+                    components.append('+/- +42/-8')
+                elif display_mode == 'text':
+                    components.append('Δ +42/-8')
+                else:
+                    components.append('📝 +42/-8')
             elif component == 'duration_info':
-                components.append('⏱️ 2s (1s)')
+                if display_mode in ('ascii', 'text'):
+                    components.append('2s')
+                else:
+                    components.append('⏱️ 2s')
             elif component == 'reset_countdown':
-                components.append('🔄 3h45m')
+                if display_mode in ('ascii', 'text'):
+                    components.append('3h45m')
+                else:
+                    components.append('🔄 3h45m')
 
         if not components:
             return
@@ -325,21 +389,56 @@ class StatuslineConfigurator:
                     continue
 
                 if component == 'model':
-                    compact_components.append('🤖Opus')
+                    if display_mode == 'ascii':
+                        compact_components.append('[M]Opus')
+                    elif display_mode == 'text':
+                        compact_components.append('Mod:Opus')
+                    else:
+                        compact_components.append('🤖Opus')
                 elif component == 'directory':
-                    compact_components.append('📁my-project')
+                    if display_mode == 'ascii':
+                        compact_components.append('[D]my-project')
+                    elif display_mode == 'text':
+                        compact_components.append('Dir:my-project')
+                    else:
+                        compact_components.append('📁my-project')
                 elif component == 'git':
-                    compact_components.append('🌿main●')
+                    dirty = '*' if display_mode == 'ascii' else '●'
+                    if display_mode == 'ascii':
+                        compact_components.append(f'[G]main{dirty}')
+                    elif display_mode == 'text':
+                        compact_components.append(f'Git:main{dirty}')
+                    else:
+                        compact_components.append(f'🌿main{dirty}')
                 elif component == 'context':
-                    compact_components.append('📊73%')
+                    if display_mode == 'ascii':
+                        compact_components.append('[C]73%')
+                    elif display_mode == 'text':
+                        compact_components.append('Ctx:73%')
+                    else:
+                        compact_components.append('📊73%')
                 elif component == 'session_cost':
-                    compact_components.append('💰$0.023')
+                    if display_mode in ('ascii', 'text'):
+                        compact_components.append('$0.023')
+                    else:
+                        compact_components.append('💰$0.023')
                 elif component == 'lines_changed':
-                    compact_components.append('📝+42-8')
+                    if display_mode == 'ascii':
+                        compact_components.append('+/-+42-8')
+                    elif display_mode == 'text':
+                        compact_components.append('Δ+42-8')
+                    else:
+                        compact_components.append('📝+42-8')
                 elif component == 'duration_info':
-                    compact_components.append('⏱️2s')
+                    if display_mode in ('ascii', 'text'):
+                        compact_components.append('2s')
+                    else:
+                        compact_components.append('⏱️2s')
                 elif component == 'reset_countdown':
-                    compact_components.append('🔄3h45m')
+                    if display_mode in ('ascii', 'text'):
+                        compact_components.append('3h45m')
+                    else:
+                        compact_components.append('🔄3h45m')
 
             compact_separator.join(compact_components)
 

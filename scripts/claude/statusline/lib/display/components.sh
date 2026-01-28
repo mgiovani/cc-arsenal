@@ -18,6 +18,30 @@ source "$STATUSLINE_DISPLAY_DIR/../api/git.sh"
 source "$STATUSLINE_DISPLAY_DIR/../api/oauth.sh"
 source "$STATUSLINE_DISPLAY_DIR/../tracking/session.sh"
 source "$STATUSLINE_DISPLAY_DIR/../core/platform.sh"
+source "$STATUSLINE_DISPLAY_DIR/../config.sh"
+
+# =============================================================================
+# Text Mode Helpers
+# =============================================================================
+
+# Get component prefix based on display mode
+# Usage: get_prefix "🤖" "Mod:" "[M]"
+# In emoji mode: returns "🤖 " (emoji + space)
+# In text mode:  returns "Mod: " (text + space)
+# In ascii mode: returns "[M] " (ascii + space)
+get_prefix() {
+    local emoji="$1"
+    local text="$2"
+    local ascii="${3:-$text}"  # Default to text if no ascii provided
+
+    local mode
+    mode=$(get_display_mode)
+    case "$mode" in
+        text)  echo "${text} " ;;
+        ascii) echo "${ascii} " ;;
+        *)     echo "${emoji} " ;;
+    esac
+}
 
 # =============================================================================
 # Model Component
@@ -27,15 +51,17 @@ source "$STATUSLINE_DISPLAY_DIR/../core/platform.sh"
 # Usage: get_model_component "opus" or "claude-opus-4-5-20251101"
 get_model_component() {
     local model="${1:-}"
+    local prefix
+    prefix=$(get_prefix "🤖" "Mod:" "[M]")
 
     if [[ -z "$model" || "$model" == "null" ]]; then
-        echo "🤖 Unavailable"
+        echo "${prefix}Unavailable"
         return 0
     fi
 
     # If model looks like a display name (e.g., "Opus", "Sonnet"), use it directly
     if [[ "$model" =~ ^[A-Z][a-z]+$ ]]; then
-        echo "🤖 $model"
+        echo "${prefix}$model"
         return 0
     fi
 
@@ -55,7 +81,7 @@ get_model_component() {
         display="${first}${rest}"
     fi
 
-    echo "🤖 $display"
+    echo "${prefix}$display"
 }
 
 # =============================================================================
@@ -67,6 +93,8 @@ get_model_component() {
 get_directory_component() {
     local dir="${1:-$(pwd)}"
     local short_dir="$dir"
+    local prefix
+    prefix=$(get_prefix "📁" "Dir:" "[D]")
 
     # Replace home with ~
     if [[ "$dir" == "$HOME"* ]]; then
@@ -79,7 +107,7 @@ get_directory_component() {
         short_dir=".../$base"
     fi
 
-    echo "📁 $short_dir"
+    echo "${prefix}$short_dir"
 }
 
 # =============================================================================
@@ -103,12 +131,19 @@ get_git_component() {
         return 0  # No git component
     fi
 
+    local prefix
+    prefix=$(get_prefix "🌿" "Git:" "[G]")
+
     local status_symbol=""
     if [[ "$changes" -gt 0 ]] 2>/dev/null; then
-        status_symbol=" ●"
+        if is_ascii_mode; then
+            status_symbol=" *"
+        else
+            status_symbol=" ●"
+        fi
     fi
 
-    echo "🌿 $branch$status_symbol"
+    echo "${prefix}${branch}${status_symbol}"
 }
 
 # =============================================================================
@@ -128,7 +163,9 @@ get_worktree_component() {
 
     # Only show if we're in a worktree
     if [[ -n "$worktree" ]]; then
-        echo "🌳 $worktree"
+        local prefix
+        prefix=$(get_prefix "🌳" "Wt:" "[W]")
+        echo "${prefix}$worktree"
     fi
 }
 
@@ -140,18 +177,20 @@ get_worktree_component() {
 # Usage: get_context_component "$used_percentage"
 get_context_component() {
     local used_percentage="${1:-}"
+    local prefix
+    prefix=$(get_prefix "📊" "Ctx:" "[C]")
 
     # Use percentage from Claude Code
     if [[ -n "$used_percentage" && "$used_percentage" != "null" ]]; then
         # Round to integer for display (add 0.5 and truncate using awk)
         local percent
         percent=$(awk -v n="$used_percentage" 'BEGIN { printf "%d", n + 0.5 }' 2>/dev/null || echo "${used_percentage%.*}")
-        echo "📊 ${percent}%"
+        echo "${prefix}${percent}%"
         return 0
     fi
 
     # Fallback: show 0% for new sessions
-    echo "📊 0%"
+    echo "${prefix}0%"
 }
 
 # =============================================================================
@@ -163,15 +202,24 @@ get_context_component() {
 get_cost_component() {
     local cost="${1:-}"
 
+    # Cost already has $ prefix, so no text/ascii label needed
+    local prefix
+    local mode
+    mode=$(get_display_mode)
+    case "$mode" in
+        text|ascii) prefix="" ;;  # No prefix, $ is self-explanatory
+        *)          prefix="💰 " ;;
+    esac
+
     # For new sessions with no cost, show $0.00
     if [[ -z "$cost" || "$cost" == "0" || "$cost" == "null" ]]; then
-        echo "💰 \$0.00"
+        echo "${prefix}\$0.00"
         return 0
     fi
 
     local formatted
     formatted=$(printf "%.3f" "$cost" 2>/dev/null || echo "$cost")
-    echo "💰 \$${formatted}"
+    echo "${prefix}\$${formatted}"
 }
 
 # =============================================================================
@@ -188,6 +236,14 @@ get_lines_component() {
         return 0  # No component
     fi
 
+    # Use delta symbol (Δ) for text mode, +/- for ascii mode
+    local prefix
+    if is_ascii_mode; then
+        prefix="+/- "
+    else
+        prefix=$(get_prefix "📝" "Δ" "+/-")
+    fi
+
     local display=""
     if [[ "$added" -gt 0 ]] 2>/dev/null; then
         display="+$added"
@@ -201,7 +257,7 @@ get_lines_component() {
     fi
 
     if [[ -n "$display" ]]; then
-        echo "📝 $display"
+        echo "${prefix}$display"
     fi
 }
 
@@ -245,7 +301,13 @@ get_session_component() {
         duration_display="${seconds}s"
     fi
 
-    echo "⏱️ $duration_display"
+    # Duration is self-explanatory, no prefix needed in text/ascii mode
+    local mode
+    mode=$(get_display_mode)
+    case "$mode" in
+        text|ascii) echo "$duration_display" ;;
+        *)          echo "⏱️ $duration_display" ;;
+    esac
 }
 
 # =============================================================================
@@ -253,12 +315,19 @@ get_session_component() {
 # =============================================================================
 
 # Build the second line with detailed usage info
-# Format: 🔄 5h: 16% → 23:00 │ 📅 7d: 39% → Dec 15
+# Format (emoji): 🔄 5h: 16% → 23:00 │ 📅 7d: 39% → Dec 15
+# Format (text):  5h: 16% → 23:00 │ 7d: 39% → Dec 15
 # Usage: get_usage_line "$input_tokens" "$output_tokens"
 get_usage_line() {
     local input_tokens="${1:-0}" output_tokens="${2:-0}"
     local current_time
     current_time=$(get_current_epoch)
+
+    # Determine display mode
+    local display_mode
+    display_mode=$(get_display_mode)
+    local use_emoji=true
+    [[ "$display_mode" == "text" || "$display_mode" == "ascii" ]] && use_emoji=false
 
     # Try OAuth API first (most accurate)
     local usage_json
@@ -301,11 +370,61 @@ get_usage_line() {
                 seven_day_display=$(epoch_to_time_display "$seven_day_rounded" "+%b %d %H:%M")
             fi
 
-            # Build the usage line
-            local usage_line="🔄 5h: ${five_hour_util}% → ${five_hour_display}"
+            # Build the usage line based on display mode
+            local usage_line
+            if $use_emoji; then
+                usage_line="🔄 5h: ${five_hour_util}% → ${five_hour_display}"
+            else
+                usage_line="5h: ${five_hour_util}% → ${five_hour_display}"
+            fi
 
             if [[ -n "$seven_day_util" && -n "$seven_day_display" ]]; then
-                usage_line="${usage_line} │ 📅 7d: ${seven_day_util}% → ${seven_day_display}"
+                if $use_emoji; then
+                    usage_line="${usage_line} │ 📅 7d: ${seven_day_util}% → ${seven_day_display}"
+                else
+                    usage_line="${usage_line} │ 7d: ${seven_day_util}% → ${seven_day_display}"
+                fi
+            fi
+
+            # Add extra model-specific limits (Sonnet, Opus, etc.)
+            local extra_limits
+            extra_limits=$(get_oauth_extra_limits 2>/dev/null)
+
+            if [[ -n "$extra_limits" ]]; then
+                while IFS='|' read -r limit_name limit_util limit_reset; do
+                    [[ -z "$limit_name" ]] && continue
+
+                    # Parse reset time if available
+                    local limit_display=""
+                    if [[ -n "$limit_reset" && "$limit_reset" != "null" ]]; then
+                        local limit_clean_ts limit_epoch
+                        limit_clean_ts="${limit_reset%.*}"
+                        limit_clean_ts="${limit_clean_ts%+*}"
+                        limit_epoch=$(parse_iso_timestamp "$limit_clean_ts")
+
+                        if [[ "$limit_epoch" -gt 0 ]]; then
+                            # Round up to next full hour
+                            local limit_rounded
+                            limit_rounded=$(( (limit_epoch + 3599) / 3600 * 3600 ))
+                            limit_display=$(epoch_to_time_display "$limit_rounded" "+%b %d")
+                        fi
+                    fi
+
+                    # Append to usage line based on display mode
+                    if [[ -n "$limit_display" ]]; then
+                        if $use_emoji; then
+                            usage_line="${usage_line} │ 🎯 ${limit_name}: ${limit_util}% → ${limit_display}"
+                        else
+                            usage_line="${usage_line} │ ${limit_name}: ${limit_util}% → ${limit_display}"
+                        fi
+                    else
+                        if $use_emoji; then
+                            usage_line="${usage_line} │ 🎯 ${limit_name}: ${limit_util}%"
+                        else
+                            usage_line="${usage_line} │ ${limit_name}: ${limit_util}%"
+                        fi
+                    fi
+                done <<< "$extra_limits"
             fi
 
             echo "$usage_line"
@@ -318,7 +437,11 @@ get_usage_line() {
     window_start=$(get_window_start "$input_tokens" "$output_tokens")
 
     if [[ "$window_start" == "0" ]]; then
-        echo "🔄 5h: N/A"
+        if $use_emoji; then
+            echo "🔄 5h: N/A"
+        else
+            echo "5h: N/A"
+        fi
         return 0
     fi
 
@@ -332,7 +455,11 @@ get_usage_line() {
     seconds_until_reset=$((reset_timestamp - current_time))
 
     if [[ $seconds_until_reset -le 0 ]]; then
-        echo "🔄 5h: Reset"
+        if $use_emoji; then
+            echo "🔄 5h: Reset"
+        else
+            echo "5h: Reset"
+        fi
         return 0
     fi
 
@@ -340,5 +467,9 @@ get_usage_line() {
     local reset_time_display
     reset_time_display=$(epoch_to_time_display "$reset_timestamp" "+%H:%M")
 
-    echo "🔄 5h: ??% → ${reset_time_display} (estimated)"
+    if $use_emoji; then
+        echo "🔄 5h: ??% → ${reset_time_display} (estimated)"
+    else
+        echo "5h: ??% → ${reset_time_display} (estimated)"
+    fi
 }

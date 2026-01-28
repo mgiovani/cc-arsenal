@@ -7,7 +7,7 @@ if [[ -n "${CONFIG_LOADED:-}" ]]; then
 fi
 readonly CONFIG_LOADED=1
 
-readonly CONFIG_DIR="$HOME/.claude/claude_dump"
+readonly CONFIG_DIR="$HOME/.claude/cc-arsenal"
 readonly CONFIG_FILE="$CONFIG_DIR/statusline_config.json"
 
 # Default configuration
@@ -22,7 +22,6 @@ get_default_config() {
       "context",
       "session_cost",
       "daily_cost",
-      "lines_changed",
       "duration_info",
       "reset_countdown"
     ],
@@ -34,11 +33,11 @@ get_default_config() {
       "session_cost": true,
       "daily_cost": true,
       "reset_countdown": true,
-      "duration_info": false,
-      "lines_changed": false
+      "duration_info": false
     }
   },
   "display": {
+    "display_mode": "emoji",
     "separator": " │ ",
     "compact_separator": "│",
     "max_width": 120,
@@ -97,4 +96,61 @@ get_config_bool() {
     else
         echo "$default"
     fi
+}
+
+# Get display mode (emoji, text, or ascii)
+# Checks environment override first, then config
+# Usage: mode=$(get_display_mode)
+get_display_mode() {
+    # Environment variable override takes precedence
+    if [[ -n "${STATUSLINE_DISPLAY_MODE:-}" ]]; then
+        echo "$STATUSLINE_DISPLAY_MODE"
+        return
+    fi
+
+    # Legacy environment variable support
+    if [[ -n "${STATUSLINE_TEXT_MODE:-}" ]]; then
+        if [[ "$STATUSLINE_TEXT_MODE" == "true" || "$STATUSLINE_TEXT_MODE" == "1" ]]; then
+            echo "text"
+            return
+        fi
+    fi
+
+    # Check config setting (new display_mode or legacy text_mode)
+    local display_mode
+    display_mode=$(get_config ".display.display_mode" "")
+
+    if [[ -n "$display_mode" && "$display_mode" != "null" ]]; then
+        echo "$display_mode"
+        return
+    fi
+
+    # Legacy fallback: check text_mode boolean
+    local text_mode
+    text_mode=$(get_config_bool ".display.text_mode" "false")
+    if [[ "$text_mode" == "true" ]]; then
+        echo "text"
+    else
+        echo "emoji"
+    fi
+}
+
+# Check if text mode is enabled (via config or environment override)
+# Usage: if is_text_mode; then ... fi
+is_text_mode() {
+    [[ "$(get_display_mode)" == "text" ]]
+}
+
+# Check if ascii mode is enabled
+# Usage: if is_ascii_mode; then ... fi
+is_ascii_mode() {
+    [[ "$(get_display_mode)" == "ascii" ]]
+}
+
+# Check if emoji mode is enabled (default)
+# Usage: if is_emoji_mode; then ... fi
+is_emoji_mode() {
+    local mode
+    mode=$(get_display_mode)
+    [[ "$mode" == "emoji" || -z "$mode" ]]
 }

@@ -14,6 +14,7 @@ readonly STATUSLINE_BUILDER_LOADED=1
 STATUSLINE_DISPLAY_DIR="$(dirname "${BASH_SOURCE[0]}")"
 source "$STATUSLINE_DISPLAY_DIR/components.sh"
 source "$STATUSLINE_DISPLAY_DIR/../core/json.sh"
+source "$STATUSLINE_DISPLAY_DIR/../config.sh"
 
 # =============================================================================
 # Configuration
@@ -177,5 +178,10 @@ build_statusline() {
 build_minimal_statusline() {
     local branch
     branch=$(git symbolic-ref --short HEAD 2>/dev/null || echo "main")
-    echo "🤖 Claude $STATUSLINE_SEPARATOR 📁 $(basename "$PWD") $STATUSLINE_SEPARATOR 🌿 $branch $STATUSLINE_SEPARATOR 🔄 5h"
+
+    if is_text_mode; then
+        echo "Mod: Claude $STATUSLINE_SEPARATOR Dir: $(basename "$PWD") $STATUSLINE_SEPARATOR Git: $branch $STATUSLINE_SEPARATOR 5h"
+    else
+        echo "🤖 Claude $STATUSLINE_SEPARATOR 📁 $(basename "$PWD") $STATUSLINE_SEPARATOR 🌿 $branch $STATUSLINE_SEPARATOR 🔄 5h"
+    fi
 }

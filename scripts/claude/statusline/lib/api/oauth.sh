@@ -275,3 +275,35 @@ get_oauth_cache_age() {
         echo "-1"
     fi
 }
+
+# =============================================================================
+# Extra Model-Specific Limits
+# =============================================================================
+
+# Get all extra model-specific limits (non-null seven_day_* fields)
+# Returns: pipe-separated list of "name|utilization|resets_at" entries, one per line
+# Supported fields: seven_day_sonnet, seven_day_opus, seven_day_oauth_apps, seven_day_cowork
+get_oauth_extra_limits() {
+    local usage_json
+    usage_json=$(fetch_oauth_usage 2>/dev/null)
+
+    if [[ -z "$usage_json" ]] || ! check_jq; then
+        return 1
+    fi
+
+    # Extract all seven_day_* fields (excluding base seven_day) that have non-null utilization
+    # Output format: name|utilization|resets_at per line
+    echo "$usage_json" | jq -r '
+        to_entries
+        | map(select(.key | startswith("seven_day_")))
+        | map(select(.value != null and .value.utilization != null))
+        | map(
+            (.key | sub("seven_day_"; "") | split("_") | map((.[0:1] | ascii_upcase) + .[1:]) | join(" "))
+            + "|" +
+            (.value.utilization | tostring)
+            + "|" +
+            (.value.resets_at // "")
+          )
+        | .[]
+    ' 2>/dev/null
+}
