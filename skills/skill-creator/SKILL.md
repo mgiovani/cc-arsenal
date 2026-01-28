@@ -88,6 +88,39 @@ Skills use a three-level loading system to manage context efficiently:
 
 To create a skill, follow the "Skill Creation Process" in order, skipping steps only if there is a clear reason why they are not applicable.
 
+### Step 0: Gather Up-to-Date Documentation (Use claude-code-guide Agent)
+
+**CRITICAL**: Before creating or updating any skill, fetch the latest official documentation:
+
+```
+Use Task tool with claude-code-guide agent:
+- prompt: "I need to create/update a Claude Code skill. Please research and provide:
+
+    1. **SKILL.md Frontmatter Specification**:
+       - Complete list of frontmatter fields (name, description, etc.)
+       - Required vs optional fields
+       - New fields like 'context', 'agent', 'user-invocable'
+       - String substitution variables ($ARGUMENTS, $0, $1, etc.)
+
+    2. **Skill Architecture**:
+       - Current directory structure (SKILL.md, scripts/, references/, assets/)
+       - Progressive disclosure design principles
+       - When to use each resource type
+
+    3. **Advanced Features**:
+       - 'context: fork' for running in subagents
+       - Dynamic context injection (!`command` syntax)
+       - Agent Skills standard compliance
+
+    4. **Recent Changes**:
+       - New capabilities or fields
+       - Deprecated patterns to avoid
+       - Best practices updates
+
+    Return specific, actionable information with examples."
+- subagent_type: "claude-code-guide"
+```
+
 ### Step 1: Understanding the Skill with Concrete Examples
 
 Skip this step only when the skill's usage patterns are already clearly understood. It remains valuable even when working with an existing skill.
