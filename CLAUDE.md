@@ -9,7 +9,7 @@ This is the **Claude Code Arsenal** - a professional collection of quality autom
 ### Core Components
 
 - **Commands** (`commands/`): Quality automation and workflow commands (13 commands total)
-- **Skills** (`skills/`): Model-invoked capabilities that Claude automatically loads when relevant (2 skills)
+- **Skills** (`skills/`): Model-invoked capabilities that Claude automatically loads when relevant (4 skills)
 - **Scripts** (`scripts/`): Professional Python utilities for installation, configuration, and code generation
 
 ## Installation
@@ -29,7 +29,7 @@ Then, to install a specific plugin set:
    - **cc-arsenal-dev** - Development commands only (feature implementation)
    - **cc-arsenal-docs** - Documentation commands only
    - **cc-arsenal-git** - Git workflow commands only
-   - **cc-arsenal-skills** - Skills only (Jira CLI, skill creator)
+   - **cc-arsenal-skills** - Skills only (Jira CLI, skill creator, find-skills)
 4. Select **Install now**
 
 Alternatively, directly install via:
@@ -58,7 +58,7 @@ This repository uses a "plugin variants" architecture where multiple installatio
 | `cc-arsenal-dev` | `/dev:implement-feature` command | Feature implementation with subagents |
 | `cc-arsenal-docs` | `/docs:*` commands (ADR, RFC, diagram, etc.) | Documentation generation only |
 | `cc-arsenal-git` | `/git:*` commands (commit, create-pr) | Git workflow automation |
-| `cc-arsenal-skills` | Skills only (agent-browser, jira-cli, skill-creator) | Skill-based capabilities without commands |
+| `cc-arsenal-skills` | Skills only (agent-browser, jira-cli, skill-creator, find-skills) | Skill-based capabilities without commands |
 
 **How It Works:**
 - Single repository with all components in standard locations (`commands/`, `skills/`, `hooks/`)
@@ -284,9 +284,10 @@ Workflow automation commands organized by category:
   - Todo management synced with Jira issues
   - Daily standup report generation
 
-### Skills (3 total)
+### Skills (4 total)
 Modular, self-contained capabilities that Claude automatically invokes when relevant:
 - **agent-browser**: AI-optimized browser automation with 93% less context overhead than Playwright MCP. Uses snapshot + refs system for web testing, form automation, screenshots, and data extraction.
+- **find-skills**: Discover and install third-party agent skills from the open skills ecosystem (skills.sh). Search, install, update, and manage community skills via `npx skills`.
 - **skill-creator**: Comprehensive guide for creating effective skills with specialized knowledge, workflows, or tool integrations. Includes scripts for initialization, validation, and packaging.
 - **jira-cli**: Interactive command-line tool for Atlassian Jira with comprehensive issue, epic, and sprint management
 - Progressive disclosure design: loads only what's needed to save context
@@ -302,7 +303,7 @@ Modular, self-contained capabilities that Claude automatically invokes when rele
   - Claude decides when to activate based on context
   - Best for: Domain expertise, tool integrations, specialized workflows
   - Example: skill-creator activates when you want to create a new skill
-  - Available skills: `skill-creator`, `jira-cli`
+  - Available skills: `agent-browser`, `find-skills`, `jira-cli`, `skill-creator`
 
 - **Commands** - Explicit user-invoked operations
   - Slash commands (e.g., `/git:commit`, `/docs:adr`)
@@ -384,13 +385,18 @@ cc-arsenal/
 │   └── jira/           # Jira integration (2 commands)
 │       ├── todo.md        # Todo management
 │       └── daily.md       # Daily standup reports
-├── skills/         # Model-invoked capabilities (3 skills)
+├── skills/         # Model-invoked capabilities (4 skills)
 │   ├── agent-browser/  # Browser automation skill
 │   │   ├── SKILL.md       # AI-optimized browser automation guide
 │   │   └── references/    # Progressive disclosure documentation
 │   │       ├── commands.md   # Complete command reference
 │   │       ├── workflows.md  # Automation patterns
 │   │       └── advanced.md   # Advanced topics and Playwright comparison
+│   ├── find-skills/    # Third-party skill discovery
+│   │   ├── SKILL.md       # skills.sh ecosystem guide
+│   │   └── references/    # Detailed documentation
+│   │       ├── commands.md   # Complete CLI reference
+│   │       └── workflows.md  # Discovery and installation patterns
 │   ├── skill-creator/  # Guide and tools for creating skills
 │   │   ├── SKILL.md       # Comprehensive skill creation guide
 │   │   ├── LICENSE.txt    # Apache 2.0 license

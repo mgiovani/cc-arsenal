@@ -7,15 +7,15 @@
   },
   "metadata": {
     "description": "Claude Code Arsenal - Professional commands and skills for development workflows",
-    "version": "1.3.0"
+    "version": "1.4.0"
   },
   "plugins": [
     {
       "name": "cc-arsenal",
       "source": "./",
       "strict": true,
-      "description": "Complete toolkit: all commands (dev, docs, git, claude, jira) and skills (agent-browser, jira-cli, skill-creator)",
-      "version": "1.3.0",
+      "description": "Complete toolkit: all commands (dev, docs, git, claude, jira) and skills (agent-browser, jira-cli, skill-creator, find-skills)",
+      "version": "1.4.0",
       "author": {
         "name": "Giovani Moutinho",
         "email": "e@giovani.dev",
@@ -32,7 +32,7 @@
       "source": "./",
       "strict": false,
       "description": "Development commands: feature implementation and bug fixing with test-driven debugging",
-      "version": "1.3.0",
+      "version": "1.4.0",
       "author": {
         "name": "Giovani Moutinho",
         "email": "e@giovani.dev",
@@ -50,7 +50,7 @@
       "source": "./",
       "strict": false,
       "description": "Documentation commands only: ADR, RFC, diagrams, init, check, and update",
-      "version": "1.3.0",
+      "version": "1.4.0",
       "author": {
         "name": "Giovani Moutinho",
         "email": "e@giovani.dev",
@@ -70,7 +70,7 @@
       "source": "./",
       "strict": false,
       "description": "Git workflow commands: conventional commits and PR creation",
-      "version": "1.3.0",
+      "version": "1.4.0",
       "author": {
         "name": "Giovani Moutinho",
         "email": "e@giovani.dev",
@@ -89,8 +89,8 @@
       "name": "cc-arsenal-skills",
       "source": "./",
       "strict": false,
-      "description": "Skills only: Browser automation (agent-browser), Jira CLI integration, and skill creation guide",
-      "version": "1.3.0",
+      "description": "Skills only: Browser automation (agent-browser), Jira CLI integration, skill creation guide, and third-party skill discovery (find-skills)",
+      "version": "1.4.0",
       "author": {
         "name": "Giovani Moutinho",
         "email": "e@giovani.dev",

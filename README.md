@@ -26,6 +26,8 @@ Tools to make Claude Code more useful: track your usage costs, schedule optimal 
 
 ## Installation
 
+### Option 1: Claude Code Plugin (recommended)
+
 Add the marketplace and select which plugins to install:
 ```bash
 /plugin marketplace add mgiovani/cc-arsenal
@@ -35,11 +37,11 @@ This opens the plugin browser where you can select:
 
 | Plugin | What's Included | Best For |
 |--------|----------------|----------|
-| **cc-arsenal** | All 13 commands + 3 skills + hooks | Complete workflow automation |
+| **cc-arsenal** | All 13 commands + 4 skills + hooks | Complete workflow automation |
 | **cc-arsenal-dev** | `/dev:implement-feature` | Feature implementation with parallel subagents |
 | **cc-arsenal-docs** | 6 documentation commands | ADR, RFC, diagrams, init, check, update |
 | **cc-arsenal-git** | 2 git workflow commands | Conventional commits, PR creation |
-| **cc-arsenal-skills** | agent-browser + jira-cli + skill-creator | Model-invoked capabilities only |
+| **cc-arsenal-skills** | agent-browser + jira-cli + skill-creator + find-skills | Model-invoked capabilities only |
 
 > **Plugin Variants Pattern:** All variants install from the same repository but load different subsets of components. Install the complete toolkit OR pick individual variants based on your needs. You can also install multiple variants together (e.g., git + docs).
 
@@ -49,6 +51,26 @@ This opens the plugin browser where you can select:
 ```
 
 After installing, use commands like `/cc-arsenal:docs:adr`, `/cc-arsenal:git:commit`, etc. Skills and hooks activate automatically when relevant.
+
+### Option 2: Agent Skills (`npx skills`)
+
+Install skills using the open [Agent Skills](https://skills.sh) ecosystem. Works with Claude Code, Cursor, Codex, and 30+ other AI agents:
+
+```bash
+# Install all skills
+npx skills add mgiovani/cc-arsenal
+
+# List available skills first
+npx skills add mgiovani/cc-arsenal --list
+
+# Install a specific skill
+npx skills add mgiovani/cc-arsenal --skill agent-browser
+
+# Install globally (available across all projects)
+npx skills add mgiovani/cc-arsenal -g
+```
+
+> **Note:** `npx skills` installs **skills only** (agent-browser, find-skills, jira-cli, skill-creator). For commands and hooks, use the Claude Code Plugin method above.
 
 ## Optional Features
 
@@ -80,6 +102,7 @@ Workflow automation for your development workflow.
 
 **Skills** - Domain-specific tools Claude loads when needed:
 - `agent-browser` - AI-optimized browser automation (93% less context than Playwright)
+- `find-skills` - Discover and install third-party skills from [skills.sh](https://skills.sh)
 - `jira-cli` - Manage Jira issues, sprints, and epics
 - `skill-creator` - Guide for creating custom skills
 

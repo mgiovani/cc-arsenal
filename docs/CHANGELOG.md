@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **find-skills Skill**: Discover and install third-party agent skills from the open skills.sh ecosystem
+  - SKILL.md with quick start, essential commands, installation scopes, and source formats
+  - `references/commands.md` - Complete `npx skills` CLI reference (find, add, list, remove, check, update, init)
+  - `references/workflows.md` - Discovery patterns, security review checklist, and cc-arsenal integration guidance
+  - Lists built-in cc-arsenal skills to avoid redundant installs
+  - Progressive disclosure design following skill-creator guidelines
+- **Agent Skills Installation Method**: Added `npx skills add mgiovani/cc-arsenal` as a second installation option in README
+  - Works with Claude Code, Cursor, Codex, and 30+ other AI agents via the open Agent Skills ecosystem
+  - Installs skills only (commands/hooks require the Claude Code Plugin method)
 - **/dev:review-security Command**: Comprehensive security review command targeting OWASP Top 10 2025 and bytecode vulnerabilities
   - Phase 0: Scan Scope Determination - Supports PR numbers, commit SHAs, or entire codebase scanning
   - Phase 1: Technology Discovery - Auto-discovers tech stack to prioritize relevant vulnerabilities
