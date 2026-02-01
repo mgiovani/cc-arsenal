@@ -5,6 +5,52 @@ All notable changes to cc-arsenal will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2026-02-01
+
+### Changed
+
+- **BREAKING: Commands migrated to Skills**: All 16 commands migrated to the skills format (Claude Code v2.1.3+)
+  - Commands in `commands/` are kept for backward compatibility but skills take precedence
+  - All component references now use `skills` field instead of `commands` in marketplace.json
+  - Plugin variants updated to reference skill directories instead of command directories
+  - Version bumped to 2.0.0 to signal the architectural change
+
+- **New skills created from commands** (16 total):
+  - `implement-feature` - from commands/dev/implement-feature.md
+  - `fix-bug` - from commands/dev/fix-bug.md (with references/examples.md)
+  - `review-security` - from commands/dev/review-security.md (with references/agent-prompts.md, report-template.md)
+  - `inject-nextjs-docs` - from commands/dev/inject-nextjs-docs.md
+  - `docs-adr` - from commands/docs/adr.md
+  - `docs-check` - from commands/docs/check.md (with references/scoring-criteria.md, verification-patterns.md)
+  - `docs-diagram` - from commands/docs/diagram.md (with references/detection-patterns.md, mermaid-patterns.md)
+  - `docs-init` - from commands/docs/init.md
+  - `docs-rfc` - from commands/docs/rfc.md
+  - `docs-update` - from commands/docs/update.md (with references/change-detection.md, update-strategies.md)
+  - `git-commit` - from commands/git/commit.md
+  - `git-create-pr` - from commands/git/create-pr.md
+  - `jira-daily` - from commands/jira/daily.md (with references/output-formats.md)
+  - `jira-todo` - from commands/jira/todo.md (with references/output-formats.md)
+  - `create-command` - from commands/claude/create-command.md (with references/frontmatter-guide.md, design-patterns.md)
+  - `create-rule` - from commands/claude/create-rule.md (with references/memory-hierarchy.md, rule-examples.md)
+
+- **All migrated skills use `disable-model-invocation: true`** since they are user-triggered workflows
+- **Progressive disclosure applied**: Large commands split into SKILL.md + references/ for on-demand loading
+- **Skills use standard frontmatter**: name, description, disable-model-invocation, argument-hint, allowed-tools
+
+- **Plugin manifests updated to v2.0.0**:
+  - `plugin.json`: Removed `commands` field, kept `skills` pointing to `./skills/`
+  - `marketplace.json`: All variant plugins now use `skills` field instead of `commands`
+  - `cc-arsenal-dev`: Points to 4 specific skill directories
+  - `cc-arsenal-docs`: Points to 6 specific skill directories
+  - `cc-arsenal-git`: Points to 2 specific skill directories
+  - `cc-arsenal-skills`: Points to 4 specific specialty skill directories (was loading all skills from directory)
+  - `cc-arsenal`: Full toolkit, loads all 20 skills
+
+- **Documentation updated**: CLAUDE.md, README.md reflect skills-first architecture
+  - Unified "Available Skills (20 total)" section replaces separate Commands/Skills sections
+  - Plugin variants table updated with skill names instead of command paths
+  - File organization tree shows skills/ as primary, commands/ as legacy
+
 ## [Unreleased]
 
 ### Added
@@ -296,7 +342,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Version History
 
-[Unreleased]: https://github.com/mgiovani/cc-arsenal/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/mgiovani/cc-arsenal/compare/v2.0.0...HEAD
+[2.0.0]: https://github.com/mgiovani/cc-arsenal/compare/v1.2.0...v2.0.0
 [1.2.0]: https://github.com/mgiovani/cc-arsenal/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/mgiovani/cc-arsenal/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/mgiovani/cc-arsenal/releases/tag/v1.0.0

@@ -4,13 +4,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Architecture
 
-This is the **Claude Code Arsenal** - a professional collection of quality automation commands and specialized skills. The codebase is organized using a **symlink architecture** for clean installation and modular configuration.
+This is the **Claude Code Arsenal** - a professional collection of skills for development workflow automation. All components are now **skills** (migrated from the legacy commands format in v2.0.0).
 
 ### Core Components
 
-- **Commands** (`commands/`): Quality automation and workflow commands (13 commands total)
-- **Skills** (`skills/`): Model-invoked capabilities that Claude automatically loads when relevant (4 skills)
+- **Skills** (`skills/`): 20 skills covering development, documentation, git, jira, claude utilities, browser automation, and skill discovery
 - **Scripts** (`scripts/`): Professional Python utilities for installation, configuration, and code generation
+- **Commands** (`commands/`): Legacy commands kept for backward compatibility (skills take precedence)
 
 ## Installation
 
@@ -25,11 +25,11 @@ Then, to install a specific plugin set:
 1. Select **Browse and install plugins**
 2. Select **cc-arsenal-marketplace**
 3. Select one of:
-   - **cc-arsenal** - Complete toolkit (all commands and skills)
-   - **cc-arsenal-dev** - Development commands only (feature implementation)
-   - **cc-arsenal-docs** - Documentation commands only
-   - **cc-arsenal-git** - Git workflow commands only
-   - **cc-arsenal-skills** - Skills only (Jira CLI, skill creator, find-skills)
+   - **cc-arsenal** - Complete toolkit (all 20 skills)
+   - **cc-arsenal-dev** - Development skills only (implement-feature, fix-bug, review-security, inject-nextjs-docs)
+   - **cc-arsenal-docs** - Documentation skills only (ADR, RFC, diagrams, init, check, update)
+   - **cc-arsenal-git** - Git workflow skills only (commit, create-pr)
+   - **cc-arsenal-skills** - Specialty skills only (agent-browser, jira-cli, skill-creator, find-skills)
 4. Select **Install now**
 
 Alternatively, directly install via:
@@ -50,20 +50,20 @@ For local development, add a local marketplace instead:
 
 **Plugin Variants Pattern:**
 
-This repository uses a "plugin variants" architecture where multiple installation options are provided from a single source repository. All variants point to the same codebase (`"source": "./"`) but expose different subsets of components:
+This repository uses a "plugin variants" architecture where multiple installation options are provided from a single source repository. All variants point to the same codebase (`"source": "./"`) but expose different subsets of skills:
 
-| Plugin | Components Loaded | Use Case |
-|--------|------------------|----------|
-| `cc-arsenal` | All commands, skills, hooks | Full toolkit for complete workflow automation |
-| `cc-arsenal-dev` | `/dev:implement-feature` command | Feature implementation with subagents |
-| `cc-arsenal-docs` | `/docs:*` commands (ADR, RFC, diagram, etc.) | Documentation generation only |
-| `cc-arsenal-git` | `/git:*` commands (commit, create-pr) | Git workflow automation |
-| `cc-arsenal-skills` | Skills only (agent-browser, jira-cli, skill-creator, find-skills) | Skill-based capabilities without commands |
+| Plugin | Skills Loaded | Use Case |
+|--------|--------------|----------|
+| `cc-arsenal` | All 20 skills | Full toolkit for complete workflow automation |
+| `cc-arsenal-dev` | implement-feature, fix-bug, review-security, inject-nextjs-docs | Development workflows with subagents |
+| `cc-arsenal-docs` | docs-adr, docs-check, docs-diagram, docs-init, docs-rfc, docs-update | Documentation generation only |
+| `cc-arsenal-git` | git-commit, git-create-pr | Git workflow automation |
+| `cc-arsenal-skills` | agent-browser, jira-cli, skill-creator, find-skills | Specialty model-invoked capabilities |
 
 **How It Works:**
-- Single repository with all components in standard locations (`commands/`, `skills/`, `hooks/`)
+- Single repository with all skills in `skills/` directory
 - Marketplace manifest (`.claude-plugin/marketplace.json`) defines multiple "plugins"
-- Each plugin entry specifies which components to load via `commands`, `skills`, `hooks` fields
+- Each plugin entry specifies which skills to load via the `skills` field
 - Users install only what they need without duplicating code
 
 **When to Use Each Variant:**
@@ -141,67 +141,19 @@ make configure
 ```
 
 **What it does:**
-- Discovers all available components from the repository (commands, skills)
-- Shows components organized by category
+- Discovers all available skills from the repository
+- Shows skills organized by category
 - Lets you interactively select which items to symlink
 - **Never modifies** your `~/.claude/settings.json` file
 - Creates symlinks only for selected components
 
 **When to use:**
-- You only want specific commands (e.g., just git commands, not docs)
+- You only want specific skills (e.g., just git skills, not docs)
 - Testing individual components without installing everything
 - Creating a lightweight installation with minimal disk usage
 - For full installation, use `make install` instead
 
-**Example session:**
-```
-⚙️  Claude Code Arsenal - Selective Installation
-This wizard lets you choose which components to symlink to ~/.claude/
-
-🔍 Discovering available components...
-                     CC-Arsenal Components
-┌──────────┬──────────────────────────────────────────┬───────┐
-│ Category │ Component                                │ Count │
-├──────────┼──────────────────────────────────────────┼───────┤
-│ commands │                                          │     8 │
-│          │   docs: adr, check, diagram, init, ...   │     6 │
-│          │   git: commit, create-pr                 │     2 │
-│ skills   │                                          │     2 │
-│          │   jira-cli, skill-creator                │     2 │
-└──────────┴──────────────────────────────────────────┴───────┘
-
-🔧 Select Components to Install
-Choose which components to symlink to ~/.claude/
-
-📁 Commands
-  Install all 6 items from docs? [y/n] (y): n
-    Install adr? [y/n] (n): y
-    Install rfc? [y/n] (n): y
-    Install diagram? [y/n] (n): n
-  Install all 2 items from git? [y/n] (y): y
-  ...
-
-📋 Installation Preview
-commands (2 items)
-  ✨ docs/adr.md
-  ✨ docs/rfc.md
-
-📊 Summary: 2 components selected
-Proceed with installation? [y/n] (y): y
-
-✅ Installation complete!
-🔗 2 components symlinked to ~/.claude
-💡 Note: Your settings.json was not modified
-```
-
-**How it works:**
-- `make install` creates symlinks for **all** components
-- `make configure` lets you choose **which** components to symlink
-- Both methods create symlinks; the difference is selectivity
-- Your `settings.json` controls which symlinked components are *enabled*
-- **Never** overwrites or modifies your personal `settings.json`
-
-**Note:** This is separate from the plugin system. Plugin installation always includes everything. Use `make configure` when you want granular control over which files are symlinked.
+**Note:** This is separate from the plugin system. Plugin installation uses the variant definitions from marketplace.json. Use `make configure` when you want granular control over which files are symlinked.
 
 ## Development Commands
 
@@ -233,7 +185,7 @@ make coverage             # Tests with coverage report
 # Installation
 make install              # Install all components to ~/.claude
 make dry-run              # Preview installation
-make configure            # Interactive: choose specific commands/skills to enable
+make configure            # Interactive: choose specific skills to enable
 
 # Utilities
 make clean                # Clean caches and build artifacts
@@ -261,65 +213,86 @@ make -C scripts/claude-hi remove    # Remove schedule
 make -C scripts/claude-hi now       # Send 'hi' immediately
 ```
 
-## Available Components
+## Available Skills (20 total)
 
-### Commands (13 total)
-Workflow automation commands organized by category:
-- **Development** (1 command): `implement-feature`
-  - Feature implementation with senior staff engineer best practices
-  - Parallel subagent orchestration for complex features
-  - Automatic project discovery (Makefile, package.json, pyproject.toml, etc.)
-- **Documentation** (6 commands): `adr`, `check`, `diagram`, `init`, `rfc`, `update`
-  - ADR (Architecture Decision Records) creation and management
-  - RFC (Request for Comments) documentation
-  - Architecture diagrams generation
-  - Documentation initialization and validation
-- **Git operations** (2 commands): `commit`, `create-pr`
-  - Conventional commit message generation
-  - Pull request creation with standardized formats
-- **Claude utilities** (2 commands): `create-command`, `create-rule`
-  - Create new slash commands from templates
-  - Create CLAUDE.md rules and guidelines
-- **Jira integration** (2 commands): `todo`, `daily`
-  - Todo management synced with Jira issues
-  - Daily standup report generation
+All components are skills with progressive disclosure (SKILL.md + optional references/scripts/assets directories).
 
-### Skills (4 total)
-Modular, self-contained capabilities that Claude automatically invokes when relevant:
-- **agent-browser**: AI-optimized browser automation with 93% less context overhead than Playwright MCP. Uses snapshot + refs system for web testing, form automation, screenshots, and data extraction.
-- **find-skills**: Discover and install third-party agent skills from the open skills ecosystem (skills.sh). Search, install, update, and manage community skills via `npx skills`.
-- **skill-creator**: Comprehensive guide for creating effective skills with specialized knowledge, workflows, or tool integrations. Includes scripts for initialization, validation, and packaging.
-- **jira-cli**: Interactive command-line tool for Atlassian Jira with comprehensive issue, epic, and sprint management
-- Progressive disclosure design: loads only what's needed to save context
-- Can bundle scripts, references, and assets for complex tasks
+### Development (4 skills)
+- **implement-feature**: Feature implementation with senior staff engineer best practices and parallel subagent orchestration
+- **fix-bug**: Test-driven debugging and verification workflow
+- **review-security**: OWASP Top 10 2025 security analysis with parallel scanning agents
+- **inject-nextjs-docs**: Run Next.js agents-md codemod to inject framework docs
+
+### Documentation (6 skills)
+- **docs-adr**: Architecture Decision Records creation and management
+- **docs-check**: Documentation validation and health scoring
+- **docs-diagram**: Architecture diagrams generation (Mermaid)
+- **docs-init**: Documentation structure initialization
+- **docs-rfc**: Request for Comments documentation
+- **docs-update**: Documentation sync with codebase state
+
+### Git Operations (2 skills)
+- **git-commit**: Conventional commit message generation
+- **git-create-pr**: Pull request creation with standardized formats
+
+### Jira Integration (2 skills)
+- **jira-daily**: Smart standup report generator with activity analysis
+- **jira-todo**: Smart daily work planner with intelligent prioritization
+
+### Claude Utilities (2 skills)
+- **create-command**: Create new skills (slash commands) from templates
+- **create-rule**: Create CLAUDE.md rules and memory guidelines
+
+### Specialty Skills (4 skills)
+- **agent-browser**: AI-optimized browser automation with 93% less context overhead than Playwright MCP
+- **find-skills**: Discover and install third-party agent skills from skills.sh
+- **skill-creator**: Comprehensive guide for creating effective skills
+- **jira-cli**: Interactive command-line tool for Atlassian Jira
 
 ## Development Patterns
 
-### Understanding Component Types
+### Understanding Skills
 
-**When to use each component:**
+All components in cc-arsenal are **skills**. Skills come in two flavors:
 
-- **Skills** - Model-invoked capabilities that Claude automatically loads when relevant
+- **User-invoked skills** (`disable-model-invocation: true`): Explicit slash commands that users run directly
+  - Examples: `/git-commit`, `/docs-adr`, `/implement-feature`
+  - Best for: Git operations, documentation generation, feature implementation
+  - 16 user-invoked skills available
+
+- **Model-invoked skills** (`disable-model-invocation: false` or unset): Capabilities Claude automatically loads when relevant
+  - Examples: agent-browser, jira-cli, skill-creator, find-skills
   - Claude decides when to activate based on context
   - Best for: Domain expertise, tool integrations, specialized workflows
-  - Example: skill-creator activates when you want to create a new skill
-  - Available skills: `agent-browser`, `find-skills`, `jira-cli`, `skill-creator`
+  - 4 model-invoked skills available
 
-- **Commands** - Explicit user-invoked operations
-  - Slash commands (e.g., `/git:commit`, `/docs:adr`)
-  - Direct user control
-  - Best for: Git operations, documentation generation, testing, utilities
-  - 8 commands available across docs and git categories
+### Skills Architecture
 
-### Skills Usage
+Skills are modular capabilities organized with this structure:
 
-Skills are **automatically invoked** by Claude when relevant to the task - you don't need to explicitly call them. Claude discovers skills through their `name` and `description` in the SKILL.md frontmatter.
+```
+skill-name/
+├── SKILL.md (required)
+│   ├── YAML frontmatter (name, description, allowed-tools, etc.)
+│   └── Markdown instructions
+└── Bundled Resources (optional)
+    ├── scripts/      - Executable code (Python/Bash/etc.)
+    ├── references/   - Documentation loaded as needed
+    └── assets/       - Files used in output (templates, etc.)
+```
+
+### Progressive Disclosure
+
+Skills use a three-level loading system:
+1. **Metadata** (name + description) - Always in context (~100 words)
+2. **SKILL.md body** - Loaded when skill activates (<5k words)
+3. **Bundled resources** - Loaded only when Claude needs them
 
 ### Local Development Cache Management
 
 **CRITICAL: When developing with a local directory marketplace, you must manually clear the cache after any changes.**
 
-Local directory marketplaces (`"source": "directory"`) do NOT support auto-update or version detection. After creating new commands, skills, or bumping versions:
+Local directory marketplaces (`"source": "directory"`) do NOT support auto-update or version detection. After creating new skills or bumping versions:
 
 ```bash
 # Clear the plugin cache to force reload
@@ -341,13 +314,13 @@ rm -rf ~/.claude/plugins/cache/cc-arsenal-marketplace/
 
 **IMPORTANT: No README files in component directories**
 
-Do not add README.md files inside key component folders (`commands/`, `skills/`). Claude Code will incorrectly detect them as actual components.
+Do not add README.md files inside the `skills/` directory. Claude Code will incorrectly detect them as actual components.
 
 Instead:
 - All documentation goes in the `docs/` folder
 - Reference documentation in the main project README.md if needed
 - Use CLAUDE.md for development guidance
-- Individual components use their native format (COMMAND.md, HOOK.md, SKILL.md)
+- Individual skills use SKILL.md as their native format
 
 ### Quality Assurance
 All code changes should go through integrated quality gates:
@@ -366,46 +339,33 @@ All code changes should go through integrated quality gates:
 ## File Organization
 ```
 cc-arsenal/
-├── commands/        # Workflow automation (13 commands)
-│   ├── dev/            # Development workflow (1 command)
-│   │   └── implement-feature.md  # Feature implementation with subagents
-│   ├── docs/           # Documentation generation (6 commands)
-│   │   ├── adr.md         # Architecture Decision Records
-│   │   ├── check.md       # Documentation validation
-│   │   ├── diagram.md     # Architecture diagrams
-│   │   ├── init.md        # Documentation initialization
-│   │   ├── rfc.md         # Request for Comments
-│   │   └── update.md      # Documentation updates
-│   ├── git/            # Git operations (2 commands)
-│   │   ├── commit.md      # Conventional commits
-│   │   └── create-pr.md   # Pull request creation
-│   ├── claude/         # Claude utilities (2 commands)
-│   │   ├── create-command.md  # Create slash commands
-│   │   └── create-rule.md     # Create CLAUDE.md rules
-│   └── jira/           # Jira integration (2 commands)
-│       ├── todo.md        # Todo management
-│       └── daily.md       # Daily standup reports
-├── skills/         # Model-invoked capabilities (4 skills)
-│   ├── agent-browser/  # Browser automation skill
-│   │   ├── SKILL.md       # AI-optimized browser automation guide
-│   │   └── references/    # Progressive disclosure documentation
-│   │       ├── commands.md   # Complete command reference
-│   │       ├── workflows.md  # Automation patterns
-│   │       └── advanced.md   # Advanced topics and Playwright comparison
-│   ├── find-skills/    # Third-party skill discovery
-│   │   ├── SKILL.md       # skills.sh ecosystem guide
-│   │   └── references/    # Detailed documentation
-│   │       ├── commands.md   # Complete CLI reference
-│   │       └── workflows.md  # Discovery and installation patterns
-│   ├── skill-creator/  # Guide and tools for creating skills
-│   │   ├── SKILL.md       # Comprehensive skill creation guide
-│   │   ├── LICENSE.txt    # Apache 2.0 license
-│   │   └── scripts/       # Skill management utilities
-│   │       ├── init_skill.py      # Generate new skill templates
-│   │       ├── quick_validate.py  # Validate skill structure
-│   │       └── package_skill.py   # Package skills for distribution
-│   └── jira-cli/       # Jira CLI tool integration
-│       └── SKILL.md       # Interactive Jira command-line guide
+├── skills/          # All 20 skills (primary component type)
+│   ├── implement-feature/   # Feature implementation with subagents
+│   ├── fix-bug/             # Test-driven debugging
+│   ├── review-security/     # OWASP security analysis
+│   ├── inject-nextjs-docs/  # Next.js docs injection
+│   ├── docs-adr/            # Architecture Decision Records
+│   ├── docs-check/          # Documentation validation
+│   ├── docs-diagram/        # Architecture diagrams
+│   ├── docs-init/           # Documentation initialization
+│   ├── docs-rfc/            # Request for Comments
+│   ├── docs-update/         # Documentation updates
+│   ├── git-commit/          # Conventional commits
+│   ├── git-create-pr/       # Pull request creation
+│   ├── jira-daily/          # Daily standup reports
+│   ├── jira-todo/           # Work prioritization
+│   ├── create-command/      # Create new skills
+│   ├── create-rule/         # Create memory rules
+│   ├── agent-browser/       # Browser automation
+│   ├── find-skills/         # Third-party skill discovery
+│   ├── skill-creator/       # Skill creation guide
+│   └── jira-cli/            # Jira CLI integration
+├── commands/        # Legacy commands (backward compatibility)
+│   ├── dev/            # Development commands
+│   ├── docs/           # Documentation commands
+│   ├── git/            # Git commands
+│   ├── claude/         # Claude utility commands
+│   └── jira/           # Jira commands
 ├── resources/      # Templates and assets
 │   └── templates/      # ADR, RFC, and doc templates
 ├── scripts/        # Installation and utilities
@@ -414,25 +374,3 @@ cc-arsenal/
 │   ├── claude/         # Claude Code utilities (statusline)
 │   └── claude-hi/      # Session management and scheduling
 ```
-
-## Skills Architecture
-
-Skills are modular capabilities organized with this structure:
-
-```
-skill-name/
-├── SKILL.md (required)
-│   ├── YAML frontmatter (name, description)
-│   └── Markdown instructions
-└── Bundled Resources (optional)
-    ├── scripts/      - Executable code (Python/Bash/etc.)
-    ├── references/   - Documentation loaded as needed
-    └── assets/       - Files used in output (templates, etc.)
-```
-
-### Progressive Disclosure
-
-Skills use a three-level loading system:
-1. **Metadata** (name + description) - Always in context (~100 words)
-2. **SKILL.md body** - Loaded when skill activates (<5k words)
-3. **Bundled resources** - Loaded only when Claude needs them

@@ -1,7 +1,7 @@
 {
   "name": "cc-arsenal",
-  "version": "1.4.0",
-  "description": "Claude Code Arsenal - Professional commands and skills for development workflows",
+  "version": "2.0.0",
+  "description": "Claude Code Arsenal - Professional skills for development workflows",
   "author": {
     "name": "Giovani Moutinho",
     "email": "e@giovani.dev",
@@ -10,7 +10,6 @@
   "homepage": "https://github.com/mgiovani/cc-arsenal",
   "repository": "https://github.com/mgiovani/cc-arsenal",
   "license": "MIT",
-  "keywords": ["productivity", "git", "documentation", "jira", "workflow"],
-  "commands": "./commands/",
+  "keywords": ["productivity", "git", "documentation", "jira", "workflow", "skills"],
   "skills": "./skills/"
 }

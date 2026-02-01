@@ -8,10 +8,12 @@ Tools to make Claude Code more useful: track your usage costs, schedule optimal 
 
 ## What's included
 
-**Commands & Skills** - Workflow automation
-- Git commands with conventional commits and PR creation
-- Documentation commands (ADR, RFC, diagrams, and more)
-- Jira CLI integration and skill creation guide
+**20 Skills** - Workflow automation for development, docs, git, jira, and more
+- Development: feature implementation, bug fixing, security review
+- Documentation: ADR, RFC, diagrams, init, check, update
+- Git: conventional commits and PR creation
+- Jira: daily standup reports and work prioritization
+- Browser automation, skill discovery, and more
 - Easy to customize or create your own
 
 **Statusline** - Track your usage and costs in real-time (optional)
@@ -37,20 +39,20 @@ This opens the plugin browser where you can select:
 
 | Plugin | What's Included | Best For |
 |--------|----------------|----------|
-| **cc-arsenal** | All 13 commands + 4 skills + hooks | Complete workflow automation |
-| **cc-arsenal-dev** | `/dev:implement-feature` | Feature implementation with parallel subagents |
-| **cc-arsenal-docs** | 6 documentation commands | ADR, RFC, diagrams, init, check, update |
-| **cc-arsenal-git** | 2 git workflow commands | Conventional commits, PR creation |
-| **cc-arsenal-skills** | agent-browser + jira-cli + skill-creator + find-skills | Model-invoked capabilities only |
+| **cc-arsenal** | All 20 skills | Complete workflow automation |
+| **cc-arsenal-dev** | implement-feature, fix-bug, review-security, inject-nextjs-docs | Development workflows with subagents |
+| **cc-arsenal-docs** | docs-adr, docs-check, docs-diagram, docs-init, docs-rfc, docs-update | Documentation generation |
+| **cc-arsenal-git** | git-commit, git-create-pr | Conventional commits, PR creation |
+| **cc-arsenal-skills** | agent-browser, jira-cli, skill-creator, find-skills | Specialty model-invoked capabilities |
 
-> **Plugin Variants Pattern:** All variants install from the same repository but load different subsets of components. Install the complete toolkit OR pick individual variants based on your needs. You can also install multiple variants together (e.g., git + docs).
+> **Plugin Variants Pattern:** All variants install from the same repository but load different subsets of skills. Install the complete toolkit OR pick individual variants based on your needs. You can also install multiple variants together (e.g., git + docs).
 
 **Quick install (complete toolkit):**
 ```bash
 /plugin install cc-arsenal@cc-arsenal-marketplace
 ```
 
-After installing, use commands like `/cc-arsenal:docs:adr`, `/cc-arsenal:git:commit`, etc. Skills and hooks activate automatically when relevant.
+After installing, use skills like `/cc-arsenal:git-commit`, `/cc-arsenal:docs-adr`, `/cc-arsenal:implement-feature`, etc. Specialty skills (agent-browser, jira-cli, etc.) activate automatically when relevant.
 
 ### Option 2: Agent Skills (`npx skills`)
 
@@ -70,8 +72,6 @@ npx skills add mgiovani/cc-arsenal --skill agent-browser
 npx skills add mgiovani/cc-arsenal -g
 ```
 
-> **Note:** `npx skills` installs **skills only** (agent-browser, find-skills, jira-cli, skill-creator). For commands and hooks, use the Claude Code Plugin method above.
-
 ## Optional Features
 
 After installation, add these features if you want them:
@@ -89,24 +89,38 @@ make claude-hi-standard   # Quick 9am/2pm/7pm schedule
 
 ## Features
 
-### 🛠️ Commands, Skills & Hooks
+### 🛠️ Skills
 
-Workflow automation for your development workflow.
+All 20 skills organized by category:
 
-**Commands** - Workflow automation via slash commands:
-- **Development**: `/dev:implement-feature` (feature implementation with subagents)
-- **Git**: `/git:commit` (conventional commits), `/git:create-pr` (PR with templates)
-- **Documentation**: `/docs:init`, `/docs:adr`, `/docs:rfc`, `/docs:diagram`, `/docs:check`, `/docs:update`
-- **Claude**: `/claude:create-command`, `/claude:create-rule`
-- **Jira**: `/jira:todo`, `/jira:daily`
+**Development** (4 skills):
+- `/implement-feature` - Feature implementation with parallel subagents
+- `/fix-bug` - Test-driven debugging and verification
+- `/review-security` - OWASP Top 10 2025 security analysis
+- `/inject-nextjs-docs` - Next.js agents-md codemod
 
-**Skills** - Domain-specific tools Claude loads when needed:
+**Documentation** (6 skills):
+- `/docs-init`, `/docs-adr`, `/docs-rfc`, `/docs-diagram`, `/docs-check`, `/docs-update`
+
+**Git** (2 skills):
+- `/git-commit` - Conventional commits
+- `/git-create-pr` - PR with templates
+
+**Jira** (2 skills):
+- `/jira-daily` - Standup report generator
+- `/jira-todo` - Work prioritization planner
+
+**Claude Utilities** (2 skills):
+- `/create-command` - Create new skills
+- `/create-rule` - Create memory rules
+
+**Specialty** (4 model-invoked skills):
 - `agent-browser` - AI-optimized browser automation (93% less context than Playwright)
 - `find-skills` - Discover and install third-party skills from [skills.sh](https://skills.sh)
 - `jira-cli` - Manage Jira issues, sprints, and epics
 - `skill-creator` - Guide for creating custom skills
 
-See the `commands/` and `skills/` directories for details.
+See the `skills/` directory for details.
 
 ### 📊 Statusline (Optional)
 

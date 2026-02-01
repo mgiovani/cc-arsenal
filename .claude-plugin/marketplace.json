@@ -6,16 +6,16 @@
     "email": "e@giovani.dev"
   },
   "metadata": {
-    "description": "Claude Code Arsenal - Professional commands and skills for development workflows",
-    "version": "1.4.0"
+    "description": "Claude Code Arsenal - Professional skills for development workflows",
+    "version": "2.0.0"
   },
   "plugins": [
     {
       "name": "cc-arsenal",
       "source": "./",
       "strict": true,
-      "description": "Complete toolkit: all commands (dev, docs, git, claude, jira) and skills (agent-browser, jira-cli, skill-creator, find-skills)",
-      "version": "1.4.0",
+      "description": "Complete toolkit: all 20 skills covering development, documentation, git, jira, claude utilities, browser automation, and more",
+      "version": "2.0.0",
       "author": {
         "name": "Giovani Moutinho",
         "email": "e@giovani.dev",
@@ -24,15 +24,15 @@
       "homepage": "https://github.com/mgiovani/cc-arsenal",
       "repository": "https://github.com/mgiovani/cc-arsenal",
       "license": "MIT",
-      "keywords": ["productivity", "git", "documentation", "jira", "workflow", "automation", "browser-automation"],
+      "keywords": ["productivity", "git", "documentation", "jira", "workflow", "automation", "browser-automation", "skills"],
       "category": "productivity"
     },
     {
       "name": "cc-arsenal-dev",
       "source": "./",
       "strict": false,
-      "description": "Development commands: feature implementation and bug fixing with test-driven debugging",
-      "version": "1.4.0",
+      "description": "Development skills: feature implementation, bug fixing, security review, and Next.js docs injection",
+      "version": "2.0.0",
       "author": {
         "name": "Giovani Moutinho",
         "email": "e@giovani.dev",
@@ -41,16 +41,21 @@
       "homepage": "https://github.com/mgiovani/cc-arsenal",
       "repository": "https://github.com/mgiovani/cc-arsenal",
       "license": "MIT",
-      "keywords": ["development", "feature", "implementation", "subagents"],
+      "keywords": ["development", "feature", "implementation", "subagents", "security", "debugging"],
       "category": "development",
-      "commands": ["./commands/dev/"]
+      "skills": [
+        "./skills/implement-feature/",
+        "./skills/fix-bug/",
+        "./skills/review-security/",
+        "./skills/inject-nextjs-docs/"
+      ]
     },
     {
       "name": "cc-arsenal-docs",
       "source": "./",
       "strict": false,
-      "description": "Documentation commands only: ADR, RFC, diagrams, init, check, and update",
-      "version": "1.4.0",
+      "description": "Documentation skills: ADR, RFC, diagrams, init, check, and update",
+      "version": "2.0.0",
       "author": {
         "name": "Giovani Moutinho",
         "email": "e@giovani.dev",
@@ -61,16 +66,21 @@
       "license": "MIT",
       "keywords": ["documentation", "adr", "rfc", "diagrams", "architecture"],
       "category": "documentation",
-      "commands": [
-        "./commands/docs/"
+      "skills": [
+        "./skills/docs-adr/",
+        "./skills/docs-check/",
+        "./skills/docs-diagram/",
+        "./skills/docs-init/",
+        "./skills/docs-rfc/",
+        "./skills/docs-update/"
       ]
     },
     {
       "name": "cc-arsenal-git",
       "source": "./",
       "strict": false,
-      "description": "Git workflow commands: conventional commits and PR creation",
-      "version": "1.4.0",
+      "description": "Git workflow skills: conventional commits and PR creation",
+      "version": "2.0.0",
       "author": {
         "name": "Giovani Moutinho",
         "email": "e@giovani.dev",
@@ -81,16 +91,17 @@
       "license": "MIT",
       "keywords": ["git", "commits", "pull-requests", "conventional-commits"],
       "category": "development",
-      "commands": [
-        "./commands/git/"
+      "skills": [
+        "./skills/git-commit/",
+        "./skills/git-create-pr/"
       ]
     },
     {
       "name": "cc-arsenal-skills",
       "source": "./",
       "strict": false,
-      "description": "Skills only: Browser automation (agent-browser), Jira CLI integration, skill creation guide, and third-party skill discovery (find-skills)",
-      "version": "1.4.0",
+      "description": "Specialty skills: Browser automation (agent-browser), Jira CLI, skill creation guide, and third-party skill discovery (find-skills)",
+      "version": "2.0.0",
       "author": {
         "name": "Giovani Moutinho",
         "email": "e@giovani.dev",
@@ -102,7 +113,10 @@
       "keywords": ["skills", "jira", "skill-creator", "browser-automation", "agent-browser", "productivity"],
       "category": "productivity",
       "skills": [
-        "./skills/"
+        "./skills/agent-browser/",
+        "./skills/find-skills/",
+        "./skills/jira-cli/",
+        "./skills/skill-creator/"
       ]
     }
   ]
