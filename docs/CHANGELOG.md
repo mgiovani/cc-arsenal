@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **/dev:inject-nextjs-docs Command**: Run `@next/codemod agents-md` to inject compressed Next.js framework documentation into CLAUDE.md or AGENTS.md
+  - Phase 0: Project validation (Next.js detection, version check, target file detection)
+  - Phase 1: Non-interactive codemod execution with `--output` flag
+  - Phase 2: Result verification and content validation
+  - Injects ~8KB compressed pipe-delimited index from ~40KB of docs (100% eval pass rate vs 53% baseline)
+  - Anti-hallucination guidelines enforce evidence-based reporting
 - **find-skills Skill**: Discover and install third-party agent skills from the open skills.sh ecosystem
   - SKILL.md with quick start, essential commands, installation scopes, and source formats
   - `references/commands.md` - Complete `npx skills` CLI reference (find, add, list, remove, check, update, init)
