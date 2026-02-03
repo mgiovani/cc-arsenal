@@ -1,5 +1,5 @@
 #!/bin/bash
-# Statusline Live Cache Daemon
+# Statusline Live Cache Daemon - Rewritten with flock singleton
 #
 # Design Principles:
 # - Single Responsibility: Each function does one thing well
@@ -7,11 +7,13 @@
 # - Resource Conscious: 60s update interval to preserve battery
 # - Fail-Safe: Graceful degradation if components fail
 # - DRY: Reusable collection functions
+# - Process Safety: flock-based singleton, signal handling, job tracking
 #
 # Architecture:
 # - Daemon maintains a single JSON cache file
 # - Statusline reads cache (fast) with fallback to direct calculation
 # - Updates run every 60 seconds to balance freshness and efficiency
+# - OAuth updates run in background jobs to prevent blocking
 
 set -euo pipefail
 
@@ -21,10 +23,9 @@ set -euo pipefail
 
 SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
 
-# Source OAuth module for background updates
-if [[ -f "$SCRIPT_DIR/lib/api/oauth.sh" ]]; then
-    source "$SCRIPT_DIR/lib/api/oauth.sh"
-fi
+# Source daemon utilities
+source "$SCRIPT_DIR/lib/daemon_lock.sh"
+source "$SCRIPT_DIR/lib/signal_handler.sh"
 
 # ============================================================================
 # CONFIGURATION
@@ -56,12 +57,10 @@ log_message() {
 
 # Checks if the daemon process is currently running
 # Returns: 0 if running, 1 if not
+# NOTE: This is now a wrapper around daemon lock status check
 is_running() {
-    [[ -f "$PID_FILE" ]] || return 1
-
-    local pid
-    pid=$(cat "$PID_FILE" 2>/dev/null) || return 1
-    [[ -n "$pid" ]] && ps -p "$pid" > /dev/null 2>&1
+    # Check if daemon lock is held
+    is_daemon_locked
 }
 
 # ============================================================================
@@ -129,16 +128,16 @@ get_directory_data() {
 # ============================================================================
 
 # Update OAuth cache in background (non-blocking)
-# Calls the OAuth API to refresh usage data asynchronously
+# Spawns oauth_fetcher.sh as a background job
 update_oauth_cache_background() {
-    # Only attempt if OAuth function exists (from sourced lib)
-    if ! command -v fetch_oauth_usage >/dev/null 2>&1; then
+    # Check if oauth_fetcher script exists
+    if [[ ! -x "$SCRIPT_DIR/lib/oauth_fetcher.sh" ]]; then
         return 0
     fi
 
-    # Fetch in background with timeout protection
-    # This may take up to 5 seconds but runs in the daemon loop, not during statusline render
-    fetch_oauth_usage >/dev/null 2>&1 || true
+    # Launch oauth_fetcher in background and track the job
+    "$SCRIPT_DIR/lib/oauth_fetcher.sh" &
+    track_job $!
 }
 
 # Updates the cache file with fresh data
@@ -170,66 +169,69 @@ update_cache() {
 
 # Internal function to start daemon loop (for auto-start)
 # This function never returns - it runs the daemon loop
+# NOTE: Lock should already be acquired by caller (daemon_start or daemon_autostart)
 _daemon_loop() {
-    # Register PID
-    printf "%d" $$ > "$PID_FILE" 2>/dev/null
+    # Mark this process as the daemon (prevents parent cleanup)
+    export IS_DAEMON_PROCESS=1
+
+    # Write PID file
+    printf "%d" $$ > "$PID_FILE" 2>/dev/null || {
+        printf "[ERROR] Failed to write PID file\n" >> "$LOG_FILE"
+        exit 1
+    }
     log_message "Daemon started with PID $$"
 
-    # Initial update (run in background to avoid blocking daemon startup)
-    # This allows the daemon to register quickly while OAuth fetch happens asynchronously
-    (update_cache || log_message "WARNING: Initial cache update failed") &
+    # Setup signal handlers for graceful shutdown
+    setup_signal_handlers
+
+    # Initial cache update
+    update_cache || log_message "WARNING: Initial cache update failed"
 
     # Main event loop
     while true; do
         sleep "$UPDATE_INTERVAL"
         update_cache || log_message "ERROR: Cache update failed"
     done
+
+    # This line should never be reached
+    log_message "ERROR: Daemon loop exited unexpectedly!"
 }
 
 # Starts the daemon background process
 # Returns: 0 on success, 1 if already running
 daemon_start() {
-    if is_running; then
-        printf "Statusline daemon already running (PID: %s)\n" "$(cat "$PID_FILE")"
+    # Acquire lock FIRST to prevent race conditions
+    if ! acquire_daemon_lock; then
+        printf "Statusline daemon already running\n"
         return 1
     fi
 
     printf "Starting statusline daemon...\n"
-    log_message "Starting daemon"
 
-    # Fork background process (daemon mode)
-    _daemon_loop &
+    # Run daemon in a new session using setsid (or nohup as fallback)
+    # This properly detaches it from the controlling terminal
+    if command -v setsid >/dev/null 2>&1; then
+        setsid "$0" _daemon_loop_wrapper </dev/null >/dev/null 2>&1 &
+    else
+        nohup "$0" _daemon_loop_wrapper </dev/null >/dev/null 2>&1 &
+    fi
 
-    local -r daemon_pid=$!
-    sleep 0.5  # Give daemon time to register PID
-    printf "Statusline daemon started (PID: %d)\n" "$daemon_pid"
+    sleep 0.5  # Give daemon time to initialize
+    printf "Statusline daemon started\n"
     printf "Live data refreshing every %ds\n" "$UPDATE_INTERVAL"
 }
 
 # Silent start for auto-start (no output, fork-safe, non-blocking)
 daemon_autostart() {
-    # Double-check not already running (race condition protection)
-    is_running && return 0
+    # Acquire lock - if already running, silently exit
+    acquire_daemon_lock || return 0
 
-    # Create lock to prevent multiple simultaneous starts
-    local lock_file="/tmp/statusline_live_cache/autostart.lock"
-    mkdir -p "$(dirname "$lock_file")" 2>/dev/null
-
-    # Try to acquire lock (atomic operation)
-    if ! mkdir "$lock_file" 2>/dev/null; then
-        # Another process is starting daemon
-        return 0
+    # Run daemon in a new session
+    if command -v setsid >/dev/null 2>&1; then
+        setsid "$0" _daemon_loop_wrapper </dev/null >/dev/null 2>&1 &
+    else
+        nohup "$0" _daemon_loop_wrapper </dev/null >/dev/null 2>&1 &
     fi
-
-    # Start daemon loop directly without any waits or sleeps
-    # This is the fastest, simplest approach
-    log_message "Auto-starting daemon"
-
-    # Direct background fork - no intermediate process needed
-    _daemon_loop </dev/null >/dev/null 2>&1 &
-
-    # Release lock immediately - don't wait for anything
-    rmdir "$lock_file" 2>/dev/null || true
 }
 
 # Stops the daemon background process
@@ -247,8 +249,21 @@ daemon_stop() {
         printf "Stopping statusline daemon (PID: %s)...\n" "$pid"
         log_message "Stopping daemon PID $pid"
 
-        kill "$pid" 2>/dev/null || log_message "WARNING: Failed to kill PID $pid"
-        rm -f "$PID_FILE" 2>/dev/null
+        # Send SIGTERM - signal handler will cleanup
+        kill -TERM "$pid" 2>/dev/null || log_message "WARNING: Failed to send SIGTERM to PID $pid"
+
+        # Wait for daemon to exit (up to 3 seconds)
+        local waited=0
+        while [[ $waited -lt 30 ]] && kill -0 "$pid" 2>/dev/null; do
+            sleep 0.1
+            waited=$((waited + 1))
+        done
+
+        # Force kill if still running
+        if kill -0 "$pid" 2>/dev/null; then
+            log_message "WARNING: Daemon did not exit gracefully, forcing SIGKILL"
+            kill -KILL "$pid" 2>/dev/null || true
+        fi
 
         printf "Statusline daemon stopped\n"
     fi
@@ -290,6 +305,10 @@ main() {
     local -r command="${1:-start}"
 
     case "$command" in
+        _daemon_loop_wrapper)
+            # Internal command: run daemon loop (called by setsid/nohup)
+            _daemon_loop
+            ;;
         start)
             daemon_start
             ;;
@@ -331,5 +350,7 @@ main() {
     esac
 }
 
-# Execute main with all arguments
-main "$@"
+# Execute main with all arguments (only if script is executed, not sourced)
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    main "$@"
+fi

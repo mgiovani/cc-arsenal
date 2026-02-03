@@ -63,15 +63,10 @@ cache_setup_cleanup
 # Daemon Auto-Start (Non-blocking)
 # =============================================================================
 
-# TODO: Re-enable auto-start after fixing zombie process issue
-# For now, users must manually start the daemon:
-#   ~/.claude/scripts/claude/statusline/statusline_daemon.sh start
-#
-# Auto-start daemon in background if not running (for OAuth updates)
-# This is silent, non-blocking, and fork-safe
-#if [[ -f "$SCRIPT_DIR/statusline_daemon.sh" ]]; then
-#    "$SCRIPT_DIR/statusline_daemon.sh" autostart >/dev/null 2>&1 &
-#fi
+# Auto-start daemon if not running (flock-based singleton ensures no duplicates)
+if [[ -f "$SCRIPT_DIR/statusline_daemon.sh" ]]; then
+    "$SCRIPT_DIR/statusline_daemon.sh" autostart >/dev/null 2>&1 &
+fi
 
 # =============================================================================
 # Main Function
