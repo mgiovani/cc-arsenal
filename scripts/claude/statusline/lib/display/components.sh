@@ -329,9 +329,9 @@ get_usage_line() {
     local use_emoji=true
     [[ "$display_mode" == "text" || "$display_mode" == "ascii" ]] && use_emoji=false
 
-    # Try OAuth API first (most accurate)
+    # Try OAuth API first (most accurate) - CACHE ONLY, no network calls
     local usage_json
-    usage_json=$(fetch_oauth_usage 2>/dev/null)
+    usage_json=$(fetch_oauth_usage_cached_only 2>/dev/null)
 
     if [[ -n "$usage_json" ]] && check_jq; then
         local five_hour_util five_hour_reset seven_day_util seven_day_reset

@@ -8,7 +8,7 @@ This is the **Claude Code Arsenal** - a professional collection of skills for de
 
 ### Core Components
 
-- **Skills** (`skills/`): 20 skills covering development, documentation, git, jira, claude utilities, browser automation, and skill discovery
+- **Skills** (`skills/`): 21 skills covering development, documentation, git, jira, claude utilities, browser automation, project planning, and skill discovery
 - **Scripts** (`scripts/`): Professional Python utilities for installation, configuration, and code generation
 - **Commands** (`commands/`): Legacy commands kept for backward compatibility (skills take precedence)
 
@@ -25,8 +25,8 @@ Then, to install a specific plugin set:
 1. Select **Browse and install plugins**
 2. Select **cc-arsenal-marketplace**
 3. Select one of:
-   - **cc-arsenal** - Complete toolkit (all 20 skills)
-   - **cc-arsenal-dev** - Development skills only (implement-feature, fix-bug, review-security, inject-nextjs-docs)
+   - **cc-arsenal** - Complete toolkit (all 21 skills)
+   - **cc-arsenal-dev** - Development skills only (implement-feature, fix-bug, review-security, inject-nextjs-docs, project-planner)
    - **cc-arsenal-docs** - Documentation skills only (ADR, RFC, diagrams, init, check, update)
    - **cc-arsenal-git** - Git workflow skills only (commit, create-pr)
    - **cc-arsenal-skills** - Specialty skills only (agent-browser, jira-cli, skill-creator, find-skills)
@@ -54,8 +54,8 @@ This repository uses a "plugin variants" architecture where multiple installatio
 
 | Plugin | Skills Loaded | Use Case |
 |--------|--------------|----------|
-| `cc-arsenal` | All 20 skills | Full toolkit for complete workflow automation |
-| `cc-arsenal-dev` | implement-feature, fix-bug, review-security, inject-nextjs-docs | Development workflows with subagents |
+| `cc-arsenal` | All 21 skills | Full toolkit for complete workflow automation |
+| `cc-arsenal-dev` | implement-feature, fix-bug, review-security, inject-nextjs-docs, project-planner | Development workflows with subagents |
 | `cc-arsenal-docs` | docs-adr, docs-check, docs-diagram, docs-init, docs-rfc, docs-update | Documentation generation only |
 | `cc-arsenal-git` | git-commit, git-create-pr | Git workflow automation |
 | `cc-arsenal-skills` | agent-browser, jira-cli, skill-creator, find-skills | Specialty model-invoked capabilities |
@@ -213,15 +213,16 @@ make -C scripts/claude-hi remove    # Remove schedule
 make -C scripts/claude-hi now       # Send 'hi' immediately
 ```
 
-## Available Skills (20 total)
+## Available Skills (21 total)
 
 All components are skills with progressive disclosure (SKILL.md + optional references/scripts/assets directories).
 
-### Development (4 skills)
-- **implement-feature**: Feature implementation with senior staff engineer best practices and parallel subagent orchestration
-- **fix-bug**: Test-driven debugging and verification workflow
+### Development (5 skills)
+- **implement-feature**: Feature implementation with senior staff engineer best practices, parallel subagent orchestration, and Task Management System integration
+- **fix-bug**: Test-driven debugging with strict sequential task chain and dependency enforcement
 - **review-security**: OWASP Top 10 2025 security analysis with parallel scanning agents
 - **inject-nextjs-docs**: Run Next.js agents-md codemod to inject framework docs
+- **project-planner**: Break down large projects into dependency-aware tasks with Mermaid visualization
 
 ### Documentation (6 skills)
 - **docs-adr**: Architecture Decision Records creation and management
@@ -256,15 +257,17 @@ All components are skills with progressive disclosure (SKILL.md + optional refer
 All components in cc-arsenal are **skills**. Skills come in two flavors:
 
 - **User-invoked skills** (`disable-model-invocation: true`): Explicit slash commands that users run directly
-  - Examples: `/git-commit`, `/docs-adr`, `/implement-feature`
-  - Best for: Git operations, documentation generation, feature implementation
-  - 16 user-invoked skills available
+  - Examples: `/git-commit`, `/docs-adr`, `/project-planner`
+  - Best for: Git operations, documentation generation, project planning
+  - Can still be invoked with `/` slash commands
+  - 15 user-invoked skills available
 
 - **Model-invoked skills** (`disable-model-invocation: false` or unset): Capabilities Claude automatically loads when relevant
-  - Examples: agent-browser, jira-cli, skill-creator, find-skills
-  - Claude decides when to activate based on context
-  - Best for: Domain expertise, tool integrations, specialized workflows
-  - 4 model-invoked skills available
+  - Examples: implement-feature, fix-bug, agent-browser, jira-cli, skill-creator, find-skills
+  - Claude detects context automatically (e.g., "let's implement X" or "fix this bug")
+  - No confirmation dialogs - users can abort with natural language if needed
+  - Best for: Feature implementation, bug fixing, domain expertise, tool integrations
+  - 6 model-invoked skills available
 
 ### Skills Architecture
 

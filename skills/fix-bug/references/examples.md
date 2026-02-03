@@ -17,13 +17,14 @@ Parse optional arguments from the command invocation:
 /fix-bug User profile page throws 404 on refresh
 ```
 
-**Process**:
-1. Discover project uses `npm test` and `npm run lint`
-2. Find failing test or create one
-3. Locate bug: routing issue in Next.js app
-4. Fix: Add missing route configuration
-5. Verify: All tests pass
-6. Commit: `fix(routing): add profile route configuration`
+**Process with Task Tracking**:
+1. **Create task chain** (Discovery → Reproduce → Plan → Implement → Verify → Commit)
+2. **Phase 0**: Discover project uses `npm test` and `npm run lint`, mark task completed
+3. **Phase 1**: Find failing test or create one, locate routing bug, mark task completed
+4. **Phase 2**: Plan fix (add route configuration), mark task completed
+5. **Phase 3**: Implement fix, mark task completed
+6. **Phase 4**: Verify all tests pass, mark task completed
+7. **Phase 5**: Commit `fix(routing): add profile route configuration`, mark task completed
 
 ### Example 2: Bug with Issue Number
 
@@ -31,14 +32,15 @@ Parse optional arguments from the command invocation:
 /fix-bug #789 --branch fix/payment-webhook
 ```
 
-**Process**:
-1. Fetch issue details with `gh issue view 789`
-2. Discover project uses `make test` and `make lint`
-3. Reproduce failing webhook call
-4. Root cause: missing signature validation
-5. Fix: Add HMAC signature verification
-6. Verify with integration tests
-7. Commit: `fix(webhooks): validate payment signatures\n\nCloses #789`
+**Process with Task Tracking**:
+1. **Create task chain** for all 6 phases with strict sequential dependencies
+2. **Phase 0**: Fetch issue `gh issue view 789`, discover `make test` and `make lint`
+3. **Phase 1**: Reproduce failing webhook, root cause: missing signature validation
+4. **Phase 2**: Plan fix: Add HMAC signature verification
+5. **Phase 3**: Implement signature validation
+6. **Phase 4**: Verify with integration tests
+7. **Phase 5**: Commit: `fix(webhooks): validate payment signatures\n\nCloses #789`
+8. **Track progress**: `TaskList` after each phase shows which tasks unblocked
 
 ### Example 3: Interactive Bug Fix
 
@@ -125,10 +127,46 @@ Use agent-browser skill to:
 3. Consider if they should be fixed together or separately
 4. Plan accordingly
 
+## Task Tracking Example
+
+**Creating the Task Chain**:
+```
+TaskCreate: subject="Phase 0: Discover project workflow", description="...", activeForm="Discovering..."
+TaskCreate: subject="Phase 1: Reproduce and analyze bug", description="...", activeForm="Analyzing..."
+TaskCreate: subject="Phase 2: Plan fix", description="...", activeForm="Planning..."
+TaskCreate: subject="Phase 3: Implement fix", description="...", activeForm="Implementing..."
+TaskCreate: subject="Phase 4: Verify quality", description="...", activeForm="Verifying..."
+TaskCreate: subject="Phase 5: Final commit", description="...", activeForm="Committing..."
+
+# Set up strict sequential chain
+TaskUpdate: { taskId: "2", addBlockedBy: ["1"] }
+TaskUpdate: { taskId: "3", addBlockedBy: ["2"] }
+TaskUpdate: { taskId: "4", addBlockedBy: ["3"] }
+TaskUpdate: { taskId: "5", addBlockedBy: ["4"] }
+TaskUpdate: { taskId: "6", addBlockedBy: ["5"] }
+```
+
+**Progressing Through Phases**:
+```
+# Start Phase 0
+TaskUpdate: { taskId: "1", status: "in_progress" }
+# ... work ...
+TaskUpdate: { taskId: "1", status: "completed" }
+TaskList  # Shows Task 2 is now unblocked
+
+# Start Phase 1
+TaskUpdate: { taskId: "2", status: "in_progress" }
+# ... work ...
+TaskUpdate: { taskId: "2", status: "completed" }
+TaskList  # Shows Task 3 is now unblocked
+# ... repeat for all phases
+```
+
 ## Quality Checklist
 
 Before reporting completion, verify:
 
+- [ ] All tasks in chain are marked `completed`
 - [ ] Bug was reproduced with evidence (failing test output)
 - [ ] Root cause was identified with file:line references
 - [ ] Fix was implemented with minimal scope

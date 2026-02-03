@@ -1,9 +1,9 @@
 ---
 name: fix-bug
-description: "Fix bugs using test-driven debugging, root cause analysis, and comprehensive verification. This skill should be used when a user wants to fix a bug, debug an issue, resolve an error, or investigate failing tests across any project type."
-disable-model-invocation: true
+description: "Fix bugs using test-driven debugging, root cause analysis, and comprehensive verification. Automatically activates when users want to fix a bug, debug an issue, resolve an error, investigate failing tests, or address problems in the codebase."
+disable-model-invocation: false
 argument-hint: "[bug_description_or_issue_id] [--branch name] [--interactive]"
-allowed-tools: Read, Write, Edit, Bash, Grep, Glob, Task, TodoWrite, WebFetch, AskUserQuestion
+allowed-tools: Read, Write, Edit, Bash, Grep, Glob, Task, TaskCreate, TaskUpdate, TaskList, TaskGet, WebFetch, AskUserQuestion
 ---
 
 # Bug Fix
@@ -24,13 +24,78 @@ Fix bugs systematically using test-driven development, root cause analysis, and 
 
 $ARGUMENTS
 
+## Task Management
+
+This skill uses Claude Code's Task Management System for strict sequential dependency tracking through the debugging workflow.
+
+**When to Use Tasks:**
+- Multi-step debugging requiring root cause analysis
+- Bugs spanning multiple files or components
+- Work requiring progress tracking across sessions
+
+**When to Skip Tasks:**
+- Trivial 1-line fixes with obvious solutions
+- Simple typo corrections
+- Quick configuration changes
+
+**Task Structure:**
+Bug fixes create a strict sequential chain where each phase must complete before the next can start, ensuring test-driven development discipline.
+
 ## Implementation Workflow
 
-**Use TodoWrite to track progress through each phase.**
+**Task tracking replaces TodoWrite.** Create task chain at start, update as completing each phase.
 
 ### Phase 0: Project Discovery (REQUIRED)
 
-Before any debugging, discover how this project works:
+**Step 0.1: Create Task Dependency Chain**
+
+Before debugging, create the strict sequential task structure:
+
+```
+TaskCreate:
+  subject: "Phase 0: Discover project workflow"
+  description: "Identify test, lint, debug commands from CLAUDE.md and task runners"
+  activeForm: "Discovering project workflow"
+
+TaskCreate:
+  subject: "Phase 1: Reproduce and analyze bug"
+  description: "Locate failing test, reproduce bug, identify root cause"
+  activeForm: "Analyzing bug"
+
+TaskCreate:
+  subject: "Phase 2: Plan fix"
+  description: "Design minimal fix approach"
+  activeForm: "Planning fix"
+
+TaskCreate:
+  subject: "Phase 3: Implement fix"
+  description: "Apply fix and verify test passes"
+  activeForm: "Implementing fix"
+
+TaskCreate:
+  subject: "Phase 4: Verify quality"
+  description: "Run full test suite, lint, type-check"
+  activeForm: "Verifying fix quality"
+
+TaskCreate:
+  subject: "Phase 5: Final commit"
+  description: "Create conventional commit with fix details"
+  activeForm: "Creating final commit"
+
+# Set up strict sequential chain
+TaskUpdate: { taskId: "2", addBlockedBy: ["1"] }
+TaskUpdate: { taskId: "3", addBlockedBy: ["2"] }
+TaskUpdate: { taskId: "4", addBlockedBy: ["3"] }
+TaskUpdate: { taskId: "5", addBlockedBy: ["4"] }
+TaskUpdate: { taskId: "6", addBlockedBy: ["5"] }
+
+# Start first task
+TaskUpdate: { taskId: "1", status: "in_progress" }
+```
+
+**Step 0.2: Discover Project Workflow**
+
+Use Haiku-powered Explore agent for token-efficient discovery:
 
 ```
 Use Task tool with Explore agent:
@@ -46,23 +111,28 @@ Use Task tool with Explore agent:
     9. Note any pre-commit hooks or quality gates
     Return a structured summary of all available commands."
 - subagent_type: "Explore"
+- model: "haiku"  # Token-efficient for discovery
 ```
 
 Store discovered commands for use in later phases.
 
 **IMPORTANT**: Never assume which test framework or tools are available. Use only the discovered commands.
 
+**Step 0.3: Complete Phase 0**
+
+```
+TaskUpdate: { taskId: "1", status: "completed" }
+TaskList  # Check that Task 2 is now unblocked
+```
+
 ### Phase 1: Bug Analysis & Reproduction
 
 **Goal**: Understand the bug, locate it in code, and reproduce it reliably.
 
+**Step 1.0: Start Phase 1**
+
 ```
-TodoWrite:
-- [ ] Understand bug symptoms and expected behavior
-- [ ] Locate failing test or create reproduction test
-- [ ] Run test to confirm failure (with evidence)
-- [ ] Identify bug location in codebase
-- [ ] Analyze root cause with evidence
+TaskUpdate: { taskId: "2", status: "in_progress" }
 ```
 
 **Step 1.1: Understand Bug Symptoms**
@@ -87,22 +157,29 @@ Run the specific test using discovered test command. **CRITICAL**: Verify the te
 
 **Step 1.4: Root Cause Analysis**
 
-Use parallel subagents for comprehensive analysis:
+Use parallel subagents for comprehensive analysis with Haiku for exploration:
 
 ```
-Agent 1 - Bug Location (Explore):
-  Find the exact location of the bug (file path, line numbers),
-  read the buggy code and surrounding context,
-  identify why the code produces the wrong behavior,
-  provide evidence (stack trace, variable values, control flow).
+Agent 1 - Bug Location (Explore, Haiku):
+  prompt: "Find the exact location of the bug (file path, line numbers),
+          read the buggy code and surrounding context,
+          identify why the code produces the wrong behavior,
+          provide evidence (stack trace, variable values, control flow)."
+  subagent_type: "Explore"
+  model: "haiku"  # Token-efficient for code exploration
 
-Agent 2 - Impact Analysis (Explore):
-  Search the codebase for other code affected by the same issue,
-  similar patterns with the same bug, related tests that might fail,
-  dependencies or callers of the buggy code.
+Agent 2 - Impact Analysis (Explore, Haiku):
+  prompt: "Search the codebase for other code affected by the same issue,
+          similar patterns with the same bug, related tests that might fail,
+          dependencies or callers of the buggy code."
+  subagent_type: "Explore"
+  model: "haiku"  # Token-efficient for codebase search
 
-Agent 3 - Research (general-purpose, only if external library involved):
-  Search for documented solutions or patterns for this type of bug.
+Agent 3 - Research (general-purpose, Haiku, only if external library involved):
+  prompt: "Search for documented solutions or patterns for this type of bug
+          in [LIBRARY_NAME] library using Context7 and web search."
+  subagent_type: "general-purpose"
+  model: "haiku"  # Token-efficient for research
 ```
 
 **Step 1.5: Confirm Root Cause**
@@ -114,18 +191,24 @@ Before proceeding, verify the analysis:
 
 If uncertain, use `AskUserQuestion` to validate understanding.
 
+**Step 1.6: Complete Phase 1**
+
+```
+TaskUpdate: { taskId: "2", status: "completed" }
+TaskList  # Check that Task 3 is now unblocked
+```
+
 ### Phase 2: Fix Planning
 
 **Goal**: Design a minimal, focused fix that addresses the root cause without side effects.
 
+**Step 2.1: Start Phase 2**
+
 ```
-TodoWrite:
-- [ ] Design fix approach
-- [ ] Identify files to modify
-- [ ] Plan test coverage for fix
-- [ ] Consider edge cases and side effects
-- [ ] Get user approval if fix is non-trivial
+TaskUpdate: { taskId: "3", status: "in_progress" }
 ```
+
+**Step 2.2: Design Fix Approach**
 
 Use a subagent for fix design that:
 1. Addresses ONLY the root cause (no refactoring)
@@ -136,25 +219,46 @@ Use a subagent for fix design that:
 
 **Get Approval for Non-Trivial Fixes**: If the fix involves changes to >3 files, modifications to public APIs, potential performance implications, or breaking changes, use `AskUserQuestion` to present the plan and get approval.
 
+**Step 2.3: Complete Phase 2**
+
+```
+TaskUpdate: { taskId: "3", status: "completed" }
+TaskList  # Check that Task 4 is now unblocked
+```
+
 ### Phase 3: Implementation
 
 **Goal**: Implement the fix following the plan, ensuring tests pass.
 
+**Step 3.1: Start Phase 3**
+
 ```
-TodoWrite:
-- [ ] Implement the fix
-- [ ] Verify failing test now passes
-- [ ] Run full test suite
-- [ ] Fix any new failures
-- [ ] Verify no linting errors
+TaskUpdate: { taskId: "4", status: "in_progress" }
 ```
 
-1. **Implement the Fix** - Use the Edit tool to make minimal, focused changes
+**Step 3.2: Apply Fix**
+
+1. **Implement the Fix** - Use the Edit tool to make minimal, focused changes. Use Sonnet (default model) for code implementation.
 2. **Verify Locally** - Run the specific failing test. **CRITICAL**: The test must now PASS. If not, re-analyze and repeat.
 3. **Test for Side Effects** - Run full test suite using discovered commands
 4. **Fix Any New Failures** - Adjust the fix or update tests if incorrectly specified. Repeat until all tests pass.
 
+**Step 3.3: Complete Phase 3**
+
+```
+TaskUpdate: { taskId: "4", status: "completed" }
+TaskList  # Check that Task 5 is now unblocked
+```
+
 ### Phase 4: Quality Verification
+
+**Step 4.1: Start Phase 4**
+
+```
+TaskUpdate: { taskId: "5", status: "in_progress" }
+```
+
+**Step 4.2: Run Quality Checks**
 
 Run all quality checks using discovered commands from Phase 0. **Quality Gates Checklist**:
 - [ ] Previously failing test now passes
@@ -166,9 +270,24 @@ Run all quality checks using discovered commands from Phase 0. **Quality Gates C
 - [ ] Minimal, focused changes
 - [ ] Follows existing code patterns
 
-**If any check fails**: Fix the issue before proceeding. Do not commit broken code.
+**If any check fails**: Fix the issue before proceeding. Do not commit broken code. Keep task as `in_progress` until all gates pass.
+
+**Step 4.3: Complete Phase 4**
+
+```
+TaskUpdate: { taskId: "5", status: "completed" }
+TaskList  # Check that Task 6 is now unblocked
+```
 
 ### Phase 5: Final Commit
+
+**Step 5.1: Start Phase 5**
+
+```
+TaskUpdate: { taskId: "6", status: "in_progress" }
+```
+
+**Step 5.2: Create Commit**
 
 If `/cc-arsenal:git:commit` skill is available, use it. Otherwise, create a conventional commit manually:
 
@@ -181,6 +300,13 @@ git commit -m "fix: [concise description of what was fixed]
 - [Reference to issue/ticket if applicable]
 
 Closes #[ISSUE_NUMBER]"
+```
+
+**Step 5.3: Complete Phase 5 and Bug Fix**
+
+```
+TaskUpdate: { taskId: "6", status: "completed" }
+TaskList  # Show final status - all tasks should be completed
 ```
 
 ### Phase 6: Verification Summary

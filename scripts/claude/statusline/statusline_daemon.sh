@@ -16,6 +16,17 @@
 set -euo pipefail
 
 # ============================================================================
+# SCRIPT LOCATION AND DEPENDENCIES
+# ============================================================================
+
+SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
+
+# Source OAuth module for background updates
+if [[ -f "$SCRIPT_DIR/lib/api/oauth.sh" ]]; then
+    source "$SCRIPT_DIR/lib/api/oauth.sh"
+fi
+
+# ============================================================================
 # CONFIGURATION
 # ============================================================================
 
@@ -117,6 +128,19 @@ get_directory_data() {
 # CACHE MANAGEMENT (Open/Closed Principle - easy to extend)
 # ============================================================================
 
+# Update OAuth cache in background (non-blocking)
+# Calls the OAuth API to refresh usage data asynchronously
+update_oauth_cache_background() {
+    # Only attempt if OAuth function exists (from sourced lib)
+    if ! command -v fetch_oauth_usage >/dev/null 2>&1; then
+        return 0
+    fi
+
+    # Fetch in background with timeout protection
+    # This may take up to 5 seconds but runs in the daemon loop, not during statusline render
+    fetch_oauth_usage >/dev/null 2>&1 || true
+}
+
 # Updates the cache file with fresh data
 # Performance: Atomic write using temp file, single write operation
 # Reliability: Graceful degradation if any component fails
@@ -124,9 +148,13 @@ update_cache() {
     local -r timestamp=$(date +%s)
 
     # Collect all data (fail-safe: use defaults if collection fails)
-    local git_data dir_data
+    local git_data dir_data oauth_data
     git_data=$(get_git_data 2>/dev/null || printf '{"in_repo":false}')
     dir_data=$(get_directory_data 2>/dev/null || printf '{"current_dir":"~"}')
+
+    # Collect OAuth data in background (non-blocking for this daemon)
+    # This updates the OAuth cache file separately, which statusline reads
+    update_oauth_cache_background 2>/dev/null || true
 
     # Assemble JSON in a single operation (no heredoc for performance)
     printf '{"timestamp":%d,"git":%s,"directory":%s}\n' \

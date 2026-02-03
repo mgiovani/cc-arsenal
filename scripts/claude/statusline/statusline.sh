@@ -60,6 +60,16 @@ START_TIME=$(get_current_nanos)
 cache_setup_cleanup
 
 # =============================================================================
+# Daemon Auto-Start (Non-blocking)
+# =============================================================================
+
+# Auto-start daemon in background if not running (for OAuth updates)
+# This is silent, non-blocking, and fork-safe
+if [[ -f "$SCRIPT_DIR/statusline_daemon.sh" ]]; then
+    "$SCRIPT_DIR/statusline_daemon.sh" autostart >/dev/null 2>&1 &
+fi
+
+# =============================================================================
 # Main Function
 # =============================================================================
 

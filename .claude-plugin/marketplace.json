@@ -7,15 +7,15 @@
   },
   "metadata": {
     "description": "Claude Code Arsenal - Professional skills for development workflows",
-    "version": "2.0.0"
+    "version": "2.1.0"
   },
   "plugins": [
     {
       "name": "cc-arsenal",
       "source": "./",
       "strict": true,
-      "description": "Complete toolkit: all 20 skills covering development, documentation, git, jira, claude utilities, browser automation, and more",
-      "version": "2.0.0",
+      "description": "Complete toolkit: all 21 skills covering development, documentation, git, jira, claude utilities, browser automation, project planning, and more",
+      "version": "2.1.0",
       "author": {
         "name": "Giovani Moutinho",
         "email": "e@giovani.dev",
@@ -31,8 +31,8 @@
       "name": "cc-arsenal-dev",
       "source": "./",
       "strict": false,
-      "description": "Development skills: feature implementation, bug fixing, security review, and Next.js docs injection",
-      "version": "2.0.0",
+      "description": "Development skills: feature implementation, bug fixing, security review, project planning, and Next.js docs injection",
+      "version": "2.1.0",
       "author": {
         "name": "Giovani Moutinho",
         "email": "e@giovani.dev",
@@ -47,7 +47,8 @@
         "./skills/implement-feature/",
         "./skills/fix-bug/",
         "./skills/review-security/",
-        "./skills/inject-nextjs-docs/"
+        "./skills/inject-nextjs-docs/",
+        "./skills/project-planner/"
       ]
     },
     {
@@ -55,7 +56,7 @@
       "source": "./",
       "strict": false,
       "description": "Documentation skills: ADR, RFC, diagrams, init, check, and update",
-      "version": "2.0.0",
+      "version": "2.1.0",
       "author": {
         "name": "Giovani Moutinho",
         "email": "e@giovani.dev",
@@ -80,7 +81,7 @@
       "source": "./",
       "strict": false,
       "description": "Git workflow skills: conventional commits and PR creation",
-      "version": "2.0.0",
+      "version": "2.1.0",
       "author": {
         "name": "Giovani Moutinho",
         "email": "e@giovani.dev",
@@ -101,7 +102,7 @@
       "source": "./",
       "strict": false,
       "description": "Specialty skills: Browser automation (agent-browser), Jira CLI, skill creation guide, and third-party skill discovery (find-skills)",
-      "version": "2.0.0",
+      "version": "2.1.0",
       "author": {
         "name": "Giovani Moutinho",
         "email": "e@giovani.dev",

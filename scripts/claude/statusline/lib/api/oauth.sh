@@ -100,6 +100,19 @@ get_oauth_token() {
 # API Operations
 # =============================================================================
 
+# Fetch usage data from cache ONLY (non-blocking, for statusline rendering)
+# Returns: JSON from cache or empty if not cached
+# This function NEVER makes network calls - use fetch_oauth_usage for background updates
+fetch_oauth_usage_cached_only() {
+    # Only read from cache, no network calls
+    if [[ -f "$OAUTH_USAGE_CACHE_FILE" ]]; then
+        cat "$OAUTH_USAGE_CACHE_FILE" 2>/dev/null
+        return 0
+    fi
+
+    return 1
+}
+
 # Fetch usage data from Anthropic OAuth API
 # Returns: JSON with five_hour and seven_day usage data
 fetch_oauth_usage() {

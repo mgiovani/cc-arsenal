@@ -5,6 +5,80 @@ All notable changes to cc-arsenal will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2026-02-03
+
+### Added
+
+- **Auto-Invocation Support**: `implement-feature` and `fix-bug` now support model invocation for automatic workflow activation
+  - Changed `disable-model-invocation: false` to allow Claude to detect relevant context automatically
+  - Updated descriptions to be context-detection friendly ("Automatically activates when users want to...")
+  - No confirmation dialog - users can naturally say "let's implement X" or "fix this bug"
+  - Users can abort with natural language ("wait, stop" or "no, don't do that") if auto-detection triggers inappropriately
+  - Still works with explicit `/implement-feature` or `/fix-bug` commands
+  - Skill distribution: 15 user-invoked (explicit `/` commands), 6 model-invoked (context-aware)
+
+- **Task Management System Integration**: Migrated `implement-feature` and `fix-bug` skills from `TodoWrite` to Claude Code v2.1.16's new Task Management System
+  - **TaskCreate, TaskUpdate, TaskList, TaskGet** tools replace TodoWrite for dependency-aware task tracking
+  - **implement-feature**: 6-phase workflow with strict sequential dependencies (Discovery → Research → Planning → Implementation → Verification → Commit)
+  - **fix-bug**: 6-phase workflow with strict sequential chain enforcing test-driven development discipline
+  - **Model Selection Strategy**: Haiku for token-efficient discovery/research/analysis agents, Sonnet (default) for code implementation
+  - **Parallel task support** in implement-feature Phase 3 for independent subagent work (API, UI, tests)
+  - **Progress visualization** using `TaskList` after each phase completion
+  - **Dependency patterns**: Sequential chains, parallel with convergence, blocking relationships with `addBlockedBy`
+  - **Task metadata tracking**: Subagent ownership, component types, parent-child relationships, blocker reasons
+
+- **project-planner Skill**: New skill for breaking down large projects into dependency-aware tasks (21 total skills now)
+  - **5-phase workflow**: Project Analysis → Task Breakdown → Dependency Mapping → Visualization → Progress Tracking
+  - **Mermaid diagram generation**: Visual dependency graphs showing critical paths and parallel work
+  - **Task templates** for common project types (Web Feature, API Development, Database Migration, Refactoring, Authentication System)
+  - **Multi-phase projects**: Support for epics and milestones with metadata hierarchies
+  - **Risk assessment**: High-risk task identification with metadata tracking
+  - **Resource allocation**: Team ownership and time estimation support
+  - **Progressive disclosure**: SKILL.md + `references/task-patterns.md` (12 patterns) + `references/dependency-examples.md` (6 complex scenarios)
+  - Added to `cc-arsenal` (full) and `cc-arsenal-dev` plugin variants
+
+- **Task Management Best Practices Guide**: Comprehensive reference for `implement-feature` skill
+  - `skills/implement-feature/references/task-best-practices.md` (400+ lines)
+  - When to use tasks vs simple execution (granularity guidelines)
+  - Dependency patterns: Sequential chain, parallel with convergence, diamond pattern
+  - Handling task failures: Test failures, external blockers, changing requirements
+  - Resuming sessions with existing tasks using `TaskList` and `TaskGet`
+  - Progress visualization patterns and metadata enrichment strategies
+  - Common antipatterns and comprehensive checklist
+
+### Changed
+
+- **implement-feature Skill**: Replaced TodoWrite with Task Management System
+  - Updated `allowed-tools`: Removed `TodoWrite`, added `TaskCreate, TaskUpdate, TaskList, TaskGet`
+  - Added "Task Management" section explaining when to use tasks vs simple execution
+  - Phase 0 now creates complete task structure with 6 tasks and dependencies upfront
+  - Each phase includes explicit task status updates (`in_progress` → `completed`)
+  - Phase 3 demonstrates parallel subagent task tracking with metadata
+  - Added Haiku model specification for discovery/research agents (Phases 0-1)
+  - All phases end with `TaskList` call to show progress
+
+- **fix-bug Skill**: Replaced TodoWrite with strict sequential task chain
+  - Updated `allowed-tools`: Removed `TodoWrite`, added `TaskCreate, TaskUpdate, TaskList, TaskGet`
+  - Added "Task Management" section emphasizing strict sequential dependencies
+  - Phase 0 creates 6 tasks with strict chain (each blocked by previous)
+  - Root cause analysis agents (Phase 1) use Haiku model for token efficiency
+  - Task chain enforces test-driven development (cannot skip phases)
+  - Updated `references/examples.md` with task tracking examples and quality checklist
+  - Added task chain setup example and phase progression pattern
+
+- **Plugin Manifests**: Bumped all plugin versions to 2.1.0
+  - `cc-arsenal`: Updated description to "21 skills" (from 20)
+  - `cc-arsenal-dev`: Added `./skills/project-planner/` to skills list
+  - All variant plugins (`cc-arsenal-docs`, `cc-arsenal-git`, `cc-arsenal-skills`) updated to 2.1.0
+
+### Technical Details
+
+- **Task Lifecycle**: `pending` → `in_progress` → `completed` (or `deleted` for removal)
+- **Dependency Enforcement**: Tasks with `blockedBy` cannot start until dependencies complete
+- **Metadata Usage**: Track subagent ownership, component types, parent tasks, risk levels, time estimates
+- **Model Selection**: `model: "haiku"` for exploration/research, default (Sonnet) for code generation
+- **Progressive Disclosure**: Large reference files loaded on-demand to minimize initial context
+
 ## [2.0.0] - 2026-02-01
 
 ### Changed
