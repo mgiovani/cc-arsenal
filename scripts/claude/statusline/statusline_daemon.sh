@@ -175,13 +175,14 @@ _daemon_loop() {
     printf "%d" $$ > "$PID_FILE" 2>/dev/null
     log_message "Daemon started with PID $$"
 
-    # Initial update
-    update_cache || log_message "WARNING: Initial cache update failed"
+    # Initial update (run in background to avoid blocking daemon startup)
+    # This allows the daemon to register quickly while OAuth fetch happens asynchronously
+    (update_cache || log_message "WARNING: Initial cache update failed") &
 
     # Main event loop
     while true; do
-        update_cache || log_message "ERROR: Cache update failed"
         sleep "$UPDATE_INTERVAL"
+        update_cache || log_message "ERROR: Cache update failed"
     done
 }
 
