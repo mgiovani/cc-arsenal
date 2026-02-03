@@ -33,7 +33,7 @@ Use Task tool with claude-code-guide agent:
     1. **SKILL.md Frontmatter Specification**:
        - Complete list of frontmatter fields (name, description, context, agent, etc.)
        - Required vs optional fields
-       - String substitution variables ($ARGUMENTS, $0, $1, etc.)
+       - String substitution variables ($0, $1, $ARGUMENTS for all args)
        - New fields like 'context', 'agent', 'user-invocable'
 
     2. **Skill Architecture**:

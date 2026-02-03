@@ -71,6 +71,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `cc-arsenal-dev`: Added `./skills/project-planner/` to skills list
   - All variant plugins (`cc-arsenal-docs`, `cc-arsenal-git`, `cc-arsenal-skills`) updated to 2.1.0
 
+- **Argument Syntax Documentation**: Updated to recommend `$N` shorthand over `$ARGUMENTS[N]`
+  - `skills/create-command/references/frontmatter-guide.md`: Reordered variable table to promote `$0, $1, $2...` shorthand, marked `$ARGUMENTS[N]` as legacy syntax
+  - `skills/create-command/references/design-patterns.md`: Updated example from `$ARGUMENTS` to `$0` for single argument access
+  - `skills/skill-creator/SKILL.md`: Updated variable reference order to `$0, $1, $ARGUMENTS for all args`
+  - `skills/create-command/SKILL.md`: Updated variable reference order to match recommended syntax
+  - Claude Code v2.1.19 introduced cleaner `$N` shorthand for indexed argument access
+
 ### Technical Details
 
 - **Task Lifecycle**: `pending` → `in_progress` → `completed` (or `deleted` for removal)

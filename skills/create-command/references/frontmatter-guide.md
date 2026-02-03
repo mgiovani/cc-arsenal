@@ -46,8 +46,8 @@ agent: Explore                      # Agent type when context: fork is set
 | Variable | Description |
 |----------|-------------|
 | `$ARGUMENTS` | All arguments passed when invoking the skill |
-| `$ARGUMENTS[N]` | Specific argument by 0-based index (e.g., `$ARGUMENTS[0]`) |
-| `$N` | Shorthand for `$ARGUMENTS[N]` (e.g., `$0`, `$1`) |
+| `$0`, `$1`, `$2`... | Specific argument by 0-based index (recommended shorthand) |
+| `$ARGUMENTS[N]` | Legacy syntax for specific argument (use `$N` shorthand instead) |
 | `${CLAUDE_SESSION_ID}` | Current session ID for logging or session-specific files |
 
 **Behavior when `$ARGUMENTS` is absent**: If the skill content does not contain `$ARGUMENTS`, any arguments passed are automatically appended as `ARGUMENTS: <value>` at the end of the skill content.

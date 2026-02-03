@@ -60,7 +60,7 @@ context: fork
 agent: Explore
 ---
 
-Research $ARGUMENTS thoroughly:
+Research $0 thoroughly:
 
 1. Find relevant files using Glob and Grep
 2. Read and analyze the code

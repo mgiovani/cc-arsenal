@@ -100,7 +100,7 @@ Use Task tool with claude-code-guide agent:
        - Complete list of frontmatter fields (name, description, etc.)
        - Required vs optional fields
        - New fields like 'context', 'agent', 'user-invocable'
-       - String substitution variables ($ARGUMENTS, $0, $1, etc.)
+       - String substitution variables ($0, $1, $ARGUMENTS for all args)
 
     2. **Skill Architecture**:
        - Current directory structure (SKILL.md, scripts/, references/, assets/)
