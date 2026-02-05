@@ -5,6 +5,102 @@ All notable changes to cc-arsenal will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.0] - 2026-02-05
+
+### Added
+
+- **team-implement**: Spec-driven team orchestration skill — adaptive development team that scales from 3 agents (lite) to 11 agents (full) based on project complexity
+  - **Multi-source input**: Accepts plain text, Jira tickets (`PROJ-123`), GitHub issues (`#42`), PRs (`!123`), files, directories, or URLs
+  - **Adaptive complexity**: Automatic scoring matrix evaluates 6 signals to recommend lite (Task subagents) or full (Teammate API) mode
+  - **Namespaced specs**: Each invocation creates `.specs/<short-id>/` with proposal, design, review, tasks, and decisions artifacts
+  - **Two macro phases**: Complete planning (Phases 0-5) with user approval gate before any code changes (Phases 6-9)
+  - **11 specialized agent roles**: Product Manager, Scrum Master, Architect (opus), Frontend Dev, Backend Dev, QA Engineer, Security Engineer, Performance Engineer, Infrastructure/DevOps, Tech Writer, Adversary Reviewer
+  - **3 lite-mode combined roles**: Product Analyst, Architect/Developer, QA/Reviewer
+  - **Wave-based spawning**: Agents spawn per phase and shut down when done to minimize cost
+  - **Adversarial review**: Dedicated review phases with BLOCKER/WARNING/SUGGESTION ratings and max 2 revision cycles
+  - **Quality gates**: 6 gates between phases (clarifying questions, spec review, adversarial review, user approval, quality verification, final delivery)
+  - **Spec-only mode**: Users can save planning artifacts without implementing
+  - **Reference documentation**: agent-catalog.md, spec-workflow.md, communication-patterns.md, spec-templates.md
+- **cc-arsenal-teams**: New plugin variant for team orchestration skills
+- Marketplace version bumped to 2.3.0 (22 skills total)
+
+## [2.2.0] - 2026-02-04
+
+### Added
+
+- **Quality Gates with Hooks**: Automated code quality verification before critical operations
+  - **git-commit**: PreToolUse hook runs linter before creating commits
+    - Supports Node.js (npm/bun/pnpm/yarn), Python (ruff/flake8), Ruby (rubocop), Go (golangci-lint)
+    - Blocks commits if linting fails, allows if passes or no linter configured
+    - Hook script: `skills/git-commit/scripts/pre-commit-lint.sh` (60s timeout)
+    - Auto-detects project type and runs appropriate linter
+  - **implement-feature**: Stop hook verifies implementation completeness before finishing
+    - Runs tests, linting, and type-checking using commands discovered in Phase 0
+    - Blocks completion if any check fails, provides clear error details
+    - Agent-based hook (180s timeout) for multi-step verification
+    - Enforces test-driven development discipline
+  - **fix-bug**: Stop hook ensures bug is actually fixed before completion
+    - Verifies originally failing test now passes
+    - Runs full regression suite to catch new bugs
+    - Validates root cause was addressed, not just symptoms
+    - Agent-based hook (120s timeout) for comprehensive verification
+  - **git-create-pr**: PreToolUse hook runs test suite before creating PR
+    - Supports Node.js, Python, Go, Rust test runners
+    - Blocks PR creation if tests fail, prevents broken CI builds
+    - Hook script: `skills/git-create-pr/scripts/pre-pr-check.sh` (120s timeout)
+    - Skips placeholder test scripts ("no test specified")
+  - **agent-browser**: Stop hook automatically closes browser sessions
+    - Prevents resource leaks from open browser processes
+    - Command hook with `once: true` (10s timeout)
+    - Runs `agent-browser close` on completion, ignores errors
+
+- **Context Optimization with Fork**: Isolated execution for verbose operations
+  - **10 skills now use `context: fork`** for clean main conversation:
+    - `review-security`: Security scans isolated, only findings summary returned
+    - `docs-check`: Documentation validation isolated, only health report returned
+    - `docs-diagram`: Diagram generation isolated, only final diagram returned
+    - `docs-adr`: ADR creation isolated, only completed ADR returned
+    - `docs-rfc`: RFC creation isolated, only completed RFC returned
+    - `docs-init`: Documentation setup isolated, only summary returned
+    - `docs-update`: Documentation sync isolated, only update summary returned
+    - `jira-daily`: Jira CLI output isolated, only standup report returned
+    - `jira-todo`: Jira CLI output isolated, only task list returned
+    - `project-planner`: Project analysis isolated, only plan/diagram returned
+  - **All forked skills use `agent: general-purpose`** for complex reasoning
+    - Changed from `agent: Explore` (Haiku 4.5) to `general-purpose` (Sonnet)
+    - Necessary for security analysis, documentation writing, and complex planning
+    - Explore agent only for simple read-only codebase navigation
+
+### Changed
+
+- **Hook Scripts**: Added two reusable quality gate scripts
+  - `skills/git-commit/scripts/pre-commit-lint.sh`: Multi-language linter detection and execution
+  - `skills/git-create-pr/scripts/pre-pr-check.sh`: Multi-language test runner detection and execution
+
+- **Skill Frontmatter**: Updated 13 skills with new Claude Code v2.1.0+ frontmatter features
+  - 5 skills with hooks: git-commit, implement-feature, fix-bug, git-create-pr, agent-browser
+  - 10 skills with context: fork for isolated execution
+  - All forked skills specify agent: general-purpose for Sonnet-powered reasoning
+
+- **Quality Documentation**: Added "Quality Gates" sections to relevant skills
+  - git-commit/SKILL.md: Documented pre-commit linting behavior, supported languages
+  - implement-feature/SKILL.md: Documented completion verification, example blocked output
+  - fix-bug/SKILL.md: Documented fix verification, regression checking
+
+### Technical Details
+
+- **Hook Types Used**:
+  - Command hooks: `pre-commit-lint.sh`, `pre-pr-check.sh`, `agent-browser close`
+  - Agent hooks: `implement-feature` Stop hook, `fix-bug` Stop hook
+  - Both types return JSON decisions for allow/deny/block
+- **Context Fork Benefits**:
+  - Reduces main conversation context overhead by ~70-90%
+  - Keeps verbose tool output (grep, CLI commands) isolated
+  - Returns only user-relevant summaries to main conversation
+- **Agent Selection Rationale**:
+  - `general-purpose` (Sonnet): For all forked skills requiring reasoning
+  - `Explore` (Haiku): Reserved for future simple read-only exploration
+
 ## [2.1.0] - 2026-02-03
 
 ### Added

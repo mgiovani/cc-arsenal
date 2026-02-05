@@ -8,7 +8,7 @@ This is the **Claude Code Arsenal** - a professional collection of skills for de
 
 ### Core Components
 
-- **Skills** (`skills/`): 21 skills covering development, documentation, git, jira, claude utilities, browser automation, project planning, and skill discovery
+- **Skills** (`skills/`): 22 skills covering development, documentation, git, jira, claude utilities, browser automation, project planning, and skill discovery
 - **Scripts** (`scripts/`): Professional Python utilities for installation, configuration, and code generation
 - **Commands** (`commands/`): Legacy commands kept for backward compatibility (skills take precedence)
 
@@ -25,11 +25,12 @@ Then, to install a specific plugin set:
 1. Select **Browse and install plugins**
 2. Select **cc-arsenal-marketplace**
 3. Select one of:
-   - **cc-arsenal** - Complete toolkit (all 21 skills)
+   - **cc-arsenal** - Complete toolkit (all 22 skills)
    - **cc-arsenal-dev** - Development skills only (implement-feature, fix-bug, review-security, inject-nextjs-docs, project-planner)
    - **cc-arsenal-docs** - Documentation skills only (ADR, RFC, diagrams, init, check, update)
    - **cc-arsenal-git** - Git workflow skills only (commit, create-pr)
    - **cc-arsenal-skills** - Specialty skills only (agent-browser, jira-cli, skill-creator, find-skills)
+   - **cc-arsenal-teams** - Spec-driven team orchestration (team-implement)
 4. Select **Install now**
 
 Alternatively, directly install via:
@@ -54,11 +55,12 @@ This repository uses a "plugin variants" architecture where multiple installatio
 
 | Plugin | Skills Loaded | Use Case |
 |--------|--------------|----------|
-| `cc-arsenal` | All 21 skills | Full toolkit for complete workflow automation |
+| `cc-arsenal` | All 22 skills | Full toolkit for complete workflow automation |
 | `cc-arsenal-dev` | implement-feature, fix-bug, review-security, inject-nextjs-docs, project-planner | Development workflows with subagents |
 | `cc-arsenal-docs` | docs-adr, docs-check, docs-diagram, docs-init, docs-rfc, docs-update | Documentation generation only |
 | `cc-arsenal-git` | git-commit, git-create-pr | Git workflow automation |
 | `cc-arsenal-skills` | agent-browser, jira-cli, skill-creator, find-skills | Specialty model-invoked capabilities |
+| `cc-arsenal-teams` | team-implement | Spec-driven team orchestration (experimental) |
 
 **How It Works:**
 - Single repository with all skills in `skills/` directory
@@ -213,7 +215,7 @@ make -C scripts/claude-hi remove    # Remove schedule
 make -C scripts/claude-hi now       # Send 'hi' immediately
 ```
 
-## Available Skills (21 total)
+## Available Skills (22 total)
 
 All components are skills with progressive disclosure (SKILL.md + optional references/scripts/assets directories).
 
@@ -244,6 +246,9 @@ All components are skills with progressive disclosure (SKILL.md + optional refer
 - **create-command**: Create new skills (slash commands) from templates
 - **create-rule**: Create CLAUDE.md rules and memory guidelines
 
+### Teams (1 skill)
+- **team-implement**: Spec-driven team orchestration — adaptive development team scaling from 3 to 11 agents based on complexity. Accepts plain text, Jira tickets, GitHub issues, PRs, files, or URLs. Requires `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` for full mode.
+
 ### Specialty Skills (4 skills)
 - **agent-browser**: AI-optimized browser automation with 93% less context overhead than Playwright MCP
 - **find-skills**: Discover and install third-party agent skills from skills.sh
@@ -260,7 +265,7 @@ All components in cc-arsenal are **skills**. Skills come in two flavors:
   - Examples: `/git-commit`, `/docs-adr`, `/project-planner`
   - Best for: Git operations, documentation generation, project planning
   - Can still be invoked with `/` slash commands
-  - 15 user-invoked skills available
+  - 16 user-invoked skills available
 
 - **Model-invoked skills** (`disable-model-invocation: false` or unset): Capabilities Claude automatically loads when relevant
   - Examples: implement-feature, fix-bug, agent-browser, jira-cli, skill-creator, find-skills
@@ -342,7 +347,7 @@ All code changes should go through integrated quality gates:
 ## File Organization
 ```
 cc-arsenal/
-├── skills/          # All 20 skills (primary component type)
+├── skills/          # All 22 skills (primary component type)
 │   ├── implement-feature/   # Feature implementation with subagents
 │   ├── fix-bug/             # Test-driven debugging
 │   ├── review-security/     # OWASP security analysis
@@ -362,7 +367,8 @@ cc-arsenal/
 │   ├── agent-browser/       # Browser automation
 │   ├── find-skills/         # Third-party skill discovery
 │   ├── skill-creator/       # Skill creation guide
-│   └── jira-cli/            # Jira CLI integration
+│   ├── jira-cli/            # Jira CLI integration
+│   └── team-implement/      # Spec-driven team orchestration
 ├── commands/        # Legacy commands (backward compatibility)
 │   ├── dev/            # Development commands
 │   ├── docs/           # Documentation commands

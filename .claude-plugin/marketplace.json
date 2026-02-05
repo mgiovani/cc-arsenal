@@ -7,15 +7,15 @@
   },
   "metadata": {
     "description": "Claude Code Arsenal - Professional skills for development workflows",
-    "version": "2.1.0"
+    "version": "2.3.0"
   },
   "plugins": [
     {
       "name": "cc-arsenal",
       "source": "./",
       "strict": true,
-      "description": "Complete toolkit: all 21 skills covering development, documentation, git, jira, claude utilities, browser automation, project planning, and more",
-      "version": "2.1.0",
+      "description": "Complete toolkit: all 22 skills covering development, documentation, git, jira, claude utilities, browser automation, project planning, team orchestration, and more",
+      "version": "2.3.0",
       "author": {
         "name": "Giovani Moutinho",
         "email": "e@giovani.dev",
@@ -24,7 +24,7 @@
       "homepage": "https://github.com/mgiovani/cc-arsenal",
       "repository": "https://github.com/mgiovani/cc-arsenal",
       "license": "MIT",
-      "keywords": ["productivity", "git", "documentation", "jira", "workflow", "automation", "browser-automation", "skills"],
+      "keywords": ["productivity", "git", "documentation", "jira", "workflow", "automation", "browser-automation", "skills", "teams"],
       "category": "productivity"
     },
     {
@@ -32,7 +32,7 @@
       "source": "./",
       "strict": false,
       "description": "Development skills: feature implementation, bug fixing, security review, project planning, and Next.js docs injection",
-      "version": "2.1.0",
+      "version": "2.3.0",
       "author": {
         "name": "Giovani Moutinho",
         "email": "e@giovani.dev",
@@ -56,7 +56,7 @@
       "source": "./",
       "strict": false,
       "description": "Documentation skills: ADR, RFC, diagrams, init, check, and update",
-      "version": "2.1.0",
+      "version": "2.3.0",
       "author": {
         "name": "Giovani Moutinho",
         "email": "e@giovani.dev",
@@ -81,7 +81,7 @@
       "source": "./",
       "strict": false,
       "description": "Git workflow skills: conventional commits and PR creation",
-      "version": "2.1.0",
+      "version": "2.3.0",
       "author": {
         "name": "Giovani Moutinho",
         "email": "e@giovani.dev",
@@ -102,7 +102,7 @@
       "source": "./",
       "strict": false,
       "description": "Specialty skills: Browser automation (agent-browser), Jira CLI, skill creation guide, and third-party skill discovery (find-skills)",
-      "version": "2.1.0",
+      "version": "2.3.0",
       "author": {
         "name": "Giovani Moutinho",
         "email": "e@giovani.dev",
@@ -118,6 +118,26 @@
         "./skills/find-skills/",
         "./skills/jira-cli/",
         "./skills/skill-creator/"
+      ]
+    },
+    {
+      "name": "cc-arsenal-teams",
+      "source": "./",
+      "strict": false,
+      "description": "Spec-driven team orchestration: adaptive development team that scales from 3 to 11 agents based on project complexity",
+      "version": "2.3.0",
+      "author": {
+        "name": "Giovani Moutinho",
+        "email": "e@giovani.dev",
+        "url": "https://github.com/mgiovani/cc-arsenal"
+      },
+      "homepage": "https://github.com/mgiovani/cc-arsenal",
+      "repository": "https://github.com/mgiovani/cc-arsenal",
+      "license": "MIT",
+      "keywords": ["teams", "spec-driven", "agents", "orchestration", "development"],
+      "category": "development",
+      "skills": [
+        "./skills/team-implement/"
       ]
     }
   ]
