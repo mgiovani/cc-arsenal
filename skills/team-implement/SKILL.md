@@ -22,7 +22,7 @@ CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
 
 **Lite mode** works without this flag (uses Task subagents instead of Teammate API).
 
-**Delegate mode** (recommended for full mode): Press `Shift+Tab` to enable delegate mode, which restricts the lead to coordination-only tools and prevents it from implementing tasks itself.
+**Delegate mode** (recommended for full mode): Press `Shift+Tab` to enable delegate mode, which restricts the lead to coordination-only tools and prevents it from implementing tasks itself. Without delegate mode, always wait for teammates to complete their tasks before proceeding — do not implement tasks yourself.
 
 ## Input
 
@@ -261,7 +261,7 @@ If BLOCKERs found:
 - `.specs/<short-id>/tasks/task-breakdown.md`
 - `.specs/<short-id>/tasks/task-graph.md` (Mermaid dependency graph)
 
-Orchestrator creates TaskCreate entries with dependencies via the Task Management System.
+Orchestrator creates TaskCreate entries with dependencies via the Task Management System. Target 5-6 tasks per teammate — too small wastes coordination overhead, too large risks wasted effort without check-ins.
 
 ### Lite Mode
 
