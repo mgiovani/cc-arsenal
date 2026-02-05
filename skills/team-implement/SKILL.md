@@ -22,6 +22,8 @@ CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
 
 **Lite mode** works without this flag (uses Task subagents instead of Teammate API).
 
+**Display mode** (recommended for full mode): Set `"teammateMode": "tmux"` in `settings.json` to give each teammate its own split pane via tmux. This lets you see all agents working simultaneously and click into any pane to interact directly. Requires [tmux](https://github.com/tmux/tmux/wiki/Installing) installed. Default is `"auto"` (uses split panes if already in tmux, otherwise in-process).
+
 **Delegate mode** (recommended for full mode): Press `Shift+Tab` to enable delegate mode, which restricts the lead to coordination-only tools and prevents it from implementing tasks itself. Without delegate mode, always wait for teammates to complete their tasks before proceeding — do not implement tasks yourself.
 
 ## Input
