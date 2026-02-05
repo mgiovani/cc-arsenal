@@ -4,6 +4,8 @@ description: "Update documentation by synchronizing with the current codebase st
 disable-model-invocation: true
 argument-hint: "[all|<doc-name>|category:<name>]"
 allowed-tools: Read, Write, Grep, Glob, Bash(git *), Task, TodoWrite
+context: fork
+agent: general-purpose
 ---
 
 # Update Documentation

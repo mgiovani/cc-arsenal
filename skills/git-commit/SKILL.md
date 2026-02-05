@@ -4,6 +4,13 @@ description: "Generate conventional commits following conventionalcommits.org sp
 disable-model-invocation: true
 argument-hint: ""
 allowed-tools: ["Bash(git *)", "Read", "Edit", "Write", "Task", "TodoWrite"]
+hooks:
+  PreToolUse:
+    - matcher: "Bash(git commit*)"
+      hooks:
+        - type: command
+          command: "./skills/git-commit/scripts/pre-commit-lint.sh"
+          timeout: 60
 ---
 
 # Conventional Commit
@@ -17,6 +24,41 @@ Generate a conventional commit message following https://www.conventionalcommits
 2. **Verify scope** - Check which files/modules actually changed before setting scope
 3. **Check breaking changes** - Look for removed exports, changed APIs, deleted functions
 4. **No guessing** - If unsure about change purpose, ask user rather than assume
+
+## Quality Gates
+
+This skill includes automatic code quality verification before committing:
+
+### Pre-commit Linting (PreToolUse Hook)
+
+Before executing `git commit`, the following linting checks run automatically:
+
+**Supported Project Types:**
+- **Node.js** (package.json): Runs `npm run lint`, `bun run lint`, `pnpm run lint`, or `yarn run lint`
+- **Python** (pyproject.toml): Runs `ruff check .` or `flake8 .`
+- **Makefile**: Runs `make lint` if target exists
+- **Ruby** (.rubocop.yml): Runs `rubocop`
+- **Go** (.golangci.yml): Runs `golangci-lint run`
+
+**Behavior:**
+- ✅ **Linting passes**: Commit proceeds normally
+- ❌ **Linting fails**: Commit is blocked with clear error message
+- ℹ️ **No linter configured**: Commit proceeds without linting (non-blocking)
+
+**Example blocked commit:**
+```
+🔍 Running: ruff check .
+❌ Linting failed: ruff check reported errors. Fix lint errors before committing.
+
+Found 3 errors in src/utils.py:
+- Line 42: Undefined name 'foo'
+- Line 55: Unused import 'os'
+- Line 78: Line too long (120 > 88 characters)
+```
+
+**To fix**: Address the linting errors and run the commit command again.
+
+**To bypass** (not recommended): Fix the underlying lint errors instead of bypassing. Quality gates ensure code meets project standards.
 
 ## Workflow
 

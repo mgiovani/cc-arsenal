@@ -4,6 +4,8 @@ description: "Create numbered Architecture Decision Records (ADR) documenting ar
 disable-model-invocation: true
 argument-hint: "<title> [variant]"
 allowed-tools: Read, Write, Grep, Glob, Task
+context: fork
+agent: general-purpose
 ---
 
 # Create Architecture Decision Record

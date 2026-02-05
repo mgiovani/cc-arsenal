@@ -1,6 +1,13 @@
 ---
 name: agent-browser
 description: "Headless browser automation CLI optimized for AI agents. Uses snapshot + refs system for 93% less context overhead vs Playwright. Purpose-built for web testing, form automation, screenshots, and data extraction."
+hooks:
+  Stop:
+    - hooks:
+      - type: command
+        command: "agent-browser close 2>/dev/null || true"
+        once: true
+        timeout: 10
 ---
 
 # agent-browser

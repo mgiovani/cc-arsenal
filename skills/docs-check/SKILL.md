@@ -4,6 +4,8 @@ description: "Validate documentation freshness, completeness, and quality agains
 disable-model-invocation: true
 argument-hint: "[focus]"
 allowed-tools: Read, Grep, Glob, Bash(git *, find *), Task
+context: fork
+agent: general-purpose
 ---
 
 # Check Documentation Quality

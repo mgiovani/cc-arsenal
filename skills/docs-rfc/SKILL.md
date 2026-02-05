@@ -4,6 +4,8 @@ description: "Create numbered RFC (Request For Comments) documents for proposing
 disable-model-invocation: true
 argument-hint: "<title> [variant]"
 allowed-tools: Read, Write, Grep, Glob, Bash(git *), Task
+context: fork
+agent: general-purpose
 ---
 
 # Create Request For Comments

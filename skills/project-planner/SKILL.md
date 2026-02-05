@@ -4,6 +4,8 @@ description: "Break down large projects into dependency-aware tasks with progres
 disable-model-invocation: true
 argument-hint: "<project_description>"
 allowed-tools: Read, Write, Grep, Glob, Task, TaskCreate, TaskUpdate, TaskList, TaskGet, WebFetch, AskUserQuestion
+context: fork
+agent: general-purpose
 ---
 
 # Project Planner

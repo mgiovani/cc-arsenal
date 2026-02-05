@@ -4,6 +4,8 @@ description: "Initialize comprehensive documentation structure for a project bas
 disable-model-invocation: true
 argument-hint: "[context]"
 allowed-tools: Read, Write, Grep, Glob, Bash(git *), Task
+context: fork
+agent: general-purpose
 ---
 
 # Initialize Project Documentation

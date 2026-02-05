@@ -4,6 +4,12 @@ description: "Implement features using senior staff engineer best practices with
 disable-model-invocation: false
 argument-hint: "<feature_description>"
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, Task, TaskCreate, TaskUpdate, TaskList, TaskGet, WebFetch, EnterPlanMode, AskUserQuestion
+hooks:
+  Stop:
+    - hooks:
+      - type: agent
+        prompt: "Verify implementation is complete and correct:\n\n1. **Run tests**: Use the test command discovered in Phase 0. All tests must pass.\n2. **Run linter**: Use the lint command discovered in Phase 0. No linting errors allowed.\n3. **Run type check**: If applicable, run type-check/build command.\n\nIf any check fails, report the failure clearly and return decision: block with reason. Only allow stopping when all checks pass.\n\nDiscovered commands should be in the task context from Phase 0. If Phase 0 was not completed, discover them now by reading CLAUDE.md, checking for Makefile/package.json/pyproject.toml, and identifying test/lint/build commands."
+        timeout: 180
 ---
 
 # Feature Implementation
@@ -21,6 +27,45 @@ $ARGUMENTS
 2. **Read CLAUDE.md** - Every project may have different conventions
 3. **Verify tools exist** - Check for `Makefile`, `justfile`, `package.json`, `pyproject.toml`, etc.
 4. **Never guess test commands** - Find the actual test runner used by this project
+
+## Quality Gates
+
+This skill includes automatic implementation verification before completion:
+
+### Completion Verification (Stop Hook)
+
+When you attempt to stop working (mark implementation as complete), an automated verification agent runs to ensure quality:
+
+**Verification Steps:**
+1. **Test Suite**: Runs discovered test command from Phase 0 (e.g., `make test`, `npm test`, `pytest`)
+2. **Linting**: Runs discovered lint command from Phase 0 (e.g., `make lint`, `npm run lint`, `ruff check`)
+3. **Type Checking**: If applicable, runs type-check or build command
+
+**Behavior:**
+- ✅ **All checks pass**: Implementation marked complete
+- ❌ **Any check fails**: Completion blocked, error details provided, Claude continues working to fix issues
+- ℹ️ **Commands not found**: Hook attempts to discover commands from CLAUDE.md or project files
+
+**Example blocked completion:**
+```
+⚠️ Implementation verification failed:
+
+Tests: ❌ FAILED (3 tests failing)
+  - test_user_authentication: AssertionError
+  - test_oauth_flow: Connection timeout
+  - test_token_refresh: Invalid token
+
+Lint: ✅ PASSED
+Type Check: ✅ PASSED
+
+🔧 Cannot complete implementation until all tests pass. Please fix the failing tests.
+```
+
+**Benefits:**
+- Prevents marking features "complete" when tests are failing
+- Catches regressions before moving on
+- Enforces test-driven development discipline
+- Ensures production-ready code quality
 
 ## Task Management
 

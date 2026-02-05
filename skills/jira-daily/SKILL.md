@@ -4,6 +4,8 @@ description: "Generate smart standup reports from Jira activity and git history.
 disable-model-invocation: true
 argument-hint: "[--project <KEY>] [--since <date>] [--format <format>]"
 allowed-tools: Bash(jira *), Bash(git *), Bash(cat *), Bash(date *), Read, Task, TodoWrite
+context: fork
+agent: general-purpose
 ---
 
 # Jira Daily - Standup Meeting Preparation

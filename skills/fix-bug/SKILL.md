@@ -4,6 +4,12 @@ description: "Fix bugs using test-driven debugging, root cause analysis, and com
 disable-model-invocation: false
 argument-hint: "[bug_description_or_issue_id] [--branch name] [--interactive]"
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, Task, TaskCreate, TaskUpdate, TaskList, TaskGet, WebFetch, AskUserQuestion
+hooks:
+  Stop:
+    - hooks:
+      - type: agent
+        prompt: "Verify bug fix is complete and correct:\n\n1. **Reproduce fix**: Run the originally failing test or scenario. It must now pass.\n2. **No regressions**: Run full test suite using the test command from Phase 0. All tests must pass.\n3. **Root cause addressed**: Verify the fix addresses the actual root cause, not just symptoms.\n\nIf any verification fails, report it clearly and return decision: block with reason. Only allow stopping when the bug is truly fixed.\n\nUse test commands discovered in Phase 0. If not available, discover them now from CLAUDE.md or project files."
+        timeout: 120
 ---
 
 # Bug Fix
@@ -19,6 +25,43 @@ Fix bugs systematically using test-driven development, root cause analysis, and 
 4. **Test verification** - Run full test suite to prove fix works. All tests must pass.
 5. **No invented fixes** - Only implement solutions that address the demonstrated root cause.
 6. **Reference real code** - Never make claims about code that has not been read.
+
+## Quality Gates
+
+This skill includes automatic bug fix verification before completion:
+
+### Fix Verification (Stop Hook)
+
+When you attempt to stop working (mark bug as fixed), an automated verification agent runs to ensure the fix is complete:
+
+**Verification Steps:**
+1. **Fix Confirmation**: Runs the originally failing test or reproduces the bug scenario. Must now pass/work.
+2. **Regression Check**: Runs full test suite to ensure no new bugs introduced
+3. **Root Cause Validation**: Verifies the fix addresses the actual root cause, not just symptoms
+
+**Behavior:**
+- ✅ **All verifications pass**: Bug marked as fixed
+- ❌ **Any verification fails**: Completion blocked, Claude continues debugging
+- ⚠️ **Original test not identified**: Hook attempts to find relevant tests or asks for clarification
+
+**Example blocked completion:**
+```
+⚠️ Bug fix verification failed:
+
+Original Issue: ❌ STILL FAILING
+  - The bug still reproduces with the same error
+  - Test: test_user_login still fails with AuthenticationError
+
+Regression: ✅ PASSED (other tests still pass)
+
+🔧 The fix does not resolve the original issue. Root cause analysis needed.
+```
+
+**Benefits:**
+- Prevents marking bugs "fixed" when they still reproduce
+- Catches regression bugs introduced by the fix
+- Enforces test-driven debugging discipline
+- Ensures actual root cause is addressed, not just symptoms
 
 ## Bug Description
 

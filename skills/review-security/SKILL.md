@@ -4,6 +4,8 @@ description: "Perform comprehensive security review targeting OWASP Top 10 2025 
 disable-model-invocation: true
 argument-hint: "[pr_number|commit_sha|--all] [--scope scope]"
 allowed-tools: Read, Grep, Glob, Bash(git *), Bash(gh *), Task, TodoWrite, AskUserQuestion
+context: fork
+agent: general-purpose
 ---
 
 # Security Review

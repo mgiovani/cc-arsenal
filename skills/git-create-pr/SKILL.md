@@ -4,6 +4,13 @@ description: "Create a GitHub Pull Request with conventional commit format and p
 disable-model-invocation: true
 argument-hint: "[--base branch] [--draft]"
 allowed-tools: ["Bash(git *)", "Bash(gh *)", "Read", "Write", "Task", "TodoWrite"]
+hooks:
+  PreToolUse:
+    - matcher: "Bash(gh pr create*)"
+      hooks:
+        - type: command
+          command: "./skills/git-create-pr/scripts/pre-pr-check.sh"
+          timeout: 120
 ---
 
 # Create Pull Request

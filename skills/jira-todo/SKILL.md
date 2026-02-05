@@ -4,6 +4,8 @@ description: "Generate smart daily work plans with intelligent prioritization fr
 disable-model-invocation: true
 argument-hint: "[--project <KEY>] [--urgent-only] [--time-box <hours>]"
 allowed-tools: Bash(jira *), Bash(git *), Bash(cat *), Read, Task, TodoWrite
+context: fork
+agent: general-purpose
 ---
 
 # Jira Todo - Daily Work Prioritization

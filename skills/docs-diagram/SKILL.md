@@ -4,6 +4,8 @@ description: "Generate Mermaid diagrams from codebase analysis including archite
 disable-model-invocation: true
 argument-hint: "<type> [context]"
 allowed-tools: Read, Write, Grep, Glob, Task
+context: fork
+agent: general-purpose
 ---
 
 # Generate System Diagrams
