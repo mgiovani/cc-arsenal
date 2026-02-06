@@ -8,8 +8,8 @@ Tools to make Claude Code more useful: track your usage costs, schedule optimal 
 
 ## What's included
 
-**31 Skills** - Workflow automation for development, docs, git, github, code review, testing, and more
-- Development: feature implementation, bug fixing, testing, refactoring, code review, security review, dependency audit, performance analysis, CI/CD generation, project planning
+**32 Skills** - Workflow automation for development, docs, git, github, code review, testing, and more
+- Development: feature implementation, bug fixing, testing, refactoring, code review, security review, dependency audit, performance analysis, CI/CD generation, framework documentation injection (Next.js/FastAPI), project planning
 - Documentation: ADR, RFC, diagrams, init, check, update
 - Git & GitHub: conventional commits, PR creation, release management, GitHub Issues daily planner
 - Jira: daily standup reports and work prioritization
@@ -40,8 +40,8 @@ This opens the plugin browser where you can select:
 
 | Plugin | What's Included | Best For |
 |--------|----------------|----------|
-| **cc-arsenal** | All 31 skills | Complete workflow automation |
-| **cc-arsenal-dev** | implement-feature, fix-bug, test-suite, refactor, review-code, review-security, review-deps, review-perf, ci-generate, inject-nextjs-docs, project-planner | Development workflows with code quality, testing, and CI/CD |
+| **cc-arsenal** | All 32 skills | Complete workflow automation |
+| **cc-arsenal-dev** | implement-feature, fix-bug, test-suite, refactor, review-code, review-security, review-deps, review-perf, ci-generate, inject-docs, inject-nextjs-docs, project-planner | Development workflows with code quality, testing, CI/CD, and framework docs |
 | **cc-arsenal-docs** | docs-adr, docs-check, docs-diagram, docs-init, docs-rfc, docs-update | Documentation generation |
 | **cc-arsenal-git** | git-commit, git-create-pr, git-release, gh-daily | Git & GitHub workflows: commits, PRs, releases, issue planning |
 | **cc-arsenal-review** | review-code, review-security, review-deps, review-perf | Code review, security, dependencies, performance analysis |
@@ -96,7 +96,7 @@ make claude-hi-standard   # Quick 9am/2pm/7pm schedule
 
 All 31 skills organized by category:
 
-**Development** (11 skills):
+**Development** (12 skills):
 - `/implement-feature` - Feature implementation with parallel subagents and automated test verification
 - `/fix-bug` - Test-driven debugging with fix verification
 - `/test-suite` - Test generation and coverage analysis (model-invoked)
@@ -106,7 +106,8 @@ All 31 skills organized by category:
 - `/review-deps` - Dependency audit, vulnerability scanning, and upgrade planning
 - `/review-perf` - Performance analysis with 4 parallel agents (database, algorithm, frontend, resources)
 - `/ci-generate` - CI/CD workflow generator (GitHub Actions, GitLab CI, CircleCI, Jenkins)
-- `/inject-nextjs-docs` - Next.js agents-md codemod
+- `/inject-docs` - **NEW** Framework documentation injector (Next.js via agents-md, FastAPI via best practices)
+- `/inject-nextjs-docs` - Next.js agents-md codemod (legacy, use `/inject-docs` instead)
 - `/project-planner` - Break down large projects into dependency-aware tasks
 
 **Documentation** (6 skills):

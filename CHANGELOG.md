@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+#### inject-docs - Framework Documentation Injector
+- **Category**: Development (cc-arsenal-dev)
+- **Type**: User-invoked
+- **Purpose**: Inject framework-specific best practices into CLAUDE.md/AGENTS.md for passive AI agent access
+- **Frameworks supported**:
+  - Next.js: Uses Vercel's agents-md codemod (version-aware, pipe-delimited compression)
+  - FastAPI: Injects zhanymkanov/fastapi-best-practices (domain-driven structure, async patterns, Pydantic validation)
+- **Features**:
+  - Auto-detects framework from package.json/pyproject.toml/requirements.txt
+  - Non-destructive: updates existing sections without overwriting
+  - Target file priority: CLAUDE.md → AGENTS.md → CLAUDE.md (create)
+- **Usage**: `/inject-docs` (auto-detect) or `/inject-docs [nextjs|fastapi]` (explicit)
+- **Components**:
+  - SKILL.md with complete workflow (detection, injection, verification)
+  - references/fastapi-best-practices.md (13KB reference content)
+  - scripts/inject_fastapi_docs.py (Python injection script)
+
+### Enhanced
+
+#### inject-nextjs-docs - Deprecated in favor of inject-docs
+- Legacy skill now superseded by the more general inject-docs skill
+- Existing functionality preserved for backward compatibility
+
 ## [3.0.0] - 2026-02-06
 
 ### Added - Tier 1: Must-Build Critical Skills
