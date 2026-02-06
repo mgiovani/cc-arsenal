@@ -8,12 +8,12 @@ Tools to make Claude Code more useful: track your usage costs, schedule optimal 
 
 ## What's included
 
-**22 Skills** - Workflow automation for development, docs, git, jira, and more
-- Development: feature implementation, bug fixing, security review, project planning
+**31 Skills** - Workflow automation for development, docs, git, github, code review, testing, and more
+- Development: feature implementation, bug fixing, testing, refactoring, code review, security review, dependency audit, performance analysis, CI/CD generation, project planning
 - Documentation: ADR, RFC, diagrams, init, check, update
-- Git: conventional commits and PR creation
+- Git & GitHub: conventional commits, PR creation, release management, GitHub Issues daily planner
 - Jira: daily standup reports and work prioritization
-- Teams: spec-driven team orchestration (experimental)
+- Teams: spec-driven development team and multi-agent PR review team (experimental)
 - Browser automation, skill discovery, and more
 - Easy to customize or create your own
 
@@ -40,12 +40,13 @@ This opens the plugin browser where you can select:
 
 | Plugin | What's Included | Best For |
 |--------|----------------|----------|
-| **cc-arsenal** | All 22 skills | Complete workflow automation |
-| **cc-arsenal-dev** | implement-feature, fix-bug, review-security, inject-nextjs-docs, project-planner | Development workflows with subagents |
+| **cc-arsenal** | All 31 skills | Complete workflow automation |
+| **cc-arsenal-dev** | implement-feature, fix-bug, test-suite, refactor, review-code, review-security, review-deps, review-perf, ci-generate, inject-nextjs-docs, project-planner | Development workflows with code quality, testing, and CI/CD |
 | **cc-arsenal-docs** | docs-adr, docs-check, docs-diagram, docs-init, docs-rfc, docs-update | Documentation generation |
-| **cc-arsenal-git** | git-commit, git-create-pr | Conventional commits, PR creation |
+| **cc-arsenal-git** | git-commit, git-create-pr, git-release, gh-daily | Git & GitHub workflows: commits, PRs, releases, issue planning |
+| **cc-arsenal-review** | review-code, review-security, review-deps, review-perf | Code review, security, dependencies, performance analysis |
 | **cc-arsenal-skills** | agent-browser, jira-cli, skill-creator, find-skills | Specialty model-invoked capabilities |
-| **cc-arsenal-teams** | team-implement | Spec-driven team orchestration (experimental) |
+| **cc-arsenal-teams** | team-implement, team-review | Spec-driven team orchestration (experimental) |
 
 > **Plugin Variants Pattern:** All variants install from the same repository but load different subsets of skills. Install the complete toolkit OR pick individual variants based on your needs. You can also install multiple variants together (e.g., git + docs).
 
@@ -93,21 +94,29 @@ make claude-hi-standard   # Quick 9am/2pm/7pm schedule
 
 ### 🛠️ Skills
 
-All 22 skills organized by category:
+All 31 skills organized by category:
 
-**Development** (5 skills):
+**Development** (11 skills):
 - `/implement-feature` - Feature implementation with parallel subagents and automated test verification
 - `/fix-bug` - Test-driven debugging with fix verification
+- `/test-suite` - Test generation and coverage analysis (model-invoked)
+- `/refactor` - Safe codebase refactoring with characterization tests (model-invoked)
+- `/review-code` - Multi-agent PR code review with 5 parallel specialists
 - `/review-security` - OWASP Top 10 2025 security analysis
+- `/review-deps` - Dependency audit, vulnerability scanning, and upgrade planning
+- `/review-perf` - Performance analysis with 4 parallel agents (database, algorithm, frontend, resources)
+- `/ci-generate` - CI/CD workflow generator (GitHub Actions, GitLab CI, CircleCI, Jenkins)
 - `/inject-nextjs-docs` - Next.js agents-md codemod
 - `/project-planner` - Break down large projects into dependency-aware tasks
 
 **Documentation** (6 skills):
 - `/docs-init`, `/docs-adr`, `/docs-rfc`, `/docs-diagram`, `/docs-check`, `/docs-update`
 
-**Git** (2 skills):
+**Git & GitHub** (4 skills):
 - `/git-commit` - Conventional commits with automated linting
 - `/git-create-pr` - PR with templates and test verification
+- `/git-release` - Release management with automated changelog generation
+- `/gh-daily` - GitHub Issues daily planner with priority scoring
 
 **Jira** (2 skills):
 - `/jira-daily` - Standup report generator
@@ -117,8 +126,9 @@ All 22 skills organized by category:
 - `/create-command` - Create new skills
 - `/create-rule` - Create memory rules
 
-**Teams** (1 skill — experimental):
+**Teams** (2 skills — experimental):
 - `/team-implement` - Spec-driven team orchestration that scales from 3 to 11 agents based on project complexity. Accepts plain text, Jira tickets, GitHub issues, files, or URLs as input.
+- `/team-review` - Multi-agent PR review team with 7 specialized reviewers + adversary reviewer
 
 **Specialty** (4 model-invoked skills):
 - `agent-browser` - AI-optimized browser automation (93% less context than Playwright)
