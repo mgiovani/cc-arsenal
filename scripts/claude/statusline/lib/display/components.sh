@@ -406,7 +406,7 @@ get_usage_line() {
                             # Round up to next full hour
                             local limit_rounded
                             limit_rounded=$(( (limit_epoch + 3599) / 3600 * 3600 ))
-                            limit_display=$(epoch_to_time_display "$limit_rounded" "+%b %d")
+                            limit_display=$(epoch_to_time_display "$limit_rounded" "+%b %d %H:%M")
                         fi
                     fi
 
