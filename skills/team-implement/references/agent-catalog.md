@@ -199,7 +199,7 @@ Only approve if ALL acceptance criteria are met. Be strict.
 
 #### Configuration
 - subagent_type: general-purpose
-- model: opus
+- model: sonnet
 - Phase: 3 (Architecture)
 - Activated when: Always in full mode
 
@@ -815,7 +815,7 @@ GET /api/users/search?search=%' OR 1=1; DROP TABLE users; --
 
 #### Configuration
 - subagent_type: general-purpose
-- model: haiku
+- model: sonnet
 - Phase: 7 (Testing & Review)
 - Activated when: Non-functional requirements include performance targets
 
@@ -907,7 +907,7 @@ const users = await User.findAll({
 
 #### Configuration
 - subagent_type: general-purpose
-- model: haiku
+- model: sonnet
 - Phase: 7 (Testing & Review)
 - Activated when: Feature requires deployment or infrastructure changes
 
@@ -1008,7 +1008,7 @@ You are the DevOps Engineer for [PROJECT_NAME]. Your responsibility is to ensure
 
 #### Configuration
 - subagent_type: general-purpose
-- model: haiku
+- model: sonnet
 - Phase: 8 (Documentation)
 - Activated when: Always in full mode
 
@@ -1287,7 +1287,7 @@ Report to main orchestrator when complete.
 #### Configuration
 - Spawned via: Task tool (not Teammate)
 - subagent_type: general-purpose
-- model: sonnet (or opus for complex features)
+- model: sonnet
 - Phase: 3 & 6 (Architecture + Implementation)
 
 #### Prompt Template

@@ -213,7 +213,7 @@ Spawn **Architect** (Wave 2, **opus** model). See [references/agent-catalog.md](
 ```
 Task tool (team_name: "team-<short-id>", name: "architect"):
   subagent_type: general-purpose
-  model: opus
+  model: sonnet
   prompt: [Architect prompt from agent-catalog.md]
 ```
 
@@ -407,14 +407,14 @@ For complete prompt templates and activation criteria, see [references/agent-cat
 |------|-------|-------|-----------|-----------|
 | Product Manager | sonnet | 2 | Dedicated | Combined as Product Analyst |
 | Scrum Master | sonnet | 2, 5 | Dedicated | Combined as Product Analyst |
-| Architect | **opus** | 3 | Dedicated | Combined as Architect/Developer |
+| Architect | sonnet | 3 | Dedicated | Combined as Architect/Developer |
 | Frontend Developer | sonnet | 6 | Dedicated | Combined as Architect/Developer |
 | Backend Developer | sonnet | 6 | Dedicated | Combined as Architect/Developer |
 | QA Engineer | sonnet | 7 | Dedicated | Combined as QA/Reviewer |
 | Security Engineer | sonnet | 7 | Conditional | Combined as QA/Reviewer |
-| Performance Engineer | haiku | 7 | Conditional | — |
-| Infrastructure/DevOps | haiku | 7 | Conditional | — |
-| Tech Writer | haiku | 8 | Dedicated | — |
+| Performance Engineer | sonnet | 7 | Conditional | — |
+| Infrastructure/DevOps | sonnet | 7 | Conditional | — |
+| Tech Writer | sonnet | 8 | Dedicated | — |
 | Adversary Reviewer | sonnet | 4, 7 | Dedicated | Combined as QA/Reviewer |
 
 ## Wave-Based Agent Lifecycle (Full Mode)

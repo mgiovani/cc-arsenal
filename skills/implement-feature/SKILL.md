@@ -320,8 +320,9 @@ If you encounter ambiguous requirements, report back and ask for clarification i
 ```
 
 **Model Selection for Subagents:**
-- **Use Sonnet (default)** for code implementation, test writing, and complex changes
-- **Use Haiku** only if the subagent is doing pure exploration/research (rare in Phase 3)
+- **Use Sonnet** for code implementation, test writing, documentation writing, architecture decisions, and complex changes
+- **Use Haiku** ONLY for exploration and research tasks
+- **Never use Opus** - too expensive for team/subagent workflows
 
 **After each subagent completes:**
 1. Review the changes
