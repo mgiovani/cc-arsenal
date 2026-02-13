@@ -6,9 +6,62 @@
 
 Tools to make Claude Code more useful: track your usage costs, schedule optimal coding windows, and automate common workflows.
 
+## Architecture
+
+cc-arsenal now uses a **dual-repository architecture** for maximum portability:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                      cc-arsenal (this repo)                  │
+│  ┌────────────────────┐         ┌─────────────────────────┐ │
+│  │ Enhanced Skills    │         │ Optional Features       │ │
+│  │ (Claude Code)      │         │ - Statusline            │ │
+│  │ - Subagents        │         │ - Claude Hi Scheduler   │ │
+│  │ - Task tool        │         │                         │ │
+│  │ - Advanced context │         │                         │ │
+│  └────────────────────┘         └─────────────────────────┘ │
+│           ↕ sync                                             │
+│  ┌────────────────────┐                                      │
+│  │ skills-upstream/   │ (git submodule)                      │
+│  │ mgiovani/skills    │                                      │
+│  └────────────────────┘                                      │
+└─────────────────────────────────────────────────────────────┘
+                         ↓
+        ┌────────────────────────────────────┐
+        │    mgiovani/skills (separate repo) │
+        │  ┌──────────────────────────────┐  │
+        │  │ Base Skills                  │  │
+        │  │ (Cross-Platform)             │  │
+        │  │ - Cursor, Windsurf, etc.     │  │
+        │  │ - No platform-specific deps  │  │
+        │  │ - Published to skills.sh     │  │
+        │  └──────────────────────────────┘  │
+        └────────────────────────────────────┘
+```
+
+**Base Skills** ([mgiovani/skills](https://github.com/mgiovani/skills)):
+- Cross-platform SKILL.md format
+- Works with Claude Code, Cursor, Windsurf, and more
+- No platform-specific features (no Task tool, no Claude Code-specific frontmatter)
+- Published to [skills.sh](https://skills.sh) for discoverability
+- 22 core skills for development, docs, git, and Jira workflows
+
+**Enhanced Skills** (cc-arsenal):
+- Claude Code-specific optimizations
+- Uses subagents (Task tool) for parallel work
+- Advanced context management and hooks
+- Builds on base skills with additional capabilities
+- 10 enhanced skills leveraging Claude Code's full power
+
+**Sync Workflow**:
+- Base skills maintained in `skills-upstream/` submodule
+- Enhanced versions in `skills/` add Claude Code features
+- Automated sync script keeps them aligned
+- Changes flow: base skills → enhanced skills
+
 ## What's included
 
-**32 Skills** - Workflow automation for development, docs, git, github, code review, testing, and more
+**22 Base Skills** (cross-platform) + **10 Enhanced Skills** (Claude Code) = Comprehensive workflow automation
 - Development: feature implementation, bug fixing, testing, refactoring, code review, security review, dependency audit, performance analysis, CI/CD generation, framework documentation injection (Next.js/FastAPI), project planning
 - Documentation: ADR, RFC, diagrams, init, check, update
 - Git & GitHub: conventional commits, PR creation, release management, GitHub Issues daily planner
@@ -29,9 +82,12 @@ Tools to make Claude Code more useful: track your usage costs, schedule optimal 
 
 ## Installation
 
-### Option 1: Claude Code Plugin (recommended)
+Choose your installation method based on your needs:
 
-Add the marketplace and select which plugins to install:
+### Option 1: Enhanced Skills (Claude Code Plugin) — Recommended for Claude Code
+
+Get the full power of cc-arsenal with subagent orchestration and Claude Code optimizations:
+
 ```bash
 /plugin marketplace add mgiovani/cc-arsenal
 ```
@@ -57,23 +113,25 @@ This opens the plugin browser where you can select:
 
 After installing, use skills like `/cc-arsenal:git-commit`, `/cc-arsenal:docs-adr`, `/cc-arsenal:implement-feature`, etc. Specialty skills (agent-browser, jira-cli, etc.) activate automatically when relevant.
 
-### Option 2: Agent Skills (`npx skills`)
+### Option 2: Base Skills (`npx skills`) — For Cross-Platform Use
 
-Install skills using the open [Agent Skills](https://skills.sh) ecosystem. Works with Claude Code, Cursor, Codex, and 30+ other AI agents:
+Install cross-platform base skills from [mgiovani/skills](https://github.com/mgiovani/skills) using the [Agent Skills](https://skills.sh) ecosystem. Works with Claude Code, Cursor, Windsurf, and 30+ other AI agents:
 
 ```bash
-# Install all skills
-npx skills add mgiovani/cc-arsenal
+# Install all base skills
+npx skills add mgiovani/skills
 
 # List available skills first
-npx skills add mgiovani/cc-arsenal --list
+npx skills add mgiovani/skills --list
 
 # Install a specific skill
-npx skills add mgiovani/cc-arsenal --skill agent-browser
+npx skills add mgiovani/skills/git-commit
 
 # Install globally (available across all projects)
-npx skills add mgiovani/cc-arsenal -g
+npx skills add mgiovani/skills -g
 ```
+
+**Note**: Base skills are streamlined for cross-platform compatibility. For Claude Code-specific features like parallel subagent orchestration, use Option 1 (Plugin) instead.
 
 ## Optional Features
 
@@ -187,14 +245,44 @@ make claude-hi-standard   # Quick 9am/2pm/7pm setup
 
 ## Contributing
 
-Contributions welcome! Fork the repo, make your changes, and submit a PR.
+Contributions welcome! We use a dual-repository model:
+
+### Where to Contribute
+
+**Base Skills** ([mgiovani/skills](https://github.com/mgiovani/skills)):
+- Cross-platform skill improvements
+- New skills that work across all agents
+- Bug fixes for core functionality
+- Documentation improvements
+
+**Enhanced Skills** (cc-arsenal):
+- Claude Code-specific features
+- Subagent orchestration improvements
+- Advanced context management
+- Optional features (Statusline, Claude Hi)
+
+### Development Setup
 
 ```bash
+# Clone cc-arsenal
 git clone https://github.com/mgiovani/cc-arsenal.git
 cd cc-arsenal
-make dev        # Set up development environment
+
+# Set up development environment
+make dev
+
+# Initialize submodule (for base skills)
+git submodule update --init --recursive
+
+# Run quality checks
 make test       # Run tests
 make check      # Run quality checks
+```
+
+**Sync Workflow** (for maintainers):
+```bash
+# After updating base skills in skills-upstream/
+make sync-skills    # Sync changes to skills/
 ```
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for details. Please also review our [Code of Conduct](docs/CODE_OF_CONDUCT.md).
