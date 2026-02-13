@@ -1,0 +1,3 @@
+[submodule "skills-upstream"]
+  path = skills-upstream
+  url = https://github.com/mgiovani/skills.git
