@@ -1,4 +1,4 @@
-.PHONY: help install configure dev test lint format type-check check coverage clean pre-commit-install pre-commit-run dry-run info validate-structure validate-plugins install-statusline uninstall-statusline
+.PHONY: help install configure dev test lint format type-check check coverage clean pre-commit-install pre-commit-run dry-run info validate-structure validate-plugins install-statusline uninstall-statusline sync-skills sync-skills-status
 
 # Default commands
 UV := uv
@@ -50,6 +50,19 @@ configure: dev ## Configure installed Claude Code Arsenal
 dry-run: dev ## Preview what would be installed (no changes made)
 	@echo "$(BLUE)Running installation preview...$(RESET)"
 	$(UV) run python -m scripts.setup.install --dry-run --verbose
+
+# ============================================================================
+# Skills Synchronization
+# ============================================================================
+
+sync-skills: dev ## Sync skills from mgiovani/skills + merge enhancements
+	@echo "$(BLUE)Syncing skills from upstream...$(RESET)"
+	$(UV) run python scripts/sync_skills.py
+	@echo "$(GREEN)Skills synchronized successfully$(RESET)"
+
+sync-skills-status: dev ## Show sync status for all skills
+	@echo "$(BLUE)Checking skills sync status...$(RESET)"
+	$(UV) run python scripts/sync_skills.py --status
 
 # ============================================================================
 # Development

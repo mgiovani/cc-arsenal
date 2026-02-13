@@ -1,12 +1,19 @@
 ---
 name: review-code
-description: "Perform comprehensive multi-agent code review for PRs, commits, or entire codebases. This skill should be used when a user wants a thorough code review covering correctness, performance, code style, test coverage, and error handling. Analysis only - identifies issues without modifying code."
-disable-model-invocation: true
-argument-hint: "[pr_number|commit_sha|--all] [--focus focus_area]"
-allowed-tools: Read, Grep, Glob, Bash(git *), Bash(gh *), Task, TodoWrite, AskUserQuestion
-context: fork
-agent: general-purpose
+description: Perform comprehensive multi-agent code review for PRs, commits, or entire
+  codebases. This skill should be used when a user wants a thorough code review covering
+  correctness, performance, code style, test coverage, and error handling. Analysis
+  only - identifies issues without modifying code.
+metadata:
+  author: mgiovani
+  version: 1.0.0
+  source: https://github.com/mgiovani/skills
 ---
+
+# Review Code
+
+> **Cross-Platform AI Agent Skill**
+> This skill works with any AI agent platform that supports the skills.sh standard.
 
 # Code Review
 
@@ -36,8 +43,6 @@ Arguments:
 - <commit_sha>: Review only files changed in commit (e.g., "abc123")
 - "--all" or no args: Review entire codebase
 - "--focus [correctness|performance|style|tests|errors]": Focus on specific review dimension
-```
-
 If PR or commit specified, use Bash to get changed files and diff context:
 ```bash
 # For PR - get files and full diff
@@ -47,29 +52,11 @@ gh pr diff <pr_number>
 # For commit
 git diff-tree --no-commit-id --name-only -r <commit_sha>
 git show <commit_sha>
-```
-
 **Important**: When reviewing a PR or commit, always retrieve the full diff. The diff context is essential for understanding what changed vs. what was already there. Agents should focus findings on **changed lines** while using surrounding code for context.
 
 ### Phase 1: Project Discovery
 
-Use an Explore agent to understand the project's technology stack, conventions, and quality standards:
-
-```
-Use Task tool with Explore agent:
-- prompt: "Discover the project's technology stack, coding conventions, and quality standards:
-    1. Read CLAUDE.md if it exists - extract coding conventions and patterns
-    2. Read package.json, pyproject.toml, pom.xml, go.mod to identify languages/frameworks
-    3. Check for linting/formatting configs: .eslintrc, .prettierrc, ruff.toml, .editorconfig
-    4. Identify test frameworks and patterns: jest, vitest, pytest, go test
-    5. Check for type checking: tsconfig.json, mypy.ini, pyright
-    6. Look at existing code style: naming conventions, error handling patterns, import organization
-    7. Check for CI/CD quality gates: .github/workflows for required checks
-    8. Note the project's architectural patterns: MVC, Clean Architecture, etc.
-    Return: Technology stack summary, coding conventions, quality standards, and test patterns."
-- subagent_type: "Explore"
-- model: "haiku"
-```
+Explore the codebase to understand the project's technology stack, conventions, and quality standards:
 
 ### Phase 2: Initialize Progress Tracking
 
@@ -107,10 +94,10 @@ After all agents complete:
 1. **Collect all findings** from the 5 parallel agents
 2. **Deduplicate** - Remove duplicate findings across agents (e.g., the same function flagged by both correctness and error handling agents)
 3. **Prioritize by severity**:
-   - **Critical**: Data corruption, crashes, security implications, broken business logic
-   - **Major**: Performance bottlenecks, reliability issues, test gaps for critical paths
-   - **Minor**: Code readability, minor inefficiencies, style inconsistencies
-   - **Nit**: Naming preferences, optional simplifications, cosmetic changes
+ - **Critical**: Data corruption, crashes, security implications, broken business logic
+ - **Major**: Performance bottlenecks, reliability issues, test gaps for critical paths
+ - **Minor**: Code readability, minor inefficiencies, style inconsistencies
+ - **Nit**: Naming preferences, optional simplifications, cosmetic changes
 4. **Categorize by dimension**: Group findings under the 5 specialist categories
 5. **Cross-reference**: Note findings that span multiple dimensions (e.g., a missing null check is both a correctness and error handling issue)
 6. **Statistics**: Count total findings by severity, by dimension, files reviewed vs. files with issues
@@ -131,14 +118,12 @@ Generate a comprehensive markdown report following the template in [references/r
 **This is the key differentiator.** After the initial review, if the user makes fixes and requests a re-review:
 
 1. **Detect changes since last review**:
-   ```bash
-   # Get files changed since the review started
-   git diff --name-only HEAD@{<timestamp>}..HEAD
-   # Or if on a branch with new commits
-   git diff --name-only <last_reviewed_commit>..HEAD
-   ```
-
-2. **Scope re-review to changed files only** - Do NOT re-scan the entire codebase
+ ```bash
+ # Get files changed since the review started
+ git diff --name-only HEAD@{<timestamp>}..HEAD
+ # Or if on a branch with new commits
+ git diff --name-only <last_reviewed_commit>..HEAD
+ 2. **Scope re-review to changed files only** - Do NOT re-scan the entire codebase
 3. **Re-run only relevant agents** - If fixes were for performance issues, re-run Agent 2 (Performance) on the changed files
 4. **Verify fixes** - Check that previously reported Critical/Major issues are actually resolved
 5. **Report delta** - Show what was fixed, what remains, and any new issues introduced by the fixes
@@ -161,32 +146,28 @@ Generate a comprehensive markdown report following the template in [references/r
 
 ### New Findings
 - [New finding from fix] — Introduced in `file.py:50`
-```
-
 To trigger a re-review, the user runs the skill again after making fixes. The skill detects that a review was recently performed (by checking git log for recent review-related commits or by the user explicitly stating "re-review") and automatically enters diff-only mode.
 
 ## Usage
 
 ```bash
 # Review a specific PR
-/review-code 123
-/review-code #456
+review-code 123
+review-code #456
 
 # Review a specific commit
-/review-code abc123def
+review-code abc123def
 
 # Review entire codebase
-/review-code --all
-/review-code
+review-code --all
+review-code
 
 # Focus on a specific dimension
-/review-code 123 --focus performance
-/review-code --all --focus tests
+review-code 123 --focus performance
+review-code --all --focus tests
 
 # Re-review after fixes (run again on same PR)
-/review-code 123
-```
-
+review-code 123
 ## Focus Options
 
 - `correctness`: Focus on bugs, logic errors, type safety, race conditions

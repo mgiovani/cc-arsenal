@@ -1,12 +1,21 @@
 ---
 name: review-deps
-description: "Audit project dependencies for vulnerabilities, license compliance risks, and staleness. Runs native audit tools (npm audit, pip audit, cargo audit, etc.), queries Dependabot alerts, and dispatches parallel agents for CVE analysis, license risk, and upgrade complexity. This skill should be used when users want to review dependencies, check for vulnerable packages, audit licenses, plan upgrades, or assess supply chain risk."
-disable-model-invocation: true
-argument-hint: "[--scope vulnerabilities|licenses|staleness|all] [--severity critical|high|medium|low]"
-allowed-tools: Read, Grep, Glob, Bash(npm *, npx *, pip *, pip-audit *, uv *, cargo *, go *, gh *, python *, composer *, bundle *, dotnet *, mvn *, gradle *), Task, TodoWrite, AskUserQuestion
-context: fork
-agent: general-purpose
+description: Audit project dependencies for vulnerabilities, license compliance risks,
+  and staleness. Runs native audit tools (npm audit, pip audit, cargo audit, etc.),
+  queries Dependabot alerts, and dispatches parallel agents for CVE analysis, license
+  risk, and upgrade complexity. This skill should be used when users want to review
+  dependencies, check for vulnerable packages, audit licenses, plan upgrades, or assess
+  supply chain risk.
+metadata:
+  author: mgiovani
+  version: 1.0.0
+  source: https://github.com/mgiovani/skills
 ---
+
+# Review Deps
+
+> **Cross-Platform AI Agent Skill**
+> This skill works with any AI agent platform that supports the skills.sh standard.
 
 # Dependency Review
 
@@ -31,16 +40,14 @@ Discover all package managers present in the project:
 
 ```
 Use Glob to check for the existence of these files:
-- package.json / package-lock.json / yarn.lock / pnpm-lock.yaml  →  npm/yarn/pnpm (Node.js)
-- pyproject.toml / requirements*.txt / Pipfile / setup.py         →  pip/uv/poetry (Python)
-- Cargo.toml / Cargo.lock                                         →  cargo (Rust)
-- go.mod / go.sum                                                  →  go modules (Go)
-- composer.json / composer.lock                                    →  composer (PHP)
-- Gemfile / Gemfile.lock                                           →  bundler (Ruby)
-- *.csproj / packages.config / Directory.Packages.props            →  NuGet (.NET)
-- pom.xml / build.gradle / build.gradle.kts                        →  Maven/Gradle (Java/Kotlin)
-```
-
+- package.json / package-lock.json / yarn.lock / pnpm-lock.yaml → npm/yarn/pnpm (Node.js)
+- pyproject.toml / requirements*.txt / Pipfile / setup.py → pip/uv/poetry (Python)
+- Cargo.toml / Cargo.lock → cargo (Rust)
+- go.mod / go.sum → go modules (Go)
+- composer.json / composer.lock → composer (PHP)
+- Gemfile / Gemfile.lock → bundler (Ruby)
+- *.csproj / packages.config / Directory.Packages.props → NuGet (.NET)
+- pom.xml / build.gradle / build.gradle.kts → Maven/Gradle (Java/Kotlin)
 Read each detected manifest to understand:
 - Total number of direct dependencies
 - Total number of dev dependencies
@@ -61,8 +68,6 @@ yarn audit --json 2>/dev/null || yarn audit 2>&1
 
 # pnpm
 pnpm audit --json 2>/dev/null || pnpm audit 2>&1
-```
-
 **Python (pip/uv):**
 ```bash
 # pip-audit (preferred — install if missing)
@@ -73,45 +78,29 @@ pip audit 2>&1 || python -m pip_audit 2>&1
 
 # uv
 uv pip audit 2>&1
-```
-
 **Rust:**
 ```bash
 cargo audit 2>&1
-```
-
 **Go:**
 ```bash
 go list -m -json all 2>&1
 govulncheck ./... 2>&1
-```
-
 **PHP:**
 ```bash
 composer audit --format=json 2>/dev/null || composer audit 2>&1
-```
-
 **Ruby:**
 ```bash
 bundle audit check 2>&1
-```
-
 **.NET:**
 ```bash
 dotnet list package --vulnerable --include-transitive 2>&1
-```
-
 **Java (Maven/Gradle):**
 ```bash
 mvn dependency-check:check 2>&1 || echo "OWASP dependency-check plugin not configured"
-```
-
 **GitHub Dependabot (always attempt if in a git repo):**
 ```bash
 # Get repository owner/name from git remote
 gh api repos/{owner}/{repo}/dependabot/alerts --jq '.[] | {package: .security_advisory.summary, severity: .security_advisory.severity, state: .state, package_name: .dependency.package.name, ecosystem: .dependency.package.ecosystem}' 2>&1
-```
-
 Save all raw output for agent analysis in Phase 3.
 
 ### Phase 3: Parallel Specialist Analysis
@@ -140,10 +129,10 @@ After all agents complete:
 2. **Deduplicate** — Remove findings reported by multiple agents
 3. **Cross-reference** — Combine vulnerability + license + staleness data per package
 4. **Prioritize by composite risk**:
-   - **Critical**: Known exploited CVEs (CISA KEV), RCE vulnerabilities, packages with no maintained fork
-   - **High**: High-severity CVEs with public exploits, copyleft license in proprietary project, packages 3+ major versions behind
-   - **Medium**: Medium-severity CVEs without public exploit, permissive-but-unusual licenses, packages 1-2 major versions behind
-   - **Low**: Low-severity CVEs, informational license notes, minor version drift
+ - **Critical**: Known exploited CVEs (CISA KEV), RCE vulnerabilities, packages with no maintained fork
+ - **High**: High-severity CVEs with public exploits, copyleft license in proprietary project, packages 3+ major versions behind
+ - **Medium**: Medium-severity CVEs without public exploit, permissive-but-unusual licenses, packages 1-2 major versions behind
+ - **Low**: Low-severity CVEs, informational license notes, minor version drift
 5. **Group by action type**: Security patches (non-breaking) vs. major upgrades (breaking) vs. replacements (abandoned packages)
 6. **Statistics**: Count total dependencies, vulnerable, license-risky, stale; calculate health score
 
@@ -169,26 +158,24 @@ Before presenting the report, verify:
 
 ```bash
 # Full dependency audit (all dimensions)
-/review-deps
-/review-deps --scope all
+review-deps
+review-deps --scope all
 
 # Vulnerabilities only
-/review-deps --scope vulnerabilities
+review-deps --scope vulnerabilities
 
 # License compliance only
-/review-deps --scope licenses
+review-deps --scope licenses
 
 # Staleness and upgrade planning only
-/review-deps --scope staleness
+review-deps --scope staleness
 
 # Filter by minimum severity
-/review-deps --severity critical
-/review-deps --severity high
+review-deps --severity critical
+review-deps --severity high
 
 # Combined options
-/review-deps --scope vulnerabilities --severity critical
-```
-
+review-deps --scope vulnerabilities --severity critical
 ## Scope Options
 
 - `all` (default): Run all three analysis dimensions — vulnerabilities, licenses, staleness

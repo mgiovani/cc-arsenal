@@ -43,6 +43,6 @@ Commands for detecting codebase changes relevant to documentation updates.
 
 ## Load Templates
 
-Template location: `resources/templates/`
+Template location: `assets/templates/`
 
 Load appropriate templates based on docs being updated. Use the same templates referenced in the init skill for consistent formatting across creation and updates.

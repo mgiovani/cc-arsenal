@@ -433,6 +433,20 @@ def main(
     # Check UV requirement first
     check_uv_installation()
 
+    # Initialize git submodules for skills-upstream
+    console.print('📦 [blue]Initializing git submodules...[/blue]')
+    try:
+        subprocess.run(
+            ['git', 'submodule', 'update', '--init', '--recursive'],
+            cwd=get_repo_root(),
+            check=True,
+            capture_output=True,
+        )
+        console.print('✓ [green]Git submodules initialized[/green]')
+    except subprocess.CalledProcessError:
+        console.print('⚠️  [yellow]Warning: Could not initialize git submodules[/yellow]')
+        console.print('   You may need to run: git submodule update --init --recursive')
+
     console.print('🚀 [bold blue]Claude Template Installation System[/bold blue]')
     if dry_run:
         console.print('🔍 [yellow]Dry run mode - no changes will be made[/yellow]')

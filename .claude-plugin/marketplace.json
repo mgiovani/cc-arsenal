@@ -7,7 +7,7 @@
   },
   "metadata": {
     "description": "Claude Code Arsenal - Professional skills for development workflows",
-    "version": "3.0.0"
+    "version": "3.1.0"
   },
   "plugins": [
     {
@@ -15,7 +15,7 @@
       "source": "./",
       "strict": true,
       "description": "Complete toolkit: all 32 skills covering development, documentation, git, github, jira, code review, testing, refactoring, CI/CD, framework documentation injection, and more",
-      "version": "3.0.0",
+      "version": "3.1.0",
       "author": {
         "name": "Giovani Moutinho",
         "email": "e@giovani.dev",
@@ -32,7 +32,7 @@
       "source": "./",
       "strict": false,
       "description": "Development skills: feature implementation, bug fixing, code review, testing, refactoring, security review, dependency audit, CI/CD generation, performance analysis, framework documentation injection (Next.js/FastAPI), and project planning",
-      "version": "3.0.0",
+      "version": "3.1.0",
       "author": {
         "name": "Giovani Moutinho",
         "email": "e@giovani.dev",
@@ -63,7 +63,7 @@
       "source": "./",
       "strict": false,
       "description": "Documentation skills: ADR, RFC, diagrams, init, check, and update",
-      "version": "3.0.0",
+      "version": "3.1.0",
       "author": {
         "name": "Giovani Moutinho",
         "email": "e@giovani.dev",
@@ -88,7 +88,7 @@
       "source": "./",
       "strict": false,
       "description": "Git and GitHub workflow skills: conventional commits, PR creation, release management, and GitHub Issues daily planner",
-      "version": "3.0.0",
+      "version": "3.1.0",
       "author": {
         "name": "Giovani Moutinho",
         "email": "e@giovani.dev",
@@ -111,7 +111,7 @@
       "source": "./",
       "strict": false,
       "description": "Specialty skills: Browser automation (agent-browser), Jira CLI, skill creation guide, and third-party skill discovery (find-skills)",
-      "version": "3.0.0",
+      "version": "3.1.0",
       "author": {
         "name": "Giovani Moutinho",
         "email": "e@giovani.dev",
@@ -134,7 +134,7 @@
       "source": "./",
       "strict": false,
       "description": "Team orchestration skills: spec-driven development team (team-implement) and multi-agent PR review team (team-review)",
-      "version": "3.0.0",
+      "version": "3.1.0",
       "author": {
         "name": "Giovani Moutinho",
         "email": "e@giovani.dev",
@@ -155,7 +155,7 @@
       "source": "./",
       "strict": false,
       "description": "Code review and quality skills: code review, security review, dependency audit, and performance analysis",
-      "version": "3.0.0",
+      "version": "3.1.0",
       "author": {
         "name": "Giovani Moutinho",
         "email": "e@giovani.dev",

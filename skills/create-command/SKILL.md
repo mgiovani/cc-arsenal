@@ -1,10 +1,22 @@
 ---
 name: create-command
-description: "Create a new slash command (skill) following best practices and prompt engineering techniques. This skill should be used when users want to create a new slash command, skill, or custom workflow for Claude Code."
+description: Create a new slash command (skill) following best practices and prompt
+  engineering techniques. This skill should be used when users want to create a new
+  slash command, skill, or custom workflow for Claude Code.
+metadata:
+  author: mgiovani
+  version: 1.0.0
+  source: https://github.com/mgiovani/skills
 disable-model-invocation: true
-argument-hint: "<command-name> [description]"
-allowed-tools: Read, Write, Grep, Glob, Bash(git *), Bash(mkdir *), Task, TodoWrite, WebFetch
+argument-hint: <command-name> [description]
+allowed-tools: Read, Write, Grep, Glob, Bash(git *), Bash(mkdir *), Task, TodoWrite,
+  WebFetch
 ---
+
+# Create Command
+
+> **Cross-Platform AI Agent Skill**
+> This skill works with any AI agent platform that supports the skills.sh standard.
 
 # Create Skill (Slash Command)
 
@@ -13,6 +25,101 @@ Generate a new skill following Claude Code best practices, prompt engineering te
 > **Note**: Claude Code has merged commands into skills (v2.1.3+). Files in `.claude/commands/` still work, but the recommended approach is to create skills in `.claude/skills/` which support additional features: supporting files (references/, scripts/, assets/), model invocation control, subagent execution, and progressive disclosure. This skill generates skills by default.
 >
 > **Relationship to skill-creator**: The `skill-creator` skill provides *guidance* on creating skills. This skill (`create-command`) *generates* the actual skill files. They complement each other.
+
+## Reference Documentation
+
+- Official skills documentation: https://code.claude.com/docs/en/skills
+- For complete frontmatter field reference, see [references/frontmatter-guide.md](references/frontmatter-guide.md)
+- For design patterns (SubAgent, TodoWrite, anti-hallucination), see [references/design-patterns.md](references/design-patterns.md)
+
+## Your Task
+
+### Phase 0: Gather Up-to-Date Documentation (Use claude-code-guide Agent)
+
+**CRITICAL**: Before creating any skill, fetch the latest official documentation:
+
+### Phase 1: Understand Requirements (Explore Codebase)
+
+Understand what the user wants to create:
+
+### Phase 2: Parse Arguments
+
+1. **Extract skill name** from `$1` or first word of `command arguments`
+2. **Extract description** from remaining arguments or ask user
+3. **Determine skill location**:
+ - Project skill: `.claude/skills/<name>/SKILL.md` (shared with team)
+ - User skill: `~/.claude/skills/<name>/SKILL.md` (personal)
+4. **Determine if supporting files are needed** (references/, scripts/, assets/)
+
+### Phase 3: Gather Skill Requirements
+
+Ask user or infer from context:
+
+```
+Questions to determine:
+1. What is the primary purpose of this skill?
+2. What tools does it need? (Bash, Read, Write, Edit, Grep, Glob, Task, TodoWrite, etc.)
+3. What arguments does it accept?
+4. Should Claude invoke this automatically, or only when the user runs it? (disable-model-invocation)
+5. Should it use SubAgents for complex operations?
+6. Should it track progress with TodoWrite?
+7. Does it need supporting files? (references/ for docs, scripts/ for code, assets/ for templates)
+8. Should it run in a forked subagent context? (context: fork)
+### Phase 4: Analyze Similar Skills (Use Parallel Analysis)
+
+Spawn parallel Explore agents with model: haiku to gather patterns from existing skills:
+
+```
+Agent 1 - Analyze Existing Skills:
+- prompt: "Read the skills in .claude/skills/ directory. Extract common patterns: frontmatter structure, phase organization, tool usage. Return best practices observed."
+- agent-type: "Explore"
+- model: "haiku"
+
+Agent 2 - Analyze Tool Requirements:
+- prompt: "Based on skill description '[DESCRIPTION]', analyze existing skills that have similar functionality. What tools do they use? Return recommended required-capabilities list based on actual usage patterns."
+- agent-type: "Explore"
+- model: "haiku"
+
+Agent 3 - Analyze Verification Patterns:
+- prompt: "For a skill that [DESCRIPTION], search existing skills for anti-hallucination and verification patterns. Return specific verification checks used in similar skills."
+- agent-type: "Explore"
+- model: "haiku"
+### Phase 5: Generate Skill Structure
+
+Use TodoWrite to track skill creation:
+
+```
+TodoWrite:
+- [ ] Create skill directory structure
+- [ ] Create SKILL.md with frontmatter
+- [ ] Add anti-hallucination guidelines
+- [ ] Define task phases with Explore/SubAgents
+- [ ] Add verification steps
+- [ ] Create supporting files if needed (references/, scripts/, assets/)
+- [ ] Include examples and usage
+- [ ] Validate skill structure
+### Phase 6: Write Skill Files
+
+Generate the skill following the template structure. For the complete template and all frontmatter options, see [references/frontmatter-guide.md](references/frontmatter-guide.md). For design patterns, see [references/design-patterns.md](references/design-patterns.md).
+
+**Skill directory structure:**
+
+```
+skill-name/
+├── SKILL.md # Core instructions (required, keep under 500 lines)
+├── references/ # Documentation loaded as needed (optional)
+│ └── *.md
+├── scripts/ # Executable code (optional)
+│ └── *.py / *.sh
+└── assets/ # Files used in output (optional)
+ └── templates, images, etc.
+**SKILL.md template:**
+
+```markdown
+
+## Claude Code Enhanced Features
+
+This skill includes the following Claude Code-specific enhancements:
 
 ## Reference Documentation
 
@@ -148,153 +255,3 @@ skill-name/
 **SKILL.md template:**
 
 ```markdown
----
-name: "[skill-name]"
-description: "[Clear, concise description - what it does and when to use it]"
-disable-model-invocation: true
-argument-hint: "[argument-pattern]"
-allowed-tools: Read, Write, Edit, Grep, Glob, Task, TodoWrite
----
-
-# [Skill Title]
-
-[Brief description of what this skill does]
-
-## Anti-Hallucination Guidelines
-
-**CRITICAL**: [Specific guidelines for this skill's domain]
-1. [Verification requirement 1]
-2. [Verification requirement 2]
-3. [Domain-specific check]
-
-## Workflow
-
-### Phase 1: [Initial Analysis] (Use Explore Agent)
-
-**IMPORTANT**: [Why exploration is needed]
-
-\`\`\`
-Use Task tool with Explore agent:
-- prompt: "[Specific exploration prompt]"
-- subagent_type: "Explore"
-\`\`\`
-
-### Phase 2: [Core Logic]
-
-[Main steps of the skill]
-
-### Phase 3: Verification
-
-**Before completing, verify**:
-\`\`\`
-1. [Verification check 1]
-2. [Verification check 2]
-3. [Final validation]
-\`\`\`
-
-## Usage
-
-\`\`\`
-/[skill-name]
-/[skill-name] [with arguments]
-\`\`\`
-
-## Examples
-
-[Concrete examples of skill usage and expected output]
-```
-
-### Phase 7: Validate Generated Skill
-
-Before writing, verify:
-
-```
-1. Frontmatter is valid YAML
-2. description clearly states what the skill does and when to use it
-3. allowed-tools only includes necessary tools
-4. argument-hint matches expected usage
-5. Anti-hallucination guidelines are specific to skill domain
-6. Explore agent is used for initial context gathering
-7. SubAgents are used where parallelization helps
-8. TodoWrite is used for multi-step operations
-9. Verification steps are concrete and actionable
-10. Examples are realistic
-11. SKILL.md is under 500 lines
-12. Supporting files (references/, scripts/) are created if content is extensive
-```
-
-### Phase 8: Write and Report
-
-1. Create the skill directory at appropriate location
-2. Create SKILL.md with proper frontmatter and content
-3. Create any supporting files (references/, scripts/, assets/)
-4. Report what was created
-5. Suggest next steps (testing, customization)
-
-## Usage
-
-```bash
-# Create a new skill with name only
-/create-command my-skill
-
-# Create with description
-/create-command my-skill "Generate unit tests for modified files"
-
-# Create in a namespace
-/create-command testing/generate-tests "Generate unit tests"
-```
-
-## Examples
-
-### Example 1: Simple Utility Skill
-
-```bash
-/create-command cleanup "Remove unused imports and format code"
-```
-
-Creates a skill directory with:
-```
-.claude/skills/cleanup/
-└── SKILL.md
-```
-
-### Example 2: Complex Analysis Skill with Supporting Files
-
-```bash
-/create-command security-audit "Analyze codebase for security vulnerabilities"
-```
-
-Creates a skill directory with:
-```
-.claude/skills/security-audit/
-├── SKILL.md                  # Core workflow
-└── references/
-    └── vulnerability-types.md  # Detailed vulnerability patterns
-```
-
-## Important Notes
-
-- **Skills are the recommended format**: Use `.claude/skills/<name>/SKILL.md` instead of `.claude/commands/<name>.md`
-- **Test the skill**: After creation, run `/skill-name` to verify it works as expected
-- **Iterate**: Skills can be edited; start simple and add complexity
-- **Tool permissions**: Be specific with Bash commands (e.g., `Bash(git status:*)` not `Bash(*)`)
-- **Progressive disclosure**: Keep SKILL.md under 500 lines; move details to references/
-- **Supporting files**: Use references/ for docs, scripts/ for code, assets/ for templates
-
-## Output
-
-After running this skill, the user will have:
-
-1. A new skill directory in the appropriate skills location
-2. A SKILL.md file with proper frontmatter and optimal tool permissions
-3. Anti-hallucination guidelines specific to the skill's domain
-4. Phase-based workflow with Explore agents and SubAgents
-5. Progress tracking with TodoWrite (if applicable)
-6. Verification steps to ensure accuracy
-7. Supporting files if the skill requires extensive reference material
-8. Usage examples and documentation
-
----
-
-**Reference**: https://code.claude.com/docs/en/skills
-**Output Location**: `.claude/skills/<name>/` or `~/.claude/skills/<name>/`

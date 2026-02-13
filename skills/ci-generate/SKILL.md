@@ -1,12 +1,19 @@
 ---
 name: ci-generate
-description: "Generate CI/CD pipeline configurations for GitHub Actions, GitLab CI, CircleCI, or Jenkins. This skill should be used when users want to create CI/CD workflows, set up automated pipelines, generate deployment configurations, or add continuous integration to a project."
-disable-model-invocation: true
-argument-hint: "[platform] [--deploy target]"
-allowed-tools: Read, Write, Edit, Grep, Glob, Bash, Task, WebSearch, WebFetch, AskUserQuestion
-context: fork
-agent: general-purpose
+description: Generate CI/CD pipeline configurations for GitHub Actions, GitLab CI,
+  CircleCI, or Jenkins. This skill should be used when users want to create CI/CD
+  workflows, set up automated pipelines, generate deployment configurations, or add
+  continuous integration to a project.
+metadata:
+  author: mgiovani
+  version: 1.0.0
+  source: https://github.com/mgiovani/skills
 ---
+
+# Ci Generate
+
+> **Cross-Platform AI Agent Skill**
+> This skill works with any AI agent platform that supports the skills.sh standard.
 
 # CI/CD Pipeline Generator
 
@@ -14,7 +21,7 @@ Generate production-ready CI/CD pipeline configurations with auto-detected proje
 
 ## Pipeline to Generate
 
-$ARGUMENTS
+command arguments
 
 ## Anti-Hallucination Guidelines
 
@@ -29,21 +36,19 @@ $ARGUMENTS
 
 ### Phase 0: Parse Arguments
 
-Extract configuration from `$ARGUMENTS`:
+Extract configuration from `command arguments`:
 
 ```
 Arguments:
 - <platform>: Target CI platform (default: auto-detect from existing config)
-  - "github" or "gh": GitHub Actions
-  - "gitlab" or "gl": GitLab CI
-  - "circle" or "circleci": CircleCI
-  - "jenkins": Jenkins (Jenkinsfile)
+ - "github" or "gh": GitHub Actions
+ - "gitlab" or "gl": GitLab CI
+ - "circle" or "circleci": CircleCI
+ - "jenkins": Jenkins (Jenkinsfile)
 - "--deploy <target>": Deployment target (optional)
-  - "vercel", "netlify", "aws", "gcp", "azure", "docker", "k8s", "fly", "railway"
+ - "vercel", "netlify", "aws", "gcp", "azure", "docker", "k8s", "fly", "railway"
 - "--monorepo": Generate matrix/path-filtered workflows
 - No args: Auto-detect platform from existing CI config files, default to GitHub Actions
-```
-
 If no platform specified, detect from existing files:
 - `.github/workflows/*.yml` → GitHub Actions
 - `.gitlab-ci.yml` → GitLab CI
@@ -53,53 +58,7 @@ If no platform specified, detect from existing files:
 
 ### Phase 1: Project Stack Detection
 
-Use an Explore agent to discover the complete project technology stack:
-
-```
-Use Task tool with Explore agent:
-- prompt: "Discover the complete technology stack for this project:
-
-    1. **Language & Runtime**:
-       - Check for: package.json (Node.js), pyproject.toml/setup.py (Python), go.mod (Go), Cargo.toml (Rust), pom.xml/build.gradle (Java), Gemfile (Ruby), composer.json (PHP)
-       - Find version files: .node-version, .nvmrc, .python-version, .tool-versions, .ruby-version
-       - Extract exact version numbers from config files
-
-    2. **Package Manager**:
-       - Node.js: Check for bun.lockb (bun), pnpm-lock.yaml (pnpm), yarn.lock (yarn), package-lock.json (npm)
-       - Python: Check for uv.lock (uv), poetry.lock (poetry), Pipfile.lock (pipenv), requirements.txt (pip)
-       - Others: go.sum, Cargo.lock, Gemfile.lock, composer.lock
-
-    3. **Test Framework**:
-       - Read test scripts from package.json, pyproject.toml, Makefile
-       - Check for: jest, vitest, playwright, cypress, pytest, unittest, go test, cargo test, rspec, minitest, phpunit
-       - Note any test config files: jest.config.*, vitest.config.*, pytest.ini, conftest.py, .rspec
-
-    4. **Build System**:
-       - Check for: Makefile, justfile, Taskfile.yml, package.json scripts, pyproject.toml scripts
-       - Identify build commands: npm run build, make build, cargo build, go build
-       - Check for TypeScript compilation: tsconfig.json
-
-    5. **Linting & Formatting**:
-       - Check for: .eslintrc*, prettier.config*, ruff.toml, .flake8, .golangci.yml, .rubocop.yml, clippy
-       - Check for type checking: tsconfig.json (tsc), pyright, mypy
-
-    6. **Deployment Targets**:
-       - Check for: Dockerfile, docker-compose.yml, vercel.json, netlify.toml, fly.toml, railway.json, app.yaml (GCP), serverless.yml, terraform/, k8s/, helm/
-       - Check for existing deployment scripts or CI configs
-
-    7. **Services & Dependencies**:
-       - Check for database references: PostgreSQL, MySQL, Redis, MongoDB, SQLite
-       - Look in docker-compose.yml, .env.example, config files
-       - Note any service containers needed for testing
-
-    8. **Security Tooling**:
-       - Check for: .pre-commit-config.yaml, .snyk, .trivyignore, dependabot.yml, renovate.json
-       - Note any existing security scan configurations
-
-    Return a structured summary with exact versions, commands, and file paths."
-- subagent_type: "Explore"
-- model: "haiku"
-```
+Explore the codebase to discover the complete project technology stack:
 
 ### Phase 2: Research Best Practices
 
@@ -111,8 +70,6 @@ Use WebSearch:
 
 Use WebSearch:
 - query: "[detected platform] security scanning pipeline [detected language] [current year]"
-```
-
 Focus on:
 - Caching strategies for the detected package manager
 - Recommended runner images and versions
@@ -127,31 +84,31 @@ Based on discovery and research, design the pipeline with these stages:
 **Standard Stages (always include):**
 
 1. **Lint & Format Check**
-   - Run linter discovered in Phase 1 (e.g., `ruff check`, `eslint`, `golangci-lint`)
-   - Run formatter check if available (e.g., `ruff format --check`, `prettier --check`)
-   - Run type checker if applicable (e.g., `pyright`, `tsc --noEmit`, `mypy`)
+ - Run linter discovered in Phase 1 (e.g., `ruff check`, `eslint`, `golangci-lint`)
+ - Run formatter check if available (e.g., `ruff format --check`, `prettier --check`)
+ - Run type checker if applicable (e.g., `pyright`, `tsc --noEmit`, `mypy`)
 
 2. **Test**
-   - Run test suite with discovered test command
-   - Include coverage reporting if configured
-   - Set up service containers if tests require databases/caches
-   - Consider matrix testing for multiple runtime versions
+ - Run test suite with discovered test command
+ - Include coverage reporting if configured
+ - Set up service containers if tests require databases/caches
+ - Consider matrix testing for multiple runtime versions
 
 3. **Build**
-   - Run build command if applicable (e.g., `npm run build`, `cargo build --release`)
-   - Build Docker image if Dockerfile exists
-   - Generate artifacts for deployment
+ - Run build command if applicable (e.g., `npm run build`, `cargo build --release`)
+ - Build Docker image if Dockerfile exists
+ - Generate artifacts for deployment
 
 4. **Security Scan**
-   - Dependency vulnerability scanning (language-appropriate tool)
-   - Static analysis if available for the language
-   - Container scanning if Docker is used
-   - Secret detection
+ - Dependency vulnerability scanning (language-appropriate tool)
+ - Static analysis if available for the language
+ - Container scanning if Docker is used
+ - Secret detection
 
 5. **Deploy** (if `--deploy` specified or deployment config detected)
-   - Environment-specific deployment steps
-   - Staging/production separation
-   - Post-deployment health checks
+ - Environment-specific deployment steps
+ - Staging/production separation
+ - Post-deployment health checks
 
 **Design Decisions:**
 
@@ -210,8 +167,6 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/ci.yml'))"
 
 # General YAML validation
 python3 -c "import yaml; yaml.safe_load(open('<config_file>'))"
-```
-
 **Step 5.2: Cross-Reference Check**
 
 Verify all referenced commands and paths exist:
@@ -261,13 +216,13 @@ Output a summary including:
 - **Stages**: Named stages with steps
 - **Agent**: Docker, node labels
 - **Post**: Always/success/failure actions
-- **Credentials**: `credentials()` for secrets
+- **Credentials**: `credentials` for secrets
 - **Parallel**: `parallel` block for concurrent stages
 
 ## Handling Ambiguity
 
 If encountering unclear requirements:
-1. Use `AskUserQuestion` to clarify platform choice, deployment target, or branching strategy
+1. Use `interactive clarification` to clarify platform choice, deployment target, or branching strategy
 2. Present options with trade-offs when multiple valid approaches exist
 3. Default to the most common configuration for the detected stack
 
@@ -275,26 +230,24 @@ If encountering unclear requirements:
 
 ```bash
 # Auto-detect everything
-/ci-generate
+ci-generate
 
 # Specify platform
-/ci-generate github
-/ci-generate gitlab
-/ci-generate circleci
-/ci-generate jenkins
+ci-generate github
+ci-generate gitlab
+ci-generate circleci
+ci-generate jenkins
 
 # With deployment target
-/ci-generate github --deploy vercel
-/ci-generate gitlab --deploy docker
-/ci-generate github --deploy aws
+ci-generate github --deploy vercel
+ci-generate gitlab --deploy docker
+ci-generate github --deploy aws
 
 # Monorepo support
-/ci-generate github --monorepo
+ci-generate github --monorepo
 
 # Combined options
-/ci-generate github --deploy k8s --monorepo
-```
-
+ci-generate github --deploy k8s --monorepo
 ## Important Notes
 
 - **Discover first**: Never assume project tooling; always run Phase 1

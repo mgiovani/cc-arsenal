@@ -7,6 +7,52 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.1.0] - 2026-02-13
+
+### Changed - Dual Repository Architecture Migration
+
+#### Skills Cross-Platform Publishing
+- **Migration**: Extracted 22 skills to separate [mgiovani/skills](https://github.com/mgiovani/skills) repository for cross-platform distribution
+- **Architecture**: Dual-repository model with sync workflow
+  - **skills-upstream/** (git submodule): Cross-platform base SKILL.md files from mgiovani/skills
+  - **enhancements/**: Claude Code-specific enhancements (hooks, tools, contexts)
+  - **skills/** (merged): Synced output combining base + enhancements
+- **Sync Workflow**: `make sync-skills` merges upstream changes with local enhancements
+- **Benefits**:
+  - Skills publishable to skills.sh marketplace
+  - Compatible with Claude Code, Cursor, Windsurf, and other agents
+  - Maintains Claude Code-specific features through enhancement layer
+
+#### Migrated Skills (22 total)
+- **Documentation (6)**: docs-adr, docs-check, docs-diagram, docs-init, docs-rfc, docs-update
+- **Git (3)**: git-commit, git-create-pr, git-release
+- **Reviews (4)**: review-security, review-code, review-deps, review-perf
+- **Jira/GitHub (3)**: jira-daily, jira-todo, gh-daily
+- **Utilities (2)**: create-command, create-rule
+- **Development (4)**: ci-generate, project-planner, inject-docs, inject-nextjs-docs
+
+#### New Infrastructure
+- **sync_skills.py**: Automated sync script with status tracking and SYNC.md metadata
+- **Makefile commands**: `make sync-skills`, `make sync-skills-status`
+- **Git submodule**: skills-upstream tracks mgiovani/skills repository
+- **ENHANCEMENT.md format**: Separate enhancement files for Claude Code-specific features
+- **Marketplace integration**: Updated plugin manifests for both repositories
+
+#### Skills Exclusive to cc-arsenal (10 remaining)
+- **Development**: implement-feature, fix-bug, team-implement
+- **Specialty**: agent-browser, find-skills, skill-creator, jira-cli
+
+### Fixed
+- Auto-fixed 5 linting errors in utility scripts (import ordering, type annotations)
+
+### Technical Details
+- **Release**: mgiovani/skills v1.0.0 published to GitHub
+- **Installation**: `npx skills add mgiovani/skills` or `/plugin install skills@skills-marketplace`
+- **Sync format**: Base SKILL.md + ENHANCEMENT.md → Merged output
+- **14 enhanced skills** (with Claude Code features) + **8 base-only skills**
+
+## [3.0.0] - 2026-02-06
+
 ### Added
 
 #### inject-docs - Framework Documentation Injector

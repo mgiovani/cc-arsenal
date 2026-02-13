@@ -1,12 +1,19 @@
 ---
 name: gh-daily
-description: "Generate smart standup reports from GitHub Issues activity and git history. This skill should be used when users want to prepare for daily standups, generate activity reports, or summarize recent work across GitHub Issues, pull requests, and git commits."
-disable-model-invocation: true
-argument-hint: "[--repo <owner/repo>] [--since <date>] [--format <format>]"
-allowed-tools: Bash(gh *), Bash(git *), Bash(date *), Read, Task, TodoWrite
-context: fork
-agent: general-purpose
+description: Generate smart standup reports from GitHub Issues activity and git history.
+  This skill should be used when users want to prepare for daily standups, generate
+  activity reports, or summarize recent work across GitHub Issues, pull requests,
+  and git commits.
+metadata:
+  author: mgiovani
+  version: 1.0.0
+  source: https://github.com/mgiovani/skills
 ---
+
+# Gh Daily
+
+> **Cross-Platform AI Agent Skill**
+> This skill works with any AI agent platform that supports the skills.sh standard.
 
 # GitHub Daily - Standup Meeting Preparation
 
@@ -34,23 +41,19 @@ Detect the working context in order of priority:
 # Detect current repo from git remote
 REPO=$(gh repo view --json nameWithOwner -q .nameWithOwner 2>/dev/null)
 if [ -z "$REPO" ]; then
-    echo "ERROR: Not in a GitHub repository. Use --repo owner/repo to specify."
+ echo "ERROR: Not in a GitHub repository. Use --repo owner/repo to specify."
 fi
 echo "Detected repo: $REPO"
 
 # Detect authenticated user
 GH_USER=$(gh api user -q .login 2>/dev/null)
 echo "Authenticated as: $GH_USER"
-```
-
 If no repo is detected and none provided, ask the user to specify with `--repo owner/repo`.
 
 If the user works across multiple repos, offer to scan all repos where they have recent activity:
 ```bash
 # Find repos with recent activity (issues assigned to user)
 gh search issues --assignee @me --state open --limit 20 --json repository --jq '[.[].repository.nameWithOwner] | unique | .[]'
-```
-
 ## Workflow
 
 ### Phase 2: Calculate Date Range
@@ -58,15 +61,13 @@ gh search issues --assignee @me --state open --limit 20 --json repository --jq '
 ```bash
 # Calculate since date (yesterday, or Friday if today is Monday)
 if [[ $(date +%u) == 1 ]]; then
-    # Monday - report from Friday
-    SINCE_DATE=$(date -v-3d +%Y-%m-%d 2>/dev/null || date -d "3 days ago" +%Y-%m-%d)
+ # Monday - report from Friday
+ SINCE_DATE=$(date -v-3d +%Y-%m-%d 2>/dev/null || date -d "3 days ago" +%Y-%m-%d)
 else
-    # Other days - report from yesterday
-    SINCE_DATE=$(date -v-1d +%Y-%m-%d 2>/dev/null || date -d "yesterday" +%Y-%m-%d)
+ # Other days - report from yesterday
+ SINCE_DATE=$(date -v-1d +%Y-%m-%d 2>/dev/null || date -d "yesterday" +%Y-%m-%d)
 fi
 echo "Reporting since: $SINCE_DATE"
-```
-
 ### Phase 3: Gather Activity Data
 
 ```bash
@@ -94,8 +95,6 @@ git log --author="$(git config user.email)" --since="$SINCE_DATE" --oneline --al
 # Count commits and files changed
 git rev-list --count --since="$SINCE_DATE" --author="$(git config user.email)" --all 2>/dev/null || echo "0"
 git diff --stat $(git log --since="$SINCE_DATE" --author="$(git config user.email)" --format=%H --all | tail -1)..HEAD --shortstat 2>/dev/null
-```
-
 ### Phase 4: Analyze with SubAgents (For Comprehensive Reports)
 
 For detailed format, use parallel analysis:
@@ -103,17 +102,15 @@ For detailed format, use parallel analysis:
 ```
 Agent 1 - Work Classification:
 - prompt: "Classify these GitHub issues and PRs into: Completed (closed/merged since date), In Progress (open, recently updated), Blocked (has 'blocked' label or mentioned in comments), Review Needed (PRs awaiting review). Base ONLY on actual state/label fields. Return categorized list."
-- subagent_type: "general-purpose"
+- agent-type: "general-purpose"
 
 Agent 2 - Impact Analysis:
 - prompt: "For completed issues and merged PRs, summarize the business/technical impact based on title, labels, and milestone context. Keep it factual."
-- subagent_type: "general-purpose"
+- agent-type: "general-purpose"
 
 Agent 3 - Git Correlation:
 - prompt: "Match git commits to GitHub issues/PRs by issue number in commit messages (e.g., #123, fixes #456). Report which issues have code changes and quantify work per issue."
-- subagent_type: "Explore"
-```
-
+- agent-type: "Explore"
 ### Phase 5: Generate Report
 
 Track sections completed with TodoWrite.
@@ -144,35 +141,25 @@ For detailed output format templates (default, brief, slack), see [references/ou
 ### `--repo <owner/repo>` or `-r <owner/repo>`
 Specify the GitHub repository explicitly.
 ```bash
-/gh-daily --repo myorg/myapp
-```
-
+gh-daily --repo myorg/myapp
 ### `--since <date>`
 Override the automatic date calculation.
 ```bash
-/gh-daily --since 2025-01-20
-```
-
+gh-daily --since 2025-01-20
 ### `--format <format>`
 Choose output format for different audiences.
 ```bash
-/gh-daily --format brief      # Concise version for quick standups
-/gh-daily --format detailed   # Full version with technical details (default)
-/gh-daily --format slack      # Formatted for Slack/Teams posting
-```
-
+gh-daily --format brief # Concise version for quick standups
+gh-daily --format detailed # Full version with technical details (default)
+gh-daily --format slack # Formatted for Slack/Teams posting
 ### `--all-repos`
 Scan all repos where you have recent assigned issues, not just the current repo.
 ```bash
-/gh-daily --all-repos
-```
-
+gh-daily --all-repos
 ### `--include-reviews`
 Include PRs where your review was requested (shown separately by default only in detailed format).
 ```bash
-/gh-daily --format brief --include-reviews
-```
-
+gh-daily --format brief --include-reviews
 ## Smart Features
 
 ### Context Awareness
@@ -214,36 +201,32 @@ Include PRs where your review was requested (shown separately by default only in
 
 ```bash
 # Basic usage (auto-detects repo, yesterday's activity)
-/gh-daily
+gh-daily
 
 # Specify repo explicitly
-/gh-daily --repo myorg/backend
+gh-daily --repo myorg/backend
 
 # Quick standup format
-/gh-daily --format brief
+gh-daily --format brief
 
 # For Slack posting
-/gh-daily --format slack
+gh-daily --format slack
 
 # Custom date range
-/gh-daily --since 2025-01-15
+gh-daily --since 2025-01-15
 
 # All repos you contribute to
-/gh-daily --all-repos
+gh-daily --all-repos
 
 # Weekly summary
-/gh-daily --since $(date -v-7d +%Y-%m-%d 2>/dev/null || date -d "7 days ago" +%Y-%m-%d)
-```
-
+gh-daily --since $(date -v-7d +%Y-%m-%d 2>/dev/null || date -d "7 days ago" +%Y-%m-%d)
 ## Daily Routine Integration
 
 ### Morning Preparation (5 minutes)
 ```bash
-/gh-daily --format brief
+gh-daily --format brief
 # Review and adjust for accuracy
 # Copy to standup notes
-```
-
 ### Standup Meeting (2 minutes per person)
 - Read directly from generated report
 - Add context or clarifications as needed
@@ -251,9 +234,7 @@ Include PRs where your review was requested (shown separately by default only in
 
 ### Weekly Summary
 ```bash
-/gh-daily --since $(date -v-7d +%Y-%m-%d 2>/dev/null || date -d "7 days ago" +%Y-%m-%d) --format detailed
-```
-
+gh-daily --since $(date -v-7d +%Y-%m-%d 2>/dev/null || date -d "7 days ago" +%Y-%m-%d) --format detailed
 ## Quality Checklist
 
 The report ensures the standup covers:
@@ -272,8 +253,3 @@ The report ensures the standup covers:
 - **Git integration**: Uses local git repository for commit analysis
 - **Real data only**: All metrics based on actual GitHub and git data
 - **Rate limits**: GitHub API has rate limits; `gh` CLI handles pagination automatically
-
----
-
-**Dependencies**: gh (GitHub CLI), git
-**Auth**: `gh auth login`

@@ -1,12 +1,20 @@
 ---
 name: review-perf
-description: "Perform comprehensive performance review analyzing database queries, algorithmic complexity, frontend bottlenecks, and resource leaks for PRs, commits, or entire codebases. This skill should be used when a user wants to audit code performance, identify bottlenecks, review query efficiency, or check for memory leaks. Analysis only - identifies issues without modifying code."
-disable-model-invocation: true
-argument-hint: "[pr_number|commit_sha|--all] [--scope scope]"
-allowed-tools: Read, Grep, Glob, Bash(git *), Bash(gh *), Task, TodoWrite, AskUserQuestion
-context: fork
-agent: general-purpose
+description: Perform comprehensive performance review analyzing database queries,
+  algorithmic complexity, frontend bottlenecks, and resource leaks for PRs, commits,
+  or entire codebases. This skill should be used when a user wants to audit code performance,
+  identify bottlenecks, review query efficiency, or check for memory leaks. Analysis
+  only - identifies issues without modifying code.
+metadata:
+  author: mgiovani
+  version: 1.0.0
+  source: https://github.com/mgiovani/skills
 ---
+
+# Review Perf
+
+> **Cross-Platform AI Agent Skill**
+> This skill works with any AI agent platform that supports the skills.sh standard.
 
 # Performance Review
 
@@ -36,8 +44,6 @@ Arguments:
 - <commit_sha>: Scan only files changed in commit (e.g., "abc123")
 - "--all" or no args: Scan entire codebase
 - "--scope [database|algorithm|frontend|resources|backend]": Focus on specific performance categories
-```
-
 If PR or commit specified, use Bash to get changed files:
 ```bash
 # For PR
@@ -45,26 +51,9 @@ gh pr view <pr_number> --json files --jq '.files[].path'
 
 # For commit
 git diff-tree --no-commit-id --name-only -r <commit_sha>
-```
-
 ### Phase 1: Project Technology Discovery
 
-Use an Explore agent to understand the project technology stack:
-
-```
-Use Task tool with Explore agent:
-- prompt: "Discover the project's technology stack and performance characteristics:
-    1. Read package.json, pyproject.toml, pom.xml, go.mod to identify languages/frameworks
-    2. Check for existing performance tools: profiler configs, benchmark files, lighthouse CI
-    3. Identify web frameworks: React/Next.js, Django/Flask, Spring Boot, Express.js
-    4. Check database usage: SQL databases, ORMs (SQLAlchemy, Prisma, Hibernate, Django ORM, TypeORM), NoSQL
-    5. Look for caching patterns: Redis, Memcached, in-memory caches, HTTP caching headers
-    6. Identify frontend build tools: Webpack, Vite, Turbopack, esbuild and their configs
-    7. Check for existing performance monitoring: APM tools, custom metrics, logging
-    8. Note bundle analysis tools: webpack-bundle-analyzer, source-map-explorer
-    Return: Technology stack summary with relevant performance categories to prioritize."
-- subagent_type: "Explore"
-```
+Explore the codebase to understand the project technology stack:
 
 ### Phase 2: Initialize Progress Tracking
 
@@ -98,10 +87,10 @@ After all agents complete:
 1. **Collect all findings** from the 4 parallel agents
 2. **Deduplicate** - Remove duplicate findings across agents
 3. **Prioritize by severity**:
-   - **Critical**: N+1 queries in loops, O(n²+) on large datasets, memory leaks in long-running processes, unbounded resource allocation
-   - **High**: Missing database indexes, synchronous blocking in async contexts, large bundle imports, connection pool exhaustion
-   - **Medium**: Suboptimal queries, unnecessary re-renders, missing caching opportunities, inefficient data structures
-   - **Low**: Minor optimization opportunities, style preferences with marginal impact
+ - **Critical**: N+1 queries in loops, O(n²+) on large datasets, memory leaks in long-running processes, unbounded resource allocation
+ - **High**: Missing database indexes, synchronous blocking in async contexts, large bundle imports, connection pool exhaustion
+ - **Medium**: Suboptimal queries, unnecessary re-renders, missing caching opportunities, inefficient data structures
+ - **Low**: Minor optimization opportunities, style preferences with marginal impact
 4. **Categorize by performance domain**: Group findings under Database, Algorithm, Frontend, Resources
 5. **Statistics**: Count total issues, by severity, by category, files scanned vs files with issues
 6. **Impact assessment**: Estimate overall performance impact and prioritize quick wins
@@ -129,21 +118,19 @@ Before presenting report, verify:
 
 ```bash
 # Scan specific PR
-/review-perf 123
-/review-perf #456
+review-perf 123
+review-perf #456
 
 # Scan specific commit
-/review-perf abc123def
+review-perf abc123def
 
 # Scan entire codebase
-/review-perf --all
-/review-perf
+review-perf --all
+review-perf
 
 # Focus on specific scope
-/review-perf --all --scope database
-/review-perf 123 --scope frontend
-```
-
+review-perf --all --scope database
+review-perf 123 --scope frontend
 ## Scope Options
 
 - `database`: Focus on N+1 queries, missing indexes, inefficient queries, connection management
