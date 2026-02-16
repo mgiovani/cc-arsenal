@@ -326,7 +326,7 @@ make configure
 
 ---
 
-You're now ready to leverage the full power of Claude Code Arsenal for secure, automated development workflows!
+You're ready to leverage the full power of Claude Code Arsenal for secure, automated development workflows!
 
 For detailed guides, see:
 - [Troubleshooting](troubleshooting.md)
