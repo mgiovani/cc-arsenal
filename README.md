@@ -4,299 +4,70 @@
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![Code style: ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
-Tools to make Claude Code more useful: track your usage costs, schedule optimal coding windows, and automate common workflows.
+Workflow automation skills for Claude Code. Track usage costs, schedule optimal coding windows, and automate development workflows with 32 specialized skills.
 
-## Architecture
+## Quick Start
 
-cc-arsenal now uses a **dual-repository architecture** for maximum portability:
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                      cc-arsenal (this repo)                  │
-│  ┌────────────────────┐         ┌─────────────────────────┐ │
-│  │ Enhanced Skills    │         │ Optional Features       │ │
-│  │ (Claude Code)      │         │ - Statusline            │ │
-│  │ - Subagents        │         │ - Claude Hi Scheduler   │ │
-│  │ - Task tool        │         │                         │ │
-│  │ - Advanced context │         │                         │ │
-│  └────────────────────┘         └─────────────────────────┘ │
-│           ↕ sync                                             │
-│  ┌────────────────────┐                                      │
-│  │ skills-upstream/   │ (git submodule)                      │
-│  │ mgiovani/skills    │                                      │
-│  └────────────────────┘                                      │
-└─────────────────────────────────────────────────────────────┘
-                         ↓
-        ┌────────────────────────────────────┐
-        │    mgiovani/skills (separate repo) │
-        │  ┌──────────────────────────────┐  │
-        │  │ Base Skills                  │  │
-        │  │ (Cross-Platform)             │  │
-        │  │ - Cursor, Windsurf, etc.     │  │
-        │  │ - No platform-specific deps  │  │
-        │  │ - Published to skills.sh     │  │
-        │  └──────────────────────────────┘  │
-        └────────────────────────────────────┘
-```
-
-**Base Skills** ([mgiovani/skills](https://github.com/mgiovani/skills)):
-- Cross-platform SKILL.md format
-- Works with Claude Code, Cursor, Windsurf, and more
-- No platform-specific features (no Task tool, no Claude Code-specific frontmatter)
-- Published to [skills.sh](https://skills.sh) for discoverability
-- 22 core skills for development, docs, git, and Jira workflows
-
-**Enhanced Skills** (cc-arsenal):
-- Claude Code-specific optimizations
-- Uses subagents (Task tool) for parallel work
-- Advanced context management and hooks
-- Builds on base skills with additional capabilities
-- 10 enhanced skills leveraging Claude Code's full power
-
-**Sync Workflow**:
-- Base skills maintained in `skills-upstream/` submodule
-- Enhanced versions in `skills/` add Claude Code features
-- Automated sync script keeps them aligned
-- Changes flow: base skills → enhanced skills
-
-## What's included
-
-**22 Base Skills** (cross-platform) + **10 Enhanced Skills** (Claude Code) = Comprehensive workflow automation
-- Development: feature implementation, bug fixing, testing, refactoring, code review, security review, dependency audit, performance analysis, CI/CD generation, framework documentation injection (Next.js/FastAPI), project planning
-- Documentation: ADR, RFC, diagrams, init, check, update
-- Git & GitHub: conventional commits, PR creation, release management, GitHub Issues daily planner
-- Jira: daily standup reports and work prioritization
-- Teams: spec-driven development team and multi-agent PR review team (experimental)
-- Browser automation, skill discovery, and more
-- Easy to customize or create your own
-
-**Statusline** - Track your usage and costs in real-time (optional)
-- Shows costs, context usage, and time until reset
-- Git branch and worktree info
-- Example: `🤖 Opus 4.5 │ 📁 cc-arsenal │ 🌿 main │ 📊 22% │ 💰 $0.043 │ 🔄 2h15m`
-
-**Claude Hi Scheduler** - Maximize your 5-hour usage windows (optional)
-- Auto-triggers fresh windows at optimal times
-- Choose from preset schedules or customize your own
-- Perfect for planning intensive coding sessions
-
-## Installation
-
-Choose your installation method based on your needs:
-
-### Option 1: Enhanced Skills (Claude Code Plugin) — Recommended for Claude Code
-
-Get the full power of cc-arsenal with subagent orchestration and Claude Code optimizations:
+### Install Skills
 
 ```bash
+# Claude Code (enhanced skills with subagents)
 /plugin marketplace add mgiovani/cc-arsenal
-```
-
-This opens the plugin browser where you can select:
-
-| Plugin | What's Included | Best For |
-|--------|----------------|----------|
-| **cc-arsenal** | All 32 skills | Complete workflow automation |
-| **cc-arsenal-dev** | implement-feature, fix-bug, test-suite, refactor, review-code, review-security, review-deps, review-perf, ci-generate, inject-docs, inject-nextjs-docs, project-planner | Development workflows with code quality, testing, CI/CD, and framework docs |
-| **cc-arsenal-docs** | docs-adr, docs-check, docs-diagram, docs-init, docs-rfc, docs-update | Documentation generation |
-| **cc-arsenal-git** | git-commit, git-create-pr, git-release, gh-daily | Git & GitHub workflows: commits, PRs, releases, issue planning |
-| **cc-arsenal-review** | review-code, review-security, review-deps, review-perf | Code review, security, dependencies, performance analysis |
-| **cc-arsenal-skills** | agent-browser, jira-cli, skill-creator, find-skills | Specialty model-invoked capabilities |
-| **cc-arsenal-teams** | team-implement, team-review | Spec-driven team orchestration (experimental) |
-
-> **Plugin Variants Pattern:** All variants install from the same repository but load different subsets of skills. Install the complete toolkit OR pick individual variants based on your needs. You can also install multiple variants together (e.g., git + docs).
-
-**Quick install (complete toolkit):**
-```bash
 /plugin install cc-arsenal@cc-arsenal-marketplace
-```
 
-After installing, use skills like `/cc-arsenal:git-commit`, `/cc-arsenal:docs-adr`, `/cc-arsenal:implement-feature`, etc. Specialty skills (agent-browser, jira-cli, etc.) activate automatically when relevant.
-
-### Option 2: Base Skills (`npx skills`) — For Cross-Platform Use
-
-Install cross-platform base skills from [mgiovani/skills](https://github.com/mgiovani/skills) using the [Agent Skills](https://skills.sh) ecosystem. Works with Claude Code, Cursor, Windsurf, and 30+ other AI agents:
-
-```bash
-# Install all base skills
+# Cross-platform (base skills for any AI agent)
 npx skills add mgiovani/skills
-
-# List available skills first
-npx skills add mgiovani/skills --list
-
-# Install a specific skill
-npx skills add mgiovani/skills/git-commit
-
-# Install globally (available across all projects)
-npx skills add mgiovani/skills -g
 ```
 
-**Note**: Base skills are streamlined for cross-platform compatibility. For Claude Code-specific features like parallel subagent orchestration, use Option 1 (Plugin) instead.
-
-## Optional Features
-
-After installation, add these features if you want them:
-
-**Statusline** (track usage, cost, and other useful info):
-```bash
-make statusline-install
-```
-
-**Claude Hi Scheduler** (manage 5-hour windows):
-```bash
-make claude-hi-setup      # Interactive setup
-make claude-hi-standard   # Quick 9am/2pm/7pm schedule
-```
-
-## Features
-
-### 🛠️ Skills
-
-All 31 skills organized by category:
-
-**Development** (12 skills):
-- `/implement-feature` - Feature implementation with parallel subagents and automated test verification
-- `/fix-bug` - Test-driven debugging with fix verification
-- `/test-suite` - Test generation and coverage analysis (model-invoked)
-- `/refactor` - Safe codebase refactoring with characterization tests (model-invoked)
-- `/review-code` - Multi-agent PR code review with 5 parallel specialists
-- `/review-security` - OWASP Top 10 2025 security analysis
-- `/review-deps` - Dependency audit, vulnerability scanning, and upgrade planning
-- `/review-perf` - Performance analysis with 4 parallel agents (database, algorithm, frontend, resources)
-- `/ci-generate` - CI/CD workflow generator (GitHub Actions, GitLab CI, CircleCI, Jenkins)
-- `/inject-docs` - **NEW** Framework documentation injector (Next.js via agents-md, FastAPI via best practices)
-- `/inject-nextjs-docs` - Next.js agents-md codemod (legacy, use `/inject-docs` instead)
-- `/project-planner` - Break down large projects into dependency-aware tasks
-
-**Documentation** (6 skills):
-- `/docs-init`, `/docs-adr`, `/docs-rfc`, `/docs-diagram`, `/docs-check`, `/docs-update`
-
-**Git & GitHub** (4 skills):
-- `/git-commit` - Conventional commits with automated linting
-- `/git-create-pr` - PR with templates and test verification
-- `/git-release` - Release management with automated changelog generation
-- `/gh-daily` - GitHub Issues daily planner with priority scoring
-
-**Jira** (2 skills):
-- `/jira-daily` - Standup report generator
-- `/jira-todo` - Work prioritization planner
-
-**Claude Utilities** (2 skills):
-- `/create-command` - Create new skills
-- `/create-rule` - Create memory rules
-
-**Teams** (2 skills — experimental):
-- `/team-implement` - Spec-driven team orchestration that scales from 3 to 11 agents based on project complexity. Accepts plain text, Jira tickets, GitHub issues, files, or URLs as input.
-- `/team-review` - Multi-agent PR review team with 7 specialized reviewers + adversary reviewer
-
-**Specialty** (4 model-invoked skills):
-- `agent-browser` - AI-optimized browser automation (93% less context than Playwright)
-- `find-skills` - Discover and install third-party skills from [skills.sh](https://skills.sh)
-- `jira-cli` - Manage Jira issues, sprints, and epics
-- `skill-creator` - Guide for creating custom skills
-
-See the `skills/` directory for details.
-
-### 📊 Statusline (Optional)
-
-Track costs and usage in your Claude Code prompt:
-- Model name and version
-- Current directory
-- Git branch with uncommitted changes (●)
-- Git worktree name (when in worktrees)
-- Context window usage percentage
-- Session costs
-- Lines changed (+added/-removed)
-- Session duration
-- Time until 5-hour reset
-
-**Example:**
-```
-🤖 Opus 4.5 │ 📁 ~/projects/cc-arsenal │ 🌿 main ● │ 📊 66% │ 💰 $3.169 │ 📝 +719/-545 │ ⏱️ 21m │ 🔄 4h 23m until reset at 13:00
-```
-
-**In a git worktree:**
-```
-🤖 Opus 4.5 │ 📁 ~/projects/feature │ 🌿 feat-branch ● │ 🌳 feature │ 📊 45% │ 💰 $1.234 │ 📝 +120/-80 │ ⏱️ 15m │ 🔄 2h 10m until reset at 14:00
-```
-
-👉 [Statusline documentation](scripts/claude/statusline/STATUSLINE.md)
-
-### 🕐 Claude Hi Scheduler (Optional)
-
-Automatically start fresh 5-hour windows before your peak coding times:
+### Optional Features
 
 ```bash
-make claude-hi-setup      # Choose your schedule
-make claude-hi-standard   # Quick 9am/2pm/7pm setup
+make statusline-install    # Track usage and costs
+make claude-hi-standard    # Schedule 5-hour windows
 ```
 
-👉 [Claude Hi documentation](scripts/claude-hi/README.md)
+## What's Included
+
+**32 Skills** organized by category:
+- **Development** (12): Feature implementation, bug fixing, testing, refactoring, code review, security review, dependency audit, performance analysis, CI/CD generation, framework docs injection
+- **Documentation** (6): ADR, RFC, diagrams, init, check, update
+- **Git & GitHub** (4): Conventional commits, PR creation, releases, daily planning
+- **Jira** (2): Standup reports, work prioritization
+- **Teams** (2): Spec-driven orchestration, multi-agent PR review
+- **Utilities** (6): Skill creation, memory rules, browser automation, skill discovery
+
+**Optional Features:**
+- **Statusline**: Real-time cost and usage tracking in your prompt
+- **Claude Hi**: Automated 5-hour window scheduling
 
 ## Documentation
 
-- [Getting Started](docs/getting-started.md) - Setup and configuration
-- [Statusline Guide](scripts/claude/statusline/STATUSLINE.md) - Usage tracking and configuration
+- [Architecture](docs/architecture.md) - Dual-repository model
+- [Getting Started](docs/getting-started.md) - Installation and setup
+- [Features](docs/features.md) - Complete skill reference
+- [Statusline Guide](scripts/claude/statusline/STATUSLINE.md) - Usage tracking
 - [Claude Hi Guide](scripts/claude-hi/README.md) - Session scheduling
 - [Troubleshooting](docs/troubleshooting.md) - Common issues
-- [Security Policy](docs/SECURITY.md) - Vulnerability reporting
 - [Changelog](docs/CHANGELOG.md) - Version history
-- [Code of Conduct](docs/CODE_OF_CONDUCT.md) - Community guidelines
 
 ## Contributing
 
-Contributions welcome! We use a dual-repository model:
+Contributions welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
-### Where to Contribute
-
-**Base Skills** ([mgiovani/skills](https://github.com/mgiovani/skills)):
-- Cross-platform skill improvements
-- New skills that work across all agents
-- Bug fixes for core functionality
-- Documentation improvements
-
-**Enhanced Skills** (cc-arsenal):
-- Claude Code-specific features
-- Subagent orchestration improvements
-- Advanced context management
-- Optional features (Statusline, Claude Hi)
-
-### Development Setup
-
-```bash
-# Clone cc-arsenal
-git clone https://github.com/mgiovani/cc-arsenal.git
-cd cc-arsenal
-
-# Set up development environment
-make dev
-
-# Initialize submodule (for base skills)
-git submodule update --init --recursive
-
-# Run quality checks
-make test       # Run tests
-make check      # Run quality checks
-```
-
-**Sync Workflow** (for maintainers):
-```bash
-# After updating base skills in skills-upstream/
-make sync-skills    # Sync changes to skills/
-```
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for details. Please also review our [Code of Conduct](docs/CODE_OF_CONDUCT.md).
+**Where to contribute:**
+- **Base skills** (cross-platform): [mgiovani/skills](https://github.com/mgiovani/skills)
+- **Enhanced skills** (Claude Code): This repository
+- **Optional features**: Statusline, Claude Hi (this repository)
 
 ## Support
 
 - 🐛 [Report bugs](https://github.com/mgiovani/cc-arsenal/issues)
-- 🔒 [Report security vulnerabilities](docs/SECURITY.md)
+- 🔒 [Security vulnerabilities](docs/SECURITY.md)
 - 💬 [Discussions](https://github.com/mgiovani/cc-arsenal/discussions)
-- 📖 Check `docs/` for guides
 
 ## License
 
-MIT License - see [LICENSE](LICENSE) for details.
+MIT License - see [LICENSE](LICENSE)
 
 ---
 

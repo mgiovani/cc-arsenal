@@ -5,6 +5,38 @@ All notable changes to cc-arsenal will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.1.0] - 2026-02-13
+
+### Added
+
+- **Cross-platform skills**: 22 base skills available via [mgiovani/skills](https://github.com/mgiovani/skills) repository
+  - Install with `npx skills add mgiovani/skills` for use across any AI agent platform
+  - Works with Claude Code, Cursor, Windsurf, and 30+ other AI agents
+  - Published to [skills.sh](https://skills.sh) marketplace for easy discovery
+- **Sync workflow**: `make sync-skills` command to keep skills synchronized with base repository
+  - Automated merge of base skills with Claude Code enhancements
+  - Status tracking with `make sync-skills-status`
+  - Submodule auto-initialization in installation flow
+- **Enhancement system**: Claude Code-specific features layered on top of base skills
+  - 25 enhancement files in `enhancements/` directory
+  - Subagent orchestration, Task Management System integration, hooks
+  - Preserved all Claude Code optimizations while enabling cross-platform distribution
+
+### Changed
+
+- **Architecture**: Dual-repository model with `skills-upstream/` submodule
+  - Base skills maintained in separate repository for cross-platform use
+  - Enhanced skills in cc-arsenal add Claude Code-specific features
+  - Automated sync keeps both aligned
+- **Installation**: Git submodule initialization automatic during `make install`
+- **Plugin variants**: All marketplace plugins updated to v3.1.0
+
+### Technical Details
+
+- **Submodule**: `skills-upstream/` points to [mgiovani/skills](https://github.com/mgiovani/skills)
+- **Sync script**: `scripts/sync_skills.py` handles merging and SYNC.md metadata
+- **Skill count**: 22 cross-platform base skills + 10 Claude Code-exclusive skills = 32 total
+
 ## [2.3.0] - 2026-02-05
 
 ### Added

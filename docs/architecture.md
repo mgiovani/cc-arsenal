@@ -1,12 +1,68 @@
 # Claude Code Arsenal Architecture
 
-**Last Updated:** 2025-10-27
-**Version:** 0.1.0
+**Last Updated:** 2026-02-13
+**Version:** 3.1.0
 **Authors:** Giovani Moutinho
 
 ## Overview
 
-Claude Code Arsenal is a professional collection of workflow automation commands and skills designed to enhance Claude Code's capabilities. The system uses a plugin-based architecture for clean installation and modular configuration, distributed via the Claude Code marketplace.
+Claude Code Arsenal is a professional collection of workflow automation skills designed to enhance Claude Code's capabilities. The system uses a **dual-repository architecture** that separates cross-platform base skills from Claude Code-specific enhancements, enabling skill distribution across multiple AI agent platforms while maintaining optimized Claude Code features.
+
+## Dual-Repository Architecture
+
+cc-arsenal uses two repositories that work together:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                      cc-arsenal (this repo)                  │
+│  ┌────────────────────┐         ┌─────────────────────────┐ │
+│  │ Enhanced Skills    │         │ Optional Features       │ │
+│  │ (Claude Code)      │         │ - Statusline            │ │
+│  │ - Subagents        │         │ - Claude Hi Scheduler   │ │
+│  │ - Task tool        │         │                         │ │
+│  │ - Advanced context │         │                         │ │
+│  └────────────────────┘         └─────────────────────────┘ │
+│           ↕ sync                                             │
+│  ┌────────────────────┐                                      │
+│  │ skills-upstream/   │ (git submodule)                      │
+│  │ mgiovani/skills    │                                      │
+│  └────────────────────┘                                      │
+└─────────────────────────────────────────────────────────────┘
+                         ↓
+        ┌────────────────────────────────────┐
+        │    mgiovani/skills (separate repo) │
+        │  ┌──────────────────────────────┐  │
+        │  │ Base Skills                  │  │
+        │  │ (Cross-Platform)             │  │
+        │  │ - Cursor, Windsurf, etc.     │  │
+        │  │ - No platform-specific deps  │  │
+        │  │ - Published to skills.sh     │  │
+        │  └──────────────────────────────┘  │
+        └────────────────────────────────────┘
+```
+
+### Components
+
+**Base Skills** ([mgiovani/skills](https://github.com/mgiovani/skills)):
+- Cross-platform SKILL.md format
+- Works with Claude Code, Cursor, Windsurf, and 30+ AI agents
+- No platform-specific features (no Task tool, hooks, or Claude Code frontmatter)
+- Published to [skills.sh](https://skills.sh) marketplace
+- 22 core skills for development, documentation, git, and Jira workflows
+
+**Enhanced Skills** (cc-arsenal):
+- Claude Code-specific optimizations
+- Uses subagents (Task tool) for parallel work
+- Advanced context management and hooks
+- Quality gates with pre/post hooks
+- Builds on base skills with additional capabilities
+- 10 Claude Code-exclusive skills + 22 enhanced base skills = 32 total
+
+**Sync Workflow**:
+- Base skills maintained in `skills-upstream/` submodule
+- Enhancement layer in `enhancements/` adds Claude Code features
+- `make sync-skills` command merges base + enhancements into `skills/`
+- SYNC.md files track synchronization status
 
 ## System Context
 
