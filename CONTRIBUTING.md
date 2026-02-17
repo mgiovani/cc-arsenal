@@ -76,11 +76,11 @@ The CC-Arsenal currently supports three types of components:
 
 ### Creating New Skills
 
-Skills are modular capabilities that Claude automatically invokes when relevant. To create a new skill, use the skill-creator skill for guidance:
+Skills are modular capabilities that Claude automatically invokes when relevant. To create a new skill, use the create-skill skill for guidance:
 
 ```bash
-# The skill-creator provides comprehensive guidance and templates
-# See skills/skill-creator/SKILL.md for detailed instructions
+# The create-skill provides specification-driven creation with live documentation fetching
+# See skills/create-skill/SKILL.md for detailed instructions
 ```
 
 Each skill should have a `SKILL.md` file with YAML frontmatter:

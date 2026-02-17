@@ -162,7 +162,7 @@ graph TB
 
         subgraph "Skills Layer"
             JiraSkill[jira-cli/<br/>Jira Integration]
-            CreatorSkill[skill-creator/<br/>Skill Guide]
+            CreatorSkill[create-skill/<br/>Skill Creation]
         end
 
         subgraph "Templates"
@@ -301,7 +301,7 @@ graph TB
 - Python scripts for skill utilities
 
 **Available Skills:**
-- `skill-creator/` - Guide for creating effective skills
+- `create-skill/` - Specification-driven skill creation with live documentation fetching
 - `jira-cli/` - Interactive Jira command-line tool
 
 ### Data Flow

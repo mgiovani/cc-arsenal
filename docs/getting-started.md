@@ -133,7 +133,7 @@ Model-invoked capabilities that Claude automatically loads when relevant:
 
 #### Available Skills
 
-- **skill-creator**: Comprehensive guide for creating effective skills with specialized knowledge, workflows, or tool integrations
+- **create-skill**: Specification-driven skill creation with live documentation fetching and interactive planning
 - **jira-cli**: Interactive command-line tool for Atlassian Jira with issue, epic, and sprint management
 
 Skills use progressive disclosure - Claude decides when to activate them based on task context.
@@ -275,7 +275,7 @@ make configure
 
 ### Explore Advanced Features
 
-1. **Create Custom Skills**: Use the skill-creator skill to build specialized capabilities
+1. **Create Custom Skills**: Use the create-skill skill to build specialized capabilities
 2. **Set Up Team Workflows**: Configure consistent settings across team members
 3. **Integrate with CI/CD**: Use commands in automated pipelines
 4. **Enhanced Statusline**: Track token usage and session costs with `make install-statusline`

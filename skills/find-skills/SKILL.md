@@ -18,7 +18,7 @@ The **Agent Skills** format is an open standard for packaging procedural knowled
 Before installing third-party skills, note that cc-arsenal already provides:
 - **agent-browser** -- AI-optimized headless browser automation (snapshot + refs system)
 - **jira-cli** -- Interactive Jira issue, epic, and sprint management
-- **skill-creator** -- Guide for creating new skills with progressive disclosure
+- **create-skill** -- Specification-driven skill creation with live documentation fetching
 - **find-skills** -- This skill (discovery and installation of third-party skills)
 
 Only install external skills that provide capabilities not already covered above.
@@ -113,7 +113,7 @@ npx skills add ./my-local-skills
 |------------|-------------|
 | `vercel-labs/agent-skills` | Vercel's official skill collection (React, Next.js, design) |
 | `anthropics/skills` | Anthropic's example skills |
-| `mgiovani/cc-arsenal` | This repository (browser, Jira, skill-creator, find-skills) |
+| `mgiovani/cc-arsenal` | This repository (browser, Jira, create-skill, find-skills) |
 
 ## Reference Files
 

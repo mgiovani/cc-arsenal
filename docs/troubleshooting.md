@@ -207,7 +207,7 @@ make install  # Creates default configs
 ls -la ~/.claude/skills/
 
 # Verify skill file format
-head -20 ~/.claude/skills/skill-creator/SKILL.md
+head -20 ~/.claude/skills/create-skill/SKILL.md
 
 # Restart Claude Code completely
 # Close all Claude Code windows and restart

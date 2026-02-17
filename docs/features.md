@@ -196,11 +196,12 @@ Interactive command-line tool for Jira.
 - Sprint planning
 - Epic tracking
 
-#### `skill-creator` (model-invoked)
-Comprehensive guide for creating skills.
-- Creation guidelines
-- Best practices
-- Template patterns
+#### `create-skill` (model-invoked)
+Specification-driven skill creation with live documentation fetching.
+- Fetches latest specifications from agentskills.io
+- Interactive clarification with user
+- Multi-source example research
+- User approval gates before file generation
 
 ## Optional Features
 
@@ -272,5 +273,5 @@ make claude-hi-standard   # Quick 9am/2pm/7pm schedule
 **Model-Invoked** (automatic):
 - Claude detects context and loads automatically
 - No confirmation dialogs
-- Examples: `agent-browser`, `jira-cli`, `skill-creator`, `find-skills`, `test-suite`, `refactor`
+- Examples: `agent-browser`, `jira-cli`, `create-skill`, `find-skills`, `test-suite`, `refactor`
 - 6 model-invoked skills

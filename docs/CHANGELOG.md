@@ -5,6 +5,44 @@ All notable changes to cc-arsenal will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.2.0] - 2026-02-16
+
+### Added
+
+- **create-skill**: Specification-driven skill creation with live documentation fetching
+  - Fetches latest specifications from agentskills.io and platform.claude.com every run (never uses stale cached docs)
+  - Interactive clarification using AskUserQuestion to understand skill vision (2 rounds: core identity + technical details)
+  - Multi-source example research using parallel Explore agents (skills.sh, anthropics/skills, mgiovani/skills, cc-arsenal)
+  - Skill composition discovery identifies existing skills to reference/invoke (promotes reuse over reimplementation)
+  - User approval gate via EnterPlanMode before generating any files (complete blueprint with rationale)
+  - Model-invocable for automatic activation during larger workflows (safe with approval gate)
+  - Task Management System integration for transparent progress tracking (6 phases: Fetch → Understand → Research → Plan → Generate → Validate)
+  - Validation using bundled quick_validate.py script (YAML frontmatter, naming conventions, directory structure)
+  - Reference documentation: specification-urls.md (canonical sources), skill-anatomy.md (folder conventions, composition patterns)
+
+### Changed
+
+- **create-command**: Soft-deprecated in favor of create-skill (maintained for backward compatibility, deprecation notice added to SKILL.md)
+- **Marketplace**: Updated cc-arsenal-skills variant to include create-skill instead of skill-creator (version 3.1.0 → 3.2.0)
+- **Plugin versions**: Bumped all plugin variants from 3.1.0 to 3.2.0 (cc-arsenal, cc-arsenal-dev, cc-arsenal-docs, cc-arsenal-git, cc-arsenal-skills, cc-arsenal-teams, cc-arsenal-review)
+
+### Removed
+
+- **skill-creator**: Replaced entirely by create-skill
+  - Absorbed useful parts: quick_validate.py validation script moved to create-skill/scripts/
+  - Absorbed useful documentation: Folder naming standards migrated to create-skill/references/skill-anatomy.md
+  - Eliminated stale bundled documentation in favor of live WebFetch from canonical URLs
+  - Removed init_skill.py (create-skill generates files directly with context-aware content)
+  - Removed package_skill.py (niche packaging use case, not part of core workflow)
+  - Removed enhancements/skill-creator/ directory
+
+### Technical Details
+
+- **Skill count**: Still 32 total skills (create-skill replaces skill-creator, not addition)
+- **Live documentation sources**: agentskills.io (primary spec), platform.claude.com (best practices), skills.sh (community examples)
+- **Workflow pattern**: 6-phase progressive workflow with 2 approval gates (Phase 1: interactive clarification, Phase 3: plan approval)
+- **Tool permissions**: Read, Write, Edit, Grep, Glob, Bash (mkdir/python/uv run), Task, TaskCreate/Update/List/Get, WebFetch, AskUserQuestion, EnterPlanMode, ExitPlanMode
+
 ## [3.1.0] - 2026-02-13
 
 ### Added

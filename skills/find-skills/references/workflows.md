@@ -169,7 +169,7 @@ cc-arsenal already provides these capabilities -- avoid installing duplicates:
 |-----------------|--------|--------------------------|
 | agent-browser | Browser automation, web testing, screenshots | Playwright skills, browser automation skills |
 | jira-cli | Jira issue/epic/sprint management | Jira integration skills |
-| skill-creator | Creating new skills | Skill authoring guides |
+| create-skill | Creating new skills | Skill authoring guides |
 | find-skills | Skill discovery and management | Skills directory tools |
 
 ### Complementary Skills

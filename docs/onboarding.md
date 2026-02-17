@@ -169,7 +169,7 @@ cc-arsenal/
 │   ├── docs/              # Documentation generation
 │   └── git/               # Git operations
 ├── skills/            # Model-invoked capabilities
-│   ├── skill-creator/     # Guide for creating skills
+│   ├── create-skill/      # Specification-driven skill creation
 │   └── jira-cli/          # Jira CLI integration
 ├── scripts/           # Installation and utilities
 │   ├── setup/             # install.py, configure.py
@@ -343,7 +343,7 @@ See [architecture.md](./architecture.md) for detailed system design.
    # Claude will auto-load when context matches
    ```
 
-See `skills/skill-creator/SKILL.md` for comprehensive skill creation guide.
+See `skills/create-skill/SKILL.md` for comprehensive skill creation guide.
 
 ### Fixing a Bug
 

@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.2.0] - 2026-02-16
+
+### Added
+- **create-skill**: Specification-driven skill creation with live documentation fetching
+  - Fetches latest specifications from agentskills.io and platform.claude.com every run
+  - Interactive clarification using AskUserQuestion for core identity and technical details
+  - Multi-source example research (skills.sh, anthropics/skills, mgiovani/skills, cc-arsenal)
+  - Skill composition discovery (identifies existing skills to reference/invoke)
+  - User approval gate via EnterPlanMode before generating any files
+  - Model-invocable for automatic activation during larger workflows
+  - Task Management System for transparent progress tracking
+  - Validation using bundled quick_validate.py script
+
+### Changed
+- **create-command**: Soft-deprecated in favor of create-skill (maintained for backward compatibility)
+- **Marketplace**: Updated cc-arsenal-skills variant to include create-skill instead of skill-creator
+- **Version**: Bumped all plugin variants from 3.1.0 to 3.2.0
+
+### Removed
+- **skill-creator**: Replaced by create-skill
+  - Absorbed useful parts: quick_validate.py script, folder naming guidance
+  - Eliminated stale bundled documentation in favor of live fetching
+  - Removed init_skill.py and package_skill.py (niche use cases)
+
 ## [3.1.0] - 2026-02-13
 
 ### Changed - Dual Repository Architecture Migration

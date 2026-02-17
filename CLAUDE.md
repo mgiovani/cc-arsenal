@@ -29,7 +29,7 @@ Then, to install a specific plugin set:
    - **cc-arsenal-dev** - Development skills only (implement-feature, fix-bug, review-security, inject-nextjs-docs, project-planner)
    - **cc-arsenal-docs** - Documentation skills only (ADR, RFC, diagrams, init, check, update)
    - **cc-arsenal-git** - Git workflow skills only (commit, create-pr)
-   - **cc-arsenal-skills** - Specialty skills only (agent-browser, jira-cli, skill-creator, find-skills)
+   - **cc-arsenal-skills** - Specialty skills only (agent-browser, jira-cli, create-skill, find-skills)
    - **cc-arsenal-teams** - Spec-driven team orchestration (team-implement)
 4. Select **Install now**
 
@@ -59,7 +59,7 @@ This repository uses a "plugin variants" architecture where multiple installatio
 | `cc-arsenal-dev` | implement-feature, fix-bug, review-security, inject-nextjs-docs, project-planner | Development workflows with subagents |
 | `cc-arsenal-docs` | docs-adr, docs-check, docs-diagram, docs-init, docs-rfc, docs-update | Documentation generation only |
 | `cc-arsenal-git` | git-commit, git-create-pr | Git workflow automation |
-| `cc-arsenal-skills` | agent-browser, jira-cli, skill-creator, find-skills | Specialty model-invoked capabilities |
+| `cc-arsenal-skills` | agent-browser, jira-cli, create-skill, find-skills | Specialty model-invoked capabilities |
 | `cc-arsenal-teams` | team-implement | Spec-driven team orchestration (experimental) |
 
 **How It Works:**
@@ -252,7 +252,7 @@ All components are skills with progressive disclosure (SKILL.md + optional refer
 ### Specialty Skills (4 skills)
 - **agent-browser**: AI-optimized browser automation with 93% less context overhead than Playwright MCP
 - **find-skills**: Discover and install third-party agent skills from skills.sh
-- **skill-creator**: Comprehensive guide for creating effective skills
+- **create-skill**: Specification-driven skill creation with live documentation fetching and interactive planning
 - **jira-cli**: Interactive command-line tool for Atlassian Jira
 
 ## Development Patterns
@@ -268,7 +268,7 @@ All components in cc-arsenal are **skills**. Skills come in two flavors:
   - 16 user-invoked skills available
 
 - **Model-invoked skills** (`disable-model-invocation: false` or unset): Capabilities Claude automatically loads when relevant
-  - Examples: implement-feature, fix-bug, agent-browser, jira-cli, skill-creator, find-skills
+  - Examples: implement-feature, fix-bug, agent-browser, jira-cli, create-skill, find-skills
   - Claude detects context automatically (e.g., "let's implement X" or "fix this bug")
   - No confirmation dialogs - users can abort with natural language if needed
   - Best for: Feature implementation, bug fixing, domain expertise, tool integrations
@@ -366,7 +366,7 @@ cc-arsenal/
 │   ├── create-rule/         # Create memory rules
 │   ├── agent-browser/       # Browser automation
 │   ├── find-skills/         # Third-party skill discovery
-│   ├── skill-creator/       # Skill creation guide
+│   ├── create-skill/        # Specification-driven skill creation
 │   ├── jira-cli/            # Jira CLI integration
 │   └── team-implement/      # Spec-driven team orchestration
 ├── commands/        # Legacy commands (backward compatibility)
