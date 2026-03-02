@@ -15,8 +15,6 @@ allowed-tools: Read, Write, Grep, Glob, Bash(git *), Bash(mkdir *), Task, TodoWr
 
 # Create Command
 
-> **Deprecated**: Prefer `/create-skill` which fetches live specifications, researches multi-source examples, and uses interactive planning with user approval gates. `create-command` is maintained for backward compatibility but lacks the modern workflow and up-to-date documentation fetching of `create-skill`.
-
 > **Cross-Platform AI Agent Skill**
 > This skill works with any AI agent platform that supports the skills.sh standard.
 

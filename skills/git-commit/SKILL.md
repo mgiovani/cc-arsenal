@@ -162,7 +162,6 @@ BREAKING CHANGE: calculate has been removed, use computeTotal instead
 - **Pre-commit Hooks**: NEVER use `--no-verify` to skip pre-commit hooks - it bypasses important quality gates
 
 Generate the most appropriate commit message(s) based on the changes and commit automatically. Ask for confirmation before committing if the changes are complex or span multiple concerns.
-<!-- Test edit -->
 
 ## Claude Code Enhanced Features
 

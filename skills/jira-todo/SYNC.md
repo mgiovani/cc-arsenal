@@ -2,8 +2,8 @@
 
 This file tracks the sync state of this skill with the upstream repository.
 
-**Upstream Commit**: `28c9c9d173f519fac1db84c68647ec13e0a6934e`
-**Sync Timestamp**: `2026-02-13T18:00:28.032193+00:00`
+**Upstream Commit**: `ce18c8e8bf085988d9cf5fc05636d2e8320541ba`
+**Sync Timestamp**: `2026-03-02T23:34:08.163106+00:00`
 **Base Skill**: `skills-upstream/skills/jira-todo/SKILL.md`
 **Enhancement**: `enhancements/jira-todo/ENHANCEMENT.md`
 **Has Enhancement**: `True`
