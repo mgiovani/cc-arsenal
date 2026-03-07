@@ -110,7 +110,7 @@
       "name": "cc-arsenal-skills",
       "source": "./",
       "strict": false,
-      "description": "Specialty skills: Browser automation (agent-browser), Jira CLI, specification-driven skill creation (create-skill), and third-party skill discovery (find-skills)",
+      "description": "Specialty skills: Browser automation (agent-browser), Jira CLI, specification-driven skill creation with eval system and description optimization (create-skill v2.0), and third-party skill discovery (find-skills)",
       "version": "3.2.0",
       "author": {
         "name": "Giovani Moutinho",

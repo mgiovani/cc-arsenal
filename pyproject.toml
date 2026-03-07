@@ -107,6 +107,7 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "**/tests/*.py" = ["S101"]  # Allow asserts in test files
+"skills/create-skill/scripts/*.py" = ["E501", "S607"]  # CLI scripts with template strings
 
 fixable = ["ALL"]
 unfixable = []
