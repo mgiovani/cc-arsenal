@@ -134,6 +134,25 @@ Agent - Commit Classification:
  - If CHANGELOG.md does not exist, create it with a `# Changelog` header followed by the entry
  - Maintain a blank line between the header and first entry, and between entries
 
+### Phase 3b: Changelog-Only Mode (if `--changelog-only`)
+
+When `--changelog-only` is passed, skip Phases 4–6 entirely:
+
+1. Run Phases 1–3 normally (collect commits, detect version bump, generate changelog entry)
+2. Write the changelog entry to `CHANGELOG.md` (same logic as Phase 5, step 2)
+3. Display the updated changelog entry to the user
+4. **Stop here** — do not create tags, version bumps, commits, or GitHub releases
+
+Use case: generate a changelog draft before deciding on a release, or maintain a running changelog during development.
+
+```bash
+# Example output for --changelog-only
+git-release --changelog-only
+# → Scans commits since v1.2.3
+# → Writes changelog entry to CHANGELOG.md
+# → Reports: "CHANGELOG.md updated with 8 commits. No tag or release created."
+```
+
 ### Phase 4: User Approval
 
 **CRITICAL**: Always present the full release plan and wait for explicit approval before executing.
@@ -237,6 +256,7 @@ Parse optional arguments from `command arguments`:
 - `--patch`: Force a patch version bump (overrides auto-detection)
 - `--dry-run` or `-n`: Show what would happen without making changes
 - `--no-github`: Skip GitHub release creation (only local tag + changelog)
+- `--changelog-only`: Generate/update CHANGELOG.md only — skip tagging, version bumps, and GitHub release
 
 When force flags conflict (e.g., `--major --minor`), use the highest: major > minor > patch.
 
@@ -275,4 +295,7 @@ git-release --no-github
 
 # Force minor bump, dry run
 git-release --minor --dry-run
+
+# Update CHANGELOG.md only (no tag or release)
+git-release --changelog-only
 ```
