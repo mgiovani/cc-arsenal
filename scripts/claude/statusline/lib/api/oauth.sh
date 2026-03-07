@@ -23,7 +23,7 @@ source "$STATUSLINE_API_DIR/../core/cache.sh"
 
 # Cache for OAuth usage data
 OAUTH_USAGE_CACHE_FILE="${OAUTH_USAGE_CACHE_FILE:-/tmp/claude_oauth_usage_cache.json}"
-OAUTH_USAGE_CACHE_TTL="${OAUTH_USAGE_CACHE_TTL:-60}"  # 60 seconds cache TTL
+OAUTH_USAGE_CACHE_TTL="${OAUTH_USAGE_CACHE_TTL:-300}"  # 300 seconds cache TTL (5 min — API is heavily rate-limited per token)
 
 # API endpoint
 ANTHROPIC_OAUTH_USAGE_URL="https://api.anthropic.com/api/oauth/usage"
@@ -170,7 +170,7 @@ fetch_oauth_usage() {
 # Returns: "utilization|resets_at_epoch" or exits with 1 if unavailable
 get_oauth_five_hour_usage() {
     local usage_json
-    usage_json=$(fetch_oauth_usage 2>/dev/null)
+    usage_json=$(fetch_oauth_usage_cached_only 2>/dev/null)
 
     if [[ -z "$usage_json" ]]; then
         return 1
@@ -204,7 +204,7 @@ get_oauth_five_hour_usage() {
 # Returns: "utilization|resets_at_epoch" or exits with 1 if unavailable
 get_oauth_seven_day_usage() {
     local usage_json
-    usage_json=$(fetch_oauth_usage 2>/dev/null)
+    usage_json=$(fetch_oauth_usage_cached_only 2>/dev/null)
 
     if [[ -z "$usage_json" ]]; then
         return 1
@@ -237,7 +237,7 @@ get_oauth_seven_day_usage() {
 # Returns: JSON-like string with parsed data or empty
 get_oauth_usage_parsed() {
     local usage_json
-    usage_json=$(fetch_oauth_usage 2>/dev/null)
+    usage_json=$(fetch_oauth_usage_cached_only 2>/dev/null)
 
     if [[ -z "$usage_json" ]]; then
         return 1
@@ -298,7 +298,7 @@ get_oauth_cache_age() {
 # Supported fields: seven_day_sonnet, seven_day_opus, seven_day_oauth_apps, seven_day_cowork
 get_oauth_extra_limits() {
     local usage_json
-    usage_json=$(fetch_oauth_usage 2>/dev/null)
+    usage_json=$(fetch_oauth_usage_cached_only 2>/dev/null)
 
     if [[ -z "$usage_json" ]] || ! check_jq; then
         return 1

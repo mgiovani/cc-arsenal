@@ -24,6 +24,8 @@ LOG_DIR="/tmp/statusline_live_cache"
 LOG_FILE="$LOG_DIR/oauth_errors.log"
 CACHE_LOCK_FILE="$LOG_DIR/oauth_cache.lock"
 CACHE_LOCK_FD=201  # Use different FD than daemon lock (200)
+BACKOFF_FILE="$LOG_DIR/oauth_backoff"
+BACKOFF_COUNT_FILE="$LOG_DIR/oauth_backoff_count"
 
 # Ensure log directory exists
 mkdir -p "$LOG_DIR" 2>/dev/null || true
@@ -109,6 +111,54 @@ release_cache_lock() {
 }
 
 # =============================================================================
+# Rate-Limit Backoff Functions
+# =============================================================================
+
+# Check if we are currently in a backoff period
+# Returns: 0 if in backoff (should skip fetch), 1 if ok to fetch
+check_backoff() {
+    [[ -f "$BACKOFF_FILE" ]] || return 1
+
+    local backoff_mtime current_time elapsed backoff_duration failure_count
+    backoff_mtime=$(stat -c %Y "$BACKOFF_FILE" 2>/dev/null || stat -f %m "$BACKOFF_FILE" 2>/dev/null || echo 0)
+    current_time=$(date +%s)
+    elapsed=$((current_time - backoff_mtime))
+
+    failure_count=$(cat "$BACKOFF_COUNT_FILE" 2>/dev/null || echo 1)
+
+    # Backoff schedule: 1st=120s, 2nd=300s, 3rd+=600s
+    if [[ "$failure_count" -le 1 ]]; then
+        backoff_duration=120
+    elif [[ "$failure_count" -eq 2 ]]; then
+        backoff_duration=300
+    else
+        backoff_duration=600
+    fi
+
+    if [[ "$elapsed" -lt "$backoff_duration" ]]; then
+        log_oauth_error "Rate-limit backoff active (failure #${failure_count}, ${elapsed}/${backoff_duration}s elapsed) — skipping fetch"
+        return 0
+    fi
+
+    return 1
+}
+
+# Record a rate-limit failure and set backoff
+set_backoff() {
+    local failure_count
+    failure_count=$(cat "$BACKOFF_COUNT_FILE" 2>/dev/null || echo 0)
+    failure_count=$((failure_count + 1))
+    echo "$failure_count" > "$BACKOFF_COUNT_FILE"
+    touch "$BACKOFF_FILE"
+    log_oauth_error "Rate limit detected — entering backoff (failure #${failure_count})"
+}
+
+# Clear backoff state on success
+clear_backoff() {
+    rm -f "$BACKOFF_FILE" "$BACKOFF_COUNT_FILE" 2>/dev/null || true
+}
+
+# =============================================================================
 # OAuth Fetch with Error Handling
 # =============================================================================
 
@@ -117,6 +167,21 @@ release_cache_lock() {
 fetch_oauth_with_logging() {
     local start_time
     start_time=$(date +%s)
+
+    # Check rate-limit backoff before doing anything
+    if check_backoff; then
+        return 1
+    fi
+
+    # Respect cache TTL — skip fetch if cache is still fresh
+    if [[ -f "$OAUTH_USAGE_CACHE_FILE" ]]; then
+        local cache_mtime cache_age
+        cache_mtime=$(stat -c %Y "$OAUTH_USAGE_CACHE_FILE" 2>/dev/null || stat -f %m "$OAUTH_USAGE_CACHE_FILE" 2>/dev/null || echo 0)
+        cache_age=$(( start_time - cache_mtime ))
+        if [[ "$cache_age" -lt "${OAUTH_USAGE_CACHE_TTL:-300}" ]]; then
+            return 0  # Cache still fresh, skip network call
+        fi
+    fi
 
     # Check for OAuth credentials
     local creds
@@ -160,6 +225,12 @@ fetch_oauth_with_logging() {
         return 1
     fi
 
+    # Check for rate-limit response before validating structure
+    if echo "$response" | grep -q '"rate_limit_error"' 2>/dev/null; then
+        set_backoff
+        return 1
+    fi
+
     # Check if response contains expected data structure
     if ! echo "$response" | jq -e '.five_hour' >/dev/null 2>&1; then
         log_oauth_error "OAuth API returned invalid JSON (missing .five_hour field)"
@@ -199,6 +270,9 @@ fetch_oauth_with_logging() {
     local end_time elapsed
     end_time=$(date +%s)
     elapsed=$((end_time - start_time))
+
+    # Clear any active backoff on success
+    clear_backoff
 
     # Log success with timing
     log_oauth_success "OAuth cache updated successfully (took ${elapsed}s)"
