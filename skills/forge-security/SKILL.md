@@ -1,13 +1,11 @@
 ---
 name: forge-security
-description: Perform an OWASP Top 10 focused security audit of the codebase. Identifies
-  authentication flaws, injection vulnerabilities, data exposure risks, and other
-  critical security issues.
+description: OWASP Top 10 security audit identifying authentication, injection, and data exposure risks.
 metadata:
   author: mgiovani
   version: 1.0.0
   source: https://github.com/mgiovani/skills
-disable-model-invocation: false
+disable-model-invocation: true
 argument-hint: '[--all|path/to/file_or_dir]'
 allowed-tools: Read, Write, Edit, Bash(git *), Bash(npm audit*), Bash(pip-audit*),
   Bash(safety *), Bash(bandit *), Grep, Glob, Task, TaskCreate, TaskUpdate, WebSearch

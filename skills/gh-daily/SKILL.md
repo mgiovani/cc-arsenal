@@ -1,13 +1,11 @@
 ---
 name: gh-daily
-description: Generate smart standup reports from GitHub Issues activity and git history.
-  This skill should be used when users want to prepare for daily standups, generate
-  activity reports, or summarize recent work across GitHub Issues, pull requests,
-  and git commits.
+description: Generate standup reports from GitHub Issues activity and git history.
 metadata:
   author: mgiovani
   version: 1.0.0
   source: https://github.com/mgiovani/skills
+disable-model-invocation: true
 ---
 
 # Gh Daily

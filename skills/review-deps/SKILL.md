@@ -10,6 +10,7 @@ metadata:
   author: mgiovani
   version: 1.0.0
   source: https://github.com/mgiovani/skills
+disable-model-invocation: true
 ---
 
 # Review Deps

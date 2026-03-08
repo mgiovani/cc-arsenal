@@ -1,13 +1,12 @@
 ---
 name: forge-architect
-description: Design system architecture, select tech stack, define data models and
-  API contracts, and produce a complete architecture document. Use after forge-brief
-  to translate requirements into a technical blueprint.
+description: Design system architecture and produce technical blueprints. Use after
+  forge-brief.
 metadata:
   author: mgiovani
   version: 1.0.0
   source: https://github.com/mgiovani/skills
-disable-model-invocation: false
+disable-model-invocation: true
 argument-hint: '[docs/project-brief.md]'
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, Task, TaskCreate, TaskUpdate,
   WebFetch, WebSearch, AskUserQuestion, EnterPlanMode

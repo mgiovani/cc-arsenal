@@ -1,13 +1,12 @@
 ---
 name: ci-generate
 description: Generate CI/CD pipeline configurations for GitHub Actions, GitLab CI,
-  CircleCI, or Jenkins. This skill should be used when users want to create CI/CD
-  workflows, set up automated pipelines, generate deployment configurations, or add
-  continuous integration to a project.
+  CircleCI, or Jenkins.
 metadata:
   author: mgiovani
   version: 1.0.0
   source: https://github.com/mgiovani/skills
+disable-model-invocation: true
 ---
 
 # Ci Generate

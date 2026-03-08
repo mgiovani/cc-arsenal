@@ -1,13 +1,11 @@
 ---
 name: forge-dev
-description: Implement a user story from the backlog with full attention to the acceptance
-  criteria, code quality, and tests. Use after forge-story to implement individual
-  stories one at a time.
+description: Implement user stories with attention to acceptance criteria and code quality.
 metadata:
   author: mgiovani
   version: 1.0.0
   source: https://github.com/mgiovani/skills
-disable-model-invocation: false
+disable-model-invocation: true
 argument-hint: <story-path>
 allowed-tools: Read, Write, Edit, MultiEdit, Bash(git *), Bash(make *), Bash(pytest
   *), Bash(npm *), Bash(bun *), Bash(ruff *), Bash(mypy *), Grep, Glob, Task, TaskCreate,

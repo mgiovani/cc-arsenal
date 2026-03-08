@@ -1,7 +1,7 @@
 ---
 name: team-review
 description: "Multi-agent PR review team orchestration with 7 specialized reviewers for security-sensitive or architectural PRs. Spawns architecture, security, performance, testing, style, docs/UX, and adversary reviewers as a coordinated team. Premium review for critical code changes."
-disable-model-invocation: false
+disable-model-invocation: true
 argument-hint: "<pr_number|commit_sha|--all> [--focus area] [--lite]"
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, Task, Teammate, SendMessage, TaskCreate, TaskUpdate, TaskList, TaskGet, WebFetch, AskUserQuestion
 context: fork

@@ -1,13 +1,11 @@
 ---
 name: forge-brief
-description: Gather project requirements, define scope, and produce a structured project
-  brief through structured elicitation, market research, and competitive analysis.
-  Use when starting a new SaaS product, feature, or initiative.
+description: Gather requirements and produce structured project briefs for SaaS products.
 metadata:
   author: mgiovani
   version: 1.0.0
   source: https://github.com/mgiovani/skills
-disable-model-invocation: false
+disable-model-invocation: true
 argument-hint: <project_idea>
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, Task, TaskCreate, TaskUpdate,
   WebFetch, WebSearch, AskUserQuestion, EnterPlanMode

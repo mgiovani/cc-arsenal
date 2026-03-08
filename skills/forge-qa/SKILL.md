@@ -1,13 +1,11 @@
 ---
 name: forge-qa
-description: Validate a completed story against its acceptance criteria and produce
-  a QA report. Use after forge-dev to verify story implementation before marking it
-  done.
+description: Validate story implementation against acceptance criteria and produce QA reports.
 metadata:
   author: mgiovani
   version: 1.0.0
   source: https://github.com/mgiovani/skills
-disable-model-invocation: false
+disable-model-invocation: true
 argument-hint: <story-path>
 allowed-tools: Read, Write, Edit, Bash(make *), Bash(pytest *), Bash(npm *), Bash(bun
   *), Grep, Glob, Task, TaskCreate, TaskUpdate

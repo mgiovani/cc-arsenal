@@ -1,6 +1,7 @@
 ---
 name: implement-feature
-description: "Implement features using senior staff engineer best practices with parallel subagent orchestration. Automatically activates when users want to implement a new feature, add functionality, build a component, or create new capabilities. Follows SOLID, DRY, and YAGNI principles with automated project discovery and quality verification."
+description: Implement features with senior staff engineer best practices and parallel
+  subagents. Activates when users want to implement, build, or add new functionality.
 disable-model-invocation: false
 argument-hint: "<feature_description>"
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, Task, TaskCreate, TaskUpdate, TaskList, TaskGet, WebFetch, EnterPlanMode, AskUserQuestion

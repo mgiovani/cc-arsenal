@@ -1,6 +1,7 @@
 ---
 name: fix-bug
-description: "Fix bugs using test-driven debugging, root cause analysis, and comprehensive verification. Automatically activates when users want to fix a bug, debug an issue, resolve an error, investigate failing tests, or address problems in the codebase."
+description: Fix bugs using test-driven debugging and root cause analysis. Activates
+  when users want to fix a bug, debug an issue, resolve an error, or investigate failing tests.
 disable-model-invocation: false
 argument-hint: "[bug_description_or_issue_id] [--branch name] [--interactive]"
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, Task, TaskCreate, TaskUpdate, TaskList, TaskGet, WebFetch, AskUserQuestion

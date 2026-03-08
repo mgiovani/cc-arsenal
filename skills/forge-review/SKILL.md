@@ -7,7 +7,7 @@ metadata:
   author: mgiovani
   version: 1.0.0
   source: https://github.com/mgiovani/skills
-disable-model-invocation: false
+disable-model-invocation: true
 argument-hint: '[pr_number|commit_sha|--all]'
 allowed-tools: Read, Write, Edit, Bash(git *), Bash(gh *), Grep, Glob, Task, TaskCreate,
   TaskUpdate

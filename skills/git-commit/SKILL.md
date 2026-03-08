@@ -1,13 +1,12 @@
 ---
 name: git-commit
 description: Generate conventional commits following conventionalcommits.org specification.
-  This skill should be used when users want to create commits, stage changes, or generate
-  commit messages following conventional commit format.
+  Activates when users want to commit, stage changes, or need commit messages.
 metadata:
   author: mgiovani
   version: 1.0.0
   source: https://github.com/mgiovani/skills
-disable-model-invocation: true
+disable-model-invocation: false
 argument-hint: ''
 allowed-tools:
 - Bash(git *)

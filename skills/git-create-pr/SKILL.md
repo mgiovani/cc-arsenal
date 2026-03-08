@@ -1,13 +1,12 @@
 ---
 name: git-create-pr
-description: Create a GitHub Pull Request with conventional commit format and pre-filled
-  template. This skill should be used when users want to create a PR, open a pull
-  request, or push changes for review.
+description: Create GitHub Pull Requests with conventional commit format. Activates
+  when users want to create a PR, open a pull request, or push changes for review.
 metadata:
   author: mgiovani
   version: 1.0.0
   source: https://github.com/mgiovani/skills
-disable-model-invocation: true
+disable-model-invocation: false
 argument-hint: '[--base branch] [--draft]'
 allowed-tools:
 - Bash(git *)

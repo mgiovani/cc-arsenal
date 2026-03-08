@@ -1,14 +1,12 @@
 ---
 name: inject-docs
-description: Inject framework-specific best practices and documentation into the project's
-  CLAUDE.md file. Supports Next.js (via Vercel's agents-md codemod) and Python/FastAPI
-  (via zhanymkanov/fastapi-best-practices). This skill should be used when a user
-  wants to add framework documentation for AI coding agents or improve AI agent performance
-  on framework-specific projects.
+description: Inject framework-specific best practices into CLAUDE.md. Supports Next.js
+  and FastAPI.
 metadata:
   author: mgiovani
   version: 1.0.0
   source: https://github.com/mgiovani/skills
+disable-model-invocation: true
 ---
 
 # Inject Docs

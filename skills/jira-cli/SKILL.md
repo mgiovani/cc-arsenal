@@ -1,6 +1,7 @@
 ---
 name: jira-cli
-description: Interactive command-line tool for Atlassian Jira. This skill should be used when users want to interact with Jira issues, epics, sprints, or when they mention Jira workflows, issue management, or need help with jira-cli commands and workflows.
+description: Interactive CLI for Atlassian Jira issue, epic, and sprint management.
+disable-model-invocation: true
 ---
 
 # Jira CLI

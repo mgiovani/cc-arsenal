@@ -1,7 +1,7 @@
 ---
 name: team-implement
-description: "Spec-driven team orchestration: adaptive development team that scales from 3 to 11 agents based on project complexity. Accepts plain text, Jira tickets, GitHub issues, PRs, files, directories, or URLs as input. Plans thoroughly first, gets user approval, then implements with parallel agents."
-disable-model-invocation: false
+description: "Spec-driven team orchestration: adaptive development team scaling from 3 to 11 agents based on complexity."
+disable-model-invocation: true
 argument-hint: "<description|PROJ-123|#issue|!pr|file|url>"
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, Task, Teammate, SendMessage, TaskCreate, TaskUpdate, TaskList, TaskGet, WebFetch, AskUserQuestion
 context: fork
