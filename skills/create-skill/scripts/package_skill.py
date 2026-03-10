@@ -1,4 +1,7 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.11"
+# ///
 """
 Package a skill into a distributable .skill zip file.
 
@@ -8,7 +11,7 @@ Includes: SKILL.md, scripts/, references/, assets/
 Excludes: evals/ (root level), __pycache__, .git, *.pyc, node_modules, .DS_Store
 
 Usage:
-    python package_skill.py <skill_path> [--output <output_dir>]
+    uv run package_skill.py <skill_path> [--output <output_dir>]
 
 Exit codes:
     0 - success

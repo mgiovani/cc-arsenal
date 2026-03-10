@@ -79,26 +79,16 @@ npx @next/codemod@canary agents-md --output <TARGET_FILE>
 
 #### Option B: FastAPI Projects
 
-Use a custom Python script to inject FastAPI best practices:
+Run the bundled injection script:
 
-1. **Fetch the best practices content**:
- ```bash
- # Use WebFetch or curl to get the README from fastapi-best-practices
- # Store in temporary file for processing
- 2. **Generate compressed documentation** from the repository content covering:
- - Domain-driven project organization
- - Async/sync routing patterns
- - Pydantic validation best practices
- - Dependency injection patterns
- - Database integration (SQLAlchemy, Alembic)
- - Error handling conventions
- - Testing patterns
- - Code quality tools (Ruff)
+```bash
+uv run "$(dirname "$0")/scripts/inject_fastapi_docs.py"
+```
 
-3. **Inject into CLAUDE.md**:
- - Check if a "FastAPI Best Practices" section already exists
- - If exists, update it; otherwise append to the end
- - Use clear section headers for easy navigation
+The script:
+- Detects whether `CLAUDE.md` or `AGENTS.md` exists and targets the right file
+- Checks if a "FastAPI Best Practices" section already exists (updates it if so, appends if not)
+- Injects compressed best practices covering: domain-driven structure, async patterns, Pydantic validation, dependency injection, SQLAlchemy integration, error handling, testing, and Ruff code quality
 
 **Template for FastAPI injection** (see `references/fastapi-best-practices.md` for full content):
 

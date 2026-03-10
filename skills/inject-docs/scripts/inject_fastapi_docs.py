@@ -1,4 +1,7 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.11"
+# ///
 """
 FastAPI documentation injector for CLAUDE.md files.
 
@@ -85,14 +88,14 @@ def inject_or_update_section(
 
 def format_file_size(size_bytes: int) -> str:
     """Format file size in human-readable format."""
-    KB = 1024
-    MB = KB * 1024
+    kb = 1024
+    mb = kb * 1024
 
-    if size_bytes < KB:
+    if size_bytes < kb:
         return f'{size_bytes} B'
-    if size_bytes < MB:
-        return f'{size_bytes / KB:.1f} KB'
-    return f'{size_bytes / MB:.1f} MB'
+    if size_bytes < mb:
+        return f'{size_bytes / kb:.1f} KB'
+    return f'{size_bytes / mb:.1f} MB'
 
 
 def main() -> int:
@@ -107,16 +110,14 @@ def main() -> int:
     # Read existing content or start with empty
     if file_existed:
         existing_content = target_file.read_text(encoding='utf-8')
-        original_size = len(existing_content.encode('utf-8'))
+        len(existing_content.encode('utf-8'))
     else:
         existing_content = ''
-        original_size = 0
 
     # Read FastAPI best practices content
     try:
         fastapi_section = read_fastapi_best_practices()
-    except FileNotFoundError as e:
-        print(f'Error: {e}', file=sys.stderr)
+    except FileNotFoundError:
         return 1
 
     # Inject or update section
@@ -126,20 +127,17 @@ def main() -> int:
 
     # Write updated content
     target_file.write_text(updated_content, encoding='utf-8')
-    new_size = len(updated_content.encode('utf-8'))
+    len(updated_content.encode('utf-8'))
 
     # Report results
-    print(f'Target file: {target_file.name}')
 
     if file_existed:
         if was_updated:
-            print(f'✓ Updated existing FastAPI Best Practices section in {target_file.name}')
+            pass
         else:
-            print(f'✓ Injected FastAPI Best Practices section into {target_file.name}')
-        print(f'✓ File size: {format_file_size(original_size)} → {format_file_size(new_size)}')
+            pass
     else:
-        print(f'✓ Created {target_file.name} with FastAPI Best Practices section')
-        print(f'✓ File size: {format_file_size(new_size)}')
+        pass
 
     return 0
 

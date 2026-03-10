@@ -214,7 +214,7 @@ Write prompts first — they're easy. Draft assertions while reasoning about wha
 Run the bundled validator to catch common errors — it catches frontmatter key typos that silently break skill loading, descriptions that are too short or too long, and broken internal references:
 
 ```bash
-uv run python skills/create-skill/scripts/quick_validate.py [SKILL_PATH]
+uv run skills/create-skill/scripts/quick_validate.py [SKILL_PATH]
 ```
 
 The validator checks:
@@ -230,7 +230,7 @@ Fix all issues before proceeding.
 
 Optionally, package for distribution:
 ```bash
-uv run python skills/create-skill/scripts/package_skill.py [SKILL_PATH]
+uv run skills/create-skill/scripts/package_skill.py [SKILL_PATH]
 ```
 
 **Next steps:**
@@ -309,8 +309,8 @@ For each eval_id in evals/evals.json:
 
 Alternatively, use the bundled eval runner scripts:
 ```bash
-uv run python skills/create-skill/scripts/run_eval.py [SKILL_PATH]
-uv run python skills/create-skill/scripts/generate_report.py [SKILL_PATH]
+uv run skills/create-skill/scripts/run_eval.py [SKILL_PATH]
+uv run skills/create-skill/scripts/generate_report.py [SKILL_PATH]
 ```
 
 **Improvement loop** — if score < 4/5 or assertions fail:
@@ -326,7 +326,7 @@ For model-invoked skills, the description is the trigger mechanism. Optimizing i
 
 Use the description optimizer:
 ```bash
-uv run python skills/create-skill/scripts/improve_description.py [SKILL_PATH]
+uv run skills/create-skill/scripts/improve_description.py [SKILL_PATH]
 ```
 
 This script:
@@ -339,7 +339,7 @@ This script:
 
 Then package for distribution:
 ```bash
-uv run python skills/create-skill/scripts/package_skill.py [SKILL_PATH]
+uv run skills/create-skill/scripts/package_skill.py [SKILL_PATH]
 ```
 
 ## Eval Reference Files
