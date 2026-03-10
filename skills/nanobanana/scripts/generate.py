@@ -173,13 +173,13 @@ def build_config(
 ) -> types.GenerateContentConfig:
     """Build the GenerateContentConfig for the API call."""
     image_size = RESOLUTION_MAP.get(resolution, 'IMAGE_SIZE_2048')
-    image_config = types.ImageGenerationConfig(
+    image_config = types.ImageConfig(
         aspect_ratio=aspect_ratio,
         image_size=image_size,
     )
     config_kwargs: dict[str, Any] = {
         'response_modalities': ['TEXT', 'IMAGE'],
-        'image_generation_config': image_config,
+        'image_config': image_config,
     }
     if thinking:
         config_kwargs['thinking_config'] = types.ThinkingConfig(thinking_budget=8192)
