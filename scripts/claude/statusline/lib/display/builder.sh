@@ -151,8 +151,7 @@ build_line_one() {
 # Build the second line (usage details)
 # Returns: usage line string
 build_line_two() {
-    get_usage_line "$INPUT_TOKENS" "$OUTPUT_TOKENS" \
-        "$RATE_LIMIT_5H_PERCENT" "$RATE_LIMIT_5H_RESETS" \
+    get_usage_line "$RATE_LIMIT_5H_PERCENT" "$RATE_LIMIT_5H_RESETS" \
         "$RATE_LIMIT_7D_PERCENT" "$RATE_LIMIT_7D_RESETS"
 }
 

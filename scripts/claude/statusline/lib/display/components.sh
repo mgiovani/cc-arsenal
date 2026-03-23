@@ -15,8 +15,6 @@ readonly STATUSLINE_COMPONENTS_LOADED=1
 STATUSLINE_DISPLAY_DIR="$(dirname "${BASH_SOURCE[0]}")"
 source "$STATUSLINE_DISPLAY_DIR/colors.sh"
 source "$STATUSLINE_DISPLAY_DIR/../api/git.sh"
-source "$STATUSLINE_DISPLAY_DIR/../api/oauth.sh"
-source "$STATUSLINE_DISPLAY_DIR/../tracking/session.sh"
 source "$STATUSLINE_DISPLAY_DIR/../core/platform.sh"
 source "$STATUSLINE_DISPLAY_DIR/../config.sh"
 
@@ -339,13 +337,15 @@ get_session_component() {
 # Build the second line with detailed usage info
 # Format (emoji): 🔄 5h: 16% → 23:00 │ 📅 7d: 39% → Dec 15
 # Format (text):  5h: 16% → 23:00 │ 7d: 39% → Dec 15
-# Usage: get_usage_line "$input_tokens" "$output_tokens" ["5h_percent" "5h_resets" "7d_percent" "7d_resets"]
+# Usage: get_usage_line "5h_percent" "5h_resets" "7d_percent" "7d_resets"
 get_usage_line() {
-    local input_tokens="${1:-0}" output_tokens="${2:-0}"
-    local native_5h_percent="${3:-}" native_5h_resets="${4:-}"
-    local native_7d_percent="${5:-}" native_7d_resets="${6:-}"
-    local current_time
-    current_time=$(get_current_epoch)
+    local native_5h_percent="${1:-}" native_5h_resets="${2:-}"
+    local native_7d_percent="${3:-}" native_7d_resets="${4:-}"
+
+    # No rate_limits data available
+    if [[ -z "$native_5h_percent" || "$native_5h_percent" == "null" ]]; then
+        return 0
+    fi
 
     # Determine display mode
     local display_mode
@@ -353,195 +353,46 @@ get_usage_line() {
     local use_emoji=true
     [[ "$display_mode" == "text" || "$display_mode" == "ascii" ]] && use_emoji=false
 
-    # Priority 1: Native rate_limits from Claude Code JSON (most accurate, no network)
-    if [[ -n "$native_5h_percent" && "$native_5h_percent" != "null" ]]; then
-        # Round percentage to integer
-        local five_hour_pct
-        five_hour_pct=$(printf '%.0f' "$native_5h_percent" 2>/dev/null || echo "$native_5h_percent")
+    # Round percentage to integer
+    local five_hour_pct
+    five_hour_pct=$(printf '%.0f' "$native_5h_percent" 2>/dev/null || echo "$native_5h_percent")
 
-        # Format 5-hour reset time
-        local five_hour_display=""
-        if [[ -n "$native_5h_resets" && "$native_5h_resets" != "null" && "$native_5h_resets" != "0" ]]; then
-            # Round up to next full hour
-            local rounded_epoch
-            rounded_epoch=$(( (native_5h_resets + 3599) / 3600 * 3600 ))
-            five_hour_display=$(epoch_to_time_display "$rounded_epoch" "+%H:%M")
-        fi
-
-        # Build usage line
-        local usage_line
-        if $use_emoji; then
-            usage_line="🔄 5h: ${five_hour_pct}%"
-        else
-            usage_line="5h: ${five_hour_pct}%"
-        fi
-        [[ -n "$five_hour_display" ]] && usage_line="${usage_line} → ${five_hour_display}"
-
-        # Add 7-day data if available
-        if [[ -n "$native_7d_percent" && "$native_7d_percent" != "null" ]]; then
-            local seven_day_pct
-            seven_day_pct=$(printf '%.0f' "$native_7d_percent" 2>/dev/null || echo "$native_7d_percent")
-
-            local seven_day_display=""
-            if [[ -n "$native_7d_resets" && "$native_7d_resets" != "null" && "$native_7d_resets" != "0" ]]; then
-                local seven_day_rounded
-                seven_day_rounded=$(( (native_7d_resets + 3599) / 3600 * 3600 ))
-                seven_day_display=$(epoch_to_time_display "$seven_day_rounded" "+%b %d %H:%M")
-            fi
-
-            if $use_emoji; then
-                usage_line="${usage_line} │ 📅 7d: ${seven_day_pct}%"
-            else
-                usage_line="${usage_line} │ 7d: ${seven_day_pct}%"
-            fi
-            [[ -n "$seven_day_display" ]] && usage_line="${usage_line} → ${seven_day_display}"
-        fi
-
-        echo "$usage_line"
-        return 0
+    # Format 5-hour reset time
+    local five_hour_display=""
+    if [[ -n "$native_5h_resets" && "$native_5h_resets" != "null" && "$native_5h_resets" != "0" ]]; then
+        local rounded_epoch
+        rounded_epoch=$(( (native_5h_resets + 3599) / 3600 * 3600 ))
+        five_hour_display=$(epoch_to_time_display "$rounded_epoch" "+%H:%M")
     fi
 
-    # Priority 2: OAuth API cache (fallback for older Claude Code) - CACHE ONLY, no network calls
-    local usage_json
-    usage_json=$(fetch_oauth_usage_cached_only 2>/dev/null)
-
-    if [[ -n "$usage_json" ]] && check_jq; then
-        local five_hour_util five_hour_reset seven_day_util seven_day_reset
-
-        # Extract 5-hour data
-        five_hour_util=$(echo "$usage_json" | jq -r '.five_hour.utilization // empty' 2>/dev/null)
-        five_hour_reset=$(echo "$usage_json" | jq -r '.five_hour.resets_at // empty' 2>/dev/null)
-
-        # Extract 7-day data
-        seven_day_util=$(echo "$usage_json" | jq -r '.seven_day.utilization // empty' 2>/dev/null)
-        seven_day_reset=$(echo "$usage_json" | jq -r '.seven_day.resets_at // empty' 2>/dev/null)
-
-        if [[ -n "$five_hour_util" && -n "$five_hour_reset" && "$five_hour_reset" != "null" ]]; then
-            # Parse 5-hour reset time
-            local clean_ts five_hour_epoch five_hour_display
-            clean_ts="${five_hour_reset%.*}"
-            clean_ts="${clean_ts%+*}"
-            five_hour_epoch=$(parse_iso_timestamp "$clean_ts")
-
-            # Round up to next full hour
-            local rounded_epoch
-            rounded_epoch=$(( (five_hour_epoch + 3599) / 3600 * 3600 ))
-            five_hour_display=$(epoch_to_time_display "$rounded_epoch" "+%H:%M")
-
-            # Parse 7-day reset time (show as date and time)
-            local seven_day_display=""
-            if [[ -n "$seven_day_reset" && "$seven_day_reset" != "null" ]]; then
-                clean_ts="${seven_day_reset%.*}"
-                clean_ts="${clean_ts%+*}"
-                local seven_day_epoch
-                seven_day_epoch=$(parse_iso_timestamp "$clean_ts")
-
-                # Round up to next full hour
-                local seven_day_rounded
-                seven_day_rounded=$(( (seven_day_epoch + 3599) / 3600 * 3600 ))
-                seven_day_display=$(epoch_to_time_display "$seven_day_rounded" "+%b %d %H:%M")
-            fi
-
-            # Build the usage line based on display mode
-            local usage_line
-            if $use_emoji; then
-                usage_line="🔄 5h: ${five_hour_util}% → ${five_hour_display}"
-            else
-                usage_line="5h: ${five_hour_util}% → ${five_hour_display}"
-            fi
-
-            if [[ -n "$seven_day_util" && -n "$seven_day_display" ]]; then
-                if $use_emoji; then
-                    usage_line="${usage_line} │ 📅 7d: ${seven_day_util}% → ${seven_day_display}"
-                else
-                    usage_line="${usage_line} │ 7d: ${seven_day_util}% → ${seven_day_display}"
-                fi
-            fi
-
-            # Add extra model-specific limits (Sonnet, Opus, etc.)
-            local extra_limits
-            extra_limits=$(get_oauth_extra_limits 2>/dev/null)
-
-            if [[ -n "$extra_limits" ]]; then
-                while IFS='|' read -r limit_name limit_util limit_reset; do
-                    [[ -z "$limit_name" ]] && continue
-
-                    # Parse reset time if available
-                    local limit_display=""
-                    if [[ -n "$limit_reset" && "$limit_reset" != "null" ]]; then
-                        local limit_clean_ts limit_epoch
-                        limit_clean_ts="${limit_reset%.*}"
-                        limit_clean_ts="${limit_clean_ts%+*}"
-                        limit_epoch=$(parse_iso_timestamp "$limit_clean_ts")
-
-                        if [[ "$limit_epoch" -gt 0 ]]; then
-                            # Round up to next full hour
-                            local limit_rounded
-                            limit_rounded=$(( (limit_epoch + 3599) / 3600 * 3600 ))
-                            limit_display=$(epoch_to_time_display "$limit_rounded" "+%b %d %H:%M")
-                        fi
-                    fi
-
-                    # Append to usage line based on display mode
-                    if [[ -n "$limit_display" ]]; then
-                        if $use_emoji; then
-                            usage_line="${usage_line} │ 🎯 ${limit_name}: ${limit_util}% → ${limit_display}"
-                        else
-                            usage_line="${usage_line} │ ${limit_name}: ${limit_util}% → ${limit_display}"
-                        fi
-                    else
-                        if $use_emoji; then
-                            usage_line="${usage_line} │ 🎯 ${limit_name}: ${limit_util}%"
-                        else
-                            usage_line="${usage_line} │ ${limit_name}: ${limit_util}%"
-                        fi
-                    fi
-                done <<< "$extra_limits"
-            fi
-
-            echo "$usage_line"
-            return 0
-        fi
-    fi
-
-    # Fallback: Use heuristic calculation from JSONL timestamps
-    local window_start
-    window_start=$(get_window_start "$input_tokens" "$output_tokens")
-
-    if [[ "$window_start" == "0" ]]; then
-        if $use_emoji; then
-            echo "🔄 5h: N/A"
-        else
-            echo "5h: N/A"
-        fi
-        return 0
-    fi
-
-    # Calculate when the window should reset
-    local exact_reset_time prev_full_hour reset_timestamp
-    exact_reset_time=$((window_start + 18000))
-    prev_full_hour=$(( exact_reset_time / 3600 * 3600 ))
-    reset_timestamp=$prev_full_hour
-
-    local seconds_until_reset
-    seconds_until_reset=$((reset_timestamp - current_time))
-
-    if [[ $seconds_until_reset -le 0 ]]; then
-        if $use_emoji; then
-            echo "🔄 5h: Reset"
-        else
-            echo "5h: Reset"
-        fi
-        return 0
-    fi
-
-    # Format reset time as HH:MM
-    local reset_time_display
-    reset_time_display=$(epoch_to_time_display "$reset_timestamp" "+%H:%M")
-
+    # Build usage line
+    local usage_line
     if $use_emoji; then
-        echo "🔄 5h: ??% → ${reset_time_display} (estimated)"
+        usage_line="🔄 5h: ${five_hour_pct}%"
     else
-        echo "5h: ??% → ${reset_time_display} (estimated)"
+        usage_line="5h: ${five_hour_pct}%"
     fi
+    [[ -n "$five_hour_display" ]] && usage_line="${usage_line} → ${five_hour_display}"
+
+    # Add 7-day data if available
+    if [[ -n "$native_7d_percent" && "$native_7d_percent" != "null" ]]; then
+        local seven_day_pct
+        seven_day_pct=$(printf '%.0f' "$native_7d_percent" 2>/dev/null || echo "$native_7d_percent")
+
+        local seven_day_display=""
+        if [[ -n "$native_7d_resets" && "$native_7d_resets" != "null" && "$native_7d_resets" != "0" ]]; then
+            local seven_day_rounded
+            seven_day_rounded=$(( (native_7d_resets + 3599) / 3600 * 3600 ))
+            seven_day_display=$(epoch_to_time_display "$seven_day_rounded" "+%b %d %H:%M")
+        fi
+
+        if $use_emoji; then
+            usage_line="${usage_line} │ 📅 7d: ${seven_day_pct}%"
+        else
+            usage_line="${usage_line} │ 7d: ${seven_day_pct}%"
+        fi
+        [[ -n "$seven_day_display" ]] && usage_line="${usage_line} → ${seven_day_display}"
+    fi
+
+    echo "$usage_line"
 }
