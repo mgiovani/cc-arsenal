@@ -242,7 +242,7 @@ argument-hint: "[required-arg] [optional-arg]"
 allowed-tools: ["Only", "Necessary", "Tools"]
 
 # Optional
-model: "claude-3-5-haiku-20241022"  # For simple commands
+model: "claude-haiku-4-5-20251001"  # For simple commands
 disable-model-invocation: true      # If shouldn't be called by SlashCommand tool
 ---
 ```

@@ -27,6 +27,10 @@ Canonical URLs for skill specifications, best practices, and examples. These sho
   - Reference implementations from Anthropic
   - High-quality examples of skill structure
 
+- **Anthropic skill-creator (actively fetched in Phase 2)**: https://raw.githubusercontent.com/anthropics/skills/main/skills/skill-creator/SKILL.md
+  - Anthropic's own reference implementation for skill creation
+  - Extract: workflow phases, frontmatter patterns, anti-hallucination techniques
+
 - **cc-arsenal Skills**: Local `skills/` directory
   - 32 production skills with diverse patterns
   - Good source for tool usage and verification patterns

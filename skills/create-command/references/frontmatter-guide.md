@@ -12,7 +12,7 @@ disable-model-invocation: true      # Prevent Claude from auto-loading (default:
 user-invocable: false               # Hide from / menu (default: true)
 argument-hint: "[args]"             # Hint shown in autocomplete
 allowed-tools: Read, Write, Bash    # Tools Claude can use without asking
-model: claude-3-5-haiku-20241022    # Model override for this skill
+model: claude-haiku-4-5-20251001    # Model override for this skill
 context: fork                       # Run in a forked subagent context
 agent: Explore                      # Agent type when context: fork is set
 ---

@@ -295,35 +295,40 @@ For each parallelizable task group, spawn subagents using the Task tool:
 
 **Subagent Instructions Template:**
 ```
-Implement [specific task description].
+Task tool call:
+- subagent_type: "general-purpose"
+- model: "sonnet"  # REQUIRED - never leave unset (defaults to parent model)
+- prompt: |
+    Implement [specific task description].
 
-First, read the project's CLAUDE.md to understand conventions and patterns.
+    First, read the project's CLAUDE.md to understand conventions and patterns.
 
-Requirements:
-1. Follow existing codebase patterns and conventions
-2. Apply SOLID, DRY, YAGNI principles
-3. Write comprehensive tests (unit + integration where applicable)
-4. All tests MUST pass before completion
-5. Handle errors appropriately
-6. Add necessary type definitions (if typed language)
+    Requirements:
+    1. Follow existing codebase patterns and conventions
+    2. Apply SOLID, DRY, YAGNI principles
+    3. Write comprehensive tests (unit + integration where applicable)
+    4. All tests MUST pass before completion
+    5. Handle errors appropriately
+    6. Add necessary type definitions (if typed language)
 
-Project-specific commands (discovered in Phase 0):
-- Test command: [INSERT DISCOVERED TEST COMMAND]
-- Lint command: [INSERT DISCOVERED LINT COMMAND]
+    Project-specific commands (discovered in Phase 0):
+    - Test command: [INSERT DISCOVERED TEST COMMAND]
+    - Lint command: [INSERT DISCOVERED LINT COMMAND]
 
-After implementation:
-1. Run the test suite to verify all tests pass
-2. Run linting to ensure code quality
-3. Report back what was implemented (do NOT commit - the main agent will handle commits)
+    After implementation:
+    1. Run the test suite to verify all tests pass
+    2. Run linting to ensure code quality
+    3. Report back what was implemented (do NOT commit - the main agent will handle commits)
 
-If tests fail, fix them before reporting completion.
-If you encounter ambiguous requirements, report back and ask for clarification instead of guessing.
+    If tests fail, fix them before reporting completion.
+    If you encounter ambiguous requirements, report back and ask for clarification instead of guessing.
 ```
 
 **Model Selection for Subagents:**
-- **Use Sonnet** for code implementation, test writing, documentation writing, architecture decisions, and complex changes
-- **Use Haiku** ONLY for exploration and research tasks
+- **Use `model: "sonnet"`** for code implementation, test writing, documentation writing, architecture decisions, and complex changes
+- **Use `model: "haiku"`** ONLY for exploration and research tasks
 - **Never use Opus** - too expensive for team/subagent workflows
+- **Always set `model` explicitly** - unset defaults to the parent model (which may be opus)
 
 **After each subagent completes:**
 1. Review the changes

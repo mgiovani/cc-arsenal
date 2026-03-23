@@ -119,7 +119,8 @@ Agent 2 - External Example Research:
 - model: "haiku"
 - prompt: "Research external skill examples:
   1. WebFetch https://skills.sh — search for skills similar to [SKILL_PURPOSE]
-  2. Look for anti-hallucination and verification patterns
+  2. WebFetch https://raw.githubusercontent.com/anthropics/skills/main/skills/skill-creator/SKILL.md — extract: workflow phases, frontmatter patterns, anti-hallucination techniques used in Anthropic's own skill-creator reference implementation
+  3. Look for anti-hallucination and verification patterns
   Return: Best practices and common patterns with sources"
 ```
 
