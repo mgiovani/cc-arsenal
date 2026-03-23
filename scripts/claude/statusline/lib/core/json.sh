@@ -120,6 +120,16 @@ extract_json_grep() {
         "total_input_tokens")           grep_number "$json" "total_input_tokens" ;;
         "total_output_tokens")          grep_number "$json" "total_output_tokens" ;;
 
+        # rate_limits fields - require jq (grep would collide with context_window.used_percentage)
+        "rate_limits.five_hour.used_percentage")   return 1 ;;
+        "rate_limits.five_hour.resets_at")         return 1 ;;
+        "rate_limits.seven_day.used_percentage")   return 1 ;;
+        "rate_limits.seven_day.resets_at")         return 1 ;;
+
+        # worktree fields - require jq (grep would collide with other name/branch fields)
+        "worktree.name")                           return 1 ;;
+        "worktree.branch")                         return 1 ;;
+
         # Unknown key - no grep pattern available
         *) return 1 ;;
     esac

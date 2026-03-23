@@ -234,7 +234,7 @@ test_real_world_json() {
     echo "--- Testing with real-world Claude Code JSON ---"
 
     local json='{
-        "model": {"id": "claude-opus-4-5-20251101", "display_name": "Opus"},
+        "model": {"id": "claude-opus-4-6", "display_name": "Opus"},
         "workspace": {"current_dir": "/Users/test/project"},
         "cost": {"total_cost_usd": 1.234, "total_lines_added": 100, "total_lines_removed": 50},
         "context_window": {"total_input_tokens": 50000, "total_output_tokens": 10000, "context_window_size": 200000}
@@ -254,6 +254,56 @@ test_real_world_json() {
 
         result=$(extract_json "$json" "context_window.total_input_tokens")
         assert_equals "50000" "$result" "Real JSON: context_window.total_input_tokens"
+    fi
+}
+
+# =============================================================================
+# Test: extract_json with rate_limits fields
+# =============================================================================
+test_extract_json_rate_limits() {
+    echo "--- Testing extract_json (rate_limits fields) ---"
+
+    local json='{"context_window":{"used_percentage":10},"rate_limits":{"five_hour":{"used_percentage":23.5,"resets_at":1738425600},"seven_day":{"used_percentage":41.2,"resets_at":1738857600}}}'
+
+    if check_jq; then
+        local result
+        result=$(extract_json "$json" "rate_limits.five_hour.used_percentage")
+        assert_equals "23.5" "$result" "extract_json extracts rate_limits 5h percentage"
+
+        result=$(extract_json "$json" "rate_limits.five_hour.resets_at")
+        assert_equals "1738425600" "$result" "extract_json extracts rate_limits 5h resets_at (epoch)"
+
+        result=$(extract_json "$json" "rate_limits.seven_day.used_percentage")
+        assert_equals "41.2" "$result" "extract_json extracts rate_limits 7d percentage"
+
+        result=$(extract_json "$json" "rate_limits.seven_day.resets_at")
+        assert_equals "1738857600" "$result" "extract_json extracts rate_limits 7d resets_at (epoch)"
+    else
+        echo "⚠️  SKIP: rate_limits extraction requires jq (grep fallback intentionally returns 1)"
+        TESTS_RUN=$((TESTS_RUN + 1))
+        TESTS_PASSED=$((TESTS_PASSED + 1))
+    fi
+}
+
+# =============================================================================
+# Test: extract_json with worktree fields
+# =============================================================================
+test_extract_json_worktree() {
+    echo "--- Testing extract_json (worktree fields) ---"
+
+    local json='{"model":{"display_name":"Opus"},"worktree":{"name":"my-feature","branch":"worktree-my-feature","path":"/tmp/wt"}}'
+
+    if check_jq; then
+        local result
+        result=$(extract_json "$json" "worktree.name")
+        assert_equals "my-feature" "$result" "extract_json extracts worktree.name"
+
+        result=$(extract_json "$json" "worktree.branch")
+        assert_equals "worktree-my-feature" "$result" "extract_json extracts worktree.branch"
+    else
+        echo "⚠️  SKIP: worktree extraction requires jq (grep fallback intentionally returns 1)"
+        TESTS_RUN=$((TESTS_RUN + 1))
+        TESTS_PASSED=$((TESTS_PASSED + 1))
     fi
 }
 
@@ -285,6 +335,10 @@ main() {
     test_is_valid_json
     echo
     test_real_world_json
+    echo
+    test_extract_json_rate_limits
+    echo
+    test_extract_json_worktree
 
     echo
     echo "========================================"

@@ -135,7 +135,7 @@ test_model_display_name() {
     echo "Testing model display name..."
 
     local json='{
-        "model": {"id": "claude-opus-4-5-20251101", "display_name": "Opus"},
+        "model": {"id": "claude-opus-4-6", "display_name": "Opus"},
         "workspace": {"current_dir": "/test"},
         "context_window": {
             "used_percentage": 5.0
@@ -445,6 +445,102 @@ test_missing_percentage_fallback() {
     assert_contains "0%" "$output" "Missing used_percentage shows 0% fallback"
 }
 
+# =============================================================================
+# Native rate_limits tests
+# =============================================================================
+
+# Test native rate_limits with both 5h and 7d windows
+test_native_rate_limits_basic() {
+    echo "Testing native rate_limits from Claude Code JSON..."
+
+    local json='{
+        "model": {"display_name": "Opus"},
+        "workspace": {"current_dir": "/test"},
+        "context_window": {"used_percentage": 10.0},
+        "rate_limits": {
+            "five_hour": {
+                "used_percentage": 23.5,
+                "resets_at": 1738425600
+            },
+            "seven_day": {
+                "used_percentage": 41.2,
+                "resets_at": 1738857600
+            }
+        }
+    }'
+
+    local output
+    output=$(echo "$json" | "$STATUSLINE_SCRIPT" 2>/dev/null)
+
+    assert_contains "5h: 24%" "$output" "Native rate_limits: 5h percentage shown (23.5 rounds to 24)"
+    assert_contains "7d: 41%" "$output" "Native rate_limits: 7d percentage shown (41.2 rounds to 41)"
+}
+
+# Test native rate_limits with only 5-hour window
+test_native_rate_limits_five_hour_only() {
+    echo "Testing native rate_limits with only 5h window..."
+
+    local json='{
+        "model": {"display_name": "Sonnet"},
+        "workspace": {"current_dir": "/test"},
+        "context_window": {"used_percentage": 5.0},
+        "rate_limits": {
+            "five_hour": {
+                "used_percentage": 50,
+                "resets_at": 1738425600
+            }
+        }
+    }'
+
+    local output
+    output=$(echo "$json" | "$STATUSLINE_SCRIPT" 2>/dev/null)
+
+    assert_contains "5h: 50%" "$output" "Native rate_limits: 5h-only percentage shown"
+}
+
+# Test backward compatibility: no rate_limits in JSON
+test_native_rate_limits_fallback() {
+    echo "Testing fallback when rate_limits is absent..."
+
+    local json='{
+        "model": {"display_name": "Opus"},
+        "workspace": {"current_dir": "/test"},
+        "context_window": {"used_percentage": 25.0}
+    }'
+
+    local output
+    output=$(echo "$json" | "$STATUSLINE_SCRIPT" 2>/dev/null)
+
+    # Should still produce output (line 1 at minimum)
+    assert_contains "Opus" "$output" "Fallback: model still shown without rate_limits"
+}
+
+# =============================================================================
+# Native worktree tests
+# =============================================================================
+
+# Test native worktree.name from Claude Code JSON
+test_native_worktree() {
+    echo "Testing native worktree from Claude Code JSON..."
+
+    local json='{
+        "model": {"display_name": "Opus"},
+        "workspace": {"current_dir": "/test"},
+        "context_window": {"used_percentage": 10.0},
+        "worktree": {
+            "name": "my-feature",
+            "path": "/tmp/wt",
+            "branch": "worktree-my-feature"
+        }
+    }'
+
+    local output
+    output=$(echo "$json" | "$STATUSLINE_SCRIPT" 2>/dev/null)
+
+    assert_contains "my-feature" "$output" "Native worktree: name shown in statusline"
+    assert_contains "worktree-my-feature" "$output" "Native worktree: branch shown in git component"
+}
+
 # Run all tests
 main() {
     echo "Running Context Window Module Tests..."
@@ -460,6 +556,14 @@ main() {
     test_used_percentage_decimals
     test_used_percentage_zero
     test_missing_percentage_fallback
+
+    # Native rate_limits tests
+    test_native_rate_limits_basic
+    test_native_rate_limits_five_hour_only
+    test_native_rate_limits_fallback
+
+    # Native worktree tests
+    test_native_worktree
 
     print_results
 }

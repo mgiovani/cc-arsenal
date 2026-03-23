@@ -48,7 +48,7 @@ get_prefix() {
 # =============================================================================
 
 # Display model name with icon
-# Usage: get_model_component "opus" or "claude-opus-4-5-20251101"
+# Usage: get_model_component "opus" or "claude-opus-4-6"
 get_model_component() {
     local model="${1:-}"
     local prefix
@@ -115,8 +115,19 @@ get_directory_component() {
 # =============================================================================
 
 # Display git branch with status indicator
-# Usage: get_git_component
+# Usage: get_git_component ["native_branch"]
 get_git_component() {
+    local native_branch="${1:-}"
+
+    # Priority 1: Native worktree.branch from Claude Code JSON
+    if [[ -n "$native_branch" && "$native_branch" != "null" ]]; then
+        local prefix
+        prefix=$(get_prefix "🌿" "Git:" "[G]")
+        echo "${prefix}${native_branch}"
+        return 0
+    fi
+
+    # Priority 2: Git-based detection (fallback)
     local git_info
     git_info=$(get_git_info 2>/dev/null || echo "0|not_a_repo|")
 
@@ -151,8 +162,19 @@ get_git_component() {
 # =============================================================================
 
 # Display git worktree name if in a worktree
-# Usage: get_worktree_component
+# Usage: get_worktree_component ["native_name"]
 get_worktree_component() {
+    local native_name="${1:-}"
+
+    # Priority 1: Native worktree.name from Claude Code JSON
+    if [[ -n "$native_name" && "$native_name" != "null" ]]; then
+        local prefix
+        prefix=$(get_prefix "🌳" "Wt:" "[W]")
+        echo "${prefix}$native_name"
+        return 0
+    fi
+
+    # Priority 2: Git-based detection (fallback)
     local git_info
     git_info=$(get_git_info 2>/dev/null || echo "0|not_a_repo|")
 
@@ -317,9 +339,11 @@ get_session_component() {
 # Build the second line with detailed usage info
 # Format (emoji): 🔄 5h: 16% → 23:00 │ 📅 7d: 39% → Dec 15
 # Format (text):  5h: 16% → 23:00 │ 7d: 39% → Dec 15
-# Usage: get_usage_line "$input_tokens" "$output_tokens"
+# Usage: get_usage_line "$input_tokens" "$output_tokens" ["5h_percent" "5h_resets" "7d_percent" "7d_resets"]
 get_usage_line() {
     local input_tokens="${1:-0}" output_tokens="${2:-0}"
+    local native_5h_percent="${3:-}" native_5h_resets="${4:-}"
+    local native_7d_percent="${5:-}" native_7d_resets="${6:-}"
     local current_time
     current_time=$(get_current_epoch)
 
@@ -329,7 +353,55 @@ get_usage_line() {
     local use_emoji=true
     [[ "$display_mode" == "text" || "$display_mode" == "ascii" ]] && use_emoji=false
 
-    # Try OAuth API first (most accurate) - CACHE ONLY, no network calls
+    # Priority 1: Native rate_limits from Claude Code JSON (most accurate, no network)
+    if [[ -n "$native_5h_percent" && "$native_5h_percent" != "null" ]]; then
+        # Round percentage to integer
+        local five_hour_pct
+        five_hour_pct=$(printf '%.0f' "$native_5h_percent" 2>/dev/null || echo "$native_5h_percent")
+
+        # Format 5-hour reset time
+        local five_hour_display=""
+        if [[ -n "$native_5h_resets" && "$native_5h_resets" != "null" && "$native_5h_resets" != "0" ]]; then
+            # Round up to next full hour
+            local rounded_epoch
+            rounded_epoch=$(( (native_5h_resets + 3599) / 3600 * 3600 ))
+            five_hour_display=$(epoch_to_time_display "$rounded_epoch" "+%H:%M")
+        fi
+
+        # Build usage line
+        local usage_line
+        if $use_emoji; then
+            usage_line="🔄 5h: ${five_hour_pct}%"
+        else
+            usage_line="5h: ${five_hour_pct}%"
+        fi
+        [[ -n "$five_hour_display" ]] && usage_line="${usage_line} → ${five_hour_display}"
+
+        # Add 7-day data if available
+        if [[ -n "$native_7d_percent" && "$native_7d_percent" != "null" ]]; then
+            local seven_day_pct
+            seven_day_pct=$(printf '%.0f' "$native_7d_percent" 2>/dev/null || echo "$native_7d_percent")
+
+            local seven_day_display=""
+            if [[ -n "$native_7d_resets" && "$native_7d_resets" != "null" && "$native_7d_resets" != "0" ]]; then
+                local seven_day_rounded
+                seven_day_rounded=$(( (native_7d_resets + 3599) / 3600 * 3600 ))
+                seven_day_display=$(epoch_to_time_display "$seven_day_rounded" "+%b %d %H:%M")
+            fi
+
+            if $use_emoji; then
+                usage_line="${usage_line} │ 📅 7d: ${seven_day_pct}%"
+            else
+                usage_line="${usage_line} │ 7d: ${seven_day_pct}%"
+            fi
+            [[ -n "$seven_day_display" ]] && usage_line="${usage_line} → ${seven_day_display}"
+        fi
+
+        echo "$usage_line"
+        return 0
+    fi
+
+    # Priority 2: OAuth API cache (fallback for older Claude Code) - CACHE ONLY, no network calls
     local usage_json
     usage_json=$(fetch_oauth_usage_cached_only 2>/dev/null)
 

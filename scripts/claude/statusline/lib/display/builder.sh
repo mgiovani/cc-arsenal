@@ -73,6 +73,16 @@ extract_statusline_data() {
     INPUT_TOKENS=$(extract_json "$json" "context_window.current_usage.input_tokens" 2>/dev/null || echo "0")
     OUTPUT_TOKENS=$(extract_json "$json" "context_window.current_usage.output_tokens" 2>/dev/null || echo "0")
 
+    # Rate limits (native from Claude Code JSON)
+    RATE_LIMIT_5H_PERCENT=$(extract_json "$json" "rate_limits.five_hour.used_percentage" 2>/dev/null || echo "")
+    RATE_LIMIT_5H_RESETS=$(extract_json "$json" "rate_limits.five_hour.resets_at" 2>/dev/null || echo "")
+    RATE_LIMIT_7D_PERCENT=$(extract_json "$json" "rate_limits.seven_day.used_percentage" 2>/dev/null || echo "")
+    RATE_LIMIT_7D_RESETS=$(extract_json "$json" "rate_limits.seven_day.resets_at" 2>/dev/null || echo "")
+
+    # Worktree (native from Claude Code JSON)
+    NATIVE_WORKTREE_NAME=$(extract_json "$json" "worktree.name" 2>/dev/null || echo "")
+    NATIVE_WORKTREE_BRANCH=$(extract_json "$json" "worktree.branch" 2>/dev/null || echo "")
+
     # Use display name directly if available
     MODEL="${MODEL_DISPLAY:-$MODEL_ID}"
 }
@@ -98,12 +108,12 @@ build_line_one() {
     comp=$(get_directory_component "$current_dir")
     [[ -n "$comp" ]] && components+=("$comp")
 
-    # Git
-    comp=$(get_git_component)
+    # Git - use native worktree.branch when available to avoid git subprocess
+    comp=$(get_git_component "$NATIVE_WORKTREE_BRANCH")
     [[ -n "$comp" ]] && components+=("$comp")
 
-    # Worktree
-    comp=$(get_worktree_component)
+    # Worktree - prefer native JSON, fallback to git detection
+    comp=$(get_worktree_component "$NATIVE_WORKTREE_NAME")
     [[ -n "$comp" ]] && components+=("$comp")
 
     # Context
@@ -141,7 +151,9 @@ build_line_one() {
 # Build the second line (usage details)
 # Returns: usage line string
 build_line_two() {
-    get_usage_line "$INPUT_TOKENS" "$OUTPUT_TOKENS"
+    get_usage_line "$INPUT_TOKENS" "$OUTPUT_TOKENS" \
+        "$RATE_LIMIT_5H_PERCENT" "$RATE_LIMIT_5H_RESETS" \
+        "$RATE_LIMIT_7D_PERCENT" "$RATE_LIMIT_7D_RESETS"
 }
 
 # =============================================================================
