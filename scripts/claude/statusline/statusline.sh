@@ -91,6 +91,11 @@ main() {
     # Build and output statusline
     build_statusline "$json" "$current_dir"
 
+    # Persist rate_limits to cache file for external consumers (e.g., tmux statusbar)
+    if check_jq && echo "$json" | jq -e '.rate_limits.five_hour' >/dev/null 2>&1; then
+        echo "$json" | jq -c '.rate_limits // empty' > /tmp/claude_rate_limits_cache.json 2>/dev/null || true
+    fi
+
     # Performance monitoring (optional)
     if [[ "${STATUSLINE_PERF:-0}" == "1" ]]; then
         local end_time duration_ms
