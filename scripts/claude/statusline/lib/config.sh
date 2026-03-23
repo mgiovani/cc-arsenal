@@ -33,7 +33,8 @@ get_default_config() {
       "session_cost": true,
       "daily_cost": true,
       "reset_countdown": true,
-      "duration_info": false
+      "duration_info": false,
+      "lines_changed": false
     }
   },
   "display": {

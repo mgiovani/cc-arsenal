@@ -124,9 +124,11 @@ build_line_one() {
     comp=$(get_cost_component "$COST_USD")
     [[ -n "$comp" ]] && components+=("$comp")
 
-    # Lines changed
-    comp=$(get_lines_component "$LINES_ADDED" "$LINES_REMOVED")
-    [[ -n "$comp" ]] && components+=("$comp")
+    # Lines changed (disabled by default)
+    if [[ "$(get_config_bool '.components.enabled.lines_changed' 'false')" == "true" ]]; then
+        comp=$(get_lines_component "$LINES_ADDED" "$LINES_REMOVED")
+        [[ -n "$comp" ]] && components+=("$comp")
+    fi
 
     # Session duration
     comp=$(get_session_component "$json")
