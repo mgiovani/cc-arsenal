@@ -22,7 +22,7 @@ jobs:
       run: uv python install 3.13
 
     - name: Install dependencies
-      run: make setup-dev
+      run: make dev
 
     - name: Run pre-commit hooks
       run: make pre-commit-run
@@ -48,7 +48,7 @@ jobs:
       run: uv python install 3.13
 
     - name: Install dependencies
-      run: make setup-dev
+      run: make dev
 
     - name: Run code quality checks
       run: make check
