@@ -1,0 +1,34 @@
+{
+  "skill": "review-design",
+  "evals": [
+    {
+      "id": "live-url-audit",
+      "prompt": "/review-design --url https://example.com",
+      "assertions": [
+        "Resolves to live mode and confirms agent-browser is available before capturing",
+        "Captures a screenshot and an interactive snapshot under /tmp/review-design/",
+        "Spawns 6 parallel Explore agents covering the 8 design dimensions",
+        "Produces design-report-live.md with evidence (screenshot region + DOM ref), measured values, and criterion IDs",
+        "Includes a 'What Was NOT Checked' section and applicable-only scoring"
+      ]
+    },
+    {
+      "id": "static-codebase-audit",
+      "prompt": "/review-design --all --mode static",
+      "assertions": [
+        "Resolves to static mode and audits the codebase with grep",
+        "Each finding cites file:line, a criterion ID, and an authoritative citation (WCAG SC / MD3 / HIG / NN/g)",
+        "Produces design-report-static.md grouped by the 8 dimensions",
+        "Contains no placeholder text and no auto-fixing or code changes"
+      ]
+    },
+    {
+      "id": "scoped-accessibility",
+      "prompt": "/review-design --url https://example.com --scope accessibility",
+      "assertions": [
+        "Limits the audit to the Accessibility dimension (AC-01..12, WCAG 2.2 AA)",
+        "Reports computed contrast ratios and focus-visibility findings with WCAG SC citations"
+      ]
+    }
+  ]
+}

@@ -14,7 +14,7 @@
       "name": "cc-arsenal",
       "source": "./",
       "strict": true,
-      "description": "Complete toolkit: all 33 skills covering development, documentation, git, github, jira, code review, testing, refactoring, CI/CD, image generation, framework documentation injection, skill creation, and more",
+      "description": "Complete toolkit: all 45 skills covering development, documentation, git, github, jira, code review, testing, refactoring, CI/CD, image generation, framework documentation injection, skill creation, and more",
       "version": "3.3.0",
       "author": {
         "name": "Giovani Moutinho",
@@ -52,6 +52,7 @@
         "./skills/review-security/",
         "./skills/review-deps/",
         "./skills/review-perf/",
+        "./skills/review-design/",
         "./skills/ci-generate/",
         "./skills/inject-docs/",
         "./skills/inject-nextjs-docs/",
@@ -171,7 +172,8 @@
         "./skills/review-code/",
         "./skills/review-security/",
         "./skills/review-deps/",
-        "./skills/review-perf/"
+        "./skills/review-perf/",
+        "./skills/review-design/"
       ]
     }
   ]
