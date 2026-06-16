@@ -498,6 +498,29 @@ test_native_rate_limits_five_hour_only() {
     assert_contains "5h: 50%" "$output" "Native rate_limits: 5h-only percentage shown"
 }
 
+# Test reset time is shown exactly, without rounding up to the hour
+test_native_rate_limits_offhour_reset() {
+    echo "Testing off-the-hour reset time is not rounded..."
+
+    # 1738427400 = 2025-02-01 16:30:00 UTC (rounding would have shown 17:00)
+    local json='{
+        "model": {"display_name": "Opus"},
+        "workspace": {"current_dir": "/test"},
+        "context_window": {"used_percentage": 10.0},
+        "rate_limits": {
+            "five_hour": {
+                "used_percentage": 30,
+                "resets_at": 1738427400
+            }
+        }
+    }'
+
+    local output
+    output=$(echo "$json" | TZ=UTC "$STATUSLINE_SCRIPT" 2>/dev/null)
+
+    assert_contains "16:30" "$output" "Off-hour reset shown exactly (no rounding)"
+}
+
 # Test backward compatibility: no rate_limits in JSON
 test_native_rate_limits_fallback() {
     echo "Testing fallback when rate_limits is absent..."
@@ -560,6 +583,7 @@ main() {
     # Native rate_limits tests
     test_native_rate_limits_basic
     test_native_rate_limits_five_hour_only
+    test_native_rate_limits_offhour_reset
     test_native_rate_limits_fallback
 
     # Native worktree tests

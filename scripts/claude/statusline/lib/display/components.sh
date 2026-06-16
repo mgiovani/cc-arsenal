@@ -357,12 +357,10 @@ get_usage_line() {
     local five_hour_pct
     five_hour_pct=$(printf '%.0f' "$native_5h_percent" 2>/dev/null || echo "$native_5h_percent")
 
-    # Format 5-hour reset time
+    # Format 5-hour reset time (use exact epoch; Claude may reset off the hour)
     local five_hour_display=""
     if [[ -n "$native_5h_resets" && "$native_5h_resets" != "null" && "$native_5h_resets" != "0" ]]; then
-        local rounded_epoch
-        rounded_epoch=$(( (native_5h_resets + 3599) / 3600 * 3600 ))
-        five_hour_display=$(epoch_to_time_display "$rounded_epoch" "+%H:%M")
+        five_hour_display=$(epoch_to_time_display "$native_5h_resets" "+%H:%M")
     fi
 
     # Build usage line
@@ -381,9 +379,7 @@ get_usage_line() {
 
         local seven_day_display=""
         if [[ -n "$native_7d_resets" && "$native_7d_resets" != "null" && "$native_7d_resets" != "0" ]]; then
-            local seven_day_rounded
-            seven_day_rounded=$(( (native_7d_resets + 3599) / 3600 * 3600 ))
-            seven_day_display=$(epoch_to_time_display "$seven_day_rounded" "+%b %d %H:%M")
+            seven_day_display=$(epoch_to_time_display "$native_7d_resets" "+%b %d %H:%M")
         fi
 
         if $use_emoji; then
