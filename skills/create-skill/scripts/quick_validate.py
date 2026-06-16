@@ -40,6 +40,9 @@ ALLOWED_FRONTMATTER_KEYS = {
     'compatibility',
     'disable-model-invocation',
     'argument-hint',
+    # Claude Code skill execution keys (used by the review-* skills)
+    'context',
+    'agent',
 }
 
 # Allowed subdirectories in a skill directory

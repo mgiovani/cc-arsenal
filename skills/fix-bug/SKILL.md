@@ -5,12 +5,6 @@ description: Fix bugs using test-driven debugging and root cause analysis. Activ
 disable-model-invocation: false
 argument-hint: "[bug_description_or_issue_id] [--branch name] [--interactive]"
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, Task, TaskCreate, TaskUpdate, TaskList, TaskGet, WebFetch, AskUserQuestion
-hooks:
-  Stop:
-    - hooks:
-      - type: agent
-        prompt: "Verify bug fix is complete and correct:\n\n1. **Reproduce fix**: Run the originally failing test or scenario. It must now pass.\n2. **No regressions**: Run full test suite using the test command from Phase 0. All tests must pass.\n3. **Root cause addressed**: Verify the fix addresses the actual root cause, not just symptoms.\n\nIf any verification fails, report it clearly and return decision: block with reason. Only allow stopping when the bug is truly fixed.\n\nUse test commands discovered in Phase 0. If not available, discover them now from CLAUDE.md or project files."
-        timeout: 120
 ---
 
 # Bug Fix
@@ -29,23 +23,21 @@ Fix bugs systematically using test-driven development, root cause analysis, and 
 
 ## Quality Gates
 
-This skill includes automatic bug fix verification before completion:
+Before marking a bug as fixed, complete these verification steps:
 
-### Fix Verification (Stop Hook)
-
-When you attempt to stop working (mark bug as fixed), an automated verification agent runs to ensure the fix is complete:
+### Fix Verification
 
 **Verification Steps:**
-1. **Fix Confirmation**: Runs the originally failing test or reproduces the bug scenario. Must now pass/work.
-2. **Regression Check**: Runs full test suite to ensure no new bugs introduced
-3. **Root Cause Validation**: Verifies the fix addresses the actual root cause, not just symptoms
+1. **Fix Confirmation**: Run the originally failing test or reproduce the bug scenario. It must now pass/work.
+2. **Regression Check**: Run the full test suite using the test command from Phase 0 to ensure no new bugs were introduced.
+3. **Root Cause Validation**: Verify the fix addresses the actual root cause, not just symptoms.
 
-**Behavior:**
-- ✅ **All verifications pass**: Bug marked as fixed
-- ❌ **Any verification fails**: Completion blocked, Claude continues debugging
-- ⚠️ **Original test not identified**: Hook attempts to find relevant tests or asks for clarification
+**Completion Criteria:**
+- ✅ **All verifications pass**: Bug is fixed
+- ❌ **Any verification fails**: Do not mark complete — continue debugging
+- ⚠️ **Original test not identified**: Find relevant tests or ask for clarification
 
-**Example blocked completion:**
+**Example of an incomplete fix:**
 ```
 ⚠️ Bug fix verification failed:
 

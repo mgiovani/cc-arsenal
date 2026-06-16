@@ -4,13 +4,7 @@ description: Implement features with senior staff engineer best practices and pa
   subagents. Activates when users want to implement, build, or add new functionality.
 disable-model-invocation: false
 argument-hint: "<feature_description>"
-allowed-tools: Read, Write, Edit, Bash, Grep, Glob, Task, TaskCreate, TaskUpdate, TaskList, TaskGet, WebFetch, EnterPlanMode, AskUserQuestion
-hooks:
-  Stop:
-    - hooks:
-      - type: agent
-        prompt: "Verify implementation is complete and correct:\n\n1. **Run tests**: Use the test command discovered in Phase 0. All tests must pass.\n2. **Run linter**: Use the lint command discovered in Phase 0. No linting errors allowed.\n3. **Run type check**: If applicable, run type-check/build command.\n\nIf any check fails, report the failure clearly and return decision: block with reason. Only allow stopping when all checks pass.\n\nDiscovered commands should be in the task context from Phase 0. If Phase 0 was not completed, discover them now by reading CLAUDE.md, checking for Makefile/package.json/pyproject.toml, and identifying test/lint/build commands."
-        timeout: 180
+allowed-tools: Read, Write, Edit, Bash, Grep, Glob, Task, TaskCreate, TaskUpdate, TaskList, TaskGet, WebFetch, EnterPlanMode, AskUserQuestion, ExitPlanMode
 ---
 
 # Feature Implementation
@@ -31,23 +25,21 @@ $ARGUMENTS
 
 ## Quality Gates
 
-This skill includes automatic implementation verification before completion:
+Before marking an implementation complete, run these verification steps:
 
-### Completion Verification (Stop Hook)
-
-When you attempt to stop working (mark implementation as complete), an automated verification agent runs to ensure quality:
+### Completion Verification
 
 **Verification Steps:**
-1. **Test Suite**: Runs discovered test command from Phase 0 (e.g., `make test`, `npm test`, `pytest`)
-2. **Linting**: Runs discovered lint command from Phase 0 (e.g., `make lint`, `npm run lint`, `ruff check`)
-3. **Type Checking**: If applicable, runs type-check or build command
+1. **Test Suite**: Run the discovered test command from Phase 0 (e.g., `make test`, `npm test`, `pytest`). All tests must pass.
+2. **Linting**: Run the discovered lint command from Phase 0 (e.g., `make lint`, `npm run lint`, `ruff check`). No lint errors.
+3. **Type Checking**: If applicable, run the type-check or build command.
 
-**Behavior:**
-- ✅ **All checks pass**: Implementation marked complete
-- ❌ **Any check fails**: Completion blocked, error details provided, Claude continues working to fix issues
-- ℹ️ **Commands not found**: Hook attempts to discover commands from CLAUDE.md or project files
+**Completion Criteria:**
+- ✅ **All checks pass**: Implementation is complete
+- ❌ **Any check fails**: Do not mark complete — keep working to fix the issues
+- ℹ️ **Commands not found**: Discover them from CLAUDE.md or project files (Makefile/package.json/pyproject.toml)
 
-**Example blocked completion:**
+**Example of an incomplete implementation:**
 ```
 ⚠️ Implementation verification failed:
 
