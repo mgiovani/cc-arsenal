@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [3.3.0] - 2026-07-02
 
 ### Added
 - **Lean Code discipline**: Added a shared "lean, never negligent" checklist to the 5 dev skills (`implement-feature`, `fix-bug`, `refactor`, `test-suite`, `review-code`) — write the smallest change that fully does the job without ever cutting validation, error/data-loss handling, security, or accessibility. Deliberate shortcuts are marked inline with `LEAN-DEBT:` instead of left as a silent gap.
@@ -13,6 +13,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **review-code**: New `enhancements/review-code/ENHANCEMENT.md` adds a 6th parallel "Simplicity & Over-Engineering" specialist (`OE-` findings, tags `[delete]/[reuse]/[stdlib]/[builtin]/[unneeded]/[simplify]`) with a static, non-benchmark lines-removable count and an explicit ban on fabricated performance/token/percentage savings claims.
   - **fix-bug**, **refactor**, **test-suite**: Light-touch deltas — never-negligent floor callouts, deletion-over-addition and root-cause-once-in-the-shared-function guidance, and lean test-coverage guidance (test behavior and boundaries, not trivial getters or coverage-only snapshots).
 - **Skill evals**: Added `evals/evals.json` (task assertions) and `evals/trigger-eval.json` (~20 queries each, with realistic near-miss negatives) for the 5 dev skills, converging on the schema `create-skill`'s `quick_validate.py`/`run_eval.py` already support. Tightened each skill's `description` frontmatter to be active, concrete, and explicit about "use when" contexts, since Claude tends to undertrigger vague descriptions.
+- **review-design**: New UX/UI design quality audit skill, added to the `cc-arsenal-review` plugin variant.
+- **gitflow**: New skill covering the full gitflow branching model — starting/finishing feature branches, cutting versioned releases with changelog generation, coordinating emergency hotfixes, and keeping `main`/`dev` in sync. Added to the `cc-arsenal-git` plugin variant.
+- **AGENTS.md**: Root-level mirror of CLAUDE.md's repository guidance for Codex and other AGENTS.md-aware coding assistants.
+
+### Changed
+- **agent-browser**: Session-close hook now scopes to the current project's session instead of closing every daemon, preventing parallel Claude Code sessions from tearing down each other's browsers. Documented Homebrew install, the `doctor` health check, Lightpanda vs. Chrome engine selection, and new env vars (`AGENT_BROWSER_IDLE_TIMEOUT_MS`, `AGENT_BROWSER_ENGINE`, `AGENT_BROWSER_ENCRYPTION_KEY`).
+- **skills-upstream**: Bumped submodule to [v1.1.0](https://github.com/mgiovani/skills/releases/tag/v1.1.0), pulling in the nanobanana skill mirror and a README cleanup.
+
+### Fixed
+- **statusline**: Show rate-limit reset times exactly, without rounding.
+- **skills**: Removed a buggy completion-verification `Stop` hook.
+- **ci**: Corrected a make target from `setup-dev` to `dev`.
 
 ### Removed
 - **forge suite**: Removed the 7 abandoned `forge-*` skills (`forge-brief`, `forge-architect`, `forge-story`, `forge-dev`, `forge-qa`, `forge-review`, `forge-security`) and their enhancements. No other skill, doc, or plugin variant referenced them.
