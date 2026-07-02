@@ -5,7 +5,7 @@ hooks:
   Stop:
     - hooks:
       - type: command
-        command: "agent-browser close 2>/dev/null || true"
+        command: "agent-browser close --session \"$(basename \"$(pwd)\" 2>/dev/null)\" 2>/dev/null || agent-browser close 2>/dev/null || true"
         once: true
         timeout: 10
 ---
@@ -35,14 +35,20 @@ Three-layer design for performance and reliability:
 ### Installation
 
 ```bash
-# Install globally via npm
+# macOS (preferred — managed by Homebrew)
+brew install agent-browser
+
+# Linux / fallback
 npm install -g agent-browser
 
-# Install browser dependencies
+# Install browser binaries after either method
 agent-browser install
 
-# Linux: Install system dependencies
+# Linux: also install system dependencies
 agent-browser install --with-deps
+
+# Verify health
+agent-browser doctor
 ```
 
 ## Quick Start
@@ -73,17 +79,39 @@ agent-browser snapshot -i
 
 ### Session Management
 
+Always pass `--session` — one named session per project prevents stale daemons from accumulating across parallel Claude Code sessions.
+
 ```bash
-# Run multiple isolated browsers
-agent-browser --session auth open https://app.com/login
-agent-browser --session test open https://staging.com
+# Use project name as session (run this pattern everywhere)
+agent-browser --session "$(basename "$PWD")" open https://app.com
+
+# Authenticated flows: add persistent profile (gitignored)
+agent-browser --session "$(basename "$PWD")" --profile .claude/browser-profile open https://app.com/login
+
+# Stateless scraping/extraction: use Lightpanda instead (10x less memory)
+agent-browser --session "$(basename "$PWD")" --engine lightpanda open https://public-site.com
 
 # List all active sessions
 agent-browser session list
 
-# Clean up
-agent-browser --session auth close
+# Diagnose + clean stale sockets (run when things feel wrong)
+agent-browser doctor --fix
+
+# Close this project's session only (never use --all with parallel projects)
+agent-browser close --session "$(basename "$PWD")"
 ```
+
+### Engine Choice
+
+| Task | Engine | Why |
+|---|---|---|
+| Testing your own app, screenshots, React/SPA | `chrome` (default) | Full rendering, CDP, JS |
+| Authenticated flows needing saved login | `chrome` + `--profile` | Persistent storage state |
+| Bulk scraping / data extraction from public pages | `lightpanda` | 10x less memory, 10x faster |
+| Paginated crawls, `get text` at scale | `lightpanda` | Ephemeral, no cache buildup |
+| Extensions, headed mode, file access | `chrome` (required) | Lightpanda can't do these |
+
+Rule: **if it only reads public pages and needs no login or screenshot → Lightpanda. Otherwise Chrome.**
 
 ## Snapshot + Refs System
 
@@ -373,13 +401,25 @@ Real-world scenarios:
 ### Environment Variables
 
 ```bash
-AGENT_BROWSER_SESSION           # Default session name
-AGENT_BROWSER_EXECUTABLE_PATH   # Custom browser binary
+AGENT_BROWSER_IDLE_TIMEOUT_MS   # Auto-close daemon after N ms idle (set 300000 in dotfiles)
+AGENT_BROWSER_SESSION           # Default session name (set per-project in CLAUDE.md)
+AGENT_BROWSER_ENGINE            # Default engine: chrome | lightpanda
+AGENT_BROWSER_EXECUTABLE_PATH   # Custom browser binary path
 AGENT_BROWSER_EXTENSIONS        # Comma-separated extension paths
-AGENT_BROWSER_PROVIDER          # Cloud provider (browseruse, browserbase)
+AGENT_BROWSER_PROVIDER          # Cloud provider (browseruse, browserbase, browserless)
+AGENT_BROWSER_ENCRYPTION_KEY    # AES-256-GCM key for session state files (64-char hex)
 AGENT_BROWSER_STREAM_PORT       # WebSocket port for streaming
 AGENT_BROWSER_HOME              # Installation directory
 ```
+
+### Operational Rules (mgiovani-specific)
+
+- **Always pass `--session <project-name>`** — prevents 4-daemon stale socket accumulation (was causing OOM)
+- **Never run `agent-browser close --all`** or `pkill chrome-headless-shell` — breaks other projects' parallel sessions
+- **`.claude/browser-profile/` must be in `.gitignore`** — contains plaintext cookies and login tokens
+- **Omit `--profile` for stateless work** — persistent profiles accumulate Chrome cache; idle-timeout only reclaims RAM, not disk cache
+- **Run `agent-browser doctor --fix`** when sessions feel stuck — cleans stale sockets without killing active sessions
+- **For the authoritative, version-matched command reference**: `agent-browser skills get core --full`
 
 ### Code Style Requirements
 
