@@ -1,0 +1,22 @@
+[
+  {"query": "ok dev's got like 6 PRs merged since our last ship — the new settings page and a couple of bug fixes — can you take all of it to prod", "should_trigger": true},
+  {"query": "we're on 1.3.0 now, time to cut the next release off dev and ship it", "should_trigger": true},
+  {"query": "prod's showing the wrong label on the account card and i need it fixed and live today, can't wait for the next release", "should_trigger": true},
+  {"query": "how do we get an emergency patch out to production here? the dashboard is throwing for a couple of accounts right now", "should_trigger": true},
+  {"query": "i'm starting the bulk user-import feature today — where do i branch from and what do i name the branch", "should_trigger": true},
+  {"query": "promote dev to main", "should_trigger": true},
+  {"query": "we need to roll back the release we just shipped, something's off in prod", "should_trigger": true},
+  {"query": "whats our process for a bugfix that can wait til the next release vs one that needs to go out now", "should_trigger": true},
+  {"query": "bump the version and tag a github release for everything sitting on dev right now", "should_trigger": true},
+  {"query": "the hotfix is merged to main and deployed — is there anything else i need to do before i'm done", "should_trigger": true},
+  {"query": "i've got a merge conflict in src/features/users/list.tsx between my branch and dev, help me resolve it", "should_trigger": false},
+  {"query": "write me a conventional commit message for these staged changes", "should_trigger": false},
+  {"query": "open a PR from my feat/csv-export branch into dev and tag alice and bob as reviewers", "should_trigger": false},
+  {"query": "i want to squash my last 3 commits before pushing — whats the interactive rebase command", "should_trigger": false},
+  {"query": "there's a typo in the v1.2.0 release notes on the github release page, fix the wording", "should_trigger": false},
+  {"query": "set up a github actions workflow that runs our test suite on every push to a PR", "should_trigger": false},
+  {"query": "the coverage CI job keeps timing out on PR #42, can you figure out why", "should_trigger": false},
+  {"query": "i accidentally committed straight to my local main, how do i move that commit onto a new branch", "should_trigger": false},
+  {"query": "explain the difference between a squash merge and a merge commit", "should_trigger": false},
+  {"query": "reformat CHANGELOG.md so the markdown headings match the keep-a-changelog spec", "should_trigger": false}
+]

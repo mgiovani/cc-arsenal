@@ -1,0 +1,23 @@
+{
+  "skill_name": "gitflow",
+  "evals": [
+    {
+      "id": 0,
+      "name": "release-dev-to-prod",
+      "prompt": "We've merged a good chunk of work into dev over the last couple of weeks — the new settings page, a CSV export feature, and some bug fixes. main is on 1.2.0 right now. I want to ship all of it to production. Walk me through exactly how you'd cut and ship this release, with the specific branches, commands, and version.",
+      "files": []
+    },
+    {
+      "id": 1,
+      "name": "hotfix-prod",
+      "prompt": "Users are seeing the wrong label on the account card in production right now — it's a tiny one-line fix. This can't wait for the next release; I need it live today. What's the exact process to get just this one fix out to production?",
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "feature-branch",
+      "prompt": "I'm about to start building a bulk user-import feature — probably a few days of work. Where should I branch from, how should I name it, and how does it eventually make its way into production?",
+      "files": []
+    }
+  ]
+}

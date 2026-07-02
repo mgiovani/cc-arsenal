@@ -105,6 +105,7 @@
         "./skills/git-commit/",
         "./skills/git-create-pr/",
         "./skills/git-release/",
+        "./skills/gitflow/",
         "./skills/gh-daily/"
       ]
     },
