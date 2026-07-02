@@ -1,6 +1,6 @@
 ---
 name: test-suite
-description: "Generate comprehensive test suites with coverage analysis and parallel test writing. Automatically activates when users want to write tests, add test coverage, generate test cases, improve testing, or analyze coverage gaps. Supports pytest, vitest, jest, and all major test frameworks."
+description: "Generates a test suite by analyzing coverage gaps, prioritizing critical and untested code paths, then writing tests in parallel that match the project's existing patterns. Use when the user wants to write tests, add test coverage, generate test cases, improve testing, or analyze coverage gaps. Supports pytest, vitest, jest, and all major test frameworks. Not for debugging a specific failing test (use fix-bug)."
 disable-model-invocation: false
 argument-hint: "[target_files_or_modules] [--coverage] [--framework name]"
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, Task, TaskCreate, TaskUpdate, TaskList, TaskGet, WebFetch, AskUserQuestion
@@ -497,6 +497,7 @@ Generated tests must follow these principles:
 6. **Fast**: Unit tests run quickly; minimize I/O and external calls
 7. **Readable**: Tests serve as documentation for the code under test
 8. **Maintainable**: Avoid testing implementation details; test behavior and contracts
+9. **Lean coverage**: Over-testing is the failure mode in the other direction — skip trivial getters, pure pass-throughs, and framework-guaranteed behavior. Don't add a snapshot test or an assert-nothing test just to move a coverage number. The one exception: never skip a test for a security, validation, or data-loss path just because it is tedious to set up — that risk is always worth the test.
 
 ## Additional Resources
 

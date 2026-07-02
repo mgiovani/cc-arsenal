@@ -1,7 +1,11 @@
 ---
 name: fix-bug
-description: Fix bugs using test-driven debugging and root cause analysis. Activates
-  when users want to fix a bug, debug an issue, resolve an error, or investigate failing tests.
+description: Fixes a bug through test-driven debugging — reproduces it with a failing
+  test, locates the root cause with evidence (file:line), then applies the smallest
+  fix that resolves it without refactoring unrelated code. Use when the user wants to
+  fix a bug, debug an issue, resolve an error, or investigate a failing test. Not for
+  building new functionality (use implement-feature) or restructuring working code
+  with no bug involved (use refactor).
 disable-model-invocation: false
 argument-hint: "[bug_description_or_issue_id] [--branch name] [--interactive]"
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, Task, TaskCreate, TaskUpdate, TaskList, TaskGet, WebFetch, AskUserQuestion
@@ -252,6 +256,7 @@ Use a subagent for fix design that:
 3. Has minimal scope (fewest lines changed)
 4. Does not introduce breaking changes
 5. Handles edge cases identified
+6. Never trims validation, error/data-loss handling, or security to keep the diff small — a minimal fix is about scope, not about dropping the floor. If a full fix isn't feasible right now, apply the safe partial fix and leave `// LEAN-DEBT: <limitation>. Upgrade when <trigger>.` instead of silently shipping the gap.
 
 **Get Approval for Non-Trivial Fixes**: If the fix involves changes to >3 files, modifications to public APIs, potential performance implications, or breaking changes, use `AskUserQuestion` to present the plan and get approval.
 

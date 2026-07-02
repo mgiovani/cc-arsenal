@@ -1,6 +1,6 @@
 ---
 name: refactor
-description: "Safe codebase refactoring with characterization tests, incremental changes, and continuous verification. Automatically activates when users want to refactor code, extract methods/classes, simplify logic, reduce duplication, improve naming, restructure modules, or clean up technical debt."
+description: "Restructures existing code without changing its behavior — maps callers and test coverage, adds characterization tests where coverage is thin, then applies the change in small steps verified against the full test suite after each one. Use when the user wants to refactor, extract a method or class, simplify logic, reduce duplication, improve naming, restructure modules, or pay down technical debt in code that already works. Not for adding new functionality (use implement-feature) or fixing broken behavior (use fix-bug)."
 disable-model-invocation: false
 argument-hint: "<refactoring_description> [--scope file|module|project] [--interactive]"
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, Task, TaskCreate, TaskUpdate, TaskList, TaskGet, WebFetch, AskUserQuestion
@@ -32,6 +32,8 @@ $ARGUMENTS
 4. **Incremental changes** — Make one small, verifiable change at a time. Never combine multiple refactoring steps into a single edit.
 5. **No feature changes** — Do not add features, fix bugs, or change behavior during refactoring. These are separate tasks.
 6. **Reference real code** — Never make claims about code structure that has not been verified by reading the actual files.
+7. **Prefer deletion over addition** — The best refactoring step is usually the one that removes duplicated or dead code, not the one that adds a new layer around it. When several call sites share the same logic, consolidate it into one place and delete the copies rather than introducing a new abstraction that wraps them.
+8. **Never trim the floor** — Simplifying structure must not simplify away a validation check, an error/data-loss path, a security control, or an accessibility branch. If a step would drop one, it is a behavior change, not a refactor — stop and re-scope it as a separate change.
 
 ## Quality Gates
 

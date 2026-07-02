@@ -1,0 +1,22 @@
+[
+  {"query": "write tests for the discount code validation logic", "should_trigger": true},
+  {"query": "improve test coverage for the auth token module", "should_trigger": true},
+  {"query": "generate test cases for the CSV export function", "should_trigger": true},
+  {"query": "add unit tests for OrderService", "should_trigger": true},
+  {"query": "we need integration tests for the webhook handler", "should_trigger": true},
+  {"query": "analyze our coverage gaps and fill them in", "should_trigger": true},
+  {"query": "add edge case tests for the date parser", "should_trigger": true},
+  {"query": "write pytest tests for the new discount endpoint", "should_trigger": true},
+  {"query": "increase coverage on the billing module before we ship", "should_trigger": true},
+  {"query": "add tests to cover the error paths in the payment retry logic", "should_trigger": true},
+  {"query": "fix the failing test_user_login test", "should_trigger": false},
+  {"query": "refactor the test helpers to remove duplication", "should_trigger": false},
+  {"query": "add a rate limiter to the /api/upload endpoint", "should_trigger": false},
+  {"query": "review the test coverage gaps in this PR and report back", "should_trigger": false},
+  {"query": "why is this test flaky, can you debug it", "should_trigger": false},
+  {"query": "set up CI to run our test suite on every push", "should_trigger": false},
+  {"query": "explain how the existing test suite is organized", "should_trigger": false},
+  {"query": "the CSV export downloads an empty file, please fix", "should_trigger": false},
+  {"query": "what testing framework should we use for a new Go service in 2026", "should_trigger": false},
+  {"query": "clean up the flaky snapshot tests, they keep breaking on formatting changes", "should_trigger": false}
+]

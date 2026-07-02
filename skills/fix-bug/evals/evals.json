@@ -1,0 +1,34 @@
+{
+  "skill": "fix-bug",
+  "evals": [
+    {
+      "id": "discount-code-expiration-bypass",
+      "prompt": "/fix-bug Users can bypass the discount code expiration check on checkout",
+      "assertions": [
+        "Reproduces the bug with a failing test before writing any fix",
+        "The fix is scoped to the expiration check only, not a rewrite of the discount or checkout module",
+        "Existing validation and security checks (e.g. discount amount limits) remain intact after the fix",
+        "If only a safe partial fix is applied, leaves a LEAN-DEBT marker instead of silently shipping the gap"
+      ]
+    },
+    {
+      "id": "wrong-status-code-missing-user",
+      "prompt": "/fix-bug /api/users/:id returns 500 instead of 404 when the user doesn't exist",
+      "assertions": [
+        "Confirms the bug by reproducing the failing scenario before implementing a fix",
+        "Root cause is identified with file:line evidence",
+        "The fix changes only the error-handling path for the missing-user case, not unrelated code",
+        "The full test suite passes after the fix with no regressions"
+      ]
+    },
+    {
+      "id": "csv-export-empty-large-dataset",
+      "prompt": "/fix-bug The CSV export downloads an empty file when there are more than 10k rows",
+      "assertions": [
+        "Locates the actual root cause (e.g. a pagination or streaming limit) with evidence rather than guessing",
+        "The fix does not remove or weaken error handling for the empty-result case",
+        "The change is minimal and does not refactor the export pipeline beyond what the bug requires"
+      ]
+    }
+  ]
+}

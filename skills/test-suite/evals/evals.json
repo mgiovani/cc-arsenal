@@ -1,0 +1,25 @@
+{
+  "skill": "test-suite",
+  "evals": [
+    {
+      "id": "discount-validation-tests",
+      "prompt": "/test-suite Add tests for the discount code validation logic in src/billing/discounts.py",
+      "assertions": [
+        "Reads the source file before writing tests and follows the project's existing test framework and conventions",
+        "Covers the happy path, edge cases (expired or invalid codes), and error paths — not just trivial getters",
+        "Does not add snapshot tests or assert-nothing tests purely to move a coverage number",
+        "All generated tests pass and the full suite has no regressions"
+      ]
+    },
+    {
+      "id": "auth-token-coverage",
+      "prompt": "/test-suite Improve coverage for src/auth/token.py",
+      "assertions": [
+        "Runs a coverage baseline first and prioritizes untested or critical code paths",
+        "Skips trivial pass-through functions and pure getters/setters",
+        "Includes tests for the token-expiration and invalid-signature paths rather than skipping security-relevant paths for convenience",
+        "Presents a test plan for approval before generating tests"
+      ]
+    }
+  ]
+}

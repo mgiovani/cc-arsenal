@@ -1,0 +1,22 @@
+[
+  {"query": "implement a rate limiter for our API", "should_trigger": true},
+  {"query": "can you build a CSV export feature for the reports page", "should_trigger": true},
+  {"query": "add OAuth2 login to the app", "should_trigger": true},
+  {"query": "I need a new /api/webhooks endpoint that accepts POST and validates a signature", "should_trigger": true},
+  {"query": "let's add email verification to signup", "should_trigger": true},
+  {"query": "build out a dark mode toggle for the settings page", "should_trigger": true},
+  {"query": "add pagination to the users list endpoint", "should_trigger": true},
+  {"query": "ship a notification system for order updates", "should_trigger": true},
+  {"query": "create a new feature for bulk CSV import in the admin panel", "should_trigger": true},
+  {"query": "add multi-tenant support to the billing module", "should_trigger": true},
+  {"query": "there's a bug in the login flow, the token isn't refreshing", "should_trigger": false},
+  {"query": "refactor the payment module to reduce duplication", "should_trigger": false},
+  {"query": "write tests for the auth service", "should_trigger": false},
+  {"query": "review this PR for correctness and security issues", "should_trigger": false},
+  {"query": "explain how the current caching layer works", "should_trigger": false},
+  {"query": "what's the best practice for API rate limiting in 2026", "should_trigger": false},
+  {"query": "the CSV export button is broken, it downloads an empty file", "should_trigger": false},
+  {"query": "clean up the OAuth2 integration, it's got dead code everywhere", "should_trigger": false},
+  {"query": "generate a changelog for the last release", "should_trigger": false},
+  {"query": "set up CI to run tests on every PR", "should_trigger": false}
+]

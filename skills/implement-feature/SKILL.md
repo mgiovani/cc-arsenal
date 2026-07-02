@@ -1,7 +1,12 @@
 ---
 name: implement-feature
-description: Implement features with senior staff engineer best practices and parallel
-  subagents. Activates when users want to implement, build, or add new functionality.
+description: Implements a new feature end-to-end as a senior staff engineer would —
+  discovers project conventions, researches current best practices, drafts a plan for
+  approval, then builds it with parallel subagents that reuse existing code, skip
+  speculative abstractions, and verify with tests before completion. Use when the user
+  wants to implement, build, add, or ship new functionality (a feature, endpoint,
+  component, module, or integration) — not for fixing an existing bug (use fix-bug) or
+  restructuring code that already works (use refactor).
 disable-model-invocation: false
 argument-hint: "<feature_description>"
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, Task, TaskCreate, TaskUpdate, TaskList, TaskGet, WebFetch, EnterPlanMode, AskUserQuestion, ExitPlanMode
@@ -23,7 +28,30 @@ $ARGUMENTS
 3. **Verify tools exist** - Check for `Makefile`, `justfile`, `package.json`, `pyproject.toml`, etc.
 4. **Never guess test commands** - Find the actual test runner used by this project
 
-## Quality Gates
+## Lean Code
+
+Write the smallest change that fully does the job — and that the next person can change without fear. Two goals at once: minimal footprint, easy to change.
+
+**Before you add code**
+- **Does it already exist?** Search this codebase, the standard library, the framework, and installed dependencies before writing anything new. Reuse beats reimplementation.
+- **Does it need to exist?** Build only what a current, concrete requirement needs — no speculative flags, options, or extension points for a future that may never come.
+- **Is the abstraction earning its keep?** No interface with a single implementation, no factory for one product, no wrapper that only forwards. Add indirection when a second caller actually appears.
+
+**While you write it**
+- **Change it in one place.** Put logic where a future change touches one spot — fix the shared function once instead of guarding every caller.
+- **Smallest correct surface.** Prefer the change that reuses or deletes code over the one that adds it. Fewer files, shorter diff — as long as it stays complete.
+- **Read before you change.** Trace the real flow of the code you touch, end to end, first. A tiny diff written without understanding is a liability, not lean.
+
+**The line you never cross — lean, never negligent**
+"Only what the task needs" is about scope, not corner-cutting. Input/trust-boundary validation, error and data-loss handling, security, and accessibility are **always** in scope, however small the change. A version that drops one of these isn't leaner — it's unfinished.
+
+**When you deliberately simplify**
+Leave an auditable trail instead of a silent gap:
+`// LEAN-DEBT: <the limitation>. Upgrade when <the trigger>.`
+e.g. `// LEAN-DEBT: in-memory rate limit, single instance only. Upgrade to Redis when we run >1 replica.`
+A marker is for a shortcut you chose on purpose — never a license to skip the never-negligent line above.
+
+## Verification Gates
 
 Before marking an implementation complete, run these verification steps:
 
@@ -231,6 +259,7 @@ TaskUpdate: { taskId: "3", status: "in_progress" }
    - Define clear interfaces between components
    - Consider security implications
    - Plan test coverage strategy
+   - **Apply Lean Code to every proposed component**: for each one, note why it needs to exist (which concrete requirement drives it) and what it reuses (existing utility, library, framework feature) instead of adding new code. A component that can't answer "why does this need to exist" is a candidate to cut from the plan.
 3. **Get User Approval**: Exit plan mode only after user approves the plan
 
 **Step 2.3: Complete Phase 2**
@@ -294,14 +323,30 @@ Task tool call:
     Implement [specific task description].
 
     First, read the project's CLAUDE.md to understand conventions and patterns.
+    Then trace the real flow of the code you're about to touch, end to end —
+    a diff written without understanding the existing flow is a liability, not lean.
 
-    Requirements:
-    1. Follow existing codebase patterns and conventions
-    2. Apply SOLID, DRY, YAGNI principles
-    3. Write comprehensive tests (unit + integration where applicable)
-    4. All tests MUST pass before completion
-    5. Handle errors appropriately
-    6. Add necessary type definitions (if typed language)
+    Lean Code — write the smallest change that fully does the job:
+    1. Before adding anything new, search this codebase, the standard library, the
+       framework, and installed dependencies for something that already does it.
+       Reuse beats reimplementation.
+    2. Build only what this task concretely needs — no speculative flags, options,
+       or extension points, no interface/factory/wrapper for a single caller.
+    3. If a bug or gap is shared by multiple call sites, fix it once in the shared
+       function rather than patching every caller.
+    4. Follow existing codebase patterns and conventions.
+    5. Never cut the floor: input/trust-boundary validation, error and data-loss
+       handling, security, and accessibility stay in scope no matter how small the
+       change is. A version that drops one of these isn't leaner — it's unfinished.
+    6. If you deliberately simplify something (defer a real limitation rather than
+       skip the floor above), leave `// LEAN-DEBT: <limitation>. Upgrade when <trigger>.`
+       instead of a silent gap.
+    7. If the leanest correct solution differs from what was asked, implement what
+       was asked but flag the leaner alternative in your report — do not silently
+       substitute your own approach.
+    8. Write comprehensive tests (unit + integration where applicable). All tests
+       MUST pass before completion.
+    9. Add necessary type definitions (if typed language).
 
     Project-specific commands (discovered in Phase 0):
     - Test command: [INSERT DISCOVERED TEST COMMAND]
@@ -310,7 +355,8 @@ Task tool call:
     After implementation:
     1. Run the test suite to verify all tests pass
     2. Run linting to ensure code quality
-    3. Report back what was implemented (do NOT commit - the main agent will handle commits)
+    3. Report back what was implemented, any LEAN-DEBT markers left, and any leaner
+       alternative you flagged (do NOT commit - the main agent will handle commits)
 
     If tests fail, fix them before reporting completion.
     If you encounter ambiguous requirements, report back and ask for clarification instead of guessing.
@@ -419,16 +465,17 @@ If the feature has a UI component, use the `agent-browser` skill for browser aut
 - Test-only changes
 - CLI tools without UI
 
-## Quality Gates
+## Subagent Quality Checklist
 
-Each subagent MUST ensure:
-- [ ] All new code has tests
-- [ ] All tests pass
-- [ ] No linting errors
-- [ ] No type errors (if applicable)
+Each subagent's output should satisfy:
+- [ ] All new code has tests, and all tests pass
+- [ ] No linting errors, no type errors (if applicable)
 - [ ] Code follows existing patterns
 - [ ] Security best practices followed
-- [ ] No over-engineering (YAGNI)
+- [ ] Reuse checked first — no code that duplicates an existing utility, library, or framework feature
+- [ ] No unrequested abstractions — no interface/factory/wrapper introduced for a single caller
+- [ ] The never-negligent floor is intact: validation, error/data-loss handling, security, and accessibility were not trimmed for scope
+- [ ] Any deliberate shortcut carries a `LEAN-DEBT:` marker instead of a silent gap
 
 ## Error Handling
 

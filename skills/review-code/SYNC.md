@@ -2,11 +2,11 @@
 
 This file tracks the sync state of this skill with the upstream repository.
 
-**Upstream Commit**: `ce18c8e8bf085988d9cf5fc05636d2e8320541ba`
-**Sync Timestamp**: `2026-03-02T23:34:08.188755+00:00`
+**Upstream Commit**: `390ad2048dbc714d523a0e5ae6e9c33fcf172bbf`
+**Sync Timestamp**: `2026-07-02T18:18:47.524356+00:00`
 **Base Skill**: `skills-upstream/skills/review-code/SKILL.md`
-**Enhancement**: `None`
-**Has Enhancement**: `False`
+**Enhancement**: `enhancements/review-code/ENHANCEMENT.md`
+**Has Enhancement**: `True`
 
 ---
 

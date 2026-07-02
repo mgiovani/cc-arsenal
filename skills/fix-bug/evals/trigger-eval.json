@@ -1,0 +1,22 @@
+[
+  {"query": "the login page throws a 500 error when I submit an empty password", "should_trigger": true},
+  {"query": "users can bypass the discount code expiration, can you fix that", "should_trigger": true},
+  {"query": "why does /api/users/:id return the wrong status code, can you fix it", "should_trigger": true},
+  {"query": "there's a bug in the payment retry logic, it's double-charging customers", "should_trigger": true},
+  {"query": "the CSV export downloads an empty file when there are more than 10k rows, please fix", "should_trigger": true},
+  {"query": "test_user_login is failing on main, can you debug it", "should_trigger": true},
+  {"query": "the app crashes when I click submit twice quickly, fix the race condition", "should_trigger": true},
+  {"query": "investigate why the cache is returning stale data", "should_trigger": true},
+  {"query": "resolve the timeout error happening in the webhook handler", "should_trigger": true},
+  {"query": "the date picker shows the wrong month in Safari, can you fix that", "should_trigger": true},
+  {"query": "add a rate limiter to the /api/upload endpoint", "should_trigger": false},
+  {"query": "refactor the payment module to remove duplication", "should_trigger": false},
+  {"query": "write tests for the discount code expiration logic", "should_trigger": false},
+  {"query": "review this PR before I merge it", "should_trigger": false},
+  {"query": "explain how the retry logic in the payment module works", "should_trigger": false},
+  {"query": "the payment module needs better logging, can you add that", "should_trigger": false},
+  {"query": "simplify the nested conditionals in the checkout flow", "should_trigger": false},
+  {"query": "increase test coverage for the webhook handler", "should_trigger": false},
+  {"query": "set up a GitHub Actions workflow for CI", "should_trigger": false},
+  {"query": "write a conventional commit message for these changes", "should_trigger": false}
+]

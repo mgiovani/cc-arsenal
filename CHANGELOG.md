@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Lean Code discipline**: Added a shared "lean, never negligent" checklist to the 5 dev skills (`implement-feature`, `fix-bug`, `refactor`, `test-suite`, `review-code`) — write the smallest change that fully does the job without ever cutting validation, error/data-loss handling, security, or accessibility. Deliberate shortcuts are marked inline with `LEAN-DEBT:` instead of left as a silent gap.
+  - **implement-feature**: Full `## Lean Code` section, a Phase 2 planning hook, and propagation into the Step 3.3 parallel-subagent prompt template so implementation subagents apply the discipline directly. Also deduplicated the two conflicting `## Quality Gates` headers into `## Verification Gates` and `## Subagent Quality Checklist`.
+  - **review-code**: New `enhancements/review-code/ENHANCEMENT.md` adds a 6th parallel "Simplicity & Over-Engineering" specialist (`OE-` findings, tags `[delete]/[reuse]/[stdlib]/[builtin]/[unneeded]/[simplify]`) with a static, non-benchmark lines-removable count and an explicit ban on fabricated performance/token/percentage savings claims.
+  - **fix-bug**, **refactor**, **test-suite**: Light-touch deltas — never-negligent floor callouts, deletion-over-addition and root-cause-once-in-the-shared-function guidance, and lean test-coverage guidance (test behavior and boundaries, not trivial getters or coverage-only snapshots).
+- **Skill evals**: Added `evals/evals.json` (task assertions) and `evals/trigger-eval.json` (~20 queries each, with realistic near-miss negatives) for the 5 dev skills, converging on the schema `create-skill`'s `quick_validate.py`/`run_eval.py` already support. Tightened each skill's `description` frontmatter to be active, concrete, and explicit about "use when" contexts, since Claude tends to undertrigger vague descriptions.
+
+### Removed
+- **forge suite**: Removed the 7 abandoned `forge-*` skills (`forge-brief`, `forge-architect`, `forge-story`, `forge-dev`, `forge-qa`, `forge-review`, `forge-security`) and their enhancements. No other skill, doc, or plugin variant referenced them.
+
 ## [3.2.0] - 2026-02-16
 
 ### Added

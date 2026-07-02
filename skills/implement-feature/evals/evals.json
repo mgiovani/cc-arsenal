@@ -1,0 +1,36 @@
+{
+  "skill": "implement-feature",
+  "evals": [
+    {
+      "id": "rate-limiter-single-instance",
+      "prompt": "/implement-feature Add a rate limiter for the /api/upload endpoint, single-instance deployment",
+      "assertions": [
+        "Searches the codebase for an existing rate-limiting utility or middleware before writing new code",
+        "Does not introduce a RateLimiter interface or factory for a single concrete implementation",
+        "Adds input validation and returns an appropriate error response for invalid input",
+        "If the implementation is in-memory and single-instance only, leaves a LEAN-DEBT marker naming the upgrade trigger (e.g. running more than one replica)",
+        "The plan produced in Phase 2 states why each proposed component needs to exist before implementation begins"
+      ]
+    },
+    {
+      "id": "csv-export-button",
+      "prompt": "/implement-feature Add a CSV export button to the reports page",
+      "assertions": [
+        "Reuses an existing export, download, or serialization utility already present in the codebase rather than writing a new CSV serializer from scratch",
+        "Does not add configurable export-format options that were not requested",
+        "Validates the dataset before exporting and handles the empty-data case",
+        "The subagent report notes any LEAN-DEBT shortcuts taken"
+      ]
+    },
+    {
+      "id": "email-verification-signup",
+      "prompt": "/implement-feature Add email verification to user signup",
+      "assertions": [
+        "Validates email format and handles token-expiration and invalid-token error paths",
+        "Does not build a generic pluggable notification-provider abstraction for a single email provider",
+        "Reuses an existing mail-sending utility if one already exists in the codebase",
+        "The plan documents why each new component (token generator, verification endpoint, email template) needs to exist"
+      ]
+    }
+  ]
+}

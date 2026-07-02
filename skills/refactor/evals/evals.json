@@ -1,0 +1,34 @@
+{
+  "skill": "refactor",
+  "evals": [
+    {
+      "id": "consolidate-duplicated-validation",
+      "prompt": "/refactor Extract the duplicated validation logic in OrderService and PaymentService into one place",
+      "assertions": [
+        "Runs the full test suite before making any change to establish a baseline",
+        "Consolidates the duplicated logic into a single shared function or module and deletes the duplicated copies, rather than adding a new abstraction layer on top of both",
+        "The full test suite passes and matches the baseline after each incremental step",
+        "No validation or error-handling branch is dropped in the process"
+      ]
+    },
+    {
+      "id": "simplify-nested-conditionals",
+      "prompt": "/refactor Simplify the deeply nested conditionals in calculateShipping",
+      "assertions": [
+        "Maps callers and existing test coverage for calculateShipping before changing it",
+        "Adds characterization tests first if coverage is insufficient",
+        "Simplifies structure only — behavior and edge cases, including error paths, are unchanged",
+        "The diff is reviewed to confirm no debug code or unrelated changes were introduced"
+      ]
+    },
+    {
+      "id": "rename-class-update-callers",
+      "prompt": "/refactor Rename the legacy UserMgr class to UserManager and update all callers",
+      "assertions": [
+        "Finds all callers via Grep before renaming, including dynamic or string-based references",
+        "The old name is fully removed once all callers are migrated, rather than keeping both names indefinitely",
+        "Tests pass after each incremental step"
+      ]
+    }
+  ]
+}

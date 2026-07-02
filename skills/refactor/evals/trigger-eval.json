@@ -1,0 +1,22 @@
+[
+  {"query": "refactor the payment module to reduce duplication", "should_trigger": true},
+  {"query": "extract the duplicated validation logic in OrderService and PaymentService", "should_trigger": true},
+  {"query": "simplify the deeply nested conditionals in calculateShipping", "should_trigger": true},
+  {"query": "rename UserMgr to UserManager and update all the call sites", "should_trigger": true},
+  {"query": "clean up the OAuth2 integration, it's got a lot of dead code", "should_trigger": true},
+  {"query": "restructure the auth module so it's easier to follow", "should_trigger": true},
+  {"query": "extract this long function into smaller methods", "should_trigger": true},
+  {"query": "reduce the duplication between the two export pipelines", "should_trigger": true},
+  {"query": "improve the naming in the billing module without changing behavior", "should_trigger": true},
+  {"query": "move the date-formatting helpers out of utils.ts into their own file", "should_trigger": true},
+  {"query": "add a rate limiter to the /api/upload endpoint", "should_trigger": false},
+  {"query": "the CSV export downloads an empty file, please fix it", "should_trigger": false},
+  {"query": "write tests for the billing module", "should_trigger": false},
+  {"query": "review this diff for style issues before I open the PR", "should_trigger": false},
+  {"query": "why is calculateShipping returning the wrong total for international orders", "should_trigger": false},
+  {"query": "add OAuth2 login support", "should_trigger": false},
+  {"query": "explain how the export pipeline works", "should_trigger": false},
+  {"query": "set up a linter config for this project", "should_trigger": false},
+  {"query": "generate a changelog entry for this release", "should_trigger": false},
+  {"query": "what's the best way to structure a Python monorepo in 2026", "should_trigger": false}
+]

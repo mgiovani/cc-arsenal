@@ -1,0 +1,22 @@
+[
+  {"query": "review this PR for correctness and style issues", "should_trigger": true},
+  {"query": "can you do a thorough code review of the changes on this branch", "should_trigger": true},
+  {"query": "review commit abc123 before I merge it", "should_trigger": true},
+  {"query": "review the whole codebase and flag over-engineered code", "should_trigger": true},
+  {"query": "check this diff for bugs and simplification opportunities", "should_trigger": true},
+  {"query": "give me a comprehensive review of PR #456", "should_trigger": true},
+  {"query": "review this code for test coverage gaps and error handling", "should_trigger": true},
+  {"query": "flag anything over-engineered in src/billing/", "should_trigger": true},
+  {"query": "do a code review focused on performance", "should_trigger": true},
+  {"query": "review my changes before I open the PR", "should_trigger": true},
+  {"query": "review this design mock for accessibility issues", "should_trigger": false},
+  {"query": "run a security audit on this codebase", "should_trigger": false},
+  {"query": "check for outdated or vulnerable dependencies", "should_trigger": false},
+  {"query": "profile this endpoint and tell me where the bottleneck is", "should_trigger": false},
+  {"query": "fix the bug this review found in checkout.py", "should_trigger": false},
+  {"query": "refactor the module this review flagged as too complex", "should_trigger": false},
+  {"query": "write tests for the coverage gaps this review found", "should_trigger": false},
+  {"query": "explain what this function does", "should_trigger": false},
+  {"query": "write a commit message summarizing these changes", "should_trigger": false},
+  {"query": "review the wireframes for the new onboarding flow", "should_trigger": false}
+]
