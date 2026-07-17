@@ -1,0 +1,22 @@
+[
+  { "query": "draw an ER diagram of the users and orders tables", "should_trigger": true },
+  { "query": "show me the architecture of this system", "should_trigger": true },
+  { "query": "diagram the deployment setup with Docker and Kubernetes", "should_trigger": true },
+  { "query": "visualize the security data flow for our auth service", "should_trigger": true },
+  { "query": "generate a system diagram for this codebase", "should_trigger": true },
+  { "query": "can you create a mermaid architecture diagram from the code", "should_trigger": true },
+  { "query": "I need an ER diagram generated from our Prisma schema", "should_trigger": true },
+  { "query": "docs-diagram arch", "should_trigger": true },
+  { "query": "make a diagram showing how our services talk to each other", "should_trigger": true },
+  { "query": "produce a security architecture diagram showing our trust boundaries", "should_trigger": true },
+  { "query": "set up the initial docs/ folder structure for this project", "should_trigger": false },
+  { "query": "sync our architecture doc with the latest code changes", "should_trigger": false },
+  { "query": "write an ADR for choosing Postgres over MongoDB", "should_trigger": false },
+  { "query": "update the README to reflect the new API endpoints", "should_trigger": false },
+  { "query": "initialize documentation for this new repo", "should_trigger": false },
+  { "query": "record the decision to switch to microservices in an ADR", "should_trigger": false },
+  { "query": "check if our docs are still accurate compared to the code", "should_trigger": false },
+  { "query": "review the UX design of our onboarding flow", "should_trigger": false },
+  { "query": "break this project into a task plan with dependencies", "should_trigger": false },
+  { "query": "create an RFC proposing the new caching strategy", "should_trigger": false }
+]

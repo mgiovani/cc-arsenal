@@ -1,0 +1,48 @@
+{
+  "skill": "docs-init",
+  "evals": [
+    {
+      "id": "fresh-repo-full-detection",
+      "prompt": "/docs-init for this FastAPI + PostgreSQL service. There's no docs/ directory yet — a Dockerfile, a GitHub Actions workflow, and SQLAlchemy models under app/models/ all exist in the repo.",
+      "assertions": [
+        "Explores the codebase (via Task/Explore or inline grep+find+read) before writing any documentation file",
+        "Creates docs/architecture.md, docs/onboarding.md, and docs/adr/0001-record-architecture-decisions.md",
+        "Creates docs/data-model.md because a database/ORM was detected, and docs/deployment.md plus docs/security.md because deployment configs were detected",
+        "Every generated file contains zero unresolved {{TOKEN}}-style placeholders",
+        "Technology stack, entity names, and other specifics named in the docs are traceable to files actually read in this run, not invented",
+        "The security.md Compliance section is either filled with real evidence found in the code or removed entirely — never left as a generic GDPR/HIPAA/SOX boilerplate paragraph with no basis in the code"
+      ]
+    },
+    {
+      "id": "minimal-library-no-db-no-infra",
+      "prompt": "/docs-init for this small Python library — it's just a pip-installable package with no database, no Dockerfile, no CI config, and a single maintainer.",
+      "assertions": [
+        "Creates docs/architecture.md, docs/onboarding.md, and docs/adr/0001-record-architecture-decisions.md",
+        "Does NOT create docs/data-model.md, since no database or ORM was found",
+        "Does NOT create docs/deployment.md or docs/security.md, since no deployment/infra config was found",
+        "The final report explicitly states these files were skipped and why (no evidence), not silently omitted",
+        "No file contains a fabricated database schema, deployment pipeline, or compliance claim for infrastructure that doesn't exist"
+      ]
+    },
+    {
+      "id": "partial-existing-docs-skip-behavior",
+      "prompt": "/docs-init — this repo already has docs/architecture.md (written by a teammate) but is missing onboarding, data-model, and contributing docs.",
+      "assertions": [
+        "Does not overwrite or modify the existing docs/architecture.md content",
+        "Creates the missing docs (onboarding, data-model if a database is present, contributing) without being asked twice",
+        "The final report lists docs/architecture.md under 'skipped (already exists)' and lists the newly created files separately",
+        "No confirmation prompt is raised for files that did not previously exist — only pre-existing files trigger the overwrite question"
+      ]
+    },
+    {
+      "id": "all-docs-already-exist-refusal",
+      "prompt": "/docs-init on a repo where docs/architecture.md, docs/onboarding.md, docs/data-model.md, docs/deployment.md, docs/security.md, and docs/contributing.md all already exist.",
+      "assertions": [
+        "Does not write, overwrite, or delete any file under docs/ in this run",
+        "No mutating command (Write/Edit to any docs/ file) is executed before user confirmation is obtained",
+        "The final response clearly states that all target docs already exist and asks the user whether to overwrite any of them, rather than proceeding silently or guessing an answer",
+        "The final response does not fabricate a 'Created:' list — it accurately reports zero files created"
+      ]
+    }
+  ]
+}

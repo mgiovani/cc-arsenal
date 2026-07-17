@@ -1,13 +1,14 @@
 ---
 name: docs-rfc
-description: Create a numbered RFC (Request For Comments) document proposing and
-  documenting a change, using minimal/standard/detailed templates. Use when the user
-  asks to write a proposal, draft an RFC, or formally document a proposed change
-  before implementation. Not for recording a decision already made (use docs-adr
-  for that) — RFCs propose, ADRs record.
+description: Create a numbered RFC (Request For Comments) document proposing a
+  change and opening it for team discussion, using minimal/standard/detailed
+  templates. Trigger on "write an RFC", "draft a proposal for X", "document this
+  change before we build it", or "get feedback on this design". Not for recording
+  a decision that's already made (use docs-adr) — RFCs propose and stay open for
+  discussion, ADRs record a choice that happened.
 metadata:
   author: mgiovani
-  version: 1.0.0
+  version: 1.1.0
 disable-model-invocation: true
 argument-hint: <title> [variant]
 allowed-tools: Read, Write, Grep, Glob, Bash(git *), Task
@@ -15,7 +16,7 @@ allowed-tools: Read, Write, Grep, Glob, Bash(git *), Task
 
 # Create Request For Comments
 
-Create a new RFC document for proposing and discussing a change.
+Create a new RFC document proposing and discussing a change.
 
 ## Anti-Hallucination Guidelines
 
@@ -28,15 +29,21 @@ RFCs propose changes to real systems, so ground every claim before writing:
 
 ## Workflow
 
-### Phase 1: Explore Current State
+### Phase 1: Explore and Gather Context
 
-Use the Explore agent to understand the codebase before writing anything:
+Understand the codebase before writing anything. If the Task tool is available,
+use the Explore agent:
 
 ```
 Use Task tool with Explore agent:
 - prompt: "Analyze the codebase to understand [RFC_TOPIC]. Find: 1) Current implementation patterns, 2) Related components and their interactions, 3) Existing similar features, 4) Technical constraints. Return verified findings with file paths."
 - subagent_type: "Explore"
 ```
+
+No Task tool available — explore directly with `grep`/`glob`/`read` before writing,
+covering the same four questions (current patterns, related components, existing
+similar features, technical constraints). Either way, keep what you find: it feeds
+the Background and Detailed Design sections in Phase 6.
 
 ### Phase 2: Parse Arguments
 
@@ -56,30 +63,11 @@ Use Task tool with Explore agent:
 Convert the title to kebab-case, lowercase, special characters stripped.
 Example: "Add GraphQL API Support" -> `add-graphql-api-support`
 
-### Phase 5: Gather Context
-
-Analyze the codebase to identify relevant files, patterns, similar implementations,
-and technical constraints. Useful searches:
-
-```bash
-# API changes
-find . -name "*router*" -o -name "*controller*" -o -name "*api*" | head -10
-
-# Feature additions
-grep -r "export.*function\|export.*class" --include="*.ts" --include="*.js" . | head -20
-
-# Infrastructure changes
-find . -name "*.yml" -o -name "*.yaml" -o -name "Dockerfile" | head -10
-
-# Performance changes
-grep -r "cache\|redis\|memcache\|performance" --include="*.py" --include="*.ts" . | head -15
-```
-
-### Phase 6: Get Author Information
+### Phase 5: Get Author Information
 
 Run `git config user.name`, falling back to `"Development Team"` if empty.
 
-### Phase 7: Load and Populate Template
+### Phase 6: Load and Populate Template
 
 Template location: `assets/templates/` — select based on variant:
 
@@ -87,20 +75,19 @@ Template location: `assets/templates/` — select based on variant:
 - `standard` -> `standard.md` (default) — adds Rationale and Alternatives, Implementation Plan, Testing Plan, Migration Strategy, Timeline. Use for most feature proposals.
 - `detailed` -> `detailed.md` — full set including Goals/Non-Goals, Security Considerations, Performance Implications, Monitoring and Metrics. Use for major/architectural changes.
 
-Replace placeholders:
-- `{{RFC_NUMBER}}` — 4-digit number
-- `{{RFC_TITLE}}` — original title (Title Case)
-- `{{DATE}}` — current date (YYYY-MM-DD)
-- `{{AUTHOR}}` — git user name or "Development Team"
-- `{{CONTEXT}}` — gathered context from codebase
-- `{{PROJECT_NAME}}` — git repo or directory name
+Draft real content for every `{{PLACEHOLDER}}` present in the selected template —
+each variant has its own set (metadata fields, body sections, risk tables,
+alternatives, review history, and so on). Base each one on the Phase 1 findings
+or on explicit reasoning about the proposal; never leave a placeholder token
+literally in the output. The written RFC must contain zero unresolved
+`{{...}}` tokens.
 
-### Phase 8: Create RFC File
+### Phase 7: Create RFC File
 
 - Filename: `docs/rfc/RFC-XXXX-kebab-case-title.md`
 - Ensure `docs/rfc/` exists, write populated content, set status to "Draft"
 
-### Phase 9: Report Creation
+### Phase 8: Report Creation
 
 Show the RFC number, title, file path, and next-step guidance (share for feedback,
 update status as it progresses).

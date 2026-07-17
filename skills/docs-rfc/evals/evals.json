@@ -1,0 +1,38 @@
+{
+  "skill": "docs-rfc",
+  "evals": [
+    {
+      "id": "graphql-api-support-default-variant",
+      "prompt": "/docs-rfc \"Add GraphQL API Support\"",
+      "assertions": [
+        "Explores the codebase (Task/Explore agent, or direct grep/glob/read if no Task tool) to verify current API patterns before writing the Background/Detailed Design sections, rather than inventing them",
+        "Creates the file at docs/rfc/RFC-XXXX-add-graphql-api-support.md with a 4-digit number one higher than the highest existing RFC-XXXX-*.md file (0001 if none exist)",
+        "Defaults to the standard template variant since no variant keyword was given",
+        "Every {{PLACEHOLDER}} token in the standard template is replaced with drafted content — zero literal {{...}} tokens remain in the written file",
+        "Sets the initial Status field to \"Draft\"",
+        "Reports the RFC number, title, and file path back to the user"
+      ]
+    },
+    {
+      "id": "microservices-migration-detailed-variant",
+      "prompt": "/docs-rfc detailed \"Migration to Microservices Architecture\"",
+      "assertions": [
+        "Strips the \"detailed\" keyword out of the title before generating the filename and RFC title",
+        "Uses the detailed template variant (the one with Goals/Non-Goals, Security Considerations, Performance Implications, Monitoring and Metrics, Risk Assessment table, and multiple Alternatives Considered subsections), not standard or minimal",
+        "Drafts real content for every placeholder including the repeated ones (e.g. each {{RISK_n}}/{{PROB_n}}/{{IMPACT_n}}/{{MITIGATION_n}} row, each {{ALT_n_...}} alternative block) — none are left as literal template tokens",
+        "Alternatives and risks reflect the actual proposal (grounded in codebase findings or explicit reasoning), not generic filler text unrelated to a microservices migration",
+        "Filename is kebab-case: docs/rfc/RFC-XXXX-migration-to-microservices-architecture.md"
+      ]
+    },
+    {
+      "id": "decision-already-made-redirect-to-adr",
+      "prompt": "We already decided to use Redis for session storage last week and the team signed off — can you write up an RFC documenting that decision?",
+      "assertions": [
+        "Recognizes this describes a decision already made, not a proposal open for discussion, and does not proceed with the docs-rfc workflow",
+        "The final response tells the user this is a job for docs-adr instead of docs-rfc, explaining the propose-vs-record distinction",
+        "No file is created under docs/rfc/ and no write/edit tool call happens — the run stops at the redirect with no mutating command executed",
+        "Does not fabricate a Redis RFC's content on the way to the redirect"
+      ]
+    }
+  ]
+}

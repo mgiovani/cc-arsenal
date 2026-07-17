@@ -5,33 +5,41 @@
       "id": "database-migration-strategy-default",
       "prompt": "/docs-adr \"Database Migration Strategy\"",
       "assertions": [
-        "Uses the Explore agent (or equivalent codebase search) to verify current database/migration setup before writing the Context section, rather than inventing it",
-        "Creates the file at docs/adr/XXXX-database-migration-strategy.md with a 4-digit ADR number one higher than the highest existing ADR (0001 if none exist)",
-        "Defaults to the Nygard template with Status, Context, Decision, and Consequences sections since no variant keyword was given",
-        "Sets the initial Status to \"Proposed\"",
-        "Reports the ADR number and file path back to the user"
+        "Uses the Explore agent (or, when Task isn't available, direct grep/find searches) to verify the current database/migration setup before writing the Context section, rather than inventing it",
+        "Creates the file at docs/adr/XXXX-database-migration-strategy.md with a 4-digit ADR number one higher than the highest existing docs/adr/XXXX-*.md file (0001 if none exist)",
+        "Defaults to the Nygard template (Status, Context, Decision, Consequences sections) since no variant keyword was given",
+        "Fills every {{TOKEN}} the loaded nygard.md template actually contains (ADR_NUMBER, ADR_TITLE, DATE, CONTEXT) and leaves zero unresolved {{...}} placeholders in the written file",
+        "Sets the initial Status to \"Proposed\" and reports the ADR number and file path back to the user"
       ]
     },
     {
-      "id": "redis-session-storage-lightweight-variant",
-      "prompt": "/docs-adr lightweight \"Use Redis for Session Storage\"",
+      "id": "title-contains-variant-lookalike-word",
+      "prompt": "/docs-adr \"Full-Text Search Implementation for Product Catalog\"",
       "assertions": [
-        "Strips the \"lightweight\" keyword out of the title before generating the filename and ADR title",
-        "Verifies Redis (or an equivalent session-storage mechanism) is actually referenced in the codebase before claiming it as the decision, not assumed",
-        "Uses the lightweight template variant containing only Status, Decision, and Rationale sections (no Context/Consequences)",
-        "Filename is kebab-case: docs/adr/XXXX-use-redis-for-session-storage.md",
-        "Does not invent file paths or code snippets that were not actually found in the repo"
+        "Recognizes that \"full\" here is part of the phrase \"Full-Text Search\", not a standalone variant keyword, since it isn't a separate leading token — correctly defaults to the Nygard template rather than misfiring the full variant",
+        "Preserves \"Full-Text Search Implementation for Product Catalog\" intact as the ADR title and in the kebab-case filename (docs/adr/XXXX-full-text-search-implementation-for-product-catalog.md), not stripped of \"full\"",
+        "Does not fabricate a search-implementation approach that isn't backed by anything found in the codebase during context gathering"
       ]
     },
     {
       "id": "event-driven-architecture-full-variant",
       "prompt": "/docs-adr full \"Adopt Event-Driven Architecture\"",
       "assertions": [
-        "Uses the full template variant with Decision Drivers, Considered Options, and Pros/Cons sections in addition to Status, Context, Decision, and Consequences",
-        "Consequences are split into Positive, Negative, and Neutral subsections as specified for the full variant",
-        "Gathers and cites real context (existing messaging/event code, configs, or docs found via search) rather than generic boilerplate",
-        "ADR number increments correctly from the highest existing docs/adr/XXXX-*.md file",
-        "Includes alternatives/considered options that were actually evaluated, not fabricated ones"
+        "Strips the leading \"full\" variant keyword and uses \"Adopt Event-Driven Architecture\" as the title",
+        "Uses the full.md template and fills its actual token set (e.g. AUTHORS, STAKEHOLDERS, PROBLEM_STATEMENT, OPTION_1_NAME/OPTION_2_NAME, POSITIVE_CONSEQUENCES/NEGATIVE_CONSEQUENCES/NEUTRAL_CONSEQUENCES) rather than the shorter Nygard token set",
+        "Consequences are split into Positive, Negative, and Neutral subsections as the full template defines",
+        "Gathers and cites real context (existing messaging/event code, configs, or docs actually found via search) rather than generic boilerplate options",
+        "ADR number increments correctly from the highest existing docs/adr/XXXX-*.md file"
+      ]
+    },
+    {
+      "id": "missing-title-argument",
+      "prompt": "/docs-adr",
+      "assertions": [
+        "Does not invent a placeholder decision title (e.g. \"Untitled Decision\") and does not create any file under docs/adr/",
+        "Does not run the ADR-numbering scan, context gathering, or template population phases — stops before Phase 1 completes",
+        "Final response asks the user to supply a decision title (and optionally which variant) rather than guessing one",
+        "No Write tool call occurs anywhere in the transcript for this run"
       ]
     }
   ]

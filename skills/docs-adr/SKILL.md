@@ -3,11 +3,12 @@ name: docs-adr
 description: Create a numbered Architecture Decision Record (ADR) documenting a technical
   decision with context, alternatives, and consequences. Trigger on "create an ADR",
   "document this architectural decision", "record why we chose X", or "write an ADR
-  for [decision]". Use docs-rfc instead when the decision is still open for discussion;
-  use docs-adr once a choice has actually been made and needs a permanent record.
+  for [decision]". Not for a decision still open for discussion (use docs-rfc — RFCs
+  propose, ADRs record) and not for bootstrapping a project's whole docs/ tree from
+  scratch (use docs-init).
 metadata:
   author: mgiovani
-  version: 1.0.0
+  version: 1.1.0
 disable-model-invocation: true
 argument-hint: <title> [variant]
 allowed-tools: Read, Write, Grep, Glob, Task
@@ -21,174 +22,117 @@ Create a new Architecture Decision Record (ADR) documenting an architectural dec
 
 ## Anti-Hallucination Guidelines
 
-ADRs document REAL decisions about REAL code. Before writing:
-1. **Verify the technology exists** - If ADR mentions "Redis", confirm Redis is actually used
-2. **Reference actual files** - Do not invent file paths; grep/glob to find real ones
-3. **Quote real code** - If mentioning a pattern, find an actual example
-4. **Check current state** - The "Context" section must reflect verified reality
+ADRs document real decisions about real code — every claim in the ADR must be verifiable
+in the repo, not assumed. Before writing:
+
+1. **Verify the technology exists** — if the ADR mentions "Redis", confirm Redis is
+   actually used somewhere in the codebase.
+2. **Reference actual files** — grep/glob to find real file paths; never invent one.
+3. **Quote real code** — if citing a pattern, find an actual example of it.
+4. **Check current state** — the Context section must reflect verified reality, not a
+   plausible-sounding guess.
 
 ## Workflow
 
-### Phase 1: Explore Context
+### Phase 1: Parse Arguments
 
-Before writing an ADR, use the Explore agent to understand the relevant codebase context:
+1. Extract the decision title from the command arguments. If no title was given, stop
+   here and ask the user for one (and optionally which variant) — don't invent a
+   placeholder title or proceed to the later phases.
+2. Check for a variant keyword as the leading token: `lightweight`, `full`, or `nygard`.
+   A matching word inside the title itself (e.g. "Full-Text Search") is not a variant
+   keyword — only strip it when it's a standalone token preceding the title.
+3. If a variant keyword is found, strip it from the title.
+4. Default variant: `nygard`.
 
-```
-Use Task tool with Explore agent:
-- prompt: "Search for code related to [DECISION_TOPIC]. Find: 1) Current implementation if any, 2) Related configuration files, 3) Dependencies involved, 4) Any existing documentation. Return verified file paths and relevant code snippets."
-- subagent_type: "Explore"
-```
+### Phase 2: Determine ADR Number
 
-### Phase 2: Parse Arguments
+- Scan `docs/adr/` for files matching `XXXX-*`.
+- Find the highest existing number and increment by 1 (start at `0001` if none exist).
+- Format as a 4-digit zero-padded number (e.g. `0001`, `0023`).
 
-1. Extract decision title from the command arguments
-2. Check for variant keyword: `lightweight`, `full`, or `nygard`
-3. If variant found, remove it from title
-4. Default variant: `nygard` (Nygard style)
+### Phase 3: Sanitize Title for Filename
 
-### Phase 3: Determine ADR Number
+Convert the title to kebab-case, lowercase, special characters stripped.
+Example: "Use Redis for Caching" -> `use-redis-for-caching`.
 
-- Scan `docs/adr/` directory
-- Find highest existing ADR number (format: `XXXX-*`)
-- Increment by 1
-- If no ADRs exist, start with `0001`
-- Format as 4-digit padded number (e.g., `0001`, `0023`)
+### Phase 4: Gather Context
 
-### Phase 4: Sanitize Title for Filename
+Use the Task tool with the Explore agent, when available, to search the codebase for
+the decision topic: current implementation (if any), related config files, dependencies
+involved, and existing documentation. Ask it to return verified file paths and relevant
+snippets, not summaries it can't back up.
 
-- Convert title to kebab-case
-- Remove special characters
-- Lowercase all letters
-- Example: "Use Redis for Caching" -> `use-redis-for-caching`
+If the Task tool isn't available, run the equivalent searches directly instead —
+e.g. `grep -rn "<topic>"` across source files, `find . -name "*.config.*"` or
+`docker-compose.yml` for infra-flavored decisions, `find . -name "*schema*" -o -name
+"*models*"` for data-layer decisions. Either path, only include context you actually
+found; an ADR with no verifiable context is a red flag, not something to pad with
+plausible-sounding filler.
 
-### Phase 5: Gather Context
+### Phase 5: Load and Populate Template
 
-- Search codebase for relevant information about the decision topic
-- Look for related code, configs, or documentation
-- Understand current state and alternatives
-- Keep context concise but informative
+- Templates live in `assets/templates/`: `nygard.md` (default), `lightweight.md`, `full.md`.
+- Load the selected template and grep it for every `{{TOKEN}}` placeholder it actually
+  contains — the three templates use different token sets (e.g. nygard has `{{CONTEXT}}`;
+  lightweight has `{{PROBLEM}}`, `{{DECISION}}`, `{{ALTERNATIVES}}`, `{{CONSEQUENCES}}`,
+  `{{NOTES}}`; full has a longer set including `{{AUTHORS}}`, `{{STAKEHOLDERS}}`,
+  `{{OPTION_1_NAME}}`, etc.). Don't assume a fixed list — fill whatever the loaded
+  template actually contains.
+- `{{ADR_NUMBER}}`, `{{ADR_TITLE}}`, and `{{DATE}}` (YYYY-MM-DD) appear in all three;
+  fill those from Phases 1-3 regardless of variant.
+- After substitution, scan the rendered output for any leftover `{{...}}` — zero
+  unresolved tokens before writing the file.
 
-### Phase 6: Load and Populate Template
+### Phase 6: Create ADR File
 
-- Template location: `assets/templates/`
-- Select based on variant:
-  - `nygard` -> `nygard.md` (default)
-  - `lightweight` -> `lightweight.md`
-  - `full` -> `full.md`
+- Filename: `docs/adr/XXXX-kebab-case-title.md`.
+- Create `docs/adr/` if it doesn't exist.
+- Write the populated content with initial Status set to "Proposed".
 
-Replace placeholders:
-- `{{ADR_NUMBER}}` - 4-digit number
-- `{{ADR_TITLE}}` - Original title (Title Case)
-- `{{DATE}}` - Current date (YYYY-MM-DD)
-- `{{CONTEXT}}` - Gathered context from codebase
-- `{{PROJECT_NAME}}` - Git repo or directory name
+### Phase 7: Report Creation
 
-### Phase 7: Create ADR File
-
-- Filename: `docs/adr/XXXX-kebab-case-title.md`
-- Ensure `docs/adr/` directory exists
-- Write populated content
-- Set initial status to "Proposed"
-
-### Phase 8: Report Creation
-
-- Show ADR number and title
-- Display file path
-- Provide next steps
+Report the ADR number, title, and file path, plus next steps (e.g. review with the team,
+flip Status to Accepted once approved).
 
 ## Template Variants
 
-### Nygard Style (Default)
-Michael Nygard's ADR format - concise and focused.
-
-**Sections:** Title with number, Status, Context, Decision, Consequences
-
-**Use when:** Most decisions, balanced detail
-
-### Lightweight
-Minimal ADR for quick decisions.
-
-**Sections:** Title with number, Status, Decision, Rationale
-
-**Use when:** Simple, straightforward decisions
-
-### Full
-Comprehensive ADR with detailed sections.
-
-**Sections:** Title with number, Status, Context, Decision Drivers, Considered Options, Decision, Consequences (Positive, Negative, Neutral), Pros and Cons, Related Decisions, References
-
-**Use when:** Complex, high-impact decisions
+| Variant | Sections | Use when |
+|---|---|---|
+| **nygard** (default) | Status, Context, Decision, Consequences | Most decisions, balanced detail |
+| **lightweight** | Status, Decision, Rationale | Simple, straightforward decisions |
+| **full** | Status, Context, Decision Drivers, Considered Options, Decision, Consequences (Positive/Negative/Neutral), Pros and Cons, Related Decisions, References | Complex, high-impact decisions |
 
 ## Usage Examples
 
-Basic ADR creation (uses Nygard template):
 ```
 docs-adr "Database Migration Strategy"
-docs-adr "API Authentication Approach"
-docs-adr "Microservices Communication Pattern"
 ```
+-> `docs/adr/0004-database-migration-strategy.md` (nygard, next available number).
 
-With template variant override:
 ```
 docs-adr lightweight "Use Redis for Session Storage"
+```
+-> strips "lightweight", verifies Redis is actually referenced in the repo, writes
+`docs/adr/0005-use-redis-for-session-storage.md` with just Status/Decision/Rationale.
+
+```
 docs-adr full "Adopt Event-Driven Architecture"
 ```
+-> writes the full variant with Considered Options and split Consequences, citing real
+messaging/event code found during context gathering.
 
-## ADR Numbering
+## ADR Numbering & Status Lifecycle
 
-- **First ADR**: `0001-record-architecture-decisions.md` (meta-ADR)
-- **Subsequent ADRs**: Auto-incremented (0002, 0003, etc.)
-- **Format**: `XXXX-kebab-case-title.md`
+- First ADR is conventionally `0001-record-architecture-decisions.md` (meta-ADR);
+  subsequent ones auto-increment.
+- Status progresses: **Proposed** (default on creation) -> **Accepted** ->
+  **Deprecated** or **Superseded** (by a later ADR, which should link back to this one).
 
-## ADR Status Lifecycle
+## Notes
 
-Update status in the ADR as the decision progresses:
-
-1. **Proposed** - Initial proposal (default)
-2. **Accepted** - Decision approved
-3. **Deprecated** - No longer recommended
-4. **Superseded** - Replaced by another ADR
-
-## Context Gathering Examples
-
-```bash
-# For database decisions
-find . -name "*.sql" -o -name "*models.py" -o -name "*schema.prisma" | head -10
-
-# For API decisions
-grep -r "router\|endpoint\|api" --include="*.py" --include="*.ts" --include="*.js" . | head -20
-
-# For architecture decisions
-find . -name "docker-compose.yml" -o -name "*.config.js" -o -name "*.config.ts" | head -10
-```
-
-## Important Notes
-
-- **One Decision per ADR**: Keep focused on a single decision
-- **Context Matters**: Include "why" even if it seems obvious
-- **Link Related ADRs**: Reference superseded or related decisions
-- **Early Documentation**: Create ADRs early in decision process
-- **Imperative Language**: Use "we will" not "we should"
-- **Status Updates**: Update status as decision progresses
-
-## When to Create ADRs
-
-Create an ADR when making:
-- Technology stack decisions
-- Architecture pattern choices
-- Database or storage decisions
-- API design choices
-- Security architecture decisions
-- Deployment strategy decisions
-- Major library/framework selections
-- Cross-cutting concerns (logging, caching, etc.)
-
-## Best Practices
-
-- **Create early**: Document decisions before implementation
-- **Be honest**: Document the real reasons, not ideal reasons
-- **Include alternatives**: Show what was considered
-- **Accept trade-offs**: Acknowledge negative consequences
-- **Link to code**: Reference implementation in the ADR
-- **Review regularly**: Revisit ADRs during retrospectives
-- **Update status**: Keep status current as decisions evolve
+- One decision per ADR — split unrelated decisions into separate records.
+- Write in imperative language ("we will", not "we should").
+- Document the real reasons a decision was made, including trade-offs and downsides,
+  not the idealized version.
+- Cross-link: reference related or superseded ADRs by number.

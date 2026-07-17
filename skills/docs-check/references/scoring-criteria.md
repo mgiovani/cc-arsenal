@@ -1,52 +1,35 @@
-# Scoring Criteria
+# Rating Criteria
 
-Complete scoring rubrics and thresholds for documentation quality assessment.
+Coarse per-document rubric for Phase 5. No numeric scoring or weighted averages — one rating per document, chosen by the first rule below that applies (checked in order).
 
-## Freshness Scoring (per document)
+## Rating Definitions
 
-| Score Range | Rating   | Criteria |
-|-------------|----------|----------|
-| 90-100      | Fresh    | Updated within last 7 days or no related code changes |
-| 70-89       | Good     | Minor code changes since last update |
-| 50-69       | Stale    | Significant code changes since last update |
-| < 50        | Outdated | Major code changes or very old |
+| Rating  | Applies when |
+|---------|--------------|
+| Broken  | Contains a hallucination (claim contradicted by the codebase), a broken internal link, or invalid Mermaid syntax |
+| Missing | Doc is expected given the detected stack (e.g. a `data-model.md` for a repo with a schema) but doesn't exist |
+| Stale   | All claims check out, but the doc predates a significant related code change, has unreplaced `{{PLACEHOLDER}}` values, or is missing an expected section |
+| Good    | Current, complete, no broken links, no invalid diagrams, no hallucinations |
 
-## Completeness Scoring (per document)
+Broken outranks Stale: a doc with one false claim is Broken even if everything else about it is current — a wrong claim is worse than an old-but-true one.
 
-| Score Range | Rating     | Criteria |
-|-------------|------------|----------|
-| 90-100      | Complete   | All sections present, no placeholders |
-| 70-89       | Good       | Most sections present, minor gaps |
-| 50-69       | Incomplete | Several missing sections |
-| < 50        | Poor       | Major sections missing |
+## Evidence Requirement
 
-## Quality Scoring (per document)
-
-| Score Range | Rating    | Criteria |
-|-------------|-----------|----------|
-| 90-100      | Excellent | No issues, all diagrams valid |
-| 70-89       | Good      | Minor formatting issues |
-| 50-69       | Fair      | Several issues |
-| < 50        | Poor      | Major problems, broken diagrams |
-
-## Overall Score Calculation
-
-- Average of all document scores
-- Weight by importance: core docs (architecture, onboarding) matter more than supporting docs (contributing, RFCs) — let a stale contributing.md pull the overall score down less than a stale architecture.md.
+Every rating must cite what was actually checked — a git log date, a grep result, a find count. Never assign "Stale" or "Broken" without the command output that justifies it; never assign "Good" without having actually run the freshness/completeness/quality checks in Phase 4.
 
 ## Detailed Report Format (per document)
 
-For each documentation file, include:
-- **Filename and path**
-- **Score breakdown** (Freshness + Completeness + Quality)
-- **Last Updated**: Timestamp
-- **Specific Issues**: With line numbers
-- **Recommendations**: Actionable next steps with commands
+For each documentation file rated Stale, Broken, or Missing, include:
+- Filename and path
+- Rating and the one-line reason
+- Specific issues with line numbers where applicable
+- The verification command used as evidence
+- Recommended follow-up command (docs-update, docs-diagram, docs-init)
 
-## Best Practices for Scoring
+Good-rated docs need only a one-line listing — no evidence dump for docs with nothing wrong.
 
-- **Run regularly**: Make it part of your workflow
-- **Address issues**: Do not let documentation debt accumulate
-- **Automate**: Consider running in CI for documentation PRs
-- **Prioritize**: Fix high-impact issues first
-- **Track scores**: Monitor documentation health over time
+## Best Practices
+
+- Run regularly — freshness drift compounds silently between checks.
+- Prioritize Broken over Stale over Missing when recommending fixes — hallucinations mislead readers actively, staleness merely under-informs them.
+- Don't let a "mostly fine" rating hide one hallucinated claim inside a doc — Broken always surfaces in the summary even if the rest of the doc is solid.
