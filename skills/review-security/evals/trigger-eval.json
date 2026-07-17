@@ -18,5 +18,6 @@
   {"query": "write tests for the login rate limiter", "should_trigger": false},
   {"query": "explain how our JWT validation works", "should_trigger": false},
   {"query": "run a general code review on this diff, check simplicity and style", "should_trigger": false},
-  {"query": "audit our npm packages for supply-chain risk", "should_trigger": false}
+  {"query": "audit our npm packages for supply-chain risk", "should_trigger": false},
+  {"query": "spin up the full review team to go over this large security-sensitive PR before merge", "should_trigger": false}
 ]

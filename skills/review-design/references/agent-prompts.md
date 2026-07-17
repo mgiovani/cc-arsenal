@@ -36,6 +36,28 @@ Return structured findings: {criterion_id, dimension, severity, evidence (file:l
 region+ref), measured_value, citation, description, fix}.
 ```
 
+### Computing contrast ratio from hex/rgb (no browser needed)
+
+Static mode has no rendered page to sample, so compute the WCAG relative-luminance
+contrast ratio directly from the two color values found in the CSS/tokens:
+
+1. For each channel (R, G, B in 0-255), normalize `c = channel / 255`.
+2. Linearize: if `c <= 0.03928`, `c_lin = c / 12.92`; else `c_lin = ((c + 0.055) / 1.055) ^ 2.4`.
+3. Relative luminance `L = 0.2126*R_lin + 0.7152*G_lin + 0.0722*B_lin`.
+4. Contrast ratio `= (L_lighter + 0.05) / (L_darker + 0.05)`, using the two colors'
+   luminances (lighter on top so the ratio is >= 1).
+
+Report the ratio to two decimal places as the measured value. If a color comes from a
+CSS variable/token, resolve it to its concrete hex value first (grep the token definition)
+before computing — don't guess the resolved value. When text sits over a gradient or an
+image, say contrast can't be reliably computed statically and note it as a coverage gap
+instead of estimating.
+
+Then apply the WCAG threshold that matches the text's actual size/weight (CO-06/07/08,
+criteria-foundations.md): normal text needs >= 4.5:1, "large text" (>= 24px, or >= 18.66px
+bold) needs >= 3:1, and non-text UI (icons, borders, focus indicators) needs >= 3:1. A ratio
+that clears the size-appropriate threshold is a pass, even if it would fail the stricter one.
+
 ---
 
 ## Agent 1 — Visual Hierarchy + Layout & Spacing (Dimension 1)

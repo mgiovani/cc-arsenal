@@ -6,11 +6,13 @@ description: Runs a comprehensive multi-agent code review of a PR, commit, or th
   report with file:line findings and fix suggestions. Use when the user wants a thorough
   code review, asks to review a PR or diff, or wants over-engineered code flagged
   for simplification. Analysis only, identifying issues without modifying code, committing,
-  or running tests. Not for a security-focused audit (use review-security) or a visual/UX
-  design critique (use review-design).
+  or running tests. Not for a security-focused audit (use review-security), a visual/UX
+  design critique (use review-design), a deep performance-only investigation with
+  profiling and query-level analysis (use review-perf), or a heavier multi-agent PR
+  review team with adversarial/security passes (use team-review).
 metadata:
   author: mgiovani
-  version: 1.0.0
+  version: 1.1.0
 ---
 
 # Code Review
@@ -51,9 +53,9 @@ git show <commit_sha>
 
 Explore the codebase to understand the project's technology stack, conventions, and quality standards:
 
-### Phase 2: Initialize Progress Tracking
+### Phase 2: Initialize Progress Tracking (optional)
 
-Use TodoWrite to track review progress across all specialist dimensions and report generation.
+If TodoWrite is available, use it to track review progress across the specialist dimensions and report generation. Skip it for a small scoped review or in an environment without it — it's a convenience, not a requirement.
 
 ### Phase 3: Parallel Specialist Review
 
@@ -65,6 +67,8 @@ Spawn 5 parallel Explore agents for comprehensive code review. Each agent specia
 - **Agent 3**: Code Style & Patterns — naming, structure, DRY violations, SOLID adherence, framework idioms
 - **Agent 4**: Test Coverage Gaps — untested code paths, missing edge case tests, weak assertions, test quality
 - **Agent 5**: Error Handling & Edge Cases — unhandled exceptions, missing validation, boundary conditions, graceful degradation
+
+**No Task/Explore tool available**: run the same six specialist prompts (Agents 1-6, full text in [references/agent-prompts.md](references/agent-prompts.md)) as sequential Grep+Read passes instead of parallel subagents — one dimension at a time, in the same order, each following the same steps below, then merge all six dimensions' findings into one list before Phase 4.
 
 Each agent must:
 1. Grep for issue patterns across files in scope
@@ -106,36 +110,7 @@ Generate a comprehensive markdown report following the template in [references/r
 4. Prioritized action items (Critical first, then Major)
 5. Positive observations - highlight well-written code, good patterns, thorough tests
 
-### Phase 6: Iterative Re-Review (Diff-Only Re-Scan)
-
-After the initial review, if the user makes fixes and asks for a re-review, ask for (or use, if already given) the prior commit/PR SHA that was reviewed — there is no reliable way to auto-detect it, so don't guess from git log:
-
-1. **Scope re-review to changed files only**: `git diff --name-only <last_reviewed_commit>..HEAD` — do NOT re-scan the entire codebase
-2. **Re-run only relevant agents** - If fixes were for performance issues, re-run Agent 2 (Performance) on the changed files
-3. **Verify fixes** - Check that previously reported Critical/Major issues are actually resolved
-4. **Report delta** - Show what was fixed, what remains, and any new issues introduced by the fixes
-
-**Re-review output format:**
-```markdown
-## Re-Review Report (Diff-Only)
-
-**Files re-scanned**: [N files changed since last review]
-**Previous findings**: [N total]
-**Resolved**: [N findings fixed]
-**Remaining**: [N findings still present]
-**New issues**: [N new findings from fixes]
-
-### Resolved Findings
-- ~~[Finding title]~~ — Fixed in `file.py:45`
-
-### Remaining Findings
-- [Finding title] — Still present in `file.py:30`
-
-### New Findings
-- [New finding from fix] — Introduced in `file.py:50`
-```
-
-To trigger a re-review, the user runs the skill again after making fixes and supplies the previously reviewed commit/PR SHA.
+To re-review after fixes, just run the skill again on the same PR/commit — Phase 0's scoping naturally re-derives the current diff, so it re-scopes to what's actually still there without a separate workflow.
 
 ## Usage
 
@@ -155,7 +130,7 @@ review-code
 review-code 123 --focus performance
 review-code --all --focus tests
 
-# Re-review after fixes (run again on same PR)
+# Re-review after fixes — just run it again on the same PR/commit
 review-code 123
 ```
 
@@ -177,7 +152,7 @@ If no focus specified, perform comprehensive review across all dimensions.
 ## Limitations
 
 - **Static, pattern-based analysis**: cannot measure actual runtime/performance impact or detect runtime-only issues; some findings may turn out to be intentional design choices
-- **Language support**: best coverage for Python, JavaScript/TypeScript, Go, Java; basic coverage for other languages
+- **Language support**: grep patterns in [references/agent-prompts.md](references/agent-prompts.md) are written for C-like and Python syntax; adapt them for other languages before relying on pattern coverage
 - Does not modify code, run tests/benchmarks, or perform security-specific analysis (use review-security for that)
 
 ## Simplicity & Over-Engineering Lens (Claude Code enhancement)

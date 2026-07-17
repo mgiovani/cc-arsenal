@@ -10,7 +10,7 @@ description: Audit project dependencies for vulnerabilities, license compliance 
   upgrades (this skill only recommends, never runs installs).
 metadata:
   author: mgiovani
-  version: 1.0.0
+  version: 1.1.0
 disable-model-invocation: true
 ---
 
@@ -44,77 +44,24 @@ Read each detected manifest to understand:
 
 ### Phase 2: Run Native Audit Commands
 
-Execute the appropriate audit commands for each detected package manager. Run independent commands in parallel.
+Execute the audit command for each detected package manager, run independent commands in parallel, and save all raw output (including "tool not installed" errors) for Phase 3. Commands per ecosystem are in [references/audit-commands.md](references/audit-commands.md) — load it now.
 
-**Node.js (npm/yarn/pnpm):**
-```bash
-# npm
-npm audit --json 2>/dev/null || npm audit 2>&1
+### Phase 3: Analyze Vulnerabilities, Licenses, and Staleness
 
-# yarn (classic)
-yarn audit --json 2>/dev/null || yarn audit 2>&1
+Analyze the Phase 2 output across three dimensions — vulnerability triage, license compliance, staleness/upgrade complexity — scoped per the Scoping section below. Detailed per-dimension steps and risk-classification tables are in [references/agent-prompts.md](references/agent-prompts.md) — load it before starting this phase.
 
-# pnpm
-pnpm audit --json 2>/dev/null || pnpm audit 2>&1
-**Python (pip/uv):**
-```bash
-# pip-audit (preferred — install if missing)
-pip-audit --format=json 2>/dev/null || pip-audit 2>&1
+Default to doing all three passes yourself, sequentially, in the current context: this is classification over data already fetched in Phase 2, not independent research, so a 3-way agent fan-out mostly re-reads the same output three times. Only spawn parallel Explore agents (one per dimension) when the audit output is unusually large — a multi-ecosystem monorepo, or output that would blow the context budget for a single pass. If no subagent/task tool is available, always do the three passes inline sequentially — that is the correct behavior for most runs anyway, not a degraded fallback.
 
-# If pip-audit unavailable, use pip
-pip audit 2>&1 || python -m pip_audit 2>&1
-
-# uv
-uv pip audit 2>&1
-**Rust:**
-```bash
-cargo audit 2>&1
-**Go:**
-```bash
-go list -m -json all 2>&1
-govulncheck ./... 2>&1
-**PHP:**
-```bash
-composer audit --format=json 2>/dev/null || composer audit 2>&1
-**Ruby:**
-```bash
-bundle audit check 2>&1
-**.NET:**
-```bash
-dotnet list package --vulnerable --include-transitive 2>&1
-**Java (Maven/Gradle):**
-```bash
-mvn dependency-check:check 2>&1 || echo "OWASP dependency-check plugin not configured"
-**GitHub Dependabot (always attempt if in a git repo):**
-```bash
-# Get repository owner/name from git remote
-gh api repos/{owner}/{repo}/dependabot/alerts --jq '.[] | {package: .security_advisory.summary, severity: .security_advisory.severity, state: .state, package_name: .dependency.package.name, ecosystem: .dependency.package.ecosystem}' 2>&1
-Save all raw output for agent analysis in Phase 3.
-
-### Phase 3: Parallel Specialist Analysis
-
-Spawn 3 parallel Explore agents, each focused on a different risk dimension. Pass the raw audit output from Phase 2 and the manifest files to each agent.
-
-For detailed agent prompts and analysis patterns, see [references/agent-prompts.md](references/agent-prompts.md).
-
-**Agent assignments:**
-- **Agent 1 — Vulnerability Analysis**: CVE/GHSA triage, severity assessment, exploitability, fix availability
-- **Agent 2 — License Compliance**: License identification, copyleft risk, commercial compatibility, policy violations
-- **Agent 3 — Staleness & Upgrade Complexity**: Version drift, maintenance health, breaking change assessment, upgrade paths
-
-Each agent must:
-1. Analyze the raw audit output and manifest files
-2. Read lock files for transitive dependency details when needed
-3. Provide structured findings with evidence from actual tool output
-4. Classify risk level (Critical/High/Medium/Low)
-5. Recommend specific actions with exact target versions
+Whichever mode you use:
+1. Read lock files for transitive dependency details when needed
+2. Provide structured findings with evidence from actual tool output
+3. Classify risk level (Critical/High/Medium/Low)
+4. Recommend specific actions with exact target versions
 
 ### Phase 4: Risk Assessment & Prioritization
 
-After all agents complete:
-
-1. **Collect all findings** from the 3 parallel agents
-2. **Deduplicate** — Remove findings reported by multiple agents
+1. **Collect all findings** across the three dimensions
+2. **Deduplicate** — remove findings reported under more than one dimension
 3. **Cross-reference** — Combine vulnerability + license + staleness data per package
 4. **Prioritize by composite risk**:
  - **Critical**: Known exploited CVEs (CISA KEV), RCE vulnerabilities, packages with no maintained fork

@@ -158,3 +158,11 @@ For each dimension: `score = passed_applicable_criteria / total_applicable_crite
 - If an entire dimension is non-observable, mark it **N/A** and exclude it from the average.
 - Report an overall score as the mean of applicable dimension scores, and state how many
   dimensions were N/A.
+
+## Note on thresholds
+
+Numeric thresholds cited in findings (spacing scale, contrast ratios, target sizes, animation
+durations/easing in MO-01..07) are the criteria file's defaults, not hard limits from the
+target's own design system. If the project defines its own tokens (e.g., a documented 300ms
+transition standard, a different spacing base), prefer those over the default and say so in
+the finding.

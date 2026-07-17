@@ -1,17 +1,22 @@
 ---
 name: review-design
-description: Perform a comprehensive UX/UI/design quality audit of a live URL or a static
-  codebase, mapped to authoritative standards (WCAG 2.2 AA, Material Design 3, Apple
-  HIG, Nielsen Norman Group, Refactoring UI, Laws of UX). This skill should be used
-  when a user wants to review design quality, audit UX/UI, check visual hierarchy,
-  typography, color, accessibility, components, or interaction design. Analysis only -
-  identifies issues without modifying code.
+description: Performs a comprehensive UX/UI/design quality audit of a live URL or a
+  static codebase, mapped to authoritative standards (WCAG 2.2 AA, Material Design 3,
+  Apple HIG, Nielsen Norman Group, Refactoring UI, Laws of UX). Use when a user wants
+  to review design quality, audit UX/UI, or check visual hierarchy, typography, color,
+  dark mode, shadows/elevation, buttons/icons, feedback states, motion, or accessibility
+  contrast. Triggers on "design review", "UX audit", "accessibility audit", "check
+  contrast", "review this against WCAG". Analysis only — cites evidence and a criterion
+  for every finding, never modifies code. Not for correctness, security, dependency, or
+  performance review (use review-code, review-security, review-deps, or review-perf),
+  nor the full multi-agent PR review team (use team-review). Not for pixel-diff visual
+  regression testing against a baseline (use vrt-check).
 metadata:
   author: mgiovani
-  version: 1.0.0
+  version: 1.1.1
 disable-model-invocation: true
 argument-hint: '[url|pr_number|commit_sha|--all] [--scope dimension] [--mode live|static|both]'
-allowed-tools: Read, Grep, Glob, Bash(git *), Bash(gh *), Bash(agent-browser *), Task, TodoWrite, AskUserQuestion
+allowed-tools: Read, Grep, Glob, Bash(git *), Bash(gh *), Bash(agent-browser *), Task, TodoWrite
 context: fork
 agent: general-purpose
 ---
@@ -53,7 +58,7 @@ dimensions 5–8 are in [references/criteria-interaction.md](references/criteria
 1. **Observe before claiming** - Never report an issue without reading the code (static) or viewing the screenshot/snapshot (live)
 2. **Evidence-based findings** - Every finding cites a file path + line number (static) OR a screenshot region + DOM ref (live)
 3. **Cite a criterion** - Every finding maps to a criterion ID and an authoritative citation (WCAG SC, MD3 spec, etc.)
-4. **Measure, don't estimate** - Report actual values (contrast ratio, px size, ms duration), not guesses
+4. **Measure, don't estimate** - Report actual values (contrast ratio, px size, ms duration), not guesses. In static mode there is no rendered page to sample from — compute the WCAG relative-luminance contrast ratio directly from the two hex/rgb values found in the CSS/tokens (formula in [references/agent-prompts.md](references/agent-prompts.md#computing-contrast-ratio-from-hexrgb-no-browser-needed)); never eyeball a ratio
 5. **Applicable-only scoring** - Only score dimensions that apply to the target; never penalize what cannot be observed
 6. **State what was NOT checked** - Every report ends with an explicit coverage gap section
 7. **No invented standards** - Only reference real WCAG SCs, MD3 specs, and HIG guidance
@@ -104,6 +109,8 @@ Use Task tool with Explore agent (model: haiku):
 - subagent_type: "Explore"
 ```
 
+Without a Task tool, run this discovery yourself inline using the same 6 steps before proceeding.
+
 **For live mode**, confirm the URL is reachable and `agent-browser` is installed:
 ```bash
 agent-browser --version || echo "agent-browser not installed (npm install -g agent-browser)"
@@ -112,7 +119,7 @@ If `agent-browser` is missing, tell the user how to install it (`npm install -g 
 
 ### Phase 2: Initialize Progress Tracking
 
-Use TodoWrite to track progress across the 8 dimensions plus capture, consolidation, and report generation. One todo per dimension.
+Use TodoWrite to track progress across the 8 dimensions plus capture, consolidation, and report generation. One todo per dimension. Without TodoWrite, narrate phase/dimension transitions in your responses instead.
 
 ### Phase 3: Capture, then Spawn Parallel Audit Agents
 
@@ -128,7 +135,7 @@ agent-browser screenshot /tmp/review-design/page.png --full     # full-page scre
 ```
 Capture additional viewports/pages if the user names them. Always `agent-browser close` when done.
 
-**Then spawn 6 parallel Explore agents** (model: `sonnet`) covering the 8 dimensions. For the full per-agent prompts (live screenshot/snapshot analysis AND static grep patterns), see [references/agent-prompts.md](references/agent-prompts.md).
+**Then spawn 6 parallel Explore agents** (model: `sonnet`) covering the 8 dimensions. For the full per-agent prompts (live screenshot/snapshot analysis AND static grep patterns), see [references/agent-prompts.md](references/agent-prompts.md). Without a Task tool, run the 6 dimension analyses sequentially inline yourself, one after another, using the same per-agent prompts and criteria references.
 
 **Agent assignments:**
 - **Agent 1**: Visual Hierarchy + Layout & Spacing (Dimension 1)

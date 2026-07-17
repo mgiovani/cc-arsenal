@@ -1,8 +1,12 @@
-# Dependency Review - Agent Prompts & Analysis Patterns
+# Dependency Review - Analysis Patterns
 
-Detailed agent prompts for the 3 parallel specialist agents in Phase 3. Load this reference when running parallel dependency analysis.
+Detailed analysis steps for the three dependency-review dimensions used in Phase 3: vulnerabilities, licenses, staleness. Load this reference before starting Phase 3.
 
-## Agent 1 — Vulnerability Analysis (CVE/GHSA Triage)
+Each section below is written as a self-contained prompt. Use it two ways:
+- **Default (single pass)**: work through all three sections yourself, in order, against the Phase 2 output already in context.
+- **Large-output fan-out**: when the audit output is too large to reason about in one pass (e.g. a multi-ecosystem monorepo), spawn one `Explore` agent per section, pasting that section's prompt verbatim plus the relevant Phase 2 output.
+
+## Dimension 1 — Vulnerability Analysis (CVE/GHSA Triage)
 
 ```
 Agent 1 - Vulnerability Analysis:
@@ -42,10 +46,10 @@ Agent 1 - Vulnerability Analysis:
    - Specific remediation command (e.g., 'npm install package@version')
 
 Return findings sorted by severity (Critical first), then by exploitability."
-- subagent_type: "Explore"
+- subagent_type: "Explore" (only used when fanning out; skip this line when running inline)
 ```
 
-## Agent 2 — License Compliance Analysis
+## Dimension 2 — License Compliance Analysis
 
 ```
 Agent 2 - License Compliance Analysis:
@@ -104,10 +108,10 @@ Agent 2 - License Compliance Analysis:
    - Alternative packages with more permissive licenses (if replacement needed)
 
 Return findings sorted by risk level, grouped by license category."
-- subagent_type: "Explore"
+- subagent_type: "Explore" (only used when fanning out; skip this line when running inline)
 ```
 
-## Agent 3 — Staleness & Upgrade Complexity Analysis
+## Dimension 3 — Staleness & Upgrade Complexity Analysis
 
 ```
 Agent 3 - Staleness & Upgrade Complexity Analysis:
@@ -189,27 +193,10 @@ Agent 3 - Staleness & Upgrade Complexity Analysis:
    - Alternative packages (if replacement recommended)
 
 Return findings sorted by staleness level, then by number of dependents (most impactful first)."
-- subagent_type: "Explore"
+- subagent_type: "Explore" (only used when fanning out; skip this line when running inline)
 ```
 
-## Package Manager Audit Command Reference
-
-Quick reference for audit commands across ecosystems:
-
-| Ecosystem | Audit Command | JSON Output | Install |
-|-----------|--------------|-------------|---------|
-| npm | `npm audit` | `--json` | Built-in |
-| yarn | `yarn audit` | `--json` | Built-in |
-| pnpm | `pnpm audit` | `--json` | Built-in |
-| pip | `pip-audit` | `--format=json` | `pip install pip-audit` |
-| uv | `uv pip audit` | — | Built-in with uv |
-| cargo | `cargo audit` | `--json` | `cargo install cargo-audit` |
-| go | `govulncheck ./...` | `--json` | `go install golang.org/x/vuln/cmd/govulncheck@latest` |
-| composer | `composer audit` | `--format=json` | Built-in (2.4+) |
-| bundler | `bundle audit check` | — | `gem install bundler-audit` |
-| .NET | `dotnet list package --vulnerable` | — | Built-in |
-| Maven | OWASP dependency-check plugin | — | Plugin config required |
-| Dependabot | `gh api repos/{owner}/{repo}/dependabot/alerts` | Native JSON | GitHub CLI |
+Audit commands per ecosystem live in [audit-commands.md](audit-commands.md) (loaded in Phase 2, not needed again here).
 
 ## Recommended Follow-up
 

@@ -10,8 +10,8 @@ Use this template when generating the performance report in Phase 5.
 **Scope**: [PR #123 | Commit abc123 | Entire Codebase]
 **Date**: [YYYY-MM-DD]
 **Technology Stack**: [e.g., Next.js 14 + PostgreSQL + Prisma]
-**Files Scanned**: [N files]
-**Total Findings**: [N performance issues]
+**Files Scanned**: [N files - on a PR/commit review, this is exactly the diff's changed-file list, never more]
+**Total Findings**: [N performance issues - main findings only, excludes the Pre-existing Issues section]
 
 ## Executive Summary
 
@@ -100,6 +100,21 @@ Use this template when generating the performance report in Phase 5.
   2. **Approach 2**: [Alternative approach]
 
 [Repeat for each finding...]
+
+## Pre-existing Issues Noticed in Touched Files (outside this PR's changes)
+
+[Only on a PR/commit review, and only if non-empty - omit this section entirely otherwise. Same format as Findings above, but these are issues found in the diff hunks' surrounding files that were NOT introduced by this PR/commit (line number falls outside every hunk). Excluded from the Severity Breakdown and Performance Impact Summary counts below.]
+
+#### Finding 1: [Issue Title]
+- **Severity**: [Critical/High/Medium/Low]
+- **File**: `path/to/touched-file.py:12-18` (outside this PR's diff hunks)
+- **Code Snippet**:
+  ```python
+  [Actual pre-existing code]
+  ```
+- **Note**: Pre-existing - not introduced by this PR/commit, flagged for awareness only
+
+[Repeat for each pre-existing finding...]
 
 ## Performance Impact Summary
 

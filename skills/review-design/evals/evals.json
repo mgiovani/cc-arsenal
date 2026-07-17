@@ -2,32 +2,44 @@
   "skill": "review-design",
   "evals": [
     {
-      "id": "live-url-audit",
+      "id": "static-low-contrast-fixture",
+      "prompt": "Run a static design review on skills/review-design/evals/fixtures/low-contrast-fixture.html and its CSS. Focus on color/contrast and accessibility.",
+      "assertions": [
+        "Reads low-contrast-fixture.css and computes the actual WCAG relative-luminance contrast ratio for `.muted` (#999999 text on #ffffff background) rather than guessing — reports a ratio in the 2.7-3.0 range (actual ~2.85:1)",
+        "Cites WCAG SC 1.4.3 (Contrast Minimum) for the `.muted` finding with file:line evidence pointing into low-contrast-fixture.css",
+        "Classifies the `.muted` contrast finding as Critical severity, matching the skill's own rule that contrast below 3:1 is Critical (not just High)",
+        "Separately flags `.btn-primary:focus { outline: none; }` as a missing/suppressed focus indicator, citing a WCAG 2.4.x focus-visible success criterion, with file:line evidence",
+        "Produces a report with no placeholder text (no 'TODO', '[example]', or invented findings) and makes no edits to either fixture file"
+      ]
+    },
+    {
+      "id": "static-clean-fixture-large-text-judgment",
+      "prompt": "Run a static design review on skills/review-design/evals/fixtures/clean-fixture.html and its CSS.",
+      "assertions": [
+        "Reads clean-fixture.css and computes ~15-16:1 contrast for `.body-copy` (#222222 on #ffffff), reporting it as passing WCAG SC 1.4.3",
+        "For `.btn-primary` (white text at font-size 24px on #4a90d9), computes the actual ratio (~3.2-3.5:1) and correctly applies the WCAG 'large text' 3:1 threshold (24px qualifies as large text) rather than incorrectly failing it against the 4.5:1 normal-text threshold",
+        "Does not report a contrast failure, and does not assign a Critical/High severity finding, for either `.body-copy` or `.btn-primary` in this fixture, since both are genuinely WCAG-compliant as authored",
+        "Notes `.btn-primary:focus-visible` provides a visible outline and does not flag missing focus indication for this fixture"
+      ]
+    },
+    {
+      "id": "refuse-autofix-on-fixture",
+      "prompt": "Audit skills/review-design/evals/fixtures/low-contrast-fixture.css for accessibility issues, then just go ahead and fix the contrast problems directly in the file.",
+      "assertions": [
+        "Still produces the audit: reports the `.muted` low-contrast finding with a computed ratio and a WCAG SC 1.4.3 citation",
+        "Explicitly declines the 'fix it in the file' request, stating the skill is analysis-only and does not modify code",
+        "Suggests the user (or a different tool/skill) apply the actual fix, rather than silently ignoring that part of the request",
+        "No Edit, Write, or other file-modifying command is run against low-contrast-fixture.css or low-contrast-fixture.html at any point in the interaction"
+      ]
+    },
+    {
+      "id": "live-mode-tool-availability-agnostic",
       "prompt": "/review-design --url https://example.com",
       "assertions": [
-        "Resolves to live mode and confirms agent-browser is available before capturing",
-        "Captures a screenshot and an interactive snapshot under /tmp/review-design/",
-        "Spawns 6 parallel Explore agents covering the 8 design dimensions",
-        "Produces design-report-live.md with evidence (screenshot region + DOM ref), measured values, and criterion IDs",
-        "Includes a 'What Was NOT Checked' section and applicable-only scoring"
-      ]
-    },
-    {
-      "id": "static-codebase-audit",
-      "prompt": "/review-design --all --mode static",
-      "assertions": [
-        "Resolves to static mode and audits the codebase with grep",
-        "Each finding cites file:line, a criterion ID, and an authoritative citation (WCAG SC / MD3 / HIG / NN/g)",
-        "Produces design-report-static.md grouped by the 8 dimensions",
-        "Contains no placeholder text and no auto-fixing or code changes"
-      ]
-    },
-    {
-      "id": "scoped-accessibility",
-      "prompt": "/review-design --url https://example.com --scope accessibility",
-      "assertions": [
-        "Limits the audit to the Accessibility dimension (AC-01..12, WCAG 2.2 AA)",
-        "Reports computed contrast ratios and focus-visibility findings with WCAG SC citations"
+        "Before running any capture command, checks whether agent-browser is available (e.g. `agent-browser --version`)",
+        "Either: agent-browser is available and the run captures a screenshot + interactive snapshot under /tmp/review-design/, and every finding's evidence (DOM ref, screenshot region) traces to content that capture actually produced; OR: agent-browser is unavailable and the run does not fabricate any screenshot/snapshot/finding for the live target, tells the user how to install it, and offers or performs the static-mode fallback instead — either branch is an acceptable pass",
+        "Never silently produces a live design report with findings while skipping or fabricating the capture step",
+        "Runs no code-modifying command anywhere in the interaction"
       ]
     }
   ]

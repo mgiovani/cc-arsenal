@@ -154,24 +154,23 @@ Use Grep to search for:
 *Missing encryption:*
 - http:// (non-localhost), ftp://, telnet://
 
-**A03 - Software Supply Chain:**
+**A03 - Software Supply Chain** (integrity surface only — dependency CVEs, outdated
+versions, and license risk are review-deps' job; don't duplicate them here):
 Use Read to check:
-- package.json: Outdated dependencies (lodash < 4.17, axios < 0.21)
-- requirements.txt: Django < 3.2, Flask < 2.0
-- pom.xml: Old versions, http:// repositories
 - Missing SRI: <script src=CDN without integrity=
-- Lock files: package-lock.json, Pipfile.lock, go.sum presence
-- .github/workflows: pip install --trusted-host, npm config set strict-ssl false
+- Lock files: package-lock.json, Pipfile.lock, go.sum presence (missing lockfile = unpinned
+  transitive deps, an integrity gap even without a known CVE)
+- .github/workflows: pip install --trusted-host, npm config set strict-ssl false (weakens
+  package-fetch integrity, not a version/CVE issue)
 
 For each finding:
 1. Verify the vulnerability with Read
-2. Check CVE databases for known vulnerabilities (mention CVE if applicable)
-3. Assess data sensitivity (what could be exposed?)
+2. Assess data sensitivity (what could be exposed?)
 
 Return findings with:
 - Cryptographic best practices for replacement
-- Dependency update recommendations with versions
-- SRI hash generation instructions"
+- SRI hash generation instructions
+- If dependency CVEs/staleness come up during scanning, note them separately and point the user to review-deps instead of detailing them here"
 - subagent_type: "Explore"
 - model: "haiku"
 ```

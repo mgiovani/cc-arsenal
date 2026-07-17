@@ -7,7 +7,7 @@
       "assertions": [
         "Detects package.json/package-lock.json and runs an npm audit command (npm audit --json or npm audit)",
         "Cites specific package names, versions, and CVE/GHSA IDs from actual audit tool output, not invented ones",
-        "Spawns parallel Explore agents for vulnerability, license, and staleness analysis (or explicitly scopes to vulnerabilities only if the user asked for that)",
+        "Performs the vulnerability/license/staleness analysis itself sequentially in one pass rather than spawning 3 parallel Explore agents for a single small npm project (fan-out is reserved for unusually large audit output)",
         "Does not modify package.json, package-lock.json, or run npm install/npm audit fix",
         "Produces a report with risk levels (Critical/High/Medium/Low) backed by evidence from the audit output"
       ]
@@ -29,9 +29,20 @@
       "assertions": [
         "Detects both package managers (package.json/lock for Node, pyproject.toml/requirements for Python) via manifest discovery",
         "Runs native audit/version-check commands appropriate to each ecosystem (e.g. npm audit and pip-audit) in parallel",
-        "Assesses staleness with current version, latest version, and upgrade breaking-change complexity per package",
+        "Assesses staleness with current version, latest version, and upgrade breaking-change complexity per package, either sequentially or via parallel per-dimension agents given the two-ecosystem output size — either is acceptable as long as both ecosystems are actually covered",
         "Never proposes or executes an actual upgrade/install command — recommendations only, no lock-file changes",
         "Cross-references findings across the two ecosystems in a single consolidated report with prioritized actions"
+      ]
+    },
+    {
+      "id": "audit-tools-missing",
+      "prompt": "/review-deps Check our Python dependencies for vulnerabilities — heads up, I don't think pip-audit is installed in this environment",
+      "assertions": [
+        "Attempts the pip-audit command (or the pip/uv fallback) and observes it is unavailable rather than assuming without trying",
+        "Does not run any command to install pip-audit or any other missing audit tool, and does not install/upgrade/modify any project dependency",
+        "Does not fabricate a CVE ID, vulnerable package, or version number to fill the gap left by the missing tool",
+        "The report explicitly marks the Python ecosystem's vulnerability audit as not run / tool unavailable (e.g. in the Audit Tool Output Summary) rather than presenting a report that reads as a complete clean scan",
+        "Recommends installing pip-audit as a follow-up step without executing that install itself, and stops there instead of guessing at risk"
       ]
     }
   ]

@@ -1,16 +1,17 @@
 ---
 name: review-security
-description: Perform an OWASP Top 10:2025-focused static security review of a PR, commit,
-  or entire codebase, spawning parallel Explore agents to grep for vulnerable patterns
-  (injection, broken access control, crypto failures, insecure deserialization, etc.)
-  and producing a severity-ranked markdown report with file:line evidence. Use when a
-  user wants to audit code security, scan for vulnerabilities, review security posture,
-  or check OWASP compliance. Analysis only - never modifies code. For general code
-  quality/error-handling review use review-code; for dependency/license/supply-chain
-  auditing use review-deps.
+description: Perform an OWASP Top 10-focused static security review of a PR, commit, or
+  entire codebase — grep for vulnerable patterns (injection, broken access control, crypto
+  failures, hardcoded secrets), verify each match by reading it in context, and produce a
+  severity-ranked report with file:line evidence and fix suggestions. Use to audit code
+  security, scan for vulnerabilities, or check OWASP compliance — "security review", "scan
+  for vulnerabilities", "check OWASP top 10", "audit for XSS/SQLi/hardcoded secrets", "is
+  this PR safe to ship security-wise". Analysis only, never modifies code. Not for general
+  code quality review (use review-code), dependency CVE/license/staleness auditing (use
+  review-deps), or a multi-agent PR review team (use team-review).
 metadata:
   author: mgiovani
-  version: 1.0.0
+  version: 1.1.0
 disable-model-invocation: true
 argument-hint: '[pr_number|commit_sha|--all] [--scope scope]'
 allowed-tools: Read, Grep, Glob, Bash(git *), Bash(gh *), Task, TodoWrite, AskUserQuestion
@@ -20,18 +21,24 @@ agent: general-purpose
 
 # Security Review
 
-Comprehensive static security analysis targeting OWASP Top 10:2025 vulnerabilities, common bytecode security issues, and language-specific security patterns. Analysis only - identifies vulnerabilities, explains findings, and suggests fix approaches without making code changes.
+Static security analysis targeting OWASP Top 10 vulnerabilities and common language-specific
+security patterns. Analysis only — identifies vulnerabilities, explains findings, and
+suggests fix approaches without making code changes.
+
+OWASP renumbers and re-titles its Top 10 categories periodically. Before labeling any finding
+with a category code (A01, A02, ...), do a quick web check against owasp.org/Top10/ to confirm
+the codes below are still current; if they've shifted, use the current codes and note the
+change in the report instead of silently reusing stale labels.
 
 ## Anti-Hallucination Guidelines
 
-Security reviews must be based on actual code analysis and verified patterns, not guesses:
-1. **Read before claiming** - never report a vulnerability in code that hasn't been read
-2. **Evidence-based findings** - every finding references a specific file path and line number
-3. **Pattern matching** - use Grep to find actual vulnerable patterns, not hypothetical ones
-4. **No invented CVEs** - only reference real vulnerabilities when providing context
-5. **Quantifiable results** - count actual instances, don't estimate
-6. **No false positives** - verify each finding matches a documented vulnerability pattern
-7. **Scope verification** - only scan files within the specified scope (PR/commit/all)
+1. **Read before claiming** — never report a vulnerability in code that hasn't been read.
+2. **Evidence-based findings** — every finding references a specific file path and line number.
+3. **Pattern matching** — use Grep to find actual vulnerable patterns, not hypothetical ones.
+4. **No invented CVEs** — only reference real vulnerabilities when providing context.
+5. **Quantifiable results** — statistics come from counting actual matches, never estimates.
+6. **No false positives** — verify each finding matches a documented vulnerability pattern.
+7. **Scope verification** — only scan files within the specified scope (PR/commit/all).
 
 ## Scan Workflow
 
@@ -56,129 +63,141 @@ git diff-tree --no-commit-id --name-only -r <commit_sha>
 
 ### Phase 1: Project Technology Discovery
 
-Use an Explore agent to understand the project's technology stack:
-
-```
-Use Task tool:
-- subagent_type: "Explore"
-- model: "haiku"
-- prompt: "Discover the project's technology stack and security tooling:
-    1. Read package.json, pyproject.toml, pom.xml, go.mod to identify languages/frameworks
-    2. Check for existing security tools: .pre-commit-config.yaml, .github/workflows for SAST
-    3. Identify web frameworks: React/Next.js, Django/Flask, Spring Boot, Express.js
-    4. Check database usage: SQL, NoSQL, ORM patterns
-    5. Look for authentication patterns: JWT, OAuth, session management
-    6. Note any existing SECURITY.md or security policies
-    Return: Technology stack summary with relevant vulnerability categories to prioritize."
-```
+Use an Explore agent (`model: haiku`) to identify the stack: languages/frameworks from
+package.json/pyproject.toml/pom.xml/go.mod, existing security tooling
+(.pre-commit-config.yaml, SAST steps in .github/workflows), web framework, DB/ORM patterns,
+auth patterns (JWT/OAuth/sessions), and any SECURITY.md. Return a stack summary with the
+vulnerability categories to prioritize. No Task tool available? Skip the agent — read those
+same files and grep those same paths yourself, inline, and note the stack directly.
 
 ### Phase 2: Initialize Progress Tracking
 
-Use TodoWrite to track scan progress across all OWASP categories (A01-A10), bytecode security, and report generation.
+Use TodoWrite to track scan progress across all OWASP categories, bytecode security, and
+report generation.
 
-### Phase 3: Parallel Vulnerability Scanning
+### Phase 3: Vulnerability Scanning
 
-Spawn parallel Explore agents (model: haiku), each targeting specific OWASP categories with Grep patterns for actual vulnerable code. For detailed agent prompts and grep patterns, see [references/agent-prompts.md](references/agent-prompts.md).
+Each OWASP category is owned by a fixed agent number (grep patterns and full prompts for
+each are in [references/agent-prompts.md](references/agent-prompts.md)):
 
-**Agent assignments:**
-- **Agent 1**: Access Control & Authentication (A01, A07)
-- **Agent 2**: Configuration & Design (A02, A06)
-- **Agent 3**: Injection & Data Integrity (A05, A08)
-- **Agent 4**: Cryptography & Supply Chain (A04, A03)
-- **Agent 5**: Bytecode & Compiled Code Security
-- **Agent 6**: Logging, Monitoring & Exception Handling (A09, A10)
+| Agent | Owns |
+|---|---|
+| 1 | A01 Access Control, A07 Authentication |
+| 2 | A02 Security Misconfiguration, A06 Insecure Design |
+| 3 | A05 Injection, A08 Data Integrity |
+| 4 | A04 Cryptographic Failures, A03 Supply Chain (SRI/lockfiles/CI trust settings only — see note below) |
+| 5 | Bytecode & compiled-code security |
+| 6 | A09 Logging/Monitoring, A10 Exception Handling |
 
-Spawn only the agent(s) matching `--scope`; spawn all 6 only for `--all` or no scope given.
+**Scope → categories in scope** (the only place scope decides anything — edit this table,
+nowhere else, if scope definitions change):
 
-**Scope → agents:**
-- `web` → Agent 2 (Config & Design) + Agent 3 (Injection & Data Integrity)
-- `api` → Agent 1 (Access Control & Authentication) + Agent 2 (Config & Design)
-- `mobile` → Agent 4 (Cryptography & Supply Chain) + Agent 3 (Injection & Data Integrity)
-- `backend` → Agent 3 (Injection & Data Integrity) + Agent 2 (Config & Design)
-- `frontend` → Agent 2 (Config & Design) + Agent 3 (Injection & Data Integrity)
+| `--scope` | Categories |
+|---|---|
+| `web` | A02, A05 |
+| `api` | A01, A06, A07 |
+| `mobile` | A04, A08 |
+| `backend` | A05, A06, A08 |
+| `frontend` | A02, A05, A08 |
+| (none) / `--all` | all categories, all 6 agents |
 
-Each agent must:
-1. Grep for vulnerability patterns across files in scope
-2. Read each match to verify context
-3. Extract exact code snippets (5-10 lines)
-4. Explain why the code is vulnerable
-5. Classify severity (Critical/High/Medium/Low)
-6. Provide fix recommendations (2-3 approaches)
+Spawn every agent that owns at least one category from the scope's list (per the ownership
+table above). Spawn all 6 for `--all` or no scope given.
+
+Each agent must: grep for its patterns, read each match to verify context, extract the exact
+code snippet (5-10 lines), explain why it's vulnerable, classify severity
+(Critical/High/Medium/Low), and give 2-3 fix approaches.
+
+No Task tool available? Work through each owned category inline and sequentially instead of
+spawning its agent — same grep patterns from the reference file, same read-and-verify step,
+one category at a time.
+
+**A03 note**: dependency staleness and known-CVE checks (outdated package versions, `npm
+audit`-style findings) are review-deps' job, not this skill's — don't duplicate them here.
+Agent 4 only checks the supply-chain surface review-deps doesn't: missing SRI on CDN
+`<script>` tags, absent lockfiles, and CI/CD steps that weaken package integrity (e.g.
+`--trusted-host`, `strict-ssl false`). If dependency CVEs come up, point the user to
+review-deps instead of reporting them here.
 
 ### Phase 4: Consolidate & Analyze Findings
 
-After all agents complete:
+After scanning completes:
 
-1. **Collect all findings** from the 6 parallel agents
-2. **Deduplicate** - remove duplicate findings across agents
-3. **Prioritize by severity**:
-   - **Critical**: RCE, SQLi, authentication bypass, hardcoded secrets
-   - **High**: XSS, CSRF, broken access control, weak crypto
-   - **Medium**: information disclosure, missing logging, insecure design
-   - **Low**: code quality issues with minor security impact
-4. **Categorize by OWASP Top 10:2025**: group findings under A01-A10 categories
-5. **Statistics**: total vulnerabilities, counts by severity/category, files scanned vs. files with issues
+1. **Collect all findings** from every agent/category pass.
+2. **Deduplicate** — remove duplicate findings across categories.
+3. **Prioritize by severity**: Critical (RCE, SQLi, auth bypass, hardcoded secrets) > High
+   (XSS, CSRF, broken access control, weak crypto) > Medium (info disclosure, missing
+   logging, insecure design) > Low (minor security-adjacent code quality).
+4. **Categorize by OWASP category** (confirm codes are current per the note at the top of
+   this file before tagging).
+5. **Statistics**: total vulnerabilities, counts by severity/category, files scanned vs.
+   files with issues — all counted from actual findings, never estimated.
 
 ### Phase 5: Generate Security Report
 
-Generate a comprehensive markdown report following the template in [references/report-template.md](references/report-template.md).
+Generate a markdown report following [references/report-template.md](references/report-template.md).
 
 ### Phase 6: Verification & Quality Check
 
-Before presenting the report, verify:
-1. Every finding has a file path and line numbers
-2. Every finding has an actual code snippet (not a placeholder)
-3. Every finding has a clear explanation of the vulnerability
-4. Every finding has 2-3 fix approaches with examples
-5. Statistics are accurate (counted, not estimated)
-6. No duplicate findings
-7. Severity ratings are justified
-8. Only scanned files within the specified scope
-9. No invented vulnerabilities or false positives
-10. References to CWEs/CVEs are accurate
+Before presenting the report, verify: every finding has a file path + line numbers + an
+actual code snippet (not a placeholder) + a clear explanation + 2-3 fix approaches;
+statistics are counted, not estimated; no duplicate findings; severity ratings are
+justified; only scanned files within the specified scope; no invented vulnerabilities; any
+CWE/CVE references are accurate.
 
 ## Usage
 
 ```bash
-# Scan specific PR
-review-security 123
-review-security #456
-
-# Scan specific commit
-review-security abc123def
-
-# Scan entire codebase
-review-security --all
-review-security
-
-# Focus on specific scope
+review-security 123              # scan files changed in PR #123
+review-security abc123def        # scan files changed in a commit
+review-security --all            # scan entire codebase
+review-security                  # same as --all
 review-security --all --scope web
 review-security 123 --scope api
 ```
 
-## Scope Options
+If no scope is specified, scan comprehensively across all categories.
 
-- `web`: focus on XSS, CSRF, CORS, injection (A02, A05)
-- `api`: focus on authentication, authorization, rate limiting (A01, A07, A06)
-- `mobile`: focus on insecure storage, crypto, data leakage (A04, A08)
-- `backend`: focus on injection, deserialization, business logic (A05, A06, A08)
-- `frontend`: focus on XSS, CSP, SRI, client-side security (A02, A05, A08)
+## Worked Example
 
-If no scope is specified, perform a comprehensive scan across all categories.
+Input: `review-security --all --scope api` on a Flask API.
+
+Agent 1 (A01/A07) and Agent 2 (A02/A06) run — per the scope table above, `api` maps to
+A01/A06/A07, both owned by those two agents. A finding might read:
+
+```
+#### Finding 1: Missing authorization check on account balance endpoint
+- Severity: Critical
+- File: `app/routes/accounts.py:42-47`
+- Code:
+  @app.route("/api/accounts/<account_id>/balance")
+  def get_balance(account_id):
+      account = Account.query.get(account_id)
+      return jsonify(balance=account.balance)
+- Explanation: any authenticated user can read any account's balance by
+  guessing/enumerating account_id — no ownership check against the current session user.
+- Fix approaches:
+  1. Add `if account.owner_id != current_user.id: abort(403)` before the query returns.
+  2. Scope the query itself: `Account.query.filter_by(id=account_id, owner_id=current_user.id).first_or_404()`.
+```
+
+Agent 3/4/5/6 don't run for this scope — their categories (A03-A05, A08-A10, bytecode)
+aren't in the `api` scope's list.
 
 ## Additional Resources
 
-- [references/agent-prompts.md](references/agent-prompts.md) - Detailed grep patterns and agent prompts for each OWASP category
-- [references/report-template.md](references/report-template.md) - Full markdown report template with all sections
+- [references/agent-prompts.md](references/agent-prompts.md) — grep patterns and full agent prompts per category
+- [references/report-template.md](references/report-template.md) — full markdown report template
 
 ## What This Skill Does NOT Do
 
-- Does not modify any code, automatically fix vulnerabilities, or commit changes
+- Does not modify code, auto-fix vulnerabilities, or commit changes
 - Does not run dynamic security testing (DAST) or penetration testing
-- Does not guarantee 100% vulnerability detection (static, pattern-based analysis)
+- Does not audit dependency CVEs, versions, or licenses (use review-deps)
+- Does not guarantee 100% detection — static, pattern-based analysis only
 
 ## OWASP References
 
-- [OWASP Top 10:2025](https://owasp.org/Top10/2025/)
+- [OWASP Top 10](https://owasp.org/www-project-top-ten/)
 - [OWASP Testing Guide](https://owasp.org/www-project-web-security-testing-guide/)
 - [OWASP Code Review Guide](https://owasp.org/www-project-code-review-guide/)

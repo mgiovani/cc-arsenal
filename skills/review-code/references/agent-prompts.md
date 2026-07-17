@@ -362,7 +362,7 @@ Report Addendum (Phase 4/5): add a sixth dimension, **Simplicity & Over-Engineer
 ### For Code Authors
 1. **Address Critical/Major first**: Fix issues that affect correctness and reliability
 2. **Understand the why**: Learn the reasoning behind each finding before fixing
-3. **Request re-review**: Run the skill again after fixes for diff-only validation
+3. **Request re-review**: Run the skill again after fixes — it re-derives the current diff and re-scopes on its own
 4. **Push back on Nits**: Not every suggestion needs to be accepted
 5. **Add tests for bugs found**: Each correctness finding should have a regression test
 
