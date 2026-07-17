@@ -1,9 +1,9 @@
 ---
 name: env-setup
-description: Scan a codebase for environment variable usage, generate/sync .env.example, validate .env completeness, and detect leaked secrets. Use for "/env-setup", "update .env.example", "check for missing env vars", or "scan for leaked secrets in .env". Not a full security audit — see review-security for OWASP-level scanning.
+description: Scans a codebase for environment variable usage to generate or sync .env.example, validate .env completeness against what the code actually reads, and detect leaked secrets in .env or git history. Use for "/env-setup", "update .env.example", "sync .env.example with the codebase", "check if .env has everything it needs", "is .env in .gitignore", or "scan for leaked secrets in .env". Not a full security audit (use review-security for OWASP-level scanning) and not a generic secret-rotation or CI-secrets-injection tool.
 metadata:
   author: mgiovani
-  version: 1.0.0
+  version: 1.1.0
 disable-model-invocation: true
 argument-hint: '[scan|validate|sync] [--check-secrets]'
 allowed-tools:
@@ -21,11 +21,12 @@ Scan the codebase for environment variable usage, generate or update `.env.examp
 
 ## Anti-Hallucination Guidelines
 
-**CRITICAL**: Only report variables that are actually found in the code:
+Only report variables that are actually found in the code:
 1. **Grep before reporting** — Never invent variable names; only list what grep actually returns
 2. **Read .env.example before writing** — Preserve existing entries; only add/update what changed
 3. **No actual secrets** — `.env.example` must only contain placeholder values (e.g., `your_api_key_here`)
 4. **Verify .gitignore** — Actually read the file before claiming `.env` is ignored
+5. **Never echo a found secret value** — when Phase 6 flags a leaked secret, report the variable name and `file:line` only. Never print, quote, or write the actual value into chat output, a report file, or anywhere else — the scan's job is to locate leaks, not to create a second one.
 
 ## Workflow
 
@@ -40,19 +41,9 @@ Also scan:
 
 ### Phase 2: Categorize Variables
 
-Group discovered variables by prefix/service:
-
-```
-Database:    DATABASE_URL, DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD
-Cache:       REDIS_URL, REDIS_HOST, REDIS_PORT
-Auth:        JWT_SECRET, AUTH_SECRET, NEXTAUTH_SECRET, SESSION_SECRET
-OAuth:       GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GITHUB_CLIENT_ID
-Stripe:      STRIPE_SECRET_KEY, STRIPE_PUBLISHABLE_KEY, STRIPE_WEBHOOK_SECRET
-AWS:         AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION, S3_BUCKET
-Email:       SMTP_HOST, SMTP_PORT, SENDGRID_API_KEY, RESEND_API_KEY
-App config:  NODE_ENV, PORT, BASE_URL, APP_URL
-Client vars: NEXT_PUBLIC_*, VITE_*, REACT_APP_*
-```
+Group discovered variables by prefix/service — see the service prefix table in
+`references/scan-patterns.md` for the standard groupings (Database, Cache, Auth, OAuth,
+Stripe, AWS, Email, App config, Client vars).
 
 Classify each variable:
 - **Required vs Optional** (required if no default/fallback in code)
@@ -84,41 +75,17 @@ Generate `.env.example` with:
 - Placeholder values for secrets, real defaults for config
 - Type and description comments
 
-Example output format:
 ```bash
 # =============================================================================
 # Database
 # =============================================================================
 DATABASE_URL=postgresql://user:password@localhost:5432/app_development
-DB_HOST=localhost
-DB_PORT=5432
-
-# =============================================================================
-# Authentication
-# =============================================================================
-# Generate with: openssl rand -hex 32
-JWT_SECRET=your_jwt_secret_here
-NEXTAUTH_SECRET=your_nextauth_secret_here
-
-# =============================================================================
-# Stripe (https://dashboard.stripe.com/apikeys)
-# =============================================================================
-STRIPE_SECRET_KEY=sk_test_your_key_here
-STRIPE_PUBLISHABLE_KEY=pk_test_your_key_here
-STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret_here
-
-# =============================================================================
-# App Config
-# =============================================================================
-NODE_ENV=development
-PORT=3000
-BASE_URL=http://localhost:3000
+JWT_SECRET=your_jwt_secret_here  # openssl rand -hex 32
 ```
 
-**Rules**:
-- Never include real values from `.env` — only placeholders
-- Preserve existing comments and groupings in `.env.example`
-- When updating, only add missing variables; do not reorder existing ones
+Full section-header style and rules (preserve existing entries, only add what's missing,
+never a real value) — see `references/env-example-template.md`, load it when writing the
+actual file.
 
 ### Phase 5: Validate .env (if `validate` subcommand or `.env` exists)
 
@@ -141,17 +108,24 @@ Warn clearly if `.env` is NOT in `.gitignore`.
 
 ```bash
 # Check for common secret patterns
-grep -iE "(password|secret|api_key|private_key|token|auth_key)\s*=\s*['\"]?[a-zA-Z0-9+/]{20,}" .env 2>/dev/null
+grep -iE "(password|secret|api_key|private_key|token|auth_key)\s*=\s*['\"]?[A-Za-z0-9+/_.=-]{16,}" .env 2>/dev/null
 ```
+
+The character class includes `_`, `-`, `.` alongside base64's `+/=` — most real key formats
+(`sk_live_...`, `xoxb-...`, `AKIA...`) contain underscores or hyphens, and a base64-only class
+silently misses them.
 
 **Check git history for leaked secrets**:
 ```bash
 git log --all --full-history --diff-filter=A -p -- .env 2>/dev/null | grep -iE "(password|secret|key)\s*=" | head -20
 ```
 
+Report each hit as a commit + `file:line` reference (e.g. `git log` output line, or
+`.env:12`) — never paste the matched value itself into the report.
+
 **Flag client-exposed secrets**:
 - Check `NEXT_PUBLIC_*`, `VITE_*`, `REACT_APP_*` variables
-- If any contain "secret", "key", "password", "token" in the name — warn loudly
+- If any contain "secret", "key", "password", "token" in the name — warn loudly, by variable name only
 
 **Recommend pre-commit tools**:
 - `detect-secrets` (Python): `pip install detect-secrets && detect-secrets scan > .secrets.baseline`
@@ -166,27 +140,9 @@ git log --all --full-history --diff-filter=A -p -- .env 2>/dev/null | grep -iE "
 
 ## Important Notes
 
-- **NEVER include real secrets** in `.env.example` — only placeholder values
-- **Client-exposed vars** (`NEXT_PUBLIC_*`, `VITE_*`) are bundled into the frontend — never put secrets there
-- **`.env` must be gitignored** — always verify and warn if not
+- **Never include real secrets** in `.env.example` — only placeholder values
+- **Never echo a found secret's value** — report variable name + `file:line` only, whether the finding goes to chat or a report file
+- **Client-exposed vars** (`NEXT_PUBLIC_*`, `VITE_*`) are bundled into the frontend — flag if their name suggests a secret
+- **`.env` must be gitignored** — verify and warn if not
 - **Historical leaks matter** — even if `.env` is gitignored now, it may have been committed in the past
 - **Stale variables** in `.env` can be security risks — document and remove unused ones
-
-## Examples
-
-```bash
-# Scan codebase and generate .env.example
-/env-setup
-
-# Scan with explicit subcommand
-/env-setup scan
-
-# Validate existing .env completeness
-/env-setup validate
-
-# Sync .env.example with current codebase
-/env-setup sync
-
-# Full scan + secret detection
-/env-setup scan --check-secrets
-```

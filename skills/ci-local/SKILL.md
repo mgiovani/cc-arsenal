@@ -30,8 +30,10 @@ or Jenkins instead, say so and stop — no translation layer exists for those ye
 
 ## Phase 1: Find the merge-gating jobs
 
-1. `Glob` for `.github/workflows/*.yml` (and `.yaml`). If none exist, tell the user
-   there's no workflow to mirror and stop.
+1. If invoked with `[workflow-file]` and/or `--job name`, skip the glob — read only
+   that file, and if `--job` is given, extract only that job. Otherwise `Glob` for
+   `.github/workflows/*.yml` (and `.yaml`). If none exist, tell the user there's no
+   workflow to mirror and stop.
 2. Read each file. A job **gates merges** if its workflow triggers on `pull_request`
    or `push` to a protected branch — ignore jobs that only run on `schedule`,
    `workflow_dispatch`, or `release` unless the user asks for those specifically.
@@ -40,6 +42,8 @@ or Jenkins instead, say so and stop — no translation layer exists for those ye
    runs-on, steps (with `uses`/`run`/`env`/`working-directory`), `services:`,
    `strategy.matrix`, and any `${{ secrets.* }}` references. Keep this out of the
    main thread — workflow YAML is verbose and you only need the extracted summary.
+   No subagent tool available? Read the workflow files directly and extract the
+   same summary inline.
 
 ## Phase 2: Translate steps to local commands
 
@@ -95,8 +99,26 @@ Any version-fallback warning from Phase 2 (pinned node/python version unavailabl
 falling back to whatever's on `PATH`) must surface as a caveat/NOT REPLICABLE note in
 this parity table — never absorbed into a PASS.
 
+Every row's result comes from a command you actually ran this session — never write
+PASS, FAIL, or a test count you didn't observe in the Phase 3 output.
+
 State plainly at the end whether the branch would pass the real CI gate, and what's
 still unverified because it couldn't run locally.
+
+## Examples
+
+**Targeted job, `--job lint` given:** skip the glob, read only the named job's steps
+from the file the user pointed at, translate and run just those, report a parity
+table scoped to that one job.
+
+**Python repo, no pinned version in the workflow:** `actions/setup-python` has no
+`python-version:` key → check `pyproject.toml#requires-python`, find `>=3.11`, run
+`uv run --python 3.11 pytest`. Note the fallback source in the parity table
+(`"version from pyproject.toml, not workflow"`), don't silently treat it as pinned.
+
+**Matrix build, `strategy.matrix: node: [18, 20, 22]`:** run once on whatever `fnm`/`nvm`
+resolves locally (say 20), mark 18 and 22 as `NOT REPLICABLE — matrix entry not run
+locally` in the table instead of guessing they'd also pass.
 
 ## Notes
 

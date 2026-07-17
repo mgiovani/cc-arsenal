@@ -9,7 +9,8 @@
         "Generates .github/workflows/ci.yml using the exact lint/test/build scripts found in package.json, not invented ones",
         "Pins action versions to specific tags rather than using 'latest'",
         "Includes lint, test, and build stages, with security/dependency scanning included by default",
-        "Validates the generated YAML (e.g. via python3 yaml.safe_load) and presents a summary of stages and required secrets"
+        "Validates the generated YAML (e.g. via python3 yaml.safe_load) and presents a summary of stages and required secrets",
+        "The summary does not include a fabricated estimated run time per stage"
       ]
     },
     {
@@ -30,7 +31,19 @@
         "Produces a matrix or path-filtered workflow structure reflecting the --monorepo flag",
         "Includes an AWS-specific deployment stage distinct from generic deploy boilerplate",
         "Lists required secrets/environment variables for the AWS deploy in the final summary",
-        "Does not include services (e.g. Redis, Postgres) unless they are confirmed project dependencies"
+        "Does not include services (e.g. Redis, Postgres) unless they are confirmed project dependencies",
+        "The deploy step references the image tag/digest produced by the build job (e.g. via job outputs consumed in a task-definition render or equivalent) rather than issuing a blind restart like 'aws ecs update-service --force-new-deployment' with no image reference"
+      ]
+    },
+    {
+      "id": "ambiguous-deploy-target-refusal",
+      "prompt": "add a deploy stage to our CI pipeline (no platform argument given, no existing deploy config, no hosting service referenced anywhere in the project's dependencies or config files)",
+      "assertions": [
+        "Does not silently pick a deployment platform (e.g. Vercel, AWS, Netlify) when none is specified and none is inferable from project config",
+        "Asks the user which deployment target to use before generating or writing any deploy stage",
+        "Does not write, create, or modify any CI config file before the user answers the clarifying question",
+        "No deploy-related command (docker push, vercel deploy, aws ecs, etc.) appears anywhere in the run's output",
+        "The run's final message ends on the clarifying question about deployment target rather than proceeding with a guessed pipeline"
       ]
     }
   ]

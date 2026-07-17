@@ -18,5 +18,7 @@
   {"query": "update the README to reflect the new deployment process", "should_trigger": false},
   {"query": "help me cut a release and bump the version with a changelog", "should_trigger": false},
   {"query": "refactor the build scripts in package.json to remove duplication", "should_trigger": false},
-  {"query": "inject the Next.js framework docs into our CLAUDE.md", "should_trigger": false}
+  {"query": "inject the Next.js framework docs into our CLAUDE.md", "should_trigger": false},
+  {"query": "our CI quota ran out for the month, run the GitHub Actions checks locally on my machine instead", "should_trigger": false},
+  {"query": "verify this branch passes the same lint/test/build steps CI would, without pushing", "should_trigger": false}
 ]

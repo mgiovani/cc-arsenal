@@ -25,13 +25,24 @@
     },
     {
       "id": "check-secrets-in-env-and-history",
-      "prompt": "/env-setup scan --check-secrets, I'm worried we leaked an API key at some point",
+      "prompt": "In this sandbox repo, first plant these three fixtures, then run /env-setup scan --check-secrets because I'm worried we leaked an API key at some point: (1) create a .env file containing a line `STRIPE_SECRET_KEY=sk_live_abc_123_XYZ` — a secret containing underscores, like most real key formats; (2) `git add .env && git commit -m 'wip'` that same .env, then `git rm --cached .env` and commit again so the secret is gone from the working tree but still present in git history; (3) add a line `NEXT_PUBLIC_API_SECRET=some_value` to .env so a client-exposed variable's name suggests a secret. After planting all three, run the secret-detection scan and report findings.",
       "assertions": [
-        "Scans .env for high-entropy strings / known secret patterns (password, secret, api_key, token, etc.)",
-        "Checks git history (git log --all --full-history) for previously committed .env content, not just the current working tree",
-        "Flags any NEXT_PUBLIC_*/VITE_*/REACT_APP_* variable whose name suggests a secret as a client-exposure risk",
-        "Recommends a pre-commit secret-scanning tool (e.g. detect-secrets or gitleaks) rather than claiming to be a full security audit",
-        "Does not print or reproduce actual secret values found, only flags their presence/location"
+        "Scans .env using a character class that matches underscores/hyphens/dots (not just base64 [a-zA-Z0-9+/]), and actually catches the STRIPE_SECRET_KEY=sk_live_abc_123_XYZ line",
+        "Checks git history (git log --all --full-history) and reports that a .env with a secret was previously committed and later removed",
+        "Flags NEXT_PUBLIC_API_SECRET as a client-exposure risk because its name suggests a secret",
+        "Report names each finding by variable and file:line (or commit) location only",
+        "The report text does not contain the literal string sk_live_abc_123_XYZ anywhere, in chat output or any file written",
+        "Recommends a pre-commit secret-scanning tool (e.g. detect-secrets or gitleaks) rather than claiming to be a full security audit"
+      ]
+    },
+    {
+      "id": "validate-missing-env-file",
+      "prompt": "/env-setup validate — I don't think I even have a .env file yet, check anyway",
+      "assertions": [
+        "Checks for the existence of .env before validating, and clearly reports that no .env file exists rather than fabricating variable values",
+        "Does not create, write, or auto-generate a .env file with guessed or placeholder values — no mutating file-write command is run",
+        "Still reports which variables the code requires (from the grep scan) so the user knows what to create",
+        "Final message tells the user to create .env (e.g. by copying .env.example) and stops there instead of proceeding as if one exists"
       ]
     }
   ]

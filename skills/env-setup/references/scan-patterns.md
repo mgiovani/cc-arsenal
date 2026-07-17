@@ -1,4 +1,6 @@
-# Per-Language Env Var Scan Patterns
+# Scan Patterns and Variable Categories
+
+## Per-Language Scan Patterns
 
 Run only the pattern(s) matching the project's detected stack (check for `package.json`, `requirements.txt`/`pyproject.toml`, `Gemfile`, `Cargo.toml`, `pom.xml`/`build.gradle`).
 
@@ -42,4 +44,20 @@ grep -rE 'System\.getenv\("([A-Z_][A-Z0-9_]*)"\)' --include="*.java" --include="
 ```bash
 grep -rE "^\s+- [A-Z_][A-Z0-9_]*=" docker-compose.yml docker-compose.*.yml 2>/dev/null \
   | grep -oE "[A-Z_][A-Z0-9_]*=" | tr -d "=" | sort -u
+```
+
+## Service Prefix Groups
+
+Group discovered variables by prefix/service for reporting and for `.env.example` section headers:
+
+```
+Database:    DATABASE_URL, DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD
+Cache:       REDIS_URL, REDIS_HOST, REDIS_PORT
+Auth:        JWT_SECRET, AUTH_SECRET, NEXTAUTH_SECRET, SESSION_SECRET
+OAuth:       GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GITHUB_CLIENT_ID
+Stripe:      STRIPE_SECRET_KEY, STRIPE_PUBLISHABLE_KEY, STRIPE_WEBHOOK_SECRET
+AWS:         AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION, S3_BUCKET
+Email:       SMTP_HOST, SMTP_PORT, SENDGRID_API_KEY, RESEND_API_KEY
+App config:  NODE_ENV, PORT, BASE_URL, APP_URL
+Client vars: NEXT_PUBLIC_*, VITE_*, REACT_APP_*
 ```

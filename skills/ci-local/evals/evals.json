@@ -7,19 +7,19 @@
       "assertions": [
         "Reads .github/workflows/*.yml to discover the jobs/steps that gate merges before running anything",
         "Extracts and uses the workflow's pinned node/python version (e.g. from actions/setup-node or .nvmrc) rather than whatever happens to be on PATH",
-        "Runs the extracted lint/test/build commands sequentially and reports pass/fail for each",
+        "Runs the extracted lint/test/build commands sequentially and reports pass/fail for each, with results traceable to actual command output rather than assumed",
         "Produces a parity table noting any CI steps that could not be replicated locally (services, secrets, matrix) and why",
         "Does not modify or commit the GitHub Actions workflow files themselves"
       ]
     },
     {
-      "id": "pre-push-full-check",
-      "prompt": "before I push this branch can you verify it the same way CI would",
+      "id": "targeted-job-flag",
+      "prompt": "run just the lint job from .github/workflows/ci.yml locally, don't bother with the whole pipeline (--job lint)",
       "assertions": [
-        "Locates the relevant .github/workflows yaml and identifies the jobs triggered on push/pull_request (the merge-gating jobs)",
-        "Translates each step to an equivalent local command instead of inventing a generic lint/test/build guess",
-        "Executes the translated commands and stops/reports clearly on the first failing step with its output",
-        "Final report distinguishes steps that passed locally from steps that are not replicable locally rather than declaring blanket success"
+        "Skips globbing for other workflow files and reads only the specified workflow file",
+        "Extracts and runs only the named job's steps, not every job defined in the file",
+        "Reports a parity table scoped to that one job rather than the full workflow",
+        "Does not run steps belonging to other jobs in the same file"
       ]
     },
     {
@@ -28,8 +28,19 @@
       "assertions": [
         "Identifies the services: block and secrets: usage from the workflow yaml as things needing special handling",
         "Explicitly flags the postgres service and any secret-dependent steps as not directly replicable, explaining why (no service container / missing secret value)",
+        "Does not fabricate or assume a pass/fail result for a step it could not actually run",
         "Still executes and reports results for steps that don't depend on the service or the missing secrets",
         "Parity report clearly separates ran-and-passed/failed entries from skipped-can't-replicate entries"
+      ]
+    },
+    {
+      "id": "no-github-actions-refusal",
+      "prompt": "verify this branch the way CI would before I push — the repo uses a .gitlab-ci.yml, there's no .github/workflows directory",
+      "assertions": [
+        "States plainly that this skill only handles GitHub Actions workflows and there is no .github/workflows to mirror",
+        "Does not invent or guess at a generic lint/test/build sequence to run in place of a real workflow",
+        "Runs no build, test, lint, or other command before reporting the refusal — no shell command is executed",
+        "Stops after reporting the gap instead of attempting a partial or best-guess translation of the GitLab CI config"
       ]
     }
   ]

@@ -1,0 +1,22 @@
+[
+  {"query": "dockerize this Node app", "should_trigger": true},
+  {"query": "generate a docker-compose.yml for this project", "should_trigger": true},
+  {"query": "add a Dockerfile to this repo", "should_trigger": true},
+  {"query": "containerize my python api", "should_trigger": true},
+  {"query": "I need a Dockerfile and compose file with postgres and redis", "should_trigger": true},
+  {"query": "set up docker for local dev with a mysql service", "should_trigger": true},
+  {"query": "create a production docker-compose overlay", "should_trigger": true},
+  {"query": "add health checks and a non-root user to our Dockerfile", "should_trigger": true},
+  {"query": "generate docker-compose with --services postgres,redis,meilisearch", "should_trigger": true},
+  {"query": "scaffold docker for this monorepo service", "should_trigger": true},
+  {"query": "write a GitHub Actions workflow to build and push this Docker image", "should_trigger": false},
+  {"query": "create a CI pipeline for this repo", "should_trigger": false},
+  {"query": "generate a database migration to add a users table", "should_trigger": false},
+  {"query": "run the pending migrations", "should_trigger": false},
+  {"query": "sync my .env.example with the vars used in the codebase", "should_trigger": false},
+  {"query": "check this repo for leaked secrets", "should_trigger": false},
+  {"query": "why is my docker container crashing on startup", "should_trigger": false},
+  {"query": "explain what docker compose up does", "should_trigger": false},
+  {"query": "review this pull request for security issues", "should_trigger": false},
+  {"query": "write unit tests for this service", "should_trigger": false}
+]

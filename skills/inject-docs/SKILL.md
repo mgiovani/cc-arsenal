@@ -14,7 +14,7 @@ metadata:
   version: 1.0.0
 disable-model-invocation: true
 argument-hint: ''
-allowed-tools: Bash(npx *), Bash(node *), Bash(uv run *), Bash(cat *), Read, Grep, Glob, Task, AskUserQuestion
+allowed-tools: Bash(npx *), Bash(node *), Bash(uv run *), Bash(cat *), Read, Grep, Glob, AskUserQuestion
 ---
 
 # Framework Documentation Injector
@@ -87,10 +87,10 @@ Where `<TARGET_FILE>` is the file detected in Phase 0 (e.g., `CLAUDE.md` or `AGE
 
 #### Option B: FastAPI Projects
 
-Run the bundled injection script:
+Run the bundled injection script using this skill's own absolute directory path — not `$(dirname "$0")`. That trick resolves against the *shell's* path when run through the Bash tool, not this SKILL.md's location, so it silently points at the wrong (or a nonexistent) script. Use the directory this SKILL.md was loaded from instead:
 
 ```bash
-uv run "$(dirname "$0")/scripts/inject_fastapi_docs.py"
+uv run <absolute-path-to-this-skill-dir>/scripts/inject_fastapi_docs.py
 ```
 
 The script:
@@ -145,4 +145,16 @@ Created CLAUDE.md (0 B -> 6.8 KB) with "FastAPI Best Practices" section
 
 Review the changes and commit when ready:
   git add CLAUDE.md && git commit -m "docs: add FastAPI best-practices reference"
+```
+
+### Unsupported framework
+
+```
+> inject docs for this Django app
+
+Checked package.json, pyproject.toml, requirements.txt - no `next` or
+`fastapi` dependency found.
+
+Could not detect a supported framework (Next.js or FastAPI). This skill
+only injects docs for those two. No files were changed.
 ```

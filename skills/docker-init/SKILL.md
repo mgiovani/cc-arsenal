@@ -1,9 +1,9 @@
 ---
 name: docker-init
-description: Generate Dockerfiles and docker-compose.yml with auto-detected services, health checks, security hardening, and resource limits. Use when the user asks to dockerize/containerize a project, add docker-compose, or generate a Dockerfile. Not for CI pipelines (ci-generate) or DB schema migrations (db-migrate).
+description: Generates production-ready docker-compose.yml and Dockerfile(s) for a project by scanning its manifest files (package.json, pyproject.toml, Gemfile, go.mod, Cargo.toml) and source code for service dependencies (Postgres, MySQL, Redis, MongoDB, RabbitMQ, Kafka, Elasticsearch, MinIO, Mailhog, etc.), then emitting compose services with health checks, security hardening, resource limits, and non-root Dockerfiles. Use when the user asks to dockerize or containerize a project, add docker-compose, generate a Dockerfile, or set up local dev services in containers. Not for CI/CD pipeline configs (use ci-generate), database schema migrations (use db-migrate), or scanning/syncing environment variables and secrets (use env-setup).
 metadata:
   author: mgiovani
-  version: 1.0.0
+  version: 1.1.0
 disable-model-invocation: true
 argument-hint: '[--services postgres,redis] [--prod] [--with-dockerfile]'
 allowed-tools:
@@ -20,14 +20,14 @@ allowed-tools:
 
 Generate production-ready `docker-compose.yml` and `Dockerfile` with auto-detected services, health checks, resource limits, and security hardening.
 
-## Anti-Hallucination Guidelines
+## Guardrails
 
-**CRITICAL**: Only generate compose configs based on what the codebase actually uses:
-1. **Scan before generating** — Read `package.json`, `pyproject.toml`, `requirements.txt`, etc. before proposing services
-2. **Check for existing files** — Read existing `docker-compose.yml` or `Dockerfile` before overwriting
-3. **Validate images** — Only use well-known official images; do not invent image tags
-4. **No secrets in files** — Never put secrets, passwords, or API keys in compose files; use `env_file`
-5. **Check .dockerignore** — If it exists, read it before suggesting changes
+Only generate configs based on what the codebase actually uses:
+1. **Scan before generating** — read `package.json`, `pyproject.toml`, `requirements.txt`, etc. before proposing services.
+2. **Read existing files first** — if `docker-compose.yml` or `Dockerfile` already exist, read them fully before proposing any change, and ask the user whether to update in place or regenerate. Never overwrite an existing service definition you haven't read.
+3. **Only well-known official images** — do not invent image names or tags.
+4. **No secrets in files** — never put secrets, passwords, or API keys in compose files; use `${VAR}` references pointing at `.env`.
+5. **Read `.dockerignore` before changing it**, if it exists.
 
 ## Workflow
 
@@ -62,37 +62,18 @@ Check for existing Docker files:
 ls docker-compose.yml docker-compose.yaml Dockerfile .dockerignore 2>/dev/null
 ```
 
-If files exist, read them before proposing changes and ask user whether to update or create fresh.
-
 ### Phase 2: Propose Services
 
-Map detected dependencies to Docker services. Show the proposal and let user confirm/modify:
-
-**Dependency-to-service mapping**:
-
-| Detected | Proposed Service | Default Image |
-|----------|-----------------|---------------|
-| `pg`, `psycopg`, `postgres` | PostgreSQL | `postgres:16-alpine` |
-| `mysql`, `pymysql` | MySQL | `mysql:8.0` |
-| `redis`, `ioredis` | Redis / Valkey | `redis:7-alpine` |
-| `mongodb`, `pymongo` | MongoDB | `mongo:7` |
-| `rabbitmq`, `pika`, `amqp` | RabbitMQ | `rabbitmq:3-management-alpine` |
-| `kafka`, `confluent` | Kafka + Zookeeper | `confluentinc/cp-kafka:7.6.0` |
-| `meilisearch` | Meilisearch | `getmeili/meilisearch:v1.9` |
-| `elasticsearch` | Elasticsearch | `elasticsearch:8.12.0` |
-| `celery`, `sidekiq` | Redis (queue backend) | `redis:7-alpine` |
-| `mailhog`, `smtp`, `mailer` | Mailhog | `mailhog/mailhog:v1.0.1` |
-| `minio`, `s3` | MinIO | `minio/minio:RELEASE.2024-06-13T22-53-53Z` |
+Map detected dependencies to Docker services and show the proposal for the user to confirm/modify. See `references/service-catalog.md` for the full dependency-to-image mapping — load it whenever the scan surfaces a dependency not already covered by the examples in this file.
 
 Only ask about services the scan didn't already resolve:
 - If no Dockerfile exists and the scan found no app service in an existing compose file, ask whether to include one (requires `--with-dockerfile`).
-- If the mapping table surfaced a mail-related dependency (`mailhog`, `smtp`, `mailer`), ask whether to add Mailhog — don't ask otherwise.
+- If the mapping surfaced a mail-related dependency (`mailhog`, `smtp`, `mailer`), ask whether to add Mailhog — don't ask otherwise.
 
 ### Phase 3: Generate docker-compose.yml
 
-Generate `docker-compose.yml` (no `version:` field — modern standard) with:
+Generate `docker-compose.yml` with no `version:` key (deprecated in modern Compose). Every service needs a health check, security hardening, and resource limits:
 
-**Every service must include**:
 ```yaml
 services:
   postgres:
@@ -112,6 +93,8 @@ services:
       retries: 5
       start_period: 30s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     networks:
       - db
     deploy:
@@ -121,13 +104,9 @@ services:
           memory: 512M
 ```
 
-**Security defaults** (applied to every service):
-```yaml
-security_opt:
-  - no-new-privileges:true
-```
+`security_opt: [no-new-privileges:true]` applies to every service, not just Postgres.
 
-**Network segmentation** (create as needed):
+**Networks** (create as needed for segmentation):
 ```yaml
 networks:
   frontend:    # App <-> reverse proxy
@@ -142,30 +121,40 @@ volumes:
   redis_data:
 ```
 
-**Health check patterns per service**:
+**Kafka defaults to KRaft mode, not Zookeeper.** A Zookeeper-backed Kafka is legacy topology and adds a second container for no benefit in a dev/prod compose file — use the single-node KRaft form unless the user explicitly asks for a Zookeeper-based cluster:
 
-| Service | Health Check |
-|---------|-------------|
-| Postgres | `pg_isready -U ${USER}` |
-| MySQL | `mysqladmin ping -h localhost` |
-| Redis | `redis-cli ping` |
-| MongoDB | `mongosh --eval "db.adminCommand('ping')"` |
-| RabbitMQ | `rabbitmq-diagnostics -q ping` |
-| MinIO | `mc ready local` |
+```yaml
+services:
+  kafka:
+    image: apache/kafka:latest   # pin to a specific tag (e.g. 3.8.0) before deploying to prod
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-broker-api-versions.sh --bootstrap-server localhost:9092"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    security_opt:
+      - no-new-privileges:true
+```
+
+Health check commands for other services (Postgres, MySQL, Redis, MongoDB, RabbitMQ, MinIO) are in `references/service-catalog.md`.
 
 ### Phase 4: Generate Dockerfile (if `--with-dockerfile`)
 
-Generate a multi-stage `Dockerfile` for the detected stack:
+Generate a multi-stage `Dockerfile` for the detected stack. The runtime stage must create and switch to a non-root user:
 
-**Node.js example**:
+**Node.js**:
 ```dockerfile
-# Build stage
 FROM node:22-alpine AS builder
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci --only=production
 
-# Runtime stage
 FROM node:22-alpine AS runtime
 RUN addgroup -g 1001 -S appgroup && adduser -S appuser -u 1001 -G appgroup
 WORKDIR /app
@@ -176,7 +165,7 @@ EXPOSE 3000
 CMD ["node", "src/index.js"]
 ```
 
-**Python example**:
+**Python**:
 ```dockerfile
 FROM python:3.12-slim AS builder
 WORKDIR /app
@@ -210,12 +199,12 @@ build/
 
 ### Phase 5: Generate Production Overlay (if `--prod`)
 
-Create `docker-compose.prod.yml` with production hardening:
+Create `docker-compose.prod.yml` with production hardening — no direct port exposure, `restart: always`, tighter resource limits, bounded log files:
 
 ```yaml
 services:
   postgres:
-    ports: []          # No direct port exposure
+    ports: []
     restart: always
     deploy:
       resources:
@@ -231,14 +220,13 @@ services:
 
 ### Phase 6: Validate
 
-Run validation after generating:
-
 ```bash
 docker compose config --quiet 2>&1 && echo "Valid" || echo "Errors found"
 ```
 
-Check that `.dockerignore` exists (create minimal one if missing).
-Remind user to add real secrets to `.env` (and verify `.env` is in `.gitignore`).
+If `docker` isn't installed or the command isn't found, skip this step and tell the user to run it themselves once Docker is available — don't claim the config was validated when it wasn't.
+
+Check that `.dockerignore` exists (create a minimal one if missing). Remind the user to add real secrets to `.env` and verify `.env` is in `.gitignore`.
 
 ## Argument Parsing
 
@@ -248,12 +236,12 @@ Remind user to add real secrets to `.env` (and verify `.env` is in `.gitignore`)
 
 ## Important Notes
 
-- **No `version:` field** in compose files — deprecated in modern Docker Compose
-- **No hardcoded secrets** — Always use `${VAR}` references pointing to `.env`
-- **Health checks are required** — Services without health checks cause unreliable startup ordering
-- **Non-root users** — App containers must run as non-root; use `USER` in Dockerfile
-- **Resource limits** — Always set `deploy.resources.limits` to prevent runaway containers
-- **Multi-stage builds** — Required for production Dockerfiles to minimize image size
+- No `version:` field in compose files — deprecated in modern Docker Compose.
+- No hardcoded secrets — always use `${VAR}` references pointing to `.env`.
+- Every service needs a health check; without one, startup ordering between dependent services is unreliable.
+- App containers run as non-root — create the user in the Dockerfile and switch with `USER`.
+- Set `deploy.resources.limits` on every service to prevent a runaway container from starving the host.
+- Production Dockerfiles use multi-stage builds to keep the final image small.
 
 ## Examples
 
