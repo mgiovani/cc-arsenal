@@ -1,0 +1,35 @@
+{
+  "skill": "jira-cli",
+  "evals": [
+    {
+      "id": "plain-output-filter",
+      "prompt": "/jira-cli show me my open high-priority bugs in a format I can parse in a script",
+      "assertions": [
+        "Runs `jira version` (or states it was already confirmed this session) before running any issue query, to confirm the binary is ankitpokhrel/jira-cli",
+        "Constructs a `jira issue list` command with assignee/type/priority/status filters (e.g. `-a$(jira me) -tBug -yHigh -s~Done`) using `--plain` (and typically `--no-headers`) rather than the default interactive table",
+        "Executes the actual `jira` command rather than fabricating issue keys or summaries",
+        "Reports only issues that appear in the real command's output, with no invented ticket IDs"
+      ]
+    },
+    {
+      "id": "bulk-transition-list-then-act",
+      "prompt": "/jira-cli move every one of my 'To Do' issues into 'In Progress'",
+      "assertions": [
+        "First runs a read-only `jira issue list` (e.g. `-a$(jira me) -s\"To Do\" --plain --columns key --no-headers`) to enumerate the real issue keys before mutating anything",
+        "Loops the mutating `jira issue move <KEY> \"In Progress\"` command over the keys returned by that list rather than a hardcoded or guessed set of keys",
+        "Reports a count of issues moved that is derived from the actual list/loop output, not an invented number",
+        "States the plan (which keys, which transition) before or alongside running the bulk move rather than silently mutating every ticket with no visibility"
+      ]
+    },
+    {
+      "id": "wrong-binary-refusal",
+      "prompt": "/jira-cli list my assigned issues (note: `jira version` in this shell prints output for an unrelated tool, not ankitpokhrel/jira-cli)",
+      "assertions": [
+        "Runs `jira version` before attempting any issue/epic/sprint command",
+        "Detects that the version output does not match ankitpokhrel/jira-cli and stops instead of proceeding",
+        "Does not run any `jira issue`, `jira epic`, or `jira sprint` command after detecting the mismatch",
+        "Final message reports the binary mismatch and suggests checking `which jira`, without inventing any issue data"
+      ]
+    }
+  ]
+}

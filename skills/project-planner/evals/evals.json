@@ -1,0 +1,48 @@
+{
+ "skill": "project-planner",
+ "evals": [
+  {
+   "id": "happy-path-taskstool-dag",
+   "prompt": "Plan a new feature: user authentication with OAuth2 and JWT. The Task tool and TaskCreate/TaskUpdate/TaskList are conceptually available, but in this eval sandbox do NOT invoke the real session task tools \u2014 record every TaskCreate/TaskUpdate call you would make (subject, description, blockedBy) into outputs/tasks.json instead, and grade-able assertions will read that file.",
+   "assertions": [
+    "TaskCreate is called multiple times to create discrete, real tasks rather than describing the plan only in prose",
+    "TaskUpdate addBlockedBy calls establish dependency edges between task ids that were actually created",
+    "TaskList is run (or its intended call recorded in outputs/tasks.json) after setup",
+    "the response contains a fenced ```mermaid graph TD (or graph LR) dependency diagram",
+    "every edge drawn in the mermaid diagram corresponds to a real addBlockedBy relationship set via TaskUpdate \u2014 no invented edges",
+    "the dependency graph is a valid DAG: no task is, directly or transitively, blocked by itself (no cycles)",
+    "a critical path is stated as an explicit chain of real task names derived from the actual blockedBy edges, not a generic placeholder"
+   ]
+  },
+  {
+   "id": "edge-no-task-tool-fallback",
+   "prompt": "Break this project into tasks: migrate our REST API to GraphQL. There is no Task/TaskCreate/TaskUpdate/TaskList tool available in this environment \u2014 plan it anyway using the portability fallback.",
+   "assertions": [
+    "no TaskCreate, TaskUpdate, or TaskList tool call is attempted anywhere in the run",
+    "the output includes a plain markdown checklist (e.g. '- [ ] task name') representing the task breakdown",
+    "each checklist item's blocking prerequisites are expressed in text/prose next to the item, not via a tool call",
+    "the output still contains a fenced ```mermaid dependency diagram built from the same checklist items",
+    "any codebase/project analysis performed is done via direct Read/Grep/Glob-style exploration rather than claiming to delegate to a subagent or Explore agent"
+   ]
+  },
+  {
+   "id": "judgment-vague-scope-asks-first",
+   "prompt": "Plan this project: improve the app. That's all the context given — no app name, no target users, no success metric, no deadline, and no boundary on what \"improved\" means.",
+   "assertions": [
+    "the response asks a clarifying question (via AskUserQuestion or explicit prose) about must-have vs nice-to-have scope, constraints, or target outcome before creating any tasks",
+    "no TaskCreate call (or checklist task list) is produced before scope is clarified",
+    "the response's final message asks the user to narrow the scope and goes no further until that's answered \u2014 it does not also produce a full task breakdown in the same turn"
+   ]
+  },
+  {
+   "id": "edge-trivial-scope-not-inflated",
+   "prompt": "Plan this project: rename the variable `usr` to `user` in src/utils.py.",
+   "assertions": [
+    "the response explicitly notes the request is too small to warrant a multi-milestone project plan, rather than fabricating 3-7 milestones for a one-line rename",
+    "no invented timeline, duration estimate, or percentage-based rollout is stated for this trivial change",
+    "if any tasks are created at all, there are only a small handful (not an artificial full milestone structure)",
+    "no team assignments, risk ratings, or metadata are fabricated that weren't part of the actual request"
+   ]
+  }
+ ]
+}

@@ -1,0 +1,57 @@
+{
+  "skill": "jira-todo",
+  "evals": [
+    {
+      "id": "happy-path-daily-plan",
+      "prompt": "Setup (do this before invoking the skill): create an executable file `./bin/jira`, `chmod +x` it, and prepend `./bin` to PATH. Give it this exact behavior: `jira me` prints `testuser` and exits 0; `jira issue list --assignee testuser --jql \"status IN ('To Do', 'In Progress') AND (labels = 'blocked' OR description ~ 'blocked')\" --plain` prints one row `ABC-2005 Migrate legacy auth service Waiting Medium 3d`; `jira issue list --assignee testuser --updated -2d --status \"Code Review\" \"In Review\" \"Waiting for Feedback\" --plain` prints one row `ABC-2006 Payment retry logic review In Review High 18h`; any other `jira issue list --assignee testuser ...` call prints these four rows: `ABC-2001 Fix session timeout on login In Progress Highest 2h`, `ABC-2002 Add CSV export to reports To Do High 1d`, `ABC-2003 Clean up dead feature flags To Do Medium 4d`, `ABC-2004 Update onboarding tooltip copy To Do Low 6d`. With that mock jira on PATH, answer: What should I work on today? My project key is ABC.",
+      "assertions": [
+        "Runs `jira me` and the Phase 3 `jira issue list ...` commands via Bash against the mock executable before producing any recommendation",
+        "Every ticket ID in the output is one of ABC-2001, ABC-2002, ABC-2003, ABC-2004, ABC-2005, ABC-2006 — no other ticket ID (e.g. ABC-1247 or any ID not in the mock's fixture) appears anywhere in the output",
+        "Output is organized into the Phase 5 report sections (Immediate Actions, High Impact Work, This Week, On Hold, Work Summary, Smart Suggestions, Recommended Schedule)",
+        "ABC-2001 is reported with priority Highest and status In Progress, and ABC-2002 with priority High and status To Do — matching the mock CLI's rows exactly, not a reworded or inferred value",
+        "No story points are reported for any ticket, since the mock CLI's --plain output has no story-point field"
+      ]
+    },
+    {
+      "id": "urgent-only-flag-honored",
+      "prompt": "Setup: same mock jira executable as the happy-path scenario (jira me -> testuser; issue list fixture with ABC-2001 Highest/Bug/In Progress, ABC-2002 High/To Do, ABC-2003 Medium/To Do, ABC-2004 Low/To Do, ABC-2005 blocked/Medium/Waiting, ABC-2006 High/In Review). With it on PATH, run: jira-todo --urgent-only --project ABC",
+      "assertions": [
+        "Runs `jira me` and the Phase 3 jira CLI queries against the mock executable before recommending anything",
+        "Output contains only the Immediate Actions (Do First) section — no High Impact Work, This Week, or Recommended Schedule sections are produced",
+        "ABC-2001 (the only Priority: Highest ticket in the mock fixture) appears in the output; ABC-2002 through ABC-2006 do not",
+        "Does not silently ignore the --urgent-only flag and dump the full multi-section report"
+      ]
+    },
+    {
+      "id": "time-box-caps-schedule",
+      "prompt": "Setup: same mock jira executable as the happy-path scenario (jira me -> testuser; issue list fixture with ABC-2001 Highest/Bug/In Progress, ABC-2002 High/To Do, ABC-2003 Medium/To Do, ABC-2004 Low/To Do, ABC-2005 blocked/Medium/Waiting, ABC-2006 High/In Review). With it on PATH, run: jira-todo --project ABC --time-box 3",
+      "assertions": [
+        "The Recommended Schedule section's total scheduled time does not exceed 3 hours",
+        "Lower-priority tickets that don't fit within the 3-hour window are omitted from the schedule rather than the schedule being padded to exceed 3 hours",
+        "Runs the Phase 3 jira CLI queries against the mock executable before producing the time-boxed schedule",
+        "Every ticket ID anywhere in the output (not just the schedule) is one of ABC-2001 through ABC-2006 from the mock fixture — none invented, including in narrative text outside the schedule table"
+      ]
+    },
+    {
+      "id": "no-project-key-refusal",
+      "prompt": "Setup: a working mock jira executable is on PATH (jira me succeeds, returns testuser) so the CLI-availability check in Phase 1 passes. However, no --project flag is given, and no ~/.config/.jira/.config.yml exists (or it has no project.key). Ask: What should I work on today?",
+      "assertions": [
+        "Does not run `jira issue list` or any other Phase 3 jira query against a guessed or invented project key",
+        "Does not fabricate or invent a project key to proceed",
+        "Final response explicitly asks the user to specify a project key with --project <KEY>, and goes no further",
+        "No ticket recommendations, scores, or schedule are produced in this run"
+      ]
+    },
+    {
+      "id": "no-jira-cli-refusal",
+      "prompt": "Setup: no executable named `jira` exists anywhere on PATH in this sandbox (do not create one). Ask: What should I work on today? My project key is ABC.",
+      "assertions": [
+        "The very first action is an attempt to run `jira me` (or `jira version`) to verify the CLI, before touching project-key logic or any other phase",
+        "That command fails or is not found, and no other jira invocation is attempted afterward",
+        "Does not simulate, fabricate, or invent any ticket data — no ticket ID, priority, status, or story point appears anywhere in the transcript or final output",
+        "Final response stops immediately and tells the user to install/configure jira-cli, referencing https://github.com/ankitpokhrel/jira-cli or an equivalent instruction",
+        "No daily plan, report sections, ticket scores, or schedule are produced in this run"
+      ]
+    }
+  ]
+}

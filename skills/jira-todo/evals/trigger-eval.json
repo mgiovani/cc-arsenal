@@ -1,0 +1,22 @@
+[
+  { "query": "What should I work on today?", "should_trigger": true },
+  { "query": "Help me plan my workday from my Jira tickets", "should_trigger": true },
+  { "query": "Prioritize my assigned tickets, I don't know where to start", "should_trigger": true },
+  { "query": "Triage my Jira backlog and tell me what's most important", "should_trigger": true },
+  { "query": "jira-todo --urgent-only", "should_trigger": true },
+  { "query": "I only have 3 hours today, what should I focus on?", "should_trigger": true },
+  { "query": "What's the highest priority thing on my plate right now?", "should_trigger": true },
+  { "query": "Give me a daily plan based on my open tickets", "should_trigger": true },
+  { "query": "Should I keep working on ABC-1234 or switch to something else?", "should_trigger": true },
+  { "query": "Which of my tickets are blocking other people?", "should_trigger": true },
+  { "query": "What did I work on yesterday for standup?", "should_trigger": false },
+  { "query": "Generate my standup update from git and Jira activity", "should_trigger": false },
+  { "query": "Summarize what I completed this week for my manager", "should_trigger": false },
+  { "query": "Run `jira issue list --status Done` for me", "should_trigger": false },
+  { "query": "How do I create a new epic in jira-cli?", "should_trigger": false },
+  { "query": "Show me the jira CLI syntax for sprint planning", "should_trigger": false },
+  { "query": "What's my GitHub PR review queue look like today?", "should_trigger": false },
+  { "query": "Give me a standup report from my GitHub issues and commits", "should_trigger": false },
+  { "query": "Explain how Jira story points work", "should_trigger": false },
+  { "query": "Set up Jira CLI authentication for my account", "should_trigger": false }
+]

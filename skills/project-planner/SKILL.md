@@ -10,8 +10,7 @@ description: Break a large or ambiguous project into a dependency-ordered task
   of what already exists).
 metadata:
   author: mgiovani
-  version: 1.1.0
-disable-model-invocation: true
+  version: 2.1.0
 argument-hint: <project_description>
 allowed-tools: Read, Write, Grep, Glob, Task, TaskCreate, TaskUpdate, TaskList, TaskGet,
   WebFetch, AskUserQuestion
@@ -29,7 +28,9 @@ $ARGUMENTS
 
 ## Planning Workflow
 
-**Portability:** No `Task`/`TaskCreate` tools in this environment? Do the analysis yourself instead of delegating to an Explore agent, and track the resulting tasks as a plain checklist instead of `TaskCreate` calls. The phases and the dependency diagram are the deliverable; the Task tool is just Claude Code's way of tracking them.
+This skill has exactly two possible outputs: a full plan (Phases 0-4), or — when the scope fails the gate in Step 0.2 — clarifying questions and nothing else. Never both in the same turn.
+
+**Portability:** No `Task`/`TaskCreate` tools in this environment? Do the analysis yourself instead of delegating to an Explore agent, and track the resulting tasks as a plain markdown checklist (`- [ ] Task name — blocked by: ...`) instead of `TaskCreate` calls. The phases and the dependency diagram are the deliverable; the Task tool is just Claude Code's way of tracking them. In an eval or sandbox run, never call the real session `Task`/`TaskCreate`/`TaskUpdate`/`TaskList` tools — those mutate the operator's actual task list. If the prompt instead asks you to record intended calls into a file (e.g. `outputs/tasks.json`), do that instead and treat it as the graded deliverable.
 
 ### Phase 0: Project Analysis
 
@@ -51,88 +52,46 @@ Use Task tool with Explore agent:
 - model: "haiku"  # Token-efficient for exploration
 ```
 
-**Step 0.2: Clarify Requirements**
+**Step 0.2: Scope Gate**
 
-If the project description is vague or has multiple valid approaches, use `AskUserQuestion` to clarify:
-- What are the must-have vs nice-to-have features?
-- Are there specific architectural constraints?
-- What's the target completion timeline?
-- Should this integrate with existing systems?
-- Are there specific technology preferences?
+Check whether the request names a concrete deliverable and rough boundaries (what's in, what's out). If it doesn't — e.g. "improve the app", "make things better", "plan our roadmap" with no target named — stop. End the response with 2-3 clarifying questions (via `AskUserQuestion` or plain prose) about the concrete deliverable, scope boundaries, or target outcome, and produce nothing else: no task breakdown, no `TaskCreate` calls, no Mermaid diagram, no files. A 25-task plan built on invented scope is worse than no plan, because the user must now audit every task against what they actually meant, instead of just answering the question. Do not soften this into "ask, then proceed with reasonable assumptions anyway" — the questions are the entire response.
+
+If the deliverable and boundaries are clear but secondary details are missing (timeline, tech stack preference, team size), that's not a scope gate failure — ask about those with `AskUserQuestion`, flag the assumption you're using if the user doesn't answer, and continue to Phase 1.
 
 ### Phase 1: Task Breakdown
 
-**Step 1.1: Identify Major Milestones**
-
-Break the project into 3-7 major milestones. Each milestone represents a significant deliverable or phase:
-
-**Example for a new authentication system**:
-1. Discovery & Planning
-2. Database schema and migrations
-3. Core authentication logic
-4. API endpoints
-5. Frontend integration
-6. Testing & verification
-7. Documentation & deployment
-
-**Step 1.2: Create Tasks for Each Milestone**
-
-For each milestone, create tasks that are:
-- **Specific**: Clear deliverable and acceptance criteria
-- **Measurable**: Can be marked completed objectively
-- **Achievable**: Can be completed in a reasonable timeframe
-- **Relevant**: Contributes to the milestone goal
-- **Time-bound**: Not open-ended
+Break the project into 3-7 major milestones (significant deliverables or phases), then create tasks under each milestone.
 
 **Task Granularity Guidelines**:
 - **Too large**: "Build the authentication system" (breaks into 10+ subtasks)
 - **Too small**: "Import bcrypt library" (trivial step within a larger task)
-- **Just right**: "Implement password hashing with bcrypt and validation"
+- **Just right**: "Implement password hashing with bcrypt and validation" — aim for 2-8 hours of work per task
 
 ### Phase 2: Dependency Mapping
 
-**Step 2.1: Identify Task Dependencies**
+For each task, determine its prerequisites (`blockedBy`), what it blocks, and what can run in parallel. Most real dependency graphs are composed from a few recurring shapes — sequential chain, parallel-then-converge, diamond, staged/time-gated rollout, multi-team fan-out. See [references/dependency-shapes.md](references/dependency-shapes.md) when the structure isn't a plain chain.
 
-For each task, determine:
-- **Prerequisites**: Which tasks must complete before this can start?
-- **Blockers**: Which tasks does this one block?
-- **Parallelizable**: Which tasks can run concurrently?
-
-**Dependency Types**:
-- **Sequential**: Task B requires output from Task A
-- **Parallel**: Tasks A and B can run simultaneously
-- **Convergence**: Tasks A and B must both complete before Task C
-
-**Step 2.2: Set Up Task Dependencies**
-
+**Worked example** (auth system):
 ```
-# Example: Authentication system task chain
 TaskCreate: subject="Set up auth database tables", description="..."
 TaskCreate: subject="Implement password hashing", description="..."
 TaskCreate: subject="Create JWT token service", description="..."
 TaskCreate: subject="Build login API endpoint", description="..."
 TaskCreate: subject="Build registration API endpoint", description="..."
 TaskCreate: subject="Add auth middleware", description="..."
-TaskCreate: subject="Frontend login form", description="..."
-TaskCreate: subject="Frontend registration form", description="..."
-TaskCreate: subject="Integration tests", description="..."
 
-# Sequential dependencies
-TaskUpdate: { taskId: "2", addBlockedBy: ["1"] }  # Hash needs DB schema
-TaskUpdate: { taskId: "3", addBlockedBy: ["1"] }  # JWT needs DB schema
-TaskUpdate: { taskId: "4", addBlockedBy: ["2", "3"] }  # Login needs hash + JWT
-TaskUpdate: { taskId: "5", addBlockedBy: ["2", "3"] }  # Registration needs hash + JWT
-TaskUpdate: { taskId: "6", addBlockedBy: ["4", "5"] }  # Middleware after endpoints
-TaskUpdate: { taskId: "7", addBlockedBy: ["4", "6"] }  # Frontend needs API + middleware
-TaskUpdate: { taskId: "8", addBlockedBy: ["5", "6"] }  # Frontend needs API + middleware
-TaskUpdate: { taskId: "9", addBlockedBy: ["7", "8"] }  # Tests after all frontend
+TaskUpdate: { taskId: "2", addBlockedBy: ["1"] }         # hashing needs DB schema
+TaskUpdate: { taskId: "3", addBlockedBy: ["1"] }         # JWT needs DB schema
+TaskUpdate: { taskId: "4", addBlockedBy: ["2", "3"] }    # login needs hash + JWT
+TaskUpdate: { taskId: "5", addBlockedBy: ["2", "3"] }    # registration needs hash + JWT
+TaskUpdate: { taskId: "6", addBlockedBy: ["4", "5"] }    # middleware after endpoints
 ```
 
 ### Phase 3: Visualization
 
-**Step 3.1: Generate Dependency Diagram**
+Don't start this phase until every task in the plan has its `blockedBy` relations recorded (real `TaskUpdate` calls, or the `outputs/tasks.json` equivalent in a sandboxed run). That recorded data is the single source of truth for both the diagram and the critical path — never hand-draw an edge or a chain from memory/intuition about what "should" depend on what. A diagram that disagrees with the actual dependencies is worse than no diagram: downstream work gets sequenced off the picture, not the data, and nobody notices until it breaks.
 
-Create a Mermaid diagram showing the task dependency graph:
+**Step 3.1 — Draw the diagram mechanically from recorded edges.** For every `addBlockedBy` entry recorded in Phase 2, emit exactly one Mermaid edge, `<blocker> --> <task>`. One recorded relation, one edge — no more, no fewer. A task with an empty `addBlockedBy` gets no incoming edge, full stop, even if it feels like it should logically follow something.
 
 ```mermaid
 graph TD
@@ -144,66 +103,19 @@ graph TD
     C --> E
     D --> F[Add auth middleware]
     E --> F
-    D --> G[Frontend login form]
-    F --> G
-    E --> H[Frontend registration form]
-    F --> H
-    G --> I[Integration tests]
-    H --> I
 ```
 
-**Diagram Guidelines**:
-- Use clear, concise node labels
-- Show critical path in a different color if possible
-- Group related tasks visually
-- Include milestone markers
-- Add estimates if available
-
-**Step 3.2: Document Critical Path**
-
-Identify and highlight the critical path (longest sequential chain):
+**Step 3.2 — Compute the critical path by walking those same edges.** Find the longest chain (by task count, or by summed duration if the user gave time estimates) from an unblocked task to a task nothing else depends on, using only edges drawn in Step 3.1. State it as task names:
 ```
-Critical Path: Database → Password Hashing → Login API → Middleware → Frontend Login → Tests
-Estimated Duration: [X days/weeks]
+Critical Path: Database → Password Hashing → Login API → Middleware
+Estimated Duration: [X days/weeks, only if the user gave time estimates]
 ```
 
-### Phase 4: Task Templates
+**Step 3.3 — Self-check before presenting.** Check both directions: every Mermaid edge maps to a recorded `addBlockedBy` relation, and every recorded `addBlockedBy` relation appears as an edge. Same check for the critical path — every link in the stated chain must be an edge from Step 3.1. Fix any mismatch in the diagram/path (never in the underlying data) and re-check before showing it to the user.
 
-For common project types (web feature, bug fix, refactoring, API+frontend, DB migration, library integration), reuse the templates in [references/task-patterns.md](references/task-patterns.md) instead of reinventing a milestone list.
+### Phase 4: Progress Tracking
 
-### Phase 5: Progress Tracking
-
-**Step 5.1: Initial Task List**
-
-After creating all tasks and dependencies, show the full plan:
-```
-TaskList
-```
-
-**Step 5.2: Track Implementation Progress**
-
-As work progresses, update task status:
-```
-TaskUpdate: { taskId: "1", status: "in_progress" }
-# ... work ...
-TaskUpdate: { taskId: "1", status: "completed" }
-TaskList  # Show updated progress
-```
-
-**Step 5.3: Handle Blockers**
-
-If a task becomes blocked by external factors:
-```
-TaskUpdate:
-  taskId: "4"
-  metadata: { blocked_reason: "Waiting for design mockups from UI team" }
-```
-
-Use `AskUserQuestion` to notify stakeholders and get resolution timeline.
-
-## Advanced Features
-
-For very large projects (epics with milestone hierarchies), risk tracking, or team resource allocation, encode it in task `metadata` (e.g. `{ type: "milestone", epic: "..." }`, `{ risk: "high", risk_reason: "..." }`, `{ assigned_to: "...", estimated_hours: N }`) — most projects don't need this, so only reach for it when a real project asks for epics/risk/ownership tracking.
+After creating all tasks and dependencies, run `TaskList` to show the full plan (or, in a sandboxed run recording to `outputs/tasks.json`, record the intended `TaskList` call there). As implementation proceeds, update task status via `TaskUpdate` (`in_progress` → `completed`) and re-run `TaskList` to show progress. If a task becomes blocked by an external factor, record it in `TaskUpdate`'s `metadata` and use `AskUserQuestion` to surface it rather than silently stalling.
 
 ## Output Format
 
@@ -211,39 +123,29 @@ Provide a summary including:
 - Total number of tasks created
 - Dependency graph visualization (Mermaid)
 - Critical path analysis
-- Estimated timeline (if applicable)
+- Estimated timeline (only if the user supplied time estimates — never invent durations)
 - Next steps to start implementation
 - Risk areas identified
 
 ## Usage Examples
 
-```bash
-# Plan a new feature
+```
 project-planner Implement user authentication with OAuth2 and JWT
-
-# Plan a refactoring
 project-planner Refactor payment module to use strategy pattern
-
-# Plan a bug fix (for complex bugs)
 project-planner Fix memory leak in WebSocket connection handling
-
-# Plan a migration
 project-planner Migrate from REST API to GraphQL
 ```
 
 ## Best Practices
 
-1. **Start with discovery**: Always understand the project before planning
-2. **Right-size tasks**: Not too big, not too small (aim for 2-8 hours per task)
-3. **Clear dependencies**: Make prerequisites explicit with `blockedBy`
-4. **Identify parallel work**: Maximize concurrent progress
-5. **Visualize the plan**: Mermaid diagrams help communicate structure
-6. **Track progress**: Use `TaskList` regularly to show status
-7. **Adapt as needed**: Update tasks and dependencies as requirements change
-8. **Document decisions**: Use task descriptions to capture context and rationale
+1. Start with discovery — understand the project before planning it
+2. Right-size tasks: not "the whole feature," not "one import statement"
+3. Make prerequisites explicit with `blockedBy`, not prose
+4. Derive the diagram and critical path from recorded `blockedBy` data, never from memory — self-check both directions before presenting
+5. Maximize parallel work where tasks are genuinely independent
+6. Track progress with `TaskList`; adapt tasks/dependencies as requirements change
+7. Capture rationale in task descriptions, not just the deliverable
 
 ## References
 
-For detailed patterns and examples:
-- [references/task-patterns.md](references/task-patterns.md) - Reusable task breakdown patterns (web feature, bug fix, refactoring, API+frontend, DB migration, library integration)
-- [references/dependency-examples.md](references/dependency-examples.md) - Complex dependency examples
+- [references/dependency-shapes.md](references/dependency-shapes.md) — load when the dependency structure isn't a plain sequential chain (parallel/converge, diamond, staged rollout, multi-team fan-out)

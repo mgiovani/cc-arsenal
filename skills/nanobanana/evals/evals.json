@@ -1,0 +1,48 @@
+{
+  "skill": "nanobanana",
+  "evals": [
+    {
+      "id": "happy-path-production-hero",
+      "prompt": "GEMINI_API_KEY is set to a valid-looking test value. Generate a final, production-ready hero image for my SaaS landing page, 16:9, for the website header. Don't actually call the real Gemini API — just walk through the skill and show me the exact command you'd run.",
+      "assertions": [
+        "Agent produces a narrative (sentence/scene) prompt, not a bare keyword list",
+        "Because this is explicitly 'final'/'production'/website-header, agent shows the full PROMPT REVIEW block (ORIGINAL, ENHANCED, CHANGES, MODEL, ASPECT, RESOLUTION, EST. COST) before generating, not a one-line summary",
+        "Selected model is gemini-3.1-flash-image-preview (the stated default) unless the agent gives an explicit, valid reason from model-guide.md to pick a different model",
+        "Aspect ratio in the constructed command is 16:9, matching the user's request",
+        "The constructed uv run command includes --prompt, --model, --aspect-ratio, --output flags with non-placeholder values filled in (no literal 'ENHANCED_PROMPT_HERE' or 'MODEL_ID_HERE' left in the shown command)",
+        "Agent does not claim to have actually generated/saved a real image file or report a fabricated file path/size, since the task said not to call the real API"
+      ]
+    },
+    {
+      "id": "judgment-draft-skips-ceremony",
+      "prompt": "GEMINI_API_KEY is set. Just give me a couple of rough, throwaway drafts of a mascot logo concept — nothing final, I just want to see directions fast. Walk through what you'd do without actually calling the real API.",
+      "assertions": [
+        "Agent does NOT show the full multi-line PROMPT REVIEW ceremony block for this draft request — it uses a one-line summary (prompt + model + aspect ratio) instead, per the skill's scale-to-intent rule",
+        "Agent selects the lower-cost/faster model (gemini-2.5-flash-image) and a low resolution (512 or 1K) consistent with the 'rapid exploration' guidance in the skill, not the 2K production default",
+        "Agent still proceeds to describe/construct the generate.py invocation with correct flags rather than stalling on unnecessary approval",
+        "Agent does not claim a real image was generated/saved, since the task said not to call the real API"
+      ]
+    },
+    {
+      "id": "refusal-missing-api-key",
+      "prompt": "GEMINI_API_KEY is NOT set in this environment. I want you to generate a logo for my company.",
+      "assertions": [
+        "Agent checks for GEMINI_API_KEY (e.g. via an echo/env check) before doing any prompt enhancement or generation work",
+        "Agent stops at the environment-check stage and does not proceed into prompt enhancement, model selection, or image generation phases",
+        "Agent surfaces API key setup instructions (get a key at aistudio.google.com/apikey and set GEMINI_API_KEY) rather than inventing a workaround",
+        "Agent does not construct or run any 'uv run generate.py' command or any other command that would attempt to call the Gemini API",
+        "Final message clearly asks the user to set the key and stops there, rather than proceeding with a placeholder or fake key"
+      ]
+    },
+    {
+      "id": "error-code-invalid-model-no-fabrication",
+      "prompt": "I ran the nanobanana generate script and it returned this JSON: {\"status\": \"error\", \"error_message\": \"Unknown model: 'gemini-4-ultra-image'. Valid options: nano-banana, nano-banana-2, nano-banana-pro, gemini-2.5-flash-image, gemini-3.1-flash-image-preview, gemini-3-pro-image-preview\", \"error_code\": \"INVALID_MODEL\"}. What do I do?",
+      "assertions": [
+        "Agent correctly identifies this as the INVALID_MODEL error case from the skill's error table",
+        "Agent does NOT simply invent or guess a new model ID/name from memory and tell the user to use it",
+        "Agent tells the user to verify current model IDs/pricing at https://ai.google.dev/pricing (or points to the model-guide.md staleness note) rather than asserting a specific 'correct' model with fabricated confidence",
+        "Agent's suggested next command uses one of the model IDs the script itself listed as valid (from VALID_MODELS: nano-banana, nano-banana-2, nano-banana-pro, or the three raw gemini-* IDs), not a made-up one"
+      ]
+    }
+  ]
+}

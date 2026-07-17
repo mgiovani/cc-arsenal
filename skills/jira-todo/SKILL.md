@@ -4,46 +4,46 @@ description: Generates a prioritized daily work plan from a user's assigned Jira
   tickets — scoring by priority, due date, blockers, and recent activity, then
   recommending what to work on next. Use when the user asks "what should I work
   on today", wants to plan their workday, prioritize assigned tickets, or triage
-  their Jira backlog. Complements jira-daily (yesterday's standup recap) and
-  jira-cli (general command reference) — use this one specifically for
+  their Jira backlog. Not for yesterday's standup recap (use jira-daily) or raw
+  command reference (use jira-cli) — this skill is specifically for
   forward-looking prioritization, not status reporting.
 metadata:
   author: mgiovani
-  version: 1.0.1
+  version: 1.2.0
 disable-model-invocation: true
 argument-hint: '[--project <KEY>] [--urgent-only] [--include-blocked] [--time-box <hours>]'
-allowed-tools: Bash(jira *), Bash(git *), Bash(cat *), Read, Task, TodoWrite
-context: fork
-agent: general-purpose
+allowed-tools: Bash(jira *), Bash(git *), Read, Task, TodoWrite
 ---
 
 # Jira Todo - Daily Work Prioritization
 
 Analyzes assigned tickets and recommends what to work on next, based on actual Jira data. Complements the **jira-cli** skill (general command reference) and **jira-daily** (yesterday's standup recap) — this skill is for forward-looking prioritization.
 
-## Anti-Hallucination Guidelines
+## Phase 1: Verify Jira CLI Works
 
-Recommendations must be based on actual Jira data, not inference:
-1. **Only reference real tickets** - every ticket ID must come from jira CLI output
-2. **Verify statuses** - read status from the API response, never assume
-3. **Check actual priorities** - use the priority field from Jira, never infer
-4. **Real story points** - only show story points if they exist in the ticket
-5. **No invented blockers** - only mention blockers explicitly marked in Jira
+Before anything else, confirm the CLI is installed and authenticated:
 
-## Phase 1: Determine Project Key
+```bash
+jira me
+```
+
+If that fails — command not found, not authenticated, any error — STOP here. Do not proceed to Phase 2 or any later phase, and do not simulate, infer, or fabricate ticket data to produce a plan anyway. Tell the user:
+
+> The `jira` CLI isn't available or isn't authenticated in this environment. Install and configure it from https://github.com/ankitpokhrel/jira-cli, then re-run this skill.
+
+This gate exists because an agent that can't reach real Jira data will otherwise write a plausible-looking report from imagined tickets and present it as a real daily plan. Every ticket ID, priority, status, and story point anywhere in this skill's output must come from a `jira` command actually run this session — never a hardcoded fixture, a "simulated" placeholder, never mention a blocker that wasn't explicitly marked (label or blocking-link field) in that output, and never a helper script that was written but not executed. If a command returns no results, say so plainly rather than inventing tickets to fill out the report sections.
+
+## Phase 2: Determine Project Key
 
 Get the project key from (in order of priority):
 1. **Command argument**: `--project ABC` or `-p ABC`
-2. **Jira CLI config**: read from `~/.config/.jira/.config.yml`
-
-```bash
-PROJECT_KEY=$(cat ~/.config/.jira/.config.yml 2>/dev/null | grep -A1 "^project:" | grep "key:" | awk '{print $2}')
-echo "Detected project: $PROJECT_KEY"
-```
+2. **Jira CLI config**: Read `~/.config/.jira/.config.yml` and extract the `project.key` value.
 
 If no project key is found, ask the user to specify with `--project <KEY>`.
 
-## Phase 2: Gather Current Workload
+## Phase 3: Gather Current Workload
+
+Run these directly via Bash before recommending anything — every ticket in the output must trace back to one of these commands' actual stdout, not to a script that reproduces expected output without executing them:
 
 ```bash
 # Get all assigned tickets in active statuses
@@ -56,9 +56,11 @@ jira issue list --assignee $(jira me) --jql "status IN ('To Do', 'In Progress') 
 jira issue list --assignee $(jira me) --updated -2d --status "Code Review" "In Review" "Waiting for Feedback" --plain
 ```
 
-## Phase 3: Apply Prioritization Algorithm
+If `--include-blocked` is not set, drop blocked tickets from the main sections (still surface them under On Hold).
 
-Apply this directly in the main agent — it's a short scoring pass over a daily ticket list, not worth fanning out to subagents. Only spawn parallel Explore subagents if the workload is unusually large (>30 active tickets).
+## Phase 4: Apply Prioritization Algorithm
+
+Apply this directly in the main agent — it's a short scoring pass over a daily ticket list, not worth fanning out to subagents. Only spawn parallel Explore subagents if the workload is unusually large (>30 active tickets), and only where a `Task`/subagent tool is available; otherwise do the same scoring pass sequentially inline regardless of ticket count.
 
 **Priority Scoring:**
 - **Critical/Urgent Priority**: Weight x 10
@@ -84,9 +86,13 @@ else:
 
 Also check git context inline (current branch, recent commits) to see which tickets already have active work in progress, so the plan can favor continuing momentum over context-switching.
 
-## Phase 4: Generate Output
+If `--urgent-only` is set, skip straight to just the Immediate Actions section (Priority: Highest, production bugs, blocking issues) and drop the rest of Phase 5's sections.
 
-Use TodoWrite to track the work items identified. For the detailed output template, see [references/output-formats.md](references/output-formats.md).
+If `--time-box <hours>` is set, cap the Recommended Schedule at that many hours and drop lower-priority items that wouldn't fit rather than padding the schedule to fill it.
+
+## Phase 5: Generate Output
+
+Track the identified items in a todo list (use TodoWrite if available; otherwise just list them in the report). For the detailed output template, see [references/output-formats.md](references/output-formats.md).
 
 **Report sections:**
 - **Immediate Actions (Do First)**: Critical/urgent tickets requiring immediate attention

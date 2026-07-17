@@ -1,0 +1,22 @@
+[
+  {"query": "/jira-cli list all issues assigned to me in plain text", "should_trigger": true},
+  {"query": "run jira issue create -tBug -s'Login broken' -yHigh for me", "should_trigger": true},
+  {"query": "show me the jira-cli syntax for linking two issues", "should_trigger": true},
+  {"query": "write a bash script that bulk-assigns unassigned high priority jira tickets round robin", "should_trigger": true},
+  {"query": "what's the jira-cli flag to filter issues by created date", "should_trigger": true},
+  {"query": "I need a JQL query with jira issue list -q for tickets matching 'cli'", "should_trigger": true},
+  {"query": "give me the jira-cli command to add a worklog entry", "should_trigger": true},
+  {"query": "how do I export jira issues to csv with jira-cli", "should_trigger": true},
+  {"query": "set up a GitHub Actions step that creates a jira issue when a PR opens", "should_trigger": true},
+  {"query": "what are the keyboard shortcuts in jira-cli's interactive UI", "should_trigger": true},
+  {"query": "what did I work on yesterday, give me a standup summary", "should_trigger": false},
+  {"query": "what should I work on today", "should_trigger": false},
+  {"query": "prioritize my jira backlog for the day", "should_trigger": false},
+  {"query": "give me a slack-formatted standup report from my jira and git activity", "should_trigger": false},
+  {"query": "commit these changes with a conventional commit message", "should_trigger": false},
+  {"query": "create a PR for this branch", "should_trigger": false},
+  {"query": "cut a new release and update the changelog", "should_trigger": false},
+  {"query": "review this PR for security issues", "should_trigger": false},
+  {"query": "is there a ticket about the login bug", "should_trigger": false},
+  {"query": "triage today's tickets and tell me what to prioritize first", "should_trigger": false}
+]
