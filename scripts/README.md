@@ -9,8 +9,6 @@ scripts/
 ├── setup/           # Installation and configuration
 │   ├── install.py      # Safe installation with symlink management
 │   └── configure.py    # Interactive configuration wizard
-├── generators/      # Code generation tools
-│   └── agent_generator.py  # Generate new agents
 ├── claude/          # Claude Code utilities
 │   └── statusline/     # Status line configuration tool
 └── claude-hi/       # Smart session scheduler
@@ -38,7 +36,4 @@ uv run python -m scripts.setup.configure
 
 # Preview installation without changes
 uv run python -m scripts.setup.install --dry-run
-
-# Generate new agent
-uv run python -m scripts.generators.agent_generator --name "my-agent" --category "development"
 ```

@@ -92,7 +92,7 @@ make test
 make check
 
 # Test a specific component
-uv run pytest tests/test_agent_generator.py -v
+uv run pytest scripts/tests/test_install.py -v
 ```
 
 ## Development Workflow
@@ -170,10 +170,9 @@ cc-arsenal/
 │   └── .../                # SKILL.md + optional references/, scripts/, assets/, evals/
 ├── scripts/           # Installation and utilities
 │   ├── setup/             # install.py, configure.py
-│   ├── generators/        # agent_generator.py
+│   ├── tests/             # pytest test files
 │   ├── claude/            # Claude Code utilities
 │   └── claude-hi/         # Session management
-├── tests/             # Test files
 ├── docs/              # Documentation
 ├── .claude/           # Claude Code configuration
 ├── pyproject.toml     # Python project configuration
@@ -187,8 +186,8 @@ cc-arsenal/
 - `skills/` - Every skill lives here as `skills/<name>/SKILL.md`, the only component type in the repo (the legacy `commands/` format was retired)
   - `references/`, `scripts/`, `assets/` - Bundled resources loaded on demand (progressive disclosure)
   - `evals/evals.json` + `evals/trigger-eval.json` - Per-skill eval convention: task assertions and trigger/near-miss queries used to validate a skill actually does what it claims and fires on the right prompts
-- `scripts/` - Python utilities for setup and generators
-- `tests/` - pytest test files
+- `scripts/` - Python utilities for setup and version tooling
+- `scripts/tests/` - pytest test files
 - `docs/` - Project documentation and guides
 
 ### Contributing a New Skill
@@ -231,7 +230,7 @@ make test
 make coverage
 
 # Run specific test file
-uv run pytest tests/test_agent_generator.py -v
+uv run pytest scripts/tests/test_install.py -v
 
 # Run tests matching pattern
 uv run pytest -k "test_agent" -v

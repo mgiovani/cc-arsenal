@@ -95,58 +95,6 @@ Skills can bundle `scripts/`, `references/`, and `assets/` in subdirectories. Ad
 
 After creating a skill, add its path to the relevant plugin(s) in `.claude-plugin/marketplace.json` and add its entry to `docs/features.md`.
 
-### Creating New Hooks
-
-Hooks are Python scripts placed in category subdirectories under `hooks/` (e.g., `hooks/security/`, `hooks/quality/`). They should follow this structure:
-
-```python
-#!/usr/bin/env python3
-"""
-Hook description and purpose.
-
-Exit codes:
-- 0: Validation passed or hook skipped (not applicable)
-- 2: Validation failed, blocks the operation (Claude sees stderr feedback)
-- 1: Error in hook execution (non-blocking)
-"""
-
-import json
-import sys
-from pathlib import Path
-
-
-class MyHookValidator:
-    """Hook implementation with validation logic."""
-
-    def __init__(self, project_root: Path) -> None:
-        self.project_root = project_root
-        self.issues = []
-
-    def validate(self) -> bool:
-        """Run validation checks. Returns True if passed."""
-        # Hook logic here
-        return len(self.issues) == 0
-
-
-def main() -> None:
-    """Hook entry point."""
-    event_data = json.loads(sys.stdin.read())
-    project_root = Path(event_data.get('cwd', '.')).resolve()
-
-    validator = MyHookValidator(project_root)
-    if validator.validate():
-        sys.exit(0)
-    else:
-        print(json.dumps({'issues': validator.issues}), file=sys.stderr)
-        sys.exit(2)
-
-
-if __name__ == "__main__":
-    main()
-```
-
-After creating a hook, register it in `hooks/hooks.json`.
-
 ## Code Style Guidelines
 
 ### Python Code Style
@@ -184,7 +132,7 @@ make test
 make coverage
 
 # Run specific test file
-uv run pytest tests/test_specific.py
+uv run pytest scripts/tests/test_install.py
 
 # Run tests with verbose output
 uv run pytest -v

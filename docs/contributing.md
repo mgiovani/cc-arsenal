@@ -167,22 +167,13 @@ git checkout -b docs/descriptive-name
 ```
 
 **Branch Naming:**
-- `feature/docs-diagram-command` - New command
+- `feature/docs-diagram-evals` - New skill feature
 - `feature/jira-skill-enhancement` - New skill feature
 - `fix/file-protection-pattern` - Bug fix
 - `docs/contributing-guide` - Documentation
-- `refactor/generator-cleanup` - Code refactoring
+- `refactor/installer-cleanup` - Code refactoring
 
 #### 3. Make Your Changes
-
-**For New Commands:**
-```bash
-# Create command file in appropriate category
-vim commands/utility/my-command.md
-
-# Add YAML frontmatter and implementation
-# Test in Claude Code
-```
 
 **For New Skills:**
 ```bash
@@ -517,52 +508,34 @@ if __name__ == '__main__':
 - **Coverage**: >90% for new code, maintain overall coverage
 - **Unit Tests**: All new functions/methods
 - **Integration Tests**: New features and workflows
-- **Test Organization**: Mirror source structure in tests/
+- **Test Organization**: Mirror source structure in scripts/tests/
 
 ### Writing Tests
 
 **Test Structure:**
 ```python
-"""Tests for agent generator."""
+"""Tests for the version bump script (scripts/tests/test_bump_version.py)."""
 
-import pytest
+import json
 from pathlib import Path
 
-from scripts.generators.agent_generator import generate_agent
+import pytest
+
+from scripts import bump_version
 
 
-class TestAgentGenerator:
-    """Test suite for agent generator."""
+def test_bump_updates_all_version_fields(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Every target listed in .version-bump.json gets the new version."""
+    # Arrange: write a manifest with an old version, point the script at it
+    manifest = tmp_path / "plugin.json"
+    manifest.write_text(json.dumps({"version": "1.0.0"}))
+    ...
 
-    def test_generate_basic_agent(self, tmp_path: Path) -> None:
-        """Test generating a basic agent."""
-        # Arrange
-        name = "test-agent"
-        category = "development"
+    # Act
+    bump_version.main()
 
-        # Act
-        result = generate_agent(name, category, output_dir=tmp_path)
-
-        # Assert
-        assert result.exists()
-        assert result.name == f"{name}.md"
-
-    def test_generate_agent_with_custom_description(self) -> None:
-        """Test generating agent with custom description."""
-        ...
-
-    def test_generate_agent_invalid_category(self) -> None:
-        """Test error handling for invalid category."""
-        with pytest.raises(ValueError, match="Invalid category"):
-            generate_agent("test", "invalid")
-
-
-@pytest.fixture
-def sample_agent_file(tmp_path: Path) -> Path:
-    """Create a sample agent file for testing."""
-    agent_file = tmp_path / "test-agent.md"
-    agent_file.write_text("# Test Agent\n")
-    return agent_file
+    # Assert
+    assert json.loads(manifest.read_text())["version"] == "2.0.0"
 ```
 
 ### Running Tests
@@ -572,10 +545,10 @@ def sample_agent_file(tmp_path: Path) -> Path:
 make test
 
 # Run specific test file
-uv run pytest tests/test_agent_generator.py -v
+uv run pytest scripts/tests/test_bump_version.py -v
 
 # Run tests matching pattern
-uv run pytest -k "test_agent" -v
+uv run pytest -k "test_bump" -v
 
 # Run with coverage
 make coverage

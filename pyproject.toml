@@ -31,7 +31,6 @@ dev = [
 [project.scripts]
 claude-install = "scripts.setup.install:main"
 claude-configure = "scripts.setup.configure:main"
-claude-generate = "scripts.generators.main:main"
 
 [build-system]
 requires = ["hatchling"]
@@ -159,7 +158,7 @@ strict_equality = true
 extra_checks = true
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
+testpaths = ["scripts/tests"]
 python_files = ["test_*.py", "*_test.py"]
 addopts = [
     "--cov=scripts",
