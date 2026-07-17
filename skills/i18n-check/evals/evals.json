@@ -1,0 +1,36 @@
+{
+  "skill": "i18n-check",
+  "evals": [
+    {
+      "id": "pt-br-sidebar-developer-untranslated",
+      "prompt": "We just got a ticket: the pt-BR sidebar shows 'Developer' instead of the translated label. Can you check if our locale files are out of sync?",
+      "assertions": [
+        "Detects the i18n framework in use before diffing any files",
+        "Flattens the default locale file and the pt-BR locale file and compares them key by key",
+        "Reports the 'Developer' key as untranslated (identical to the default locale value) rather than silently filtering it out as a short/common word",
+        "Report is grouped by locale (pt-BR section) and lists the specific key path, not just a vague 'some strings are untranslated'",
+        "Does not invent or write a Portuguese translation itself — reports the gap, does not fill it in without being asked"
+      ]
+    },
+    {
+      "id": "full-locale-audit-missing-keys",
+      "prompt": "Run an i18n check across the whole repo and tell me which locales are missing translation keys compared to English.",
+      "assertions": [
+        "Identifies the default/source locale file (e.g. en.json or en.yml) to diff every other locale against",
+        "Reports missing keys separately from untranslated and orphan keys, not lumped together",
+        "Report is organized per-locale (a distinct section or list per non-default locale)",
+        "Does not modify any locale files since the user only asked to check, not to fill anything in"
+      ]
+    },
+    {
+      "id": "scaffold-missing-keys-after-report",
+      "prompt": "Good, now go ahead and add the missing keys you found to the de.json and es.json files so nothing crashes at runtime.",
+      "assertions": [
+        "Inserts each missing key at the correct nested path matching the existing file structure",
+        "Copies the value verbatim from the default locale rather than inventing a translation for de/es",
+        "Preserves existing formatting/ordering conventions of the target JSON files",
+        "The newly scaffolded keys would still show up as 'untranslated' on a subsequent check, since they were copied from the source rather than translated"
+      ]
+    }
+  ]
+}

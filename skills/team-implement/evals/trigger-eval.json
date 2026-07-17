@@ -1,0 +1,22 @@
+[
+  {"query": "/team-implement Add OAuth2 login with JWT refresh tokens across our web and mobile backends", "should_trigger": true},
+  {"query": "we need a full spec-driven team to build out the new billing subsystem, frontend+backend+db, before anyone touches code", "should_trigger": true},
+  {"query": "PROJ-991 needs a whole team plan, it touches auth, payments, and three microservices", "should_trigger": true},
+  {"query": "spin up a team to build this epic, I want a written spec and design doc reviewed before implementation starts", "should_trigger": true},
+  {"query": "this is a big unfamiliar-domain project, can we get a full team with PM, architect, and adversarial review before coding", "should_trigger": true},
+  {"query": "/team-implement #128", "should_trigger": true},
+  {"query": "can you draft requirements, architecture, and a task breakdown for the new multi-tenant permissions system before writing any code", "should_trigger": true},
+  {"query": "we want lite mode team-implement for this smaller feature but still want a spec written first", "should_trigger": true},
+  {"query": "kick off team-implement on ./docs/new-payments-flow.md, it spans 4 services", "should_trigger": true},
+  {"query": "I want a reviewable spec trail under .specs/ for this new real-time notifications feature before any code changes", "should_trigger": true},
+  {"query": "just implement the password reset flow, it's a single component, no need for a whole spec process", "should_trigger": false},
+  {"query": "review the PR my team just merged for the checkout redesign", "should_trigger": false},
+  {"query": "the OAuth login is throwing a 500 error, can you fix it", "should_trigger": false},
+  {"query": "break this project into tasks with a dependency graph, no need to write specs or spawn a dev team", "should_trigger": false},
+  {"query": "write an RFC proposing we migrate to GraphQL", "should_trigger": false},
+  {"query": "document the decision to use Postgres over Mongo in an ADR", "should_trigger": false},
+  {"query": "open a PR for the auth changes I just finished", "should_trigger": false},
+  {"query": "help me plan my day, what should I work on first from my Jira board", "should_trigger": false},
+  {"query": "add a small settings toggle to the profile page, single file change", "should_trigger": false},
+  {"query": "generate a mermaid diagram of our current architecture", "should_trigger": false}
+]

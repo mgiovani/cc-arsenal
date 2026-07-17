@@ -6,63 +6,48 @@
 
 ## Overview
 
-Claude Code Arsenal is a professional collection of workflow automation skills designed to enhance Claude Code's capabilities. The system uses a **dual-repository architecture** that separates cross-platform base skills from Claude Code-specific enhancements, enabling skill distribution across multiple AI agent platforms while maintaining optimized Claude Code features.
+Claude Code Arsenal is a professional collection of workflow automation skills built on the open [Agent Skills standard](https://agentskills.io). The system uses a **two-tier design**: one canonical `skills/` directory that is agent-agnostic by default, with an optional Claude Code layer (plugin variants, hooks, subagent orchestration) added on top.
 
-## Dual-Repository Architecture
+## Two-Tier Architecture
 
-cc-arsenal uses two repositories that work together:
+cc-arsenal is a single repository, not a dual-repo/sync setup:
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                      cc-arsenal (this repo)                  │
-│  ┌────────────────────┐         ┌─────────────────────────┐ │
-│  │ Enhanced Skills    │         │ Optional Features       │ │
-│  │ (Claude Code)      │         │ - Statusline            │ │
-│  │ - Subagents        │         │ - Claude Hi Scheduler   │ │
-│  │ - Task tool        │         │                         │ │
-│  │ - Advanced context │         │                         │ │
-│  └────────────────────┘         └─────────────────────────┘ │
-│           ↕ sync                                             │
-│  ┌────────────────────┐                                      │
-│  │ skills-upstream/   │ (git submodule)                      │
-│  │ mgiovani/skills    │                                      │
-│  └────────────────────┘                                      │
+│  ┌────────────────────────────────────────────────────────┐ │
+│  │ skills/<name>/SKILL.md          (Tier 1: agnostic core) │ │
+│  │ - name + description frontmatter only, portable as-is   │ │
+│  │ - works with Claude Code, Codex, Cursor, OpenCode, ...   │ │
+│  │ - published for `npx skills add mgiovani/cc-arsenal`     │ │
+│  └────────────────────────────────────────────────────────┘ │
+│  ┌────────────────────────────────────────────────────────┐ │
+│  │ Tier 2: Claude Code layer (optional, additive)          │ │
+│  │ - CC-only frontmatter (allowed-tools, hooks, context,   │ │
+│  │   agent, disable-model-invocation) inline in SKILL.md   │ │
+│  │ - .claude-plugin/marketplace.json plugin variants       │ │
+│  │ - Statusline, Claude Hi scheduler, subagent (Task tool) │ │
+│  │   orchestration                                         │ │
+│  └────────────────────────────────────────────────────────┘ │
 └─────────────────────────────────────────────────────────────┘
-                         ↓
-        ┌────────────────────────────────────┐
-        │    mgiovani/skills (separate repo) │
-        │  ┌──────────────────────────────┐  │
-        │  │ Base Skills                  │  │
-        │  │ (Cross-Platform)             │  │
-        │  │ - Cursor, Windsurf, etc.     │  │
-        │  │ - No platform-specific deps  │  │
-        │  │ - Published to skills.sh     │  │
-        │  └──────────────────────────────┘  │
-        └────────────────────────────────────┘
 ```
 
 ### Components
 
-**Base Skills** ([mgiovani/skills](https://github.com/mgiovani/skills)):
-- Cross-platform SKILL.md format
-- Works with Claude Code, Cursor, Windsurf, and 30+ AI agents
-- No platform-specific features (no Task tool, hooks, or Claude Code frontmatter)
-- Published to [skills.sh](https://skills.sh) marketplace
-- 22 core skills for development, documentation, git, and Jira workflows
+**`skills/<name>/SKILL.md`** (Tier 1, agnostic core):
+- Standard Agent Skills format: `name` + `description` frontmatter is all any tool needs
+- Works with Claude Code, Codex, Cursor, OpenCode, Gemini CLI, and other agents that support the standard
+- Non-Claude tools simply ignore any Claude Code-specific frontmatter keys present in the same file
+- Distributed via `npx skills add mgiovani/cc-arsenal`
+- See [features.md](./features.md) for the current, categorized skill count
 
-**Enhanced Skills** (cc-arsenal):
-- Claude Code-specific optimizations
-- Uses subagents (Task tool) for parallel work
-- Advanced context management and hooks
-- Quality gates with pre/post hooks
-- Builds on base skills with additional capabilities
-- 10 Claude Code-exclusive skills + 22 enhanced base skills = 32 total
+**Claude Code layer** (Tier 2, optional):
+- CC-only frontmatter keys (`allowed-tools`, `disable-model-invocation`, `hooks`, `context`, `agent`) live inline in the same `SKILL.md` — other tools ignore them safely
+- Subagents (Task tool) for parallel work, advanced context management, quality-gate hooks
+- Plugin variants declared in `.claude-plugin/marketplace.json`, installed via `/plugin marketplace add mgiovani/cc-arsenal`
+- Optional features: statusline, Claude Hi scheduler
 
-**Sync Workflow**:
-- Base skills maintained in `skills-upstream/` submodule
-- Enhancement layer in `enhancements/` adds Claude Code features
-- `make sync-skills` command merges base + enhancements into `skills/`
-- SYNC.md files track synchronization status
+There is no separate upstream repo or sync step — `skills/` is the single canonical source, and the two tiers live in the same files.
 
 ## System Context
 
@@ -232,9 +217,8 @@ graph TB
 ```
 
 **Component Count:**
-- **8 Commands**: 2 Git + 6 Documentation
-- **2 Skills**: Jira CLI + Skill Creator
-- **12 Templates**: 3 ADR + 3 RFC + 6 Documentation
+
+The diagram above reflects the legacy commands+skills split. The `commands/` format has since been retired: skills are now the only component type, and the count changes as skills are added or merged. **See [features.md](./features.md) for the current, authoritative skill count and categorized list** rather than the numbers here.
 
 ## Detailed Design
 
@@ -258,30 +242,6 @@ graph TB
 - Git (for repository management)
 - Python 3.12+ with UV (for development only)
 
-#### Commands System
-
-**Responsibilities:**
-- Provide slash commands for explicit user-invoked operations
-- Automate Git workflows with conventional commits
-- Generate documentation (ADRs, RFCs, diagrams)
-- Manage testing and quality assurance workflows
-
-**Interfaces:**
-- **COMMAND.md Format**: Markdown files with command definitions
-- **Slash Command Syntax**: `/command-name [args]`
-- **Template System**: Jinja2 templates for generated content
-
-**Dependencies:**
-- Claude Code SlashCommand tool
-- Git CLI for version control operations
-- GitHub CLI (gh) for pull request creation
-
-**Available Commands:**
-- `git/` - **2 commands**: `commit`, `create-pr`
-- `docs/` - **6 commands**: `adr`, `rfc`, `diagram`, `update`, `check`, `init`
-
-**Note:** Empty `testing/` and `utility/` directories exist for future expansion.
-
 #### Skills System
 
 **Responsibilities:**
@@ -291,9 +251,10 @@ graph TB
 - Enable skill creation and distribution
 
 **Interfaces:**
-- **SKILL.md Format**: Markdown with YAML frontmatter (name, description)
+- **SKILL.md Format**: Markdown with YAML frontmatter (name, description, `disable-model-invocation`)
 - **Auto-Invocation**: Claude discovers skills via frontmatter metadata
-- **Resource Bundling**: scripts/, references/, assets/ directories
+- **Resource Bundling**: `scripts/`, `references/`, `assets/` directories, loaded only as needed
+- **Eval Convention**: `evals/evals.json` (task assertions) + `evals/trigger-eval.json` (trigger/near-miss query set) — the same schema `create-skill`'s validation scripts consume, used to check both that a skill does what it claims and that it fires (or correctly doesn't fire) on the right prompts
 
 **Dependencies:**
 - Claude Code Skill tool
@@ -301,18 +262,16 @@ graph TB
 - Python scripts for skill utilities
 
 **Available Skills:**
-- `create-skill/` - Specification-driven skill creation with live documentation fetching
-- `jira-cli/` - Interactive Jira command-line tool
+All skills live under `skills/<name>/`. See [features.md](./features.md) for the current, categorized list and count — this document does not duplicate it to avoid drift.
 
 ### Data Flow
 
-#### Command Execution Flow
+#### User-Invoked Skill Flow (slash command, e.g. `/git-commit`)
 
-1. User types slash command (e.g., `/git:commit`)
-2. Claude Code detects slash command
-3. COMMAND.md file is loaded and expanded
-4. Claude executes command logic
-5. Results are presented to user
+1. User types the slash command
+2. Claude Code detects it and loads that skill's `SKILL.md`
+3. Claude executes the skill's logic
+4. Results are presented to user
 
 #### Skill Activation Flow
 
@@ -326,23 +285,21 @@ graph TB
 
 #### Internal APIs
 
-- **Plugin Descriptor API**: JSON-based plugin configuration
+- **Marketplace API**: JSON-based plugin variant configuration (`.claude-plugin/marketplace.json`)
   ```json
   {
-    "name": "cc-arsenal",
-    "version": "1.0.0",
-    "commands": ["./commands/git/commit.md"],
-    "skills": ["./skills/jira-cli/"]
+    "name": "cc-arsenal-git",
+    "skills": ["./skills/git-commit/", "./skills/jira-cli/"]
   }
   ```
 
-- **Command Template API**: Markdown files with YAML frontmatter
+- **SKILL.md API**: Markdown files with YAML frontmatter
   ```markdown
   ---
-  name: my-command
-  description: Command description
+  name: my-skill
+  description: Skill description
   ---
-  # Command implementation
+  # Skill implementation
   ```
 
 #### External Integrations
@@ -466,9 +423,8 @@ make validate-plugins
 
 ### Configuration Management
 
-- **Plugin Descriptor**: `.claude-plugin/plugin.json` in repository
-- **Documentation Templates**: `resources/templates/` for doc generation
-- **Command Definitions**: Individual `.md` files in `commands/` directories
+- **Marketplace Descriptor**: `.claude-plugin/marketplace.json` in repository, defining each plugin variant and its skills
+- **Skill Definitions**: `skills/<name>/SKILL.md`, one per skill
 
 ### Development Workflow
 
@@ -573,11 +529,11 @@ make validate-plugins
 
 ## Glossary
 
-- **Plugin**: Claude Code extension installed via marketplace, containing commands and skills
-- **Command**: User-invoked slash command for explicit workflow automation (e.g., `/git:commit`)
-- **Skill**: Model-invoked capability that Claude automatically loads when context matches
-- **Plugin Descriptor**: `plugin.json` file declaring plugin components and metadata
+- **Plugin**: Claude Code extension installed via marketplace, containing a set of skills
+- **Skill**: The only component type in this repo. Either user-invoked (an explicit slash command, e.g. `/git-commit`) or model-invoked (Claude auto-loads it when context matches, e.g. `jira-cli`), set by the `disable-model-invocation` frontmatter field
+- **Marketplace Descriptor**: `marketplace.json` file declaring plugin variants and their skills
 - **Progressive Disclosure**: Loading only necessary information to save context window
+- **Eval Convention**: `evals/evals.json` + `evals/trigger-eval.json` bundled with a skill to test its behavior and triggering
 - **Conventional Commits**: Standardized commit message format (type(scope): description)
 
 ---

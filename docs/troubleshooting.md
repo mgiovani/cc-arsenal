@@ -12,7 +12,6 @@ make info
 
 # Check specific components
 make validate-structure
-make status
 
 # Verify dependencies
 uv --version
@@ -24,7 +23,6 @@ claude --version
 
 ```bash
 # Check what's installed
-ls ~/.claude/commands/
 ls ~/.claude/skills/
 
 # Test basic functionality
@@ -244,30 +242,30 @@ find ~/.claude/skills -type d -exec chmod 755 {} \;
 
 ## Runtime Issues
 
-### Command Execution Problems
+### Skill Execution Problems
 
-#### Commands Not Found
+#### Skills Not Found
 ```bash
-# Error: Claude commands not available
-# Solution: Verify command installation
+# Error: Claude skills not available
+# Solution: Verify skill installation
 
-# Check command installation
-ls ~/.claude/commands/
+# Check skill installation
+ls ~/.claude/skills/
 
-# Test command syntax in Claude Code
-# /help to see available commands
+# Test in Claude Code: ask a question that should trigger the skill,
+# or invoke a user-invoked skill directly, e.g. /git-commit
 
-# Verify command file format
-head -10 ~/.claude/commands/security/security-scan.md
+# Verify a skill's frontmatter
+head -10 ~/.claude/skills/git-commit/SKILL.md
 ```
 
-#### Command Permission Denied
+#### Permission Denied Running a Skill's Scripts
 ```bash
-# Error: Cannot execute commands
+# Error: Cannot execute a skill's bundled script
 # Solution: Check permissions and dependencies
 
-# Fix command permissions
-chmod +x ~/.claude/commands/**/*.sh
+# Fix script permissions
+chmod +x ~/.claude/skills/**/scripts/*.sh
 
 # Check if required tools are installed
 which git npm pytest ruff
@@ -312,7 +310,7 @@ make clean
 # Enhanced statusline shows usage patterns
 
 # Use smart scheduling
-make claude-hi-setup
+make -C scripts/claude-hi setup
 
 # Monitor usage patterns
 tail ~/.claude/logs/usage.log
@@ -359,11 +357,11 @@ ping claude.ai
 # Solution: Verify and adjust schedule
 
 # Check current schedule
-make claude-hi-status
+make -C scripts/claude-hi status
 
 # Remove and recreate
-make claude-hi-remove
-make claude-hi-setup
+make -C scripts/claude-hi remove
+make -C scripts/claude-hi setup
 ```
 
 ### Enhanced Statusline
@@ -380,7 +378,7 @@ ls ~/.claude/statusline/
 grep claude ~/.bashrc ~/.zshrc
 
 # Reinstall statusline
-make statusline-install
+make install-statusline
 ```
 
 #### Incorrect Usage Data
@@ -563,7 +561,7 @@ export CC_ARSENAL_DEBUG_COMMANDS=1
 # Component status
 make info                       # Overall status
 make validate-structure         # Structural validation
-make claude-hi-status          # Session scheduler status
+make -C scripts/claude-hi status          # Session scheduler status
 
 # Test components
 make test                      # Run test suite
@@ -644,7 +642,7 @@ make test                      # Verify functionality
 
 ```bash
 # Monitor system health
-make status                    # Check component status
+make info                      # Check component status
 tail -f ~/.claude/logs/arsenal.log  # Monitor activity
 
 # Check for updates

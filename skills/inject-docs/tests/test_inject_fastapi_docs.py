@@ -8,6 +8,14 @@ from typing import Any
 
 import pytest
 
+from skills.inject_docs.scripts.inject_fastapi_docs import (
+    detect_target_file,
+    format_file_size,
+    inject_or_update_section,
+)
+
+MIN_INJECTED_SIZE_BYTES = 1000
+
 
 @pytest.fixture
 def temp_project_dir() -> Generator[Path, None, None]:
@@ -44,12 +52,6 @@ def test_inject_to_new_claude_md(
     # Change to temp directory
     monkeypatch.chdir(temp_project_dir)
 
-    # Import the script functions
-    from skills.inject_docs.scripts.inject_fastapi_docs import (
-        detect_target_file,
-        inject_or_update_section,
-    )
-
     # Test target file detection (should default to CLAUDE.md)
     target_file = detect_target_file(temp_project_dir)
     assert target_file.name == 'CLAUDE.md'
@@ -69,7 +71,7 @@ def test_inject_to_new_claude_md(
     # Write to file
     target_file.write_text(updated_content, encoding='utf-8')
     assert target_file.exists()
-    assert target_file.stat().st_size > 1000  # Should be several KB
+    assert target_file.stat().st_size > MIN_INJECTED_SIZE_BYTES  # Should be several KB
 
 
 def test_update_existing_section(
@@ -79,10 +81,6 @@ def test_update_existing_section(
 ) -> None:
     """Test updating an existing FastAPI section in CLAUDE.md."""
     monkeypatch.chdir(temp_project_dir)
-
-    from skills.inject_docs.scripts.inject_fastapi_docs import (
-        inject_or_update_section,
-    )
 
     # Create existing content with old FastAPI section
     existing_content = """# My Project
@@ -118,8 +116,6 @@ def test_prefer_claude_md_over_agents_md(
     """Test that CLAUDE.md is preferred over AGENTS.md."""
     monkeypatch.chdir(temp_project_dir)
 
-    from skills.inject_docs.scripts.inject_fastapi_docs import detect_target_file
-
     # Create both files
     (temp_project_dir / 'CLAUDE.md').write_text('# Claude\n')
     (temp_project_dir / 'AGENTS.md').write_text('# Agents\n')
@@ -134,8 +130,6 @@ def test_use_agents_md_when_only_option(
     """Test that AGENTS.md is used when CLAUDE.md doesn't exist."""
     monkeypatch.chdir(temp_project_dir)
 
-    from skills.inject_docs.scripts.inject_fastapi_docs import detect_target_file
-
     # Create only AGENTS.md
     (temp_project_dir / 'AGENTS.md').write_text('# Agents\n')
 
@@ -145,8 +139,6 @@ def test_use_agents_md_when_only_option(
 
 def test_file_size_formatting() -> None:
     """Test the file size formatting function."""
-    from skills.inject_docs.scripts.inject_fastapi_docs import format_file_size
-
     assert format_file_size(500) == '500 B'
     assert format_file_size(1024) == '1.0 KB'
     assert format_file_size(2048) == '2.0 KB'

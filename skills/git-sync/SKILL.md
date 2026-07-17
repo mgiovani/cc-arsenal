@@ -1,10 +1,9 @@
 ---
 name: git-sync
-description: Sync current branch with base branch using merge (default) or rebase. Handles fork sync, conflict detection, and stash management.
+description: Syncs the current feature branch with its base or upstream branch via merge (default) or rebase, with conflict detection and stash handling. Use for ad-hoc requests like "sync my branch with main", "rebase onto main", "pull upstream into my fork", or "update my branch". Not for release/hotfix branch promotion or cutting versioned releases — use gitflow or git-release for those.
 metadata:
   author: mgiovani
   version: 1.0.0
-  source: https://github.com/mgiovani/skills
 disable-model-invocation: true
 argument-hint: '[--rebase] [--base main] [--upstream] [--stash]'
 allowed-tools:
@@ -15,22 +14,11 @@ allowed-tools:
 
 # Git Sync
 
-> **Cross-Platform AI Agent Skill**
-> This skill works with any AI agent platform that supports the skills.sh standard.
-
-Sync the current branch with its base or upstream branch. Defaults to merge to preserve history; rebase is opt-in only.
-
-## Anti-Hallucination Guidelines
-
-**CRITICAL**: Only sync based on what `git status` and `git log` actually show:
-1. **Read before acting** — Run `git status` and `git branch` before any sync operation
-2. **Verify branch state** — Check commits ahead/behind before proposing a strategy
-3. **Never force push main/master** — Hard rule, no exceptions
-4. **Confirm conflicts** — Report exact conflicting files; do not guess
+Sync the current branch with its base or upstream branch. Defaults to merge to preserve history; rebase is opt-in only. Only ever act on what `git status` and `git log` actually show — never guess branch state or conflicts.
 
 ## Workflow
 
-### Phase 1: Analyze State
+### Phase 1: Detect & Decide
 
 Run the following to understand current branch state:
 
@@ -41,7 +29,6 @@ git status --porcelain
 
 # Remote tracking info
 git remote -v
-git fetch --dry-run 2>&1 || true
 
 # Commits ahead/behind base
 git log --oneline HEAD..origin/main 2>/dev/null | head -20
@@ -52,8 +39,6 @@ Also check:
 - Is working tree dirty? (uncommitted changes)
 - Is branch pushed to remote? (`git log origin/<branch>..HEAD` — if error, branch is local-only)
 - What is the base branch? (check PR info via `gh pr view --json baseRefName -q .baseRefName 2>/dev/null` or ask user)
-
-### Phase 2: Strategy Selection
 
 Determine sync strategy:
 
@@ -86,7 +71,7 @@ If user did not provide `--base`, infer base from:
 2. Git config: `git config branch.<name>.merge`
 3. Fallback: ask with `AskUserQuestion`
 
-### Phase 3: Pre-sync Safety
+### Phase 2: Pre-sync Safety
 
 1. **Handle dirty working tree**:
    - If `--stash` flag: run `git stash push -m "git-sync auto-stash"` before sync
@@ -101,7 +86,7 @@ If user did not provide `--base`, infer base from:
 
 3. **Re-check divergence** after fetch to report accurate numbers
 
-### Phase 4: Execute Sync
+### Phase 3: Execute & Report
 
 **Merge strategy**:
 ```bash
@@ -128,15 +113,12 @@ git push --force-with-lease origin <branch>
 
 **On merge/rebase conflict**:
 1. Run `git diff --name-only --diff-filter=U` to list conflicting files
-2. Report exact files with conflict markers
-3. Do NOT attempt to resolve conflicts automatically
-4. Offer two options:
+2. Report exact files — do not guess how to resolve them
+3. Offer two options:
    - Continue: user resolves conflicts manually, then runs `git merge --continue` or `git rebase --continue`
    - Abort: run `git merge --abort` or `git rebase --abort`
 
-### Phase 5: Post-sync Report
-
-After successful sync:
+**After a successful sync**:
 
 ```bash
 # Show new position

@@ -1,6 +1,6 @@
 ---
 name: jira-cli
-description: Interactive CLI for Atlassian Jira issue, epic, and sprint management.
+description: Interactive command-line tool for Atlassian Jira — issue, epic, and sprint management plus scripting/automation and reporting workflows (standup prep, sprint planning, bug triage, CI/CD integration). Invoke explicitly via /jira-cli when the user wants to run jira CLI commands directly rather than a curated report (for a ready-made standup summary use jira-daily, for a prioritized task list use jira-todo).
 disable-model-invocation: true
 ---
 
@@ -16,13 +16,7 @@ JiraCLI (`jira-cli`) is a command line tool for managing Jira issues, epics, and
 
 ## When to Use This Skill
 
-Use this skill when:
-- Managing Jira issues from the command line
-- Creating, editing, or viewing Jira tickets
-- Working with epics and sprints
-- Automating Jira workflows
-- Users mention "jira", "ticket", "issue", "epic", or "sprint"
-- Writing scripts for Jira automation
+This is a manual slash-command skill (`/jira-cli`) — it does not auto-trigger on mentions of "jira" or "ticket". Invoke it directly when you need raw `jira` CLI commands for issues, epics, sprints, or scripting/automation.
 
 ## Essential Commands
 
@@ -89,100 +83,6 @@ Use this file when you need:
 - Integration with CI/CD pipelines
 - Metrics and analytics examples
 - Bulk operations
-
-## Quick Reference
-
-### Powerful List Filters
-
-```bash
-# Combine flags for precise queries (always add --plain)
-jira issue list --plain -a$(jira me) -yHigh -s"To Do" --created -7d -lbackend
-
-# Use tilde (~) as NOT operator
-jira issue list --plain -s~Done --created-before -24w
-
-# Filter by multiple criteria
-jira issue list --plain -yHigh,Critical -s"In Progress" -lbug
-
-# List issues I'm watching
-jira issue list --plain -w
-
-# List issues assigned to no one created this week
-jira issue list --plain -ax --created week
-
-# List issues created within an hour
-jira issue list --plain --created -1h
-
-# List issues from history (recently viewed)
-jira issue list --plain --history
-```
-
-### Sprint Management
-
-```bash
-# List current active sprint issues
-jira sprint list --plain --current
-
-# List current sprint issues assigned to me
-jira sprint list --plain --current -a$(jira me)
-
-# List previous sprint issues
-jira sprint list --plain --prev
-
-# List next planned sprint issues
-jira sprint list --plain --next
-
-# List future and active sprints
-jira sprint list --plain --state future,active
-
-# List issues in a specific sprint (use sprint ID)
-jira sprint list --plain SPRINT_ID
-
-# Add issues to a sprint
-jira sprint add SPRINT_ID ISSUE-1 ISSUE-2
-```
-
-### Epic Management
-
-```bash
-# List epics in table view
-jira epic list --plain --table
-
-# List issues in an epic
-jira epic list --plain KEY-1
-
-# List unassigned high priority issues in an epic
-jira epic list --plain KEY-1 -ax -yHigh
-
-# Add issues to an epic (up to 50 at once)
-jira epic add EPIC-KEY ISSUE-1 ISSUE-2
-
-# Remove issues from an epic
-jira epic remove ISSUE-1 ISSUE-2
-```
-
-### Useful Scripts
-
-```bash
-# Get ticket count per sprint
-sprints=$(jira sprint list --table --plain --columns id,name --no-headers)
-echo "${sprints}" | while read -r id name; do
-  count=$(jira sprint list "${id}" --plain --no-headers 2>/dev/null | wc -l)
-  printf "%s: %d\n" "${name}" "${count}"
-done
-
-# List tickets created today
-jira issue list --plain --created -1d
-
-# List high priority bugs assigned to me
-jira issue list --plain -a$(jira me) -tBug -yHigh
-
-# Get issues by date range
-jira issue list --plain --created week
-jira issue list --plain --created month
-jira issue list --plain --created -7d
-jira issue list --plain --updated -30m
-```
 
 ## Resources
 

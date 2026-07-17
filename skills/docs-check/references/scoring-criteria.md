@@ -32,20 +32,7 @@ Complete scoring rubrics and thresholds for documentation quality assessment.
 ## Overall Score Calculation
 
 - Average of all document scores
-- Weight by importance (core docs > others)
-
-### Weighting Guidelines
-
-| Document Type | Weight | Rationale |
-|---------------|--------|-----------|
-| architecture.md | 1.5x | Core reference for all developers |
-| onboarding.md | 1.3x | Critical for new team members |
-| data-model.md | 1.2x | Essential for data-driven work |
-| deployment.md | 1.0x | Standard importance |
-| security.md | 1.2x | Security-critical documentation |
-| contributing.md | 0.8x | Lower impact if slightly outdated |
-| ADRs | 1.0x | Standard importance per record |
-| RFCs | 0.9x | May intentionally be historical |
+- Weight by importance: core docs (architecture, onboarding) matter more than supporting docs (contributing, RFCs) — let a stale contributing.md pull the overall score down less than a stale architecture.md.
 
 ## Detailed Report Format (per document)
 

@@ -4,7 +4,6 @@ description: "Generate and edit images using Nano Banana (Gemini image generatio
 metadata:
   author: mgiovani
   version: 1.0.0
-  source: https://github.com/mgiovani/skills
 allowed-tools:
   - Bash
   - Read

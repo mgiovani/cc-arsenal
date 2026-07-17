@@ -1,6 +1,6 @@
 ---
 name: team-implement
-description: "Spec-driven team orchestration: adaptive development team scaling from 3 to 11 agents based on complexity."
+description: "Spec-driven team orchestration for large, multi-component features or new epics: writes a full spec/design/review artifact trail under .specs/, gates code changes behind an explicit user approval, then scales a team from 3 (lite) to 11 (full) agents based on complexity. Use for sizable features spanning frontend+backend+DB, unfamiliar domains, or anything you want a reviewable spec for before code is touched. Not for small/single-component changes (use implement-feature — no spec overhead) and not for reviewing already-written code (use team-review)."
 disable-model-invocation: true
 argument-hint: "<description|PROJ-123|#issue|!pr|file|url>"
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, Task, Teammate, SendMessage, TaskCreate, TaskUpdate, TaskList, TaskGet, WebFetch, AskUserQuestion
@@ -23,6 +23,12 @@ CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
 **Lite mode** works without this flag (uses Task subagents instead of Teammate API).
 
 **Delegate mode** (recommended for full mode): Press `Shift+Tab` to enable delegate mode, which restricts the lead to coordination-only tools and prevents it from implementing tasks itself. Without delegate mode, always wait for teammates to complete their tasks before proceeding — do not implement tasks yourself.
+
+If the flag is set but `Teammate` calls still fail (tool unavailable in this install), fall back to Lite Mode rather than erroring out mid-plan.
+
+Without the flag, skip straight to each phase's **Lite Mode** subsection below — no need to read the Full Mode steps.
+
+**No `Task`/subagent tools at all?** Drop one level further: execute each phase's steps yourself, sequentially, instead of spawning Task subagents. The spec → approval → implementation phase structure is the actual workflow; Teammate and Task are just two ways Claude Code parallelizes it.
 
 ## Input
 
@@ -108,7 +114,7 @@ Evaluate complexity signals to determine team mode. See [references/spec-workflo
 | Domain familiarity | Unfamiliar tech | Partially familiar | Well-understood |
 
 **Thresholds:**
-- Score 0-1: Use **lite mode** automatically
+- Score 0-1: Use **lite mode** automatically — but for a <10-file, single-component change, suggest `implement-feature` instead; the spec-artifact overhead here isn't justified at that size
 - Score 2-3: Ask user (recommend lite)
 - Score 4+: Use **full mode** automatically
 

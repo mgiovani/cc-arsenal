@@ -1,25 +1,30 @@
 ---
 name: review-perf
-description: Perform comprehensive performance review analyzing database queries,
-  algorithmic complexity, frontend bottlenecks, and resource leaks for PRs, commits,
-  or entire codebases. This skill should be used when a user wants to audit code performance,
-  identify bottlenecks, review query efficiency, or check for memory leaks. Analysis
-  only - identifies issues without modifying code.
+description: Deep-dive performance audit of database queries, algorithmic complexity,
+  frontend bottlenecks, and resource leaks for a PR, a commit, or the whole codebase,
+  with 4 parallel scanning agents and a severity-ranked report. Use when the user
+  explicitly wants a dedicated performance review, asks to "audit performance",
+  "find N+1 queries", "check for memory leaks", or "review query efficiency" -
+  especially when review-code's single performance dimension isn't thorough enough.
+  Skip this in favor of review-code for a general six-dimension review where
+  performance is just one concern among several. Analysis only - identifies issues
+  without modifying code.
 metadata:
   author: mgiovani
   version: 1.0.0
-  source: https://github.com/mgiovani/skills
 disable-model-invocation: true
 ---
-
-# Review Perf
-
-> **Cross-Platform AI Agent Skill**
-> This skill works with any AI agent platform that supports the skills.sh standard.
 
 # Performance Review
 
 Comprehensive performance analysis targeting database query inefficiencies, algorithmic complexity issues, frontend bottlenecks, and resource leaks. This skill performs **analysis only** - it identifies performance problems, explains findings, and suggests optimization approaches without making code changes.
+
+## Constraints
+
+- **Analysis only** - never modifies, fixes, or commits code
+- **Static analysis** - no runtime profiling, no benchmarking, no load testing
+- **Pattern-based** - Big O and impact estimates are approximate; may miss context-specific issues a profiler would catch
+- **Not exhaustive** - does not guarantee 100% detection; profiling is recommended before acting on critical findings
 
 ## Anti-Hallucination Guidelines
 
@@ -62,9 +67,11 @@ Use TodoWrite to track comprehensive scan progress across all 4 performance cate
 
 ### Phase 3: Parallel Performance Scanning
 
-Spawn **4 parallel Explore agents** for comprehensive performance analysis. Each agent targets specific performance categories using Grep patterns to find actual anti-patterns in code.
+Spawn parallel Explore agents (up to 4) for comprehensive performance analysis. Each agent targets specific performance categories using Grep patterns to find actual anti-patterns in code.
 
 For detailed agent prompts and grep patterns for each performance category, see [references/agent-prompts.md](references/agent-prompts.md).
+
+Spawn only the agent(s) matching `--scope`; spawn all 4 only for `--all` or no scope given.
 
 **Agent assignments:**
 - **Agent 1**: N+1 Queries & Database Performance
@@ -98,22 +105,11 @@ After all agents complete:
 
 ### Phase 5: Generate Performance Report
 
-Generate a comprehensive markdown report following the template in [references/report-template.md](references/report-template.md).
+Generate a comprehensive markdown report following the template in [references/report-template.md](references/report-template.md). Before presenting it, re-check the Anti-Hallucination Guidelines above plus:
 
-### Phase 6: Verification & Quality Check
-
-Before presenting report, verify:
-1. Every finding has file path and line numbers
-2. Every finding has actual code snippet (not placeholder)
-3. Every finding has clear explanation of the performance impact
-4. Every finding has 2-3 optimization approaches with examples
-5. Statistics are accurate (counted, not estimated)
-6. No duplicate findings
-7. Severity ratings are justified with reasoning
-8. Only scanned files within specified scope
-9. No invented issues or false positives
-10. Big O complexity claims are accurate
-11. Profiling tool recommendations match the technology stack
+1. No duplicate findings across the 4 agents
+2. Big O complexity claims are accurate
+3. Profiling tool recommendations match the technology stack
 
 ## Usage
 
@@ -157,24 +153,6 @@ If no scope specified, perform comprehensive scan across all categories.
 - Suggests multiple optimization approaches with code examples
 - Generates comprehensive markdown report with profiling recommendations
 - Prioritizes findings by severity and estimated impact
-
-## What This Skill Does NOT Do
-
-- Does not modify any code
-- Does not automatically fix performance issues
-- Does not commit changes
-- Does not run runtime profiling or benchmarks
-- Does not perform load testing
-- Does not guarantee 100% performance issue detection
-
-## Limitations
-
-- **Static analysis only**: Cannot detect runtime-only performance issues
-- **Pattern-based**: May miss context-specific performance problems
-- **No runtime profiling**: Cannot measure actual execution time or memory usage
-- **No load testing**: Cannot test performance under concurrent users
-- **Estimates are approximate**: Big O analysis may not reflect real-world data sizes
-- **Requires manual verification**: Profiling recommended for critical performance claims
 
 ## Performance References
 

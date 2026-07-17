@@ -1,0 +1,22 @@
+[
+  {"query": "audit the design quality of our checkout page against WCAG and Material Design", "should_trigger": true},
+  {"query": "review the UX/UI of https://staging.example.com and flag accessibility issues", "should_trigger": true},
+  {"query": "check our color contrast and typography scale against WCAG 2.2 AA", "should_trigger": true},
+  {"query": "do a design review of the whole codebase's components and design tokens", "should_trigger": true},
+  {"query": "review-design 123 and tell me what's wrong with the visual hierarchy", "should_trigger": true},
+  {"query": "audit dark mode theming and elevation/shadows on the dashboard", "should_trigger": true},
+  {"query": "is our button and icon system following Apple HIG and Material Design 3", "should_trigger": true},
+  {"query": "check the touch target sizes and focus states across the app for accessibility", "should_trigger": true},
+  {"query": "run a full UX audit mapped to Nielsen Norman Group heuristics on this PR", "should_trigger": true},
+  {"query": "review the motion and microinteractions on the onboarding flow for accessibility", "should_trigger": true},
+  {"query": "review this PR's code quality and flag any bugs or over-engineering", "should_trigger": false},
+  {"query": "check the performance of our checkout page, is it slow to load", "should_trigger": false},
+  {"query": "run visual regression tests on the dashboard and flag pixel diffs", "should_trigger": false},
+  {"query": "make the sidebar 20px wider and change the button color to blue", "should_trigger": false},
+  {"query": "fix the CSS so the modal is centered on mobile", "should_trigger": false},
+  {"query": "scan our dependencies for known vulnerabilities before we ship", "should_trigger": false},
+  {"query": "profile the API and find the slow database queries", "should_trigger": false},
+  {"query": "run a security review of the auth flow for OWASP top 10 issues", "should_trigger": false},
+  {"query": "add a dark mode toggle component to the settings page", "should_trigger": false},
+  {"query": "diff the screenshots from before and after this deploy to catch layout shifts", "should_trigger": false}
+]

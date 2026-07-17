@@ -5,6 +5,39 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.0] - 2026-07-06
+
+One repo, any agent. cc-arsenal is now a single agent-agnostic skills repository following the [Agent Skills](https://agentskills.io) open standard, with Claude Code features (plugin variants, hooks, subagent orchestration) as an optional layer. Install from any compatible tool with `npx skills add mgiovani/cc-arsenal`, or from Claude Code with `/plugin marketplace add mgiovani/cc-arsenal`.
+
+### Added
+- **4 new skills** mined from real usage history:
+  - **ship**: "Ship train" orchestrator — review → project pre-merge checks → conventional commit → PR → CI-green, reusing the sibling git/review skills.
+  - **vrt-check**: Visual regression workflow — detects the project's VRT tooling (justfile targets, Storybook test-runner, Playwright, Chromatic, Loki), triages diffs as regression vs intended change before updating snapshots.
+  - **ci-local**: Replicates GitHub Actions jobs locally when Actions is unavailable or out of quota, with a parity report for steps it can't reproduce.
+  - **i18n-check**: Locale completeness checker — missing/untranslated/orphan keys across locales plus hardcoded-string detection, per-framework references bundled.
+- **Eval coverage**: 17 new eval packs (`evals/evals.json` + `evals/trigger-eval.json`) — every new skill plus agent-browser, ci-generate, docs-adr, docs-check, env-setup, git-commit, git-create-pr, git-release, review-deps, review-perf, review-security, team-implement, team-review; completed gitflow's missing assertions and review-design's missing trigger evals. 24 of 41 skills now have evals.
+- **cc-arsenal-jira** plugin variant (jira-cli, jira-daily, jira-todo).
+- **Portability convention**: skill bodies are tool-neutral; Claude Code-only frontmatter (`allowed-tools`, `disable-model-invocation`, `hooks`, `context`, `agent`) is enhancement other tools safely ignore. The 8 orchestration-heavy skills now document sequential-inline fallback when no subagent/task tools exist.
+- **Version tooling**: `.version-bump.json` + `scripts/bump_version.py` + `make bump-version VERSION=x.y.z` keep all manifest version fields in lockstep.
+- **Reusable audit workflow**: `.claude/workflows/arsenal-audit.js` — re-runnable multi-agent repo audit (per-skill grading, manifest drift, usage-gap mining, ranked action plan).
+
+### Changed
+- **All 41 skills audited; 32 improved**: corrupted SKILL.md bodies repaired (duplicated sections, unclosed code fences introduced by the retired sync pipeline), descriptions rewritten for reliable triggering with sibling-skill disambiguation, phantom subagent references removed, over-engineered fan-outs collapsed to inline steps, oversized bodies cut (e.g. project-planner 557→248 lines, git-commit 271→75).
+- **AGENTS.md is now the canonical repo doc** (read natively by Codex, Cursor, Copilot, Gemini CLI); CLAUDE.md reduced to an `@AGENTS.md` import plus Claude Code-only content. README repositioned agnostic-first.
+- **Docs regenerated from ground truth**: accurate skill counts (41) and variant tables everywhere, plugin-marketplace install as the primary path, real `make` target names in troubleshooting/features docs.
+- All plugin versions bumped to 4.0.0.
+
+### Fixed
+- `plugin.json` no longer declares `skills` alongside marketplace variant entries (documented manifest-conflict risk); auto-discovery is the single authority for the full plugin.
+- 8 previously unreachable skills (absent from every plugin variant) are now installable via variants.
+- All 27 ruff lint errors fixed; `pyright` added to dev dependencies and type-check green; installer tests updated for the skills-only layout.
+- `${CLAUDE_PLUGIN_ROOT}`-relative hook path in git-commit so the pre-commit lint hook resolves from any project.
+
+### Removed
+- **BREAKING**: `create-command` skill (merged into `create-skill`) and `inject-nextjs-docs` skill (merged into `inject-docs`).
+- **skills-upstream submodule and sync pipeline** (`scripts/sync_skills.py`, `scripts/extract_enhancements.py`, all `SYNC.md` files): the sync script was corrupting SKILL.md files by concatenating upstream + enhancement content; the separate mgiovani/skills repo is retired in favor of this single repo.
+- Legacy `commands/` directory (16 pre-v2 files, all superseded by skills), `enhancements/` (24 already-shipped enhancement docs), `resources/templates/` + empty `templates/` (dead duplicate trees), empty scaffold dirs (`agents/`, `references/`), deprecated hooks, and `docs/agent-development.md` (documented a framework that never existed).
+
 ## [3.3.0] - 2026-07-02
 
 ### Added

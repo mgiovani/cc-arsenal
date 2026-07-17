@@ -1,0 +1,39 @@
+{
+  "skill": "team-review",
+  "evals": [
+    {
+      "id": "payments-auth-pr-full-team",
+      "prompt": "/team-review 482 — this PR touches our payment processing and adds a new auth middleware, want a thorough review before we merge",
+      "assertions": [
+        "Ingests the PR via gh pr view/gh pr diff (or equivalent) rather than guessing at the changes",
+        "Runs a Phase 1 project discovery step before spawning reviewers",
+        "Given security-sensitive scope (payments, auth), selects full mode (7 reviewers) or clearly justifies why not",
+        "Spawns a security reviewer and an adversary reviewer that challenges the other reviewers' findings",
+        "Produces a single consolidated report with severity-classified findings (Critical/Major/Minor/Nit) rather than raw per-agent dumps",
+        "Does not edit any code or commit changes"
+      ]
+    },
+    {
+      "id": "lite-mode-small-pr-cost-conscious",
+      "prompt": "/team-review 119 --lite just want a quick sanity check, keep it cheap",
+      "assertions": [
+        "Honors the --lite flag by using Task subagents instead of the Teammate API",
+        "Spawns the reduced 4-agent lite-mode team rather than the full 7-agent team",
+        "Still includes an adversary-style pass that challenges/cross-checks the other findings",
+        "Generates a report with file:line findings and severity levels",
+        "Does not modify code or run the test suite"
+      ]
+    },
+    {
+      "id": "focus-architecture-schema-change",
+      "prompt": "we just merged a big schema migration in commit 9f3ab21, can you get the team to review it for architectural issues, focus on architecture only",
+      "assertions": [
+        "Detects the commit SHA input and ingests it via git show / git diff-tree (or equivalent) rather than treating it as a PR number",
+        "Honors --focus architecture by spawning only arch-reviewer and adversary-reviewer, not the full 7-agent roster",
+        "Adversary reviewer waits for and challenges the architecture reviewer's findings rather than running independently first",
+        "Final report is scoped to architectural findings (data modeling, API contracts, schema/pattern concerns)",
+        "Does not attempt to fix or refactor the schema itself"
+      ]
+    }
+  ]
+}

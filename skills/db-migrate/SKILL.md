@@ -4,7 +4,6 @@ description: Create, validate, and manage database migrations across any framewo
 metadata:
   author: mgiovani
   version: 1.0.0
-  source: https://github.com/mgiovani/skills
 disable-model-invocation: true
 argument-hint: '[create|status|validate] [--name migration_name] [--dry-run]'
 allowed-tools:
@@ -18,9 +17,6 @@ allowed-tools:
 ---
 
 # DB Migrate
-
-> **Cross-Platform AI Agent Skill**
-> This skill works with any AI agent platform that supports the skills.sh standard.
 
 Create, validate, and run database migrations across any framework. Auto-detects the migration tool from project files.
 
@@ -128,14 +124,6 @@ Display a summary of what was created or checked:
 - Migration name and timestamp
 - Any warnings (destructive ops, missing rollbacks, missing indexes)
 - Next steps (apply with `<command>`, rollback with `<command>`)
-
-## Argument Parsing
-
-- `create`: Create a new migration (default if no subcommand given)
-- `status`: Show migration status
-- `validate`: Validate existing migrations
-- `--name <name>`: Migration description for the filename
-- `--dry-run`: Show what would happen without executing
 
 ## Important Notes
 

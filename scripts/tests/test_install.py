@@ -73,19 +73,19 @@ class TestFileDiscovery(unittest.TestCase):
         self.repo_root = Path(self.temp_dir.name)
 
         # Create test structure
-        (self.repo_root / 'agents' / 'development').mkdir(parents=True)
-        (self.repo_root / 'commands' / 'security').mkdir(parents=True)
+        (self.repo_root / 'skills' / 'development').mkdir(parents=True)
+        (self.repo_root / 'skills' / 'security').mkdir(parents=True)
 
         # Create test files
-        (self.repo_root / 'agents' / 'development' / 'test-agent.md').write_text(
+        (self.repo_root / 'skills' / 'development' / 'test-agent.md').write_text(
             '# Test Agent'
         )
-        (self.repo_root / 'commands' / 'security' / 'test-command.md').write_text(
+        (self.repo_root / 'skills' / 'security' / 'test-command.md').write_text(
             '# Test Command'
         )
 
         # Create non-matching files (should be ignored)
-        (self.repo_root / 'agents' / 'development' / 'readme.txt').write_text(
+        (self.repo_root / 'skills' / 'development' / 'readme.txt').write_text(
             'Not included'
         )
 
@@ -110,7 +110,7 @@ class TestFileDiscovery(unittest.TestCase):
 
         # Check categories
         categories = {item.category for item in items}
-        assert categories == {'agents', 'commands'}
+        assert categories == {'skills'}
 
         # Check file extensions
         extensions = {item.source_path.suffix for item in items}
@@ -121,9 +121,9 @@ class TestFileDiscovery(unittest.TestCase):
         # Create existing files
         claude_dir = self.config.claude_dir
         claude_dir.mkdir(parents=True, exist_ok=True)
-        (claude_dir / 'agents' / 'development').mkdir(parents=True, exist_ok=True)
+        (claude_dir / 'skills' / 'development').mkdir(parents=True, exist_ok=True)
 
-        existing_file = claude_dir / 'agents' / 'development' / 'test-agent.md'
+        existing_file = claude_dir / 'skills' / 'development' / 'test-agent.md'
         existing_file.write_text('Existing content')
 
         discovery = FileDiscovery(self.config)
@@ -140,11 +140,11 @@ class TestFileDiscovery(unittest.TestCase):
         # Create symlink
         claude_dir = self.config.claude_dir
         claude_dir.mkdir(parents=True, exist_ok=True)
-        (claude_dir / 'agents' / 'development').mkdir(parents=True, exist_ok=True)
+        (claude_dir / 'skills' / 'development').mkdir(parents=True, exist_ok=True)
 
-        existing_symlink = claude_dir / 'agents' / 'development' / 'test-agent.md'
+        existing_symlink = claude_dir / 'skills' / 'development' / 'test-agent.md'
         existing_symlink.symlink_to(
-            self.repo_root / 'agents' / 'development' / 'test-agent.md'
+            self.repo_root / 'skills' / 'development' / 'test-agent.md'
         )
 
         discovery = FileDiscovery(self.config)
@@ -154,6 +154,22 @@ class TestFileDiscovery(unittest.TestCase):
         symlink_items = [item for item in items if item.existing_is_symlink]
         assert len(symlink_items) == 1
         assert symlink_items[0].conflicts
+
+    def test_discover_multiple_categories(self) -> None:
+        """Test discovery across multiple top-level required_dirs."""
+        (self.repo_root / 'commands' / 'git').mkdir(parents=True)
+        (self.repo_root / 'commands' / 'git' / 'commit.md').write_text('# Commit')
+
+        config = InstallationConfig(
+            repo_root=self.repo_root,
+            claude_dir=self.claude_dir,
+            required_dirs=['skills', 'commands'],
+        )
+        discovery = FileDiscovery(config)
+        items = discovery.discover_installable_files()
+
+        categories = {item.category for item in items}
+        assert categories == {'skills', 'commands'}
 
 
 class TestConflictManager(unittest.TestCase):

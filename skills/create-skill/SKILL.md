@@ -1,6 +1,6 @@
 ---
 name: create-skill
-description: "Create new agent skills with specification-driven generation, live documentation fetching, and interactive planning. Use this skill whenever the user wants to create a new skill, slash command, or agent capability — even if they say 'make a command' or 'turn this into a reusable workflow'."
+description: "Create new agent skills with specification-driven generation, live documentation fetching, and interactive planning. Use this skill whenever the user wants to create a new skill, slash command, or agent capability — even if they say 'make a command', 'create a slash command', or 'turn this into a reusable workflow'."
 metadata:
   author: mgiovani
   version: 2.0.0
@@ -47,29 +47,12 @@ Before starting, internalize these principles — they make the difference betwe
 
 ### Phase 0: Fetch Live Specifications
 
-Fetch latest specs before every creation — never rely on memory or bundled docs, because specifications evolve.
+Fetch latest specs before every creation — never rely on memory or bundled docs, because specifications evolve. This is two small fetches, not a research task — call WebFetch directly rather than spawning agents for it:
 
-Spawn 2 parallel Explore agents (model: haiku to minimize cost):
+1. WebFetch `https://agentskills.io/specification.md` — frontmatter fields, `allowed-tools` syntax, directory rules
+2. WebFetch `https://platform.claude.com/docs/skills/best-practices.md` — progressive disclosure, writing style, anti-hallucination patterns. If the fetch fails, fall back to bundled `references/skill-anatomy.md` and `references/frontmatter-fields.md`
 
-```
-Agent 1 - Fetch Skill Specifications:
-- subagent_type: "Explore"
-- model: "haiku"
-- prompt: "Fetch and summarize the latest skill specifications:
-  1. WebFetch https://agentskills.io/what-are-skills.md — extract: what skills are, anatomy, when to use
-  2. WebFetch https://agentskills.io/specification.md — extract: frontmatter fields, allowed-tools syntax, directory rules
-  Return: Structured summary with examples"
-
-Agent 2 - Fetch Best Practices:
-- subagent_type: "Explore"
-- model: "haiku"
-- prompt: "Fetch Claude Code skill best practices:
-  1. WebFetch https://platform.claude.com/docs/skills/best-practices.md — extract: progressive disclosure, writing style, anti-hallucination patterns
-  2. If URL fails, read bundled: skills/create-skill/references/skill-anatomy.md
-  Return: Key guidelines and common pitfalls"
-```
-
-Hold results in context. Do not proceed until both agents return.
+Hold both results in context. Do not proceed until both are fetched.
 
 ### Phase 1: Understand Requirements
 
@@ -99,6 +82,8 @@ Adapt communication style to the user. Technical users: use precise terms (front
 - What should the skill explicitly NOT do (to set scope boundaries)?
 
 ### Phase 2: Research Existing Patterns & Composition
+
+No `Task` tool here? Do this research yourself, sequentially — read the same targets each agent below would, one after the other. The two research tracks are what matters, not the parallel dispatch.
 
 Spawn 2 parallel Explore agents (model: haiku) using the Task tool:
 
@@ -143,7 +128,7 @@ allowed-tools:            # only list tools actually used — each has a cost
   - Write
 ```
 
-Allowed frontmatter keys: `name`, `description`, `license`, `allowed-tools`, `metadata`, `compatibility`, `disable-model-invocation`, `argument-hint`. Reject anything else — unknown keys cause validation failures.
+Allowed frontmatter keys: `name`, `description`, `license`, `allowed-tools`, `metadata`, `compatibility`, `disable-model-invocation`, `argument-hint`, `context`, `agent`, `hooks`. Reject anything else — unknown keys cause validation failures. Add `context: fork` + `agent: <type>` only when the skill should run isolated from conversation history (the SKILL.md content becomes the subagent's entire prompt) — see `references/frontmatter-fields.md` for the full field reference and `$ARGUMENTS`/`$0`/`$1` substitution syntax.
 
 **2. Directory Structure** — explain why each directory is or isn't included:
 ```
@@ -264,6 +249,7 @@ When iterating on an existing skill after seeing it in use:
 ## Reference Documentation
 
 - **`references/skill-anatomy.md`** — Deep dive: folder conventions, progressive disclosure, composition patterns
+- **`references/frontmatter-fields.md`** — Full frontmatter field reference, `$ARGUMENTS` substitution syntax, the `context: fork` isolated-subagent pattern
 - **`references/specification-urls.md`** — Canonical URLs for specs, best practices, examples
 - **`references/schemas.md`** — JSON schemas for evals.json, grading.json, metrics.json
 
@@ -325,18 +311,10 @@ uv run skills/create-skill/scripts/generate_report.py [SKILL_PATH]
 
 For model-invoked skills, the description is the trigger mechanism. Optimizing it improves precision.
 
-Use the description optimizer:
+Use the description optimizer — it generates should/should-not-trigger queries, iterates the description against a train split via `claude -p`, then validates on a held-out test split to avoid overfitting (see the script's own docstring for the full algorithm):
 ```bash
 uv run skills/create-skill/scripts/improve_description.py [SKILL_PATH]
 ```
-
-This script:
-1. Generates 20 trigger queries (10 should-trigger, 10 should-not-trigger)
-2. Splits 60/40 into train/test sets (stratified by trigger intent)
-3. Tests the current description against train set via `claude -p`
-4. Iterates up to 5 times, improving based on failures
-5. Validates best iteration on test set to prevent overfitting
-6. Auto-shortens if description exceeds 1024 chars (then re-validates)
 
 Then package for distribution:
 ```bash

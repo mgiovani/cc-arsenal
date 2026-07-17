@@ -1,18 +1,21 @@
 ---
 name: inject-docs
-description: Inject framework-specific best practices into CLAUDE.md. Supports Next.js
-  and FastAPI.
+description: Inject compressed framework-specific best practices and docs into
+  CLAUDE.md or AGENTS.md so AI coding agents get passive framework knowledge
+  without extra tool calls. Supports Next.js (via Vercel's agents-md codemod,
+  version-aware) and FastAPI (via a bundled best-practices template). Use when
+  a user wants to add Next.js or FastAPI docs to CLAUDE.md/AGENTS.md, run the
+  Vercel agents-md codemod, inject framework best practices for AI agents, or
+  improve AI agent performance on a Next.js or FastAPI project. This is the
+  only framework-doc-injection skill in this toolkit — don't look for a
+  Next.js-specific variant.
 metadata:
   author: mgiovani
   version: 1.0.0
-  source: https://github.com/mgiovani/skills
 disable-model-invocation: true
+argument-hint: ''
+allowed-tools: Bash(npx *), Bash(node *), Bash(uv run *), Bash(cat *), Read, Grep, Glob, Task, AskUserQuestion
 ---
-
-# Inject Docs
-
-> **Cross-Platform AI Agent Skill**
-> This skill works with any AI agent platform that supports the skills.sh standard.
 
 # Framework Documentation Injector
 
@@ -40,42 +43,47 @@ Inject compressed framework-specific best practices and documentation into the c
 Before running anything, auto-detect the framework and verify prerequisites:
 
 1. **Detect the framework**:
- - Check for `package.json` with `next` dependency → Next.js project
- - Check for `pyproject.toml` with `fastapi` dependency → FastAPI project
- - Check for `requirements.txt` containing `fastapi` → FastAPI project
- - If multiple frameworks detected, prioritize based on arguments or ask user
- - If no framework detected, **STOP** and inform the user: "Could not detect a supported framework (Next.js or FastAPI)."
+   - Check for `package.json` with `next` dependency → Next.js project
+   - Check for `pyproject.toml` with `fastapi` dependency → FastAPI project
+   - Check for `requirements.txt` containing `fastapi` → FastAPI project
+   - If multiple frameworks detected, prioritize based on arguments or ask user
+   - If no framework detected, **STOP** and inform the user: "Could not detect a supported framework (Next.js or FastAPI)."
 
 2. **Detect framework version** (if applicable):
- - For Next.js: extract version from `package.json`
- - For FastAPI: extract version from `pyproject.toml` or `requirements.txt`
- - Report the detected version to the user
+   - For Next.js: extract version from `package.json`
+   - For FastAPI: extract version from `pyproject.toml` or `requirements.txt`
+   - Report the detected version to the user
 
 3. **Detect target file**:
- - Check if `CLAUDE.md` exists in the project root - use `CLAUDE.md`
- - Else check if `AGENTS.md` exists - use `AGENTS.md`
- - If neither exists, default to `CLAUDE.md` (Claude Code's native format)
- - Inform the user which file will be updated
+   - Check if `CLAUDE.md` exists in the project root - use `CLAUDE.md`
+   - Else check if `AGENTS.md` exists - use `AGENTS.md`
+   - If neither exists, default to `CLAUDE.md` (Claude Code's native format)
+   - Inform the user which file will be updated
 
 ### Phase 1: Run Framework-Specific Injection
 
 #### Option A: Next.js Projects
 
-Execute the Vercel codemod with the `--output` flag:
+Execute the Vercel codemod with the `--output` flag, in the project root:
 
 ```bash
 npx @next/codemod@canary agents-md --output <TARGET_FILE>
+```
+
+Where `<TARGET_FILE>` is the file detected in Phase 0 (e.g., `CLAUDE.md` or `AGENTS.md`).
+
 **What this does**:
 - Auto-detects the Next.js version from package.json
 - Downloads version-matching documentation from Vercel's servers
 - Injects a compressed pipe-delimited index into the target file
 - Downloads full docs to `.next-docs/` and adds it to `.gitignore`
-- Non-interactive mode (no prompts)
+- Non-interactive mode (no prompts, thanks to `--output`)
 
 **Important**:
 - Requires network access
-- Non-destructive: updates existing file without overwriting content
+- Non-destructive: injects/updates the index section without overwriting existing content
 - Compresses ~40KB of docs into ~8KB (Vercel's agent evals showed 100% pass rate vs 53% baseline)
+- Target file priority: CLAUDE.md (if exists) → AGENTS.md (if exists) → CLAUDE.md (default)
 
 #### Option B: FastAPI Projects
 
@@ -90,70 +98,51 @@ The script:
 - Checks if a "FastAPI Best Practices" section already exists (updates it if so, appends if not)
 - Injects compressed best practices covering: domain-driven structure, async patterns, Pydantic validation, dependency injection, SQLAlchemy integration, error handling, testing, and Ruff code quality
 
-**Template for FastAPI injection** (see `references/fastapi-best-practices.md` for full content):
+See `references/fastapi-best-practices.md` for the exact content injected.
 
-```markdown
-## FastAPI Best Practices
+### Phase 2: Verify Results
 
-### Project Structure
-- Use domain-driven organization (by feature), not file-type organization
-- Each domain is self-contained: router, schemas, models, service, dependencies
-- Structure per domain:
- - `router.py` - API endpoints
- - `schemas.py` - Pydantic request/response models
- - `models.py` - Database models (SQLAlchemy)
- - `service.py` - Business logic
- - `dependencies.py` - Route-level dependencies
- - `constants.py`, `config.py`, `exceptions.py`, `utils.py`
+After Phase 1 completes:
 
-### Async Patterns
-- Use `async def` for non-blocking I/O (database queries, HTTP calls)
-- Use `def` for blocking operations (FastAPI handles threadpool automatically)
-- **NEVER** use `time.sleep` in async functions (blocks event loop)
-- Use `await asyncio.sleep` for delays
-- CPU-intensive work requires multiprocessing/Celery (not threads due to GIL)
-- Prefer async database drivers (SQLAlchemy 2.0+ with asyncio)
+1. **Confirm the target file was updated** - read it back and check it contains the injected framework content (pipe-delimited Next.js index, or the `## FastAPI Best Practices` section)
+2. **Check size** - note the approximate size before/after (Next.js codemod prints this; for FastAPI, compare file sizes yourself)
+3. Do not report success on command exit code alone — verify the content actually landed.
 
-### Import Discipline
-- Use explicit imports with module names: `from src.auth import constants as auth_constants`
-- Avoids hidden coupling and improves maintainability
-- Critical when importing services or dependencies from other packages
+### Phase 3: Report
 
-### Validation & Dependencies
-- Leverage Pydantic's built-in validation (regex, enums, email, URL, constraints)
-- Create custom BaseModel for application-wide consistency
-- Use dependencies for business logic validation (DB constraints, authorization, token parsing)
-- Dependencies cache within request scope - chain them to avoid redundant computations
+Summarize for the user:
+- Framework and version detected
+- Which file was updated (CLAUDE.md or AGENTS.md), created vs. updated
+- Confirmation that framework docs were injected, with approximate size
+- Suggest reviewing the diff and committing
 
-### Response Serialization
-- Always use `response_model` parameter on endpoints
-- Create custom encoders for special types (datetime, UUID)
-- FastAPI auto-generates OpenAPI schemas from type hints
+## Examples
 
-### Error Handling
-- Define module-specific exception classes
-- Raise from dependencies and service layer
-- FastAPI auto-converts to HTTP responses
-- Use HTTP status codes correctly (400 for client errors, 500 for server errors)
+### Next.js project with existing CLAUDE.md
 
-### Database Integration
-- SQL-first design: design schema first, then models
-- Enforce naming conventions at database level
-- Use Alembic for migrations
-- Prefer async drivers for scalability
+```
+> inject Next.js docs
 
-### Testing
-- Use async test clients from day one
-- Configure fixtures for async operations
-- Test at multiple levels: unit (service), integration (router), e2e
+Detected Next.js 15.2.3 in package.json
+Found existing CLAUDE.md - will inject documentation there
+Running: npx @next/codemod@canary agents-md --output CLAUDE.md
+Updated CLAUDE.md (2.1 KB -> 10.3 KB)
+Added .next-docs to .gitignore
 
-### Code Quality
-- Use Ruff for linting and formatting (Python-focused, fast)
-- Always include type hints for OpenAPI generation
-- Enforce strict mypy or pyright type checking
-- Use pre-commit hooks for quality gates
+Review the changes and commit when ready:
+  git add CLAUDE.md .gitignore && git commit -m "docs: add Next.js agents-md framework reference"
+```
 
-### REST Conventions
-- Use correct HTTP methods: GET (read), POST (create), PUT/PATCH (update), DELETE (remove)
-- Docstrings on endpoints for clarity in auto-generated docs
-- Leverage FastAPI's OpenAPI `/docs` as primary API documentation
+### FastAPI project with no existing docs file
+
+```
+> inject FastAPI best practices
+
+Detected FastAPI 0.115.0 in pyproject.toml
+No CLAUDE.md or AGENTS.md found - creating CLAUDE.md
+Ran scripts/inject_fastapi_docs.py
+Created CLAUDE.md (0 B -> 6.8 KB) with "FastAPI Best Practices" section
+
+Review the changes and commit when ready:
+  git add CLAUDE.md && git commit -m "docs: add FastAPI best-practices reference"
+```

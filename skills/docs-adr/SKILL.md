@@ -1,12 +1,13 @@
 ---
 name: docs-adr
-description: Create numbered Architecture Decision Records (ADR) documenting architectural
-  decisions. This skill should be used when users want to document an architectural
-  decision, create an ADR, or record technical choices.
+description: Create a numbered Architecture Decision Record (ADR) documenting a technical
+  decision with context, alternatives, and consequences. Trigger on "create an ADR",
+  "document this architectural decision", "record why we chose X", or "write an ADR
+  for [decision]". Use docs-rfc instead when the decision is still open for discussion;
+  use docs-adr once a choice has actually been made and needs a permanent record.
 metadata:
   author: mgiovani
   version: 1.0.0
-  source: https://github.com/mgiovani/skills
 disable-model-invocation: true
 argument-hint: <title> [variant]
 allowed-tools: Read, Write, Grep, Glob, Task
@@ -14,18 +15,13 @@ context: fork
 agent: general-purpose
 ---
 
-# Docs Adr
-
-> **Cross-Platform AI Agent Skill**
-> This skill works with any AI agent platform that supports the skills.sh standard.
-
 # Create Architecture Decision Record
 
 Create a new Architecture Decision Record (ADR) documenting an architectural decision.
 
 ## Anti-Hallucination Guidelines
 
-**CRITICAL**: ADRs document REAL decisions about REAL code. Before writing:
+ADRs document REAL decisions about REAL code. Before writing:
 1. **Verify the technology exists** - If ADR mentions "Redis", confirm Redis is actually used
 2. **Reference actual files** - Do not invent file paths; grep/glob to find real ones
 3. **Quote real code** - If mentioning a pattern, find an actual example
@@ -33,14 +29,20 @@ Create a new Architecture Decision Record (ADR) documenting an architectural dec
 
 ## Workflow
 
-### Phase 1: Explore Context (Explore Codebase)
+### Phase 1: Explore Context
 
-Before writing an ADR, explore the codebase using available search and analysis tools to understand the relevant codebase context:
+Before writing an ADR, use the Explore agent to understand the relevant codebase context:
+
+```
+Use Task tool with Explore agent:
+- prompt: "Search for code related to [DECISION_TOPIC]. Find: 1) Current implementation if any, 2) Related configuration files, 3) Dependencies involved, 4) Any existing documentation. Return verified file paths and relevant code snippets."
+- subagent_type: "Explore"
+```
 
 ### Phase 2: Parse Arguments
 
-1. Extract decision title from `command arguments`
-2. Check for variant keyword: `lightweight`, `full`, or `madr`
+1. Extract decision title from the command arguments
+2. Check for variant keyword: `lightweight`, `full`, or `nygard`
 3. If variant found, remove it from title
 4. Default variant: `nygard` (Nygard style)
 
@@ -70,10 +72,9 @@ Before writing an ADR, explore the codebase using available search and analysis 
 
 - Template location: `assets/templates/`
 - Select based on variant:
- - `nygard` -> `nygard.md` (default)
- - `lightweight` -> `lightweight.md`
- - `full` -> `full.md`
- - `madr` -> `madr.md`
+  - `nygard` -> `nygard.md` (default)
+  - `lightweight` -> `lightweight.md`
+  - `full` -> `full.md`
 
 Replace placeholders:
 - `{{ADR_NUMBER}}` - 4-digit number
@@ -118,13 +119,6 @@ Comprehensive ADR with detailed sections.
 
 **Use when:** Complex, high-impact decisions
 
-### MADR
-Markdown Architectural Decision Records format.
-
-**Sections:** Title with number, Status, Context and Problem Statement, Decision Drivers, Considered Options, Decision Outcome, Consequences
-
-**Use when:** Following MADR standard
-
 ## Usage Examples
 
 Basic ADR creation (uses Nygard template):
@@ -132,11 +126,14 @@ Basic ADR creation (uses Nygard template):
 docs-adr "Database Migration Strategy"
 docs-adr "API Authentication Approach"
 docs-adr "Microservices Communication Pattern"
+```
+
 With template variant override:
 ```
 docs-adr lightweight "Use Redis for Session Storage"
 docs-adr full "Adopt Event-Driven Architecture"
-docs-adr madr "Select Database Technology"
+```
+
 ## ADR Numbering
 
 - **First ADR**: `0001-record-architecture-decisions.md` (meta-ADR)
@@ -156,13 +153,15 @@ Update status in the ADR as the decision progresses:
 
 ```bash
 # For database decisions
-!`find . -name "*.sql" -o -name "*models.py" -o -name "*schema.prisma" | head -10`
+find . -name "*.sql" -o -name "*models.py" -o -name "*schema.prisma" | head -10
 
 # For API decisions
-!`grep -r "router\|endpoint\|api" --include="*.py" --include="*.ts" --include="*.js" . | head -20`
+grep -r "router\|endpoint\|api" --include="*.py" --include="*.ts" --include="*.js" . | head -20
 
 # For architecture decisions
-!`find . -name "docker-compose.yml" -o -name "*.config.js" -o -name "*.config.ts" | head -10`
+find . -name "docker-compose.yml" -o -name "*.config.js" -o -name "*.config.ts" | head -10
+```
+
 ## Important Notes
 
 - **One Decision per ADR**: Keep focused on a single decision
@@ -193,77 +192,3 @@ Create an ADR when making:
 - **Link to code**: Reference implementation in the ADR
 - **Review regularly**: Revisit ADRs during retrospectives
 - **Update status**: Keep status current as decisions evolve
-
-## Claude Code Enhanced Features
-
-This skill includes the following Claude Code-specific enhancements:
-
-## Workflow
-
-### Phase 1: Explore Context (Use Explore Agent)
-
-Before writing an ADR, use the Explore agent to understand the relevant codebase context:
-
-```
-Use Task tool with Explore agent:
-- prompt: "Search for code related to [DECISION_TOPIC]. Find: 1) Current implementation if any, 2) Related configuration files, 3) Dependencies involved, 4) Any existing documentation. Return verified file paths and relevant code snippets."
-- subagent_type: "Explore"
-```
-
-### Phase 2: Parse Arguments
-
-1. Extract decision title from `$ARGUMENTS`
-2. Check for variant keyword: `lightweight`, `full`, or `madr`
-3. If variant found, remove it from title
-4. Default variant: `nygard` (Nygard style)
-
-### Phase 3: Determine ADR Number
-
-- Scan `docs/adr/` directory
-- Find highest existing ADR number (format: `XXXX-*`)
-- Increment by 1
-- If no ADRs exist, start with `0001`
-- Format as 4-digit padded number (e.g., `0001`, `0023`)
-
-### Phase 4: Sanitize Title for Filename
-
-- Convert title to kebab-case
-- Remove special characters
-- Lowercase all letters
-- Example: "Use Redis for Caching" -> `use-redis-for-caching`
-
-### Phase 5: Gather Context
-
-- Search codebase for relevant information about the decision topic
-- Look for related code, configs, or documentation
-- Understand current state and alternatives
-- Keep context concise but informative
-
-### Phase 6: Load and Populate Template
-
-- Template location: `assets/templates/`
-- Select based on variant:
-  - `nygard` -> `nygard.md` (default)
-  - `lightweight` -> `lightweight.md`
-  - `full` -> `full.md`
-  - `madr` -> `madr.md`
-
-Replace placeholders:
-- `{{ADR_NUMBER}}` - 4-digit number
-- `{{ADR_TITLE}}` - Original title (Title Case)
-- `{{DATE}}` - Current date (YYYY-MM-DD)
-- `{{CONTEXT}}` - Gathered context from codebase
-- `{{PROJECT_NAME}}` - Git repo or directory name
-
-### Phase 7: Create ADR File
-
-- Filename: `docs/adr/XXXX-kebab-case-title.md`
-- Ensure `docs/adr/` directory exists
-- Write populated content
-- Set initial status to "Proposed"
-
-### Phase 8: Report Creation
-
-- Show ADR number and title
-- Display file path
-- Provide next steps

@@ -1,0 +1,22 @@
+[
+  {"query": "we're out of GitHub Actions minutes this month, can you run the CI checks locally before I push?", "should_trigger": true},
+  {"query": "actions is down again, run what CI would run so I know if this is safe to merge", "should_trigger": true},
+  {"query": "can you verify this passes the same checks CI does before I open the PR", "should_trigger": true},
+  {"query": "no quota left on the runner, mimic our github workflow locally", "should_trigger": true},
+  {"query": "run all the steps from .github/workflows/ci.yml on my machine", "should_trigger": true},
+  {"query": "pre-push sanity check, run whatever the pipeline would run so I'm not surprised later", "should_trigger": true},
+  {"query": "CI's queue is backed up for hours, just run the lint/test/build steps here instead", "should_trigger": true},
+  {"query": "check my branch would pass CI without actually pushing it", "should_trigger": true},
+  {"query": "we hit our Actions quota, is there a way to run the pipeline steps locally?", "should_trigger": true},
+  {"query": "simulate the github actions workflow on this machine so I don't waste another quota-limited run", "should_trigger": true},
+  {"query": "generate a github actions workflow for this repo, we don't have CI yet", "should_trigger": false},
+  {"query": "cut a release from dev and ship it to main", "should_trigger": false},
+  {"query": "the CI job on PR #42 keeps failing, can you debug why", "should_trigger": false},
+  {"query": "our postgres service container in docker-compose keeps crashing on startup", "should_trigger": false},
+  {"query": "set up a .env.example file for this project", "should_trigger": false},
+  {"query": "write a conventional commit message for these staged changes", "should_trigger": false},
+  {"query": "review this PR for security issues before merging", "should_trigger": false},
+  {"query": "sync my feature branch with dev, there's a merge conflict", "should_trigger": false},
+  {"query": "add a new migration for the users table", "should_trigger": false},
+  {"query": "why is the coverage percentage dropping in our test suite lately", "should_trigger": false}
+]

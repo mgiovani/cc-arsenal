@@ -1,0 +1,36 @@
+{
+  "skill": "ci-local",
+  "evals": [
+    {
+      "id": "quota-exhausted-node-project",
+      "prompt": "GitHub Actions is out of quota again this week, can you run all the CI checks locally before I push?",
+      "assertions": [
+        "Reads .github/workflows/*.yml to discover the jobs/steps that gate merges before running anything",
+        "Extracts and uses the workflow's pinned node/python version (e.g. from actions/setup-node or .nvmrc) rather than whatever happens to be on PATH",
+        "Runs the extracted lint/test/build commands sequentially and reports pass/fail for each",
+        "Produces a parity table noting any CI steps that could not be replicated locally (services, secrets, matrix) and why",
+        "Does not modify or commit the GitHub Actions workflow files themselves"
+      ]
+    },
+    {
+      "id": "pre-push-full-check",
+      "prompt": "before I push this branch can you verify it the same way CI would",
+      "assertions": [
+        "Locates the relevant .github/workflows yaml and identifies the jobs triggered on push/pull_request (the merge-gating jobs)",
+        "Translates each step to an equivalent local command instead of inventing a generic lint/test/build guess",
+        "Executes the translated commands and stops/reports clearly on the first failing step with its output",
+        "Final report distinguishes steps that passed locally from steps that are not replicable locally rather than declaring blanket success"
+      ]
+    },
+    {
+      "id": "ci-down-services-and-secrets",
+      "prompt": "Our CI is down and the workflow uses a postgres service container plus some repo secrets for the test job — run what you can locally and tell me what you can't",
+      "assertions": [
+        "Identifies the services: block and secrets: usage from the workflow yaml as things needing special handling",
+        "Explicitly flags the postgres service and any secret-dependent steps as not directly replicable, explaining why (no service container / missing secret value)",
+        "Still executes and reports results for steps that don't depend on the service or the missing secrets",
+        "Parity report clearly separates ran-and-passed/failed entries from skipped-can't-replicate entries"
+      ]
+    }
+  ]
+}

@@ -1,23 +1,44 @@
 {
-  "skill_name": "gitflow",
+  "skill": "gitflow",
   "evals": [
     {
       "id": 0,
       "name": "release-dev-to-prod",
       "prompt": "We've merged a good chunk of work into dev over the last couple of weeks — the new settings page, a CSV export feature, and some bug fixes. main is on 1.2.0 right now. I want to ship all of it to production. Walk me through exactly how you'd cut and ship this release, with the specific branches, commands, and version.",
-      "files": []
+      "files": [],
+      "assertions": [
+        "Creates a release/* branch off dev, not directly merging dev into main",
+        "Bumps the minor version to 1.3.0 (new features present), not a patch or major bump",
+        "Specifies a merge commit (--no-ff) into main, not a squash merge",
+        "Includes tagging main with an annotated v1.3.0 tag on the merge commit",
+        "Mentions updating CHANGELOG.md as part of the release and opening a break-glass revert PR after merging to main"
+      ]
     },
     {
       "id": 1,
       "name": "hotfix-prod",
       "prompt": "Users are seeing the wrong label on the account card in production right now — it's a tiny one-line fix. This can't wait for the next release; I need it live today. What's the exact process to get just this one fix out to production?",
-      "files": []
+      "files": [],
+      "assertions": [
+        "Branches hotfix/* off main, not off dev",
+        "Bumps the patch version (e.g. 1.2.0 to 1.2.1), not minor or major",
+        "Specifies a merge commit (--no-ff) into main and back-merging the hotfix into dev as well",
+        "Requires CI to be fully green before merging to main, no bypassing checks or hooks",
+        "Includes tagging the release and opening a break-glass revert PR left open after merging to main"
+      ]
     },
     {
       "id": 2,
       "name": "feature-branch",
       "prompt": "I'm about to start building a bulk user-import feature — probably a few days of work. Where should I branch from, how should I name it, and how does it eventually make its way into production?",
-      "files": []
+      "files": [],
+      "assertions": [
+        "Branches feat/* off dev, not off main",
+        "PR for the feature merges into dev via squash merge, not a merge commit or direct merge to main",
+        "Clarifies that the feature only reaches production later via a release branch, not immediately",
+        "Does not touch CHANGELOG.md per-feature (that happens at release time)",
+        "Follows Conventional Commits for the branch's commit messages / PR title"
+      ]
     }
   ]
 }

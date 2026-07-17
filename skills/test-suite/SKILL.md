@@ -31,53 +31,18 @@ $ARGUMENTS
 6. **Real assertions** - Every test must have meaningful assertions, not just "does not throw"
 7. **Coverage-driven** - Focus on untested code paths, not duplicating existing coverage
 
-## Quality Gates
+A Stop hook re-runs the discovered test/coverage/lint commands automatically before letting the session end (see frontmatter) — Phase 4 below does the same checks manually as you work, so failures surface early instead of at the very end.
 
-This skill includes automatic verification before completion:
+## Scope: pick a track before starting
 
-### Test Verification (Stop Hook)
+- **Small** (1-2 tests, a single file, a quick fix) — skip task creation and the approval gate. Discover the test command (Step 0.2), write the tests, run them, done. Don't spin up Task Management ceremony for a two-test add.
+- **Large** (multiple files/modules, a coverage push, anything needing parallel subagents) — use the full Phase 0-5 workflow with Task Management below.
 
-When attempting to stop working, an automated verification agent runs to ensure quality:
+If unsure, default to Small and escalate only if the target turns out to span several modules.
 
-**Verification Steps:**
-1. **Test Execution**: Runs discovered test command. All tests (new and existing) must pass.
-2. **Coverage Check**: If coverage tooling exists, verifies improvement over baseline.
-3. **Lint Check**: Ensures test files pass linting rules.
+**Portability:** No `Task`/`TaskCreate` tools in this environment? Skip task tracking and the parallel subagent fan-out in Phase 3 — write the tests for each module group yourself, one group at a time. The phase structure is the contract; parallelism is just a speedup.
 
-**Behavior:**
-- All checks pass: Test generation marked complete
-- Any check fails: Completion blocked, error details provided, Claude continues fixing
-- Commands not found: Hook discovers them from CLAUDE.md or project files
-
-**Example blocked completion:**
-```
-Test verification failed:
-
-Tests: FAILED (2 new tests failing)
-  - test_user_service_create: AttributeError: 'UserService' has no method 'create_user'
-  - test_parse_config_empty: Expected ValueError, got None
-
-Coverage: IMPROVED (72% → 78%)
-Lint: PASSED
-
-Cannot complete until all tests pass. Fix the failing tests.
-```
-
-## Task Management
-
-This skill uses Claude Code's Task Management System to track test generation progress with dependency-aware task tracking.
-
-**When to Use Tasks:**
-- Generating tests for multiple files or modules
-- Coverage improvement across a codebase
-- Complex test generation requiring parallel subagents
-
-**When to Skip Tasks:**
-- Adding 1-2 tests to a single file
-- Simple unit test additions
-- Quick test fixes
-
-## Implementation Workflow
+## Implementation Workflow (Large track)
 
 ### Phase 0: Project Discovery (REQUIRED)
 
@@ -456,7 +421,7 @@ TaskUpdate: { taskId: "6", status: "in_progress" }
 
 **Step 5.2: Create Commit**
 
-If `/cc-arsenal:git:commit` skill is available, use it. Otherwise, create a conventional commit manually:
+If the `/cc-arsenal:git-commit` skill is available, use it. Otherwise, create a conventional commit manually:
 
 ```bash
 git add [test files created/modified]

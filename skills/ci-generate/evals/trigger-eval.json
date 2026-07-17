@@ -1,0 +1,22 @@
+[
+  {"query": "we don't have any CI set up yet, can you generate a GitHub Actions workflow for this repo", "should_trigger": true},
+  {"query": "set up a .gitlab-ci.yml for our python project", "should_trigger": true},
+  {"query": "ci-generate circleci --deploy vercel", "should_trigger": true},
+  {"query": "we need a Jenkinsfile for this repo, can you create one", "should_trigger": true},
+  {"query": "add a security scan and deploy stage to our existing github actions workflow", "should_trigger": true},
+  {"query": "our monorepo needs a proper CI pipeline with matrix testing across node versions", "should_trigger": true},
+  {"query": "generate a pipeline that lints, tests, builds and deploys to aws", "should_trigger": true},
+  {"query": "can you wire up .circleci/config.yml with the actual test command from our package.json", "should_trigger": true},
+  {"query": "we're missing a workflow file, github actions isn't running anything on PRs", "should_trigger": true},
+  {"query": "create a ci/cd config for this project, auto-detect the stack please", "should_trigger": true},
+  {"query": "write a Dockerfile for this Node app so we can containerize it", "should_trigger": false},
+  {"query": "implement the new checkout flow feature end to end", "should_trigger": false},
+  {"query": "our GitHub Actions build is failing, can you debug why the test job errors out", "should_trigger": false},
+  {"query": "run a security review of the whole codebase before we ship", "should_trigger": false},
+  {"query": "write tests for the payment retry logic, coverage is too low", "should_trigger": false},
+  {"query": "create a PR for these changes with a conventional commit message", "should_trigger": false},
+  {"query": "update the README to reflect the new deployment process", "should_trigger": false},
+  {"query": "help me cut a release and bump the version with a changelog", "should_trigger": false},
+  {"query": "refactor the build scripts in package.json to remove duplication", "should_trigger": false},
+  {"query": "inject the Next.js framework docs into our CLAUDE.md", "should_trigger": false}
+]

@@ -1,0 +1,37 @@
+{
+  "skill": "review-security",
+  "evals": [
+    {
+      "id": "scan-pr-for-vulnerabilities",
+      "prompt": "/review-security 123",
+      "assertions": [
+        "Retrieves the list of changed files scoped to PR 123 (e.g. via gh pr view --json files) before scanning, rather than scanning the whole repo",
+        "Spawns parallel Explore agents (model haiku) covering the OWASP categories rather than scanning serially inline",
+        "Every reported finding includes a specific file path and line number plus an actual code snippet, not a placeholder",
+        "Findings are ranked/grouped by severity (Critical/High/Medium/Low)",
+        "No code is modified, fixed, or committed — output is a report only"
+      ]
+    },
+    {
+      "id": "full-codebase-audit",
+      "prompt": "/review-security --all",
+      "assertions": [
+        "Scans the entire codebase rather than restricting to a diff/PR/commit",
+        "Uses an Explore agent to discover the technology stack (frameworks, DB, auth patterns) before scanning for vulnerabilities",
+        "Produces a markdown report with statistics: total vulnerabilities and counts by severity/category",
+        "Every finding is grouped under an OWASP Top 10:2025 category (A01-A10)",
+        "Does not invent vulnerabilities that weren't grep-verified and read in context"
+      ]
+    },
+    {
+      "id": "scoped-api-scan",
+      "prompt": "/review-security --all --scope api",
+      "assertions": [
+        "Focuses scanning on authentication, authorization, and rate-limiting related categories (A01, A07, A06) per the api scope definition",
+        "Does not exhaustively report unrelated categories (e.g. pure frontend XSS/CSP) as if they were in scope",
+        "Each finding cites file:line evidence and a code snippet",
+        "Report includes 2-3 fix recommendations per finding rather than a single fix with no alternatives"
+      ]
+    }
+  ]
+}

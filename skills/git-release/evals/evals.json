@@ -1,0 +1,37 @@
+{
+  "skill": "git-release",
+  "evals": [
+    {
+      "id": "auto-detect-minor-release",
+      "prompt": "/git-release We've merged several feat and fix commits since v1.2.3, cut a new release",
+      "assertions": [
+        "Collects commits since the last tag (v1.2.3) via git log/git describe rather than assuming a version",
+        "Parses conventional commit types to auto-detect the version bump (minor, since feat commits are present)",
+        "Displays a release summary (version, tag, commits, changelog preview) and waits for explicit user approval before executing",
+        "Changelog entries are grouped by type (Features, Bug Fixes, etc.) with only non-empty sections included",
+        "Does not push or create the tag/GitHub release before the user approves"
+      ]
+    },
+    {
+      "id": "changelog-only-mode",
+      "prompt": "/git-release --changelog-only just update the CHANGELOG, don't tag or publish anything yet",
+      "assertions": [
+        "Runs commit collection and version-bump detection (Phases 1-2) before writing anything",
+        "Writes the generated changelog entry into CHANGELOG.md, preserving existing content",
+        "Does not create a git tag, version bump commit, or GitHub release",
+        "Reports completion referencing only the changelog update, not a full release"
+      ]
+    },
+    {
+      "id": "dirty-tree-and-existing-tag-guard",
+      "prompt": "/git-release --major do a major release right now",
+      "assertions": [
+        "Checks working tree cleanliness (git status --porcelain) before proceeding",
+        "If the working tree is dirty, aborts with a clear message instead of stashing or committing on the user's behalf",
+        "Forces a major version bump per --major regardless of auto-detected commit types",
+        "If the computed tag already exists, aborts and suggests a force flag or different version rather than overwriting it",
+        "Never uses --no-verify to skip git hooks on the release commit"
+      ]
+    }
+  ]
+}

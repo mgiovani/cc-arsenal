@@ -1,37 +1,24 @@
 ---
 name: review-deps
 description: Audit project dependencies for vulnerabilities, license compliance risks,
-  and staleness. Runs native audit tools (npm audit, pip audit, cargo audit, etc.),
-  queries Dependabot alerts, and dispatches parallel agents for CVE analysis, license
-  risk, and upgrade complexity. This skill should be used when users want to review
-  dependencies, check for vulnerable packages, audit licenses, plan upgrades, or assess
-  supply chain risk.
+  and staleness by running native audit tools (npm audit, pip-audit, cargo audit, etc.),
+  querying Dependabot alerts, and dispatching parallel agents for CVE analysis, license
+  risk, and upgrade complexity. Use when the user wants to check for vulnerable packages,
+  audit licenses, plan dependency upgrades, assess supply chain risk, or asks "are our
+  dependencies safe/up to date/license-compliant". Analysis only, no code or lock-file
+  changes. Not for app-code vulnerability scanning (use review-security) or auto-applying
+  upgrades (this skill only recommends, never runs installs).
 metadata:
   author: mgiovani
   version: 1.0.0
-  source: https://github.com/mgiovani/skills
 disable-model-invocation: true
 ---
 
-# Review Deps
-
-> **Cross-Platform AI Agent Skill**
-> This skill works with any AI agent platform that supports the skills.sh standard.
-
 # Dependency Review
 
-Comprehensive dependency audit covering vulnerability scanning, license compliance, and staleness analysis. This skill performs **analysis only** — it identifies risks and recommends upgrades without modifying code or lock files.
+Comprehensive dependency audit covering vulnerability scanning, license compliance, and staleness analysis. This skill performs **analysis only** — it never modifies code, lock files, or manifests, and never auto-installs upgrades or missing audit tools (it reports them as unavailable instead).
 
-## Anti-Hallucination Guidelines
-
-**CRITICAL**: Dependency reviews must be based on ACTUAL tool output and VERIFIED data:
-1. **Run before claiming** — Never report vulnerabilities without running the actual audit tool
-2. **Evidence-based findings** — Every finding must reference specific package names and versions
-3. **No invented CVEs** — Only reference CVE/GHSA identifiers returned by audit tools or Dependabot
-4. **Tool output required** — Copy exact output from audit commands as evidence
-5. **Quantifiable results** — Count actual issues from tool output, do not estimate
-6. **No false positives** — Verify each finding against actual installed versions
-7. **Version accuracy** — Report exact installed version and exact fix version from tool output
+Cite exact package names/versions/CVE IDs from actual tool output — never estimate or invent them.
 
 ## Audit Workflow
 
@@ -135,7 +122,7 @@ After all agents complete:
  - **Medium**: Medium-severity CVEs without public exploit, permissive-but-unusual licenses, packages 1-2 major versions behind
  - **Low**: Low-severity CVEs, informational license notes, minor version drift
 5. **Group by action type**: Security patches (non-breaking) vs. major upgrades (breaking) vs. replacements (abandoned packages)
-6. **Statistics**: Count total dependencies, vulnerable, license-risky, stale; calculate health score
+6. **Statistics**: Count total dependencies, vulnerable, license-risky, stale
 
 ### Phase 5: Generate Dependency Report
 
@@ -155,62 +142,9 @@ Before presenting the report, verify:
 9. No invented CVEs, license types, or version numbers
 10. Dependabot alerts are reconciled with local audit results
 
-## Usage
+## Scoping
 
-```bash
-# Full dependency audit (all dimensions)
-review-deps
-review-deps --scope all
-
-# Vulnerabilities only
-review-deps --scope vulnerabilities
-
-# License compliance only
-review-deps --scope licenses
-
-# Staleness and upgrade planning only
-review-deps --scope staleness
-
-# Filter by minimum severity
-review-deps --severity critical
-review-deps --severity high
-
-# Combined options
-review-deps --scope vulnerabilities --severity critical
-## Scope Options
-
-- `all` (default): Run all three analysis dimensions — vulnerabilities, licenses, staleness
-- `vulnerabilities`: Focus on CVEs, GHSAs, and known security advisories
-- `licenses`: Focus on license identification, copyleft risk, and commercial compliance
-- `staleness`: Focus on version drift, maintenance health, and upgrade complexity
-
-## Severity Filter
-
-When `--severity` is specified, only report findings at or above the given level:
-- `critical`: Only critical findings
-- `high`: Critical + high findings
-- `medium`: Critical + high + medium findings (default)
-- `low`: All findings including informational
-
-## What This Skill Does
-
-- Detects all package managers in the project
-- Runs native audit tools for each ecosystem
-- Queries GitHub Dependabot alerts when available
-- Analyzes vulnerabilities with CVE severity and exploitability context
-- Identifies license compliance risks for commercial and open-source projects
-- Assesses dependency staleness and upgrade complexity
-- Provides a prioritized upgrade plan with breaking change warnings
-- Generates a comprehensive markdown report with health score
-
-## What This Skill Does NOT Do
-
-- Does not modify any code, lock files, or manifests
-- Does not automatically upgrade dependencies
-- Does not install missing audit tools (reports them as unavailable)
-- Does not perform runtime/dynamic vulnerability testing
-- Does not guarantee 100% vulnerability detection
-- Does not provide legal advice on license compliance
+By default, run all three dimensions (vulnerabilities, licenses, staleness) at medium severity and above. If the user asks to scope to just one dimension (e.g. "just check for vulnerabilities" or "license risk only"), run only that phase. If they ask to filter by severity (e.g. "critical only"), filter the report to that level and above.
 
 ## Limitations
 

@@ -1,0 +1,38 @@
+{
+  "skill": "team-implement",
+  "evals": [
+    {
+      "id": "jira-epic-full-mode-planning-gate",
+      "prompt": "/team-implement PROJ-482",
+      "assertions": [
+        "Ingests the input via `jira issue view PROJ-482 --json` (or equivalent) before any other phase work",
+        "Spawns an Explore/haiku discovery agent to map the project's stack and commands before assessing complexity",
+        "Computes a complexity score from the signals table and proposes a team mode via AskUserQuestion before spawning any implementation agents",
+        "Creates `.specs/<short-id>/` with input-digest.md and README.md before writing or editing any source code",
+        "Does not modify any source code before the user approval gate is passed"
+      ]
+    },
+    {
+      "id": "multi-component-collab-feature-adversarial-review",
+      "prompt": "/team-implement Add a real-time collaborative comment system to the docs editor — needs a websocket backend, new DB tables for comment threads, and a React panel; two prior attempts got the sync logic wrong",
+      "assertions": [
+        "Runs Phase 0 discovery/complexity assessment before Phase 1 clarifying questions",
+        "Asks clarifying questions via AskUserQuestion to resolve scope/tech ambiguities before drafting the spec",
+        "Spawns an Adversary Reviewer against the spec/design artifacts and gates progress on zero BLOCKER findings (or a max of 2 revision cycles) before task decomposition",
+        "Presents the full plan via AskUserQuestion at the approval gate before Phase 6 implementation begins",
+        "Enforces separate file-scope boundaries between frontend and backend implementation agents during Phase 6"
+      ]
+    },
+    {
+      "id": "spec-only-no-code-graphql-migration",
+      "prompt": "/team-implement Draft a full spec for migrating our REST API to GraphQL, but don't write any code yet — I just want the plan reviewed first",
+      "assertions": [
+        "Completes planning phases (0-5) without editing or creating any application source files",
+        "Presents the approval gate with a 'Save spec only — do not implement' option among the choices",
+        "When spec-only is selected, skips directly to Phase 9 teardown without spawning any implementation agents",
+        "Spec artifacts exist under `.specs/<short-id>/` (e.g. brief/design/tasks files) before the session ends",
+        "No source code files are modified at any point in the transcript"
+      ]
+    }
+  ]
+}

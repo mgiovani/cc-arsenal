@@ -1,0 +1,22 @@
+[
+  {"query": "can you run the visual diff before I open this PR", "should_trigger": true},
+  {"query": "did I break the UI with this refactor? check the screenshot tests", "should_trigger": true},
+  {"query": "just visual-diff is showing a bunch of failures, can you look at them", "should_trigger": true},
+  {"query": "the storybook snapshot tests are failing on my branch, are these real regressions", "should_trigger": true},
+  {"query": "I redesigned the Card component, update the visual snapshots for it", "should_trigger": true},
+  {"query": "run VRT and tell me if anything unexpected changed", "should_trigger": true},
+  {"query": "our chromatic build has 12 diffs, can you triage them", "should_trigger": true},
+  {"query": "playwright toHaveScreenshot is failing for the nav bar, is that a real bug", "should_trigger": true},
+  {"query": "check for visual regressions before we merge dev into main", "should_trigger": true},
+  {"query": "the loki diff output looks different for the modal, can you inspect it", "should_trigger": true},
+  {"query": "review this landing page for visual hierarchy and accessibility issues", "should_trigger": false},
+  {"query": "write playwright tests for the checkout flow", "should_trigger": false},
+  {"query": "the date picker shows the wrong month in Safari, can you fix that", "should_trigger": false},
+  {"query": "audit our component library against WCAG 2.2 AA", "should_trigger": false},
+  {"query": "generate a test suite for the Button component, we have no coverage", "should_trigger": false},
+  {"query": "critique the color contrast and typography on our pricing page", "should_trigger": false},
+  {"query": "increase test coverage for the checkout module", "should_trigger": false},
+  {"query": "the storybook build is failing to compile, can you debug it", "should_trigger": false},
+  {"query": "set up a GitHub Actions workflow to run our test suite on PRs", "should_trigger": false},
+  {"query": "refactor this component to remove duplicated CSS", "should_trigger": false}
+]

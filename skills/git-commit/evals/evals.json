@@ -1,0 +1,36 @@
+{
+  "skill": "git-commit",
+  "evals": [
+    {
+      "id": "single-feature-commit",
+      "prompt": "/git-commit I added OAuth2 login support to the auth module, please commit it",
+      "assertions": [
+        "Runs git status and git diff --staged (or git diff) before drafting a message",
+        "Produces a conventional commit in the form type(scope): description",
+        "Uses feat as the type since a new feature was added",
+        "Description is in imperative mood (e.g. 'add' not 'added') and roughly 50 characters or less",
+        "Creates the commit via git commit rather than only printing the message"
+      ]
+    },
+    {
+      "id": "mixed-concerns-split",
+      "prompt": "/git-commit commit my changes: I fixed a null pointer bug in the user endpoint, updated the README, and bumped lodash",
+      "assertions": [
+        "Detects that the diff mixes unrelated concerns (fix, docs, dependency bump)",
+        "Splits the work into separate commits by staging file groups individually with git add before each commit",
+        "Assigns distinct correct types across the commits (fix, docs, build or chore for the dependency bump)",
+        "Does not lump all three concerns into a single commit message"
+      ]
+    },
+    {
+      "id": "breaking-change-commit",
+      "prompt": "/git-commit I removed the old calculate() method from the shopping cart and replaced it with computeTotal(), commit this",
+      "assertions": [
+        "Identifies the removed/changed export as a breaking change from the diff",
+        "Appends ! after the type/scope in the commit header (e.g. feat(shopping-cart)!:)",
+        "Includes a BREAKING CHANGE: footer describing the migration (calculate removed, use computeTotal)",
+        "Asks for confirmation before committing given the breaking, non-trivial nature of the change"
+      ]
+    }
+  ]
+}

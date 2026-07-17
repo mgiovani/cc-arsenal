@@ -1,0 +1,22 @@
+[
+  {"query": "can you open a pull request for this branch", "should_trigger": true},
+  {"query": "create a PR from my current feature branch", "should_trigger": true},
+  {"query": "push this for review please", "should_trigger": true},
+  {"query": "I'm done with feature/ABC-123_oauth, open a PR against develop", "should_trigger": true},
+  {"query": "make a draft pr for the changes on this branch", "should_trigger": true},
+  {"query": "can you file a PR, fill in the template and open it in the browser", "should_trigger": true},
+  {"query": "ready to submit this branch for review, set up the pull request", "should_trigger": true},
+  {"query": "open a PR with -b main --draft", "should_trigger": true},
+  {"query": "I pushed my commits, now let's get a pull request going", "should_trigger": true},
+  {"query": "put up a PR for this so the team can review it", "should_trigger": true},
+  {"query": "write a conventional commit message for these staged changes", "should_trigger": false},
+  {"query": "commit these changes with a proper message", "should_trigger": false},
+  {"query": "we need to cut a release branch and tag v2.3.0", "should_trigger": false},
+  {"query": "start a hotfix branch off main for this urgent bug", "should_trigger": false},
+  {"query": "review this PR before I merge it", "should_trigger": false},
+  {"query": "promote the release branch to production following gitflow", "should_trigger": false},
+  {"query": "squash my last 5 commits into one", "should_trigger": false},
+  {"query": "check the CI status on this pull request", "should_trigger": false},
+  {"query": "merge develop into my feature branch to resolve conflicts", "should_trigger": false},
+  {"query": "add reviewers and labels to PR #42", "should_trigger": false}
+]

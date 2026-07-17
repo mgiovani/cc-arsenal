@@ -68,15 +68,11 @@ All contributions must meet these standards:
 
 ## Contributing Different Types of Components
 
-The CC-Arsenal currently supports three types of components:
-
-- **Skills** (2): Model-invoked capabilities that Claude automatically loads when relevant
-- **Commands** (8): User-invoked workflow automation (git operations, documentation tools)
-- **Hooks** (2): Event-driven safety and validation scripts
+CC-Arsenal's only component type is the **skill** (41 currently — see [docs/features.md](docs/features.md) for the full, categorized list). The legacy `commands/` format was retired: every workflow, whether user-invoked (a slash command like `/git-commit`) or model-invoked (auto-loaded like `jira-cli`), is now a skill under `skills/<name>/SKILL.md`.
 
 ### Creating New Skills
 
-Skills are modular capabilities that Claude automatically invokes when relevant. To create a new skill, use the create-skill skill for guidance:
+Skills are modular capabilities Claude loads via progressive disclosure. To create a new skill, use the create-skill skill for guidance:
 
 ```bash
 # The create-skill provides specification-driven creation with live documentation fetching
@@ -89,26 +85,15 @@ Each skill should have a `SKILL.md` file with YAML frontmatter:
 ---
 name: "skill-name"
 description: "Skill description"
+disable-model-invocation: true  # false/omit for a model-invoked (auto-loading) skill
 ---
 
 # Skill implementation with progressive disclosure...
 ```
 
-Skills can bundle scripts, references, and assets in subdirectories.
+Skills can bundle `scripts/`, `references/`, and `assets/` in subdirectories. Add `evals/evals.json` (task assertions) and `evals/trigger-eval.json` (trigger/near-miss queries) so the skill's behavior and triggering are testable — see any existing skill's `evals/` directory for the schema.
 
-### Creating New Commands
-
-Commands should be placed in the appropriate category under `commands/`:
-
-```yaml
----
-description: "Command description"
-argument-hint: "<argument_format>"
-allowed-tools: ["Tool1", "Tool2"]
----
-
-# Command implementation...
-```
+After creating a skill, add its path to the relevant plugin(s) in `.claude-plugin/marketplace.json` and add its entry to `docs/features.md`.
 
 ### Creating New Hooks
 

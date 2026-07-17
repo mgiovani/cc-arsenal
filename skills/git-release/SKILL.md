@@ -1,19 +1,15 @@
 ---
 name: git-release
 description: Create semantic version releases with automated changelog generation
-  from conventional commits. This skill should be used when users want to create a
-  release, tag a version, generate a changelog, bump version numbers, or publish a
-  GitHub release.
+  from conventional commits, for repos on a simple main-branch workflow (no
+  release/hotfix branches). Use when users want to create a release, tag a
+  version, generate a changelog, bump version numbers, or publish a GitHub
+  release. Use the gitflow skill instead when release or hotfix branches are
+  involved.
 metadata:
   author: mgiovani
   version: 1.0.0
-  source: https://github.com/mgiovani/skills
 ---
-
-# Git Release
-
-> **Cross-Platform AI Agent Skill**
-> This skill works with any AI agent platform that supports the skills.sh standard.
 
 # Release Manager
 
@@ -45,31 +41,25 @@ Create semantic version releases with automated changelog generation from conven
 
  # Without existing tag (first release)
  git log --format="%H %s" --no-merges
- 3. **Validate preconditions**:
+ ```
+
+3. **Validate preconditions**:
  - Working tree is clean: `git status --porcelain`
  - On the expected branch (main/master or release branch)
  - Remote is up to date: `git fetch origin && git log HEAD..origin/$(git branch --show-current) --oneline`
  - If there are no commits since the last tag, abort with a clear message
 
-### Phase 2: Auto-Detect Version Bump (Use Parallel Analysis for Large Changelogs)
+### Phase 2: Auto-Detect Version Bump
 
-For releases with >20 commits, spawn a parallel agent for analysis:
-
-```
-Agent - Commit Classification:
-- prompt: "Classify these git commits by conventional commit type. For each commit, identify: type (feat/fix/docs/etc.), scope, whether it has a BREAKING CHANGE footer or ! marker. Return a structured summary with counts per type and list any breaking changes."
-- agent-type: "general-purpose"
 1. **Parse each commit** using conventional commit format:
  - Extract type: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`
  - Extract scope (optional): text in parentheses after type
  - Detect breaking changes: `!` after type/scope OR `BREAKING CHANGE:` in commit body
  - For non-conventional commits, classify as `other`
 
-2. **Determine version bump** following semver rules:
- - **MAJOR** (`X.0.0`): Any commit with breaking change indicator (`!` or `BREAKING CHANGE:` footer)
- - **MINOR** (`x.Y.0`): Any `feat` type commit (without breaking change)
- - **PATCH** (`x.y.Z`): Any `fix` type commit, or only non-feature changes (`docs`, `refactor`, `perf`, `chore`, etc.)
- - The highest-priority bump wins (major > minor > patch)
+ This is plain regex/string parsing over commit subjects — do it inline regardless of commit count, no agent needed.
+
+2. **Determine version bump**: see `references/semver-guide.md` for the full commit-type → bump mapping. The highest-priority bump wins (major > minor > patch).
 
 3. **Calculate new version**:
  - Parse last tag as semver (strip leading `v` if present)
@@ -84,7 +74,9 @@ Agent - Commit Classification:
  New version: v1.3.0
 
  Breaking changes: none
- ### Phase 3: Generate CHANGELOG Entry
+ ```
+
+### Phase 3: Generate CHANGELOG Entry
 
 1. **Read existing CHANGELOG.md** (if it exists) to understand the current format and preserve it
 
@@ -109,6 +101,8 @@ Agent - Commit Classification:
 
  ### Other Changes
  - **scope:** description ([hash](url))
+ ```
+
  Type-to-heading mapping:
  - Breaking changes (any type with `!` or `BREAKING CHANGE:`) → **Breaking Changes**
  - `feat` → **Features**
@@ -123,7 +117,9 @@ Agent - Commit Classification:
  ```bash
  # Get remote URL for links
  gh repo view --json url -q .url 2>/dev/null || git remote get-url origin
- 4. **Construct the changelog entry**:
+ ```
+
+4. **Construct the changelog entry**:
  - Use short commit hashes (7 chars) linked to the full commit URL
  - If scope exists, bold it: `**scope:** description`
  - If no scope: just the description
@@ -189,7 +185,9 @@ git-release --changelog-only
  4. Create git tag: v1.3.0
  5. Push commit and tag to origin
  6. Create GitHub release with changelog
- 2. **Ask for confirmation** using interactive clarification:
+ ```
+
+2. **Ask for confirmation** using interactive clarification:
  - Option 1: "Proceed with release" — Execute all actions
  - Option 2: "Change version" — Allow manual version override
  - Option 3: "Dry run only" — Show what would happen without executing
@@ -223,14 +221,20 @@ Execute all release actions in strict order. Stop immediately if any step fails.
  ```bash
  git add -A
  git commit -m "chore(release): v<new-version>"
- 4. **Create annotated tag**:
+ ```
+
+4. **Create annotated tag**:
  ```bash
  git tag -a v<new-version> -m "Release v<new-version>"
- 5. **Push commit and tag**:
+ ```
+
+5. **Push commit and tag**:
  ```bash
  git push origin $(git branch --show-current)
  git push origin v<new-version>
- 6. **Create GitHub release** (unless `--no-github` flag is set):
+ ```
+
+6. **Create GitHub release** (unless `--no-github` flag is set):
  ```bash
  gh release create v<new-version> \
  --title "v<new-version>" \
@@ -248,7 +252,9 @@ Execute all release actions in strict order. Stop immediately if any step fails.
  - Tag: v1.3.0
  - GitHub: https://github.com/owner/repo/releases/tag/v1.3.0
  - Changelog: Updated CHANGELOG.md
- ## Argument Parsing
+ ```
+
+## Argument Parsing
 
 Parse optional arguments from `command arguments`:
 - `--major`: Force a major version bump (overrides auto-detection)

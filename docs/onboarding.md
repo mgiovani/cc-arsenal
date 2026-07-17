@@ -4,7 +4,7 @@
 
 ## Welcome to Claude Code Arsenal! 🎉
 
-This guide will help you get started as a developer on the Claude Code Arsenal project. Whether you're contributing new commands or skills, this guide will walk you through everything you need to know.
+This guide will help you get started as a developer on the Claude Code Arsenal project. Whether you're contributing a new skill or improving an existing one, this guide will walk you through everything you need to know.
 
 ## Prerequisites
 
@@ -79,7 +79,6 @@ make install
 uv run python -m scripts.setup.install
 
 # Verify installation
-ls -la ~/.claude/commands/
 ls -la ~/.claude/skills/
 ```
 
@@ -107,15 +106,15 @@ gitgraph
     checkout develop
     commit id: "Setup"
 
-    branch feature/new-command
-    checkout feature/new-command
-    commit id: "Create command"
+    branch feature/new-skill
+    checkout feature/new-skill
+    commit id: "Create skill"
     commit id: "Add tests"
     commit id: "Update docs"
 
     checkout develop
-    merge feature/new-command
-    commit id: "Command merged"
+    merge feature/new-skill
+    commit id: "Skill merged"
 
     checkout main
     merge develop
@@ -126,7 +125,7 @@ gitgraph
 
 - `main` - Production-ready, stable releases
 - `develop` - Integration branch for features
-- `feature/*` - New features (commands, skills)
+- `feature/*` - New features (skills)
 - `fix/*` - Bug fixes
 - `docs/*` - Documentation improvements
 
@@ -144,14 +143,14 @@ Follow [Conventional Commits](https://www.conventionalcommits.org/):
 
 ```bash
 # Examples
-git commit -m "feat(commands): add new documentation command"
+git commit -m "feat(skills): add i18n-check skill"
 git commit -m "docs(onboarding): add development workflow section"
-git commit -m "test(commands): add tests for git:commit command"
+git commit -m "test(skills): add tests for install.py"
 git commit -m "chore(deps): update pydantic to 2.5.1"
 ```
 
 **Commit Types:**
-- `feat:` - New feature (command, skill)
+- `feat:` - New feature (new or enhanced skill)
 - `fix:` - Bug fix
 - `docs:` - Documentation only
 - `style:` - Code style changes (formatting)
@@ -164,13 +163,11 @@ git commit -m "chore(deps): update pydantic to 2.5.1"
 ```
 cc-arsenal/
 ├── .claude-plugin/     # Plugin configuration
-│   └── plugin.json        # Plugin descriptor
-├── commands/           # Workflow automation
-│   ├── docs/              # Documentation generation
-│   └── git/               # Git operations
-├── skills/            # Model-invoked capabilities
+│   └── marketplace.json   # Marketplace + plugin variant descriptors
+├── skills/            # All 41 skills (the only component type)
 │   ├── create-skill/      # Specification-driven skill creation
-│   └── jira-cli/          # Jira CLI integration
+│   ├── jira-cli/          # Jira CLI integration
+│   └── .../                # SKILL.md + optional references/, scripts/, assets/, evals/
 ├── scripts/           # Installation and utilities
 │   ├── setup/             # install.py, configure.py
 │   ├── generators/        # agent_generator.py
@@ -186,13 +183,22 @@ cc-arsenal/
 
 ### Key Directories
 
-- `.claude-plugin/` - Plugin configuration and descriptor
-- `commands/` - Slash command files (.md format)
-  - `resources/templates/` - Documentation generation templates (ADR, RFC, docs)
-- `skills/` - Model-invoked skills with bundled resources
+- `.claude-plugin/` - Marketplace manifest (`marketplace.json`) defining the plugin variants
+- `skills/` - Every skill lives here as `skills/<name>/SKILL.md`, the only component type in the repo (the legacy `commands/` format was retired)
+  - `references/`, `scripts/`, `assets/` - Bundled resources loaded on demand (progressive disclosure)
+  - `evals/evals.json` + `evals/trigger-eval.json` - Per-skill eval convention: task assertions and trigger/near-miss queries used to validate a skill actually does what it claims and fires on the right prompts
 - `scripts/` - Python utilities for setup and generators
 - `tests/` - pytest test files
 - `docs/` - Project documentation and guides
+
+### Contributing a New Skill
+
+1. Create `skills/<name>/SKILL.md` (use `create-skill` to scaffold it, or copy the closest existing skill's structure)
+2. Add `references/`, `scripts/`, or `assets/` only if the skill genuinely needs bundled resources
+3. Add `evals/evals.json` and `evals/trigger-eval.json` so the skill's behavior and triggering are testable
+4. Add the skill path to the relevant plugin(s) in `.claude-plugin/marketplace.json`
+5. Update `docs/features.md` with the new skill's entry and category count
+6. Run `make validate-plugins` and `make validate-structure` before opening a PR
 
 ## Development Environment
 
@@ -209,10 +215,10 @@ make dry-run
 
 **Validate Plugin Structure:**
 ```bash
-# Validate plugin.json and component structure
+# Validate marketplace.json and skill structure
 make validate-plugins
 
-# Check for errors in command/hook/skill definitions
+# Check for errors in skill definitions
 ```
 
 ### Testing
@@ -258,11 +264,10 @@ make format        # Formats code in place
 make dry-run
 
 # Check symlinks
-ls -la ~/.claude/commands/
 ls -la ~/.claude/skills/
 
-# Verify command is loadable
-cat ~/.claude/commands/git/commit.md
+# Verify a skill is loadable
+cat ~/.claude/skills/git-commit/SKILL.md
 ```
 
 **Debug Tests:**
@@ -279,45 +284,21 @@ uv run pytest --pdb
 
 ## Architecture Overview
 
-Claude Code Arsenal uses a **plugin-based architecture** for modular component loading. Components can be installed via the Claude Code marketplace or directly via `make install`.
+Claude Code Arsenal uses a **plugin-based architecture** for modular skill loading. Skills can be installed via the Claude Code marketplace (recommended) or symlinked directly via `make install` for local development.
 
 **Installation Flow:**
-1. User installs via Claude Code marketplace (recommended) or `make install` (alternative)
-2. Plugin descriptor (`plugin.json`) declares available components
-3. Claude Code discovers commands and skills from plugin
-4. Components are loaded on-demand when needed
+1. User installs via Claude Code marketplace (recommended) or `make install` (contributors)
+2. `marketplace.json` declares each plugin variant and the skills it includes
+3. Claude Code discovers skills from the installed plugin
+4. Skills are loaded on-demand: frontmatter first, full body only when relevant, bundled resources only as needed
 
-**Component Types:**
-- **Commands**: Slash commands for user-invoked operations (e.g., `/git:commit`)
-- **Skills**: Auto-loaded by Claude when context matches (e.g., Jira CLI)
+**Skill Types** (set by the `disable-model-invocation` frontmatter field):
+- **User-invoked**: Slash commands for explicit operations (e.g., `/git-commit`)
+- **Model-invoked**: Auto-loaded by Claude when context matches (e.g., `jira-cli`, `agent-browser`)
 
-See [architecture.md](./architecture.md) for detailed system design.
+See [features.md](./features.md) for the current, authoritative skill list and [architecture.md](./architecture.md) for detailed system design.
 
 ## Common Tasks
-
-### Adding a New Command
-
-1. **Create Command File**:
-   ```bash
-   # Create in appropriate category
-   vim commands/utility/my-command.md
-   ```
-
-2. **Define Command**:
-   ```markdown
-   ---
-   name: my-command
-   description: Brief command description
-   ---
-
-   # Command implementation here
-   ```
-
-3. **Install and Test**:
-   ```bash
-   make install
-   # Test in Claude Code: /my-command
-   ```
 
 ### Adding a New Skill
 
@@ -396,12 +377,12 @@ uv run python -m scripts.setup.install
 uv run pytest
 ```
 
-#### Issue: Command not showing up in Claude Code
+#### Issue: Skill not showing up in Claude Code
 
 **Solution:**
 ```bash
 # Verify symlink was created
-ls -la ~/.claude/commands/
+ls -la ~/.claude/skills/
 
 # Reinstall
 make install
@@ -448,7 +429,7 @@ make type-check
 
 - [Architecture Documentation](./architecture.md) - System design and components
 - [Contributing Guidelines](./contributing.md) - How to contribute
-- [Agent Development Guide](./agent-development.md) - Creating agents (for future development)
+- [Features](./features.md) - Skill catalog, including "Using with other agents"
 - [Security Policy](./SECURITY.md) - Security practices and reporting
 
 ### External Resources

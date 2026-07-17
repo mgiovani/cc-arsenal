@@ -1,0 +1,38 @@
+{
+  "skill": "env-setup",
+  "evals": [
+    {
+      "id": "scan-and-generate-env-example",
+      "prompt": "/env-setup scan this Node/Express repo and generate a .env.example",
+      "assertions": [
+        "Greps the codebase for actual environment variable usage before listing any variable names",
+        "Only lists variables that were actually found via grep, does not invent plausible-sounding ones",
+        "Groups discovered variables by service/prefix (e.g. Database, Auth, Stripe) in the generated .env.example",
+        "Generated .env.example contains only placeholder values, never a real secret value",
+        "Reads any existing .env.example first and preserves its existing entries/comments rather than overwriting them"
+      ]
+    },
+    {
+      "id": "validate-env-missing-required-vars",
+      "prompt": "/env-setup validate — check if my .env has everything it needs",
+      "assertions": [
+        "Reads the existing .env file before reporting any findings",
+        "Reports variables required by code (no default/fallback) that are missing from .env",
+        "Flags empty values (VAR= with no value) for required variables",
+        "Checks .gitignore for .env / .env.local entries and warns clearly if .env is not gitignored",
+        "Reports stale variables present in .env but not found anywhere in the codebase scan"
+      ]
+    },
+    {
+      "id": "check-secrets-in-env-and-history",
+      "prompt": "/env-setup scan --check-secrets, I'm worried we leaked an API key at some point",
+      "assertions": [
+        "Scans .env for high-entropy strings / known secret patterns (password, secret, api_key, token, etc.)",
+        "Checks git history (git log --all --full-history) for previously committed .env content, not just the current working tree",
+        "Flags any NEXT_PUBLIC_*/VITE_*/REACT_APP_* variable whose name suggests a secret as a client-exposure risk",
+        "Recommends a pre-commit secret-scanning tool (e.g. detect-secrets or gitleaks) rather than claiming to be a full security audit",
+        "Does not print or reproduce actual secret values found, only flags their presence/location"
+      ]
+    }
+  ]
+}

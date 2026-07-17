@@ -1,0 +1,36 @@
+{
+  "skill": "vrt-check",
+  "evals": [
+    {
+      "id": "storybook-button-redesign-diff",
+      "prompt": "I just redesigned the Button component, can you run the visual diff and update the snapshots for it?",
+      "assertions": [
+        "Discovers the project's actual VRT tooling (justfile/package.json/Storybook/Playwright) instead of assuming a fixed command",
+        "Runs the diff target before any update target",
+        "Inspects the diff for the Button story specifically and confirms it matches the redesign before updating",
+        "Updates only the Button snapshot, not a blanket update of the whole suite",
+        "Reports which failures, if any, remain unresolved"
+      ]
+    },
+    {
+      "id": "unexpected-header-shift-before-merge",
+      "prompt": "Before I merge this branch, can you check if I broke any UI? The justfile has a visual-diff target.",
+      "assertions": [
+        "Runs `just visual-diff` (or the discovered equivalent) rather than skipping straight to updating snapshots",
+        "Classifies each failed snapshot as real regression, intended change, or flaky rather than treating them all the same",
+        "For a failure unrelated to the branch's intended change, treats it as a regression to fix, not to snapshot over",
+        "Ends with a clear verdict on whether the branch is clean to merge"
+      ]
+    },
+    {
+      "id": "chromatic-only-no-local-diff",
+      "prompt": "Our screenshot tests are failing in CI, we use Chromatic. Can you fix the visual tests?",
+      "assertions": [
+        "Detects Chromatic as the VRT tool via config or devDependency rather than assuming a local diff-image workflow",
+        "Explains that Chromatic diffs are reviewed in its web UI/CI rather than fabricating a local diff run",
+        "Does not blanket-accept or approve the Chromatic build without inspecting the reported changes",
+        "Asks the user for the Chromatic build link or story names if it cannot inspect the diffs directly"
+      ]
+    }
+  ]
+}

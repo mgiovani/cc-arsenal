@@ -1,0 +1,37 @@
+{
+  "skill": "agent-browser",
+  "evals": [
+    {
+      "id": "login-form-fill-and-submit",
+      "prompt": "Log into https://app.example.com with email test@example.com and password Secret123, then take a screenshot of the dashboard",
+      "assertions": [
+        "Runs `agent-browser open` with a `--session` flag scoped to the project (not a bare session-less call)",
+        "Runs `agent-browser snapshot -i` before attempting to fill or click anything",
+        "Uses ref-based commands (e.g. `agent-browser fill @e1 ...`, `agent-browser click @e2`) rather than raw CSS selectors",
+        "Waits for navigation/load (e.g. `agent-browser wait --load networkidle` or `--url` pattern) before the final screenshot",
+        "Ends with `agent-browser screenshot ...` to capture the dashboard"
+      ]
+    },
+    {
+      "id": "scrape-public-product-listing",
+      "prompt": "Scrape all product names and prices from https://example-shop.com/catalog — it's a public page, no login needed",
+      "assertions": [
+        "Chooses the `lightpanda` engine (via `--engine lightpanda`) since the task is read-only scraping of a public page with no login",
+        "Does not attach a `--profile` for this stateless scraping task",
+        "Uses `snapshot` or `get text`/`get count` commands to extract data rather than screenshotting and eyeballing",
+        "Passes a `--session` flag for the browser session"
+      ]
+    },
+    {
+      "id": "test-local-app-checkout-flow",
+      "prompt": "My Next.js app is running on localhost:3000, test that adding an item to cart and checking out works end to end",
+      "assertions": [
+        "Uses the default `chrome` engine (not lightpanda) since this is testing an interactive local app",
+        "Runs `agent-browser snapshot -i` before each interaction step to get current refs",
+        "Verifies element state (e.g. `agent-browser is visible`/`is enabled`) or waits for text/URL before asserting success, not just clicking blind",
+        "Uses `--session` scoped to the project directory name",
+        "Does not recommend closing the session with `--all` or killing chrome-headless-shell globally"
+      ]
+    }
+  ]
+}

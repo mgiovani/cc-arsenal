@@ -1,0 +1,38 @@
+{
+  "skill": "review-perf",
+  "evals": [
+    {
+      "id": "pr-n1-query-audit",
+      "prompt": "/review-perf 482 --scope database",
+      "assertions": [
+        "Fetches only the files changed in PR 482 (e.g. via gh pr view --json files) rather than scanning the whole repo",
+        "Only the database scanning agent is spawned, not the algorithm, frontend, or resource agents",
+        "Each reported finding cites a specific file path and line number that was actually read",
+        "No code is modified, fixed, or committed",
+        "Findings are classified by severity (Critical/High/Medium/Low) with optimization suggestions"
+      ]
+    },
+    {
+      "id": "full-codebase-audit-all-categories",
+      "prompt": "/review-perf --all",
+      "assertions": [
+        "Spawns all 4 parallel scanning agents (database, algorithm, frontend, resources) since no --scope is given",
+        "TodoWrite (or equivalent progress tracking) is used to track scan progress across the 4 categories",
+        "Final report groups findings by performance domain (Database, Algorithm, Frontend, Resources)",
+        "Duplicate findings across agents are deduplicated before the report is generated",
+        "Report includes statistics: files scanned vs. files with issues, and counts by severity"
+      ]
+    },
+    {
+      "id": "commit-frontend-bundle-review",
+      "prompt": "/review-perf abc123def --scope frontend",
+      "assertions": [
+        "Uses git diff-tree (or equivalent) to determine files changed in commit abc123def before scanning",
+        "Only the frontend scanning agent is spawned (bundle size, rendering, network), not database/algorithm/resources agents",
+        "Every finding references an actual code snippet read from the changed files, not a hypothetical pattern",
+        "No fixes, refactors, or commits are made - output is analysis only",
+        "Big O or impact estimates given are tied to specific code, not invented generic metrics"
+      ]
+    }
+  ]
+}

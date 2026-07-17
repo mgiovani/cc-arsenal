@@ -32,8 +32,7 @@ Canonical URLs for skill specifications, best practices, and examples. These sho
   - Extract: workflow phases, frontmatter patterns, anti-hallucination techniques
 
 - **cc-arsenal Skills**: Local `skills/` directory
-  - 32 production skills with diverse patterns
-  - Good source for tool usage and verification patterns
+  - See the current listing for the live count — good source for tool usage and verification patterns
 
 - **mgiovani/skills**: https://github.com/mgiovani/skills
   - Cross-platform skills following Agent Skills standard
@@ -43,23 +42,19 @@ Canonical URLs for skill specifications, best practices, and examples. These sho
 
 If WebFetch fails for any URL, use bundled fallback documentation:
 
-- **Frontmatter Guide**: `skills/create-command/references/frontmatter-guide.md`
-  - Complete list of frontmatter fields and examples
-
-- **Design Patterns**: `skills/create-command/references/design-patterns.md`
-  - SubAgent patterns, TodoWrite usage, anti-hallucination techniques
+- **Frontmatter Fields**: `skills/create-skill/references/frontmatter-fields.md`
+  - Complete list of frontmatter fields, argument substitution, and the `context: fork` pattern
 
 - **Skill Anatomy**: `skills/create-skill/references/skill-anatomy.md`
-  - Folder conventions and composition patterns (this file)
+  - Folder conventions and composition patterns
 
 ## Fetch Strategy
 
 **Phase 0 of create-skill should:**
-1. Spawn 2 parallel Explore agents (model: haiku)
-2. Agent 1: Fetch agentskills.io specifications
-3. Agent 2: Fetch platform.claude.com best practices with fallback to bundled
-4. Hold results in context for Phases 1-5
-5. Never proceed without fresh specifications
+1. WebFetch agentskills.io specification directly (no subagent — it's one small fetch)
+2. WebFetch platform.claude.com best practices, falling back to bundled references above if it fails
+3. Hold results in context for Phases 1-5
+4. Never proceed without fresh specifications
 
 **Why fetch every time:**
 - Specifications evolve (new frontmatter fields, tool options)

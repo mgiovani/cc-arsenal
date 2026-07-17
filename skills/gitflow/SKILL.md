@@ -13,7 +13,6 @@ description: Manage a gitflow branching workflow — starting and finishing feat
 metadata:
   author: mgiovani
   version: 1.0.0
-  source: https://github.com/mgiovani/skills
 ---
 
 # Gitflow

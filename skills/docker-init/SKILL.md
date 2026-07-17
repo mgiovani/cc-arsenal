@@ -1,10 +1,9 @@
 ---
 name: docker-init
-description: Generate Dockerfiles and docker-compose.yml with auto-detected services, health checks, security hardening, and resource limits.
+description: Generate Dockerfiles and docker-compose.yml with auto-detected services, health checks, security hardening, and resource limits. Use when the user asks to dockerize/containerize a project, add docker-compose, or generate a Dockerfile. Not for CI pipelines (ci-generate) or DB schema migrations (db-migrate).
 metadata:
   author: mgiovani
   version: 1.0.0
-  source: https://github.com/mgiovani/skills
 disable-model-invocation: true
 argument-hint: '[--services postgres,redis] [--prod] [--with-dockerfile]'
 allowed-tools:
@@ -18,9 +17,6 @@ allowed-tools:
 ---
 
 # Docker Init
-
-> **Cross-Platform AI Agent Skill**
-> This skill works with any AI agent platform that supports the skills.sh standard.
 
 Generate production-ready `docker-compose.yml` and `Dockerfile` with auto-detected services, health checks, resource limits, and security hardening.
 
@@ -81,16 +77,16 @@ Map detected dependencies to Docker services. Show the proposal and let user con
 | `redis`, `ioredis` | Redis / Valkey | `redis:7-alpine` |
 | `mongodb`, `pymongo` | MongoDB | `mongo:7` |
 | `rabbitmq`, `pika`, `amqp` | RabbitMQ | `rabbitmq:3-management-alpine` |
-| `kafka`, `confluent` | Kafka + Zookeeper | `confluentinc/cp-kafka:latest` |
-| `meilisearch` | Meilisearch | `getmeili/meilisearch:latest` |
+| `kafka`, `confluent` | Kafka + Zookeeper | `confluentinc/cp-kafka:7.6.0` |
+| `meilisearch` | Meilisearch | `getmeili/meilisearch:v1.9` |
 | `elasticsearch` | Elasticsearch | `elasticsearch:8.12.0` |
 | `celery`, `sidekiq` | Redis (queue backend) | `redis:7-alpine` |
-| `mailhog`, `smtp`, `mailer` | Mailhog | `mailhog/mailhog:latest` |
-| `minio`, `s3` | MinIO | `minio/minio:latest` |
+| `mailhog`, `smtp`, `mailer` | Mailhog | `mailhog/mailhog:v1.0.1` |
+| `minio`, `s3` | MinIO | `minio/minio:RELEASE.2024-06-13T22-53-53Z` |
 
-Always ask:
-- "Should I include a service for your app itself? (requires Dockerfile)"
-- "Should I add Mailhog for local email testing?"
+Only ask about services the scan didn't already resolve:
+- If no Dockerfile exists and the scan found no app service in an existing compose file, ask whether to include one (requires `--with-dockerfile`).
+- If the mapping table surfaced a mail-related dependency (`mailhog`, `smtp`, `mailer`), ask whether to add Mailhog — don't ask otherwise.
 
 ### Phase 3: Generate docker-compose.yml
 

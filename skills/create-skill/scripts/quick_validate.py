@@ -43,6 +43,7 @@ ALLOWED_FRONTMATTER_KEYS = {
     # Claude Code skill execution keys (used by the review-* skills)
     'context',
     'agent',
+    'hooks',
 }
 
 # Allowed subdirectories in a skill directory

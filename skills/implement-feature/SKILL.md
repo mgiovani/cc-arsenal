@@ -67,27 +67,6 @@ Before marking an implementation complete, run these verification steps:
 - ❌ **Any check fails**: Do not mark complete — keep working to fix the issues
 - ℹ️ **Commands not found**: Discover them from CLAUDE.md or project files (Makefile/package.json/pyproject.toml)
 
-**Example of an incomplete implementation:**
-```
-⚠️ Implementation verification failed:
-
-Tests: ❌ FAILED (3 tests failing)
-  - test_user_authentication: AssertionError
-  - test_oauth_flow: Connection timeout
-  - test_token_refresh: Invalid token
-
-Lint: ✅ PASSED
-Type Check: ✅ PASSED
-
-🔧 Cannot complete implementation until all tests pass. Please fix the failing tests.
-```
-
-**Benefits:**
-- Prevents marking features "complete" when tests are failing
-- Catches regressions before moving on
-- Enforces test-driven development discipline
-- Ensures production-ready code quality
-
 ## Task Management
 
 This skill uses Claude Code's Task Management System to track implementation progress with dependency-aware task tracking.
@@ -105,11 +84,19 @@ This skill uses Claude Code's Task Management System to track implementation pro
 **Task Structure:**
 Each implementation creates tasks for all 6 phases with dependencies, tracking progress and blocking relationships. Tasks support parallel execution where independent work can proceed simultaneously.
 
+See `references/task-best-practices.md` for dependency-pattern diagrams (sequential chain, parallel convergence, diamond) and common antipatterns to avoid.
+
+**Portability:** No `Task`/`TaskCreate` tools available? Skip task tracking and subagent parallelism — work through the phases below yourself, sequentially. The 6-phase structure is the actual contract; parallel subagents are an optimization on top of it, not a requirement.
+
 ## Implementation Workflow
 
 **Task tracking replaces TodoWrite.** Create task structure at start, update as completing each phase.
 
 ### Phase 0: Project Discovery (REQUIRED)
+
+**Step 0.0: Size Check**
+
+If this is a 1-2 file change or a trivial implementation, skip task creation entirely — go straight to discovery and implementation. The 6-phase task structure below is for multi-step features, not ceremony for its own sake.
 
 **Step 0.1: Create Task Structure**
 
@@ -271,6 +258,8 @@ TaskList  # Check that Task 4 is now unblocked
 
 ### Phase 3: Parallel Implementation with Subagents
 
+For up to ~3 parallel workstreams (e.g. API + UI + tests), spawn and track them yourself as below. If the plan needs more fan-out than that (large multi-service features, many independent components), delegate to the `team-implement` skill instead of re-deriving spawn/track/merge logic here.
+
 **Step 3.1: Start Phase 3**
 
 ```
@@ -326,27 +315,16 @@ Task tool call:
     Then trace the real flow of the code you're about to touch, end to end —
     a diff written without understanding the existing flow is a liability, not lean.
 
-    Lean Code — write the smallest change that fully does the job:
-    1. Before adding anything new, search this codebase, the standard library, the
-       framework, and installed dependencies for something that already does it.
-       Reuse beats reimplementation.
-    2. Build only what this task concretely needs — no speculative flags, options,
-       or extension points, no interface/factory/wrapper for a single caller.
-    3. If a bug or gap is shared by multiple call sites, fix it once in the shared
-       function rather than patching every caller.
-    4. Follow existing codebase patterns and conventions.
-    5. Never cut the floor: input/trust-boundary validation, error and data-loss
-       handling, security, and accessibility stay in scope no matter how small the
-       change is. A version that drops one of these isn't leaner — it's unfinished.
-    6. If you deliberately simplify something (defer a real limitation rather than
-       skip the floor above), leave `// LEAN-DEBT: <limitation>. Upgrade when <trigger>.`
-       instead of a silent gap.
-    7. If the leanest correct solution differs from what was asked, implement what
+    Apply the Lean Code rules from above (search before writing, no speculative
+    abstractions, fix shared bugs once, never cut the never-negligent floor, use
+    `LEAN-DEBT:` markers for deliberate shortcuts). In addition, for this task:
+    1. Follow existing codebase patterns and conventions.
+    2. If the leanest correct solution differs from what was asked, implement what
        was asked but flag the leaner alternative in your report — do not silently
        substitute your own approach.
-    8. Write comprehensive tests (unit + integration where applicable). All tests
+    3. Write comprehensive tests (unit + integration where applicable). All tests
        MUST pass before completion.
-    9. Add necessary type definitions (if typed language).
+    4. Add necessary type definitions (if typed language).
 
     Project-specific commands (discovered in Phase 0):
     - Test command: [INSERT DISCOVERED TEST COMMAND]
@@ -371,7 +349,7 @@ Task tool call:
 **After each subagent completes:**
 1. Review the changes
 2. Update the corresponding child task: `TaskUpdate: { taskId: "child-task-id", status: "completed" }`
-3. Run `/cc-arsenal:git:commit` to commit the subagent's work (if available) or create a conventional commit manually
+3. Run the `git-commit` skill to commit the subagent's work (if available) or create a conventional commit manually
 4. Proceed to the next subagent or phase
 
 **Parallelization Strategy:**
@@ -471,11 +449,7 @@ Each subagent's output should satisfy:
 - [ ] All new code has tests, and all tests pass
 - [ ] No linting errors, no type errors (if applicable)
 - [ ] Code follows existing patterns
-- [ ] Security best practices followed
-- [ ] Reuse checked first — no code that duplicates an existing utility, library, or framework feature
-- [ ] No unrequested abstractions — no interface/factory/wrapper introduced for a single caller
-- [ ] The never-negligent floor is intact: validation, error/data-loss handling, security, and accessibility were not trimmed for scope
-- [ ] Any deliberate shortcut carries a `LEAN-DEBT:` marker instead of a silent gap
+- [ ] The Lean Code rules above were applied (reuse checked first, no unrequested abstractions, never-negligent floor intact, `LEAN-DEBT:` markers for deliberate shortcuts)
 
 ## Error Handling
 

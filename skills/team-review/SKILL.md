@@ -1,6 +1,6 @@
 ---
 name: team-review
-description: "Multi-agent PR review team orchestration with 7 specialized reviewers for security-sensitive or architectural PRs. Spawns architecture, security, performance, testing, style, docs/UX, and adversary reviewers as a coordinated team. Premium review for critical code changes."
+description: "Multi-agent review team (architecture, security, performance, testing, style, docs/UX, plus an adversary that challenges the other 6) for security-sensitive, architectural, or large PRs (15+ files) where a single-agent pass risks missing cross-cutting issues. Use for auth/payments/PII changes, schema/pattern changes, or compliance sign-off. For a standard PR or a quick pre-merge check, use /review-code instead — it's faster and cheaper."
 disable-model-invocation: true
 argument-hint: "<pr_number|commit_sha|--all> [--focus area] [--lite]"
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, Task, Teammate, SendMessage, TaskCreate, TaskUpdate, TaskList, TaskGet, WebFetch, AskUserQuestion
@@ -24,29 +24,22 @@ CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
 
 **Lite mode** (`--lite` flag or automatic fallback) works without this flag — uses Task subagents instead of the Teammate API. Fewer agents, lower cost, still comprehensive.
 
+**No `Task`/subagent tools at all?** Drop one level further: work through each reviewer's checklist yourself, one after another, instead of spawning subagents. The 6 review dimensions (plus adversary pass) are the methodology; Teammate/Task parallelism is just how Claude Code speeds it up.
+
 **Delegate mode** (recommended for full mode): Press `Shift+Tab` to enable delegate mode, which restricts the lead to coordination-only tools and prevents it from reviewing code itself.
 
 ## Input
 
 $ARGUMENTS
 
-## Known Limitations
+## Notes
 
-- **No session resumption**: `/resume` does not restore teammates. If a session is interrupted, teammates are lost
-- **One team per session**: Cannot run multiple team-review invocations simultaneously
-- **Analysis only**: Identifies issues without modifying code. Use `/implement-feature` or `/fix-bug` for fixes
-- **Task status can lag**: Teammates sometimes forget to mark tasks complete; orchestrator should monitor
-- **Teammates load CLAUDE.md**: Project conventions apply automatically to all reviewers (this is a benefit)
-
-## Anti-Hallucination Guidelines
-
-**CRITICAL**: All reviewers must follow these rules:
-1. **Read before claiming** - Never report issues in code that has not been read
-2. **Evidence-based findings** - Every finding must reference specific file paths and line numbers
-3. **Verify in context** - Confirm each pattern is actually problematic, not an intentional choice
-4. **No false positives** - When uncertain, flag as "Needs manual verification" rather than asserting
-5. **Scope enforcement** - Only review files within the specified scope (PR/commit/all)
-6. **Respect project conventions** - Understand existing patterns before flagging style issues
+- `/resume` does not restore teammates — an interrupted full-mode session loses the team; re-run from scratch.
+- Only one team-review can run per session.
+- Analysis only — it finds issues but never edits code; use `/implement-feature` or `/fix-bug` for the actual fixes.
+- Teammates sometimes forget to mark tasks complete, so the orchestrator should poll task status rather than assume completion.
+- Every reviewer must ground findings in code it actually read (file:line, real snippet) and flag uncertain cases as "needs manual verification" instead of asserting — a false positive here costs more than a missed finding, since it erodes trust in the whole report.
+- Abort early if the requested scope (PR/commit) doesn't exist or isn't readable — don't let reviewers spin on a bad input. If reviewer tasks stall past ~10 min, or the adversary doesn't report back, proceed to consolidation with what's in hand rather than blocking the whole review.
 
 ## Workflow Overview
 
@@ -277,16 +270,6 @@ After the initial review, if fixes are made and a re-review is requested:
 5. **Report delta** - Show resolved, remaining, and new findings
 
 ---
-
-## Quality Gates
-
-| Gate | Between | Pass Criteria | On Failure |
-|------|---------|---------------|------------|
-| Scope Validation | 0 → 1 | Files exist and are readable | Error + abort |
-| Discovery Complete | 1 → 2 | Tech stack identified | Proceed with defaults |
-| All Reviews Complete | 3 → 4 | All reviewer tasks marked complete | Wait (timeout: 10 min) |
-| Adversary Complete | 3 → 4 | Adversary findings received | Proceed without adversary |
-| Report Generated | 5 → 6 | All findings have file:line refs | Verify and fix gaps |
 
 ## Usage
 

@@ -9,18 +9,12 @@ description: Perform a comprehensive UX/UI/design quality audit of a live URL or
 metadata:
   author: mgiovani
   version: 1.0.0
-  source: https://github.com/mgiovani/cc-arsenal
 disable-model-invocation: true
 argument-hint: '[url|pr_number|commit_sha|--all] [--scope dimension] [--mode live|static|both]'
 allowed-tools: Read, Grep, Glob, Bash(git *), Bash(gh *), Bash(agent-browser *), Task, TodoWrite, AskUserQuestion
 context: fork
 agent: general-purpose
 ---
-
-# Review Design
-
-> **Cross-Platform AI Agent Skill**
-> This skill works with any AI agent platform that supports the skills.sh standard.
 
 # Design Review
 

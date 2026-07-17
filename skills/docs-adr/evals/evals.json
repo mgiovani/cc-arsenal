@@ -1,0 +1,38 @@
+{
+  "skill": "docs-adr",
+  "evals": [
+    {
+      "id": "database-migration-strategy-default",
+      "prompt": "/docs-adr \"Database Migration Strategy\"",
+      "assertions": [
+        "Uses the Explore agent (or equivalent codebase search) to verify current database/migration setup before writing the Context section, rather than inventing it",
+        "Creates the file at docs/adr/XXXX-database-migration-strategy.md with a 4-digit ADR number one higher than the highest existing ADR (0001 if none exist)",
+        "Defaults to the Nygard template with Status, Context, Decision, and Consequences sections since no variant keyword was given",
+        "Sets the initial Status to \"Proposed\"",
+        "Reports the ADR number and file path back to the user"
+      ]
+    },
+    {
+      "id": "redis-session-storage-lightweight-variant",
+      "prompt": "/docs-adr lightweight \"Use Redis for Session Storage\"",
+      "assertions": [
+        "Strips the \"lightweight\" keyword out of the title before generating the filename and ADR title",
+        "Verifies Redis (or an equivalent session-storage mechanism) is actually referenced in the codebase before claiming it as the decision, not assumed",
+        "Uses the lightweight template variant containing only Status, Decision, and Rationale sections (no Context/Consequences)",
+        "Filename is kebab-case: docs/adr/XXXX-use-redis-for-session-storage.md",
+        "Does not invent file paths or code snippets that were not actually found in the repo"
+      ]
+    },
+    {
+      "id": "event-driven-architecture-full-variant",
+      "prompt": "/docs-adr full \"Adopt Event-Driven Architecture\"",
+      "assertions": [
+        "Uses the full template variant with Decision Drivers, Considered Options, and Pros/Cons sections in addition to Status, Context, Decision, and Consequences",
+        "Consequences are split into Positive, Negative, and Neutral subsections as specified for the full variant",
+        "Gathers and cites real context (existing messaging/event code, configs, or docs found via search) rather than generic boilerplate",
+        "ADR number increments correctly from the highest existing docs/adr/XXXX-*.md file",
+        "Includes alternatives/considered options that were actually evaluated, not fabricated ones"
+      ]
+    }
+  ]
+}

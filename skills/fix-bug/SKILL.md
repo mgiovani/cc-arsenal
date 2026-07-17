@@ -17,7 +17,7 @@ Fix bugs systematically using test-driven development, root cause analysis, and 
 
 ## Anti-Hallucination Guidelines
 
-**CRITICAL**: Bug fixes must be based on ACTUAL code and VERIFIED test results:
+Bug fixes must be based on actual code and verified test results — a fix that "should work" but was never run against a failing test is a guess, not a fix:
 1. **Reproduce the bug first** - Do not fix what has not been seen failing. Run the failing test or scenario to confirm the bug exists.
 2. **Test-driven approach** - Write/locate a failing test before implementing the fix. Verify it actually fails.
 3. **Verify root cause** - Use grep/search to locate actual bug location with evidence (file paths, line numbers).
@@ -81,15 +81,19 @@ This skill uses Claude Code's Task Management System for strict sequential depen
 **Task Structure:**
 Bug fixes create a strict sequential chain where each phase must complete before the next can start, ensuring test-driven development discipline.
 
+**Portability:** No `Task`/`TaskCreate` tools in this environment? Skip the task chain and subagent fan-out — run the phases below yourself, in order, inline. The phases are the methodology; the tooling is just how Claude Code tracks and parallelizes them.
+
 ## Implementation Workflow
 
 **Task tracking replaces TodoWrite.** Create task chain at start, update as completing each phase.
 
-### Phase 0: Project Discovery (REQUIRED)
+### Phase 0: Project Discovery
 
-**Step 0.1: Create Task Dependency Chain**
+**Step 0.1: Create Task Dependency Chain (skip for trivial fixes)**
 
-Before debugging, create the strict sequential task structure:
+If this is a trivial 1-line fix, typo, or quick config change (see "When to Skip Tasks" above), skip task creation and go straight to Phase 1 inline — discover the test command, fix it, run it, done.
+
+Otherwise, create the strict sequential task structure before debugging:
 
 ```
 TaskCreate:
@@ -154,9 +158,7 @@ Use Task tool with Explore agent:
 - model: "haiku"  # Token-efficient for discovery
 ```
 
-Store discovered commands for use in later phases.
-
-**IMPORTANT**: Never assume which test framework or tools are available. Use only the discovered commands.
+Store discovered commands for use in later phases — guessing at a test framework wastes a cycle when the wrong command silently no-ops.
 
 **Step 0.3: Complete Phase 0**
 
@@ -196,6 +198,8 @@ Search for existing test coverage using Grep. If no test exists for this bug:
 Run the specific test using discovered test command. **CRITICAL**: Verify the test actually fails. Capture error output.
 
 **Step 1.4: Root Cause Analysis**
+
+For simple, localized bugs, skip the fan-out below and just grep/read the relevant file directly. Reserve parallel agents for bugs spanning multiple files or with unclear scope.
 
 Use parallel subagents for comprehensive analysis with Haiku for exploration:
 
@@ -330,7 +334,7 @@ TaskUpdate: { taskId: "6", status: "in_progress" }
 
 **Step 5.2: Create Commit**
 
-If `/cc-arsenal:git:commit` skill is available, use it. Otherwise, create a conventional commit manually:
+If the `git-commit` skill is available, use it. Otherwise, create a conventional commit manually:
 
 ```bash
 git add [files modified]

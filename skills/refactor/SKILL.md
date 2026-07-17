@@ -37,37 +37,7 @@ $ARGUMENTS
 
 ## Quality Gates
 
-This skill includes automatic refactoring verification before completion:
-
-### Safety Verification (Stop Hook)
-
-When attempting to stop working, an automated verification agent runs to ensure the refactoring is safe:
-
-**Verification Steps:**
-1. **Behavior preserved**: Full test suite passes (same results as before refactoring)
-2. **No regressions**: Linter and type checker report no new errors
-3. **Characterization tests**: Any tests added to capture behavior still pass
-4. **Clean diff**: Only intentional structural changes exist
-
-**Behavior:**
-- ✅ **All verifications pass**: Refactoring marked complete
-- ❌ **Any test fails**: Completion blocked, Claude reverts or fixes the breaking change
-- ⚠️ **New lint/type errors**: Completion blocked until resolved
-
-**Example blocked completion:**
-```
-⚠️ Refactoring verification failed:
-
-Tests: ❌ FAILED (2 tests failing)
-  - test_calculate_total: Expected 150.0, got 150
-  - test_format_output: AssertionError: output format changed
-
-Lint: ✅ PASSED
-Type Check: ✅ PASSED
-
-🔧 Refactoring introduced behavior changes. Revert the last change and retry
-with a smaller step.
-```
+A Stop hook runs the same four checks listed above (tests, lint/type, characterization tests, clean diff) automatically before the skill is allowed to finish. If any fails, completion is blocked and Claude must revert or fix the break — see the hook prompt at the top of this file for the exact wording.
 
 ## Task Management
 
@@ -84,8 +54,12 @@ This skill uses Claude Code's Task Management System for strict sequential depen
 - Trivial formatting or style fix
 - Single-line simplification
 
-**Task Structure:**
-Refactoring creates a strict sequential chain where each phase must complete before the next can start, ensuring characterization tests exist before any structural changes begin.
+For these, skip the task chain and Phase 0-5 structure entirely. Do the inline flow instead: run the existing tests, make the change, run the tests again. If they still pass, done — no TaskCreate, no subagents.
+
+**Task Structure (everything else):**
+Refactoring creates a strict sequential chain where each phase must complete before the next can start, ensuring characterization tests exist before any structural changes begin. After finishing each phase, mark its task `completed` and run `TaskList` to confirm the next one is unblocked — this applies at the end of every phase below and isn't repeated per-phase.
+
+**Portability:** No `Task`/`TaskCreate` tools here? Drop the task chain and subagent fan-out — just work through Phase 0-5 yourself, in order. The sequencing (characterization tests before structural change) is what matters, not the tracking mechanism.
 
 ## Implementation Workflow
 
@@ -172,13 +146,6 @@ Store discovered commands for use in later phases.
 
 If tests already fail before refactoring, document the pre-existing failures. These are not caused by the refactoring and should remain unchanged (same tests fail with same errors).
 
-**Step 0.4: Complete Phase 0**
-
-```
-TaskUpdate: { taskId: "1", status: "completed" }
-TaskList  # Check that Task 2 is now unblocked
-```
-
 ### Phase 1: Scope Analysis
 
 **Goal**: Understand the full impact of the refactoring before touching any code.
@@ -189,9 +156,9 @@ TaskList  # Check that Task 2 is now unblocked
 TaskUpdate: { taskId: "2", status: "in_progress" }
 ```
 
-**Step 1.2: Parallel Scope Analysis**
+**Step 1.2: Scope Analysis**
 
-Spawn two Explore agents in parallel to map the refactoring scope:
+If the refactoring touches more than one file, or the caller list isn't obvious, spawn two Explore agents in parallel to map the scope. For a single-file refactor with an obvious blast radius, skip the subagents and just run a quick Grep for callers yourself — the goal is the same information, not the delegation ceremony.
 
 ```
 Agent 1 - Dependency & Caller Analysis (Explore, Haiku):
@@ -265,13 +232,6 @@ After both agents complete, synthesize findings:
 
 If the refactoring involves: changes to >5 files, modifications to public APIs, moving code between modules, or changes affecting external consumers, use `AskUserQuestion` to present the scope analysis and get approval before proceeding.
 
-**Step 1.5: Complete Phase 1**
-
-```
-TaskUpdate: { taskId: "2", status: "completed" }
-TaskList  # Check that Task 3 is now unblocked
-```
-
 ### Phase 2: Characterization Tests
 
 **Goal**: Ensure sufficient test coverage exists to detect any behavioral change from the refactoring.
@@ -324,13 +284,6 @@ Run the full test suite (including new characterization tests). All must pass.
 
 ```bash
 [DISCOVERED_TEST_COMMAND]
-```
-
-**Step 2.5: Complete Phase 2**
-
-```
-TaskUpdate: { taskId: "3", status: "completed" }
-TaskList  # Check that Task 4 is now unblocked
 ```
 
 ### Phase 3: Incremental Refactoring
@@ -394,13 +347,6 @@ For refactorings requiring temporary duplication:
 4. **Remove the old structure** once all callers are migrated
 5. **Final test** — full suite
 
-**Step 3.5: Complete Phase 3**
-
-```
-TaskUpdate: { taskId: "4", status: "completed" }
-TaskList  # Check that Task 5 is now unblocked
-```
-
 ### Phase 4: Final Verification
 
 **Step 4.1: Start Phase 4**
@@ -440,13 +386,6 @@ Look for:
 - Missing import updates
 - Orphaned code that should have been removed
 
-**Step 4.4: Complete Phase 4**
-
-```
-TaskUpdate: { taskId: "5", status: "completed" }
-TaskList  # Check that Task 6 is now unblocked
-```
-
 ### Phase 5: Final Commit
 
 **Step 5.1: Start Phase 5**
@@ -457,7 +396,7 @@ TaskUpdate: { taskId: "6", status: "in_progress" }
 
 **Step 5.2: Create Commit**
 
-If `/cc-arsenal:git:commit` skill is available, use it. Otherwise, create a conventional commit manually:
+If the git-commit skill is available, use it. Otherwise, create a conventional commit manually:
 
 ```bash
 git add [files modified]
@@ -475,13 +414,6 @@ No behavioral changes."
 - Subject: Describe WHAT was restructured
 - Body: Explain WHY this improves the codebase
 - Footer: Always include "No behavioral changes." to signal safety
-
-**Step 5.3: Complete Phase 5 and Refactoring**
-
-```
-TaskUpdate: { taskId: "6", status: "completed" }
-TaskList  # Show final status - all tasks should be completed
-```
 
 ### Phase 6: Summary Report
 

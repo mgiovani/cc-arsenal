@@ -1,0 +1,38 @@
+{
+  "skill": "docs-check",
+  "evals": [
+    {
+      "id": "stale-architecture-doc-audit",
+      "prompt": "/docs-check core — I think docs/architecture.md is stale after last month's microservices split, can you check?",
+      "assertions": [
+        "Only reads/greps files and never edits or writes to any documentation file",
+        "Cross-references claims in docs/architecture.md (service names, counts) against the actual codebase rather than trusting the doc text",
+        "Uses git history to assess whether the doc's last update predates the relevant code changes",
+        "Produces a status summary with an overall score and per-doc scores",
+        "Flags at least one concrete freshness or hallucination issue with a file reference if the doc is in fact stale relative to code"
+      ]
+    },
+    {
+      "id": "hallucinated-service-count-in-readme",
+      "prompt": "Our README says 'the platform has 5 microservices' — can you verify that's still accurate and find any other made-up claims in the docs?",
+      "assertions": [
+        "Counts actual services/components in the codebase and compares the number to the claim instead of assuming it's correct",
+        "Checks file/path references mentioned in the docs to confirm they actually exist",
+        "Reports a Hallucination Report section distinguishing false claims from stale-but-true ones",
+        "Does not modify or rewrite the README or any other doc file",
+        "Gives a specific, actionable recommendation (not just 'update the docs') for any hallucination found"
+      ]
+    },
+    {
+      "id": "pre-release-doc-health-check",
+      "prompt": "We're cutting a release next week, run a full docs health check across the docs/ tree including ADRs and flag anything broken",
+      "assertions": [
+        "Scans the full docs/ tree including ADRs and identifies documentation types present",
+        "Spawns parallel Explore subagents per document/section for the multi-doc audit rather than doing a single inline pass",
+        "Validates Mermaid diagram syntax and checks for broken internal links",
+        "Outputs Good/Needs Attention/Missing categorization with per-doc scores and an overall score",
+        "Recommends docs-update or docs-diagram (not itself) as the follow-up action for fixing identified issues"
+      ]
+    }
+  ]
+}

@@ -127,41 +127,6 @@ Use agent-browser skill to:
 3. Consider if they should be fixed together or separately
 4. Plan accordingly
 
-## Task Tracking Example
-
-**Creating the Task Chain**:
-```
-TaskCreate: subject="Phase 0: Discover project workflow", description="...", activeForm="Discovering..."
-TaskCreate: subject="Phase 1: Reproduce and analyze bug", description="...", activeForm="Analyzing..."
-TaskCreate: subject="Phase 2: Plan fix", description="...", activeForm="Planning..."
-TaskCreate: subject="Phase 3: Implement fix", description="...", activeForm="Implementing..."
-TaskCreate: subject="Phase 4: Verify quality", description="...", activeForm="Verifying..."
-TaskCreate: subject="Phase 5: Final commit", description="...", activeForm="Committing..."
-
-# Set up strict sequential chain
-TaskUpdate: { taskId: "2", addBlockedBy: ["1"] }
-TaskUpdate: { taskId: "3", addBlockedBy: ["2"] }
-TaskUpdate: { taskId: "4", addBlockedBy: ["3"] }
-TaskUpdate: { taskId: "5", addBlockedBy: ["4"] }
-TaskUpdate: { taskId: "6", addBlockedBy: ["5"] }
-```
-
-**Progressing Through Phases**:
-```
-# Start Phase 0
-TaskUpdate: { taskId: "1", status: "in_progress" }
-# ... work ...
-TaskUpdate: { taskId: "1", status: "completed" }
-TaskList  # Shows Task 2 is now unblocked
-
-# Start Phase 1
-TaskUpdate: { taskId: "2", status: "in_progress" }
-# ... work ...
-TaskUpdate: { taskId: "2", status: "completed" }
-TaskList  # Shows Task 3 is now unblocked
-# ... repeat for all phases
-```
-
 ## Quality Checklist
 
 Before reporting completion, verify:

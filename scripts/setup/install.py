@@ -98,7 +98,7 @@ class InstallationConfig(BaseModel):
     conflict_resolution: ConflictResolution = Field(
         default=ConflictResolution.INTERACTIVE
     )
-    required_dirs: list[str] = Field(default=['agents', 'commands'])
+    required_dirs: list[str] = Field(default=['skills'])
 
     @field_validator('repo_root')
     @classmethod
@@ -416,7 +416,7 @@ def main(
 ) -> None:
     """Install Claude template configuration via individual file symlinks.
 
-    This command safely installs agents and commands by creating
+    This command safely installs skills by creating
     individual symlinks for each file. It detects conflicts, offers resolution
     options, and maintains backups to ensure no data is lost.
 
@@ -432,20 +432,6 @@ def main(
 
     # Check UV requirement first
     check_uv_installation()
-
-    # Initialize git submodules for skills-upstream
-    console.print('📦 [blue]Initializing git submodules...[/blue]')
-    try:
-        subprocess.run(
-            ['git', 'submodule', 'update', '--init', '--recursive'],
-            cwd=get_repo_root(),
-            check=True,
-            capture_output=True,
-        )
-        console.print('✓ [green]Git submodules initialized[/green]')
-    except subprocess.CalledProcessError:
-        console.print('⚠️  [yellow]Warning: Could not initialize git submodules[/yellow]')
-        console.print('   You may need to run: git submodule update --init --recursive')
 
     console.print('🚀 [bold blue]Claude Template Installation System[/bold blue]')
     if dry_run:
@@ -537,7 +523,7 @@ def main(
         console.print('\n📋 Next Steps:')
         console.print('  1. Run `make configure` to customize your setup')
         console.print('  2. Restart Claude Code to load the new configuration')
-        console.print('  3. Use agents and commands from the cc-arsenal repository')
+        console.print('  3. Use skills from the cc-arsenal repository')
 
         # Ask about statusline installation
         console.print('\n🎨 [bold yellow]Enhanced Statusline Available[/bold yellow]')

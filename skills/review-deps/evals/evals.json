@@ -1,0 +1,38 @@
+{
+  "skill": "review-deps",
+  "evals": [
+    {
+      "id": "npm-vulnerability-audit",
+      "prompt": "/review-deps Can you check if our npm dependencies have any known vulnerabilities?",
+      "assertions": [
+        "Detects package.json/package-lock.json and runs an npm audit command (npm audit --json or npm audit)",
+        "Cites specific package names, versions, and CVE/GHSA IDs from actual audit tool output, not invented ones",
+        "Spawns parallel Explore agents for vulnerability, license, and staleness analysis (or explicitly scopes to vulnerabilities only if the user asked for that)",
+        "Does not modify package.json, package-lock.json, or run npm install/npm audit fix",
+        "Produces a report with risk levels (Critical/High/Medium/Low) backed by evidence from the audit output"
+      ]
+    },
+    {
+      "id": "license-compliance-only",
+      "prompt": "/review-deps We're about to go closed-source, please check our dependencies for any copyleft or risky licenses only",
+      "assertions": [
+        "Scopes the audit to license compliance only, skipping vulnerability and staleness phases per the Scoping rule",
+        "Reads manifest/lock files to identify actual license fields rather than guessing licenses",
+        "Flags copyleft licenses (e.g. GPL, AGPL) as High/Critical risk for a proprietary/closed-source project",
+        "Does not run npm audit or cargo audit commands since only license analysis was requested",
+        "Report references the actual license field from the package manifest for each flagged package"
+      ]
+    },
+    {
+      "id": "polyglot-monorepo-staleness",
+      "prompt": "/review-deps Our monorepo has a Node service and a Python service, tell me which dependencies are outdated or abandoned and what's the risk of upgrading",
+      "assertions": [
+        "Detects both package managers (package.json/lock for Node, pyproject.toml/requirements for Python) via manifest discovery",
+        "Runs native audit/version-check commands appropriate to each ecosystem (e.g. npm audit and pip-audit) in parallel",
+        "Assesses staleness with current version, latest version, and upgrade breaking-change complexity per package",
+        "Never proposes or executes an actual upgrade/install command — recommendations only, no lock-file changes",
+        "Cross-references findings across the two ecosystems in a single consolidated report with prioritized actions"
+      ]
+    }
+  ]
+}

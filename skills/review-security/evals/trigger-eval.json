@@ -1,0 +1,22 @@
+[
+  {"query": "can you audit this codebase for security vulnerabilities before we ship", "should_trigger": true},
+  {"query": "scan PR 456 for OWASP issues", "should_trigger": true},
+  {"query": "check this commit for SQL injection or hardcoded secrets", "should_trigger": true},
+  {"query": "review our security posture across the whole repo", "should_trigger": true},
+  {"query": "does this API have broken access control or auth bypass issues?", "should_trigger": true},
+  {"query": "run a security review on abc123def before merging", "should_trigger": true},
+  {"query": "we need an OWASP top 10 compliance check on the backend", "should_trigger": true},
+  {"query": "look for injection vulnerabilities and insecure deserialization in this scope", "should_trigger": true},
+  {"query": "audit the frontend for XSS and CSP issues, --scope frontend", "should_trigger": true},
+  {"query": "can you check the mobile app for insecure storage and weak crypto", "should_trigger": true},
+  {"query": "review this PR for code quality and error handling, not security", "should_trigger": false},
+  {"query": "check our dependencies for outdated versions and license issues", "should_trigger": false},
+  {"query": "users can bypass the discount code expiration check, please fix it", "should_trigger": false},
+  {"query": "audit the repo for over-engineering and dead code we can delete", "should_trigger": false},
+  {"query": "implement OAuth login for the new mobile app", "should_trigger": false},
+  {"query": "refactor the auth module to reduce duplication", "should_trigger": false},
+  {"query": "write tests for the login rate limiter", "should_trigger": false},
+  {"query": "explain how our JWT validation works", "should_trigger": false},
+  {"query": "run a general code review on this diff, check simplicity and style", "should_trigger": false},
+  {"query": "audit our npm packages for supply-chain risk", "should_trigger": false}
+]

@@ -1,4 +1,4 @@
-.PHONY: help install configure dev test lint format type-check check coverage clean pre-commit-install pre-commit-run dry-run info validate-structure validate-plugins install-statusline uninstall-statusline sync-skills sync-skills-status
+.PHONY: help install configure dev test lint format type-check check coverage clean pre-commit-install pre-commit-run dry-run info validate-structure validate-plugins install-statusline uninstall-statusline bump-version
 
 # Default commands
 UV := uv
@@ -50,19 +50,6 @@ configure: dev ## Configure installed Claude Code Arsenal
 dry-run: dev ## Preview what would be installed (no changes made)
 	@echo "$(BLUE)Running installation preview...$(RESET)"
 	$(UV) run python -m scripts.setup.install --dry-run --verbose
-
-# ============================================================================
-# Skills Synchronization
-# ============================================================================
-
-sync-skills: dev ## Sync skills from mgiovani/skills + merge enhancements
-	@echo "$(BLUE)Syncing skills from upstream...$(RESET)"
-	$(UV) run python scripts/sync_skills.py
-	@echo "$(GREEN)Skills synchronized successfully$(RESET)"
-
-sync-skills-status: dev ## Show sync status for all skills
-	@echo "$(BLUE)Checking skills sync status...$(RESET)"
-	$(UV) run python scripts/sync_skills.py --status
 
 # ============================================================================
 # Development
@@ -139,17 +126,13 @@ clean: ## Clean up test environments and caches
 
 info: ## Show repository information
 	@echo "$(BLUE)Claude Code Arsenal Information$(RESET)"
-	@if [ -d "agents" ]; then \
-		echo "Agents:   $$(find agents -name '*.md' 2>/dev/null | wc -l) files"; \
-	fi
-	@echo "Commands: $$(find commands -name '*.md' 2>/dev/null | wc -l) files"
 	@echo "Skills:   $$(find skills -name 'SKILL.md' 2>/dev/null | wc -l) files"
 	@echo "Scripts:  $$(find scripts -maxdepth 2 -name '*.py' -not -path '*/__pycache__/*' -not -path '*/.*' -not -name 'test_*' -not -name '__init__.py' 2>/dev/null | wc -l) files"
 
 validate-structure: ## Validate repository structure
 	@echo "$(BLUE)Validating repository structure...$(RESET)"
 	@errors=0; \
-	for dir in commands skills scripts; do \
+	for dir in skills scripts; do \
 		if [ ! -d "$$dir" ]; then \
 			echo "$(RED)Missing directory: $$dir$(RESET)"; \
 			errors=$$((errors + 1)); \
@@ -198,6 +181,10 @@ validate-plugins: ## Validate both marketplace and plugin manifests
 		[ $$plugin_valid -eq 0 ] && echo "  • Plugin manifest has errors"; \
 		exit 1; \
 	fi
+
+bump-version: ## Bump all versions declared in .version-bump.json (usage: make bump-version VERSION=x.y.z)
+	@if [ -z "$(VERSION)" ]; then echo "$(RED)Error: VERSION is required, e.g. make bump-version VERSION=4.1.0$(RESET)"; exit 1; fi
+	$(UV) run python -m scripts.bump_version $(VERSION)
 
 # Default target
 .DEFAULT_GOAL := help

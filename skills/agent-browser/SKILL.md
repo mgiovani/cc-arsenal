@@ -1,6 +1,6 @@
 ---
 name: agent-browser
-description: "Headless browser automation CLI optimized for AI agents. Uses snapshot + refs system for 93% less context overhead vs Playwright. Purpose-built for web testing, form automation, screenshots, and data extraction."
+description: "Headless browser automation CLI optimized for AI agents — uses accessibility-tree snapshots and @e1-style refs for ~93% less context than raw DOM tools. Use whenever the task needs to interact with a live web page: click, fill forms, log in, extract text/data, take screenshots, test a running web app, or scrape a site. Triggers on 'automate the browser', 'fill this form', 'click the button', 'take a screenshot of the page', 'log into', 'scrape this site', 'test my web app'. Not for Playwright test-suite authoring or CDP/service-worker work needing the full JS API — use Playwright directly for those."
 hooks:
   Stop:
     - hooks:
@@ -16,21 +16,7 @@ hooks:
 
 **agent-browser** is an open-source browser automation CLI from Vercel Labs, purpose-built for AI agents. Unlike traditional browser automation tools, it's designed from the ground up for LLM interaction with a **snapshot + refs** system that reduces context usage by up to 93% compared to Playwright MCP.
 
-### Key Advantages
-
-- **93% less context overhead** - Accessibility tree snapshots instead of full DOM
-- **Zero configuration** - Ready to use after installation
-- **Semantic element targeting** - `@e1` refs instead of fragile CSS selectors
-- **Rust + Node.js architecture** - Fast CLI with robust browser control
-- **Session isolation** - Run multiple browsers with separate state
-- **AI-optimized output** - Structured data perfect for LLM parsing
-
-### Architecture
-
-Three-layer design for performance and reliability:
-1. **Rust CLI** - Fast command parsing and daemon communication
-2. **Node.js Daemon** - Playwright-based browser lifecycle management
-3. **Fallback Mode** - Pure Node.js when native binaries unavailable
+See the comparison table under [When to Use vs Playwright](#when-to-use-vs-playwright) for when this CLI beats DOM-based tools.
 
 ### Installation
 
@@ -328,68 +314,27 @@ find nth 2 ".card" click
 
 ## When to Use vs Playwright
 
-### Use agent-browser when:
-
-✓ **AI agent automation** - Optimized for LLM workflows
-✓ **CLI-first workflows** - Simple command-line usage
-✓ **Context efficiency matters** - 93% less token overhead
-✓ **Rapid prototyping** - Zero configuration needed
-✓ **Multiple sessions** - Easy session isolation
-✓ **Semantic targeting** - Prefer accessibility tree over DOM
-
-### Use Playwright MCP when:
-
-✓ **Complex programmatic control** - Full JavaScript API
-✓ **Advanced browser features** - Service workers, device emulation
-✓ **Existing Playwright tests** - Reuse test infrastructure
-✓ **Fine-grained control** - Direct access to CDP
-✓ **TypeScript integration** - Type-safe browser automation
-
-**Summary**: agent-browser excels at **AI-driven automation** with minimal context. Playwright excels at **programmatic control** with maximum flexibility.
+| Need | Use | Why |
+|---|---|---|
+| AI agent driving a browser, CLI-first, minimal tokens | agent-browser | ~93% less context via accessibility-tree snapshots, zero config, `@e1` refs survive DOM changes |
+| Multiple isolated sessions in parallel | agent-browser | Built-in `--session` isolation |
+| Full JS API, service workers, device emulation, CDP internals | Playwright (direct) | agent-browser doesn't expose the full programmatic API |
+| Reusing an existing Playwright test suite | Playwright (direct) | Don't rewrite working tests to switch tools |
 
 ## Reference File Guide
 
-Detailed information is available in bundled reference files (loaded on-demand):
+Detailed information is available in bundled reference files (loaded on-demand), regenerated from the CLI's own `agent-browser skills get core --full` so they stay in sync with the installed version:
 
-### `references/command-reference.md`
-Complete command documentation including:
-- All command signatures and options
-- Browser configuration (viewport, geolocation, headers)
-- Storage management (cookies, localStorage)
-- Network interception and mocking
-- Multi-tab/window/frame operations
-- Dialog handling
-- JavaScript execution (`eval`)
-- Global flags and environment variables
+### `references/commands.md`
+Every command signature, flag, and alias — navigation, interaction, find, wait, screenshot, settings, tabs, network/console, global flags.
 
-### `references/advanced-patterns.md`
-Advanced usage patterns:
-- Authentication state persistence
-- Parallel session workflows
-- Network request interception
-- File download handling
-- Custom proxy configuration
-- Cloud provider integration (BrowserUse, BrowserBase)
-- Video recording workflows
-- CDP (Chrome DevTools Protocol) integration
+### `references/advanced.md`
+Session management, authentication (login flows, OAuth, 2FA, cookie import), trust-boundary safety rules, proxy configuration, and Chrome DevTools profiling.
 
-### `references/best-practices.md`
-Optimization and reliability guidance:
-- Token efficiency strategies
-- Error handling patterns
-- Performance optimization
-- Debugging techniques
-- Common pitfalls and solutions
-- Production deployment considerations
+### `references/workflows.md`
+The snapshot + ref model in depth, plus video-recording workflows.
 
-### `references/examples.md`
-Real-world scenarios:
-- E-commerce checkout automation
-- Form submission and validation
-- Web scraping with pagination
-- Screenshot testing
-- Data extraction workflows
-- Multi-step authentication
+If these ever drift from the CLI again, regenerate with `agent-browser skills get core --full` and re-split (see git history of this file for the split points).
 
 ## Resources
 

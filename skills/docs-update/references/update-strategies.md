@@ -1,40 +1,30 @@
 # Update Strategies
 
-Parallel subagent patterns and section-level update strategies for documentation synchronization.
+Parallel subagent patterns for documentation synchronization across multiple files.
 
-## Section-Level Parallelization (Single Document)
+## Single Document Updates
 
-When updating ONE document, spawn subagents for each major section:
+One Explore pass is enough: read the whole document, grep the codebase for each claim it makes,
+and apply the fixes in the same write. Splitting one file's sections across multiple agents
+just adds merge overhead for a result that funnels into a single file anyway.
+
+## Multiple Document Updates ("all" or "category" mode)
+
+Spawn one agent per document so they run concurrently:
 
 ```
-Example: Updating docs/architecture.md
+Agent 1 - Architecture Update:
+- prompt: "Update docs/architecture.md. Explore codebase, verify claims, remove false info, add missing components."
+- subagent_type: "general-purpose"
 
-First, read the document and identify logical sections, then spawn parallel agents:
+Agent 2 - Data Model Update:
+- prompt: "Update docs/data-model.md. Find actual models, verify ER diagram accuracy."
+- subagent_type: "general-purpose"
 
-Agent 1 - Components Section:
-- prompt: "Verify the 'Components' section in docs/architecture.md. For each component listed, confirm it exists in the codebase. Report which are real and which are hallucinations."
-- subagent_type: "Explore"
-
-Agent 2 - Technology Stack Section:
-- prompt: "Verify the 'Technology Stack' section in docs/architecture.md. Check package.json/pyproject.toml for actual dependencies. Report mismatches."
-- subagent_type: "Explore"
-
-Agent 3 - Diagrams Section:
-- prompt: "Verify all diagrams in docs/architecture.md. For each node/entity in diagrams, confirm it exists in code. Report diagram elements that don't exist."
-- subagent_type: "Explore"
-
-Agent 4 - Data Flow Section:
-- prompt: "Verify the 'Data Flow' section. Trace actual imports and function calls to confirm the described flow is accurate."
-- subagent_type: "Explore"
-
-After all agents return, merge their findings and update the document.
+Agent 3 - Onboarding Update:
+- prompt: "Update docs/onboarding.md. Verify setup instructions and commands exist."
+- subagent_type: "general-purpose"
 ```
-
-**Section identification pattern**:
-1. Read the target document
-2. Identify H2 (##) sections as logical blocks
-3. For each section with verifiable claims, spawn an Explore agent
-4. Collect results and apply updates
 
 ## Update Process by Document Type
 

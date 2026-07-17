@@ -1,6 +1,6 @@
 ---
 name: find-skills
-description: Discover and install third-party agent skills from the skills.sh ecosystem.
+description: Search, install, update, and remove third-party Agent Skills from skills.sh or any GitHub/GitLab repo via the `npx skills` CLI. Use when the user wants to "find a skill", "install a skill from github", "search skills.sh", or add third-party capabilities to Claude Code/Cursor/other agents. Not for authoring new skills (see create-skill).
 disable-model-invocation: true
 ---
 
@@ -14,15 +14,7 @@ The **Agent Skills** format is an open standard for packaging procedural knowled
 
 **skills.sh** is the public directory and leaderboard for the ecosystem, hosting thousands of skills across categories like frontend, backend, DevOps, and more.
 
-### Built-in cc-arsenal Skills
-
-Before installing third-party skills, note that cc-arsenal already provides:
-- **agent-browser** -- AI-optimized headless browser automation (snapshot + refs system)
-- **jira-cli** -- Interactive Jira issue, epic, and sprint management
-- **create-skill** -- Specification-driven skill creation with live documentation fetching
-- **find-skills** -- This skill (discovery and installation of third-party skills)
-
-Only install external skills that provide capabilities not already covered above.
+Before installing a third-party skill, check `ls skills/` in this repo (or run `/find-skills` again after browsing) -- cc-arsenal may already cover the same ground, and a hardcoded list here would just go stale.
 
 ## Quick Start
 

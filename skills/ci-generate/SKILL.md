@@ -1,18 +1,16 @@
 ---
 name: ci-generate
-description: Generate CI/CD pipeline configurations for GitHub Actions, GitLab CI,
-  CircleCI, or Jenkins.
+description: Generate a production-ready CI/CD pipeline config (GitHub Actions,
+  GitLab CI, CircleCI, or Jenkins) by discovering the project's actual stack,
+  test/build commands, and dependencies. Use when setting up CI for a new
+  project, adding a missing workflow file, or asked to create/generate a
+  pipeline, workflow, or `.gitlab-ci.yml`/`Jenkinsfile`. Not for writing a
+  Dockerfile itself (see docker-init) — this only wires CI stages around one.
 metadata:
   author: mgiovani
   version: 1.0.0
-  source: https://github.com/mgiovani/skills
 disable-model-invocation: true
 ---
-
-# Ci Generate
-
-> **Cross-Platform AI Agent Skill**
-> This skill works with any AI agent platform that supports the skills.sh standard.
 
 # CI/CD Pipeline Generator
 
@@ -20,7 +18,7 @@ Generate production-ready CI/CD pipeline configurations with auto-detected proje
 
 ## Pipeline to Generate
 
-command arguments
+Parse the arguments passed to this skill invocation (platform, `--deploy`, `--monorepo`) — see Phase 0 below.
 
 ## Anti-Hallucination Guidelines
 
@@ -35,7 +33,7 @@ command arguments
 
 ### Phase 0: Parse Arguments
 
-Extract configuration from `command arguments`:
+Extract configuration from the arguments passed to this skill:
 
 ```
 Arguments:
@@ -48,20 +46,22 @@ Arguments:
  - "vercel", "netlify", "aws", "gcp", "azure", "docker", "k8s", "fly", "railway"
 - "--monorepo": Generate matrix/path-filtered workflows
 - No args: Auto-detect platform from existing CI config files, default to GitHub Actions
+
 If no platform specified, detect from existing files:
 - `.github/workflows/*.yml` → GitHub Actions
 - `.gitlab-ci.yml` → GitLab CI
 - `.circleci/config.yml` → CircleCI
 - `Jenkinsfile` → Jenkins
 - No CI config found → Default to GitHub Actions
+```
 
 ### Phase 1: Project Stack Detection
 
-Explore the codebase to discover the complete project technology stack:
+Explore the codebase to discover the complete project technology stack.
 
-### Phase 2: Research Best Practices
+### Phase 2: Research Best Practices (only if needed)
 
-Search for current CI/CD best practices for the detected stack:
+`references/platform-patterns.md` already ships current, comprehensive patterns for Node/Python/matrix/Docker/deploy across all four platforms — check it first. Only reach for WebSearch when the detected stack/platform combo isn't covered there (e.g. an unusual language or a deploy target not in the reference):
 
 ```
 Use WebSearch:
@@ -69,6 +69,8 @@ Use WebSearch:
 
 Use WebSearch:
 - query: "[detected platform] security scanning pipeline [detected language] [current year]"
+```
+
 Focus on:
 - Caching strategies for the detected package manager
 - Recommended runner images and versions
@@ -166,6 +168,8 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/ci.yml'))"
 
 # General YAML validation
 python3 -c "import yaml; yaml.safe_load(open('<config_file>'))"
+```
+
 **Step 5.2: Cross-Reference Check**
 
 Verify all referenced commands and paths exist:
@@ -247,6 +251,8 @@ ci-generate github --monorepo
 
 # Combined options
 ci-generate github --deploy k8s --monorepo
+```
+
 ## Important Notes
 
 - **Discover first**: Never assume project tooling; always run Phase 1

@@ -1,0 +1,37 @@
+{
+  "skill": "ship",
+  "evals": [
+    {
+      "id": "full-train-clean-branch",
+      "prompt": "/ship this branch, the feature is done and tests pass locally",
+      "assertions": [
+        "Confirms the current branch is not main/master/dev before proceeding",
+        "Invokes or follows the review-code skill's review step before committing anything",
+        "Auto-detects pre-merge check commands from justfile/Makefile/package.json rather than inventing a test command",
+        "Produces a conventional-commit-formatted commit message before creating the PR",
+        "Creates a PR following git-create-pr conventions and reports the PR URL"
+      ]
+    },
+    {
+      "id": "stops-on-failing-visual-diff",
+      "prompt": "Ship train time — get this UI tweak merged, this project has a `just visual-diff` recipe",
+      "assertions": [
+        "Detects and runs the project's justfile visual-diff recipe as part of pre-merge checks",
+        "If the visual diff check fails, stops before committing and reports the failure instead of proceeding",
+        "Does not silently skip or bypass a failing visual regression check to reach the commit/PR steps",
+        "Does not merge or claim success while a pre-merge check is red"
+      ]
+    },
+    {
+      "id": "watch-ci-and-merge-on-green",
+      "prompt": "Run the ship workflow on this branch and merge it once CI is green",
+      "assertions": [
+        "Runs code review and pre-merge checks before creating the PR, not after",
+        "Pushes the branch and opens a PR before attempting to watch CI",
+        "Polls or watches CI status rather than assuming success without checking",
+        "Only merges after CI reports green, and reports which checks passed",
+        "If CI is red, stops and reports the failing check instead of merging or force-pushing"
+      ]
+    }
+  ]
+}

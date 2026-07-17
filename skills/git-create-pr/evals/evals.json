@@ -1,0 +1,38 @@
+{
+  "skill": "git-create-pr",
+  "evals": [
+    {
+      "id": "standard-feature-branch-pr",
+      "prompt": "I finished the OAuth2 login work on feature/ABC-123_oauth-login and pushed my commits, can you open a PR for it?",
+      "assertions": [
+        "Checks working tree status and current branch before proceeding, and confirms the branch is not main/master",
+        "Extracts ticket ID ABC-123 from the branch name and includes it in the generated PR title",
+        "Generates a conventional-commit-style title (type(scope): [ABC-123] description) under 72 chars",
+        "Every PR body bullet traces back to an actual commit or diff hunk from git log/git diff, not invented claims",
+        "Asks for user confirmation (y/n/e) before running git push and gh pr create"
+      ]
+    },
+    {
+      "id": "draft-pr-custom-base",
+      "prompt": "Open a draft PR targeting the develop branch for my current changes",
+      "assertions": [
+        "Parses --base/-b to target develop instead of the repo default branch",
+        "Passes --draft to the gh pr create command because a draft PR was requested",
+        "Determines commits/diff via git log and git diff against origin/develop, not origin/main",
+        "Does not combine --reviewer/--assignee/--label flags with --web in the gh pr create call",
+        "Confirms with the user before pushing and creating the PR"
+      ]
+    },
+    {
+      "id": "pr-with-custom-template",
+      "prompt": "Create a pull request for this branch, we have a PR template in the repo so make sure it's used",
+      "assertions": [
+        "Looks for .github/pull_request_template.md and fills it in without altering its structure",
+        "Falls back to the default Summary/Changes/Testing template only if no repo template file is found",
+        "Saves the generated body to a temp file (e.g. /tmp/pr-body-<timestamp>.md) before calling gh pr create --body-file",
+        "Shows a compact preview of the title and body and asks for confirmation before creating the PR",
+        "Pushes the branch with git push -u origin <branch> before invoking gh pr create"
+      ]
+    }
+  ]
+}

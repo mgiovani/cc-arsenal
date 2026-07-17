@@ -1,0 +1,22 @@
+[
+  {"query": "the pt-BR sidebar shows 'Developer' untranslated, can you check why", "should_trigger": true},
+  {"query": "can you check if all our locale files have the same keys as en.json", "should_trigger": true},
+  {"query": "we added a new settings page but I don't think the translations got updated everywhere", "should_trigger": true},
+  {"query": "run an i18n audit across the repo and tell me what's missing", "should_trigger": true},
+  {"query": "the German translation file seems to be missing some keys after the last merge", "should_trigger": true},
+  {"query": "check for hardcoded strings in Sidebar.tsx that should be using useTranslations instead", "should_trigger": true},
+  {"query": "our i18next namespaces are out of sync between en and fr, can you find the gaps", "should_trigger": true},
+  {"query": "there's a localization bug, some Spanish labels show the raw English text", "should_trigger": true},
+  {"query": "can you scaffold the missing keys in de.yml for our Rails app", "should_trigger": true},
+  {"query": "make sure every string in the checkout flow actually goes through the translation layer", "should_trigger": true},
+  {"query": "translate this README into Portuguese for our docs", "should_trigger": false},
+  {"query": "fix the bug where the checkout button submits the order twice", "should_trigger": false},
+  {"query": "review this PR for code quality issues before I merge", "should_trigger": false},
+  {"query": "write tests for the LocaleSwitcher component", "should_trigger": false},
+  {"query": "add a new language selector dropdown to the settings page", "should_trigger": false},
+  {"query": "update the docs to reflect the new i18n config format we adopted", "should_trigger": false},
+  {"query": "set up next-intl from scratch for our new Next.js app", "should_trigger": false},
+  {"query": "write a conventional commit message for these locale file changes", "should_trigger": false},
+  {"query": "refactor the translation loading logic to use React Query instead of useEffect", "should_trigger": false},
+  {"query": "can you improve the wording of our English error messages, they're too blunt", "should_trigger": false}
+]
