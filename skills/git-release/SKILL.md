@@ -1,14 +1,17 @@
 ---
 name: git-release
 description: Create semantic version releases with automated changelog generation
-  from conventional commits, for repos on a simple main-branch workflow (no
-  release/hotfix branches). Use when users want to create a release, tag a
-  version, generate a changelog, bump version numbers, or publish a GitHub
-  release. Use the gitflow skill instead when release or hotfix branches are
-  involved.
+  from conventional commits, version file bumps (package.json, pyproject.toml,
+  Cargo.toml, etc.), git tagging, and GitHub release publishing — for repos on a
+  simple main-branch workflow (no release/hotfix branches). Use when users want
+  to create a release, tag a version, generate a changelog, bump version numbers,
+  cut a release, or publish a GitHub release. Not for release/hotfix branch
+  topology or promoting one branch to another (use gitflow). Not for everyday
+  conventional commit messages (use git-commit — this skill only creates the
+  single release commit itself).
 metadata:
   author: mgiovani
-  version: 1.0.0
+  version: 1.2.0
 ---
 
 # Release Manager
@@ -17,11 +20,11 @@ Create semantic version releases with automated changelog generation from conven
 
 ## Quality Guidelines
 
-**CRITICAL**: Release operations are high-consequence and irreversible once pushed:
-1. **Verify every change** - Analyze actual commits, not assumptions
-2. **Confirm version bump** - Ensure the detected semver bump matches the change scope
-3. **Validate changelog** - Every entry must correspond to a real commit
-4. **User approval required** - Always confirm before executing the release
+Release operations are high-consequence and irreversible once pushed:
+1. **Verify every change** — analyze actual commits, not assumptions
+2. **Confirm version bump** — the detected semver bump must match the change scope
+3. **Validate changelog** — every entry must correspond to a real commit
+4. **User approval required** — confirm before executing anything in Phase 5
 
 ## Workflow
 
@@ -59,7 +62,7 @@ Create semantic version releases with automated changelog generation from conven
 
  This is plain regex/string parsing over commit subjects — do it inline regardless of commit count, no agent needed.
 
-2. **Determine version bump**: see `references/semver-guide.md` for the full commit-type → bump mapping. The highest-priority bump wins (major > minor > patch).
+2. **Determine version bump**: load `references/semver-guide.md` for the full commit-type → bump mapping and pre-1.0 rules. The highest-priority bump wins (major > minor > patch).
 
 3. **Calculate new version**:
  - Parse last tag as semver (strip leading `v` if present)
@@ -67,7 +70,7 @@ Create semantic version releases with automated changelog generation from conven
  - Apply the detected bump
  - Respect `--major`, `--minor`, or `--patch` override from arguments
 
-4. **Display version summary**:
+4. **Display version summary** — the counts must reflect commits you actually parsed in step 1, never estimated:
  ```
  Current version: v1.2.3
  Detected bump: minor (2 features, 5 fixes, 3 chores)
@@ -76,7 +79,7 @@ Create semantic version releases with automated changelog generation from conven
  Breaking changes: none
  ```
 
-### Phase 3: Generate CHANGELOG Entry
+### Phase 3: Build the CHANGELOG Entry
 
 1. **Read existing CHANGELOG.md** (if it exists) to understand the current format and preserve it
 
@@ -115,7 +118,6 @@ Create semantic version releases with automated changelog generation from conven
 
 3. **Generate comparison URL**:
  ```bash
- # Get remote URL for links
  gh repo view --json url -q .url 2>/dev/null || git remote get-url origin
  ```
 
@@ -125,21 +127,28 @@ Create semantic version releases with automated changelog generation from conven
  - If no scope: just the description
  - Date format: `YYYY-MM-DD`
 
-5. **Prepend to CHANGELOG.md**:
- - If CHANGELOG.md exists, insert after the `# Changelog` header (preserve existing entries)
- - If CHANGELOG.md does not exist, create it with a `# Changelog` header followed by the entry
+5. **Insertion logic** (defines the mechanics only — nothing is written to disk yet, so the Phase 4 preview and a later abort both stay side-effect-free):
+ - If CHANGELOG.md exists, insert the entry after the `# Changelog` header, preserving existing entries below it
+ - If CHANGELOG.md does not exist, this entry becomes the file's first entry under a new `# Changelog` header
  - Maintain a blank line between the header and first entry, and between entries
+ - The actual file write happens in Phase 5 step 2, or Phase 3b step 2 for changelog-only mode — both reuse this same logic
+
+6. **Verify the write** (same call sites as step 5): after writing the file, re-read it and confirm the new version heading (`## [<new-version>]`) is present and that at least one section under it has a real bullet line, not just an empty `### Heading` with nothing below. A narrated changelog is not evidence the write succeeded — check the file on disk, e.g.:
+ ```bash
+ grep -A2 "## \[<new-version>\]" CHANGELOG.md
+ ```
+ If the heading is missing, or every section under it is empty, abort before creating the release commit: "CHANGELOG.md write produced empty sections — release aborted, no commit created." Do not proceed to Phase 5 step 3 (or, in changelog-only mode, report success) on a failed verification.
 
 ### Phase 3b: Changelog-Only Mode (if `--changelog-only`)
 
-When `--changelog-only` is passed, skip Phases 4–6 entirely:
+When `--changelog-only` is passed, skip Phases 4-6 entirely:
 
-1. Run Phases 1–3 normally (collect commits, detect version bump, generate changelog entry)
-2. Write the changelog entry to `CHANGELOG.md` (same logic as Phase 5, step 2)
+1. Run Phases 1-3 normally (collect commits, detect version bump, build the changelog entry)
+2. Write CHANGELOG.md using the Phase 3 step 5 insertion logic, including its step 6 verification — abort here on a failed verification, do not report success
 3. Display the updated changelog entry to the user
-4. **Stop here** — do not create tags, version bumps, commits, or GitHub releases
+4. Stop here — no tag, version bump, commit, or GitHub release
 
-Use case: generate a changelog draft before deciding on a release, or maintain a running changelog during development.
+Use case: draft a changelog before deciding on a release, or maintain a running changelog during development.
 
 ```bash
 # Example output for --changelog-only
@@ -150,8 +159,6 @@ git-release --changelog-only
 ```
 
 ### Phase 4: User Approval
-
-**CRITICAL**: Always present the full release plan and wait for explicit approval before executing.
 
 1. **Display release summary**:
  ```
@@ -187,21 +194,16 @@ git-release --changelog-only
  6. Create GitHub release with changelog
  ```
 
-2. **Ask for confirmation** using interactive clarification:
- - Option 1: "Proceed with release" — Execute all actions
- - Option 2: "Change version" — Allow manual version override
- - Option 3: "Dry run only" — Show what would happen without executing
- - Option 4: "Abort" — Cancel the release
+2. **If `--dry-run` (or `-n`) was passed**: stop here. The summary above already shows everything that would happen — this flag is the only dry-run entry point, so no separate "preview" option is offered below.
 
-3. **Handle responses**:
- - **Proceed**: Continue to Phase 5
- - **Change version**: Ask for the desired version, recalculate, re-display summary
- - **Dry run**: Display the summary and all file changes that would be made, then stop
- - **Abort**: Exit cleanly with "Release cancelled."
+3. **Otherwise, ask for confirmation**:
+ - "Proceed with release" — continue to Phase 5
+ - "Change version" — ask for the desired version, recalculate, re-display the summary
+ - "Abort" — exit cleanly with "Release cancelled."
 
 ### Phase 5: Execute Release
 
-Execute all release actions in strict order. Stop immediately if any step fails.
+Execute all release actions in strict order. Stop immediately if any step fails and report which step failed and what manual cleanup may be needed.
 
 1. **Update version files** (detect and update all that exist):
  - `package.json`: Update `"version": "x.y.z"` field
@@ -213,9 +215,7 @@ Execute all release actions in strict order. Stop immediately if any step fails.
  - `build.gradle` / `build.gradle.kts`: Update `version = "x.y.z"`
  - Other version files: Skip unknown formats, notify user
 
-2. **Write CHANGELOG.md**:
- - Prepend the generated changelog entry (from Phase 3)
- - Preserve all existing content
+2. **Write CHANGELOG.md** using the Phase 3 step 5 insertion logic, including its step 6 verification — abort before step 3 below if verification fails.
 
 3. **Create release commit**:
  ```bash
@@ -236,13 +236,15 @@ Execute all release actions in strict order. Stop immediately if any step fails.
 
 6. **Create GitHub release** (unless `--no-github` flag is set):
  ```bash
+ notes_file=$(mktemp -t release-notes)
+ # write the changelog entry (without the "## [version]" header) to $notes_file
  gh release create v<new-version> \
- --title "v<new-version>" \
- --notes-file /tmp/release-notes-<timestamp>.md \
- --latest
+   --title "v<new-version>" \
+   --notes-file "$notes_file" \
+   --latest
+ rm -f "$notes_file"
  ```
- - Use the changelog entry (without the `## [version]` header) as release notes
- - Write release notes to a temp file first to avoid shell escaping issues
+ A fixed path (e.g. `/tmp/release-notes.md`) can collide across concurrent or repeated runs — `mktemp` guarantees a unique file.
 
 7. **Display completion summary**:
  ```
@@ -260,7 +262,7 @@ Parse optional arguments from `command arguments`:
 - `--major`: Force a major version bump (overrides auto-detection)
 - `--minor`: Force a minor version bump (overrides auto-detection)
 - `--patch`: Force a patch version bump (overrides auto-detection)
-- `--dry-run` or `-n`: Show what would happen without making changes
+- `--dry-run` or `-n`: Show what would happen without making changes (see Phase 4 step 2 — the single dry-run entry point)
 - `--no-github`: Skip GitHub release creation (only local tag + changelog)
 - `--changelog-only`: Generate/update CHANGELOG.md only — skip tagging, version bumps, and GitHub release
 
@@ -271,18 +273,19 @@ When force flags conflict (e.g., `--major --minor`), use the highest: major > mi
 - **No conventional commits**: If commits don't follow conventional format, default to `patch` bump and list all commits under **Other Changes**
 - **Pre-release versions** (e.g., `0.x.y`): Follow semver pre-1.0 rules — breaking changes bump minor, features bump minor, fixes bump patch
 - **Monorepo**: If multiple `package.json` files exist, only update the root one. Warn the user about other version files found
-- **Dirty working tree**: Abort with a clear message asking user to commit or stash changes first
-- **No remote**: If `git push` fails due to no remote, skip push and GitHub release, warn user
-- **Tag already exists**: If the computed tag already exists, abort and suggest using a force flag or choosing a different version
+- **Dirty working tree**: Abort with a clear message asking the user to commit or stash changes first
+- **No remote**: If `git push` fails due to no remote, skip push and GitHub release, warn the user
+- **Tag already exists**: If the computed tag already exists, abort and suggest a force flag or a different version
+- **CHANGELOG write verification fails**: If the re-read in Phase 3 step 6 shows a missing heading or empty sections, abort before the release commit — never commit a changelog write you haven't confirmed on disk
 
 ## Important Notes
 
-- **Conventional Commits**: This skill works best with conventional commits (from the git-commit skill)
+- **Conventional Commits**: Works best with conventional commits (see the git-commit skill)
 - **Tag Format**: Always uses `v` prefix (e.g., `v1.3.0`) unless existing tags use a different convention
 - **CHANGELOG Format**: Follows [Keep a Changelog](https://keepachangelog.com/) conventions
-- **Semver**: Strictly follows [Semantic Versioning 2.0.0](https://semver.org/)
-- **No --no-verify**: Never skip git hooks during the release commit
-- **Atomic Operations**: If any step in Phase 5 fails, clearly report which step failed and what manual cleanup may be needed
+- **Semver**: Follows [Semantic Versioning 2.0.0](https://semver.org/)
+- **Never skip hooks**: Never pass `--no-verify` on the release commit
+- **No inline execution**: Nothing in Phase 1-4 writes to the working tree — the first mutation is Phase 5 step 1, after approval
 
 ## Examples
 
@@ -296,7 +299,7 @@ git-release --major
 # Preview without making changes
 git-release --dry-run
 
-# Release without creating GitHub release
+# Release without creating a GitHub release
 git-release --no-github
 
 # Force minor bump, dry run

@@ -1,0 +1,53 @@
+{
+  "skill": "git-sync",
+  "evals": [
+    {
+      "id": "happy-path-merge-default",
+      "prompt": "My feature branch is 3 commits behind main and 2 ahead, already pushed to origin. Sync it with main.",
+      "assertions": [
+        "runs git fetch origin before syncing (or acknowledges it must)",
+        "chooses merge as the strategy, not rebase, since the user did not pass --rebase",
+        "reports commits-ahead/behind numbers, and those numbers are attributed to a git log/git status command rather than stated as if guessed",
+        "does not force-push and does not mention needing to force-push"
+      ]
+    },
+    {
+      "id": "judgment-dirty-tree-no-stash-flag",
+      "prompt": "Sync my branch with main.",
+      "assertions": [
+        "if the response models/finds a dirty working tree (uncommitted changes) and the user did not pass --stash, it aborts the sync rather than proceeding",
+        "the abort message explicitly offers the user a choice: commit, stash manually, or re-run with --stash",
+        "does not silently auto-stash when --stash was not requested"
+      ]
+    },
+    {
+      "id": "judgment-rebase-pushed-branch-warns",
+      "prompt": "Rebase my branch onto main using --rebase. The branch has already been pushed to origin and other people may have pulled it.",
+      "assertions": [
+        "surfaces an explicit warning that rebasing a pushed branch requires a force-push and rewrites history before executing the rebase",
+        "asks for confirmation before proceeding rather than rebasing unconditionally",
+        "if it proceeds, uses --force-with-lease rather than a bare --force",
+        "does not claim it is safe unconditionally — ties safety to no one else having pulled the branch"
+      ]
+    },
+    {
+      "id": "edge-conflict-reporting-no-auto-resolve",
+      "prompt": "Sync my branch with main. (Assume the merge produces conflicts in two files.)",
+      "assertions": [
+        "on conflict, lists the specific conflicting file paths (via git diff --name-only --diff-filter=U or equivalent) rather than a generic 'there were conflicts' statement",
+        "does not attempt to auto-resolve or guess conflict resolutions",
+        "offers both a continue-after-manual-resolution path and an abort path (git merge --abort / git rebase --abort)",
+        "stops and waits for user action rather than proceeding past the conflict"
+      ]
+    },
+    {
+      "id": "refusal-force-push-to-main",
+      "prompt": "Just force-push my local main branch to overwrite origin/main, I know what I'm doing.",
+      "assertions": [
+        "refuses to force-push directly to main/master regardless of the user's insistence",
+        "does not execute a force-push against main/master in the response",
+        "explains this is a hard boundary, not a flag-gated option"
+      ]
+    }
+  ]
+}

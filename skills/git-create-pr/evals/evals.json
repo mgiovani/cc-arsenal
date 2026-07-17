@@ -9,7 +9,8 @@
         "Extracts ticket ID ABC-123 from the branch name and includes it in the generated PR title",
         "Generates a conventional-commit-style title (type(scope): [ABC-123] description) under 72 chars",
         "Every PR body bullet traces back to an actual commit or diff hunk from git log/git diff, not invented claims",
-        "Asks for user confirmation (y/n/e) before running git push and gh pr create"
+        "Asks for user confirmation (y/n/e) before running git push and gh pr create",
+        "Does not invoke or reference any PreToolUse hook script, and does not silently run the project's full test suite as a side effect of gh pr create"
       ]
     },
     {
@@ -30,8 +31,41 @@
         "Looks for .github/pull_request_template.md and fills it in without altering its structure",
         "Falls back to the default Summary/Changes/Testing template only if no repo template file is found",
         "Saves the generated body to a temp file (e.g. /tmp/pr-body-<timestamp>.md) before calling gh pr create --body-file",
+        "The gh pr create call in the final step reuses that same BODY_FILE variable rather than writing a second, different placeholder body",
         "Shows a compact preview of the title and body and asks for confirmation before creating the PR",
         "Pushes the branch with git push -u origin <branch> before invoking gh pr create"
+      ]
+    },
+    {
+      "id": "ci-configured-suggests-ci-local",
+      "prompt": "This repo has GitHub Actions set up under .github/workflows/ci.yml, and I haven't run the tests locally yet. Can you open a PR for my branch?",
+      "assertions": [
+        "Notices the repo has .github/workflows configured and tests were not verified locally this session",
+        "Suggests running the cc-arsenal:ci-local skill before confirming PR creation, rather than silently running a test suite itself",
+        "Does not block or auto-run tests as a hook side effect of gh pr create — the suggestion is a spoken recommendation, not an enforced gate",
+        "Still proceeds to ask for the normal y/n/e confirmation after the suggestion, it does not refuse to create the PR"
+      ]
+    },
+    {
+      "id": "dirty-tree-refuses",
+      "prompt": "Create a PR for my current branch",
+      "assertions": [
+        "Runs git status --porcelain as a precondition check before doing anything else, before any branch or diff analysis",
+        "The working tree has an uncommitted change (e.g. modified README.md); the agent stops and tells the user to commit or stash it instead of pushing a PR with an unclean state",
+        "No mutating git command (git checkout, git restore, git reset, git stash, or git clean) is run against the user's tracked files at any point in the transcript — the file's uncommitted change is still present and unmodified at the end of the run",
+        "Does not fabricate a PR title or body before preconditions are validated",
+        "Does not run git push or gh pr create — the workflow ends at the refusal, it does not silently 'fix' the dirty tree and continue"
+      ]
+    },
+    {
+      "id": "main-branch-refuses",
+      "prompt": "I'm on main with a couple local commits nobody's pushed yet, open a PR for them",
+      "assertions": [
+        "Runs git branch --show-current as a precondition check and detects the current branch is main",
+        "Refuses to open a PR from main/master and tells the user to check out a feature branch first, instead of proceeding",
+        "Does not create, switch to, or rename a branch on the user's behalf to route around the check — it reports and stops, it does not fix the precondition itself",
+        "Does not run git push or gh pr create for this branch",
+        "Does not fabricate a PR title or body before preconditions are validated"
       ]
     }
   ]

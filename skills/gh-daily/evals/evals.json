@@ -1,0 +1,44 @@
+{
+  "skill": "gh-daily",
+  "evals": [
+    {
+      "id": "default-detailed-repo-threaded",
+      "prompt": "/gh-daily give me my standup report for this repo",
+      "assertions": [
+        "Detects the repo via gh repo view --json nameWithOwner and passes --repo <that value> explicitly on every gh issue list and gh pr list command run in Phase 3, not relying on gh's implicit default repo",
+        "Marks an issue or PR 'Completed' only when its state is closed (issues) or merged (PRs) as returned by gh, never based on assumption",
+        "Since no --format flag was given, uses the default detailed format and also gathers the review-requested and notifications data (detailed includes reviews by default)",
+        "Does not include a Milestone Progress, Technical Highlights, Team Collaboration, or Today's Focus Areas section in the output, since Phase 3 gathers no data backing any of them",
+        "Does not print placeholder bracket text like '[List any risks]' or '[Notable improvements]' anywhere in the final report"
+      ]
+    },
+    {
+      "id": "brief-format-skips-reviews",
+      "prompt": "/gh-daily quick brief standup, don't bother with reviews",
+      "assertions": [
+        "Uses --format brief",
+        "Does not run the gh pr list --search review-requested:@me command or the gh api notifications command, since --include-reviews was not passed and brief format does not gather reviews by default",
+        "The rendered report contains no Reviews Pending / Reviews Requested line",
+        "Classifies an item as Blocked only if it carries a blocked/blocking label or a comment explicitly mentioning a blocker, not merely because it is open and stale"
+      ]
+    },
+    {
+      "id": "all-repos-loops-per-repo",
+      "prompt": "/gh-daily --all-repos generate my standup across everywhere I'm active",
+      "assertions": [
+        "Runs the repo-discovery query (gh search issues --assignee @me --state open ... --json repository) to build the list of repos to scan, instead of using a single auto-detected repo",
+        "Runs Phase 3's gh issue list / gh pr list commands once per repo in that list, passing --repo for each individual repo rather than a single ungoverned run",
+        "Aggregates and classifies results across all scanned repos before rendering a single combined report"
+      ]
+    },
+    {
+      "id": "no-repo-context-asks-instead-of-guessing",
+      "prompt": "/gh-daily give me a standup report",
+      "assertions": [
+        "When gh repo view returns no repo (not inside a GitHub repo, no --repo given), does not fabricate or guess a repository name to proceed with",
+        "Asks the user to specify --repo owner/repo instead of running Phase 3 gh issue/pr commands against an unresolved or guessed repo",
+        "Does not produce a fabricated standup report body in this case"
+      ]
+    }
+  ]
+}

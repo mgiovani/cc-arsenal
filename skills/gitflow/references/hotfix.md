@@ -12,14 +12,14 @@ Use this only when the fix genuinely cannot wait for a release. If it can wait, 
 ## 2. Make the fix, with tests
 
 - Implement the smallest correct fix. Add or update tests that would have caught the bug; a hotfix without a regression test invites the same incident again.
-- Bump the version in your project manifest to the patch version.
+- Bump the version in your project manifest to the patch version. No manifest? Skip this — the tag alone carries the version (see Versioning in `SKILL.md`).
 - Update `CHANGELOG.md` with a new `## [<x.y.z>] - <date>` entry for the fix (see `references/changelog.md`).
 - Follow Conventional Commits throughout.
 
 ## 3. PR to main, wait for green
 
 - Push and open a PR `hotfix/<x.y.z>` into `main`. The full Definition-of-Done gate runs automatically (same suite as a release).
-- Wait for every check to be green. A red check is a defect to root-fix, not something to work around.
+- Wait for every check to be green. A red check is a defect to root-fix, not something to work around. No CI pipeline on the repo? Skip this step and say so.
 
 ## 4. Merge, deploy, tag, release
 

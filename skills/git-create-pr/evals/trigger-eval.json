@@ -18,5 +18,7 @@
   {"query": "squash my last 5 commits into one", "should_trigger": false},
   {"query": "check the CI status on this pull request", "should_trigger": false},
   {"query": "merge develop into my feature branch to resolve conflicts", "should_trigger": false},
-  {"query": "add reviewers and labels to PR #42", "should_trigger": false}
+  {"query": "add reviewers and labels to PR #42", "should_trigger": false},
+  {"query": "ship it — review the code, commit, and get this merged", "should_trigger": false},
+  {"query": "run the full ship pipeline on this branch and watch CI", "should_trigger": false}
 ]

@@ -39,6 +39,30 @@
         "Does not touch CHANGELOG.md per-feature (that happens at release time)",
         "Follows Conventional Commits for the branch's commit messages / PR title"
       ]
+    },
+    {
+      "id": 3,
+      "name": "ambiguous-ship-intent-judgment",
+      "prompt": "Ship the settings fix.",
+      "files": [],
+      "assertions": [
+        "Does not immediately pick hotfix or feature/release without clarifying",
+        "Asks a single clarifying question along the lines of: is this urgent enough to go straight to production (hotfix), or does it ride the next release (feature branch now, release later)",
+        "Does not proceed to give branch names, commands, or version bumps before that question is answered",
+        "Does not ask multiple unrelated clarifying questions — just the one that resolves urgency"
+      ]
+    },
+    {
+      "id": 4,
+      "name": "no-ci-no-manifest-release-edge-case",
+      "prompt": "We're cutting a release from dev to main. Heads up: this repo has no CI pipeline configured at all, and there's no package.json/pyproject.toml/Cargo.toml or any version manifest — we just track versions via git tags. Walk me through the release.",
+      "files": [],
+      "assertions": [
+        "Explicitly states the wait-for-green / CI-polling step is skipped because there is no CI pipeline, rather than silently omitting it or inventing CI checks",
+        "Explicitly states the version-manifest bump step is skipped and that the version is carried by the git tag alone, rather than inventing a manifest file to edit",
+        "Still includes the rest of the release flow that doesn't depend on CI or a manifest: branching release/<x.y.z> off dev, updating CHANGELOG.md, merging to main with a merge commit, tagging the merge commit, and staging the break-glass revert PR left open",
+        "Does not fabricate CI check names, a manifest file path, or a package name that was never mentioned"
+      ]
     }
   ]
 }

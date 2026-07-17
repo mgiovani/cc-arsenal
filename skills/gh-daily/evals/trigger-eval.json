@@ -1,0 +1,22 @@
+[
+  {"query": "generate my standup report from GitHub issues and PRs", "should_trigger": true},
+  {"query": "what did I work on yesterday, check my GitHub activity", "should_trigger": true},
+  {"query": "give me a daily update based on my assigned GitHub issues", "should_trigger": true},
+  {"query": "prep my standup, pull from my open PRs and commits", "should_trigger": true},
+  {"query": "gh-daily --format slack", "should_trigger": true},
+  {"query": "status report for the team meeting, use my GitHub issue/PR history", "should_trigger": true},
+  {"query": "summarize what I closed and merged since Friday on GitHub", "should_trigger": true},
+  {"query": "quick brief for standup covering my review requests and blockers", "should_trigger": true},
+  {"query": "what am I working on across all my repos right now", "should_trigger": true},
+  {"query": "post my daily update to slack from GitHub activity", "should_trigger": true},
+  {"query": "generate my standup report from Jira tickets", "should_trigger": false},
+  {"query": "what did I do yesterday, pull from Jira", "should_trigger": false},
+  {"query": "jira-daily --format brief", "should_trigger": false},
+  {"query": "what should I work on today, prioritize my Jira backlog", "should_trigger": false},
+  {"query": "commit my staged changes with a conventional commit message", "should_trigger": false},
+  {"query": "open a pull request for this branch", "should_trigger": false},
+  {"query": "attach this screenshot to the PR", "should_trigger": false},
+  {"query": "run a code review on my latest diff", "should_trigger": false},
+  {"query": "ship this branch, run review then merge", "should_trigger": false},
+  {"query": "cut a new release and generate the changelog", "should_trigger": false}
+]

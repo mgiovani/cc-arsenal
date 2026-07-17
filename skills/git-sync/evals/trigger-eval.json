@@ -1,0 +1,82 @@
+[
+ {
+  "query": "sync my branch with main",
+  "should_trigger": true
+ },
+ {
+  "query": "rebase onto main",
+  "should_trigger": true
+ },
+ {
+  "query": "rebase on latest dev",
+  "should_trigger": true
+ },
+ {
+  "query": "pull upstream into my fork",
+  "should_trigger": true
+ },
+ {
+  "query": "update my branch with the latest from origin",
+  "should_trigger": true
+ },
+ {
+  "query": "my branch is behind main, can you catch it up",
+  "should_trigger": true
+ },
+ {
+  "query": "merge main into my feature branch",
+  "should_trigger": true
+ },
+ {
+  "query": "sync with upstream and rebase my fork",
+  "should_trigger": true
+ },
+ {
+  "query": "bring my branch up to date with develop",
+  "should_trigger": true
+ },
+ {
+  "query": "rebase my local-only branch on top of main",
+  "should_trigger": true
+ },
+ {
+  "query": "cut a new release and update the changelog",
+  "should_trigger": false
+ },
+ {
+  "query": "start a new feature branch for the payments work",
+  "should_trigger": false
+ },
+ {
+  "query": "promote dev to main",
+  "should_trigger": false
+ },
+ {
+  "query": "write a commit message for these staged changes",
+  "should_trigger": false
+ },
+ {
+  "query": "open a pull request for this branch",
+  "should_trigger": false
+ },
+ {
+  "query": "ship this branch",
+  "should_trigger": false
+ },
+ {
+  "query": "we need to hotfix prod",
+  "should_trigger": false
+ },
+ {
+  "query": "help me do an interactive rebase to squash my last 3 commits",
+  "should_trigger": false
+ },
+ {
+  "query": "resolve this merge conflict I'm stuck on",
+  "should_trigger": false
+ },
+ {
+  "query": "tag v2.1.0 and generate release notes",
+  "should_trigger": false
+ }
+]
