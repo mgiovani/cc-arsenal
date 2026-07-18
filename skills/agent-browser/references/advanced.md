@@ -997,4 +997,3 @@ Load the output JSON file in any of these tools:
 - Only works with Chromium-based browsers (Chrome, Edge). Not supported on Firefox or WebKit.
 - Trace data accumulates in memory while profiling is active (capped at 5 million events). Stop profiling promptly after the area of interest.
 - Data collection on stop has a 30-second timeout. If the browser is unresponsive, the stop command may fail.
-

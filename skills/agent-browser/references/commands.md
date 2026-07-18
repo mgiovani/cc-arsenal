@@ -483,4 +483,3 @@ AGENT_BROWSER_CONFIG="./agent-browser.json"  # Custom config file
 AGENT_BROWSER_CDP="9222"                     # Connect daemon to CDP port or WebSocket URL
 AGENT_BROWSER_PLUGINS='[{"name":"vault","command":"agent-browser-plugin-vault","capabilities":["credential.read"]},{"name":"stealth","command":"agent-browser-plugin-stealth","capabilities":["launch.mutate"]}]'
 ```
-

@@ -180,4 +180,3 @@ Based on this analysis, consider adding:
 
 **Next Steps**: Apply immediate patches, plan short-term upgrades, and configure automated dependency monitoring.
 ```
-

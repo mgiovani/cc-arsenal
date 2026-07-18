@@ -41,6 +41,7 @@ Read each detected manifest to understand:
 - Total number of dev dependencies
 - Whether lock files are present and committed
 - Workspace/monorepo structure (multiple package.json, Cargo.toml workspaces, etc.)
+```
 
 ### Phase 2: Run Native Audit Commands
 

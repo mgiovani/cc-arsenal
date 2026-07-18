@@ -1,6 +1,6 @@
 """Bump every version field declared in .version-bump.json to a new value.
 
-ponytail: a single global regex per file, not JSON-path-aware traversal —
+Note: a single global regex per file, not JSON-path-aware traversal —
 the repo's declared targets are 1:1 with every "version" key that exists in
 each file (metadata.version + all plugins[].version fully covers
 marketplace.json; plugin.json has exactly one "version" key), so replacing

@@ -4,8 +4,8 @@ body {
 }
 
 /* Body text on white. Relative-luminance contrast ~2.85:1 — fails WCAG SC 1.4.3
-   (needs >= 4.5:1) and even fails the 3:1 large-text/UI floor, so it is Critical
-   per this skill's own severity table (CO-06: "Critical if < 3:1"). */
+  (needs >= 4.5:1) and even fails the 3:1 large-text/UI floor, so it is Critical
+  per this skill's own severity table (CO-06: "Critical if < 3:1"). */
 .muted {
   color: #999999;
   font-size: 14px;
