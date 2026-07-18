@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.0.0] - 2026-07-18
+
+The authoring-standard overhaul. Every skill was rewritten to the Anthropic skill-authoring standard and gated by a full baseline-vs-new eval loop, four new skills were mined from usage history, and all 45 skills now ship eval coverage. The catalog grew from 41 to 45 skills.
+
+### Added
+- **4 new skills** mined from real usage history, each eval-gated new_skill-vs-baseline (all four beat a no-skill baseline):
+  - **orchestrate** (15/15 vs 7/15): turn any task into a model-tiered multi-agent plan — decompose, classify each subtask, map it to the right model (haiku research, opus planning, sonnet implementation), run independent tracks in parallel under strict one-owner-per-file discipline, then synthesize yourself. Declines to orchestrate trivial single-file tasks.
+  - **oss-launch** (18/22 vs 13/22): private-to-public GitHub launch pipeline — secrets/license pre-flight, review-code fixes, branding, README/description rewrite, mention scrub (presents matches, never auto-edits), a gated history rewrite (private-only, explicit confirmation, refuses on already-public repos), then flips public with a stage table of real commands.
+  - **codex-imagegen** (17/18 vs 10/18): polished raster art (logos, mascots, heroes, sprites, mockups) via Codex CLI's `$imagegen`, with chroma-key transparency handling and pixel-level QC; routes quick/photorealistic requests to nanobanana.
+  - **improve-skill** (16/17 vs 7/17): evidence-based improvement of an existing skill — snapshot the baseline, rewrite to the rubric, author evals, benchmark new-vs-old, with a per-dimension restraint gate so an already-compliant skill gets a small diff.
+- **Full eval coverage**: all 45 skills now ship both `evals/evals.json` (task-completion) and `evals/trigger-eval.json` (description-triggering), up from 24 of 41.
+- **cc-arsenal-dev** gains codex-imagegen and oss-launch; **cc-arsenal-skills** gains improve-skill and orchestrate.
+
+### Changed
+- **All 41 existing skills rewritten to the Anthropic authoring standard**, each gated by a per-skill baseline-vs-new eval loop (sandboxed executors, deterministic grading, human-reviewed): use-case-first descriptions with explicit "Not for X (use sibling)" disambiguation across every overlapping cluster, sub-500-line imperative bodies with WHY reserved for hard boundaries, heavy detail moved to `references/<topic>.md` with load-when links, anti-hallucination floors (reported numbers must come from a command actually run), and tool-neutral portability with explicit sequential fallbacks for the orchestration skills.
+- **Descriptions validated** against their trigger-eval sets — the optimizer kept the rewritten description in every case measured, confirming they already trigger reliably.
+- **ship** owns "ship it" for the default feature-branch case; **gitflow** cedes that trigger and keeps release/hotfix-topology cases. ship's description folded to valid YAML and trimmed under the 1024-char cap.
+- All plugin versions bumped to 5.0.0; skill counts and variant tables regenerated across AGENTS.md, CLAUDE.md, README.md, and docs (41 → 45).
+
 ## [4.0.0] - 2026-07-06
 
 One repo, any agent. cc-arsenal is now a single agent-agnostic skills repository following the [Agent Skills](https://agentskills.io) open standard, with Claude Code features (plugin variants, hooks, subagent orchestration) as an optional layer. Install from any compatible tool with `npx skills add mgiovani/cc-arsenal`, or from Claude Code with `/plugin marketplace add mgiovani/cc-arsenal`.

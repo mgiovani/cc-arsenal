@@ -4,9 +4,9 @@ Complete reference for all cc-arsenal skills and optional features.
 
 Skills are the single component type in this repository (the legacy `commands/` format was retired). Each skill lives in `skills/<name>/SKILL.md`; many bundle `references/`, `scripts/`, `assets/`, and `evals/` alongside it (see [Architecture](architecture.md) for the anatomy).
 
-## Skills (41 total)
+## Skills (45 total)
 
-### Development (19 skills)
+### Development (21 skills)
 
 #### `/implement-feature`
 Feature implementation with parallel subagents and automated test verification.
@@ -87,6 +87,18 @@ Break down large projects into dependency-aware tasks.
 #### `nanobanana` (model-invoked)
 Generate and edit images using Nano Banana (Gemini image generation).
 - Creates visuals, mockups, thumbnails, logos, hero images
+
+#### `codex-imagegen` (model-invoked)
+Generate polished raster art (logos, mascots, heroes, sprites, mockups) via Codex CLI's `$imagegen`.
+- Single-quoted invocation, effort budgeting, explicit save paths
+- Chroma-key transparency handling (no-despill on pink), pixel-level QC
+- Routes quick/photorealistic requests to nanobanana
+
+#### `oss-launch` (model-invoked)
+Take a private project to a public GitHub launch.
+- Secrets/license pre-flight, review-code fixes, branding, README/description rewrite
+- Mention scrub (presents matches, never auto-edits) and a gated history rewrite (private-only, explicit confirm, refuses on already-public repos)
+- Flips the repo public with topics set, reports a stage table of real commands
 
 #### `vrt-check` (model-invoked)
 Runs the project's visual regression testing workflow.
@@ -216,7 +228,7 @@ Multi-agent PR review team.
 - Adversary reviewer
 - Comprehensive analysis
 
-### Specialty (5 skills)
+### Specialty (7 skills)
 
 #### `agent-browser` (model-invoked)
 AI-optimized browser automation.
@@ -248,6 +260,18 @@ Specification-driven skill creation with live documentation fetching.
 Create memory rules for Claude Code.
 - CLAUDE.md guidelines
 - Memory patterns
+
+#### `improve-skill` (model-invoked)
+Improve an existing skill to the authoring standard with measured before/after evidence.
+- Snapshots the baseline, rewrites to the rubric, authors evals, benchmarks new-vs-old
+- Per-dimension restraint gate — an already-compliant skill gets a small diff, not a fresh draft
+- Reuses create-skill's validator; never commits (hands off to git-commit/ship)
+
+#### `orchestrate` (model-invoked)
+Turn any task into a model-tiered multi-agent plan.
+- Decompose, classify, map each subtask to the right model (haiku research, opus planning, sonnet impl)
+- Parallel tracks under strict one-owner-per-file discipline; orchestrator does synthesis and git
+- Declines to orchestrate trivial single-file tasks
 
 ## Optional Features
 
@@ -300,7 +324,7 @@ make -C scripts/claude-hi standard  # Quick 9am/2pm/7pm schedule
 
 ### Plugin Marketplace (Claude Code)
 - **Installation**: `/plugin install cc-arsenal@cc-arsenal-marketplace`
-- **Skills**: All 41 skills, or a focused variant (`cc-arsenal-dev`, `cc-arsenal-docs`, `cc-arsenal-git`, `cc-arsenal-skills`, `cc-arsenal-teams`, `cc-arsenal-review`)
+- **Skills**: All 45 skills, or a focused variant (`cc-arsenal-dev`, `cc-arsenal-docs`, `cc-arsenal-git`, `cc-arsenal-skills`, `cc-arsenal-teams`, `cc-arsenal-review`)
 - See [Getting Started](getting-started.md) for the full variant list
 
 ### Symlink Install (Contributors)
