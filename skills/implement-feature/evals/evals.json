@@ -2,34 +2,56 @@
   "skill": "implement-feature",
   "evals": [
     {
-      "id": "rate-limiter-single-instance",
-      "prompt": "/implement-feature Add a rate limiter for the /api/upload endpoint, single-instance deployment",
+      "id": "small-feature-no-task-ceremony",
+      "prompt": "/implement-feature Add a dark mode toggle to the settings page — a single React component plus a CSS variable already defined in the theme file, editing only SettingsPage.tsx and theme.css, two files total.",
+      "assertions": [
+        "Does not create any Task-system entries (no TaskCreate/TaskUpdate calls, outputs/tasks.json is empty or absent) because the change touches only 2 files, below the 4-file/3-phase threshold",
+        "Still runs Phase 0 discovery to find the project's real test/lint commands before editing, rather than assuming npm or make",
+        "Reuses the existing theme CSS variable/token instead of hardcoding new color values",
+        "Runs the discovered test and lint commands before reporting completion, and the final summary's pass/fail status matches what those commands actually reported"
+      ]
+    },
+    {
+      "id": "multi-file-feature-task-ceremony",
+      "prompt": "/implement-feature Add email verification to user signup. The sandbox already contains: `models/User.js` (a Mongoose User model with no emailVerified field yet), `routes/signup.js` (the existing POST /api/signup handler), and `utils/email.js` which exports a working `sendEmail(to, subject, html)` function backed by nodemailer — reuse it instead of writing a new mailer. Add: a token generator, a new POST /api/verify-email endpoint, a new email template, and updates to the User model and signup handler — five files total, with the API endpoint and email-template work split across parallel subagents.",
+      "assertions": [
+        "Creates a Task-system entry for each of the 6 workflow phases with a sequential dependency chain (addBlockedBy), recorded to outputs/tasks.json rather than any real session task list, because the change touches 5 files and needs parallel subagent tracking",
+        "Validates email format and handles both token-expiration and invalid-token error paths",
+        "Imports and calls the pre-existing utils/email.js sendEmail function rather than writing a new mailer/SMTP wrapper from scratch",
+        "Does not build a generic pluggable notification-provider abstraction for what is a single email provider",
+        "The plan produced in Phase 2 states, per new component, the concrete requirement driving it (not just a description of what the file will contain)"
+      ]
+    },
+    {
+      "id": "csv-export-reuse",
+      "prompt": "/implement-feature Add a CSV export button to the reports page. The sandbox already contains `utils/csv.js`, which exports a working `toCSV(rows, columns)` function used elsewhere in the app — reuse it instead of writing a new serializer.",
+      "assertions": [
+        "Imports and calls the pre-existing utils/csv.js toCSV function rather than writing a new CSV serializer from scratch",
+        "Does not add configurable export-format options (e.g. JSON/XML alternatives) that were not requested",
+        "Validates the dataset before exporting and handles the empty-data case explicitly rather than emitting a blank or malformed file",
+        "If any deliberate shortcut was taken, the report calls it out with a LEAN-DEBT marker naming the upgrade trigger, rather than leaving it undocumented"
+      ]
+    },
+    {
+      "id": "ambiguous-team-accounts-refusal",
+      "prompt": "/implement-feature Add support for team accounts",
+      "assertions": [
+        "Recognizes the requirement is ambiguous (no detail on team size limits, billing model, permission roles, or invitation flow) and stops at the Ambiguity Gate rather than guessing at these decisions",
+        "The entire final response is 2-3 concrete clarifying questions or options about the ambiguous decision points — no plan, no implementation summary, no 'Status: COMPLETE'",
+        "No file is created or modified anywhere under sandbox/, and no test/lint/build/git command was run this session",
+        "No Task-system entries are created (no TaskCreate/TaskUpdate calls, outputs/tasks.json absent or empty), since the gate fires before Phase 0 discovery starts",
+        "Does not enter Phase 3 implementation or spawn any subagents"
+      ]
+    },
+    {
+      "id": "rate-limiter-lean-two-file",
+      "prompt": "/implement-feature Add a rate limiter for the /api/upload endpoint, single-instance deployment, touching only the upload route file and one new small rate-limit helper module — two files.",
       "assertions": [
         "Searches the codebase for an existing rate-limiting utility or middleware before writing new code",
-        "Does not introduce a RateLimiter interface or factory for a single concrete implementation",
+        "Does not introduce a RateLimiter interface or factory for what is a single concrete implementation",
         "Adds input validation and returns an appropriate error response for invalid input",
-        "If the implementation is in-memory and single-instance only, leaves a LEAN-DEBT marker naming the upgrade trigger (e.g. running more than one replica)",
-        "The plan produced in Phase 2 states why each proposed component needs to exist before implementation begins"
-      ]
-    },
-    {
-      "id": "csv-export-button",
-      "prompt": "/implement-feature Add a CSV export button to the reports page",
-      "assertions": [
-        "Reuses an existing export, download, or serialization utility already present in the codebase rather than writing a new CSV serializer from scratch",
-        "Does not add configurable export-format options that were not requested",
-        "Validates the dataset before exporting and handles the empty-data case",
-        "The subagent report notes any LEAN-DEBT shortcuts taken"
-      ]
-    },
-    {
-      "id": "email-verification-signup",
-      "prompt": "/implement-feature Add email verification to user signup",
-      "assertions": [
-        "Validates email format and handles token-expiration and invalid-token error paths",
-        "Does not build a generic pluggable notification-provider abstraction for a single email provider",
-        "Reuses an existing mail-sending utility if one already exists in the codebase",
-        "The plan documents why each new component (token generator, verification endpoint, email template) needs to exist"
+        "Leaves a LEAN-DEBT marker naming the upgrade trigger (e.g. running more than one replica) since the implementation is in-memory and single-instance only",
+        "Does not create any Task-system entries (outputs/tasks.json empty or absent), since the change touches only 2 files and stays below the size threshold"
       ]
     }
   ]

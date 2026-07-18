@@ -11,36 +11,36 @@ Parse optional arguments from the command invocation:
 
 ## Usage Examples
 
-### Example 1: Simple Bug Fix
+### Example 1: Simple Bug Fix (inline, default)
 
 ```bash
 /fix-bug User profile page throws 404 on refresh
 ```
 
-**Process with Task Tracking**:
-1. **Create task chain** (Discovery → Reproduce → Plan → Implement → Verify → Commit)
-2. **Phase 0**: Discover project uses `npm test` and `npm run lint`, mark task completed
-3. **Phase 1**: Find failing test or create one, locate routing bug, mark task completed
-4. **Phase 2**: Plan fix (add route configuration), mark task completed
-5. **Phase 3**: Implement fix, mark task completed
-6. **Phase 4**: Verify all tests pass, mark task completed
-7. **Phase 5**: Commit `fix(routing): add profile route configuration`, mark task completed
+Single file, single root cause — no task chain needed:
+1. **Phase 0**: Discover project uses `npm test` and `npm run lint`
+2. **Phase 1**: Find failing test or create one, locate routing bug
+3. **Phase 2**: Plan fix (add route configuration)
+4. **Phase 3**: Implement fix
+5. **Phase 4**: Verify all tests pass
+6. **Phase 5**: Commit `fix(routing): add profile route configuration`
 
-### Example 2: Bug with Issue Number
+### Example 2: Bug with Issue Number (task chain, multi-file)
 
 ```bash
 /fix-bug #789 --branch fix/payment-webhook
 ```
 
-**Process with Task Tracking**:
+Webhook signature validation touches the handler, the signing util, and two
+call sites — spans multiple files, so create the six-task chain first:
 1. **Create task chain** for all 6 phases with strict sequential dependencies
 2. **Phase 0**: Fetch issue `gh issue view 789`, discover `make test` and `make lint`
 3. **Phase 1**: Reproduce failing webhook, root cause: missing signature validation
-4. **Phase 2**: Plan fix: Add HMAC signature verification
+4. **Phase 2**: Plan fix: add HMAC signature verification
 5. **Phase 3**: Implement signature validation
 6. **Phase 4**: Verify with integration tests
 7. **Phase 5**: Commit: `fix(webhooks): validate payment signatures\n\nCloses #789`
-8. **Track progress**: `TaskList` after each phase shows which tasks unblocked
+8. **Track progress**: `TaskList` after each phase shows which task unblocked
 
 ### Example 3: Interactive Bug Fix
 
@@ -129,19 +129,8 @@ Use agent-browser skill to:
 
 ## Quality Checklist
 
-Before reporting completion, verify:
-
-- [ ] All tasks in chain are marked `completed`
-- [ ] Bug was reproduced with evidence (failing test output)
-- [ ] Root cause was identified with file:line references
-- [ ] Fix was implemented with minimal scope
-- [ ] Previously failing test now passes
-- [ ] Full test suite passes (no regressions)
-- [ ] Linting passes (no new errors)
-- [ ] Type checking passes (if applicable)
-- [ ] Code follows project conventions
-- [ ] Conventional commit was created
-- [ ] Fix was verified (and browser-tested if applicable)
+See "Phase 4: Quality Verification" in [SKILL.md](../SKILL.md) — that's the
+authoritative checklist, not duplicated here.
 
 ## Commit Message Guidelines
 

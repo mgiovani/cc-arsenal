@@ -12,13 +12,13 @@
       ]
     },
     {
-      "id": "simplify-nested-conditionals",
-      "prompt": "/refactor Simplify the deeply nested conditionals in calculateShipping",
+      "id": "single-file-extract-method-skips-ceremony",
+      "prompt": "/refactor Extract the discount-calculation block inside calculateOrderTotal (single file, only two call sites) into its own function",
       "assertions": [
-        "Maps callers and existing test coverage for calculateShipping before changing it",
-        "Adds characterization tests first if coverage is insufficient",
-        "Simplifies structure only — behavior and edge cases, including error paths, are unchanged",
-        "The diff is reviewed to confirm no debug code or unrelated changes were introduced"
+        "Does not create a formal 6-phase TaskCreate/TaskUpdate chain or spawn parallel Explore subagents for this single-file change with a greppable caller list",
+        "Still greps for or otherwise enumerates all callers of calculateOrderTotal before changing it",
+        "Runs the existing tests before the change, makes the extraction, and runs tests again afterward",
+        "The extracted function preserves the original discount calculation behavior exactly, including any edge case in the original block"
       ]
     },
     {
@@ -28,6 +28,18 @@
         "Finds all callers via Grep before renaming, including dynamic or string-based references",
         "The old name is fully removed once all callers are migrated, rather than keeping both names indefinitely",
         "Tests pass after each incremental step"
+      ]
+    },
+    {
+      "id": "mixed-scope-refactor-and-feature",
+      "prompt": "/refactor Rename calculateShipping to computeShippingCost, and while you're in there add a new express-shipping option that charges a $15 surcharge",
+      "assertions": [
+        "Identifies the express-shipping surcharge as new functionality outside refactor's scope, not a structural rename",
+        "No express-shipping or surcharge logic is written, edited, or committed during this run",
+        "No git commit is created that bundles the new express-shipping behavior together with the rename",
+        "The final response either scopes the work to the rename only or explicitly tells the user the express-shipping addition needs a separate implement-feature task, and stops there rather than guessing which the user wants",
+        "The sandbox's git history (git log) contains no commit that implements the express-shipping surcharge -- only the rename is committed",
+        "The final message to the user explicitly names the express-shipping surcharge as the specific piece that was deferred, not a generic disclaimer"
       ]
     }
   ]

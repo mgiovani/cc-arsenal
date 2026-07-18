@@ -13,363 +13,182 @@ allowed-tools: Read, Write, Edit, Bash, Grep, Glob, Task, TaskCreate, TaskUpdate
 
 # Bug Fix
 
-Fix bugs systematically using test-driven development, root cause analysis, and comprehensive verification across any project type.
+Fix the bug described by the user (a plain description, an issue ID, or a failing
+test name) using test-driven debugging: reproduce it, find the root cause with
+evidence, apply the smallest fix, verify, commit.
 
 ## Anti-Hallucination Guidelines
 
-Bug fixes must be based on actual code and verified test results — a fix that "should work" but was never run against a failing test is a guess, not a fix:
-1. **Reproduce the bug first** - Do not fix what has not been seen failing. Run the failing test or scenario to confirm the bug exists.
-2. **Test-driven approach** - Write/locate a failing test before implementing the fix. Verify it actually fails.
-3. **Verify root cause** - Use grep/search to locate actual bug location with evidence (file paths, line numbers).
-4. **Test verification** - Run full test suite to prove fix works. All tests must pass.
-5. **No invented fixes** - Only implement solutions that address the demonstrated root cause.
-6. **Reference real code** - Never make claims about code that has not been read.
+A fix that "should work" but was never run against a failing test is a guess, not a fix:
 
-## Quality Gates
+1. **Reproduce first** — don't fix what you haven't seen fail.
+2. **Test-driven** — write or locate a failing test before implementing the fix; confirm it actually fails.
+3. **Verify root cause** — locate the bug with grep/read evidence (file path, line number), not intuition.
+4. **Verify the fix** — run the full test suite; all tests must pass before calling the bug fixed.
+5. **No invented fixes** — only implement solutions that address the demonstrated root cause.
+6. **Reference real code** — never make claims about code you haven't read.
 
-Before marking a bug as fixed, complete these verification steps:
+## Workflow Mode: Inline by Default
 
-### Fix Verification
+Most bugs are a single file, single root cause, fixable and verifiable in one sitting.
+For those, run Phases 0–5 below yourself, in order, inline — no task chain, no
+subagent fan-out. That's the default; don't create tasks unless the case below applies.
 
-**Verification Steps:**
-1. **Fix Confirmation**: Run the originally failing test or reproduce the bug scenario. It must now pass/work.
-2. **Regression Check**: Run the full test suite using the test command from Phase 0 to ensure no new bugs were introduced.
-3. **Root Cause Validation**: Verify the fix addresses the actual root cause, not just symptoms.
-
-**Completion Criteria:**
-- ✅ **All verifications pass**: Bug is fixed
-- ❌ **Any verification fails**: Do not mark complete — continue debugging
-- ⚠️ **Original test not identified**: Find relevant tests or ask for clarification
-
-**Example of an incomplete fix:**
-```
-⚠️ Bug fix verification failed:
-
-Original Issue: ❌ STILL FAILING
-  - The bug still reproduces with the same error
-  - Test: test_user_login still fails with AuthenticationError
-
-Regression: ✅ PASSED (other tests still pass)
-
-🔧 The fix does not resolve the original issue. Root cause analysis needed.
-```
-
-**Benefits:**
-- Prevents marking bugs "fixed" when they still reproduce
-- Catches regression bugs introduced by the fix
-- Enforces test-driven debugging discipline
-- Ensures actual root cause is addressed, not just symptoms
-
-## Bug Description
-
-$ARGUMENTS
-
-## Task Management
-
-This skill uses Claude Code's Task Management System for strict sequential dependency tracking through the debugging workflow.
-
-**When to Use Tasks:**
-- Multi-step debugging requiring root cause analysis
-- Bugs spanning multiple files or components
-- Work requiring progress tracking across sessions
-
-**When to Skip Tasks:**
-- Trivial 1-line fixes with obvious solutions
-- Simple typo corrections
-- Quick configuration changes
-
-**Task Structure:**
-Bug fixes create a strict sequential chain where each phase must complete before the next can start, ensuring test-driven development discipline.
-
-**Portability:** No `Task`/`TaskCreate` tools in this environment? Skip the task chain and subagent fan-out — run the phases below yourself, in order, inline. The phases are the methodology; the tooling is just how Claude Code tracks and parallelizes them.
-
-## Implementation Workflow
-
-**Task tracking replaces TodoWrite.** Create task chain at start, update as completing each phase.
-
-### Phase 0: Project Discovery
-
-**Step 0.1: Create Task Dependency Chain (skip for trivial fixes)**
-
-If this is a trivial 1-line fix, typo, or quick config change (see "When to Skip Tasks" above), skip task creation and go straight to Phase 1 inline — discover the test command, fix it, run it, done.
-
-Otherwise, create the strict sequential task structure before debugging:
+**Use a task chain instead** when the bug spans multiple files/components, the root
+cause is unclear enough to need a dedicated analysis phase, or the fix will span
+multiple sessions and needs progress tracking across them. In that case, before
+Phase 0, create six tasks (Discovery, Reproduce & Analyze, Plan, Implement, Verify,
+Commit) with a strict sequential chain — each `addBlockedBy` the one before it:
 
 ```
-TaskCreate:
-  subject: "Phase 0: Discover project workflow"
-  description: "Identify test, lint, debug commands from CLAUDE.md and task runners"
-  activeForm: "Discovering project workflow"
-
-TaskCreate:
-  subject: "Phase 1: Reproduce and analyze bug"
-  description: "Locate failing test, reproduce bug, identify root cause"
-  activeForm: "Analyzing bug"
-
-TaskCreate:
-  subject: "Phase 2: Plan fix"
-  description: "Design minimal fix approach"
-  activeForm: "Planning fix"
-
-TaskCreate:
-  subject: "Phase 3: Implement fix"
-  description: "Apply fix and verify test passes"
-  activeForm: "Implementing fix"
-
-TaskCreate:
-  subject: "Phase 4: Verify quality"
-  description: "Run full test suite, lint, type-check"
-  activeForm: "Verifying fix quality"
-
-TaskCreate:
-  subject: "Phase 5: Final commit"
-  description: "Create conventional commit with fix details"
-  activeForm: "Creating final commit"
-
-# Set up strict sequential chain
+TaskCreate: { subject: "Phase 0: Discover project workflow", activeForm: "Discovering project workflow" }
+TaskCreate: { subject: "Phase 1: Reproduce and analyze bug", activeForm: "Analyzing bug" }
+TaskCreate: { subject: "Phase 2: Plan fix", activeForm: "Planning fix" }
+TaskCreate: { subject: "Phase 3: Implement fix", activeForm: "Implementing fix" }
+TaskCreate: { subject: "Phase 4: Verify quality", activeForm: "Verifying fix quality" }
+TaskCreate: { subject: "Phase 5: Final commit", activeForm: "Creating final commit" }
 TaskUpdate: { taskId: "2", addBlockedBy: ["1"] }
 TaskUpdate: { taskId: "3", addBlockedBy: ["2"] }
 TaskUpdate: { taskId: "4", addBlockedBy: ["3"] }
 TaskUpdate: { taskId: "5", addBlockedBy: ["4"] }
 TaskUpdate: { taskId: "6", addBlockedBy: ["5"] }
-
-# Start first task
 TaskUpdate: { taskId: "1", status: "in_progress" }
 ```
 
-**Step 0.2: Discover Project Workflow**
+**Task lifecycle rule** (applies to every phase below when a chain exists — not
+repeated per phase): mark that phase's task `in_progress` the moment you start it,
+and `status: "completed"` immediately before moving to the next phase, then run
+`TaskList` to confirm the next task unblocked.
 
-Use Haiku-powered Explore agent for token-efficient discovery:
+**Portability**: no `Task`/`TaskCreate` tools in this environment? Always use the
+inline path above — the phases are the methodology, the task tooling is just how
+Claude Code tracks and parallelizes them in the multi-file case.
 
-```
-Use Task tool with Explore agent:
-- prompt: "Discover the development workflow for this project:
-    1. Read CLAUDE.md if it exists - extract debugging and testing conventions
-    2. Check for task runners: Makefile, justfile, package.json scripts, pyproject.toml scripts
-    3. Identify the test command (e.g., make test, just test, npm test, pytest, bun test)
-    4. Identify how to run a single test or test file
-    5. Identify the lint command (e.g., make lint, npm run lint, ruff check)
-    6. Identify the type-check command if applicable
-    7. Identify the dev server command if this is a web app
-    8. Check for debugging tools (pytest -v, npm run test:debug, etc.)
-    9. Note any pre-commit hooks or quality gates
-    Return a structured summary of all available commands."
-- subagent_type: "Explore"
-- model: "haiku"  # Token-efficient for discovery
-```
+## Phase 0: Project Discovery
 
-Store discovered commands for use in later phases — guessing at a test framework wastes a cycle when the wrong command silently no-ops.
+Discover the project's test, lint, and type-check commands before touching anything —
+guessing wastes a cycle when the wrong command silently no-ops.
 
-**Step 0.3: Complete Phase 0**
+If the codebase is large or unfamiliar, offload this to an Explore subagent:
 
 ```
-TaskUpdate: { taskId: "1", status: "completed" }
-TaskList  # Check that Task 2 is now unblocked
+Task tool, Explore agent, model haiku:
+"Discover the development workflow for this project:
+ 1. Read CLAUDE.md/AGENTS.md if present — extract debugging/testing conventions.
+ 2. Check task runners: Makefile, justfile, package.json scripts, pyproject.toml.
+ 3. Identify the test command, and how to run a single test/file.
+ 4. Identify the lint and type-check commands.
+ 5. Identify the dev server command if this is a web app.
+ 6. Note pre-commit hooks or other quality gates.
+ Return a structured summary of all available commands."
 ```
 
-### Phase 1: Bug Analysis & Reproduction
+Otherwise just check these yourself with Read/Grep. Store what you find — it's used
+in every later phase.
 
-**Goal**: Understand the bug, locate it in code, and reproduce it reliably.
+## Phase 1: Bug Analysis & Reproduction
 
-**Step 1.0: Start Phase 1**
+**Goal**: understand the bug, locate it in code, reproduce it reliably.
 
-```
-TaskUpdate: { taskId: "2", status: "in_progress" }
-```
+1. **Understand symptoms.** If given an issue ID, read it (`gh issue view`, `jira issue view`, etc.). Identify expected vs. actual behavior and any error messages.
 
-**Step 1.1: Understand Bug Symptoms**
-
-If the user provided an issue ID or bug description:
-- Read the issue/ticket if accessible (use Bash with `gh issue view` or `jira issue view` if available)
-- Understand expected vs actual behavior
-- Identify error messages or symptoms
-
-If the user did not provide clear symptoms, use `AskUserQuestion` to clarify expected behavior, actual behavior, reproduction steps, and whether an existing failing test exists.
-
-**Step 1.2: Locate or Create Failing Test**
-
-Search for existing test coverage using Grep. If no test exists for this bug:
-- Create a minimal failing test that reproduces the bug
-- Place it in appropriate test file following project conventions
-- Use discovered test patterns from existing tests
-
-**Step 1.3: Reproduce the Bug**
-
-Run the specific test using discovered test command. **CRITICAL**: Verify the test actually fails. Capture error output.
-
-**Step 1.4: Root Cause Analysis**
-
-For simple, localized bugs, skip the fan-out below and just grep/read the relevant file directly. Reserve parallel agents for bugs spanning multiple files or with unclear scope.
-
-Use parallel subagents for comprehensive analysis with Haiku for exploration:
+   **If the report is too vague to reproduce** (no expected/actual behavior, no repro steps, no error message — e.g. "something is broken sometimes"): stop here. Call `AskUserQuestion`; if that tool isn't available, end your turn with the specific questions in your final message instead — reproduction steps, expected vs. actual behavior, environment/error messages — and go no further. Do not infer a root cause from a code read alone or invent your own repro scaffolding to stand in for a real report. Running in an automated, sandboxed, or non-interactive context is not a reason to guess instead of asking — it's a reason to put the questions in the final message rather than wait for a reply.
+2. **Locate or create a failing test.** Grep for existing coverage. If none exists, write a minimal test that reproduces the bug, in the location and style the existing test suite uses.
+3. **Reproduce it — a hard gate, not prose.** Run the reproduction test against the current (unfixed) code with the discovered test command, and show the actual failing output before touching the fix. If the report names a specific symptom (e.g. "double-charges on retry"), confirm the assertion for *that* symptom is what fails — a suite with some unrelated test failing while the reported-symptom assertion already passes is not a reproduction. If the test passes pre-fix, the reproduction is wrong: stop, don't proceed to Phase 2, and rewrite the test until it actually captures the reported bug. A test that never failed proves nothing about the fix you're about to write.
+4. **Find the root cause.** For a localized bug, just grep/read the relevant file yourself. Reserve parallel subagents for bugs spanning multiple files or with unclear scope:
 
 ```
-Agent 1 - Bug Location (Explore, Haiku):
-  prompt: "Find the exact location of the bug (file path, line numbers),
-          read the buggy code and surrounding context,
-          identify why the code produces the wrong behavior,
-          provide evidence (stack trace, variable values, control flow)."
-  subagent_type: "Explore"
-  model: "haiku"  # Token-efficient for code exploration
+Agent 1 (Explore, haiku) — Bug Location:
+  "Find the exact bug location (file:line), read the buggy code and its
+   surrounding context, explain why it produces the wrong behavior, and
+   provide evidence (stack trace, variable values, control flow)."
 
-Agent 2 - Impact Analysis (Explore, Haiku):
-  prompt: "Search the codebase for other code affected by the same issue,
-          similar patterns with the same bug, related tests that might fail,
-          dependencies or callers of the buggy code."
-  subagent_type: "Explore"
-  model: "haiku"  # Token-efficient for codebase search
+Agent 2 (Explore, haiku) — Impact Analysis:
+  "Search the codebase for other code affected by the same issue, similar
+   patterns with the same bug, related tests that might also fail, and
+   callers of the buggy code."
 
-Agent 3 - Research (general-purpose, Haiku, only if external library involved):
-  prompt: "Search for documented solutions or patterns for this type of bug
-          in [LIBRARY_NAME] library using Context7 and web search."
-  subagent_type: "general-purpose"
-  model: "haiku"  # Token-efficient for research
+Agent 3 (general-purpose, haiku, only if an external library is implicated):
+  "Search Context7/web for documented solutions or known issues matching
+   this bug in [LIBRARY_NAME]."
 ```
 
-**Step 1.5: Confirm Root Cause**
+5. **Confirm the theory.** Re-read the buggy code and check it explains every symptom, including edge cases. If still uncertain, use `AskUserQuestion` before writing a fix on an unconfirmed theory.
 
-Before proceeding, verify the analysis:
-- Re-read the buggy code
-- Confirm the theory explains all symptoms
-- Check for edge cases or additional factors
+## Phase 2: Fix Planning
 
-If uncertain, use `AskUserQuestion` to validate understanding.
+**Goal**: a minimal, focused fix that addresses the root cause without side effects.
 
-**Step 1.6: Complete Phase 1**
+Design a fix that:
+1. Addresses only the root cause — no drive-by refactoring.
+2. Follows the project's existing patterns.
+3. Has minimal scope (fewest lines changed).
+4. Introduces no breaking changes.
+5. Handles the edge cases found in Phase 1.
+6. Never trims validation, error/data-loss handling, or security to keep the diff small — scope is what shrinks, not the safety floor. If a full fix isn't feasible right now, ship the safe partial fix and leave `// LEAN-DEBT: <limitation>. Upgrade when <trigger>.` rather than silently shipping the gap.
 
-```
-TaskUpdate: { taskId: "2", status: "completed" }
-TaskList  # Check that Task 3 is now unblocked
-```
+**Get approval for non-trivial fixes**: if the fix touches >3 files, modifies a
+public API, has performance implications, or is otherwise breaking, use
+`AskUserQuestion` to present the plan before implementing.
 
-### Phase 2: Fix Planning
+## Phase 3: Implementation
 
-**Goal**: Design a minimal, focused fix that addresses the root cause without side effects.
+1. Apply the fix with Edit — minimal, focused changes.
+2. Run the specific failing test and confirm it now passes. If it doesn't, that means the root-cause theory was wrong or incomplete — go back to Phase 1, not to a bigger patch on top of the current one.
+3. Run the full test suite to check for side effects.
+4. If new failures appear, adjust the fix (or correct a wrongly-specified test) and repeat until everything passes.
 
-**Step 2.1: Start Phase 2**
+## Phase 4: Quality Verification
 
-```
-TaskUpdate: { taskId: "3", status: "in_progress" }
-```
+Run all quality checks using the commands discovered in Phase 0, then confirm every
+line of this checklist — it's the single authoritative copy, used at completion time:
 
-**Step 2.2: Design Fix Approach**
-
-Use a subagent for fix design that:
-1. Addresses ONLY the root cause (no refactoring)
-2. Follows existing code patterns in this project
-3. Has minimal scope (fewest lines changed)
-4. Does not introduce breaking changes
-5. Handles edge cases identified
-6. Never trims validation, error/data-loss handling, or security to keep the diff small — a minimal fix is about scope, not about dropping the floor. If a full fix isn't feasible right now, apply the safe partial fix and leave `// LEAN-DEBT: <limitation>. Upgrade when <trigger>.` instead of silently shipping the gap.
-
-**Get Approval for Non-Trivial Fixes**: If the fix involves changes to >3 files, modifications to public APIs, potential performance implications, or breaking changes, use `AskUserQuestion` to present the plan and get approval.
-
-**Step 2.3: Complete Phase 2**
-
-```
-TaskUpdate: { taskId: "3", status: "completed" }
-TaskList  # Check that Task 4 is now unblocked
-```
-
-### Phase 3: Implementation
-
-**Goal**: Implement the fix following the plan, ensuring tests pass.
-
-**Step 3.1: Start Phase 3**
-
-```
-TaskUpdate: { taskId: "4", status: "in_progress" }
-```
-
-**Step 3.2: Apply Fix**
-
-1. **Implement the Fix** - Use the Edit tool to make minimal, focused changes. Use Sonnet (default model) for code implementation.
-2. **Verify Locally** - Run the specific failing test. **CRITICAL**: The test must now PASS. If not, re-analyze and repeat.
-3. **Test for Side Effects** - Run full test suite using discovered commands
-4. **Fix Any New Failures** - Adjust the fix or update tests if incorrectly specified. Repeat until all tests pass.
-
-**Step 3.3: Complete Phase 3**
-
-```
-TaskUpdate: { taskId: "4", status: "completed" }
-TaskList  # Check that Task 5 is now unblocked
-```
-
-### Phase 4: Quality Verification
-
-**Step 4.1: Start Phase 4**
-
-```
-TaskUpdate: { taskId: "5", status: "in_progress" }
-```
-
-**Step 4.2: Run Quality Checks**
-
-Run all quality checks using discovered commands from Phase 0. **Quality Gates Checklist**:
 - [ ] Previously failing test now passes
-- [ ] All existing tests still pass
-- [ ] No new linting errors introduced
-- [ ] No type errors (if typed language)
-- [ ] Fix addresses root cause only
-- [ ] No unnecessary refactoring
-- [ ] Minimal, focused changes
-- [ ] Follows existing code patterns
+- [ ] Full test suite passes (no regressions)
+- [ ] No new linting errors
+- [ ] No new type errors (if the language is typed)
+- [ ] Fix addresses the root cause only, no unrelated refactoring
+- [ ] Change is minimal and follows existing code patterns
+- [ ] Any partial fix carries a `LEAN-DEBT` marker (see Phase 2)
 
-**If any check fails**: Fix the issue before proceeding. Do not commit broken code. Keep task as `in_progress` until all gates pass.
+If any item fails, fix it before proceeding — don't commit broken code, and don't
+mark the phase complete until every box is checked.
 
-**Step 4.3: Complete Phase 4**
+## Phase 5: Final Commit
 
-```
-TaskUpdate: { taskId: "5", status: "completed" }
-TaskList  # Check that Task 6 is now unblocked
-```
-
-### Phase 5: Final Commit
-
-**Step 5.1: Start Phase 5**
-
-```
-TaskUpdate: { taskId: "6", status: "in_progress" }
-```
-
-**Step 5.2: Create Commit**
-
-If the `git-commit` skill is available, use it. Otherwise, create a conventional commit manually:
+If the `git-commit` skill is available, use it. Otherwise commit manually:
 
 ```bash
 git add [files modified]
 git commit -m "fix: [concise description of what was fixed]
 
-- [Detail about root cause]
-- [Detail about solution approach]
-- [Reference to issue/ticket if applicable]
+- [Root cause]
+- [Solution approach]
+- [Issue/ticket reference if applicable]
 
 Closes #[ISSUE_NUMBER]"
 ```
 
-**Step 5.3: Complete Phase 5 and Bug Fix**
+## Phase 6: Verification Summary
 
-```
-TaskUpdate: { taskId: "6", status: "completed" }
-TaskList  # Show final status - all tasks should be completed
-```
-
-### Phase 6: Verification Summary
-
-Report to the user with: bug description, root cause (with file:line references), solution, files modified, test results (previously failing test, full suite, linting, type checking), commit info, and next steps.
+Report to the user: bug description, root cause (file:line), the fix, files
+modified, test results (previously-failing test, full suite, lint, type-check —
+each pulled from the command output you actually ran, never invented), commit
+info, and any `LEAN-DEBT` markers left behind.
 
 ## Additional Resources
 
-For detailed examples, argument parsing, browser testing integration, and error handling patterns, see:
-- [references/examples.md](references/examples.md) - Usage examples, argument parsing, browser testing, and error handling
+- [references/examples.md](references/examples.md) — worked examples, argument
+  parsing for optional flags (`--branch`, `--interactive`, `--test-only`), browser
+  testing integration, and error-handling patterns (test-still-fails, ambiguous
+  report, can't reproduce, multiple root causes). Load when you need one of those
+  specifics; the phases above are sufficient for a standard fix.
 
 ## Important Notes
 
-- **Always run Phase 0 first**: Never assume which tools are available
-- **Test-driven is critical**: See the test fail before fixing
-- **Minimal changes**: Fix the bug, do not refactor unrelated code
-- **Evidence-based**: Reference actual file paths and line numbers
-- **All tests must pass**: Never commit code with failing tests
-- **Ask when unsure**: Better to clarify than to guess incorrectly
-- **Browser testing is optional**: Only when relevant and tools available
-- **Document the fix**: Clear commit message explaining root cause and solution
+- **Test-driven**: see the test fail before writing the fix.
+- **Minimal changes**: fix the bug, don't refactor unrelated code.
+- **Evidence-based**: cite real file paths and line numbers, never a guess.
+- **All tests must pass** before this is done; never commit with failing tests.
+- **Ask when unsure** — clarifying is cheaper than guessing wrong and redoing it.
+- **Browser testing is optional** — only when the bug is UI-facing and the tooling is available (see references/examples.md).

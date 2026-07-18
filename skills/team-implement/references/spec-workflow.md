@@ -2,6 +2,8 @@
 
 This document provides detailed technical specifications for the `team-implement` skill's workflow engine, including input detection, complexity assessment, phase transitions, and quality gates.
 
+**Read this as pseudocode, not literal code.** The Python classes/functions below describe the *conceptual* rules an orchestrating agent follows — there is no actual Python engine executing them. The real "implementation" is the orchestrator LLM reading `.specs/` files and making real tool calls (`Task`, `SendMessage`, `TaskCreate`, `TaskUpdate`, `TaskStop`, or whatever this environment's equivalents are). Don't treat a class/function name here as a tool that exists.
+
 ## 1. Input Source Detection
 
 The orchestrator must automatically detect and ingest requirements from various sources based on `$ARGUMENTS`.
@@ -385,12 +387,12 @@ None (orchestrator only)
 - Requirements contain ambiguities or gaps
 
 **Actions (Full Mode):**
-1. Spawn product-manager agent
-2. Product manager analyzes requirements
-3. Product manager generates clarifying questions
+1. Spawn product-lead agent
+2. Product Lead analyzes requirements
+3. Product Lead generates clarifying questions
 4. Orchestrator presents questions to user via SendMessage
 5. User responds
-6. Product manager validates responses
+6. Product Lead validates responses
 7. Loop until all ambiguities resolved
 
 **Actions (Lite Mode):**
@@ -412,10 +414,10 @@ None (orchestrator only)
 
 **Failure Handling:**
 - If user provides incomplete answers: re-ask with more context
-- If questions are unclear: product manager revises
+- If questions are unclear: product lead revises
 
 **Agent Spawning (Full Mode):**
-- **Wave 1**: product-manager, scrum-master
+- **Wave 1**: product-lead
 
 ### Phase 2: Specification
 
@@ -424,14 +426,14 @@ None (orchestrator only)
 - All clarifications resolved
 
 **Actions (Full Mode):**
-1. Product manager drafts detailed specification
+1. Product Lead drafts detailed specification
 2. Specification includes:
    - Feature overview
    - User stories with acceptance criteria
    - Functional requirements
    - Non-functional requirements (security, performance, accessibility)
    - Success metrics
-3. Scrum master reviews specification
+3. Product Lead self-reviews against the completeness checklist below
 4. Write `02-specification.md`
 
 **Actions (Lite Mode):**
@@ -450,7 +452,7 @@ None (orchestrator only)
 - Non-functional requirements specified
 
 **Failure Handling:**
-- If spec incomplete: product manager revises (max 2 retries)
+- If spec incomplete: product lead revises (max 2 retries)
 - If acceptance criteria unclear: loop back to Phase 1
 
 **Agent Spawning:**
@@ -551,14 +553,14 @@ None (uses existing Wave 1 agents in full mode)
 - Architecture approved (0 BLOCKERs)
 
 **Actions (Full Mode):**
-1. Scrum master (from Wave 1) breaks down work into tasks
+1. Product Lead (from Wave 1) breaks down work into tasks
 2. Each task includes:
    - Task ID (sequential)
    - Title and description
    - Acceptance criteria
    - Estimated effort (S/M/L)
    - Dependencies (blocks/blocked-by)
-   - Owner (frontend-dev, backend-dev, etc.)
+   - Owner (frontend-engineer, backend-engineer, etc.)
    - Files to modify
 3. Generate dependency graph (Mermaid)
 4. Write `05-tasks.md`
@@ -582,11 +584,11 @@ None (uses existing Wave 1 agents in full mode)
 - Tasks map to architecture components
 
 **Failure Handling:**
-- If task breakdown incomplete: scrum master revises
+- If task breakdown incomplete: product lead revises
 - If dependencies invalid: regenerate task graph
 
 **Agent Spawning:**
-None (re-uses Wave 1 scrum-master in full mode)
+None (re-uses Wave 1 product-lead in full mode)
 
 ### USER APPROVAL GATE
 
@@ -631,9 +633,9 @@ None (gate only)
 
 **Actions (Full Mode):**
 1. Spawn implementation agents in parallel:
-   - frontend-dev (if frontend tasks exist)
-   - backend-dev (if backend tasks exist)
-   - infra-dev (if infrastructure tasks exist)
+   - frontend-engineer (if frontend tasks exist)
+   - backend-engineer (if backend tasks exist)
+   - infra-engineer (if infrastructure tasks exist)
 2. Each agent:
    - Claims tasks from Task Management System
    - Implements according to architecture
@@ -667,7 +669,7 @@ None (gate only)
 - If implementation diverges from spec: trigger architecture review
 
 **Agent Spawning (Full Mode):**
-- **Wave 5**: frontend-dev, backend-dev, infra-dev (parallel)
+- **Wave 4**: frontend-engineer, backend-engineer, infra-engineer (parallel)
 
 ### Phase 7: Quality Assurance
 
@@ -688,9 +690,9 @@ None (gate only)
    - Re-spawn dev agent to fix
    - Re-run QA
 4. Optionally spawn specialized agents based on spec:
-   - security-agent (if security-sensitive)
-   - perf-agent (if performance requirements)
-   - infra-agent (if deployment changes)
+   - security-engineer (if security-sensitive)
+   - performance-engineer (if performance requirements)
+   - devops-engineer (if deployment changes)
 5. Write QA report
 
 **Actions (Lite Mode):**
@@ -715,7 +717,7 @@ None (gate only)
 - If coverage insufficient: add tests
 
 **Agent Spawning (Full Mode):**
-- **Wave 6**: qa-engineer + optional security-agent, perf-agent, infra-agent
+- **Wave 5**: qa-engineer + optional security-engineer, performance-engineer, devops-engineer
 
 ### Phase 8: Documentation & Delivery
 
@@ -755,7 +757,7 @@ None (gate only)
 - If delivery summary missing details: regenerate
 
 **Agent Spawning (Full Mode):**
-- **Wave 7**: tech-writer
+- **Wave 6**: tech-writer
 
 ### Phase 9: Teardown
 
@@ -764,7 +766,7 @@ None (gate only)
 
 **Actions (Both Modes):**
 1. Shut down all active teammates (if full mode)
-2. Clean up team resources (Teammate cleanup operation)
+2. Stop each one with this environment's real stop primitive (`TaskStop` in Claude Code) — don't assume a dedicated "cleanup" call exists
 3. Archive spec directory
 4. Update global Task Management System
 5. Log session metrics (optional)
@@ -817,7 +819,7 @@ AGENT_WAVES = [
     AgentWave(
         wave_id=1,
         phase_range=(1, 2),  # Phases 1-2: Clarifying Questions & Specification
-        agents=['product-manager', 'scrum-master']
+        agents=['product-lead']
     ),
     AgentWave(
         wave_id=2,
@@ -829,19 +831,19 @@ AGENT_WAVES = [
         phase_range=(4, 4),  # Phase 4: Adversarial Review
         agents=['adversary-reviewer']
     ),
-    # Note: Wave 1 scrum-master is re-used in Phase 5, not re-spawned
+    # Note: Wave 1 product-lead is re-used in Phase 5, not re-spawned
+    AgentWave(
+        wave_id=4,
+        phase_range=(6, 6),  # Phase 6: Implementation
+        agents=['frontend-engineer', 'backend-engineer', 'infra-engineer']  # Conditional spawning
+    ),
     AgentWave(
         wave_id=5,
-        phase_range=(6, 6),  # Phase 6: Implementation
-        agents=['frontend-dev', 'backend-dev', 'infra-dev']  # Conditional spawning
+        phase_range=(7, 7),  # Phase 7: Quality Assurance
+        agents=['qa-engineer']  # + optional security-engineer, performance-engineer, devops-engineer
     ),
     AgentWave(
         wave_id=6,
-        phase_range=(7, 7),  # Phase 7: Quality Assurance
-        agents=['qa-engineer']  # + optional security-agent, perf-agent, infra-agent
-    ),
-    AgentWave(
-        wave_id=7,
         phase_range=(8, 8),  # Phase 8: Documentation & Delivery
         agents=['tech-writer']
     ),
@@ -863,15 +865,15 @@ def determine_implementation_agents(tasks: list[Task]) -> list[str]:
     has_infra = any('infra' in task.tags or 'deployment' in task.tags for task in tasks)
 
     if has_frontend:
-        agents.append('frontend-dev')
+        agents.append('frontend-engineer')
     if has_backend:
-        agents.append('backend-dev')
+        agents.append('backend-engineer')
     if has_infra:
-        agents.append('infra-dev')
+        agents.append('infra-engineer')
 
     # Default to backend if no specific tags
     if not agents:
-        agents.append('backend-dev')
+        agents.append('backend-engineer')
 
     return agents
 
@@ -881,15 +883,15 @@ def determine_qa_agents(spec: dict) -> list[str]:
 
     # Check for security requirements
     if spec.get('security_requirements') or 'auth' in spec.get('description', '').lower():
-        agents.append('security-agent')
+        agents.append('security-engineer')
 
     # Check for performance requirements
     if spec.get('performance_requirements') or 'real-time' in spec.get('description', '').lower():
-        agents.append('perf-agent')
+        agents.append('performance-engineer')
 
     # Check for infrastructure changes
     if spec.get('deployment_requirements') or 'infrastructure' in spec.get('description', '').lower():
-        agents.append('infra-agent')
+        agents.append('devops-engineer')
 
     return agents
 ```
@@ -923,15 +925,15 @@ async def shutdown_wave(wave: AgentWave, orchestrator: Agent):
 
 ### Agent Re-Use
 
-The scrum-master agent from Wave 1 is re-used in Phase 5 (Task Decomposition) instead of being shut down and re-spawned:
+The product-lead agent from Wave 1 is re-used in Phase 5 (Task Decomposition) instead of being shut down and re-spawned:
 
 ```python
 # In Phase 2 → Phase 3 transition
-# Do NOT shut down scrum-master
-shutdown_agents = ['product-manager']  # Keep scrum-master alive
+# Do NOT shut down product-lead
+shutdown_agents = ['product-lead']  # Keep product-lead alive
 
 # In Phase 5
-# scrum-master is already active from Wave 1
+# product-lead is already active from Wave 1
 # Send task decomposition request directly
 ```
 
@@ -1529,7 +1531,7 @@ def detect_circular_dependencies(tasks: list[dict]) -> list[list[str]]:
 ```
 
 **Recovery:**
-1. Report cycle to scrum-master or orchestrator
+1. Report cycle to product-lead or orchestrator
 2. Request task graph revision
 3. Re-validate after revision
 
@@ -1547,7 +1549,7 @@ async def handle_circular_dependencies(cycles: list[list[str]]):
 
     # Request revision
     await send_message(
-        recipient='scrum-master',
+        recipient='product-lead',
         type='message',
         content=f'Circular dependencies detected in task graph:\n\n' +
                 '\n'.join(f'- {cd}' for cd in cycle_descriptions) +

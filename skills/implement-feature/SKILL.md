@@ -2,11 +2,13 @@
 name: implement-feature
 description: Implements a new feature end-to-end as a senior staff engineer would —
   discovers project conventions, researches current best practices, drafts a plan for
-  approval, then builds it with parallel subagents that reuse existing code, skip
-  speculative abstractions, and verify with tests before completion. Use when the user
-  wants to implement, build, add, or ship new functionality (a feature, endpoint,
-  component, module, or integration) — not for fixing an existing bug (use fix-bug) or
-  restructuring code that already works (use refactor).
+  approval, then builds it (with parallel subagents where available) reusing existing
+  code, skipping speculative abstractions, and verifying with tests before completion.
+  Use when the user wants to implement, build, add, or ship new functionality (a
+  feature, endpoint, component, module, or integration). Not for fixing an existing bug
+  (use fix-bug), restructuring code that already works with no new behavior (use
+  refactor), or a large multi-service build that explicitly needs a full adaptive team
+  of 3-11 agents (use team-implement).
 disable-model-invocation: false
 argument-hint: "<feature_description>"
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, Task, TaskCreate, TaskUpdate, TaskList, TaskGet, WebFetch, EnterPlanMode, AskUserQuestion, ExitPlanMode
@@ -14,7 +16,12 @@ allowed-tools: Read, Write, Edit, Bash, Grep, Glob, Task, TaskCreate, TaskUpdate
 
 # Feature Implementation
 
-Implement a new feature as a **Senior Staff Engineer** following best practices (SOLID, DRY, YAGNI) to create a secure, fast, and reliable production application.
+Implement a new feature as a **Senior Staff Engineer** would — SOLID, DRY, YAGNI — to
+produce a secure, fast, reliable change.
+
+This skill produces exactly one of two outputs: an implemented feature (Phases 0-6
+below), or — when the Ambiguity Gate at the start of Phase 0 fails — 2-3 clarifying
+questions and nothing else. Never both in the same turn.
 
 ## Feature to Implement
 
@@ -22,11 +29,14 @@ $ARGUMENTS
 
 ## Anti-Hallucination Guidelines
 
-**CRITICAL**: Before implementing anything:
-1. **Discover project commands first** - Do NOT assume `bun`, `npm`, `make`, etc. exist
-2. **Read CLAUDE.md** - Every project may have different conventions
-3. **Verify tools exist** - Check for `Makefile`, `justfile`, `package.json`, `pyproject.toml`, etc.
-4. **Never guess test commands** - Find the actual test runner used by this project
+Before implementing anything:
+1. Discover project commands first — do not assume `bun`, `npm`, `make`, etc. exist.
+2. Read CLAUDE.md — every project has different conventions.
+3. Verify tools exist — check for `Makefile`, `justfile`, `package.json`, `pyproject.toml`.
+4. Never guess the test command — find the one this project actually uses.
+5. Any number reported at the end (files changed, tests added, pass count) must come
+   from a command actually run in this session — never state a count or percentage
+   you didn't verify by running something.
 
 ## Lean Code
 
@@ -43,437 +53,198 @@ Write the smallest change that fully does the job — and that the next person c
 - **Read before you change.** Trace the real flow of the code you touch, end to end, first. A tiny diff written without understanding is a liability, not lean.
 
 **The line you never cross — lean, never negligent**
-"Only what the task needs" is about scope, not corner-cutting. Input/trust-boundary validation, error and data-loss handling, security, and accessibility are **always** in scope, however small the change. A version that drops one of these isn't leaner — it's unfinished.
+"Only what the task needs" is about scope, not corner-cutting. Input/trust-boundary validation, error and data-loss handling, security, and accessibility are always in scope, however small the change. A version that drops one of these isn't leaner — it's unfinished.
 
 **When you deliberately simplify**
 Leave an auditable trail instead of a silent gap:
 `// LEAN-DEBT: <the limitation>. Upgrade when <the trigger>.`
 e.g. `// LEAN-DEBT: in-memory rate limit, single instance only. Upgrade to Redis when we run >1 replica.`
-A marker is for a shortcut you chose on purpose — never a license to skip the never-negligent line above.
+A marker is for a shortcut chosen on purpose — never a license to skip the never-negligent line above.
 
 ## Verification Gates
 
-Before marking an implementation complete, run these verification steps:
+Before marking an implementation complete, run the project's real commands (discovered in Phase 0) and require all of them to pass:
+1. **Test suite** — e.g. `make test`, `npm test`, `pytest`.
+2. **Lint** — e.g. `make lint`, `npm run lint`, `ruff check`.
+3. **Type check / build** — if the project has one.
 
-### Completion Verification
+Any check fails → keep working, do not mark complete. Command not found → go back to Phase 0 discovery, don't guess one.
 
-**Verification Steps:**
-1. **Test Suite**: Run the discovered test command from Phase 0 (e.g., `make test`, `npm test`, `pytest`). All tests must pass.
-2. **Linting**: Run the discovered lint command from Phase 0 (e.g., `make lint`, `npm run lint`, `ruff check`). No lint errors.
-3. **Type Checking**: If applicable, run the type-check or build command.
+## Task Tracking: Opt-In, Not Default
 
-**Completion Criteria:**
-- ✅ **All checks pass**: Implementation is complete
-- ❌ **Any check fails**: Do not mark complete — keep working to fix the issues
-- ℹ️ **Commands not found**: Discover them from CLAUDE.md or project files (Makefile/package.json/pyproject.toml)
+Create Task-system entries (`TaskCreate`/`TaskUpdate`) **only** when the feature crosses
+one of these:
+- touches **4+ files**, or
+- needs **3+ of the phases below tracked as separately-blocked work** (e.g. genuine parallel subagent workstreams).
 
-## Task Management
+Below that threshold — the common 3-5-file feature — run the phases in order below as
+plain sequential work with **no** task-system calls at all. The phase structure is the
+contract; the task ceremony is bookkeeping for when there's enough concurrent work to
+need it.
 
-This skill uses Claude Code's Task Management System to track implementation progress with dependency-aware task tracking.
+When the threshold is crossed, see `references/task-best-practices.md` for the literal
+6-task dependency chain (call templates, parallel child-task pattern, antipatterns to
+avoid) — set it up once at the start of Phase 0, then flip status at the start/end of
+each phase.
 
-**When to Use Tasks:**
-- Complex multi-step implementations (3+ phases)
-- Features with parallel subagent work
-- Work requiring progress tracking across sessions
+**No `Task`/`TaskCreate` tools available?** Skip task tracking and subagent parallelism
+regardless of size — work through every phase below yourself, sequentially, in order.
+Nothing about the workflow's correctness depends on the task system; it only depends on
+doing Discovery → Research → Plan → Implement → Verify → Commit in that order.
 
-**When to Skip Tasks:**
-- Simple 1-2 file changes
-- Trivial bug fixes
-- Quick refactorings
-
-**Task Structure:**
-Each implementation creates tasks for all 6 phases with dependencies, tracking progress and blocking relationships. Tasks support parallel execution where independent work can proceed simultaneously.
-
-See `references/task-best-practices.md` for dependency-pattern diagrams (sequential chain, parallel convergence, diamond) and common antipatterns to avoid.
-
-**Portability:** No `Task`/`TaskCreate` tools available? Skip task tracking and subagent parallelism — work through the phases below yourself, sequentially. The 6-phase structure is the actual contract; parallel subagents are an optimization on top of it, not a requirement.
+**Running in an eval or sandbox harness?** Never call the real session
+`Task`/`TaskCreate`/`TaskUpdate`/`TaskList` tools there — those would mutate the
+operator's actual task list. If the prompt asks you to record intended calls into a file
+instead (e.g. `outputs/tasks.json`), write the full task chain there and treat that file
+as the graded deliverable, rather than skipping ceremony or only narrating it in prose.
 
 ## Implementation Workflow
 
-**Task tracking replaces TodoWrite.** Create task structure at start, update as completing each phase.
+### Phase 0: Ambiguity Gate & Project Discovery (required)
 
-### Phase 0: Project Discovery (REQUIRED)
+**Step 0.0: Ambiguity gate — check this before anything else, including task creation.**
 
-**Step 0.0: Size Check**
+Can you name the concrete behavior to build — what surface, what data, what constraints
+— without inventing any load-bearing decision yourself? Missing small details (exact
+copy, minor styling, file layout) doesn't fail this check; note the assumption and keep
+going. Fails when the request leaves open multiple structurally different
+implementations and picking one means guessing at a decision the user would want to
+make themselves — e.g. "add support for team accounts" with no team size limit, billing
+model, permission roles, or invitation flow specified.
 
-If this is a 1-2 file change or a trivial implementation, skip task creation entirely — go straight to discovery and implementation. The 6-phase task structure below is for multi-step features, not ceremony for its own sake.
+If it fails: end your response with 2-3 concrete clarifying questions about the
+ambiguous decision points (`AskUserQuestion` if available, else plain prose) and produce
+nothing else — no task-system entries, no plan, no file created or modified, no command
+run, no commit. Code built on a guessed requirement has to be audited line-by-line
+against what the user actually meant, which costs more than asking first.
 
-**Step 0.1: Create Task Structure**
+If it passes, continue to Step 0.1.
 
-Before starting implementation, create the dependency-aware task structure:
+**Step 0.1: Discover project commands.**
 
-```
-TaskCreate:
-  subject: "Phase 0: Discover project workflow"
-  description: "Identify test, lint, build, dev server commands from CLAUDE.md and task runners"
-  activeForm: "Discovering project workflow"
+Above the size threshold, create the 6-task chain now (see reference doc); mark this
+phase `in_progress`.
 
-TaskCreate:
-  subject: "Phase 1: Research best practices"
-  description: "Web search and Context7 research for [FEATURE]"
-  activeForm: "Researching best practices"
+Identify the project's real test, lint, type-check, build, and dev-server commands:
+read CLAUDE.md, then check for `Makefile`, `justfile`, `package.json` scripts,
+`pyproject.toml`. If a Task tool is available, delegate this to an Explore/`haiku`
+subagent (cheap, token-efficient for a read-only lookup); otherwise read the files
+yourself. Store whatever you find — every later phase uses these exact commands, never
+assumed ones.
 
-TaskCreate:
-  subject: "Phase 2: Create implementation plan"
-  description: "Enter plan mode and get user approval"
-  activeForm: "Creating implementation plan"
-
-TaskCreate:
-  subject: "Phase 3: Implement feature"
-  description: "Execute implementation with parallel subagents"
-  activeForm: "Implementing feature"
-
-TaskCreate:
-  subject: "Phase 4: Verify implementation"
-  description: "Run full test suite, lint, type-check"
-  activeForm: "Verifying implementation"
-
-TaskCreate:
-  subject: "Phase 5: Final commit"
-  description: "Create conventional commit with summary"
-  activeForm: "Creating final commit"
-
-# Set up dependencies (strict sequential chain)
-TaskUpdate: { taskId: "2", addBlockedBy: ["1"] }  # Research after Discovery
-TaskUpdate: { taskId: "3", addBlockedBy: ["2"] }  # Plan after Research
-TaskUpdate: { taskId: "4", addBlockedBy: ["3"] }  # Implement after Plan
-TaskUpdate: { taskId: "5", addBlockedBy: ["4"] }  # Verify after Implement
-TaskUpdate: { taskId: "6", addBlockedBy: ["5"] }  # Commit after Verify
-
-# Mark first task as in progress
-TaskUpdate: { taskId: "1", status: "in_progress" }
-```
-
-**Step 0.2: Discover Project Workflow**
-
-Use Haiku-powered Explore agent for token-efficient discovery:
-
-```
-Use Task tool with Explore agent:
-- prompt: "Discover the development workflow for this project:
-    1. Read CLAUDE.md if it exists - extract all development commands
-    2. Check for task runners: Makefile, justfile, package.json scripts, pyproject.toml scripts
-    3. Identify the test command (e.g., make test, just test, npm test, pytest, bun test)
-    4. Identify the lint command (e.g., make lint, npm run lint, ruff check)
-    5. Identify the build/type-check command
-    6. Identify the dev server command if applicable
-    7. Note any pre-commit hooks or quality gates
-    Return a structured summary of all available commands."
-- subagent_type: "Explore"
-- model: "haiku"  # Token-efficient for discovery
-```
-
-Store discovered commands for use in later phases. Example output:
-```
-Project Commands:
-- Test: `make test` or `pytest`
-- Lint: `make lint` or `ruff check`
-- Type Check: `make type-check` or `pyright`
-- Build: `make build` or `npm run build`
-- Dev Server: `make dev` or `npm run dev`
-- Quality: `make check` (runs all checks)
-```
-
-**Step 0.3: Complete Phase 0**
-
-```
-TaskUpdate: { taskId: "1", status: "completed" }
-TaskList  # Check that Task 2 is now unblocked
-```
+Above threshold: mark Phase 0 `completed`, run `TaskList` to confirm Phase 1 unblocked.
 
 ### Phase 1: Research & Discovery
 
-**Step 1.1: Start Phase 1**
+Above threshold: mark this phase `in_progress`.
 
-```
-TaskUpdate: { taskId: "2", status: "in_progress" }
-```
+Before writing code: search the web for current best practices for the feature
+(security considerations, common pitfalls, performance notes), check Context7 for any
+library docs involved, and explore the codebase for similar existing implementations,
+conventions, and test fixtures to match. If a Task tool is available, delegate this to
+an Explore/`haiku` subagent; otherwise do it inline.
 
-**Step 1.2: Research Best Practices**
-
-Before implementing, research best practices and understand the codebase context using Haiku-powered Explore agent:
-
-```
-Use Task tool with Explore agent:
-- prompt: "Research and gather context for implementing [FEATURE]:
-
-    1. **Best Practices Research**: Search the web for 'latest best practices' and 'current year best practices' related to [FEATURE]. Look for:
-       - Current industry standards and patterns
-       - Security considerations
-       - Performance recommendations
-       - Common pitfalls to avoid
-
-    2. **Library Documentation** (if using external libraries/frameworks):
-       - Use Context7 MCP to fetch up-to-date documentation
-       - Validate API usage patterns against current docs
-       - Check for deprecated methods or breaking changes
-
-    3. **Codebase Exploration**:
-       - Find similar existing implementations to reference
-       - Identify coding patterns and conventions used
-       - Locate test patterns and fixtures
-       - Note file organization and naming conventions
-
-    Return a comprehensive summary with:
-    - Relevant best practices (with sources)
-    - Library API patterns to follow (if applicable)
-    - Specific file paths and existing patterns from the codebase"
-- subagent_type: "Explore"
-- model: "haiku"  # Token-efficient for research
-```
-
-**Step 1.3: Complete Phase 1**
-
-```
-TaskUpdate: { taskId: "2", status: "completed" }
-TaskList  # Check that Task 3 is now unblocked
-```
+Above threshold: mark Phase 1 `completed`, run `TaskList`.
 
 ### Phase 2: Planning
 
-**Step 2.1: Start Phase 2**
+1. **Enter Plan Mode** (`EnterPlanMode`).
+2. **Plan contents**: break the feature into discrete pieces, note which can run in
+   parallel, define interfaces between components, note security implications, plan
+   test coverage. **Apply Lean Code to every proposed component**: state why it needs
+   to exist (which concrete requirement drives it) and what it reuses instead of adding
+   new code. A component that can't answer "why does this need to exist" gets cut from
+   the plan before implementation starts.
+3. **Get user approval** — exit plan mode only after the user approves.
 
-```
-TaskUpdate: { taskId: "3", status: "in_progress" }
-```
+Above threshold: mark Phase 2 `completed`, run `TaskList`.
 
-**Step 2.2: Create Implementation Plan**
+### Phase 3: Implementation
 
-1. **Enter Plan Mode**: Use `EnterPlanMode` to create a detailed implementation plan
-2. **Plan Contents**:
-   - Break down the feature into discrete, parallelizable tasks
-   - Identify which tasks can be done by subagents concurrently
-   - Define clear interfaces between components
-   - Consider security implications
-   - Plan test coverage strategy
-   - **Apply Lean Code to every proposed component**: for each one, note why it needs to exist (which concrete requirement drives it) and what it reuses (existing utility, library, framework feature) instead of adding new code. A component that can't answer "why does this need to exist" is a candidate to cut from the plan.
-3. **Get User Approval**: Exit plan mode only after user approves the plan
+Above threshold: mark this phase `in_progress`.
 
-**Step 2.3: Complete Phase 2**
+For up to ~3 parallel workstreams (e.g. API + UI + tests), spawn and track subagents
+yourself using the call template in `references/task-best-practices.md`. If the plan
+needs more fan-out than that (large multi-service features, many independent
+components), delegate to the `team-implement` skill instead of re-deriving spawn/track/
+merge logic here.
 
-```
-TaskUpdate: { taskId: "3", status: "completed" }
-TaskList  # Check that Task 4 is now unblocked
-```
+Give each subagent: the specific task, an instruction to read CLAUDE.md first and trace
+the real flow of code it's about to touch, the Lean Code rules above, the discovered
+test/lint commands, and an instruction to report back rather than commit.
 
-### Phase 3: Parallel Implementation with Subagents
+**Model selection** — always set `model` explicitly, never leave it unset:
+- `sonnet` for implementation, test writing, docs, architecture decisions.
+- `haiku` only for exploration/research subagents.
+- Never `opus` for subagent work — too expensive for this fan-out.
 
-For up to ~3 parallel workstreams (e.g. API + UI + tests), spawn and track them yourself as below. If the plan needs more fan-out than that (large multi-service features, many independent components), delegate to the `team-implement` skill instead of re-deriving spawn/track/merge logic here.
+After each subagent completes: review its diff, mark its task `completed` (if
+tracking), and commit its work via the `git-commit` skill (or a manual conventional
+commit) before moving to the next.
 
-**Step 3.1: Start Phase 3**
-
-```
-TaskUpdate: { taskId: "4", status: "in_progress" }
-```
-
-**Step 3.2: Create Parallel Subagent Tasks**
-
-For features with independent components, create parallel child tasks:
-
-```
-# Example: API + UI + Tests in parallel
-TaskCreate:
-  subject: "Implement API endpoint"
-  description: "Create /api/feature endpoint with validation"
-  activeForm: "Implementing API endpoint"
-  metadata: { parent: "4", component: "api" }
-
-TaskCreate:
-  subject: "Implement UI component"
-  description: "Create FeatureComponent.tsx with tests"
-  activeForm: "Implementing UI component"
-  metadata: { parent: "4", component: "ui" }
-
-TaskCreate:
-  subject: "Write integration tests"
-  description: "E2E tests for feature flow"
-  activeForm: "Writing integration tests"
-  metadata: { parent: "4", component: "tests" }
-
-# All parallel tasks blocked only by planning phase
-TaskUpdate: { taskId: "api-task", addBlockedBy: ["3"] }
-TaskUpdate: { taskId: "ui-task", addBlockedBy: ["3"] }
-TaskUpdate: { taskId: "test-task", addBlockedBy: ["3"] }
-
-# Phase 5 (Verification) blocked by ALL parallel tasks
-TaskUpdate: { taskId: "5", addBlockedBy: ["api-task", "ui-task", "test-task"] }
-```
-
-**Step 3.3: Execute Parallel Subagents**
-
-For each parallelizable task group, spawn subagents using the Task tool:
-
-**Subagent Instructions Template:**
-```
-Task tool call:
-- subagent_type: "general-purpose"
-- model: "sonnet"  # REQUIRED - never leave unset (defaults to parent model)
-- prompt: |
-    Implement [specific task description].
-
-    First, read the project's CLAUDE.md to understand conventions and patterns.
-    Then trace the real flow of the code you're about to touch, end to end —
-    a diff written without understanding the existing flow is a liability, not lean.
-
-    Apply the Lean Code rules from above (search before writing, no speculative
-    abstractions, fix shared bugs once, never cut the never-negligent floor, use
-    `LEAN-DEBT:` markers for deliberate shortcuts). In addition, for this task:
-    1. Follow existing codebase patterns and conventions.
-    2. If the leanest correct solution differs from what was asked, implement what
-       was asked but flag the leaner alternative in your report — do not silently
-       substitute your own approach.
-    3. Write comprehensive tests (unit + integration where applicable). All tests
-       MUST pass before completion.
-    4. Add necessary type definitions (if typed language).
-
-    Project-specific commands (discovered in Phase 0):
-    - Test command: [INSERT DISCOVERED TEST COMMAND]
-    - Lint command: [INSERT DISCOVERED LINT COMMAND]
-
-    After implementation:
-    1. Run the test suite to verify all tests pass
-    2. Run linting to ensure code quality
-    3. Report back what was implemented, any LEAN-DEBT markers left, and any leaner
-       alternative you flagged (do NOT commit - the main agent will handle commits)
-
-    If tests fail, fix them before reporting completion.
-    If you encounter ambiguous requirements, report back and ask for clarification instead of guessing.
-```
-
-**Model Selection for Subagents:**
-- **Use `model: "sonnet"`** for code implementation, test writing, documentation writing, architecture decisions, and complex changes
-- **Use `model: "haiku"`** ONLY for exploration and research tasks
-- **Never use Opus** - too expensive for team/subagent workflows
-- **Always set `model` explicitly** - unset defaults to the parent model (which may be opus)
-
-**After each subagent completes:**
-1. Review the changes
-2. Update the corresponding child task: `TaskUpdate: { taskId: "child-task-id", status: "completed" }`
-3. Run the `git-commit` skill to commit the subagent's work (if available) or create a conventional commit manually
-4. Proceed to the next subagent or phase
-
-**Parallelization Strategy:**
-- Group independent tasks together and spawn multiple subagents simultaneously
-- Use sequential subagents for dependent tasks
-- Track each subagent's work with its own task for visibility
-
-**Step 3.4: Complete Phase 3**
-
-```
-# After all subagent tasks complete
-TaskUpdate: { taskId: "4", status: "completed" }
-TaskList  # Verify Phase 5 is now unblocked
-```
+Above threshold: mark Phase 3 `completed` once every child task is done, run
+`TaskList` to confirm Phase 4 unblocked.
 
 ### Phase 4: Integration & Verification
 
-**Step 4.1: Start Phase 4**
+Above threshold: mark this phase `in_progress`.
 
-```
-TaskUpdate: { taskId: "5", status: "in_progress" }
-```
+Run the Phase 0 discovered test, lint, and type-check/build commands. Fix every
+failure before proceeding — repeat until all pass. Never mark this phase complete with
+a red check.
 
-**Step 4.2: Run Quality Checks**
-
-After all subagents complete, run verification using the **discovered commands from Phase 0**:
-
-1. **Run Full Test Suite**: Use discovered test command
-2. **Lint Check**: Use discovered lint command
-3. **Type Check**: Use discovered type-check/build command
-4. **Fix All Issues**: If any test, lint, or build errors occur, fix them before proceeding. Repeat until all checks pass.
-
-**Example verification (commands vary by project):**
-```bash
-# Python project with Makefile
-make test && make lint && make type-check
-
-# Node.js project with package.json
-npm test && npm run lint && npm run build
-
-# Python project with just
-just test && just lint
-
-# Simple Python project
-pytest && ruff check . && pyright
-```
-
-**Step 4.3: Complete Phase 4**
-
-```
-TaskUpdate: { taskId: "5", status: "completed" }
-TaskList  # Check that Task 6 is now unblocked
-```
+Above threshold: mark Phase 4 `completed`, run `TaskList`.
 
 ### Phase 5: Final Commit
 
-**Step 5.1: Start Phase 5**
+Above threshold: mark this phase `in_progress`.
 
-```
-TaskUpdate: { taskId: "6", status: "in_progress" }
-```
+Only proceed once every check passes: review all changes, create a final integration
+commit if needed (conventional commit format), summarize what was implemented.
 
-**Step 5.2: Create Final Commit**
+Above threshold: mark Phase 5 `completed`, run `TaskList` — everything should show
+completed.
 
-Only proceed when all checks pass:
-1. Review all changes made by subagents
-2. Create a final integration commit if needed using conventional commit format
-3. Summarize what was implemented
+### Phase 6: Manual Testing (optional — UI features only)
 
-**Step 5.3: Complete Phase 5 and Feature Implementation**
+If the feature has a UI, use the `agent-browser` skill: start the dev server, open the
+feature (`agent-browser open <url>`), take a snapshot (`agent-browser snapshot -i`),
+interact via refs (`agent-browser click @e1`), capture a screenshot, then
+`agent-browser close`.
 
-```
-TaskUpdate: { taskId: "6", status: "completed" }
-TaskList  # Show final status - all tasks should be completed
-```
-
-### Phase 6: Manual Testing (Optional - For UI Features)
-
-If the feature has a UI component, use the `agent-browser` skill for browser automation:
-
-1. **Start the Development Server** (using discovered dev command)
-2. **Navigate to the Feature**: `agent-browser open <url>`
-3. **Visual Verification**: `agent-browser snapshot -i`
-4. **Interactive Testing**: Use refs to interact with elements (`agent-browser click @e1`)
-5. **Screenshot Evidence**: `agent-browser screenshot page.png`
-6. **Cleanup**: `agent-browser close`
-
-**When to Skip Manual Testing:**
-- Backend-only changes (API routes, server actions)
-- Pure refactoring with no UI changes
-- Test-only changes
-- CLI tools without UI
+Skip for backend-only changes, pure refactors, test-only changes, or CLI tools with no
+UI.
 
 ## Subagent Quality Checklist
 
 Each subagent's output should satisfy:
 - [ ] All new code has tests, and all tests pass
-- [ ] No linting errors, no type errors (if applicable)
+- [ ] No lint errors, no type errors (if applicable)
 - [ ] Code follows existing patterns
-- [ ] The Lean Code rules above were applied (reuse checked first, no unrequested abstractions, never-negligent floor intact, `LEAN-DEBT:` markers for deliberate shortcuts)
+- [ ] Lean Code rules applied (reuse checked first, no unrequested abstractions,
+      never-negligent floor intact, `LEAN-DEBT:` markers for deliberate shortcuts)
 
 ## Error Handling
 
-If a subagent encounters issues:
-1. Log the error clearly
-2. Attempt to fix within scope
-3. If unable to fix, report back with details
-4. Do NOT commit broken code
+If a subagent hits an issue: log it clearly, attempt a within-scope fix, and if it
+can't be fixed report back with details. Never commit broken code.
 
-## Handling Ambiguity
+## Handling Ambiguity After the Gate
 
-If encountering unclear or ambiguous requirements at any phase:
-1. Use `AskUserQuestion` to clarify before proceeding
-2. Do NOT guess or make assumptions about critical decisions
-3. Present options with trade-offs when multiple valid approaches exist
+The hard stop is Step 0.0 above — this section is for smaller ambiguity that surfaces
+once the gate has already passed. Unclear secondary detail at any later phase (a design
+choice with more than one valid answer, a missing preference): use `AskUserQuestion`,
+present concrete options with trade-offs, and if there's no answer yet, state the
+assumption you're proceeding with rather than blocking. Don't re-litigate the gate here
+— if a later discovery reveals the core behavior was never actually pinned down, stop
+and go back to asking, the same way Step 0.0 would have.
 
 ## Output Format
 
-Provide a summary including:
-- Features implemented
-- Files created/modified
-- Tests added
-- Manual testing results (if performed)
-- Any known limitations or follow-up items
+Summarize: features implemented, files created/modified, tests added, manual-testing
+results (if performed), and any known limitations or follow-up items. Every number in
+this summary must trace back to a command actually run this session (see
+Anti-Hallucination Guidelines).
 
 ## Usage
 
@@ -484,13 +255,13 @@ Provide a summary including:
 # Implement with more context
 /implement-feature Create a REST API endpoint for managing user preferences with validation
 
-# Implement a refactoring task
-/implement-feature Refactor the payment module to use the strategy pattern
+# Implement a refactoring-shaped feature (new behavior, not pure restructuring)
+/implement-feature Migrate the payment module to a strategy pattern to support a second provider
 ```
 
 ## Important Notes
 
-- **Always run Phase 0 first** - Never assume which tools are available
-- **Project-specific workflows** - Each project may have unique quality gates
-- **Commit strategy** - Prefer smaller, logical commits over one big commit
-- **Ask when unsure** - Better to clarify than to guess incorrectly
+- Always run Phase 0 first — never assume which tools are available.
+- Each project has its own quality gates; use the ones Phase 0 actually found.
+- Prefer smaller, logical commits over one big commit.
+- Ask when unsure — clarifying is cheaper than guessing wrong.
