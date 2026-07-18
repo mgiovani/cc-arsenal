@@ -31,7 +31,7 @@ jobs:
       run: make test
 
     - name: Check package build
-      run: uv build --check
+      run: uv build
 
   lint:
     runs-on: ubuntu-latest
