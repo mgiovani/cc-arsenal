@@ -183,7 +183,7 @@ cc-arsenal/
 ### Key Directories
 
 - `.claude-plugin/` - Marketplace manifest (`marketplace.json`) defining the plugin variants
-- `skills/` - Every skill lives here as `skills/<name>/SKILL.md`, the only component type in the repo (the legacy `commands/` format was retired)
+- `skills/` - Every skill lives here as `skills/<name>/SKILL.md`, the only component type in the repo
   - `references/`, `scripts/`, `assets/` - Bundled resources loaded on demand (progressive disclosure)
   - `evals/evals.json` + `evals/trigger-eval.json` - Per-skill eval convention: task assertions and trigger/near-miss queries used to validate a skill actually does what it claims and fires on the right prompts
 - `scripts/` - Python utilities for setup and version tooling
@@ -293,7 +293,7 @@ Claude Code Arsenal uses a **plugin-based architecture** for modular skill loadi
 
 **Skill Types** (set by the `disable-model-invocation` frontmatter field):
 - **User-invoked**: Slash commands for explicit operations (e.g., `/git-commit`)
-- **Model-invoked**: Auto-loaded by Claude when context matches (e.g., `jira-cli`, `agent-browser`)
+- **Model-invoked**: Auto-loaded by Claude when context matches (e.g., `review-code`, `agent-browser`)
 
 See [features.md](./features.md) for the current, authoritative skill list and [architecture.md](./architecture.md) for detailed system design.
 

@@ -1,6 +1,6 @@
 ---
 name: nanobanana
-description: "Generates and edits images by calling Google's Nano Banana / Gemini image generation API (requires a GEMINI_API_KEY). Use when users want to create an image, generate visuals, edit or restyle a photo, produce a thumbnail, logo, hero image, or product shot, say 'nano banana', 'gemini image generation', or 'GEMINI_API_KEY', or want to integrate the Nano Banana/Gemini image API into their own codebase. This is a real, billed API call from a script — not a design/mockup critique tool (use review-design or design-taste-frontend for UX/UI audits) and not a browser-driven screenshot flow (use agent-browser for that)."
+description: "Generates and edits images by calling Google's Nano Banana / Gemini image generation API (requires a GEMINI_API_KEY) — a real, billed API call. This skill is explicit-invocation only: use it only when the user names it or the Gemini path directly — \"nanobanana\", \"nano banana\", \"gemini image generation\", \"GEMINI_API_KEY\", \"use nanobanana to …\" — or wants to integrate the Nano Banana / Gemini image API into their own codebase. For any implicit or general image-generation request (\"generate an image\", \"create a logo/hero/mascot\"), the default generator is codex-imagegen, not this skill. Not a design/mockup critique tool (use review-design) and not a browser-driven screenshot flow (use agent-browser)."
 metadata:
   author: mgiovani
   version: 1.1.0
@@ -16,6 +16,8 @@ allowed-tools:
 Generate and edit images using Google's Nano Banana (Gemini image generation API). This skill handles direct image generation, iterative editing, and expert guidance for integrating the API into codebases.
 
 **Core differentiator**: A prompt enhancement system that analyzes user intent and project context to craft optimized prompts before calling the API.
+
+This is the explicit Gemini/Nano Banana path (named directly by the user) — for a generic "generate an image" request with no engine named, codex-imagegen is the default generator instead.
 
 ---
 

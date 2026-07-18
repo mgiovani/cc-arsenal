@@ -158,7 +158,7 @@ Task tool (team_name: "team-<short-id>", name: "architect"):
   subagent_type: general-purpose, model: opus
   prompt: [Architect prompt from agent-catalog.md]
 ```
-Writes `design/architecture.md`, `design/api-contracts.md`, `design/data-model.md`, `design/diagrams/system-overview.md`, and lightweight ADRs under `decisions/`. Defer to `cc-arsenal:docs-adr` for ADR format and conventions rather than reinventing one here.
+Writes `design/architecture.md`, `design/api-contracts.md`, `design/data-model.md`, `design/diagrams/system-overview.md`, and lightweight ADRs under `decisions/`. Defer to the `cc-arsenal:docs-adr` skill for ADR format and conventions (via the `Skill` tool where available, otherwise follow its documented ADR templates) rather than reinventing one here.
 
 ### Lite Mode
 
@@ -186,7 +186,7 @@ If BLOCKERs: route findings to Architect (see [references/communication-patterns
 
 **Product Lead** (still active) writes `tasks/task-breakdown.md` and a Mermaid `tasks/task-graph.md`. Orchestrator creates `TaskCreate` entries with dependencies. Target 5–6 tasks per teammate — smaller wastes coordination overhead, larger risks wasted effort between check-ins.
 
-For decomposition technique beyond what's here (estimation, dependency-graph patterns), defer to `cc-arsenal:project-planner` instead of reinventing it.
+For decomposition technique beyond what's here (estimation, dependency-graph patterns), defer to the `cc-arsenal:project-planner` skill (via the `Skill` tool where available, otherwise apply its documented decomposition steps) instead of reinventing it.
 
 ### Lite Mode
 

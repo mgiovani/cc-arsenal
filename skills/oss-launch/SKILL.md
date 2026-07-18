@@ -1,6 +1,6 @@
 ---
 name: oss-launch
-description: Takes a private side project from "done" to a public GitHub launch — pre-flight checks (confirm the repo is still private, scan for leaked secrets, verify a license exists), applies review-code findings, generates brand art (logo/hero via codex-imagegen or nanobanana), rewrites the README and repo description for discoverability, scrubs internal or AI-tooling mentions from code and docs (only after explicit confirmation of what to remove), optionally rewrites git history while the repo is still private, then flips the repo public with topics and description set. Use for "open source this", "get this repo ready to go public", "launch prep", "make this repo public", "prep this for launch", or "clean this up before I open source it". Not for PR/merge mechanics on an already-public repo (use ship) or cutting version releases (use git-release). Not for the actual image-generation call itself (use codex-imagegen or nanobanana directly) or a standalone secrets/license audit with no launch intent (use env-setup).
+description: Takes a private side project from "done" to a public GitHub launch — pre-flight checks (confirm the repo is still private, scan for leaked secrets, verify a license exists), applies review-code findings, generates brand art (logo/hero via codex-imagegen), rewrites the README and repo description for discoverability, scrubs internal or AI-tooling mentions from code and docs (only after explicit confirmation of what to remove), optionally rewrites git history while the repo is still private, then flips the repo public with topics and description set. Use for "open source this", "get this repo ready to go public", "launch prep", "make this repo public", "prep this for launch", or "clean this up before I open source it". Not for PR/merge mechanics on an already-public repo (use ship) or cutting version releases (use git-release). Not for the actual image-generation call itself (use codex-imagegen or nanobanana directly) or a standalone secrets/license audit with no launch intent (use env-setup).
 metadata:
   author: mgiovani
   version: 1.0.0
@@ -39,7 +39,7 @@ Invoke the `review-code` skill (via `Skill`, or a `Task`/`Explore`→`sonnet` su
 
 ## Stage 3: Brand
 
-Check first whether the repo already has a logo/hero asset (`ls` common paths: `assets/`, `docs/`, `.github/`, README image references) — reuse before generating. If none exists and the user wants one, invoke `codex-imagegen` (falls back to `nanobanana` if that skill or its prerequisites aren't available) to generate a logo/hero, then wire the resulting path into the README. Skip this stage entirely (report `SKIPPED: not requested`) if the user didn't ask for art and none is needed for the README rewrite.
+Check first whether the repo already has a logo/hero asset (`ls` common paths: `assets/`, `docs/`, `.github/`, README image references) — reuse before generating. If none exists and the user wants one, use the `codex-imagegen` skill to generate a logo/hero (via the `Skill` tool where available, otherwise apply its SKILL.md steps inline), then wire the resulting path into the README. Skip this stage entirely (report `SKIPPED: not requested`) if the user didn't ask for art and none is needed for the README rewrite.
 
 ## Stage 4: README + description
 

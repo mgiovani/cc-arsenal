@@ -31,16 +31,24 @@ Skills in this repo are written **tool-neutral first**:
 - Orchestration skills (those that spawn subagents/parallel tasks in Claude Code) degrade gracefully to sequential inline execution when no subagent/task tool exists. The instructions describe the sequential fallback explicitly rather than assuming Task/Agent tools are always present.
 - Paths and shell commands referenced inside a skill must be real, tool-independent commands (e.g. `git`, `gh`, `make`) — never a Claude-Code-only tool name used as if it were a shell command.
 
+## Skill composition
+
+Skills may build on each other along two distinct axes — keep them separate:
+
+- **Sibling invocation (borrow a *procedure*)**: a skill may invoke another skill by name to reuse its steps, via the Claude Code `Skill` tool where available. Because `Skill` is Claude-Code-only and other CLIs can only read a sibling's `SKILL.md` as text, **every such call must state the tool-neutral fallback in the same sentence** — apply the sibling's documented rules/steps inline. Announce it with a `Using <skill> to <purpose>` line. For example: "use the `git-commit` skill to write the message (via the `Skill` tool where available, otherwise apply its conventional-commit rules inline)".
+- **Subagent delegation (spawn a *role*)**: a skill may fan work out to a subagent via the Claude Code `Task`/`Agent` tools. This is the orchestration path the Portability convention already covers, and it degrades to sequential inline execution when no subagent tool exists.
+
+Do not add `uses:`/`composes:` frontmatter and do not route composition through a mandatory dispatcher skill — plain prose naming the sibling, with its in-sentence fallback, is the whole mechanism.
+
 ## Available Skills (45 total)
 
 All skills use progressive disclosure (SKILL.md + optional references/scripts/assets directories).
 
-### Development (17 skills)
+### Development (16 skills)
 - **implement-feature**: Feature implementation with senior staff engineer best practices and parallel subagent orchestration where available
 - **fix-bug**: Test-driven debugging with strict sequential task chain and dependency enforcement
 - **test-suite**: Generate test suites by analyzing coverage gaps and writing tests that match project conventions
 - **refactor**: Restructure existing code without changing behavior, verified against the full test suite at each step
-- **ship**: Orchestrates a branch from "code done" to "merged" — runs review-code plus project-specific pre-merge checks
 - **ci-generate**: Generate a production-ready CI/CD pipeline config (GitHub Actions, GitLab CI, CircleCI, Jenkins)
 - **ci-local**: Run the checks a GitHub Actions workflow would run, locally, when Actions is unavailable
 - **vrt-check**: Runs the project's visual regression testing workflow, whatever tooling the repo actually uses
@@ -69,16 +77,16 @@ All skills use progressive disclosure (SKILL.md + optional references/scripts/as
 - **docs-rfc**: Request for Comments documentation
 - **docs-update**: Documentation sync with codebase state
 
-### Git & GitHub (6 skills)
+### Git & GitHub (7 skills)
 - **git-commit**: Conventional commit message generation
 - **git-create-pr**: Pull request creation with standardized formats
 - **git-release**: Semantic version releases with automated changelog generation
 - **gitflow**: Manage a gitflow branching workflow (feature/release/hotfix branches)
 - **git-sync**: Sync the current feature branch with its base/upstream via merge or rebase
+- **ship**: Orchestrates a branch from "code done" to "merged" — runs review-code plus project-specific pre-merge checks
 - **gh-daily**: GitHub-based standup report from assigned issues, PRs, and commit history
 
-### Jira (3 skills)
-- **jira-cli**: Interactive command-line tool for Atlassian Jira
+### Jira (2 skills)
 - **jira-daily**: Smart standup report generator with activity analysis
 - **jira-todo**: Smart daily work planner with intelligent prioritization
 
@@ -86,13 +94,14 @@ All skills use progressive disclosure (SKILL.md + optional references/scripts/as
 - **team-implement**: Spec-driven team orchestration — adaptive development team scaling from 3 to 11 agents based on complexity. Accepts plain text, Jira tickets, GitHub issues, PRs, files, or URLs. Requires `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` for full mode in Claude Code; degrades to a single-agent sequential run elsewhere.
 - **team-review**: Multi-agent PR review team (architecture, security, performance, testing, style, docs/UX, plus an adversary) for security-sensitive or large PRs
 
-### Utilities (6 skills)
+### Utilities (7 skills)
 - **create-skill**: Specification-driven skill creation with eval system and description optimization
 - **create-rule**: Create CLAUDE.md/AGENTS.md rules and memory guidelines
 - **improve-skill**: Improve an existing skill to the authoring standard with measured before/after evidence — snapshots the baseline, rewrites to the rubric, and benchmarks new-vs-old
 - **orchestrate**: Turn any task into a model-tiered multi-agent plan — decompose, map each subtask to the right model, run independent tracks in parallel under strict file ownership, then synthesize
 - **find-skills**: Discover and install third-party agent skills from skills.sh
 - **agent-browser**: AI-optimized browser automation with far less context overhead than raw Playwright/DOM tools
+- **jira-cli**: Interactive command-line tool for Atlassian Jira
 
 ## Skill Anatomy
 

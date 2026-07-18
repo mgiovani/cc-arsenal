@@ -128,6 +128,8 @@ allowed-tools:            # only list tools actually used — each has a cost
 
 Allowed frontmatter keys: `name`, `description`, `license`, `allowed-tools`, `metadata`, `compatibility`, `disable-model-invocation`, `argument-hint`, `context`, `agent`, `hooks`. Reject anything else — unknown keys cause validation failures. Add `context: fork` + `agent: <type>` only when the skill should run isolated from conversation history (the SKILL.md content becomes the subagent's entire prompt) — see `references/frontmatter-fields.md` for the full field reference and `$ARGUMENTS`/`$0`/`$1` substitution syntax.
 
+If the new skill builds on an existing one, follow the **Skill composition** convention in `AGENTS.md`: name the sibling skill in prose and state its tool-neutral fallback in the same sentence (via the `Skill` tool where available, otherwise apply its documented steps) — don't invent `uses:`/`composes:` frontmatter for it.
+
 **2. Directory Structure** — explain why each directory is or isn't included:
 ```
 skill-name/

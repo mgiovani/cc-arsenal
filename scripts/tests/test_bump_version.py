@@ -78,3 +78,28 @@ def test_missing_config_exits_with_clear_message(
 
     with pytest.raises(SystemExit, match='config not found'):
         bump_version.main()
+
+
+def test_missing_targets_key_reports_targets(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    config_path = tmp_path / '.version-bump.json'
+    config_path.write_text(json.dumps({'not_targets': []}))
+    monkeypatch.setattr(bump_version, 'ROOT', tmp_path)
+    monkeypatch.setattr(bump_version, 'CONFIG_PATH', config_path)
+    monkeypatch.setattr('sys.argv', ['bump_version.py', '2.0.0'])
+
+    with pytest.raises(SystemExit, match='missing "targets" key'):
+        bump_version.main()
+
+
+def test_target_missing_file_key_reports_file(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # A present 'targets' list whose entry lacks 'file' must not be misreported
+    # as a missing 'targets' key.
+    _setup(tmp_path, monkeypatch, [{'not_file': 'x'}])
+    monkeypatch.setattr('sys.argv', ['bump_version.py', '2.0.0'])
+
+    with pytest.raises(SystemExit, match="target entry missing its 'file' key"):
+        bump_version.main()

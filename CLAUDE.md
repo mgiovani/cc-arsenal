@@ -51,7 +51,6 @@ For local development, add a local marketplace instead:
 The `cc-arsenal` plugin intentionally omits the `skills` field in `marketplace.json` — an unset `skills` field means "auto-load every skill in the repo," so it doesn't need to be kept in sync with the other variants.
 
 **How it works:**
-- Single repository, all skills in `skills/`
 - `.claude-plugin/marketplace.json` defines the marketplace and each plugin variant's `skills` list
 - Users install only what they need without duplicating code
 
@@ -117,7 +116,7 @@ make -C scripts/claude-hi now       # Send 'hi' immediately
 
 ## Per-skill hooks
 
-A few skills declare a `hooks` key in their SKILL.md frontmatter (e.g. `agent-browser`'s `Stop` hook that closes its browser session). This key is Claude-Code-only — other tools ignore it per the Portability convention in `AGENTS.md` — so those skills must still work correctly with the hook absent; the hook is a convenience, not a dependency.
+A few skills declare a `hooks` key in their SKILL.md frontmatter (e.g. `agent-browser`'s `Stop` hook that closes its browser session). This key is Claude-Code-only — other tools ignore it per the Portability convention in `AGENTS.md` — so those skills must still work correctly with the hook absent.
 
 ## Documentation Guidelines
 

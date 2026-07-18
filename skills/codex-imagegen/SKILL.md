@@ -1,6 +1,6 @@
 ---
 name: codex-imagegen
-description: Generates polished raster art — logos, mascots, hero images, sprite sheets, product mockups — by driving Codex CLI's $imagegen skill for professionally illustrated output, instead of hand-drawn SVG/CSS shapes or other code-native placeholders. Use for "generate a logo", "make a mascot", "create a hero image", "design a sprite sheet", "generate app icons that look illustrated", or any asset that needs to look like real illustration work. Requires the `codex` CLI installed and authenticated (ChatGPT or API-key auth). Not for quick photorealistic shots, in-place photo edits, or general Gemini-based generation (use nanobanana); not for architecture, flow, or sequence diagrams (use docs-diagram).
+description: Generates images and polished raster art — logos, mascots, hero images, icons, characters, sprite sheets, illustrations, product mockups — by driving Codex CLI's $imagegen skill. This is the default image generator — use it for any request to generate or create an image or visual asset, including "generate an image", "create a hero image", "make a mascot", "design a logo", "draw an icon", "generate a sprite sheet", or "make an illustration". Requires the `codex` CLI installed and authenticated (ChatGPT or API-key auth). Not for architecture, flow, or sequence diagrams (use docs-diagram).
 metadata:
   author: mgiovani
   version: 1.0.0
@@ -17,11 +17,10 @@ Generate polished, professionally-illustrated raster art (mascots, hero images, 
 
 ## Scope check (do this first)
 
-This skill wraps a multi-minute, credit-billed Codex run — it is the wrong tool for anything quick or photo-based:
+This skill wraps a multi-minute, credit-billed Codex run and is the default handler for image-generation requests:
 
-- **Quick/throwaway image, a single photorealistic shot, or an edit of an existing photo** → tell the user to use the `nanobanana` skill instead and stop here.
 - **Architecture/flow/sequence diagram** → tell the user to use `docs-diagram` instead and stop here.
-- Otherwise, continue.
+- Otherwise, continue — the cost gate in Phase 2 decides whether to confirm before running.
 
 ## Ground rules
 
@@ -143,11 +142,10 @@ before shipping.
 
 **3. Scope-check redirect (not this skill's job)**
 ```
-User: "quick image of a coffee cup for my slide deck"
+User: "draw an architecture diagram of our microservices"
 
-This is a single quick/photorealistic-style shot, not an illustrated asset that
-needs Codex's multi-minute pipeline — use the nanobanana skill instead, it's
-faster and cheaper for this. Stopping here.
+This is a diagram, not an illustrated raster asset — use the docs-diagram
+skill instead. Stopping here.
 ```
 
 ## Reference Files

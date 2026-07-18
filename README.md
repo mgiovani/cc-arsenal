@@ -27,13 +27,13 @@ make -C scripts/claude-hi standard # Schedule 5-hour windows
 ## What's Included
 
 **45 Skills** organized by category:
-- **Development** (17): Feature implementation, bug fixing, testing, refactoring, shipping, CI/CD generation and local runs, visual regression and i18n checks, framework docs injection, DB migrations, Docker/env setup, project planning, image generation (Gemini and Codex), open-source launch prep
+- **Development** (16): Feature implementation, bug fixing, testing, refactoring, CI/CD generation and local runs, visual regression and i18n checks, framework docs injection, DB migrations, Docker/env setup, project planning, image generation (Gemini and Codex), open-source launch prep
 - **Code Review & Quality** (5): Code review, security review, dependency audit, performance analysis, design/UX audit
 - **Documentation** (6): ADR, RFC, diagrams, init, check, update
-- **Git & GitHub** (6): Conventional commits, PR creation, releases, gitflow, branch sync, daily planning
-- **Jira** (3): CLI, standup reports, work prioritization
+- **Git & GitHub** (7): Conventional commits, PR creation, releases, gitflow, branch sync, shipping, daily planning
+- **Jira** (2): Standup reports, work prioritization
 - **Teams** (2): Spec-driven orchestration, multi-agent PR review
-- **Utilities** (6): Skill creation, memory rules, skill improvement, multi-agent orchestration, browser automation, skill discovery
+- **Utilities** (7): Skill creation, memory rules, skill improvement, multi-agent orchestration, browser automation, skill discovery, Jira CLI
 
 **Claude Code unlocks extras:**
 - 8 plugin variants (install just the category you need — see `CLAUDE.md`)
@@ -50,7 +50,7 @@ Every skill still works standalone in any Agent-Skills-compatible tool — the C
 - [Statusline Guide](scripts/claude/statusline/STATUSLINE.md) - Usage tracking (Claude Code)
 - [Claude Hi Guide](scripts/claude-hi/README.md) - Session scheduling (Claude Code)
 - [Troubleshooting](docs/troubleshooting.md) - Common issues
-- [Changelog](docs/CHANGELOG.md) - Version history
+- [Changelog](CHANGELOG.md) - Version history
 - [AGENTS.md](AGENTS.md) - Canonical, tool-agnostic skill guidance
 - [CLAUDE.md](CLAUDE.md) - Claude-Code-specific additions
 

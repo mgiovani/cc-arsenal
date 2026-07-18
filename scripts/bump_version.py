@@ -37,10 +37,14 @@ def main() -> None:
         config = json.loads(CONFIG_PATH.read_text())
     except json.JSONDecodeError as exc:
         raise SystemExit(f'error: invalid JSON in {CONFIG_PATH}: {exc}') from exc
+    if 'targets' not in config:
+        raise SystemExit(f'error: {CONFIG_PATH} missing "targets" key')
     try:
         files = sorted({target['file'] for target in config['targets']})
     except KeyError as exc:
-        raise SystemExit(f'error: {CONFIG_PATH} missing "targets" key') from exc
+        raise SystemExit(
+            f'error: {CONFIG_PATH} target entry missing its {exc} key'
+        ) from exc
 
     for rel_path in files:
         path = ROOT / rel_path

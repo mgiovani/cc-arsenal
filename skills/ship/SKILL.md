@@ -53,7 +53,7 @@ Track progress with `TodoWrite` (one line per step above) so the user sees where
 
 ## Step 2: Code review
 
-Invoke the `review-code` skill (via the `Skill` tool) scoped to the diff against the base branch. This is analysis only — it does not touch files.
+Invoke the `review-code` skill (via the `Skill` tool where available, otherwise apply its review dimensions inline) scoped to the diff against the base branch. This is analysis only — it does not touch files.
 
 - Any **Critical/High** finding: stop, report it with file:line, and let the user decide (fix and re-run, or explicitly accept the risk). Do not proceed silently.
 - Medium/Low findings: report them but continue — they don't block the train.

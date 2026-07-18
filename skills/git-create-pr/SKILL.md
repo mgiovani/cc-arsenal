@@ -65,7 +65,7 @@ Every PR bullet must map to an actual commit or diff hunk — drop claims you ca
 6. **Ask for confirmation**
    - Show a compact summary: ticket, commit count, authors (keep lines under 60 chars)
    - Preview the generated title and body
-   - If the repo has CI configured (`.github/workflows/*.yml`) and tests haven't been verified locally this session, suggest running the `cc-arsenal:ci-local` skill first — cheaper to catch a failure now than after the PR is open
+   - If the repo has CI configured (`.github/workflows/*.yml`) and tests haven't been verified locally this session, suggest running the `cc-arsenal:ci-local` skill first (via the `Skill` tool where available, otherwise run the workflow's gating steps locally by hand) — cheaper to catch a failure now than after the PR is open
    - Ask: `Create PR? (y/n/e to edit):` — accept `y`/`yes`/`n`/`no`/`e`/`edit`
    - On `e`, ask for custom title/body
 

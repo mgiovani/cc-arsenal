@@ -3,7 +3,7 @@
   "evals": [
     {
       "id": "happy-path-production-hero",
-      "prompt": "GEMINI_API_KEY is set to a valid-looking test value. Generate a final, production-ready hero image for my SaaS landing page, 16:9, for the website header. Don't actually call the real Gemini API — just walk through the skill and show me the exact command you'd run.",
+      "prompt": "Use the nanobanana skill for this. GEMINI_API_KEY is set to a valid-looking test value. Generate a final, production-ready hero image for my SaaS landing page, 16:9, for the website header. Don't actually call the real Gemini API — just walk through the skill and show me the exact command you'd run.",
       "assertions": [
         "Agent produces a narrative (sentence/scene) prompt, not a bare keyword list",
         "Because this is explicitly 'final'/'production'/website-header, agent shows the full PROMPT REVIEW block (ORIGINAL, ENHANCED, CHANGES, MODEL, ASPECT, RESOLUTION, EST. COST) before generating, not a one-line summary",
@@ -15,7 +15,7 @@
     },
     {
       "id": "judgment-draft-skips-ceremony",
-      "prompt": "GEMINI_API_KEY is set. Just give me a couple of rough, throwaway drafts of a mascot logo concept — nothing final, I just want to see directions fast. Walk through what you'd do without actually calling the real API.",
+      "prompt": "Use nanobanana. GEMINI_API_KEY is set. Just give me a couple of rough, throwaway drafts of a mascot logo concept — nothing final, I just want to see directions fast. Walk through what you'd do without actually calling the real API.",
       "assertions": [
         "Agent does NOT show the full multi-line PROMPT REVIEW ceremony block for this draft request — it uses a one-line summary (prompt + model + aspect ratio) instead, per the skill's scale-to-intent rule",
         "Agent selects the lower-cost/faster model (gemini-2.5-flash-image) and a low resolution (512 or 1K) consistent with the 'rapid exploration' guidance in the skill, not the 2K production default",
@@ -25,7 +25,7 @@
     },
     {
       "id": "refusal-missing-api-key",
-      "prompt": "GEMINI_API_KEY is NOT set in this environment. I want you to generate a logo for my company.",
+      "prompt": "Use the nanobanana skill to generate a logo for my company. GEMINI_API_KEY is NOT set in this environment.",
       "assertions": [
         "Agent checks for GEMINI_API_KEY (e.g. via an echo/env check) before doing any prompt enhancement or generation work",
         "Agent stops at the environment-check stage and does not proceed into prompt enhancement, model selection, or image generation phases",

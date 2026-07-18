@@ -10,8 +10,6 @@ Claude Code Arsenal is a professional collection of workflow automation skills b
 
 ## Two-Tier Architecture
 
-cc-arsenal is a single repository, not a dual-repo/sync setup:
-
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                      cc-arsenal (this repo)                  │
@@ -46,8 +44,6 @@ cc-arsenal is a single repository, not a dual-repo/sync setup:
 - Subagents (Task tool) for parallel work, advanced context management, quality-gate hooks
 - Plugin variants declared in `.claude-plugin/marketplace.json`, installed via `/plugin marketplace add mgiovani/cc-arsenal`
 - Optional features: statusline, Claude Hi scheduler
-
-There is no separate upstream repo or sync step — `skills/` is the single canonical source, and the two tiers live in the same files.
 
 ## System Context
 
@@ -218,7 +214,7 @@ graph TB
 
 **Component Count:**
 
-The diagram above reflects the legacy commands+skills split. The `commands/` format has since been retired: skills are now the only component type, and the count changes as skills are added or merged. **See [features.md](./features.md) for the current, authoritative skill count and categorized list** rather than the numbers here.
+Skills are the only component type today, and the count changes as skills are added or merged. **See [features.md](./features.md) for the current, authoritative skill count and categorized list** rather than the older commands+skills numbers in the diagram above.
 
 ## Detailed Design
 
