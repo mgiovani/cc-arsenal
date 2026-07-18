@@ -31,9 +31,9 @@ Never assume a command. Different repos wire VRT through different tools. Look f
 5. **Chromatic** — `chromatic.config.json` or a `chromatic` devDependency; these run in CI and produce a web UI, not local diff images — say so and point the user there instead of trying to fake a local diff.
 6. **Loki** — `.loki` config or `loki` devDependency.
 
-If two of these are present, ask the user which one which is authoritative rather than running both. If none are found, stop and say so — do not invent a screenshot workflow.
+Base each check on the actual output of the command you ran (`ls`, `grep`, `just --list`) — never assert a file is absent without having listed the directory. If two of these are present, ask the user which one is authoritative rather than running both. If none are found, stop and say so — do not invent a screenshot workflow.
 
-For an unfamiliar repo, delegate discovery to an Explore subagent (haiku) rather than grepping inline yourself; keep the discovered commands in this conversation for the rest of the run.
+For an unfamiliar repo, where a subagent/Task tool is available, delegate this discovery to it rather than grepping inline yourself; otherwise run the greps above directly. Either way, keep the discovered commands around for the rest of the run.
 
 ## Step 2: Run the diff
 
@@ -49,19 +49,23 @@ Capture:
 
 If the run reports zero failures, stop here and tell the user the UI is clean — do not proceed to triage or update anything.
 
-## Step 3: Triage each failure
+## Step 3: Triage each failure — once
 
-This is the step that actually matters — do not skip to updating snapshots. For every failed snapshot, classify it:
+This is the step that actually matters — do not skip to updating snapshots. Read the diff report ONE time and build ONE triage table directly from it: `Component/story | Changed on this branch? | Classification | Evidence`.
 
-**Real regression** — the diff shows something nobody meant to change: wrong color, shifted layout, overlapping text, a broken icon. Root cause: some code change on this branch touched shared styles/layout/a component this story doesn't "own." Evidence: `git diff` on the branch for files that could plausibly affect this component (shared CSS, layout primitives, theme tokens), not just the story's own file.
+Fill "Changed on this branch?" from ground truth, not from the diff tool's own attribution: run `git diff --name-only <merge-base>...HEAD` (or `git log --name-only` for the branch) and check whether files that could plausibly affect this component actually appear in that list. A diff tool pointed at the wrong target (a stale mock, a decoy script from ambiguous discovery in Step 1) will confidently blame a commit message for a file that commit never touched — the git history is the only thing that can't be fooled by that.
 
-**Intended change** — the diff matches a change the branch is actually making: the PR/commit description says "redesign the button," and the diff shows the button looking like the redesign. Confirm by reading the diff image (or Playwright's actual/expected/diff triptych) against the component file that changed, not by assuming intent from the failure alone.
+Classify each row:
 
-**Flaky/non-deterministic** — diff is a few pixels of anti-aliasing, a font-rendering difference, or an animation caught mid-frame, with no corresponding code change nearby. Note it as flaky; don't silently update over it without flagging — a flaky baseline hides real regressions later.
+**Real regression** — the diff shows something nobody meant to change: wrong color, shifted layout, overlapping text, a broken icon, on a component whose files are NOT the ones the branch's intended change targets. Root cause is usually a shared style/layout/theme file the branch also touched.
 
-Do this per-failure, not as a batch judgment on the whole run. A branch that legitimately redesigns the button can still introduce an unrelated regression in the header.
+**Intended change** — the diff matches a change the branch is actually making, AND the component's files show up in the branch's changed-file list. Confirm both: the visual diff looks like the described change, and git confirms this component's source was actually edited.
 
-If a failure's cause is ambiguous after inspecting the diff and the git history for that component, use `AskUserQuestion` rather than guessing — snapshot updates are hard to undo once merged.
+**Flaky/non-deterministic** — a few pixels of anti-aliasing, a font-rendering difference, or a mid-frame animation capture, with no corresponding file in the branch's changed-file list. Note it as flaky; don't silently update over it — a flaky baseline hides real regressions later.
+
+**Needs human review** — the diff, the commit history, or the component ownership is ambiguous even after checking git. Use `AskUserQuestion` or say so plainly. Never default an ambiguous row to "approved" — snapshot updates are hard to undo once merged.
+
+Build the table top to bottom, once, per failure — not as a single batch judgment on the whole run (a branch that legitimately redesigns the button can still introduce an unrelated regression in the header). If evidence gathered later changes a row's classification, edit that row in place. Never draft a second, competing triage table or report later in the same run: two analyses of the same diff report means the model is negotiating with itself, and whichever draft comes last can silently overwrite a correct earlier finding as the final answer. There is exactly one triage table per run, and it is the one Step 5 reports.
 
 ## Step 4: Update snapshots — only for confirmed-intended failures
 
@@ -71,16 +75,26 @@ Update snapshots one component/story at a time (or by the tool's targeted-update
 just visual-update --story=Button   # targeted, not the whole suite
 ```
 
+If the invocation used this skill's `--update` / `--component name` shorthand, map them to whatever the discovered tool actually calls its own flags: `--update` → the tool's write-mode flag (`--update-snapshots` for Playwright, `-u` for Jest/Storybook test-runner, or the task runner's `visual-update` target); `--component name` → its targeted-story filter (`--grep name` for Playwright, `--story=name` for a Storybook-runner wrapper, or the task runner's argument for the same). If Step 1 found no targeted-update flag at all, fall back to updating everything and re-diffing, per below.
+
 If the tool only supports updating everything at once, re-run the diff afterward and confirm the only changes are the ones you approved — a blanket update can silently accept a regression sitting next to the real change.
 
 Never update a snapshot for a failure classified as a real regression — that's hiding a bug in the baseline. Fix the regression, then re-run Step 2 to confirm it's gone before moving on.
 
 ## Step 5: Summarize
 
-Report, per failure:
-- Component/story name
-- Classification (regression / intended / flaky)
-- What changed in the diff
-- Action taken (fixed the code / updated the snapshot / flagged as flaky / left open)
+Report the same triage table from Step 3 — do not regenerate it from scratch or produce a second version. Add one column: Action taken (fixed the code / updated the snapshot / flagged as flaky / left open for human review).
 
-End with a one-line verdict: clean to merge, or blocked on N unresolved regressions.
+End with a one-line verdict: clean to merge, or blocked on N unresolved regressions/human-review rows. A "needs human review" row always blocks the verdict — it never rounds up to clean.
+
+Example, for a branch that redesigned `Button` but also shifted `Header` by accident:
+
+```
+| Component/story          | Changed on branch? | Classification | Evidence                                    | Action              |
+|---------------------------|---------------------|-----------------|----------------------------------------------|----------------------|
+| Button (primary variant) | Y (Button.css)      | Intended        | Matches redesign commit; git confirms Button.css edited | Snapshot updated    |
+| Button (disabled variant)| Y (Button.css)      | Intended        | Same redesign                               | Snapshot updated    |
+| Header                   | N (theme.css only)  | Regression      | 8px top margin shift; git shows only a shared spacing token in theme.css touched, not Header itself | Left open, NOT updated |
+
+Verdict: blocked on 1 unresolved regression (Header).
+```

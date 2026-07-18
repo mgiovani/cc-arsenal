@@ -1,0 +1,22 @@
+[
+  {"query": "add a rule that we always use 2-space indentation", "should_trigger": true},
+  {"query": "create a CLAUDE.md entry for our API error handling convention", "should_trigger": true},
+  {"query": "I want a project rule enforcing conventional commits format", "should_trigger": true},
+  {"query": "add a .cursor/rules file for our React component conventions", "should_trigger": true},
+  {"query": "write an AGENTS.md section about our testing conventions", "should_trigger": true},
+  {"query": "/create-rule formatting", "should_trigger": true},
+  {"query": "add a personal rule so I always prefer async/await over promises", "should_trigger": true},
+  {"query": "we need a coding standard documented for state management", "should_trigger": true},
+  {"query": "add a workflow instruction to CLAUDE.md about our PR review process", "should_trigger": true},
+  {"query": "create a new rule file under .claude/rules for security guidelines", "should_trigger": true},
+  {"query": "create a new skill that generates changelogs from commits", "should_trigger": false},
+  {"query": "make a slash command for running our test suite", "should_trigger": false},
+  {"query": "find a skill that can help with database migrations", "should_trigger": false},
+  {"query": "is there an existing skill for checking i18n completeness", "should_trigger": false},
+  {"query": "turn this workflow into a reusable skill", "should_trigger": false},
+  {"query": "install a skill for reviewing pull requests", "should_trigger": false},
+  {"query": "write a full CLAUDE.md summarizing the whole codebase from scratch", "should_trigger": false},
+  {"query": "generate onboarding documentation for new engineers", "should_trigger": false},
+  {"query": "review my code for style violations", "should_trigger": false},
+  {"query": "write a commit message for these changes", "should_trigger": false}
+]

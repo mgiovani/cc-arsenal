@@ -6,8 +6,8 @@ description: Manage a gitflow branching workflow — starting and finishing feat
   branches in sync. Activates when users mention gitflow, feature/release/hotfix
   branches, cutting a release, branching strategy, promoting an integration branch
   to production, tagging a version, or rolling back a live release. Also reaches
-  for it when the user says "ship it", "promote dev to main", or "we need to hotfix
-  prod" without naming gitflow. Not for a single commit message (use git-commit).
+  for it when the user says "promote dev to main" or "we need to hotfix prod"
+  without naming gitflow. Not for a single commit message (use git-commit).
   Not for versioned releases on a simple main-branch workflow with no release/hotfix
   branches (use git-release). Not for the mechanical review-to-merge pipeline on
   a branch with no release/hotfix topology involved (use ship). Skip for general

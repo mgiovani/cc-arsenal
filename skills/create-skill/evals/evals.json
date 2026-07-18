@@ -1,0 +1,36 @@
+{
+  "skill": "create-skill",
+  "description": "Creates new agent skills from a plain-language description using live spec fetching, pattern research, and an approval-gated blueprint",
+  "evals": [
+    {
+      "id": "happy-path-full-spec",
+      "prompt": "Create a skill called 'docs-glossary' that scans a docs/ directory for terms wrapped in **bold** on their first mention and generates a docs/glossary.md file listing each term with the sentence it was first defined in, sorted alphabetically. It should trigger on phrases like 'generate a glossary', 'build a term glossary from the docs', or 'list all the defined terms in docs/'. Success looks like a docs/glossary.md with one Markdown bullet per term. Yes, this is worth measuring — please include evals.",
+      "assertions": [
+        "Before any file under skills/ is created, the response presents a complete blueprint: proposed frontmatter (name: docs-glossary, a description under 1024 chars covering the stated trigger phrases), a directory structure with justification for each included/excluded subdir, and a workflow outline",
+        "The blueprint explicitly asks for or waits on approval (via plan-mode exit or an explicit question) rather than writing files immediately after presenting it",
+        "The response does not re-ask what the skill does, when it triggers, or what success looks like — that information was already given in the prompt and must be mined from it, not re-requested",
+        "The plan includes an evals/evals.json entry or explicitly states one will be created, since the prompt confirmed the skill is worth measuring",
+        "The proposed frontmatter does not include any key outside name, description, license, allowed-tools, metadata, compatibility, disable-model-invocation, argument-hint, context, agent, hooks"
+      ]
+    },
+    {
+      "id": "judgment-overlapping-skill",
+      "prompt": "Make me a skill that reviews a pull request for security vulnerabilities like SQL injection and hardcoded secrets before merge.",
+      "assertions": [
+        "The response's research/composition step identifies that this repository already has a review-security skill covering OWASP-style security analysis, and surfaces that overlap to the user before proposing a brand-new skill",
+        "The Composition Plan section of the blueprint explicitly addresses reuse-vs-new-skill tradeoff (e.g. extend/invoke review-security, scope this differently, or justify why a new skill is still warranted) rather than silently blueprinting a duplicate with no mention of the existing skill",
+        "No skill files are written before the blueprint is presented and approval is requested"
+      ]
+    },
+    {
+      "id": "edge-case-no-detail-refusal",
+      "prompt": "make me a skill",
+      "assertions": [
+        "The response does not fabricate a skill name, description, or purpose out of nothing — it asks the user what the skill should do, when it should trigger, and what success looks like (Phase 1's key questions), since none of that was supplied and there's no prior conversation to mine",
+        "The response contains no mkdir, Write, or Edit tool call creating any file or directory under skills/ or elsewhere",
+        "The response ends at the clarifying question(s) — it does not follow the question with a provisional guess or a partially-generated blueprint based on assumed details",
+        "No YAML frontmatter, directory tree, or workflow outline naming a specific invented skill is presented as if requirements were already known"
+      ]
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 # CLI Command Reference
 
-Complete reference for the `npx skills` CLI tool (npm package: `skills`, maintained by Vercel Labs).
+Reference for the `npx skills` CLI tool (npm package: `skills`, maintained by Vercel Labs). This is a third-party tool this repo doesn't control -- if a flag below doesn't behave as documented, run `npx skills <command> --help` and trust that output over this file.
 
 ## Installation
 
@@ -136,6 +136,8 @@ npx skills ls -a claude-code -a cursor
 ### `remove` (alias: `rm`) -- Uninstall Skills
 
 Remove installed skills.
+
+`-y`/`--all` exist so the CLI itself skips its own prompts -- that's for scripted/CI use, not a license for the agent to skip *its* confirmation. List what's installed and get the user's explicit yes before running any `remove`/`rm` command; see SKILL.md's "Ask First" section.
 
 ```bash
 npx skills remove [name] [options]

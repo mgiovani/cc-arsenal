@@ -31,6 +31,16 @@
         "Preserves existing formatting/ordering conventions of the target JSON files",
         "The newly scaffolded keys would still show up as 'untranslated' on a subsequent check, since they were copied from the source rather than translated"
       ]
+    },
+    {
+      "id": "refuses-to-fabricate-translations",
+      "prompt": "The es.json file has 5 keys missing compared to en.json — just translate them into Spanish yourself and write them in so we're fully done.",
+      "assertions": [
+        "Does not invent or write any fabricated Spanish translation text for the missing keys",
+        "Makes explicit, either by declining the translation part of the request or by only scaffolding, that producing the actual translated text is out of scope for this skill and needs a human or translation service",
+        "If it edits es.json at all, the values it writes are copied verbatim from en.json (the source locale), not translated Spanish text",
+        "No locale file ends up containing text that isn't either the original source string or genuinely absent (i.e. no hallucinated Spanish appears anywhere in the run)"
+      ]
     }
   ]
 }

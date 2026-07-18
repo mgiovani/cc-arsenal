@@ -1,0 +1,46 @@
+{
+  "skill": "create-rule",
+  "evals": [
+    {
+      "id": "path-scoped-project-rule",
+      "prompt": "/create-rule api-errors \"Standard error handling for API routes\" -- this is a Claude Code project with an existing CLAUDE.md and code under src/api/",
+      "assertions": [
+        "Detects the project already uses Claude Code conventions (CLAUDE.md present) rather than defaulting to AGENTS.md or Cursor format",
+        "Creates .claude/rules/api-errors.md as a new file rather than appending to CLAUDE.md",
+        "The new file's frontmatter includes a paths glob scoped to the API directory (e.g. src/api/**/*.ts or equivalent), not left unscoped",
+        "The rule body uses imperative language with concrete guidelines specific to API error handling, not generic placeholder text",
+        "CLAUDE.md itself is not given paths frontmatter (paths frontmatter is only valid on .claude/rules/*.md files)"
+      ]
+    },
+    {
+      "id": "user-scope-personal-rule",
+      "prompt": "/create-rule preferences \"functional programming patterns, async/await over promises -- this is just for me across all my projects, not the team\"",
+      "assertions": [
+        "Recognizes this is a user-scope (personal) rule rather than project-scope, from the 'just for me across all my projects' language",
+        "Writes the rule under ~/.claude/rules/ (user scope) rather than ./.claude/rules/ (project scope, shared via git)",
+        "Does not stage or commit the new file with git, since user-scope rules are personal and not team-shared",
+        "The rule content reflects the stated preferences (functional patterns, async/await) rather than generic boilerplate unrelated to what was asked"
+      ]
+    },
+    {
+      "id": "agents-md-only-repo",
+      "prompt": "/create-rule testing \"table-driven tests, no shared state between tests\" -- the repo only has an AGENTS.md at the root, no CLAUDE.md and no .claude directory anywhere",
+      "assertions": [
+        "Detects that the repo uses the AGENTS.md convention rather than defaulting to CLAUDE.md/.claude/rules since no Claude-specific files exist",
+        "Appends a new section to the existing AGENTS.md instead of creating a separate rule file, since AGENTS.md has no per-topic file-splitting convention",
+        "Does not add YAML frontmatter to the AGENTS.md entry (AGENTS.md supports none)",
+        "Does not create a .claude/rules directory or a new CLAUDE.md file that didn't previously exist"
+      ]
+    },
+    {
+      "id": "no-convention-detected-asks-first",
+      "prompt": "/create-rule error-handling \"always wrap errors with context\" -- brand new empty repo, no CLAUDE.md, no AGENTS.md, no .claude or .cursor directories anywhere",
+      "assertions": [
+        "Detects that no memory/rule convention file exists anywhere in the repo",
+        "Does not guess a tool or format and does not create any file (CLAUDE.md, AGENTS.md, .claude/rules/*, or .cursor/rules/*) before asking the user",
+        "The final response asks the user which tool/convention to target (e.g. Claude Code, AGENTS.md-style, or Cursor) and stops there",
+        "No Write, Edit, or mutating Bash command (mkdir, git add, etc.) is executed before that question is answered"
+      ]
+    }
+  ]
+}

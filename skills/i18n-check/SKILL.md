@@ -15,7 +15,7 @@ description: i18n completeness checker — detects the project's i18n framework 
   not a completeness check).
 metadata:
   author: mgiovani
-  version: 1.0.0
+  version: 1.0.1
 disable-model-invocation: false
 argument-hint: "[locale] [--scaffold]"
 allowed-tools: Read, Grep, Glob, Bash, Edit, Write, Task
@@ -77,8 +77,10 @@ Default scope is the diff against the base branch (`git diff --name-only <base>.
 or `git diff --name-only HEAD` for uncommitted work) — new UI copy is what actually
 ships broken, and scanning the whole codebase on every check is slow and mostly re-finds
 the same pre-existing debt. If the user explicitly asks for a full-codebase sweep, do
-that instead, and consider spawning a Task/Explore subagent per top-level directory to
-keep the main context clean on a large repo.
+that instead. In an environment with subagent/Task support, spawn one per top-level
+directory to keep the main context clean on a large repo; otherwise run the same grep
+patterns directory-by-directory in a single sequential pass — the result is identical,
+just slower on very large repos.
 
 Read `references/hardcoded-strings.md` for the per-ecosystem patterns (JSX text nodes,
 Vue templates, Django templates, Rails views) and their exclusions (code identifiers,

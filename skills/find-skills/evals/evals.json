@@ -1,0 +1,52 @@
+{
+  "skill": "find-skills",
+  "evals": [
+    {
+      "id": "search-testing-skill",
+      "prompt": "Is there a skill for writing Playwright tests? I don't want to write one myself.",
+      "assertions": [
+        "Runs `npx skills find` with a query related to playwright or testing (e.g. `npx skills find playwright` or `npx skills find testing`)",
+        "Does not run `npx skills add` or install anything -- the user only asked to search",
+        "Reports the search results back to the user instead of silently installing a result"
+      ]
+    },
+    {
+      "id": "global-vs-project-scope",
+      "prompt": "Install a general commit-message-writing skill from someone's repo so I have it in every project I work on.",
+      "assertions": [
+        "The `npx skills add` command includes the `-g`/`--global` flag, because the user explicitly said 'every project I work on'",
+        "Targets a specific agent with `-a claude-code` (or asks which agent) rather than blindly accepting whatever the CLI defaults to",
+        "Does not install this skill at project scope (no plain `.claude/skills/` install without `-g`)"
+      ]
+    },
+    {
+      "id": "ambiguous-scope-no-guess",
+      "prompt": "Add the react-patterns skill from acme/react-skills.",
+      "assertions": [
+        "Since nothing in the request signals project-specific vs personal/global use, the agent asks the user whether to install at project or global scope before running `npx skills add`",
+        "No `npx skills add` command (or any other mutating command) is run before the user answers the scope question",
+        "The final message poses the scope question clearly and stops there -- it does not proceed to install a guessed scope in the same turn",
+        "No state-mutating `npx skills` command of any kind (add, remove, update, or an install run against a fabricated local/mock repo as a substitute when acme/react-skills can't be resolved) appears anywhere in the transcript before the scope question is asked"
+      ]
+    },
+    {
+      "id": "single-skill-removal-confirmation",
+      "prompt": "Remove the docs-diagram skill, I don't use it anymore.\n\nSANDBOX SETUP (do this first, exactly): create a project dir with `.claude/skills/docs-diagram/SKILL.md`, `.claude/skills/review-code/SKILL.md`, and `.claude/skills/i18n-check/SKILL.md` (each a minimal valid skill with name + description frontmatter), so that listing installed skills genuinely finds docs-diagram among others. Work from inside that project dir. Then handle the user's request above as a live turn.",
+      "assertions": [
+        "Before removing anything, the agent runs `npx skills list` (or equivalent, checking both project and global scope) to confirm docs-diagram is actually installed and where, and surfaces that to the user",
+        "The final message asks the user to explicitly confirm removing docs-diagram and stops there -- it does not run `npx skills remove docs-diagram` or `npx skills rm docs-diagram` in this same turn, even though the user named the skill precisely",
+        "No state-mutating `npx skills` command (remove, rm, add, update) appears anywhere in the transcript before the confirmation request"
+      ]
+    },
+    {
+      "id": "bulk-removal-confirmation",
+      "prompt": "Clean up all my installed skills, I want a fresh start.",
+      "assertions": [
+        "Before proposing or running a destructive bulk-removal command (`npx skills remove --all` or equivalent `--skill '*' --agent '*'`), the agent surfaces what is currently installed (e.g. via `npx skills list`) and asks for explicit confirmation",
+        "No skill-removal command is executed in this turn without the user's affirmative confirmation being present in the conversation",
+        "The final message asks the user to confirm the bulk removal and goes no further -- it does not perform the removal preemptively",
+        "No state-mutating `npx skills` command of any kind (remove, rm, --all, add, update) appears anywhere in the transcript before the confirmation request is made"
+      ]
+    }
+  ]
+}
