@@ -61,11 +61,7 @@ def test_inject_appends_when_section_absent() -> None:
 
 
 def test_inject_updates_existing_section_in_place() -> None:
-    existing = (
-        '# Title\n\n'
-        '## FastAPI Best Practices\n\nold body\n\n'
-        '## Other\n\nkeep me\n'
-    )
+    existing = '# Title\n\n## FastAPI Best Practices\n\nold body\n\n## Other\n\nkeep me\n'
     new_section = '## FastAPI Best Practices\n\nnew body\n'
     updated, was_updated = inject.inject_or_update_section(existing, new_section)
 
