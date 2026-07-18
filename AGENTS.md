@@ -4,11 +4,11 @@ This is the canonical, tool-agnostic guidance file for **cc-arsenal** — read n
 
 ## Repository Architecture
 
-cc-arsenal is a collection of **41 Agent Skills** ([agentskills.io](https://agentskills.io) open standard) for development workflow automation. `skills/` is the single canonical tier — every skill lives there once, written tool-neutral, and any tool that speaks the Agent Skills format can load it directly.
+cc-arsenal is a collection of **45 Agent Skills** ([agentskills.io](https://agentskills.io) open standard) for development workflow automation. `skills/` is the single canonical tier — every skill lives there once, written tool-neutral, and any tool that speaks the Agent Skills format can load it directly.
 
 ### Core Components
 
-- **Skills** (`skills/`): 41 skills covering development, code review, documentation, git/GitHub, jira, teams, browser automation, project planning, and skill discovery
+- **Skills** (`skills/`): 45 skills covering development, code review, documentation, git/GitHub, jira, teams, browser automation, project planning, multi-agent orchestration, open-source launch prep, and skill discovery/creation/improvement
 - **Scripts** (`scripts/`): Python utilities for installation, configuration, and code generation (Claude-Code-specific; see `CLAUDE.md`)
 
 ## Install in any agent
@@ -31,11 +31,11 @@ Skills in this repo are written **tool-neutral first**:
 - Orchestration skills (those that spawn subagents/parallel tasks in Claude Code) degrade gracefully to sequential inline execution when no subagent/task tool exists. The instructions describe the sequential fallback explicitly rather than assuming Task/Agent tools are always present.
 - Paths and shell commands referenced inside a skill must be real, tool-independent commands (e.g. `git`, `gh`, `make`) — never a Claude-Code-only tool name used as if it were a shell command.
 
-## Available Skills (41 total)
+## Available Skills (45 total)
 
 All skills use progressive disclosure (SKILL.md + optional references/scripts/assets directories).
 
-### Development (15 skills)
+### Development (17 skills)
 - **implement-feature**: Feature implementation with senior staff engineer best practices and parallel subagent orchestration where available
 - **fix-bug**: Test-driven debugging with strict sequential task chain and dependency enforcement
 - **test-suite**: Generate test suites by analyzing coverage gaps and writing tests that match project conventions
@@ -51,6 +51,8 @@ All skills use progressive disclosure (SKILL.md + optional references/scripts/as
 - **env-setup**: Scan a codebase for env var usage, sync .env.example, and detect leaked secrets
 - **project-planner**: Break down large projects into dependency-aware tasks with Mermaid visualization
 - **nanobanana**: Generate and edit images using Nano Banana (Gemini image generation)
+- **codex-imagegen**: Generate polished raster art (logos, mascots, heroes, sprites, mockups) via Codex CLI's `$imagegen`, with chroma-key transparency handling and QC
+- **oss-launch**: Take a private project to a public GitHub launch — secrets/license pre-flight, review fixes, branding, README/description rewrite, mention scrub, gated history rewrite, then flip public
 
 ### Code Review & Quality (5 skills)
 - **review-code**: Multi-agent code review across correctness, performance, style, tests, and error handling
@@ -84,9 +86,11 @@ All skills use progressive disclosure (SKILL.md + optional references/scripts/as
 - **team-implement**: Spec-driven team orchestration — adaptive development team scaling from 3 to 11 agents based on complexity. Accepts plain text, Jira tickets, GitHub issues, PRs, files, or URLs. Requires `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` for full mode in Claude Code; degrades to a single-agent sequential run elsewhere.
 - **team-review**: Multi-agent PR review team (architecture, security, performance, testing, style, docs/UX, plus an adversary) for security-sensitive or large PRs
 
-### Utilities (4 skills)
+### Utilities (6 skills)
 - **create-skill**: Specification-driven skill creation with eval system and description optimization
 - **create-rule**: Create CLAUDE.md/AGENTS.md rules and memory guidelines
+- **improve-skill**: Improve an existing skill to the authoring standard with measured before/after evidence — snapshots the baseline, rewrites to the rubric, and benchmarks new-vs-old
+- **orchestrate**: Turn any task into a model-tiered multi-agent plan — decompose, map each subtask to the right model, run independent tracks in parallel under strict file ownership, then synthesize
 - **find-skills**: Discover and install third-party agent skills from skills.sh
 - **agent-browser**: AI-optimized browser automation with far less context overhead than raw Playwright/DOM tools
 
@@ -160,7 +164,7 @@ See `CONTRIBUTING.md` for the full development setup.
 ## File Organization
 ```
 cc-arsenal/
-├── skills/          # All 41 skills (canonical, tool-agnostic)
+├── skills/          # All 45 skills (canonical, tool-agnostic)
 │   ├── implement-feature/   # Feature implementation with subagents
 │   ├── fix-bug/             # Test-driven debugging
 │   ├── test-suite/          # Test suite generation
@@ -176,6 +180,8 @@ cc-arsenal/
 │   ├── env-setup/           # .env.example sync and secret scanning
 │   ├── project-planner/     # Dependency-aware task planning
 │   ├── nanobanana/          # Image generation (Nano Banana/Gemini)
+│   ├── codex-imagegen/      # Raster art via Codex $imagegen
+│   ├── oss-launch/          # Private-to-public GitHub launch prep
 │   ├── review-code/         # Multi-agent code review
 │   ├── review-security/     # OWASP security analysis
 │   ├── review-deps/         # Dependency vulnerability/license audit
@@ -200,6 +206,8 @@ cc-arsenal/
 │   ├── team-review/         # Multi-agent PR review team
 │   ├── create-skill/        # Specification-driven skill creation
 │   ├── create-rule/         # Create memory rules
+│   ├── improve-skill/       # Evidence-based skill improvement
+│   ├── orchestrate/         # Model-tiered multi-agent orchestration
 │   ├── find-skills/         # Third-party skill discovery
 │   └── agent-browser/       # Browser automation
 └── scripts/        # Installation and utilities (see CLAUDE.md for Claude-Code-specific ones)

@@ -4,7 +4,7 @@
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![Code style: ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
-An [Agent Skills](https://agentskills.io) arsenal of **41 skills** for development workflow automation — feature implementation, bug fixing, code review, docs, git/GitHub, Jira, and more. Works with Claude Code, Codex, Cursor, Gemini CLI, OpenCode, and any other spec-compatible agent.
+An [Agent Skills](https://agentskills.io) arsenal of **45 skills** for development workflow automation — feature implementation, bug fixing, code review, docs, git/GitHub, Jira, multi-agent orchestration, open-source launch prep, and more. Works with Claude Code, Codex, Cursor, Gemini CLI, OpenCode, and any other spec-compatible agent.
 
 ## Quick Start
 
@@ -26,14 +26,14 @@ make -C scripts/claude-hi standard # Schedule 5-hour windows
 
 ## What's Included
 
-**41 Skills** organized by category:
-- **Development** (15): Feature implementation, bug fixing, testing, refactoring, shipping, CI/CD generation and local runs, visual regression and i18n checks, framework docs injection, DB migrations, Docker/env setup, project planning, image generation
+**45 Skills** organized by category:
+- **Development** (17): Feature implementation, bug fixing, testing, refactoring, shipping, CI/CD generation and local runs, visual regression and i18n checks, framework docs injection, DB migrations, Docker/env setup, project planning, image generation (Gemini and Codex), open-source launch prep
 - **Code Review & Quality** (5): Code review, security review, dependency audit, performance analysis, design/UX audit
 - **Documentation** (6): ADR, RFC, diagrams, init, check, update
 - **Git & GitHub** (6): Conventional commits, PR creation, releases, gitflow, branch sync, daily planning
 - **Jira** (3): CLI, standup reports, work prioritization
 - **Teams** (2): Spec-driven orchestration, multi-agent PR review
-- **Utilities** (4): Skill creation, memory rules, browser automation, skill discovery
+- **Utilities** (6): Skill creation, memory rules, skill improvement, multi-agent orchestration, browser automation, skill discovery
 
 **Claude Code unlocks extras:**
 - 8 plugin variants (install just the category you need — see `CLAUDE.md`)

@@ -1,0 +1,38 @@
+{
+  "skill": "orchestrate",
+  "evals": [
+    {
+      "id": "research-sweep-competitor-pricing",
+      "prompt": "/orchestrate Research current pricing pages for 4 payment competitors (Stripe, Braintree, Adyen, Checkout.com), summarize each one's transaction fee structure, and write a single comparison table to competitor-pricing.md.",
+      "assertions": [
+        "Decomposes the task into one research subtask per competitor (4 total), each explicitly classified as 'research'",
+        "Every subagent spawn call shown in the plan sets model explicitly to haiku for the research subtasks — none left unset or defaulted",
+        "The 4 competitor research tracks are grouped and run in parallel (spawned together), not sequentially one after another, since they touch no shared file",
+        "The final comparison table in competitor-pricing.md is synthesized/merged by the orchestrator itself, not delegated to a further subagent",
+        "No git commit is created without the orchestrator having reviewed the merged content first"
+      ]
+    },
+    {
+      "id": "codebase-wide-rename-refactor",
+      "prompt": "/orchestrate Rename the `Invoice` model to `Bill` everywhere in this codebase, across models/, api/, tests/, and docs/ — grep first to find every reference before touching anything.",
+      "assertions": [
+        "The plan includes an explicit file/directory ownership map assigning each of models/, api/, tests/, docs/ to a distinct subagent track with zero overlap between tracks",
+        "States plainly that no two subagents are ever assigned the same file or directory",
+        "Every implementation subagent spawn sets model explicitly to sonnet",
+        "The plan states that only the orchestrator performs git operations (commit/push) after reviewing each subagent's diff — no subagent is instructed to commit",
+        "A grep/search pass to find every existing reference happens before any rename edit is dispatched to an implementation subagent",
+        "Verification (running the test suite) happens after all rename tracks complete and before any commit"
+      ]
+    },
+    {
+      "id": "trivial-one-file-typo-fix",
+      "prompt": "/orchestrate Fix the typo 'recieve' -> 'receive' in src/utils/validators.py line 42",
+      "assertions": [
+        "States explicitly that this single-line, single-file change does not warrant orchestration or subagent fan-out",
+        "No Task, TaskCreate, or subagent spawn call is made for this task",
+        "Does not produce a multi-track plan, model-tier table, or file-ownership map for a one-line change",
+        "Either makes the one-line fix directly itself or briefly confirms it will just do it directly, rather than treating the trivial task as requiring a decomposition step"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+[
+  {"query": "open source this project", "should_trigger": true},
+  {"query": "get this repo ready to go public", "should_trigger": true},
+  {"query": "launch prep for this side project", "should_trigger": true},
+  {"query": "help me open source my repo, scrub any internal stuff first", "should_trigger": true},
+  {"query": "make this private repo public, but clean it up before I do", "should_trigger": true},
+  {"query": "prep this for launch — logo, readme, the works", "should_trigger": true},
+  {"query": "I want to open source this, what do I need to do first", "should_trigger": true},
+  {"query": "take this side project public on GitHub", "should_trigger": true},
+  {"query": "get this ready before I flip it to public", "should_trigger": true},
+  {"query": "walk me through launching this as an open source project, generate a logo too", "should_trigger": true},
+  {"query": "ship it", "should_trigger": false},
+  {"query": "get this branch merged, review it and open the PR", "should_trigger": false},
+  {"query": "cut a release and publish it on GitHub", "should_trigger": false},
+  {"query": "bump the version and tag a v2.0.0 release", "should_trigger": false},
+  {"query": "promote dev to main, cut a release", "should_trigger": false},
+  {"query": "generate a logo for this project", "should_trigger": false},
+  {"query": "scan this repo for leaked secrets", "should_trigger": false},
+  {"query": "sync .env.example with the codebase", "should_trigger": false},
+  {"query": "review this PR for correctness and over-engineering", "should_trigger": false},
+  {"query": "write a conventional commit message for these staged changes", "should_trigger": false}
+]

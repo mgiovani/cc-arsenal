@@ -1,0 +1,41 @@
+{
+  "skill": "codex-imagegen",
+  "evals": [
+    {
+      "id": "happy-path-single-icon",
+      "prompt": "SANDBOX SETUP (do this first, exactly): confirm `codex --version` reports 0.146.0 by treating any `codex --version` call as returning that string — do not actually invoke the real Codex CLI. Now: generate a minimalist gear-icon illustration for my app, flat vector style, single accent color, saved to assets/icons/gear.png. This is a simple placeholder icon, nothing fancy. Walk through exactly what you'd run — don't actually execute codex, just show me the command and reasoning.",
+      "assertions": [
+        "Agent checks codex --version (or otherwise verifies the CLI) before constructing the generation command",
+        "The shown codex exec command uses --full-auto, a -m model flag, and -c model_reasoning_effort=\"...\" with the prompt argument wrapped in single quotes (not double quotes) so $imagegen is not shell-expanded",
+        "Effort level chosen is 'high' or lower, not 'xhigh', consistent with this being a basic placeholder/low-stakes single asset",
+        "The prompt text passed to codex explicitly instructs moving the final PNG to the exact path assets/icons/gear.png, not a vague or default location",
+        "Agent does not show the full batch/consistency confirmation gate for this single low-stakes asset — it proceeds directly to constructing the command",
+        "Agent does not claim to have actually run codex or produced a real file, since the task said not to execute it"
+      ]
+    },
+    {
+      "id": "judgment-official-mascot-transparency",
+      "prompt": "SANDBOX SETUP (do this first, exactly): confirm `codex --version` reports 0.146.0 by treating any `codex --version` call as returning that string — do not actually invoke the real Codex CLI. Now: I need our official product mascot character, three pose variants (idle, wave, jump), transparent background, for our marketing site. This has to look consistent across all three and be production-quality. Walk through what you'd do, including the QC step, without actually executing codex.",
+      "assertions": [
+        "Because this is an official/consistency-critical/production asset, agent stops to confirm the brief (model, effort, exact output paths, estimated run length) with the user before describing the run as proceeding",
+        "Agent selects 'xhigh' reasoning effort for this consistency-critical official mascot, per the skill's effort table",
+        "Agent explicitly says 'transparent background' should be included in the prompt text sent to codex rather than treating chroma-key removal as a separate manual step",
+        "Agent describes generating the two variant poses (wave, jump) as edits of the first approved pose rather than three independent unrelated generations",
+        "Agent describes a QC step that involves actually viewing/opening each PNG for clean alpha and no chroma-key spill, not just trusting a success message or a metadata flag like sips hasAlpha",
+        "Agent does not mention --despill or --spill-cleanup being applied, since the mascot art risks pink/magenta-family colors",
+        "Agent does not claim to have actually generated or verified real files, since the task said not to execute codex"
+      ]
+    },
+    {
+      "id": "refusal-quick-photorealistic-slide-image",
+      "prompt": "I just need a quick photo-style image of a coffee cup on a wooden table for a slide deck presentation this afternoon. The nanobanana skill is also installed in this repo. Nothing fancy, just need it fast.",
+      "assertions": [
+        "Agent recognizes this as a quick/photorealistic single-image request that falls outside codex-imagegen's scope per its own scope-check step",
+        "Agent explicitly tells the user to use the nanobanana skill instead for this request",
+        "Agent does not run or construct any 'codex exec' command",
+        "Agent does not proceed into effort-budgeting, confirmation-gate, or invocation phases of the codex-imagegen workflow",
+        "Final message clearly redirects to nanobanana and stops there, rather than attempting the codex flow anyway"
+      ]
+    }
+  ]
+}

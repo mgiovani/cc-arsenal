@@ -13,13 +13,13 @@ Then, to install a specific plugin set:
 1. Select **Browse and install plugins**
 2. Select **cc-arsenal-marketplace**
 3. Select one of:
-   - **cc-arsenal** - Complete toolkit (all 41 skills)
-   - **cc-arsenal-dev** - Development skills only (implement-feature, fix-bug, test-suite, refactor, ci-generate, ci-local, inject-docs, project-planner, nanobanana, db-migrate, docker-init, env-setup, vrt-check, i18n-check, ship)
+   - **cc-arsenal** - Complete toolkit (all 45 skills)
+   - **cc-arsenal-dev** - Development skills only (implement-feature, fix-bug, test-suite, refactor, ci-generate, ci-local, inject-docs, project-planner, nanobanana, db-migrate, docker-init, env-setup, vrt-check, i18n-check, ship, codex-imagegen, oss-launch)
    - **cc-arsenal-review** - Code review and quality skills only (review-code, review-security, review-deps, review-perf, review-design)
    - **cc-arsenal-docs** - Documentation skills only (ADR, RFC, diagrams, init, check, update)
    - **cc-arsenal-git** - Git/GitHub workflow skills only (git-commit, git-create-pr, git-release, gitflow, gh-daily, git-sync)
    - **cc-arsenal-jira** - Jira skills only (jira-cli, jira-daily, jira-todo)
-   - **cc-arsenal-skills** - Specialty skills only (agent-browser, find-skills, create-skill, create-rule)
+   - **cc-arsenal-skills** - Specialty skills only (agent-browser, find-skills, create-skill, create-rule, improve-skill, orchestrate)
    - **cc-arsenal-teams** - Team orchestration (team-implement, team-review)
 4. Select **Install now**
 
@@ -39,13 +39,13 @@ For local development, add a local marketplace instead:
 
 | Plugin | Skills Loaded | Use Case |
 |--------|--------------|----------|
-| `cc-arsenal` | All 41 skills | Full toolkit for complete workflow automation |
-| `cc-arsenal-dev` | implement-feature, fix-bug, test-suite, refactor, ci-generate, ci-local, inject-docs, project-planner, nanobanana, db-migrate, docker-init, env-setup, vrt-check, i18n-check, ship | Development workflows with subagents |
+| `cc-arsenal` | All 45 skills | Full toolkit for complete workflow automation |
+| `cc-arsenal-dev` | implement-feature, fix-bug, test-suite, refactor, ci-generate, ci-local, inject-docs, project-planner, nanobanana, db-migrate, docker-init, env-setup, vrt-check, i18n-check, ship, codex-imagegen, oss-launch | Development workflows with subagents |
 | `cc-arsenal-review` | review-code, review-security, review-deps, review-perf, review-design | Code review and quality audits |
 | `cc-arsenal-docs` | docs-adr, docs-check, docs-diagram, docs-init, docs-rfc, docs-update | Documentation generation only |
 | `cc-arsenal-git` | git-commit, git-create-pr, git-release, gitflow, gh-daily, git-sync | Git/GitHub workflow automation |
 | `cc-arsenal-jira` | jira-cli, jira-daily, jira-todo | Jira standup, planning, and CLI |
-| `cc-arsenal-skills` | agent-browser, find-skills, create-skill, create-rule | Specialty model-invoked capabilities |
+| `cc-arsenal-skills` | agent-browser, find-skills, create-skill, create-rule, improve-skill, orchestrate | Specialty model-invoked capabilities |
 | `cc-arsenal-teams` | team-implement, team-review | Team orchestration (experimental) |
 
 The `cc-arsenal` plugin intentionally omits the `skills` field in `marketplace.json` — an unset `skills` field means "auto-load every skill in the repo," so it doesn't need to be kept in sync with the other variants.
