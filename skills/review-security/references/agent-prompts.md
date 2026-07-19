@@ -38,6 +38,7 @@ Return structured findings with:
 - Explanation
 - Fix recommendations (2-3 approaches)"
 - subagent_type: "Explore"
+- model: "haiku"
 ```
 
 ## Agent 2 - Configuration & Design (A02, A06)
@@ -69,6 +70,7 @@ For each finding:
 
 Return structured findings with remediation priority and multiple fix approaches."
 - subagent_type: "Explore"
+- model: "haiku"
 ```
 
 ## Agent 3 - Injection & Data Integrity (A05, A08)
@@ -119,6 +121,7 @@ Return findings with:
 - Example exploit payload
 - Multiple remediation approaches (parameterized queries, input validation, escaping)"
 - subagent_type: "Explore"
+- model: "haiku"
 ```
 
 ## Agent 4 - Cryptography & Supply Chain (A04, A03)
@@ -151,25 +154,25 @@ Use Grep to search for:
 *Missing encryption:*
 - http:// (non-localhost), ftp://, telnet://
 
-**A03 - Software Supply Chain:**
+**A03 - Software Supply Chain** (integrity surface only — dependency CVEs, outdated
+versions, and license risk are review-deps' job; don't duplicate them here):
 Use Read to check:
-- package.json: Outdated dependencies (lodash < 4.17, axios < 0.21)
-- requirements.txt: Django < 3.2, Flask < 2.0
-- pom.xml: Old versions, http:// repositories
 - Missing SRI: <script src=CDN without integrity=
-- Lock files: package-lock.json, Pipfile.lock, go.sum presence
-- .github/workflows: pip install --trusted-host, npm config set strict-ssl false
+- Lock files: package-lock.json, Pipfile.lock, go.sum presence (missing lockfile = unpinned
+  transitive deps, an integrity gap even without a known CVE)
+- .github/workflows: pip install --trusted-host, npm config set strict-ssl false (weakens
+  package-fetch integrity, not a version/CVE issue)
 
 For each finding:
 1. Verify the vulnerability with Read
-2. Check CVE databases for known vulnerabilities (mention CVE if applicable)
-3. Assess data sensitivity (what could be exposed?)
+2. Assess data sensitivity (what could be exposed?)
 
 Return findings with:
 - Cryptographic best practices for replacement
-- Dependency update recommendations with versions
-- SRI hash generation instructions"
+- SRI hash generation instructions
+- If dependency CVEs/staleness come up during scanning, note them separately and point the user to review-deps instead of detailing them here"
 - subagent_type: "Explore"
+- model: "haiku"
 ```
 
 ## Agent 5 - Bytecode & Compiled Code Security
@@ -205,6 +208,7 @@ For each finding:
 
 Return findings focusing on detection evasion risks and compilation-level vulnerabilities."
 - subagent_type: "Explore"
+- model: "haiku"
 ```
 
 ## Agent 6 - Logging, Monitoring & Exception Handling (A09, A10)
@@ -236,6 +240,7 @@ Return findings with:
 - Exception handling best practices
 - Monitoring/alerting recommendations"
 - subagent_type: "Explore"
+- model: "haiku"
 ```
 
 ## Security Best Practices by Role

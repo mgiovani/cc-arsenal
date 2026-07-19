@@ -98,19 +98,28 @@ Verification commands used:
   - find . -name "*redis*" -o -name "*.redis.*" -> no results
 ```
 
-## Example Checks by Category
+## Inferring Categories from What's Present
 
-### Core Documentation
-- architecture.md exists and current?
-- onboarding.md exists and comprehensive?
-- ADRs directory exists with properly formatted ADRs?
+Don't check against a fixed list of doc names — group by what the repo actually has, then verify each group against what the codebase implies it should contain.
 
-### Data Documentation
-- data-model.md exists if database detected?
-- ER diagrams present and valid?
-- Schema matches current models?
+```
+For each file found in docs/ (and docs/adr/, docs/rfc/):
+  - Bucket it by what it's about (infer from filename + a quick skim), e.g.
+    architecture.md / onboarding.md / adr/*.md -> architecture & process docs
+    data-model.md / schema docs -> data docs
+    deployment.md / docker/*.md -> infrastructure docs
+  - For each bucket, cross-check against the detected stack:
+    - Data docs: does a schema/migration directory exist? Do the described
+      models match real model files?
+    - Infrastructure docs: does a Dockerfile/compose file/k8s manifest exist
+      that the doc should describe?
+    - Architecture docs: do the described components/services exist?
+  - A category with real signal in the codebase (schema files, Dockerfiles,
+    service directories) but no matching doc is a Missing finding, not a
+    silent skip.
+```
 
-### Infrastructure Documentation
-- deployment.md exists if Docker/K8s detected?
-- Security.md exists?
-- Dependencies documented?
+This lets a repo with unconventional doc names (e.g. `SCHEMA.md` instead of
+`data-model.md`) still get checked, and never invents a category — like
+"infrastructure" — for a repo that has no Docker/deploy config to check
+against.

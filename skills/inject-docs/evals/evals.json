@@ -1,0 +1,39 @@
+{
+  "skill": "inject-docs",
+  "evals": [
+    {
+      "id": "nextjs-fresh-inject",
+      "prompt": "This is a Next.js 15 project with no CLAUDE.md or AGENTS.md yet. Inject Next.js docs for the AI agent.",
+      "assertions": [
+        "Detects the Next.js dependency and version from package.json before running anything",
+        "Since neither CLAUDE.md nor AGENTS.md exists, targets CLAUDE.md as the file to create",
+        "Runs `npx @next/codemod@canary agents-md --output CLAUDE.md` (or the equivalent with the correct --output target) rather than the FastAPI script",
+        "Reads CLAUDE.md back after the command and confirms it now contains injected Next.js documentation content, rather than declaring success from exit code alone",
+        "Final report states the detected Next.js version and that CLAUDE.md was created, with an approximate size"
+      ]
+    },
+    {
+      "id": "fastapi-update-existing-section-preserves-other-content",
+      "prompt": "This FastAPI project already has a CLAUDE.md with a stale '## FastAPI Best Practices' section (from months ago) plus unrelated '## Deployment' and '## Testing Conventions' sections. Refresh the FastAPI best-practices section.",
+      "assertions": [
+        "Detects FastAPI from pyproject.toml or requirements.txt and targets the existing CLAUDE.md rather than creating a new file",
+        "Runs the bundled inject_fastapi_docs.py script using this skill's own absolute directory path, not a `$(dirname \"$0\")`-style relative trick",
+        "Does not hand-write or fabricate the FastAPI best-practices content itself — the injected content comes from running the script (which reads references/fastapi-best-practices.md), not from the agent composing new prose",
+        "After running, the old/stale FastAPI Best Practices section content is gone and replaced with the current template content",
+        "The unrelated '## Deployment' and '## Testing Conventions' sections are still present and unmodified in the final file",
+        "Final report distinguishes that the section was updated (not freshly appended) and gives an approximate size delta"
+      ]
+    },
+    {
+      "id": "unsupported-framework-refuses-cleanly",
+      "prompt": "Inject framework docs into CLAUDE.md for this project — it's a Django app (Python, requirements.txt has django, djangorestframework, no fastapi or next anywhere).",
+      "assertions": [
+        "Checks package.json, pyproject.toml, and requirements.txt for `next` or `fastapi` dependencies before concluding nothing was found",
+        "Correctly determines neither supported framework is present and stops without guessing or defaulting to one of the two injectors",
+        "Does not run `npx @next/codemod`, does not run the FastAPI injection script, and does not write to or create CLAUDE.md or AGENTS.md",
+        "Final message clearly states that no supported framework (Next.js or FastAPI) was detected and that this skill only covers those two, without proposing to fabricate Django-specific content in their place",
+        "Does not claim any file was updated"
+      ]
+    }
+  ]
+}

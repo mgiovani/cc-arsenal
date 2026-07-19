@@ -1,0 +1,27 @@
+body {
+  background: #ffffff;
+}
+
+/* #222222 on #ffffff: relative-luminance contrast ~15.9:1 — comfortably
+  passes WCAG SC 1.4.3 (needs >= 4.5:1 for normal text). */
+.body-copy {
+  color: #222222;
+  font-size: 16px;
+}
+
+/* White text on #4a90d9 at 24px: contrast ~3.3:1. 24px meets WCAG's "large
+  text" definition (>= 18pt / 24px), so the applicable threshold is 3:1
+  (SC 1.4.3 large-text clause), not the 4.5:1 normal-text clause — this
+  button PASSES. Padding is on the 8px grid (16px, 24px). */
+.btn-primary {
+  background-color: #4a90d9;
+  color: #ffffff;
+  font-size: 24px;
+  padding: 16px 24px;
+  border-radius: 8px;
+}
+
+.btn-primary:focus-visible {
+  outline: 2px solid #1a5fa8;
+  outline-offset: 2px;
+}

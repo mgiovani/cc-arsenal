@@ -1,1530 +1,485 @@
-# Browser Agent Command Reference
 
-This reference documents all available browser automation commands for the agent-browser skill. Commands are organized by category for easy navigation.
+# Command Reference
 
-## Table of Contents
+Complete reference for all agent-browser commands. For quick start and common patterns, see SKILL.md.
 
-1. [Navigation Commands](#navigation-commands)
-2. [Snapshot & Inspection](#snapshot--inspection)
-3. [Interaction Commands](#interaction-commands)
-4. [Find Commands](#find-commands)
-5. [Wait Commands](#wait-commands)
-6. [Screenshot Commands](#screenshot-commands)
-7. [Settings & Configuration](#settings--configuration)
-8. [Advanced Commands](#advanced-commands)
-9. [Tab Management](#tab-management)
-10. [Network & Console](#network--console)
+## Navigation
 
----
-
-## Navigation Commands
-
-### browser_navigate
-
-Navigate to a specific URL.
-
-**Syntax:**
-```json
-{
-  "url": "https://example.com"
-}
+```bash
+agent-browser open            # Launch browser (no navigation); stays on about:blank.
+                              # Pair with `network route`, `cookies set --curl`, or
+                              # `addinitscript` to stage state before the first navigation.
+agent-browser open <url>      # Launch + navigate (aliases: goto, navigate)
+                              # Supports: https://, http://, file://, about:, data://
+                              # Auto-prepends https:// if no protocol given
+agent-browser back            # Go back
+agent-browser forward         # Go forward
+agent-browser reload          # Reload page
+agent-browser pushstate <url> # SPA client-side navigation. Auto-detects
+                              # window.next.router.push (triggers RSC fetch on Next.js);
+                              # falls back to history.pushState + popstate/navigate events.
+agent-browser close           # Close browser (aliases: quit, exit)
+agent-browser connect 9222    # Connect to browser via CDP port
 ```
 
-**Parameters:**
-- `url` (string, required): The URL to navigate to. Must be a fully qualified URL including protocol.
+### Pre-navigation setup (one-turn batch)
 
-**Examples:**
-```javascript
-// Navigate to a website
-{ "url": "https://github.com" }
-
-// Navigate to localhost
-{ "url": "http://localhost:3000" }
-
-// Navigate with query parameters
-{ "url": "https://example.com/search?q=test" }
+```bash
+agent-browser batch \
+  '["open"]' \
+  '["network","route","*","--abort","--resource-type","script"]' \
+  '["cookies","set","--curl","cookies.curl","--domain","localhost"]' \
+  '["navigate","http://localhost:3000/target"]'
 ```
 
-**Use Cases:**
-- Starting a new browsing session
-- Navigating to specific pages
-- Testing different URLs
-- Loading web applications
+`open` with no URL gives you a clean launch so any interception, cookies,
+or init scripts you register take effect on the *first* real navigation.
+Use for SSR-only debug (`--resource-type script`), protected-origin auth,
+or capturing fresh `react suspense`/`vitals` state without noise from a
+prior page.
 
-**Notes:**
-- The browser will wait for the page to load before returning
-- Failed navigations will return an error
-- Redirects are followed automatically
+## Snapshot (page analysis)
 
----
-
-### browser_navigate_back
-
-Navigate back to the previous page in browser history.
-
-**Syntax:**
-```json
-{}
+```bash
+agent-browser snapshot            # Full accessibility tree
+agent-browser snapshot -i         # Interactive elements only (recommended)
+agent-browser snapshot -c         # Compact output
+agent-browser snapshot -d 3       # Limit depth to 3
+agent-browser snapshot -s "#main" # Scope to CSS selector
 ```
 
-**Parameters:**
-None
+## Interactions (use @refs from snapshot)
 
-**Examples:**
-```javascript
-// Go back one page
-{}
+```bash
+agent-browser click @e1           # Click
+agent-browser click @e1 --new-tab # Click and open in new tab
+agent-browser dblclick @e1        # Double-click
+agent-browser focus @e1           # Focus element
+agent-browser fill @e2 "text"     # Clear and type
+agent-browser type @e2 "text"     # Type without clearing
+agent-browser press Enter         # Press key (alias: key)
+agent-browser press Control+a     # Key combination
+agent-browser keydown Shift       # Hold key down
+agent-browser keyup Shift         # Release key
+agent-browser hover @e1           # Hover
+agent-browser check @e1           # Check checkbox
+agent-browser uncheck @e1         # Uncheck checkbox
+agent-browser select @e1 "value"  # Select dropdown option
+agent-browser select @e1 "a" "b"  # Select multiple options
+agent-browser scroll down 500     # Scroll page (default: down 300px)
+agent-browser scrollintoview @e1  # Scroll element into view (alias: scrollinto)
+agent-browser drag @e1 @e2        # Drag and drop
+agent-browser upload @e1 file.pdf # Upload files
 ```
 
-**Use Cases:**
-- Returning to previous page after navigation
-- Testing browser history
-- Multi-page workflows
+Clicks fail before dispatch when another element covers the target's click
+point. The error names the covering element, for example
+`covered by <div#consent-banner>`. Dismiss or interact with that element, run a
+fresh snapshot, then retry the original action.
 
-**Notes:**
-- Does nothing if there's no previous page
-- Waits for navigation to complete
+## Get Information
 
----
-
-### browser_close
-
-Close the current browser page/session.
-
-**Syntax:**
-```json
-{}
+```bash
+agent-browser get text @e1        # Get element text
+agent-browser get html @e1        # Get innerHTML
+agent-browser get value @e1       # Get input value
+agent-browser get attr @e1 href   # Get attribute
+agent-browser get title           # Get page title
+agent-browser get url             # Get current URL
+agent-browser get cdp-url         # Get CDP WebSocket URL
+agent-browser get count ".item"   # Count matching elements
+agent-browser get box @e1         # Get bounding box
+agent-browser get styles @e1      # Get computed styles (font, color, bg, etc.)
 ```
 
-**Parameters:**
-None
+## Check State
 
-**Examples:**
-```javascript
-// Close the browser
-{}
+```bash
+agent-browser is visible @e1      # Check if visible
+agent-browser is enabled @e1      # Check if enabled
+agent-browser is checked @e1      # Check if checked
 ```
 
-**Use Cases:**
-- Cleaning up after browsing session
-- Ending automation workflows
-- Resource cleanup
+## Screenshots and PDF
 
-**Notes:**
-- Closes the entire browser context
-- All tabs will be closed
-- Cannot be undone
-
----
-
-## Snapshot & Inspection
-
-### browser_snapshot
-
-Capture an accessibility snapshot of the current page. This is the primary command for understanding page structure and finding elements to interact with.
-
-**Syntax:**
-```json
-{
-  "filename": "snapshot.md"  // optional
-}
+```bash
+agent-browser screenshot          # Save to temporary directory
+agent-browser screenshot path.png # Save to specific path
+agent-browser screenshot --full   # Full page
+agent-browser pdf output.pdf      # Save as PDF
 ```
 
-**Parameters:**
-- `filename` (string, optional): Save snapshot to a markdown file instead of returning it in the response.
+Headless Chromium screenshots hide native scrollbars for consistent image output.
+Pass `--hide-scrollbars false` when launching to keep native scrollbars visible.
 
-**Response Format:**
+## Video Recording
 
-The snapshot returns a hierarchical representation of the page using accessibility roles:
-
-```markdown
-[1] button "Submit"
-[2] link "Home"
-[3] textbox "Email"
-[4] heading "Welcome"
-[5] navigation
-    [6] link "Products"
-    [7] link "About"
+```bash
+agent-browser open https://example.com     # Launch a browser session first
+agent-browser record start ./demo.webm    # Start recording
+agent-browser click @e1                   # Perform actions
+agent-browser record stop                 # Stop and save video
+agent-browser record restart ./take2.webm # Stop current + start new
 ```
 
-**Understanding the Ref System:**
+## Wait
 
-Each element has a numeric reference (e.g., `[1]`, `[2]`) that you use in interaction commands:
-- **Purpose**: Exact element identification for automation
-- **Usage**: Pass the ref number to `browser_click`, `browser_type`, etc.
-- **Stability**: Refs are stable within a single snapshot but change after page updates
-- **Format**: Always use the number without brackets when passing to commands
-
-**Output Interpretation:**
-
-```markdown
-[ref] role "accessible_name" additional_info
+```bash
+agent-browser wait @e1                     # Wait for element
+agent-browser wait 2000                    # Wait milliseconds
+agent-browser wait --text "Success"        # Wait for text (or -t)
+agent-browser wait --url "**/dashboard"    # Wait for URL pattern (or -u)
+agent-browser wait --load networkidle      # Wait for network idle (or -l)
+agent-browser wait --fn "window.ready"     # Wait for JS condition (or -f)
 ```
 
-- `ref`: Numeric reference for automation
-- `role`: ARIA role (button, link, textbox, etc.)
-- `accessible_name`: Human-readable label or text
-- `additional_info`: Value, state, or other properties
+## Mouse Control
 
-**Common Roles:**
-- `button`: Clickable buttons
-- `link`: Hyperlinks
-- `textbox`: Input fields
-- `combobox`: Dropdowns/select elements
-- `checkbox`: Checkboxes
-- `radio`: Radio buttons
-- `heading`: Headings (h1-h6)
-- `navigation`: Navigation containers
-- `banner`: Header areas
-- `contentinfo`: Footer areas
-
-**Examples:**
-
-```javascript
-// Get snapshot as response
-{}
-
-// Save snapshot to file
-{ "filename": "page-snapshot.md" }
+```bash
+agent-browser mouse move 100 200      # Move mouse
+agent-browser mouse down left         # Press button
+agent-browser mouse up left           # Release button
+agent-browser mouse wheel 100         # Scroll wheel
 ```
 
-**Use Cases:**
-- Understanding page structure before interactions
-- Finding elements to click or fill
-- Debugging automation failures
-- Verifying page state
-- Documenting page accessibility
+## Semantic Locators (alternative to refs)
 
-**Best Practices:**
-- Always take a snapshot before attempting interactions
-- Use snapshots to find correct refs for elements
-- Re-snapshot after page changes (AJAX, navigation, etc.)
-- Prefer semantic roles over generic divs/spans
-- Look for accessible names that match user-visible text
-
-**Notes:**
-- Better than screenshots for automation (provides actionable refs)
-- Respects accessibility tree structure
-- Lighter weight than full HTML inspection
-- Essential for reliable element selection
-
----
-
-### browser_evaluate
-
-Execute JavaScript in the browser context.
-
-**Syntax:**
-```json
-{
-  "function": "() => { /* code */ }",
-  "element": "Submit button",  // optional
-  "ref": "1"  // optional, required if element provided
-}
+```bash
+agent-browser find role button click --name "Submit"
+agent-browser find text "Sign In" click
+agent-browser find text "Sign In" click --exact      # Exact match only
+agent-browser find label "Email" fill "user@test.com"
+agent-browser find placeholder "Search" type "query"
+agent-browser find alt "Logo" click
+agent-browser find title "Close" click
+agent-browser find testid "submit-btn" click
+agent-browser find first ".item" click
+agent-browser find last ".item" click
+agent-browser find nth 2 "a" hover
 ```
 
-**Parameters:**
-- `function` (string, required): JavaScript function to execute. Use `() => {}` for page context or `(element) => {}` when element is provided.
-- `element` (string, optional): Human-readable element description for permission to interact
-- `ref` (string, optional): Element reference from snapshot (required if element is provided)
+## Browser Settings
 
-**Examples:**
-
-```javascript
-// Get page title
-{
-  "function": "() => document.title"
-}
-
-// Get element text
-{
-  "function": "(element) => element.textContent",
-  "element": "Submit button",
-  "ref": "1"
-}
-
-// Execute complex logic
-{
-  "function": "() => { return { url: window.location.href, title: document.title }; }"
-}
-
-// Modify page state
-{
-  "function": "() => { localStorage.setItem('theme', 'dark'); return true; }"
-}
+```bash
+agent-browser set viewport 1920 1080          # Set viewport size
+agent-browser set viewport 1920 1080 2        # 2x retina (same CSS size, higher res screenshots)
+agent-browser set device "iPhone 14"          # Emulate device
+agent-browser set geo 37.7749 -122.4194       # Set geolocation (alias: geolocation)
+agent-browser set offline on                  # Toggle offline mode
+agent-browser set headers '{"X-Key":"v"}'     # Extra HTTP headers
+agent-browser set credentials user pass       # HTTP basic auth (alias: auth)
+agent-browser set media dark                  # Emulate color scheme
+agent-browser set media light reduced-motion  # Light mode + reduced motion
 ```
 
-**Use Cases:**
-- Reading page state
-- Getting computed values
-- Accessing browser APIs
-- Modifying DOM or page state
-- Complex data extraction
+## Cookies and Storage
 
-**Notes:**
-- Returns the function's return value
-- Has access to full browser context
-- Can access element directly when ref is provided
-- Use for tasks that aren't covered by other commands
-
----
-
-## Interaction Commands
-
-### browser_click
-
-Perform a click on an element.
-
-**Syntax:**
-```json
-{
-  "ref": "1",
-  "element": "Submit button",
-  "button": "left",  // optional
-  "modifiers": ["Control"],  // optional
-  "doubleClick": false  // optional
-}
+```bash
+agent-browser cookies                     # Get all cookies
+agent-browser cookies set name value      # Set cookie
+agent-browser cookies clear               # Clear cookies
+agent-browser storage local               # Get all localStorage
+agent-browser storage local key           # Get specific key
+agent-browser storage local set k v       # Set value
+agent-browser storage local clear         # Clear all
 ```
 
-**Parameters:**
-- `ref` (string, required): Element reference from snapshot
-- `element` (string, required): Human-readable element description
-- `button` (string, optional): Mouse button - "left" (default), "right", or "middle"
-- `modifiers` (array, optional): Keyboard modifiers - "Alt", "Control", "ControlOrMeta", "Meta", "Shift"
-- `doubleClick` (boolean, optional): Perform double-click instead of single click
+## Network
 
-**Examples:**
-
-```javascript
-// Simple click
-{
-  "ref": "1",
-  "element": "Submit button"
-}
-
-// Right-click
-{
-  "ref": "2",
-  "element": "Context menu trigger",
-  "button": "right"
-}
-
-// Ctrl+Click (open in new tab)
-{
-  "ref": "3",
-  "element": "External link",
-  "modifiers": ["Control"]
-}
-
-// Double-click
-{
-  "ref": "4",
-  "element": "File to open",
-  "doubleClick": true
-}
+```bash
+agent-browser network route <url>              # Intercept requests
+agent-browser network route <url> --abort      # Block requests
+agent-browser network route <url> --body '{}'  # Mock response
+agent-browser network unroute [url]            # Remove routes
+agent-browser network requests                 # View tracked requests
+agent-browser network requests --filter api    # Filter requests
 ```
 
-**Use Cases:**
-- Clicking buttons
-- Following links
-- Opening context menus
-- Double-clicking to select
-- Modified clicks for special behaviors
+## Tabs and Windows
 
-**Best Practices:**
-- Always get a fresh snapshot before clicking
-- Use descriptive element names
-- Verify the element exists in snapshot
-- Consider wait commands if elements load dynamically
-
----
-
-### browser_type
-
-Type text into an editable element.
-
-**Syntax:**
-```json
-{
-  "ref": "1",
-  "text": "hello@example.com",
-  "element": "Email input",
-  "slowly": false,  // optional
-  "submit": false  // optional
-}
+```bash
+agent-browser tab                              # List tabs with tabId and label
+agent-browser tab new [url]                    # New tab
+agent-browser tab new --label docs [url]       # New tab with a memorable label
+agent-browser tab t2                           # Switch to tab by id
+agent-browser tab docs                         # Switch to tab by label
+agent-browser tab close                        # Close current tab
+agent-browser tab close t2                     # Close tab by id
+agent-browser tab close docs                   # Close tab by label
+agent-browser window new                       # New window
 ```
 
-**Parameters:**
-- `ref` (string, required): Element reference from snapshot
-- `text` (string, required): Text to type
-- `element` (string, optional): Human-readable element description
-- `slowly` (boolean, optional): Type one character at a time (useful for triggering key handlers)
-- `submit` (boolean, optional): Press Enter after typing
+Tab ids are stable strings of the form `t1`, `t2`, `t3`. They're never reused
+within a session, so the same id keeps referring to the same tab across
+commands. Positional integers are **not** accepted — `tab 2` errors with a
+teaching message; use `t2`.
 
-**Examples:**
+User-assigned labels (`docs`, `app`, `admin`) are interchangeable with ids
+everywhere a tab ref is accepted. Labels are the agent-friendly way to write
+multi-tab workflows:
 
-```javascript
-// Type email
-{
-  "ref": "3",
-  "text": "user@example.com",
-  "element": "Email input"
-}
-
-// Type and submit
-{
-  "ref": "4",
-  "text": "search query",
-  "element": "Search box",
-  "submit": true
-}
-
-// Type slowly to trigger autocomplete
-{
-  "ref": "5",
-  "text": "New York",
-  "element": "City input",
-  "slowly": true
-}
+```bash
+agent-browser tab new --label docs https://docs.example.com
+agent-browser tab new --label app  https://app.example.com
+agent-browser tab docs                   # switch to docs
+agent-browser snapshot                   # populate refs for docs
+agent-browser click @e1                  # ref click on docs
+agent-browser tab app                    # switch to app
+agent-browser tab close docs             # close by label
 ```
 
-**Use Cases:**
-- Filling form fields
-- Entering search queries
-- Inputting credentials
-- Triggering autocomplete
-- Testing input validation
+Labels are never auto-generated, never rewritten on navigation, and must be
+unique within a session. To interact with another tab, switch to it first:
+the daemon maintains a single active tab, so refs (`@eN`) belong to the tab
+that was active when the snapshot ran.
 
-**Notes:**
-- Clears existing text before typing by default
-- Use `slowly: true` for inputs with live validation or autocomplete
-- `submit: true` is equivalent to pressing Enter after typing
+## Frames
 
----
-
-### browser_fill_form
-
-Fill multiple form fields in one command.
-
-**Syntax:**
-```json
-{
-  "fields": [
-    {
-      "name": "Email",
-      "type": "textbox",
-      "ref": "3",
-      "value": "user@example.com"
-    },
-    {
-      "name": "Subscribe",
-      "type": "checkbox",
-      "ref": "4",
-      "value": "true"
-    }
-  ]
-}
+```bash
+agent-browser frame "#iframe"     # Switch to iframe by CSS selector
+agent-browser frame @e3           # Switch to iframe by element ref
+agent-browser frame main          # Back to main frame
 ```
 
-**Parameters:**
-- `fields` (array, required): Array of field objects to fill
+### Iframe support
 
-**Field Object:**
-- `name` (string, required): Human-readable field name
-- `type` (string, required): Field type - "textbox", "checkbox", "radio", "combobox", "slider"
-- `ref` (string, required): Element reference from snapshot
-- `value` (string, required): Value to set (use "true"/"false" for checkboxes)
+Iframes are detected automatically during snapshots. When the main-frame snapshot runs, `Iframe` nodes are resolved and their content is inlined beneath the iframe element in the output (one level of nesting; iframes within iframes are not expanded).
 
-**Examples:**
+```bash
+agent-browser snapshot -i
+# @e3 [Iframe] "payment-frame"
+#   @e4 [input] "Card number"
+#   @e5 [button] "Pay"
 
-```javascript
-// Fill login form
-{
-  "fields": [
-    {
-      "name": "Username",
-      "type": "textbox",
-      "ref": "1",
-      "value": "john.doe"
-    },
-    {
-      "name": "Password",
-      "type": "textbox",
-      "ref": "2",
-      "value": "secret123"
-    },
-    {
-      "name": "Remember me",
-      "type": "checkbox",
-      "ref": "3",
-      "value": "true"
-    }
-  ]
-}
+# Interact directly — refs inside iframes already work
+agent-browser fill @e4 "4111111111111111"
+agent-browser click @e5
 
-// Fill signup form
-{
-  "fields": [
-    {
-      "name": "Email",
-      "type": "textbox",
-      "ref": "5",
-      "value": "user@example.com"
-    },
-    {
-      "name": "Country",
-      "type": "combobox",
-      "ref": "6",
-      "value": "United States"
-    },
-    {
-      "name": "Age range",
-      "type": "radio",
-      "ref": "7",
-      "value": "18-25"
-    }
-  ]
-}
+# Or switch frame context for scoped snapshots
+agent-browser frame @e3               # Switch using element ref
+agent-browser snapshot -i             # Snapshot scoped to that iframe
+agent-browser frame main              # Return to main frame
 ```
 
-**Use Cases:**
-- Filling multi-field forms efficiently
-- Registration forms
-- Checkout flows
-- Survey responses
-- Batch data entry
+The `frame` command accepts:
+- **Element refs** — `frame @e3` resolves the ref to an iframe element
+- **CSS selectors** — `frame "#payment-iframe"` finds the iframe by selector
+- **Frame name/URL** — matches against the browser's frame tree
 
-**Notes:**
-- More efficient than individual type commands
-- All fields are filled before submitting
-- Checkbox values must be "true" or "false" strings
-- Combobox values should match option text exactly
+## Dialogs
 
----
+By default, `alert` and `beforeunload` dialogs are automatically accepted so they never block the agent. `confirm` and `prompt` dialogs still require explicit handling. Use `--no-auto-dialog` to disable this behavior.
 
-### browser_press_key
-
-Press a keyboard key.
-
-**Syntax:**
-```json
-{
-  "key": "Enter"
-}
+```bash
+agent-browser dialog accept [text]  # Accept dialog
+agent-browser dialog dismiss        # Dismiss dialog
+agent-browser dialog status         # Check if a dialog is currently open
 ```
 
-**Parameters:**
-- `key` (string, required): Key name or character (e.g., "Enter", "ArrowLeft", "a")
+## JavaScript
 
-**Common Keys:**
-- Navigation: "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Home", "End", "PageUp", "PageDown"
-- Editing: "Backspace", "Delete", "Enter", "Tab", "Escape"
-- Modifiers: "Shift", "Control", "Alt", "Meta"
-- Function: "F1" through "F12"
-- Characters: "a", "b", "1", "2", etc.
-
-**Examples:**
-
-```javascript
-// Submit form
-{ "key": "Enter" }
-
-// Navigate dropdown
-{ "key": "ArrowDown" }
-
-// Close dialog
-{ "key": "Escape" }
-
-// Select all
-{ "key": "Control+a" }
+```bash
+agent-browser eval "document.title"          # Simple expressions only
+agent-browser eval -b "<base64>"             # Any JavaScript (base64 encoded)
+agent-browser eval --stdin                   # Read script from stdin
 ```
 
-**Use Cases:**
-- Submitting forms
-- Navigating menus/dropdowns
-- Keyboard shortcuts
-- Closing modals
-- Tab navigation
+Use `-b`/`--base64` or `--stdin` for reliable execution. Shell escaping with nested quotes and special characters is error-prone.
 
----
+```bash
+# Base64 encode your script, then:
+agent-browser eval -b "ZG9jdW1lbnQucXVlcnlTZWxlY3RvcignW3NyYyo9Il9uZXh0Il0nKQ=="
 
-### browser_hover
-
-Hover over an element.
-
-**Syntax:**
-```json
-{
-  "ref": "1",
-  "element": "Menu item"
-}
+# Or use stdin with heredoc for multiline scripts:
+cat <<'EOF' | agent-browser eval --stdin
+const links = document.querySelectorAll('a');
+Array.from(links).map(a => a.href);
+EOF
 ```
 
-**Parameters:**
-- `ref` (string, required): Element reference from snapshot
-- `element` (string, required): Human-readable element description
+## Authentication and Plugins
 
-**Examples:**
-
-```javascript
-// Hover to show tooltip
-{
-  "ref": "5",
-  "element": "Help icon"
-}
-
-// Hover to reveal submenu
-{
-  "ref": "6",
-  "element": "Products menu"
-}
+```bash
+agent-browser auth save <name> --url <url> --username <user> --password-stdin
+agent-browser auth login <name>          # Login using saved credentials
+agent-browser auth login <name> --credential-provider <plugin> [--item <ref>] [--url <url>]
+agent-browser auth login <name> --username-selector <s> --password-selector <s> [--submit-selector <s>]
+agent-browser auth list                  # List saved auth profiles
+agent-browser auth show <name>           # Show profile metadata, no passwords
+agent-browser auth delete <name>         # Delete a saved profile
+agent-browser plugin add <ref>           # Add a plugin from npm or GitHub
+agent-browser plugin list                # List configured plugins
+agent-browser plugin show <name>         # Show one configured plugin
+agent-browser plugin run <name> <type> --payload <json>
+                                          # Run an arbitrary plugin request
 ```
 
-**Use Cases:**
-- Revealing tooltips
-- Opening dropdown menus
-- Triggering hover effects
-- Testing hover states
+Credential provider plugins run out-of-process over the
+`agent-browser.plugin.v1` stdio JSON protocol and must declare
+`credential.read`. Use `--confirm-actions plugin:<name>:credential.read`
+to require explicit approval before a plugin resolves secrets.
 
-**Notes:**
-- Mouse will remain over element until next action
-- Useful for multi-step hover interactions
+Other capabilities use the same protocol:
+- `browser.provider`: `agent-browser --provider <name> open <url>`
+- `launch.mutate`: append local launch args, extensions, or init scripts
+- `command.run`: `agent-browser plugin run <name> <type> --payload <json>`
 
----
+`plugin run` is for `command.run` and custom capabilities. Core capabilities
+and protocol request types use their dedicated command paths.
 
-### browser_select_option
+## State Management
 
-Select an option in a dropdown.
-
-**Syntax:**
-```json
-{
-  "ref": "1",
-  "element": "Country dropdown",
-  "values": ["United States"]
-}
+```bash
+agent-browser state save auth.json    # Save cookies, storage, auth state
+agent-browser state load auth.json    # Restore saved state
 ```
 
-**Parameters:**
-- `ref` (string, required): Element reference from snapshot
-- `element` (string, required): Human-readable element description
-- `values` (array, required): Array of option values/labels to select
+## MCP Server
 
-**Examples:**
-
-```javascript
-// Select single option
-{
-  "ref": "3",
-  "element": "Country",
-  "values": ["United States"]
-}
-
-// Select multiple options (multi-select)
-{
-  "ref": "4",
-  "element": "Interests",
-  "values": ["Technology", "Design", "Business"]
-}
+```bash
+agent-browser mcp
+agent-browser mcp --tools all
+agent-browser mcp --tools core,network,react
 ```
 
-**Use Cases:**
-- Selecting from dropdowns
-- Multi-select lists
-- Form completion
-- Filtering options
+Starts a stdio Model Context Protocol server. MCP clients should configure the
+server command as `agent-browser` with args `["mcp"]`. The server defaults to
+MCP protocol 2025-11-25 and accepts older supported client protocol versions
+during initialization.
 
-**Notes:**
-- For single-select, use array with one value
-- Values should match visible option text
-- Case-sensitive matching
+The default tools profile is `core`, which keeps MCP context small for everyday
+browser automation. Use `--tools all` for the full typed CLI parity surface, or
+combine profiles with commas, such as `--tools core,network,react`.
 
----
+Profiles:
 
-### browser_drag
+- `core` - Default. Navigation, snapshots, interaction, waits, reads, screenshots, JavaScript eval, close, tab basics, and profile discovery
+- `network` - Network routes, request inspection, HAR, headers, credentials, offline
+- `state` - Cookies, storage, auth, saved state, sessions, profiles, skills
+- `debug` - Console/errors, tracing, profiling, recording, clipboard, plugins, doctor, dashboard, install, upgrade, chat, diff, batch, confirm/deny
+- `tabs` - Back/forward/reload, tabs, windows, frames, dialogs
+- `react` - React tree/inspect/renders/suspense, vitals, pushstate
+- `mobile` - Viewport/device/geolocation/media, touch, swipe, mouse, keyboard
+- `all` - Every MCP tool, including the full typed CLI parity surface
 
-Perform drag and drop between two elements.
+Common tools include:
 
-**Syntax:**
-```json
-{
-  "startRef": "1",
-  "startElement": "Draggable item",
-  "endRef": "2",
-  "endElement": "Drop zone"
-}
+- `agent_browser_tools_profiles`
+- `agent_browser_open`
+- `agent_browser_snapshot`
+- `agent_browser_click`
+- `agent_browser_fill`
+- `agent_browser_type`
+- `agent_browser_press`
+- `agent_browser_wait_for_selector`
+- `agent_browser_screenshot`
+- `agent_browser_get_url`
+- `agent_browser_eval`
+- `agent_browser_close`
+
+Tool calls use the same config files and environment variables as the CLI. Each
+tool accepts typed arguments plus `extraArgs` for advanced CLI flags and exact
+CLI parity. Tool discovery is paginated and includes read-only/open-world
+annotations so modern MCP clients can load the large typed surface
+incrementally. Use the `session` tool argument or `AGENT_BROWSER_SESSION` to
+isolate browser state.
+
+## Global Options
+
+```bash
+agent-browser --session <name> ...    # Isolated browser session
+agent-browser --json ...              # JSON output for parsing
+agent-browser --headed ...            # Show browser window (not headless)
+agent-browser --cdp <port> ...        # Connect via Chrome DevTools Protocol
+agent-browser -p <provider> ...       # Browser provider or configured provider plugin
+agent-browser --proxy <url> ...       # Use proxy server
+agent-browser --proxy-bypass <hosts>  # Hosts to bypass proxy
+agent-browser --headers <json> ...    # HTTP headers scoped to URL's origin
+agent-browser --executable-path <p>   # Custom browser executable
+agent-browser --extension <path> ...  # Load browser extension (repeatable)
+agent-browser --ignore-https-errors   # Ignore SSL certificate errors
+agent-browser --hide-scrollbars false # Keep native scrollbars visible in headless Chromium screenshots
+agent-browser --help                  # Show help (-h)
+agent-browser --version               # Show version (-V)
+agent-browser <command> --help        # Show detailed help for a command
 ```
 
-**Parameters:**
-- `startRef` (string, required): Source element reference from snapshot
-- `startElement` (string, required): Human-readable source element description
-- `endRef` (string, required): Target element reference from snapshot
-- `endElement` (string, required): Human-readable target element description
+## Debugging
 
-**Examples:**
-
-```javascript
-// Drag file to upload
-{
-  "startRef": "5",
-  "startElement": "File icon",
-  "endRef": "6",
-  "endElement": "Upload dropzone"
-}
-
-// Reorder list items
-{
-  "startRef": "7",
-  "startElement": "Task 1",
-  "endRef": "8",
-  "endElement": "Position 2"
-}
+```bash
+agent-browser --headed open example.com   # Show browser window
+agent-browser --cdp 9222 snapshot         # Connect via CDP port
+agent-browser connect 9222                # Alternative: connect command
+agent-browser console                     # View console messages
+agent-browser console --clear             # Clear console
+agent-browser errors                      # View page errors
+agent-browser errors --clear              # Clear errors
+agent-browser highlight @e1               # Highlight element
+agent-browser inspect                     # Open Chrome DevTools for this session
+agent-browser trace start                 # Start recording trace
+agent-browser trace stop trace.json       # Stop and save trace
+agent-browser profiler start              # Start Chrome DevTools profiling
+agent-browser profiler stop trace.json    # Stop and save profile
 ```
 
-**Use Cases:**
-- File uploads via drag-drop
-- Reordering lists
-- Kanban boards
-- Visual editors
-- Drag-to-select
+## React / Web Vitals
 
----
+Requires `--enable react-devtools` at launch for the `react ...` commands.
+`vitals` and `pushstate` are framework-agnostic.
 
-### browser_file_upload
-
-Upload files to file input.
-
-**Syntax:**
-```json
-{
-  "paths": ["/path/to/file1.pdf", "/path/to/file2.jpg"]
-}
+```bash
+agent-browser open --enable react-devtools <url>    # Launch with React hook installed
+agent-browser react tree                            # Full component tree
+agent-browser react inspect <fiberId>               # Props, hooks, state, source
+agent-browser react renders start                   # Begin re-render recording
+agent-browser react renders stop [--json]           # Stop and print render profile
+agent-browser react suspense [--only-dynamic] [--json]  # Suspense boundaries + classifier
+                                                         # --only-dynamic hides the "static" list
+agent-browser vitals [url] [--json]                 # LCP/CLS/TTFB/FCP/INP + hydration
+agent-browser pushstate <url>                       # SPA client-side nav (auto-detects Next router)
 ```
 
-**Parameters:**
-- `paths` (array, optional): Absolute paths to files to upload. If omitted, cancels file chooser.
+`vitals` prints a summary by default and uses the same fields as the structured
+`--json` response.
 
-**Examples:**
+## Init scripts
 
-```javascript
-// Upload single file
-{
-  "paths": ["/home/user/document.pdf"]
-}
-
-// Upload multiple files
-{
-  "paths": [
-    "/home/user/photo1.jpg",
-    "/home/user/photo2.jpg",
-    "/home/user/photo3.jpg"
-  ]
-}
-
-// Cancel file chooser
-{
-  "paths": []
-}
+```bash
+agent-browser open --init-script <path>             # Register before first navigation (repeatable)
+agent-browser addinitscript <js>                    # Register at runtime (returns identifier)
+agent-browser removeinitscript <identifier>         # Remove a previously registered init script
 ```
 
-**Use Cases:**
-- Uploading documents
-- Profile picture uploads
-- Batch file uploads
-- Testing file input handling
+## cURL cookie import
 
-**Notes:**
-- Paths must be absolute
-- Files must exist on disk
-- Omit paths to cancel file selection
-
----
-
-## Find Commands
-
-Find commands provide semantic alternatives to numeric refs for element selection. They are more readable but may be less precise than snapshot refs.
-
-### Find by Role
-
-Use ARIA roles to find elements.
-
-**Common Roles:**
-- `button`: Clickable buttons
-- `link`: Hyperlinks
-- `textbox`: Input fields
-- `heading`: Headings (h1-h6)
-- `checkbox`: Checkboxes
-- `radio`: Radio buttons
-- `combobox`: Select dropdowns
-- `dialog`: Modal dialogs
-- `navigation`: Navigation areas
-
-**Usage in Commands:**
-
-Instead of using refs, you can specify elements semantically in most interaction commands. However, the Playwright MCP tools primarily use the ref-based approach for reliability.
-
-**Best Practice:**
-Use `browser_snapshot` to get refs rather than relying on semantic selectors. Refs are more stable and precise.
-
----
-
-### Find by Text
-
-While the Playwright MCP doesn't expose direct "find by text" commands, the snapshot provides accessible names that include text content. Use snapshot to locate elements by their visible text.
-
-**Example Workflow:**
-1. Take snapshot
-2. Search snapshot output for text
-3. Use corresponding ref in interaction command
-
----
-
-### Find by Label
-
-Form fields often have associated labels. In snapshots, the accessible name typically includes the label text.
-
-**Example:**
-```markdown
-[3] textbox "Email address"  # "Email address" is from the label
+```bash
+agent-browser cookies set --curl <file>                             # Auto-detects JSON/cURL/Cookie-header
+agent-browser cookies set --curl <file> --domain example.com        # Scope to a domain
 ```
 
-Use the ref `"3"` to interact with this labeled field.
+Supported formats: JSON array of `{name, value}`, a cURL dump from
+DevTools -> Network -> Copy as cURL, or a bare Cookie header. Errors never
+echo cookie values.
 
----
+## Network route by resource type
 
-### Find by Test ID
-
-The snapshot doesn't directly expose test IDs, but you can use `browser_evaluate` to find elements by test ID:
-
-```javascript
-{
-  "function": "() => document.querySelector('[data-testid=\"submit-button\"]').textContent"
-}
+```bash
+agent-browser network route '*' --abort --resource-type script       # Block scripts only (SSR-lock pattern)
+agent-browser network route '*' --resource-type image,font --body '' # Stub images and fonts
 ```
 
-**Best Practice:**
-Prefer snapshot refs over test IDs for reliability.
+## Environment Variables
 
----
-
-## Wait Commands
-
-### browser_wait_for
-
-Wait for specific conditions before proceeding.
-
-**Syntax:**
-```json
-{
-  "text": "Success",  // optional
-  "textGone": "Loading...",  // optional
-  "time": 2.5  // optional, in seconds
-}
+```bash
+AGENT_BROWSER_SESSION="mysession"            # Default session name
+AGENT_BROWSER_EXECUTABLE_PATH="/path/chrome" # Custom browser path
+AGENT_BROWSER_EXTENSIONS="/ext1,/ext2"       # Comma-separated extension paths
+AGENT_BROWSER_INIT_SCRIPTS="/a.js,/b.js"     # Comma-separated init script paths
+AGENT_BROWSER_ENABLE="react-devtools"        # Comma-separated built-in init script features
+AGENT_BROWSER_HIDE_SCROLLBARS="false"        # Keep native scrollbars visible in headless Chromium screenshots
+AGENT_BROWSER_PROVIDER="browserbase"         # Browser provider or configured provider plugin
+AGENT_BROWSER_STREAM_PORT="9223"             # Override WebSocket streaming port (default: OS-assigned)
+AGENT_BROWSER_CONFIG="./agent-browser.json"  # Custom config file
+AGENT_BROWSER_CDP="9222"                     # Connect daemon to CDP port or WebSocket URL
+AGENT_BROWSER_PLUGINS='[{"name":"vault","command":"agent-browser-plugin-vault","capabilities":["credential.read"]},{"name":"stealth","command":"agent-browser-plugin-stealth","capabilities":["launch.mutate"]}]'
 ```
-
-**Parameters:**
-- `text` (string, optional): Wait for this text to appear on the page
-- `textGone` (string, optional): Wait for this text to disappear from the page
-- `time` (number, optional): Wait for specified seconds
-
-**Examples:**
-
-```javascript
-// Wait for success message
-{
-  "text": "Order confirmed"
-}
-
-// Wait for loading to finish
-{
-  "textGone": "Loading..."
-}
-
-// Wait 2 seconds
-{
-  "time": 2
-}
-
-// Wait for text change
-{
-  "textGone": "Processing...",
-  "text": "Complete"
-}
-```
-
-**Use Cases:**
-- Waiting for AJAX to complete
-- Waiting for success messages
-- Waiting for loading spinners to disappear
-- Adding delays between actions
-- Waiting for dynamic content
-
-**Notes:**
-- Can specify multiple conditions
-- All conditions must be met
-- Default timeout is typically 30 seconds
-- Use `time` for fixed delays, text conditions for dynamic content
-
----
-
-## Screenshot Commands
-
-### browser_take_screenshot
-
-Capture a screenshot of the page or specific element.
-
-**Syntax:**
-```json
-{
-  "type": "png",
-  "filename": "page.png",
-  "fullPage": false,
-  "element": "Main content",  // optional
-  "ref": "5"  // optional
-}
-```
-
-**Parameters:**
-- `type` (string, required): Image format - "png" or "jpeg"
-- `filename` (string, optional): File name to save. Defaults to `page-{timestamp}.{png|jpeg}`. Prefer relative names.
-- `fullPage` (boolean, optional): Capture full scrollable page instead of viewport. Cannot be used with element screenshots.
-- `element` (string, optional): Human-readable element description. If provided, `ref` is required.
-- `ref` (string, optional): Element reference from snapshot. If provided, `element` is required.
-
-**Examples:**
-
-```javascript
-// Viewport screenshot (PNG)
-{
-  "type": "png"
-}
-
-// Full page screenshot
-{
-  "type": "png",
-  "fullPage": true,
-  "filename": "full-page.png"
-}
-
-// Element screenshot
-{
-  "type": "png",
-  "element": "Product card",
-  "ref": "8",
-  "filename": "product.png"
-}
-
-// JPEG for smaller size
-{
-  "type": "jpeg",
-  "filename": "page.jpg"
-}
-```
-
-**Use Cases:**
-- Visual regression testing
-- Bug reports
-- Documentation
-- Proof of completion
-- Capturing specific components
-
-**Format Comparison:**
-- **PNG**: Lossless, larger files, better for UI/text
-- **JPEG**: Lossy, smaller files, better for photos
-
-**Best Practices:**
-- Use PNG for UI screenshots
-- Use JPEG for photo-heavy pages
-- Use `fullPage` for documentation
-- Use element screenshots to focus on specific areas
-- Use relative filenames to stay in output directory
-
----
-
-## Settings & Configuration
-
-### browser_resize
-
-Resize the browser viewport.
-
-**Syntax:**
-```json
-{
-  "width": 1920,
-  "height": 1080
-}
-```
-
-**Parameters:**
-- `width` (number, required): Viewport width in pixels
-- `height` (number, required): Viewport height in pixels
-
-**Common Sizes:**
-- Desktop: 1920x1080, 1366x768, 1440x900
-- Tablet: 768x1024, 1024x768
-- Mobile: 375x667 (iPhone), 360x640 (Android)
-
-**Examples:**
-
-```javascript
-// Desktop HD
-{
-  "width": 1920,
-  "height": 1080
-}
-
-// Tablet portrait
-{
-  "width": 768,
-  "height": 1024
-}
-
-// Mobile
-{
-  "width": 375,
-  "height": 667
-}
-```
-
-**Use Cases:**
-- Testing responsive designs
-- Capturing screenshots at specific sizes
-- Simulating different devices
-- Testing viewport-dependent features
-
-**Notes:**
-- Page will re-render after resize
-- May trigger responsive breakpoints
-- Consider taking new snapshot after resize
-
----
-
-### browser_handle_dialog
-
-Handle browser dialogs (alert, confirm, prompt).
-
-**Syntax:**
-```json
-{
-  "accept": true,
-  "promptText": "User input"  // optional, only for prompts
-}
-```
-
-**Parameters:**
-- `accept` (boolean, required): Whether to accept (OK) or dismiss (Cancel) the dialog
-- `promptText` (string, optional): Text to enter in prompt dialogs
-
-**Examples:**
-
-```javascript
-// Accept alert
-{
-  "accept": true
-}
-
-// Dismiss confirm
-{
-  "accept": false
-}
-
-// Enter text in prompt
-{
-  "accept": true,
-  "promptText": "John Doe"
-}
-```
-
-**Use Cases:**
-- Handling confirmation dialogs
-- Responding to alerts
-- Testing dialog behavior
-- Automating dialog-dependent flows
-
-**Notes:**
-- Must be called when dialog is active
-- Blocks further automation until handled
-- Prompt text is only used for prompt() dialogs
-
----
-
-### browser_install
-
-Install the browser specified in configuration.
-
-**Syntax:**
-```json
-{}
-```
-
-**Parameters:**
-None
-
-**Examples:**
-```javascript
-// Install browser
-{}
-```
-
-**Use Cases:**
-- Initial setup
-- Fixing missing browser errors
-- Installing after updates
-
-**Notes:**
-- Only needed once per system
-- Called automatically if browser is missing
-- Downloads and installs Playwright browser binaries
-
----
-
-## Advanced Commands
-
-### browser_run_code
-
-Run arbitrary Playwright code snippets.
-
-**Syntax:**
-```json
-{
-  "code": "async (page) => { /* Playwright code */ }"
-}
-```
-
-**Parameters:**
-- `code` (string, required): JavaScript function with Playwright code. Receives `page` object.
-
-**Examples:**
-
-```javascript
-// Click using Playwright API
-{
-  "code": "async (page) => { await page.getByRole('button', { name: 'Submit' }).click(); }"
-}
-
-// Complex interaction
-{
-  "code": "async (page) => { const title = await page.title(); await page.screenshot({ path: `${title}.png` }); return title; }"
-}
-
-// Multiple actions
-{
-  "code": "async (page) => { await page.fill('#email', 'user@example.com'); await page.fill('#password', 'secret'); await page.click('button[type=submit]'); }"
-}
-```
-
-**Use Cases:**
-- Advanced Playwright features not exposed by other commands
-- Complex multi-step interactions
-- Direct access to Playwright API
-- Custom automation logic
-
-**Notes:**
-- Full Playwright API available
-- Return values are captured
-- Useful for edge cases
-- Requires Playwright knowledge
-
----
-
-## Tab Management
-
-### browser_tabs
-
-Manage browser tabs (list, create, close, select).
-
-**Syntax:**
-```json
-{
-  "action": "list"  // "list", "new", "close", "select"
-  "index": 0  // optional, for close/select
-}
-```
-
-**Parameters:**
-- `action` (string, required): Operation to perform
-  - `"list"`: List all open tabs
-  - `"new"`: Open new tab
-  - `"close"`: Close tab (current if index omitted)
-  - `"select"`: Switch to tab by index
-- `index` (number, optional): Tab index for close/select operations (0-based)
-
-**Examples:**
-
-```javascript
-// List all tabs
-{
-  "action": "list"
-}
-
-// Open new tab
-{
-  "action": "new"
-}
-
-// Close current tab
-{
-  "action": "close"
-}
-
-// Close specific tab
-{
-  "action": "close",
-  "index": 2
-}
-
-// Switch to tab
-{
-  "action": "select",
-  "index": 1
-}
-```
-
-**Use Cases:**
-- Multi-tab workflows
-- Comparing pages side-by-side
-- Managing multiple sessions
-- Testing tab-specific behavior
-
-**Notes:**
-- Tab indices are 0-based
-- Closing last tab closes browser
-- New tabs start with about:blank
-
----
-
-## Network & Console
-
-### browser_console_messages
-
-Retrieve console messages from the browser.
-
-**Syntax:**
-```json
-{
-  "level": "info",
-  "filename": "console.txt"  // optional
-}
-```
-
-**Parameters:**
-- `level` (string, required): Minimum severity level - "error", "warning", "info", "debug". Each level includes more severe levels.
-- `filename` (string, optional): Save messages to file instead of returning in response
-
-**Examples:**
-
-```javascript
-// Get all messages
-{
-  "level": "debug"
-}
-
-// Get warnings and errors
-{
-  "level": "warning"
-}
-
-// Get only errors
-{
-  "level": "error"
-}
-
-// Save to file
-{
-  "level": "info",
-  "filename": "console-output.txt"
-}
-```
-
-**Use Cases:**
-- Debugging JavaScript errors
-- Checking console output
-- Verifying logging behavior
-- Detecting client-side errors
-
-**Notes:**
-- Returns logs from last 24 hours
-- Level hierarchy: error > warning > info > debug
-- Useful for debugging automation failures
-
----
-
-### browser_network_requests
-
-Get network requests made by the page.
-
-**Syntax:**
-```json
-{
-  "includeStatic": false,
-  "filename": "network.txt"  // optional
-}
-```
-
-**Parameters:**
-- `includeStatic` (boolean, required): Whether to include successful static resources (images, fonts, scripts)
-- `filename` (string, optional): Save requests to file instead of returning in response
-
-**Examples:**
-
-```javascript
-// Get API requests only
-{
-  "includeStatic": false
-}
-
-// Get all requests
-{
-  "includeStatic": true
-}
-
-// Save to file
-{
-  "includeStatic": false,
-  "filename": "api-calls.txt"
-}
-```
-
-**Use Cases:**
-- Analyzing API calls
-- Debugging network issues
-- Verifying request behavior
-- Performance analysis
-
-**Notes:**
-- Returns requests since page load
-- Includes request/response details
-- Static resources can be noisy (images, CSS, JS)
-
----
-
-## Common Workflows
-
-### Login Flow
-
-```javascript
-// 1. Navigate to login page
-{ "url": "https://example.com/login" }
-
-// 2. Take snapshot to find form fields
-{}
-
-// 3. Fill login form (assuming refs 1, 2 from snapshot)
-{
-  "fields": [
-    { "name": "Email", "type": "textbox", "ref": "1", "value": "user@example.com" },
-    { "name": "Password", "type": "textbox", "ref": "2", "value": "secret123" }
-  ]
-}
-
-// 4. Click submit button (assuming ref 3)
-{
-  "ref": "3",
-  "element": "Submit button"
-}
-
-// 5. Wait for success
-{
-  "text": "Welcome back"
-}
-```
-
-### Form Filling
-
-```javascript
-// 1. Navigate
-{ "url": "https://example.com/signup" }
-
-// 2. Snapshot
-{}
-
-// 3. Fill all fields at once
-{
-  "fields": [
-    { "name": "Full Name", "type": "textbox", "ref": "1", "value": "John Doe" },
-    { "name": "Email", "type": "textbox", "ref": "2", "value": "john@example.com" },
-    { "name": "Country", "type": "combobox", "ref": "3", "value": "United States" },
-    { "name": "Terms", "type": "checkbox", "ref": "4", "value": "true" }
-  ]
-}
-
-// 4. Submit
-{
-  "ref": "5",
-  "element": "Create Account"
-}
-```
-
-### Screenshot Documentation
-
-```javascript
-// 1. Navigate
-{ "url": "https://example.com/product" }
-
-// 2. Full page screenshot
-{
-  "type": "png",
-  "fullPage": true,
-  "filename": "product-page-full.png"
-}
-
-// 3. Snapshot to find product card
-{}
-
-// 4. Element screenshot (assuming ref 10)
-{
-  "type": "png",
-  "element": "Product card",
-  "ref": "10",
-  "filename": "product-card.png"
-}
-```
-
-### Debugging Workflow
-
-```javascript
-// 1. Navigate
-{ "url": "https://example.com" }
-
-// 2. Check console for errors
-{
-  "level": "error",
-  "filename": "errors.txt"
-}
-
-// 3. Check network requests
-{
-  "includeStatic": false,
-  "filename": "api-calls.txt"
-}
-
-// 4. Take screenshot for visual check
-{
-  "type": "png",
-  "filename": "debug-screenshot.png"
-}
-
-// 5. Snapshot for structure
-{
-  "filename": "page-structure.md"
-}
-```
-
-### Responsive Testing
-
-```javascript
-// Test desktop
-{
-  "width": 1920,
-  "height": 1080
-}
-{ "url": "https://example.com" }
-{
-  "type": "png",
-  "filename": "desktop.png"
-}
-
-// Test tablet
-{
-  "width": 768,
-  "height": 1024
-}
-{ "url": "https://example.com" }
-{
-  "type": "png",
-  "filename": "tablet.png"
-}
-
-// Test mobile
-{
-  "width": 375,
-  "height": 667
-}
-{ "url": "https://example.com" }
-{
-  "type": "png",
-  "filename": "mobile.png"
-}
-```
-
----
-
-## Best Practices
-
-### Element Selection
-1. **Always snapshot first** - Get current page state before interactions
-2. **Use refs for reliability** - More stable than semantic selectors
-3. **Re-snapshot after changes** - AJAX, navigation, or DOM updates require fresh snapshot
-4. **Verify element exists** - Check snapshot before attempting interaction
-
-### Error Handling
-1. **Use wait commands** - Wait for elements before interacting
-2. **Check console messages** - Debug with `browser_console_messages`
-3. **Inspect network** - Verify API calls with `browser_network_requests`
-4. **Take screenshots** - Visual confirmation of failures
-
-### Performance
-1. **Minimize snapshots** - Only snapshot when needed
-2. **Use specific waits** - Wait for text/elements rather than fixed delays
-3. **Batch form fills** - Use `browser_fill_form` instead of multiple `browser_type` calls
-4. **Close tabs** - Clean up unused tabs to save resources
-
-### Debugging
-1. **Enable verbose logging** - Check console messages at debug level
-2. **Save outputs to files** - Use filename parameters for large outputs
-3. **Take screenshots before/after** - Visual debugging
-4. **Inspect network traffic** - Verify API interactions
-
-### Reliability
-1. **Wait for dynamic content** - Use `browser_wait_for` for AJAX-loaded content
-2. **Handle dialogs promptly** - Don't let alerts block automation
-3. **Verify success** - Check for success messages or expected state
-4. **Use try-catch patterns** - Plan for failures in complex workflows
-
----
-
-## Command Quick Reference
-
-| Category | Command | Purpose |
-|----------|---------|---------|
-| **Navigation** | `browser_navigate` | Go to URL |
-| | `browser_navigate_back` | Browser back |
-| | `browser_close` | Close browser |
-| **Inspection** | `browser_snapshot` | Get page structure + refs |
-| | `browser_evaluate` | Run JavaScript |
-| **Interaction** | `browser_click` | Click element |
-| | `browser_type` | Type text |
-| | `browser_fill_form` | Fill multiple fields |
-| | `browser_press_key` | Press keyboard key |
-| | `browser_hover` | Hover element |
-| | `browser_select_option` | Select dropdown option |
-| | `browser_drag` | Drag and drop |
-| | `browser_file_upload` | Upload files |
-| **Waiting** | `browser_wait_for` | Wait for conditions |
-| **Screenshots** | `browser_take_screenshot` | Capture image |
-| **Settings** | `browser_resize` | Set viewport size |
-| | `browser_handle_dialog` | Handle alert/confirm/prompt |
-| | `browser_install` | Install browser |
-| **Advanced** | `browser_run_code` | Run Playwright code |
-| **Tabs** | `browser_tabs` | Manage tabs |
-| **Debug** | `browser_console_messages` | Get console logs |
-| | `browser_network_requests` | Get network traffic |
-
----
-
-## Accessibility Notes
-
-All commands respect the accessibility tree:
-- Elements must have accessible roles
-- Use semantic HTML for best results
-- Snapshots show ARIA roles and names
-- Prefer labeled form fields
-- Test with screen reader users in mind
-
----
-
-## Version Information
-
-This reference is based on the Playwright MCP plugin for Claude Code. Commands may vary slightly based on plugin version.
-
-For the latest information, refer to the Playwright documentation and Claude Code plugin updates.

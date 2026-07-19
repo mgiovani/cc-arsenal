@@ -22,114 +22,60 @@ $ARGUMENTS
 
 ## Anti-Hallucination Guidelines
 
-**CRITICAL**: Test generation must be based on ACTUAL code and VERIFIED project patterns:
-1. **Read source code first** - Never write tests for code that has not been read and understood
-2. **Discover test framework** - Do NOT assume pytest, vitest, jest, or any specific framework
-3. **Follow existing patterns** - Match the project's existing test style, fixtures, and conventions exactly
-4. **Verify tests run** - All generated tests must actually pass when executed
-5. **No invented APIs** - Only test methods, functions, and interfaces that actually exist in the code
-6. **Real assertions** - Every test must have meaningful assertions, not just "does not throw"
-7. **Coverage-driven** - Focus on untested code paths, not duplicating existing coverage
+Test generation must be grounded in code you actually read and patterns you actually verified — a test for a method that doesn't exist, or a coverage number you didn't measure, is worse than no test at all:
 
-## Quality Gates
+1. Read the source file before writing any test for it.
+2. Discover the test framework from the project itself (Step 0.2) rather than assuming pytest/vitest/jest.
+3. Match the project's existing test style, fixtures, and conventions exactly.
+4. Run every generated test — a test that has never executed is unverified.
+5. Only reference methods, functions, and interfaces that exist in the code you read.
+6. Every test needs a meaningful assertion, not just "does not throw."
+7. Target untested code paths; don't duplicate coverage that already exists.
+8. Any coverage percentage, baseline, or file path you report must come from a command you actually ran — never estimate or invent one, even under time pressure.
 
-This skill includes automatic verification before completion:
+A Stop hook re-runs the discovered test/coverage/lint commands automatically before letting the session end (see frontmatter). Phase 4 below exists only to catch failures before that automatic gate fires, not to duplicate it.
 
-### Test Verification (Stop Hook)
+## Scope: pick a track before starting
 
-When attempting to stop working, an automated verification agent runs to ensure quality:
+- **Small** (1-2 tests, a single file, a quick fix) — skip task creation and the approval gate. Discover the test command (Step 0.2), write the tests, run them, done. Don't spin up Task Management ceremony for a two-test add.
+- **Large** (multiple files/modules, a coverage push, anything needing parallel subagents) — use the full Phase 0-5 workflow with Task Management below.
 
-**Verification Steps:**
-1. **Test Execution**: Runs discovered test command. All tests (new and existing) must pass.
-2. **Coverage Check**: If coverage tooling exists, verifies improvement over baseline.
-3. **Lint Check**: Ensures test files pass linting rules.
+If unsure, default to Small and escalate only if the target turns out to span several modules.
 
-**Behavior:**
-- All checks pass: Test generation marked complete
-- Any check fails: Completion blocked, error details provided, Claude continues fixing
-- Commands not found: Hook discovers them from CLAUDE.md or project files
+**Portability:** No `Task`/`TaskCreate` tools in this environment? Skip task tracking and the parallel subagent fan-out in Phase 3 — write the tests for each module group yourself, one group at a time. The phase structure is the contract; parallelism is just a speedup.
 
-**Example blocked completion:**
-```
-Test verification failed:
+## Implementation Workflow (Large track)
 
-Tests: FAILED (2 new tests failing)
-  - test_user_service_create: AttributeError: 'UserService' has no method 'create_user'
-  - test_parse_config_empty: Expected ValueError, got None
-
-Coverage: IMPROVED (72% → 78%)
-Lint: PASSED
-
-Cannot complete until all tests pass. Fix the failing tests.
-```
-
-## Task Management
-
-This skill uses Claude Code's Task Management System to track test generation progress with dependency-aware task tracking.
-
-**When to Use Tasks:**
-- Generating tests for multiple files or modules
-- Coverage improvement across a codebase
-- Complex test generation requiring parallel subagents
-
-**When to Skip Tasks:**
-- Adding 1-2 tests to a single file
-- Simple unit test additions
-- Quick test fixes
-
-## Implementation Workflow
-
-### Phase 0: Project Discovery (REQUIRED)
+### Phase 0: Project Discovery
 
 **Step 0.1: Create Task Structure**
 
-Before generating tests, create the dependency-aware task structure:
+Create one task per phase, in order. `TaskCreate` returns the task's real ID — capture it and reuse that captured value everywhere below. Never assume IDs are literally `"1"`, `"2"`, etc.
 
 ```
-TaskCreate:
-  subject: "Phase 0: Discover project test workflow"
-  description: "Identify test framework, coverage tools, and conventions"
-  activeForm: "Discovering test workflow"
+discoverId = TaskCreate({ subject: "Phase 0: Discover project test workflow", description: "Identify test framework, coverage tools, and conventions", activeForm: "Discovering test workflow" })
 
-TaskCreate:
-  subject: "Phase 1: Analyze coverage gaps"
-  description: "Run coverage, identify untested code, prioritize targets"
-  activeForm: "Analyzing coverage gaps"
+gapsId = TaskCreate({ subject: "Phase 1: Analyze coverage gaps", description: "Run coverage, identify untested code, prioritize targets", activeForm: "Analyzing coverage gaps" })
+TaskUpdate: { taskId: gapsId, addBlockedBy: [discoverId] }
 
-TaskCreate:
-  subject: "Phase 2: Create test plan"
-  description: "Present test plan to user for approval"
-  activeForm: "Creating test plan"
+planId = TaskCreate({ subject: "Phase 2: Create test plan", description: "Present test plan to user for approval", activeForm: "Creating test plan" })
+TaskUpdate: { taskId: planId, addBlockedBy: [gapsId] }
 
-TaskCreate:
-  subject: "Phase 3: Generate tests in parallel"
-  description: "Spawn subagents to write tests for each module group"
-  activeForm: "Generating tests"
+genId = TaskCreate({ subject: "Phase 3: Generate tests in parallel", description: "Spawn subagents to write tests for each module group", activeForm: "Generating tests" })
+TaskUpdate: { taskId: genId, addBlockedBy: [planId] }
 
-TaskCreate:
-  subject: "Phase 4: Quality verification"
-  description: "Run all tests, check coverage improvement, lint"
-  activeForm: "Verifying test quality"
+verifyId = TaskCreate({ subject: "Phase 4: Quality verification", description: "Run all tests, check coverage improvement, lint", activeForm: "Verifying test quality" })
+TaskUpdate: { taskId: verifyId, addBlockedBy: [genId] }
 
-TaskCreate:
-  subject: "Phase 5: Final commit"
-  description: "Commit tests with coverage summary"
-  activeForm: "Committing tests"
+commitId = TaskCreate({ subject: "Phase 5: Final commit", description: "Commit tests with coverage summary", activeForm: "Committing tests" })
+TaskUpdate: { taskId: commitId, addBlockedBy: [verifyId] }
 
-# Set up strict sequential chain
-TaskUpdate: { taskId: "2", addBlockedBy: ["1"] }
-TaskUpdate: { taskId: "3", addBlockedBy: ["2"] }
-TaskUpdate: { taskId: "4", addBlockedBy: ["3"] }
-TaskUpdate: { taskId: "5", addBlockedBy: ["4"] }
-TaskUpdate: { taskId: "6", addBlockedBy: ["5"] }
-
-# Start first task
-TaskUpdate: { taskId: "1", status: "in_progress" }
+TaskUpdate: { taskId: discoverId, status: "in_progress" }
 ```
 
 **Step 0.2: Discover Test Workflow**
 
-Use Haiku-powered Explore agent for token-efficient discovery:
+Use a Haiku-powered Explore agent for token-efficient discovery:
 
 ```
 Use Task tool with Explore agent:
@@ -166,8 +112,8 @@ Store discovered commands and patterns for use in later phases.
 **Step 0.3: Complete Phase 0**
 
 ```
-TaskUpdate: { taskId: "1", status: "completed" }
-TaskList  # Check that Task 2 is now unblocked
+TaskUpdate: { taskId: discoverId, status: "completed" }
+TaskList  # Check that the Phase 1 task (gapsId) is now unblocked
 ```
 
 ### Phase 1: Coverage Gap Analysis
@@ -177,7 +123,7 @@ TaskList  # Check that Task 2 is now unblocked
 **Step 1.1: Start Phase 1**
 
 ```
-TaskUpdate: { taskId: "2", status: "in_progress" }
+TaskUpdate: { taskId: gapsId, status: "in_progress" }
 ```
 
 **Step 1.2: Establish Coverage Baseline**
@@ -226,8 +172,8 @@ If the user specified target files/modules, prioritize those. Otherwise, use the
 **Step 1.4: Complete Phase 1**
 
 ```
-TaskUpdate: { taskId: "2", status: "completed" }
-TaskList  # Check that Task 3 is now unblocked
+TaskUpdate: { taskId: gapsId, status: "completed" }
+TaskList  # Check that the Phase 2 task (planId) is now unblocked
 ```
 
 ### Phase 2: Test Plan (User Approval)
@@ -237,7 +183,7 @@ TaskList  # Check that Task 3 is now unblocked
 **Step 2.1: Start Phase 2**
 
 ```
-TaskUpdate: { taskId: "3", status: "in_progress" }
+TaskUpdate: { taskId: planId, status: "in_progress" }
 ```
 
 **Step 2.2: Present Test Plan**
@@ -257,6 +203,8 @@ AskUserQuestion:
       description: "Let me specify which modules to test."
 ```
 
+No `AskUserQuestion` tool available? Present the same plan as plain text and wait for the user's reply before moving on to Phase 3.
+
 The plan should include for each target:
 - **File/module path** being tested
 - **Functions/methods** to cover
@@ -267,8 +215,8 @@ The plan should include for each target:
 **Step 2.3: Complete Phase 2**
 
 ```
-TaskUpdate: { taskId: "3", status: "completed" }
-TaskList  # Check that Task 4 is now unblocked
+TaskUpdate: { taskId: planId, status: "completed" }
+TaskList  # Check that the Phase 3 task (genId) is now unblocked
 ```
 
 ### Phase 3: Parallel Test Generation
@@ -278,35 +226,23 @@ TaskList  # Check that Task 4 is now unblocked
 **Step 3.1: Start Phase 3**
 
 ```
-TaskUpdate: { taskId: "4", status: "in_progress" }
+TaskUpdate: { taskId: genId, status: "in_progress" }
 ```
 
 **Step 3.2: Create Parallel Subagent Tasks**
 
-Group approved test targets into logical units (by module, feature area, or related files) and create a child task for each:
+Group approved test targets into logical units (by module, feature area, or related files) and create a child task for each, capturing each returned ID:
 
 ```
 # Example: 3 module groups to test in parallel
-TaskCreate:
-  subject: "Write tests for auth module"
-  description: "Generate unit tests for src/auth/ (login, register, token management)"
-  activeForm: "Writing auth module tests"
-  metadata: { parent: "4", module: "auth" }
+authChildId = TaskCreate({ subject: "Write tests for auth module", description: "Generate unit tests for src/auth/ (login, register, token management)", activeForm: "Writing auth module tests", metadata: { parent: genId, module: "auth" } })
 
-TaskCreate:
-  subject: "Write tests for user service"
-  description: "Generate unit tests for src/services/user.py (CRUD, validation)"
-  activeForm: "Writing user service tests"
-  metadata: { parent: "4", module: "user-service" }
+userChildId = TaskCreate({ subject: "Write tests for user service", description: "Generate unit tests for src/services/user.py (CRUD, validation)", activeForm: "Writing user service tests", metadata: { parent: genId, module: "user-service" } })
 
-TaskCreate:
-  subject: "Write tests for API routes"
-  description: "Generate integration tests for src/routes/ (endpoints, middleware)"
-  activeForm: "Writing API route tests"
-  metadata: { parent: "4", module: "api-routes" }
+apiChildId = TaskCreate({ subject: "Write tests for API routes", description: "Generate integration tests for src/routes/ (endpoints, middleware)", activeForm: "Writing API route tests", metadata: { parent: genId, module: "api-routes" } })
 
-# Phase 5 (Verification) blocked by ALL parallel tasks
-TaskUpdate: { taskId: "5", addBlockedBy: ["child-task-ids"] }
+# Phase 4 (Verification) blocked by ALL parallel child tasks
+TaskUpdate: { taskId: verifyId, addBlockedBy: [authChildId, userChildId, apiChildId] }
 ```
 
 **Step 3.3: Spawn Parallel Subagents**
@@ -318,7 +254,7 @@ For each module group, spawn a Sonnet subagent using the Task tool:
 ```
 Generate comprehensive tests for [MODULE/FILES].
 
-IMPORTANT: Read these source files FIRST to understand the actual code:
+Read these source files FIRST to understand the actual code:
 [LIST OF SOURCE FILES TO READ]
 
 Then read these existing test files for patterns to follow:
@@ -334,19 +270,10 @@ Project testing conventions (discovered in Phase 0):
 - Assertion style: [DESCRIBE]
 
 Requirements:
-1. Follow the EXACT test patterns from existing test files
-2. Use the same import patterns, fixtures, and assertion style
-3. Test coverage targets:
-   - All public functions and methods
-   - Happy path (normal inputs and expected outputs)
-   - Edge cases (empty inputs, boundary values, null/undefined)
-   - Error paths (invalid inputs, exceptions, error handling)
-   - Branch coverage (if/else, switch, ternary paths)
-4. Use descriptive test names that explain WHAT is being tested and EXPECTED behavior
-5. Keep tests independent - no shared mutable state between tests
-6. Mock external dependencies (databases, APIs, file system) appropriately
-7. Do NOT test private/internal implementation details
-8. Do NOT add unnecessary comments - test names should be self-documenting
+1. Follow the EXACT test patterns from existing test files: same imports, fixtures, assertion style
+2. Cover public functions/methods: happy path, edge cases (empty/boundary/null), error paths, and branch coverage
+3. Mock external dependencies (databases, APIs, file system) appropriately
+4. Follow the Test Quality Principles below
 
 After writing tests:
 1. Run the test command to verify ALL tests pass
@@ -370,29 +297,21 @@ Do NOT commit - the main agent handles commits.
 After each subagent completes:
 1. Review the generated test files
 2. Verify the tests follow project conventions
-3. Update the corresponding child task: `TaskUpdate: { taskId: "child-id", status: "completed" }`
+3. Update the corresponding child task: `TaskUpdate: { taskId: <that child's captured ID>, status: "completed" }`
 
 **Step 3.5: Complete Phase 3**
 
 ```
 # After all subagent tasks complete
-TaskUpdate: { taskId: "4", status: "completed" }
-TaskList  # Verify Phase 5 is now unblocked
+TaskUpdate: { taskId: genId, status: "completed" }
+TaskList  # Verify Phase 4 (verifyId) is now unblocked
 ```
 
 ### Phase 4: Quality Verification
 
-**Goal**: Verify all tests pass together, coverage improved, and no regressions.
+**Goal**: Catch failures before the Stop hook's automatic final check.
 
-**Step 4.1: Start Phase 4**
-
-```
-TaskUpdate: { taskId: "5", status: "in_progress" }
-```
-
-**Step 4.2: Run Full Test Suite**
-
-Execute the discovered test command to run ALL tests (new and existing):
+Run the discovered test command once:
 
 ```bash
 # Use the ACTUAL discovered command, e.g.:
@@ -402,48 +321,13 @@ npm test
 bun test
 ```
 
-**ALL tests must pass.** If any test fails:
-1. Identify whether the failure is in a new test or an existing test
-2. If new test fails: Fix the test (wrong assumption about code behavior)
-3. If existing test fails: The new test introduced a side effect — investigate and fix
-4. Re-run until all tests pass
+If a test fails, figure out whether it's a new test (fix the test — it made a wrong assumption about behavior) or an existing test (the new code introduced a side effect — investigate and fix). Re-run until everything passes.
 
-**Step 4.3: Verify Coverage Improvement**
-
-Run the coverage command and compare against the Phase 1 baseline:
-
-```bash
-# Use the ACTUAL discovered coverage command, e.g.:
-pytest --cov --cov-report=term-missing
-vitest --coverage
-jest --coverage
-make coverage
-```
-
-Record:
-- **Baseline coverage**: [X]% (from Phase 1)
-- **New coverage**: [Y]%
-- **Improvement**: +[Y-X]%
-- **Uncovered lines remaining**: [summary of what still lacks coverage]
-
-**Step 4.4: Lint Test Files**
-
-Run the discovered lint command on test files:
-
-```bash
-# Use the ACTUAL discovered lint command
-make lint
-ruff check tests/
-npm run lint
-```
-
-Fix any linting errors in the generated test files.
-
-**Step 4.5: Complete Phase 4**
+That's it — the Stop hook already re-runs tests, coverage, and lint automatically before the session ends, so don't duplicate a full separate coverage-and-lint pass here. This step exists only so failures surface while you're still working, not at the very last gate.
 
 ```
-TaskUpdate: { taskId: "5", status: "completed" }
-TaskList  # Check that Task 6 is now unblocked
+TaskUpdate: { taskId: verifyId, status: "completed" }
+TaskList  # Check that the Phase 5 task (commitId) is now unblocked
 ```
 
 ### Phase 5: Final Commit
@@ -451,12 +335,12 @@ TaskList  # Check that Task 6 is now unblocked
 **Step 5.1: Start Phase 5**
 
 ```
-TaskUpdate: { taskId: "6", status: "in_progress" }
+TaskUpdate: { taskId: commitId, status: "in_progress" }
 ```
 
 **Step 5.2: Create Commit**
 
-If `/cc-arsenal:git:commit` skill is available, use it. Otherwise, create a conventional commit manually:
+Use the `cc-arsenal:git-commit` skill to create the commit where available; otherwise create a conventional commit manually, using the actual coverage numbers from the command you ran in Phase 4/Phase 1 — never an estimate:
 
 ```bash
 git add [test files created/modified]
@@ -471,7 +355,7 @@ git commit -m "test: add comprehensive tests for [modules]
 **Step 5.3: Complete Phase 5 and Test Generation**
 
 ```
-TaskUpdate: { taskId: "6", status: "completed" }
+TaskUpdate: { taskId: commitId, status: "completed" }
 TaskList  # Show final status - all tasks should be completed
 ```
 
@@ -479,7 +363,7 @@ TaskList  # Show final status - all tasks should be completed
 
 Provide a summary including:
 - **Tests generated**: Number of test files and test cases
-- **Coverage improvement**: Baseline → new coverage percentage
+- **Coverage improvement**: Baseline → new coverage percentage (from the commands actually run, not estimated)
 - **Modules covered**: List of modules/files that received new tests
 - **Test types**: Unit, integration, edge cases breakdown
 - **Remaining gaps**: What still lacks coverage and recommendations
@@ -497,18 +381,17 @@ Generated tests must follow these principles:
 6. **Fast**: Unit tests run quickly; minimize I/O and external calls
 7. **Readable**: Tests serve as documentation for the code under test
 8. **Maintainable**: Avoid testing implementation details; test behavior and contracts
-9. **Lean coverage**: Over-testing is the failure mode in the other direction — skip trivial getters, pure pass-throughs, and framework-guaranteed behavior. Don't add a snapshot test or an assert-nothing test just to move a coverage number. The one exception: never skip a test for a security, validation, or data-loss path just because it is tedious to set up — that risk is always worth the test.
+9. **Lean coverage**: Over-testing is the failure mode in the other direction — skip trivial getters, pure pass-throughs, and framework-guaranteed behavior. Don't add a snapshot test or an assert-nothing test just to move a coverage number. The one exception: never skip a test for a security, validation, or data-loss path just because it's tedious to set up — that risk is always worth the test.
 
 ## Additional Resources
 
-For framework-specific test patterns, fixtures, and examples, see:
-- [references/framework-patterns.md](references/framework-patterns.md) - Patterns for pytest, vitest, jest, Go, Rust, and more
+- [references/framework-patterns.md](references/framework-patterns.md) - pytest, vitest/jest, Go, and Rust idioms (file layout, naming, fixtures, mocking, common anti-patterns). Load it when writing tests for a framework whose conventions you're not confident about, or when the Phase 0 discovery didn't surface enough existing test files to infer the pattern yourself.
 
 ## Important Notes
 
-- **Always run Phase 0 first** - Never assume which test framework is available
-- **Follow existing patterns** - Match the project's test style exactly
-- **Coverage is a guide, not a goal** - Meaningful tests matter more than 100% coverage
-- **No regressions** - All existing tests must continue to pass
-- **Ask when unsure** - Use AskUserQuestion to clarify test scope or approach
-- **Commit strategy** - Prefer one clean commit with all tests over many small commits
+- Run Phase 0 first, every time — never assume which test framework a project uses.
+- Match the project's existing test style exactly; don't introduce a new convention alongside the old one.
+- Coverage is a guide, not a goal — a meaningful test beats a percentage bump.
+- All existing tests must keep passing; a new test that breaks an old one is a regression, not progress.
+- When scope or approach is genuinely unclear, ask via `AskUserQuestion` (or its text fallback) rather than guessing.
+- Prefer one clean commit with all tests over many small commits.

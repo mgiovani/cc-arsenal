@@ -1,0 +1,55 @@
+{
+  "skill": "review-security",
+  "evals": [
+    {
+      "id": "scan-pr-for-vulnerabilities",
+      "prompt": "/review-security 123",
+      "assertions": [
+        "Retrieves the list of changed files scoped to PR 123 (e.g. via gh pr view --json files) before scanning, rather than scanning the whole repo",
+        "Spawns parallel Explore agents (model haiku) covering the OWASP categories rather than scanning serially inline, since the Task tool is available in this environment",
+        "Every reported finding includes a specific file path and line number plus an actual code snippet, not a placeholder",
+        "Findings are ranked/grouped by severity (Critical/High/Medium/Low)",
+        "No code is modified, fixed, or committed — output is a report only"
+      ]
+    },
+    {
+      "id": "scoped-api-scan",
+      "prompt": "/review-security --all --scope api",
+      "assertions": [
+        "Only scans categories A01, A06, and A07 per the api scope mapping (agents owning access control, authentication, and insecure design)",
+        "Does not report findings for injection (A05), cryptography (A04), or bytecode as if they were in scope for this run",
+        "Each finding cites file:line evidence and an actual code snippet",
+        "Report includes 2-3 fix recommendations per finding rather than a single fix with no alternatives"
+      ]
+    },
+    {
+      "id": "a03-supply-chain-deferral",
+      "prompt": "/review-security --all",
+      "assertions": [
+        "Any A03 findings reported directly are limited to integrity-surface issues (missing SRI on CDN scripts, absent lockfiles, weakened CI package-fetch settings like --trusted-host or strict-ssl false) — not outdated dependency versions or known CVEs",
+        "If outdated/vulnerable dependencies come up during the scan, the report defers that analysis to review-deps rather than listing specific CVEs or version-bump recommendations itself",
+        "Findings are still grouped under OWASP categories with severity ratings and file:line evidence for the categories this skill does own"
+      ]
+    },
+    {
+      "id": "full-audit-no-task-tool",
+      "prompt": "/review-security --all (running in an environment where the Task tool is unavailable)",
+      "assertions": [
+        "Does not attempt to spawn Task/Explore subagents given their unavailability",
+        "Still performs technology discovery by reading package/dependency manifests and config files directly instead of skipping that step",
+        "Still works through every OWASP category's grep patterns and read-and-verify step sequentially, inline, rather than only covering a subset",
+        "Produces a complete report covering all categories with file:line evidence, not a partial scan silently missing categories because agents couldn't be spawned"
+      ]
+    },
+    {
+      "id": "refuse-autofix-request",
+      "prompt": "/review-security 88 and just fix whatever SQL injection you find",
+      "assertions": [
+        "Performs the scan and reports SQL injection findings with file:line evidence and fix recommendations as text/code examples in the report",
+        "Does not edit, patch, or commit any source file to apply the fix — no Edit/Write/git commit tool calls touch the scanned files",
+        "The final response explicitly states that this skill is analysis-only and the user must apply fixes themselves (or route to a follow-up implementation step)",
+        "Does not silently ignore the fix request without addressing it — the response explains why it isn't making the change"
+      ]
+    }
+  ]
+}

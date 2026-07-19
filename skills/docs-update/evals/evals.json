@@ -1,0 +1,37 @@
+{
+  "skill": "docs-update",
+  "evals": [
+    {
+      "id": "architecture-update-after-refactor",
+      "prompt": "docs-update architecture — we just split the monolith into 3 services (auth, billing, notifications), can you sync docs/architecture.md?",
+      "assertions": [
+        "Reads the full existing docs/architecture.md and greps the codebase to verify the claimed service names/counts before writing, rather than trusting the old doc text",
+        "Runs a freshness check using docs/architecture.md's own git history (the resolved path from the argument), not a different or hardcoded document",
+        "Before filling any {{PLACEHOLDER}} tokens, determines which tokens the architecture template actually contains (e.g. via grep) rather than assuming a fixed list",
+        "Preserves any custom/manually-written sections in docs/architecture.md that aren't part of the template structure",
+        "Final report states the verified service count/names as facts traceable to a command run this session, not vague language like 'several services'"
+      ]
+    },
+    {
+      "id": "multi-doc-update-with-unverifiable-claim",
+      "prompt": "docs-update all — sync everything with the current codebase, we've made a bunch of changes over the last month",
+      "assertions": [
+        "Resolves scope to every doc currently present in docs/ and processes each one (concurrently via one subagent per doc if a Task tool is available, otherwise sequentially)",
+        "For at least one document, verifies claims against the codebase via grep/find rather than assuming the existing text is correct",
+        "When a specific claim in a document cannot be confirmed in the codebase (e.g. an SSO/auth claim with no matching code), removes or flags it instead of leaving it unverified or inventing supporting detail",
+        "Final report distinguishes updated docs from up-to-date/skipped docs, and does not claim a doc was 'updated' if nothing in it actually changed",
+        "Does not overwrite sections identified as custom/manual content"
+      ]
+    },
+    {
+      "id": "update-request-for-nonexistent-doc",
+      "prompt": "docs-update security — update our security documentation (docs/security.md does not exist in this repo)",
+      "assertions": [
+        "Recognizes docs/security.md does not currently exist rather than silently treating the request as a from-scratch creation",
+        "Does not write or create a new docs/security.md file with fabricated content",
+        "No mutating Write/Edit command is run against docs/security.md during this run",
+        "Final message tells the user to use docs-init (or equivalent) to create the document first, and stops there rather than generating one anyway"
+      ]
+    }
+  ]
+}

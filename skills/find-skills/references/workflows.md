@@ -163,14 +163,7 @@ npx skills add owner/repo --skill verified-skill -a claude-code
 
 ### Avoiding Redundancy
 
-cc-arsenal already provides these capabilities -- avoid installing duplicates:
-
-| cc-arsenal Skill | Covers | Skip External Skills For |
-|-----------------|--------|--------------------------|
-| agent-browser | Browser automation, web testing, screenshots | Playwright skills, browser automation skills |
-| jira-cli | Jira issue/epic/sprint management | Jira integration skills |
-| create-skill | Creating new skills | Skill authoring guides |
-| find-skills | Skill discovery and management | Skills directory tools |
+Run `ls skills/` in this repo before installing an external equivalent -- cc-arsenal already has 20+ skills (browser automation, Jira, docs, git, review, testing, and more) and a hardcoded list here would only go stale as skills are added.
 
 ### Complementary Skills
 

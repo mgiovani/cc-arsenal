@@ -1,83 +1,76 @@
 # Getting Started with Claude Code Arsenal
 
-A comprehensive guide to setting up and using the Claude Code Arsenal for secure, automated development workflows.
+A comprehensive guide to setting up and using the Claude Code Arsenal for automated development workflows.
 
 ## Overview
 
-Claude Code Arsenal is a professional collection of quality automation commands and specialized skills designed to enhance your Claude Code development experience with enterprise-grade automation.
+Claude Code Arsenal is a professional collection of 45 skills designed to enhance your Claude Code development experience — covering development, documentation, git/GitHub, Jira, teams, and specialty capabilities. See [Features](features.md) for the full skill list.
 
 ## Prerequisites
 
 Before you begin, ensure you have:
 
-### Required Software
-
-- **Python 3.12+** (for modern language features and performance)
-- **UV** (for fast Python package management) - **REQUIRED**
 - **Claude Code** (Anthropic's official Claude CLI)
 - **Git** (for version control)
 
-### Installing UV
+Everything below only applies if you plan to contribute to cc-arsenal itself:
 
-UV is required for Python package management:
-
-```bash
-# Install UV
-curl -LsSf https://astral.sh/uv/install.sh | sh
-
-# Verify installation
-uv --version
-```
-
-For more details, visit: https://docs.astral.sh/uv/getting-started/installation/
-
-### Installing Claude Code
-
-Follow the official installation guide at: https://claude.ai/code
+- **Python 3.12+**
+- **UV** (fast Python package management) — `curl -LsSf https://astral.sh/uv/install.sh | sh`
 
 ## Installation
 
-### Method 1: Quick Install (Recommended)
+### Plugin Marketplace (Recommended)
+
+This is the primary installation method for all users. Register the repository as a Claude Code plugin marketplace, then install the variant you want:
 
 ```bash
-# Clone the repository
-git clone https://github.com/mgiovani/cc-arsenal.git
-cd cc-arsenal
-
-# Preview what will be installed
-make dry-run
-
-# Install all components to ~/.claude
-make install
-
-# Optional: Configure your setup interactively
-make configure
-
-# Restart Claude Code to load new configuration
+/plugin marketplace add mgiovani/cc-arsenal
+/plugin install cc-arsenal@cc-arsenal-marketplace
 ```
 
-### Method 2: Step-by-Step Installation
+Or pick a focused variant instead of the full toolkit — see [Features](features.md) for what each plugin includes:
 
 ```bash
-# 1. Clone and enter directory
+/plugin install cc-arsenal-dev@cc-arsenal-marketplace     # Development skills only
+/plugin install cc-arsenal-docs@cc-arsenal-marketplace    # Documentation skills only
+/plugin install cc-arsenal-git@cc-arsenal-marketplace     # Git/GitHub workflow skills only
+/plugin install cc-arsenal-skills@cc-arsenal-marketplace  # Specialty skills only
+/plugin install cc-arsenal-teams@cc-arsenal-marketplace   # Team orchestration skills
+/plugin install cc-arsenal-review@cc-arsenal-marketplace  # Code review and quality skills
+```
+
+**Team configuration:** add to `.claude/settings.json` so every team member auto-installs the marketplace on trust:
+
+```json
+{
+  "extraKnownMarketplaces": {
+    "cc-arsenal": {
+      "source": { "source": "github", "repo": "mgiovani/cc-arsenal" }
+    }
+  },
+  "enabledPlugins": ["cc-arsenal"]
+}
+```
+
+### Symlink Install (Contributors Only)
+
+Only use this if you're developing cc-arsenal itself — it creates symlinks into `~/.claude/` so file edits are reflected immediately, without a plugin reinstall:
+
+```bash
 git clone https://github.com/mgiovani/cc-arsenal.git
 cd cc-arsenal
 
-# 2. Install Python dependencies
 uv sync --extra dev
-
-# 3. Install to ~/.claude directory
-uv run python -m scripts.setup.install
-
-# 4. Configure components (optional)
-uv run python -m scripts.setup.configure
+make dry-run       # preview what will be installed
+make install       # symlink everything to ~/.claude
+make configure     # optional: interactively choose which skills to symlink
 ```
 
-### Method 3: Component-Specific Installation
+### Optional Feature: Enhanced Statusline
 
 ```bash
-# Install only specific components
-make install-statusline    # Enhanced statusline only
+make install-statusline
 ```
 
 ## Verification
@@ -85,58 +78,25 @@ make install-statusline    # Enhanced statusline only
 After installation, verify everything is working:
 
 ```bash
-# Check if components are installed
-ls ~/.claude/commands/
+# Plugin install: check via Claude Code's /plugin command
+# Symlink install: check the symlinked skills
 ls ~/.claude/skills/
 
-# Validate installation
+# Validate the repo structure (contributors)
 make info
 make validate-structure
 ```
 
 ## Core Components
 
-### ⚡ Commands
+### Skills
 
-Workflow automation for common development tasks:
+Claude Code Arsenal ships 45 skills, split between:
 
-#### Available Commands
+- **User-invoked** skills — explicit slash commands (e.g. `/docs-adr`, `/git-commit`)
+- **Model-invoked** skills — Claude loads them automatically when the request matches (e.g. `agent-browser`, `create-skill`, `test-suite`)
 
-**Documentation Commands** (`/docs:*`):
-- `/docs:init` - Initialize comprehensive documentation structure
-- `/docs:adr` - Create numbered ADR for architectural decisions
-- `/docs:rfc` - Create numbered RFC for proposing changes
-- `/docs:diagram` - Generate Mermaid diagrams from codebase analysis
-- `/docs:check` - Validate documentation freshness and completeness
-- `/docs:update` - Update documentation by syncing with codebase
-
-**Git Commands** (`/git:*`):
-- `/git:commit` - Generate conventional commits following conventionalcommits.org
-- `/git:create-pr` - Create PR with conventional commit format and pre-filled template
-
-#### Using Commands
-
-```bash
-# Create an architectural decision record
-/docs:adr "Use PostgreSQL for primary database"
-
-# Generate architecture diagram
-/docs:diagram architecture
-
-# Create a pull request
-/git:create-pr --base main
-```
-
-### 🎯 Skills
-
-Model-invoked capabilities that Claude automatically loads when relevant:
-
-#### Available Skills
-
-- **create-skill**: Specification-driven skill creation with live documentation fetching and interactive planning
-- **jira-cli**: Interactive command-line tool for Atlassian Jira with issue, epic, and sprint management
-
-Skills use progressive disclosure - Claude decides when to activate them based on task context.
+Skills use progressive disclosure: Claude reads only the frontmatter until a skill is relevant, then loads its full body and bundled resources (`scripts/`, `references/`, `assets/`, `evals/`) as needed. See [Features](features.md) for the complete, categorized list.
 
 ## Advanced Setup
 
@@ -145,78 +105,36 @@ Skills use progressive disclosure - Claude decides when to activate them based o
 Replace manual cron workarounds with intelligent scheduling:
 
 ```bash
-# Navigate to the claude-hi directory
-cd scripts/claude-hi
-
-# Interactive setup with guided options
-make setup
-
-# Quick presets
-make standard    # 9am/2pm/7pm schedule
-make extended    # 4am/9am/2pm/7pm schedule
-
-# Check current status
-make status
+make -C scripts/claude-hi setup     # Interactive setup
+make -C scripts/claude-hi standard  # Quick 9am/2pm/7pm schedule
+make -C scripts/claude-hi status    # Check current schedule
 ```
 
 ### Enhanced Statusline
 
-Add comprehensive usage tracking:
-
 ```bash
-# Install enhanced statusline
 make install-statusline
-
-# The statusline will show:
-# - Session costs and token usage
-# - Time remaining in current window
-# - Usage patterns and optimization tips
 ```
+
+Shows session costs, token usage, time remaining in the current 5-hour window, and usage patterns.
 
 ## Configuration
 
-### Interactive Configuration
-
-```bash
-# Run interactive configuration
-make configure
-
-# This will help you:
-# - Select which components to enable
-# - Configure security settings
-# - Set up development preferences
-```
-
-### Manual Configuration
-
-Configuration is primarily managed through the interactive `make configure` wizard, which helps you select specific components to symlink to `~/.claude/`.
+Configuration for a symlink install is managed through the interactive `make configure` wizard, which lets you select specific skills to symlink to `~/.claude/`. It never modifies `~/.claude/settings.json`. Plugin installs are managed entirely through `/plugin`.
 
 ## Development Workflow Integration
 
-### Project Setup
-
-When starting a new project:
-
-```bash
-# 1. Initialize documentation structure
-/docs:init
-
-# 2. Set up quality checks
-make pre-commit-install
-```
-
 ### Daily Development
 
-Your enhanced workflow will include:
+Your enhanced workflow includes:
 
-1. **Quality Enforcement**: Code standards validated automatically before commits
-2. **Smart Documentation**: Generate ADRs, RFCs, and diagrams with slash commands
-3. **Specialized Skills**: Claude automatically invokes relevant skills when needed
+1. **Documentation automation**: `/docs-adr`, `/docs-rfc`, `/docs-diagram`, `/docs-update`, `/docs-check`, `/docs-init`
+2. **Git automation**: `/git-commit`, `/git-create-pr`, `/git-release`, `/ship`
+3. **Specialized skills**: Claude automatically invokes relevant model-invoked skills when needed
 
-### Code Review Process
+### Code Review Process (Contributors)
 
 ```bash
-# Run comprehensive checks before commits
 make check                 # All quality checks (lint + type-check)
 make test                  # Full test suite
 make pre-commit-run        # Run pre-commit checks manually
@@ -224,110 +142,45 @@ make pre-commit-run        # Run pre-commit checks manually
 
 ## Troubleshooting
 
-### Common Installation Issues
+See [Troubleshooting](troubleshooting.md) for the full guide. Quick checks:
 
-#### UV Not Found
 ```bash
-# Reinstall UV
+# UV not found (contributors)
 curl -LsSf https://astral.sh/uv/install.sh | sh
-source ~/.bashrc  # or ~/.zshrc
-```
 
-#### Permission Errors
-```bash
-# Fix permissions for ~/.claude directory
-chmod -R 755 ~/.claude
-```
+# Verify skills are installed (symlink method)
+ls ~/.claude/skills/
 
-#### Python Version Issues
-```bash
-# Verify Python version
-python3 --version  # Should be 3.12+
-
-# Install correct Python version if needed
-# macOS: brew install python@3.12
-# Ubuntu: sudo apt install python3.12
-```
-
-### Component Issues
-
-#### Commands Not Working
-```bash
-# Verify command installation
-ls ~/.claude/commands/
-
-# Check command syntax
-# In Claude Code: "/help" to see available commands
-```
-
-### Performance Issues
-
-#### High Resource Usage
-```bash
-# Monitor system resources
-make status
-
-# Disable unnecessary components
-make configure
+# Check repo structure (contributors)
+make info
+make validate-structure
 ```
 
 ## Next Steps
 
-### Explore Advanced Features
-
-1. **Create Custom Skills**: Use the create-skill skill to build specialized capabilities
-2. **Set Up Team Workflows**: Configure consistent settings across team members
-3. **Integrate with CI/CD**: Use commands in automated pipelines
-4. **Enhanced Statusline**: Track token usage and session costs with `make install-statusline`
+1. **Create Custom Skills**: Use the `create-skill` skill to build specialized capabilities
+2. **Set Up Team Workflows**: Share the plugin marketplace config across your team
+3. **Enhanced Statusline**: Track token usage and session costs with `make install-statusline`
 
 ### Community and Support
 
 - **Documentation**: Browse `docs/` for detailed guides
 - **Issues**: Report bugs at https://github.com/mgiovani/cc-arsenal/issues
 - **Discussions**: Ask questions at https://github.com/mgiovani/cc-arsenal/discussions
-- **Updates**: Watch the repository for new features and security updates
 
 ### Stay Updated
 
+Plugin installs update via `/plugin` → Update now. For a symlink (contributor) install:
+
 ```bash
-# Update to latest version
 cd cc-arsenal
 git pull origin main
 make install
-
-# Check for configuration updates
-make configure
 ```
-
-## Security Best Practices
-
-### Initial Security Setup
-
-1. **Configure Access Controls**: Set up appropriate file protection patterns
-2. **Enable Audit Trails**: Turn on compliance logging for regulated environments
-
-### Ongoing Security
-
-- Regularly update the arsenal: `git pull && make install`
-- Keep dependencies updated: `uv sync --upgrade`
-
-## Performance Optimization
-
-### Token Usage Optimization
-
-1. **Use Smart Scheduling**: Navigate to `scripts/claude-hi` and run `make setup` for optimal timing
-2. **Monitor Usage**: Enhanced statusline shows token consumption patterns (install with `make install-statusline`)
-3. **Plan Intensive Work**: Schedule complex tasks during fresh usage windows
-
-### System Performance
-
-- **Selective Installation**: Only install components you need
-- **Resource Monitoring**: Use `make status` to check system load
 
 ---
 
-You're ready to leverage the full power of Claude Code Arsenal for secure, automated development workflows!
-
 For detailed guides, see:
+- [Features](features.md)
 - [Troubleshooting](troubleshooting.md)
 - [Contributing](../CONTRIBUTING.md)

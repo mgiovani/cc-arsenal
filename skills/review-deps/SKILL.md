@@ -1,37 +1,24 @@
 ---
 name: review-deps
 description: Audit project dependencies for vulnerabilities, license compliance risks,
-  and staleness. Runs native audit tools (npm audit, pip audit, cargo audit, etc.),
-  queries Dependabot alerts, and dispatches parallel agents for CVE analysis, license
-  risk, and upgrade complexity. This skill should be used when users want to review
-  dependencies, check for vulnerable packages, audit licenses, plan upgrades, or assess
-  supply chain risk.
+  and staleness by running native audit tools (npm audit, pip-audit, cargo audit, etc.),
+  querying Dependabot alerts, and dispatching parallel agents for CVE analysis, license
+  risk, and upgrade complexity. Use when the user wants to check for vulnerable packages,
+  audit licenses, plan dependency upgrades, assess supply chain risk, or asks "are our
+  dependencies safe/up to date/license-compliant". Analysis only, no code or lock-file
+  changes. Not for app-code vulnerability scanning (use review-security) or auto-applying
+  upgrades (this skill only recommends, never runs installs).
 metadata:
   author: mgiovani
-  version: 1.0.0
-  source: https://github.com/mgiovani/skills
+  version: 1.1.0
 disable-model-invocation: true
 ---
 
-# Review Deps
-
-> **Cross-Platform AI Agent Skill**
-> This skill works with any AI agent platform that supports the skills.sh standard.
-
 # Dependency Review
 
-Comprehensive dependency audit covering vulnerability scanning, license compliance, and staleness analysis. This skill performs **analysis only** — it identifies risks and recommends upgrades without modifying code or lock files.
+Comprehensive dependency audit covering vulnerability scanning, license compliance, and staleness analysis. This skill performs **analysis only** — it never modifies code, lock files, or manifests, and never auto-installs upgrades or missing audit tools (it reports them as unavailable instead).
 
-## Anti-Hallucination Guidelines
-
-**CRITICAL**: Dependency reviews must be based on ACTUAL tool output and VERIFIED data:
-1. **Run before claiming** — Never report vulnerabilities without running the actual audit tool
-2. **Evidence-based findings** — Every finding must reference specific package names and versions
-3. **No invented CVEs** — Only reference CVE/GHSA identifiers returned by audit tools or Dependabot
-4. **Tool output required** — Copy exact output from audit commands as evidence
-5. **Quantifiable results** — Count actual issues from tool output, do not estimate
-6. **No false positives** — Verify each finding against actual installed versions
-7. **Version accuracy** — Report exact installed version and exact fix version from tool output
+Cite exact package names/versions/CVE IDs from actual tool output — never estimate or invent them.
 
 ## Audit Workflow
 
@@ -54,80 +41,28 @@ Read each detected manifest to understand:
 - Total number of dev dependencies
 - Whether lock files are present and committed
 - Workspace/monorepo structure (multiple package.json, Cargo.toml workspaces, etc.)
+```
 
 ### Phase 2: Run Native Audit Commands
 
-Execute the appropriate audit commands for each detected package manager. Run independent commands in parallel.
+Execute the audit command for each detected package manager, run independent commands in parallel, and save all raw output (including "tool not installed" errors) for Phase 3. Commands per ecosystem are in [references/audit-commands.md](references/audit-commands.md) — load it now.
 
-**Node.js (npm/yarn/pnpm):**
-```bash
-# npm
-npm audit --json 2>/dev/null || npm audit 2>&1
+### Phase 3: Analyze Vulnerabilities, Licenses, and Staleness
 
-# yarn (classic)
-yarn audit --json 2>/dev/null || yarn audit 2>&1
+Analyze the Phase 2 output across three dimensions — vulnerability triage, license compliance, staleness/upgrade complexity — scoped per the Scoping section below. Detailed per-dimension steps and risk-classification tables are in [references/agent-prompts.md](references/agent-prompts.md) — load it before starting this phase.
 
-# pnpm
-pnpm audit --json 2>/dev/null || pnpm audit 2>&1
-**Python (pip/uv):**
-```bash
-# pip-audit (preferred — install if missing)
-pip-audit --format=json 2>/dev/null || pip-audit 2>&1
+Default to doing all three passes yourself, sequentially, in the current context: this is classification over data already fetched in Phase 2, not independent research, so a 3-way agent fan-out mostly re-reads the same output three times. Only spawn parallel Explore agents (one per dimension) when the audit output is unusually large — a multi-ecosystem monorepo, or output that would blow the context budget for a single pass. If no subagent/task tool is available, always do the three passes inline sequentially — that is the correct behavior for most runs anyway, not a degraded fallback.
 
-# If pip-audit unavailable, use pip
-pip audit 2>&1 || python -m pip_audit 2>&1
-
-# uv
-uv pip audit 2>&1
-**Rust:**
-```bash
-cargo audit 2>&1
-**Go:**
-```bash
-go list -m -json all 2>&1
-govulncheck ./... 2>&1
-**PHP:**
-```bash
-composer audit --format=json 2>/dev/null || composer audit 2>&1
-**Ruby:**
-```bash
-bundle audit check 2>&1
-**.NET:**
-```bash
-dotnet list package --vulnerable --include-transitive 2>&1
-**Java (Maven/Gradle):**
-```bash
-mvn dependency-check:check 2>&1 || echo "OWASP dependency-check plugin not configured"
-**GitHub Dependabot (always attempt if in a git repo):**
-```bash
-# Get repository owner/name from git remote
-gh api repos/{owner}/{repo}/dependabot/alerts --jq '.[] | {package: .security_advisory.summary, severity: .security_advisory.severity, state: .state, package_name: .dependency.package.name, ecosystem: .dependency.package.ecosystem}' 2>&1
-Save all raw output for agent analysis in Phase 3.
-
-### Phase 3: Parallel Specialist Analysis
-
-Spawn 3 parallel Explore agents, each focused on a different risk dimension. Pass the raw audit output from Phase 2 and the manifest files to each agent.
-
-For detailed agent prompts and analysis patterns, see [references/agent-prompts.md](references/agent-prompts.md).
-
-**Agent assignments:**
-- **Agent 1 — Vulnerability Analysis**: CVE/GHSA triage, severity assessment, exploitability, fix availability
-- **Agent 2 — License Compliance**: License identification, copyleft risk, commercial compatibility, policy violations
-- **Agent 3 — Staleness & Upgrade Complexity**: Version drift, maintenance health, breaking change assessment, upgrade paths
-
-Each agent must:
-1. Analyze the raw audit output and manifest files
-2. Read lock files for transitive dependency details when needed
-3. Provide structured findings with evidence from actual tool output
-4. Classify risk level (Critical/High/Medium/Low)
-5. Recommend specific actions with exact target versions
+Whichever mode you use:
+1. Read lock files for transitive dependency details when needed
+2. Provide structured findings with evidence from actual tool output
+3. Classify risk level (Critical/High/Medium/Low)
+4. Recommend specific actions with exact target versions
 
 ### Phase 4: Risk Assessment & Prioritization
 
-After all agents complete:
-
-1. **Collect all findings** from the 3 parallel agents
-2. **Deduplicate** — Remove findings reported by multiple agents
+1. **Collect all findings** across the three dimensions
+2. **Deduplicate** — remove findings reported under more than one dimension
 3. **Cross-reference** — Combine vulnerability + license + staleness data per package
 4. **Prioritize by composite risk**:
  - **Critical**: Known exploited CVEs (CISA KEV), RCE vulnerabilities, packages with no maintained fork
@@ -135,7 +70,7 @@ After all agents complete:
  - **Medium**: Medium-severity CVEs without public exploit, permissive-but-unusual licenses, packages 1-2 major versions behind
  - **Low**: Low-severity CVEs, informational license notes, minor version drift
 5. **Group by action type**: Security patches (non-breaking) vs. major upgrades (breaking) vs. replacements (abandoned packages)
-6. **Statistics**: Count total dependencies, vulnerable, license-risky, stale; calculate health score
+6. **Statistics**: Count total dependencies, vulnerable, license-risky, stale
 
 ### Phase 5: Generate Dependency Report
 
@@ -155,62 +90,9 @@ Before presenting the report, verify:
 9. No invented CVEs, license types, or version numbers
 10. Dependabot alerts are reconciled with local audit results
 
-## Usage
+## Scoping
 
-```bash
-# Full dependency audit (all dimensions)
-review-deps
-review-deps --scope all
-
-# Vulnerabilities only
-review-deps --scope vulnerabilities
-
-# License compliance only
-review-deps --scope licenses
-
-# Staleness and upgrade planning only
-review-deps --scope staleness
-
-# Filter by minimum severity
-review-deps --severity critical
-review-deps --severity high
-
-# Combined options
-review-deps --scope vulnerabilities --severity critical
-## Scope Options
-
-- `all` (default): Run all three analysis dimensions — vulnerabilities, licenses, staleness
-- `vulnerabilities`: Focus on CVEs, GHSAs, and known security advisories
-- `licenses`: Focus on license identification, copyleft risk, and commercial compliance
-- `staleness`: Focus on version drift, maintenance health, and upgrade complexity
-
-## Severity Filter
-
-When `--severity` is specified, only report findings at or above the given level:
-- `critical`: Only critical findings
-- `high`: Critical + high findings
-- `medium`: Critical + high + medium findings (default)
-- `low`: All findings including informational
-
-## What This Skill Does
-
-- Detects all package managers in the project
-- Runs native audit tools for each ecosystem
-- Queries GitHub Dependabot alerts when available
-- Analyzes vulnerabilities with CVE severity and exploitability context
-- Identifies license compliance risks for commercial and open-source projects
-- Assesses dependency staleness and upgrade complexity
-- Provides a prioritized upgrade plan with breaking change warnings
-- Generates a comprehensive markdown report with health score
-
-## What This Skill Does NOT Do
-
-- Does not modify any code, lock files, or manifests
-- Does not automatically upgrade dependencies
-- Does not install missing audit tools (reports them as unavailable)
-- Does not perform runtime/dynamic vulnerability testing
-- Does not guarantee 100% vulnerability detection
-- Does not provide legal advice on license compliance
+By default, run all three dimensions (vulnerabilities, licenses, staleness) at medium severity and above. If the user asks to scope to just one dimension (e.g. "just check for vulnerabilities" or "license risk only"), run only that phase. If they ask to filter by severity (e.g. "critical only"), filter the report to that level and above.
 
 ## Limitations
 

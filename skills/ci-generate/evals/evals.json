@@ -1,0 +1,50 @@
+{
+  "skill": "ci-generate",
+  "evals": [
+    {
+      "id": "node-project-no-existing-ci",
+      "prompt": "/ci-generate github — this is a Node/TypeScript project with no CI yet, set one up",
+      "assertions": [
+        "Explores the project (package.json scripts, lockfile) before writing any workflow, instead of assuming commands",
+        "Generates .github/workflows/ci.yml using the exact lint/test/build scripts found in package.json, not invented ones",
+        "Pins action versions to specific tags rather than using 'latest'",
+        "Includes lint, test, and build stages, with security/dependency scanning included by default",
+        "Validates the generated YAML (e.g. via python3 yaml.safe_load) and presents a summary of stages and required secrets",
+        "The summary does not include a fabricated estimated run time per stage"
+      ]
+    },
+    {
+      "id": "existing-gitlab-ci-augment",
+      "prompt": "We already have a .gitlab-ci.yml, can you add a deploy stage to Docker for it?",
+      "assertions": [
+        "Reads the existing .gitlab-ci.yml before making any changes",
+        "Asks whether to replace or augment the existing config, or otherwise clearly preserves the user's existing custom stages",
+        "Adds a Docker-targeted deploy stage using GitLab CI syntax (not GitHub Actions or CircleCI syntax)",
+        "Cross-references that referenced commands/paths/images actually exist in the project before finalizing"
+      ]
+    },
+    {
+      "id": "python-monorepo-aws-deploy",
+      "prompt": "/ci-generate github --deploy aws --monorepo for our Python monorepo (api/ and worker/ services)",
+      "assertions": [
+        "Detects Python tooling/version and per-service structure before generating the pipeline (Phase 1 discovery)",
+        "Produces a matrix or path-filtered workflow structure reflecting the --monorepo flag",
+        "Includes an AWS-specific deployment stage distinct from generic deploy boilerplate",
+        "Lists required secrets/environment variables for the AWS deploy in the final summary",
+        "Does not include services (e.g. Redis, Postgres) unless they are confirmed project dependencies",
+        "The deploy step references the image tag/digest produced by the build job (e.g. via job outputs consumed in a task-definition render or equivalent) rather than issuing a blind restart like 'aws ecs update-service --force-new-deployment' with no image reference"
+      ]
+    },
+    {
+      "id": "ambiguous-deploy-target-refusal",
+      "prompt": "add a deploy stage to our CI pipeline (no platform argument given, no existing deploy config, no hosting service referenced anywhere in the project's dependencies or config files)",
+      "assertions": [
+        "Does not silently pick a deployment platform (e.g. Vercel, AWS, Netlify) when none is specified and none is inferable from project config",
+        "Asks the user which deployment target to use before generating or writing any deploy stage",
+        "Does not write, create, or modify any CI config file before the user answers the clarifying question",
+        "No deploy-related command (docker push, vercel deploy, aws ecs, etc.) appears anywhere in the run's output",
+        "The run's final message ends on the clarifying question about deployment target rather than proceeding with a guessed pipeline"
+      ]
+    }
+  ]
+}

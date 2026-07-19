@@ -1,0 +1,22 @@
+[
+  {"query": "ship it", "should_trigger": true},
+  {"query": "can you ship this branch for me", "should_trigger": true},
+  {"query": "run the ship train workflow on this PR", "should_trigger": true},
+  {"query": "get this merged, everything's done", "should_trigger": true},
+  {"query": "can you now run this ship train workflow", "should_trigger": true},
+  {"query": "review this, run the visual diff, commit, open the PR and watch CI for me", "should_trigger": true},
+  {"query": "take this branch from done to merged, do the whole pipeline", "should_trigger": true},
+  {"query": "run /ship on the current branch", "should_trigger": true},
+  {"query": "finish this off end to end: review, checks, commit, PR, merge on green", "should_trigger": true},
+  {"query": "im done coding, ship this thing already", "should_trigger": true},
+  {"query": "review this PR for correctness and over-engineering before I merge it", "should_trigger": false},
+  {"query": "write a conventional commit message for these staged changes", "should_trigger": false},
+  {"query": "open a pull request for this branch against develop", "should_trigger": false},
+  {"query": "promote dev to main and cut a release", "should_trigger": false},
+  {"query": "we need to hotfix prod right now, can't wait for a release", "should_trigger": false},
+  {"query": "fix the bug where checkout throws a 500 on empty cart", "should_trigger": false},
+  {"query": "just commit what I have staged, nothing fancy", "should_trigger": false},
+  {"query": "start a new feature branch off dev for the search redesign", "should_trigger": false},
+  {"query": "is this diff over-engineered, what can we simplify", "should_trigger": false},
+  {"query": "check if CI is still running on PR 42", "should_trigger": false}
+]

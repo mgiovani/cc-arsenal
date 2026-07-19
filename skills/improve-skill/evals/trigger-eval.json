@@ -1,0 +1,22 @@
+[
+  {"query": "this SKILL.md is a mess, can you clean it up and bring it up to the current standard", "should_trigger": true},
+  {"query": "audit my skills directory and improve whatever's below the bar", "should_trigger": true},
+  {"query": "the review-code skill never triggers when I expect it to, can you fix its description", "should_trigger": true},
+  {"query": "is the new version of git-commit actually better than the old one? benchmark it", "should_trigger": true},
+  {"query": "refresh the fix-bug skill, it hasn't been touched since we changed our test conventions", "should_trigger": true},
+  {"query": "this skill's body is 800 lines long, tighten it up", "should_trigger": true},
+  {"query": "modernize the docs-adr skill to match the rest of the repo's style", "should_trigger": true},
+  {"query": "can you tighten the description on find-skills so it stops firing on unrelated prompts", "should_trigger": true},
+  {"query": "take a pass at improving ship's SKILL.md and add proper evals for it", "should_trigger": true},
+  {"query": "rewrite this existing skill against the current rubric and show me before/after", "should_trigger": true},
+  {"query": "create a new skill that generates changelog entries from commits", "should_trigger": false},
+  {"query": "find a skill on skills.sh for working with Postgres migrations", "should_trigger": false},
+  {"query": "install the frontend-design skill from vercel-labs/agent-skills", "should_trigger": false},
+  {"query": "make a slash command that opens a PR with our template filled in", "should_trigger": false},
+  {"query": "add a rule to CLAUDE.md saying we always use conventional commits", "should_trigger": false},
+  {"query": "review this PR for correctness and style issues before I merge", "should_trigger": false},
+  {"query": "write tests for the new invoice export function", "should_trigger": false},
+  {"query": "fix the bug where the login form submits twice on slow networks", "should_trigger": false},
+  {"query": "package my skill for distribution and validate the frontmatter", "should_trigger": false},
+  {"query": "list what third-party skills I currently have installed", "should_trigger": false}
+]

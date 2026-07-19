@@ -1,9 +1,9 @@
 ---
 name: team-review
-description: "Multi-agent PR review team orchestration with 7 specialized reviewers for security-sensitive or architectural PRs. Spawns architecture, security, performance, testing, style, docs/UX, and adversary reviewers as a coordinated team. Premium review for critical code changes."
+description: "Multi-agent review team — architecture, security, performance, testing, style, docs/UX, plus an adversary that cross-examines the other 6 — for security-sensitive, architectural, or large PRs (15+ files) where a single-agent pass risks missing cross-cutting issues. Use for auth/payments/PII changes, schema/pattern changes, compliance sign-off, or when asked to 'get the review team on this' / 'multi-agent review' / 'thorough review before merge'. For a standard PR or a quick pre-merge check, use /review-code instead — it's faster and cheaper."
 disable-model-invocation: true
 argument-hint: "<pr_number|commit_sha|--all> [--focus area] [--lite]"
-allowed-tools: Read, Write, Edit, Bash, Grep, Glob, Task, Teammate, SendMessage, TaskCreate, TaskUpdate, TaskList, TaskGet, WebFetch, AskUserQuestion
+allowed-tools: Read, Write, Edit, Bash, Grep, Glob, Task, SendMessage, TaskCreate, TaskUpdate, TaskList, TaskGet, TaskStop, WebFetch, AskUserQuestion
 context: fork
 agent: general-purpose
 ---
@@ -16,13 +16,20 @@ For simpler reviews, use `/review-code` (single-agent with parallel Explore suba
 
 ## Prerequisites
 
-**Full mode** requires the experimental agent teams flag. Add to your environment or `settings.json`:
+**Full mode** spawns 7 named reviewer agents that message each other directly via `SendMessage` (the adversary needs this to cross-examine the other 6). Named agent-team spawning requires the experimental flag. Add to your environment or `settings.json`:
 
 ```
 CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
 ```
 
-**Lite mode** (`--lite` flag or automatic fallback) works without this flag — uses Task subagents instead of the Teammate API. Fewer agents, lower cost, still comprehensive.
+**Lite mode** (`--lite` flag, or automatic fallback when the flag is unset) needs no flag — it spawns 4 combined-role Task subagents that report results back to the orchestrator instead of talking to each other directly. Fewer agents, lower cost, still covers all 7 dimensions.
+
+**No `Task`/subagent tools at all?** Run the review yourself, sequentially, as the lead — the 7 dimensions are the methodology, parallel agents are just how Claude Code speeds it up:
+
+1. Read every file in scope (for PR/commit reviews: the diff, plus surrounding code for context).
+2. Work each checklist in turn, logging findings as you go: architecture → security → performance → testing → style → docs/UX (checklists are in [references/agent-catalog.md](references/agent-catalog.md), one per dimension).
+3. Re-read your own findings as the adversary would: which look like false positives? What's a blind spot across dimensions? What breaks at 10x scale or under adversarial input?
+4. Consolidate and write the report — Phases 4-5 below apply unchanged regardless of how the findings were gathered.
 
 **Delegate mode** (recommended for full mode): Press `Shift+Tab` to enable delegate mode, which restricts the lead to coordination-only tools and prevents it from reviewing code itself.
 
@@ -30,23 +37,14 @@ CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
 
 $ARGUMENTS
 
-## Known Limitations
+## Notes
 
-- **No session resumption**: `/resume` does not restore teammates. If a session is interrupted, teammates are lost
-- **One team per session**: Cannot run multiple team-review invocations simultaneously
-- **Analysis only**: Identifies issues without modifying code. Use `/implement-feature` or `/fix-bug` for fixes
-- **Task status can lag**: Teammates sometimes forget to mark tasks complete; orchestrator should monitor
-- **Teammates load CLAUDE.md**: Project conventions apply automatically to all reviewers (this is a benefit)
-
-## Anti-Hallucination Guidelines
-
-**CRITICAL**: All reviewers must follow these rules:
-1. **Read before claiming** - Never report issues in code that has not been read
-2. **Evidence-based findings** - Every finding must reference specific file paths and line numbers
-3. **Verify in context** - Confirm each pattern is actually problematic, not an intentional choice
-4. **No false positives** - When uncertain, flag as "Needs manual verification" rather than asserting
-5. **Scope enforcement** - Only review files within the specified scope (PR/commit/all)
-6. **Respect project conventions** - Understand existing patterns before flagging style issues
+- `/resume` does not restore teammates — an interrupted full-mode session loses the team; re-run from scratch.
+- Only one team-review can run per session.
+- Analysis only — it finds issues but never edits code; use `/implement-feature` or `/fix-bug` for the actual fixes.
+- Teammates sometimes forget to mark tasks complete, so the orchestrator should poll task status rather than assume completion.
+- Every reviewer must ground findings in code it actually read (file:line, real snippet) and flag uncertain cases as "needs manual verification" instead of asserting — a false positive here costs more than a missed finding, since it erodes trust in the whole report.
+- Abort early if the requested scope (PR/commit) doesn't exist or isn't readable — don't let reviewers spin on a bad input. If reviewer tasks stall past ~10 min, or the adversary doesn't report back, proceed to consolidation with what's in hand rather than blocking the whole review.
 
 ## Workflow Overview
 
@@ -73,7 +71,7 @@ Parse `$ARGUMENTS` to determine what to review:
 | `123` or `#123` | PR number | `gh pr view 123 --json files,title,body,labels,comments` + `gh pr diff 123` |
 | `abc123` | Commit SHA | `git show abc123` + `git diff-tree --no-commit-id --name-only -r abc123` |
 | `--all` or no args | Entire codebase | `git ls-files` (respects .gitignore) |
-| `--lite` | Force lite mode | Use Task subagents instead of Teammate API |
+| `--lite` | Force lite mode | Spawn 4 combined-role Task subagents instead of 7 named reviewers |
 | `--focus <area>` | Focus area | Spawn only relevant reviewers |
 
 **Retrieve full diff context for PR/commit reviews.** Reviewers must focus findings on changed lines while using surrounding code for context.
@@ -101,31 +99,31 @@ Task tool (Explore, haiku):
 
 ## Phase 2: Team Composition & Spawn
 
-### Assess Complexity
+### Choose Full vs Lite Mode
 
-Evaluate complexity to determine full vs. lite mode:
+Default to **full mode** when any of these hold — the same signals named in this skill's description:
+- Security-sensitive: touches auth, payments, or PII
+- Architectural: introduces a new pattern or changes a schema
+- Large: 15+ files changed
+- Explicit ask: user requests compliance/audit sign-off, or says "thorough"/"full team"/"multi-agent"
 
-| Signal | Full Mode (+2) | Medium (+1) | Lite Mode (0) |
-|--------|----------------|-------------|----------------|
-| Files changed | 15+ files | 5-14 files | <5 files |
-| Security sensitivity | Auth, payments, PII | Permission checks | No sensitive data |
-| Architectural impact | New patterns, schema changes | Modifying existing patterns | Localized changes |
-| Cross-cutting concerns | Multiple modules/services | 2 components | Single component |
+Default to **lite mode** otherwise — a localized, single-component change with no sensitive data.
 
-**Thresholds:**
-- Score 0-2: Use **lite mode** automatically
-- Score 3-4: Ask user (recommend lite for cost efficiency)
-- Score 5+: Use **full mode** automatically
+**Ambiguous** (e.g. a schema change touching only 3 files, or a small change near auth code)? Ask instead of guessing:
 
-**Override**: `--lite` flag forces lite mode regardless of score.
+```
+AskUserQuestion:
+  question: "This PR touches [signal] but is otherwise small — full team review or lite mode?"
+  options:
+    - "Lite mode (4 agents, faster/cheaper)"
+    - "Full mode (7 agents, more thorough)"
+```
+
+**Override**: `--lite` flag forces lite mode regardless of signals.
 
 ### Full Mode Team Spawn
 
-```
-Teammate({ operation: "spawnTeam", team_name: "review-<pr_or_scope>" })
-```
-
-Spawn 7 reviewer agents. For complete prompt templates, see [references/agent-catalog.md](references/agent-catalog.md).
+Spawn each reviewer as a separate, named agent via the `Task` tool (one call per reviewer, so they run in parallel). The name is what later `SendMessage` and `TaskStop` calls address — pick short, stable handles like `arch-reviewer`, `security-reviewer`. For complete prompt templates, see [references/agent-catalog.md](references/agent-catalog.md).
 
 | Role | Agent Name | Model | Focus |
 |------|-----------|-------|-------|
@@ -254,15 +252,14 @@ Generate a comprehensive review report following the template in [references/rep
 
 ### Full Mode
 
-1. Send `shutdown_request` to all reviewer agents
-2. Wait for `shutdown_response` from each
-3. Run `Teammate({ operation: "cleanup" })`
-4. Present final report to user
+1. Once a reviewer has sent its findings via `SendMessage`, call `TaskStop` with its name (e.g. `TaskStop({ task_id: "security-reviewer" })`) to free it.
+2. Repeat for each of the 7 reviewers as they report in.
+3. Present final report to user.
 
 ### Lite Mode
 
-1. Collect all subagent results
-2. Present final report to user
+1. Collect all subagent results (they return directly to the orchestrator; no explicit stop needed).
+2. Present final report to user.
 
 ---
 
@@ -278,15 +275,49 @@ After the initial review, if fixes are made and a re-review is requested:
 
 ---
 
-## Quality Gates
+## Worked Examples
 
-| Gate | Between | Pass Criteria | On Failure |
-|------|---------|---------------|------------|
-| Scope Validation | 0 → 1 | Files exist and are readable | Error + abort |
-| Discovery Complete | 1 → 2 | Tech stack identified | Proceed with defaults |
-| All Reviews Complete | 3 → 4 | All reviewer tasks marked complete | Wait (timeout: 10 min) |
-| Adversary Complete | 3 → 4 | Adversary findings received | Proceed without adversary |
-| Report Generated | 5 → 6 | All findings have file:line refs | Verify and fix gaps |
+Full report structure lives in [references/report-template.md](references/report-template.md) — these show what a real, filled-in entry looks like (never fabricate the file:line or snippet; it must come from a file the reviewer actually read).
+
+**A Critical security finding:**
+```
+#### [SEC-1]: SQL built via string interpolation in order lookup
+- Severity: Critical | OWASP: A05 (Injection)
+- File: `api/orders.py:142-145`
+- Code: `query = f"SELECT * FROM orders WHERE user_id = {user_id}"`
+- Attack scenario: `user_id` comes from an unvalidated query param — a value like
+  `1 OR 1=1` returns every user's orders.
+- Fix: parameterize — `cursor.execute("SELECT * FROM orders WHERE user_id = %s", (user_id,))`
+```
+
+**An adversary challenge (downgrading a false positive, adding a miss):**
+```
+Finding [PERF-2]: Disagree — flagged `O(n²)` loop only runs at startup over a
+config list capped at 12 entries; downgrade Critical → Nit.
+
+New finding [ADV-1]: The new `retry_payment()` in `billing.py:88` has no
+idempotency key — a network retry after a successful charge double-bills.
+Missed because it's outside the diff's changed lines but is called by them.
+```
+
+**Lite mode's combined-role finding** (Architecture & Security agent, one merged list, security-first priority):
+```
+#### [ARCH-SEC-1]: Missing ownership check before role update
+- Severity: Critical (security takes priority over the architectural nit below)
+- File: `handlers/admin.py:51`
+- Any authenticated user can PATCH another user's role — no ownership or
+  admin-role check before the write. Also note: this handler duplicates the
+  permission logic in `handlers/users.py:30` (Minor, DRY).
+```
+
+**Re-review delta after fixes** (Phase: Iterative Re-Review):
+```
+Resolved (2): ~~[SEC-1] SQL injection~~ — parameterized in orders.py:142 ✅
+Remaining (1): [ARCH-1] still present — pagination not added to /orders
+New (1): [NEW-1] fix for SEC-1 left an unused import in orders.py (Nit)
+```
+
+---
 
 ## Usage
 

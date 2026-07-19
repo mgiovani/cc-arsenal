@@ -1,0 +1,22 @@
+[
+  {"query": "set up docs for this project, there's nothing in docs/ yet", "should_trigger": true},
+  {"query": "bootstrap documentation for my repo from scratch", "should_trigger": true},
+  {"query": "initialize project docs — we've never had any", "should_trigger": true},
+  {"query": "create docs from scratch for this codebase", "should_trigger": true},
+  {"query": "this project has no docs/ folder, can you create one with architecture and onboarding docs", "should_trigger": true},
+  {"query": "docs-init for a Python FastAPI microservice", "should_trigger": true},
+  {"query": "scaffold a documentation structure for this repo", "should_trigger": true},
+  {"query": "we need onboarding, architecture, and contributing docs — nothing exists yet", "should_trigger": true},
+  {"query": "generate a full docs/ folder for this new Next.js app, we haven't documented anything", "should_trigger": true},
+  {"query": "kick off documentation for this undocumented service", "should_trigger": true},
+  {"query": "our docs are out of date, sync them with the current code", "should_trigger": false},
+  {"query": "refresh the architecture doc after the refactor we just did", "should_trigger": false},
+  {"query": "update docs/deployment.md to match the new CI pipeline", "should_trigger": false},
+  {"query": "generate an ER diagram for our database", "should_trigger": false},
+  {"query": "create an architecture diagram in mermaid", "should_trigger": false},
+  {"query": "score our documentation health and tell me what's stale", "should_trigger": false},
+  {"query": "check if our docs are complete and up to date", "should_trigger": false},
+  {"query": "write an ADR for switching to Postgres", "should_trigger": false},
+  {"query": "draft an RFC for the new auth system", "should_trigger": false},
+  {"query": "write a conventional commit message for these changes", "should_trigger": false}
+]

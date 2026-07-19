@@ -18,5 +18,7 @@
   {"query": "write tests for the coverage gaps this review found", "should_trigger": false},
   {"query": "explain what this function does", "should_trigger": false},
   {"query": "write a commit message summarizing these changes", "should_trigger": false},
-  {"query": "review the wireframes for the new onboarding flow", "should_trigger": false}
+  {"query": "review the wireframes for the new onboarding flow", "should_trigger": false},
+  {"query": "do a deep performance audit of this endpoint with query-level analysis", "should_trigger": false},
+  {"query": "spin up the full multi-agent review team for this security-sensitive PR", "should_trigger": false}
 ]

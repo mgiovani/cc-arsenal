@@ -5,29 +5,58 @@
       "id": "discount-code-expiration-bypass",
       "prompt": "/fix-bug Users can bypass the discount code expiration check on checkout",
       "assertions": [
-        "Reproduces the bug with a failing test before writing any fix",
-        "The fix is scoped to the expiration check only, not a rewrite of the discount or checkout module",
-        "Existing validation and security checks (e.g. discount amount limits) remain intact after the fix",
-        "If only a safe partial fix is applied, leaves a LEAN-DEBT marker instead of silently shipping the gap"
+        "Runs the reproduction test against the unfixed code and shows the actual failing output (not just a claim that it fails) before any fix code is written",
+        "Identifies the root cause with a specific file path and line number, not a vague description",
+        "The diff is scoped to the expiration check only — no rewrite of the discount or checkout module",
+        "Existing validation and security checks (e.g. discount amount limits) remain intact and unmodified after the fix",
+        "Runs the full test suite after the fix and reports the actual pass/fail result, not an assumed one",
+        "If only a safe partial fix is applied, leaves a LEAN-DEBT marker in the code naming the limitation and upgrade trigger, instead of silently shipping the gap"
       ]
     },
     {
       "id": "wrong-status-code-missing-user",
       "prompt": "/fix-bug /api/users/:id returns 500 instead of 404 when the user doesn't exist",
       "assertions": [
-        "Confirms the bug by reproducing the failing scenario before implementing a fix",
-        "Root cause is identified with file:line evidence",
-        "The fix changes only the error-handling path for the missing-user case, not unrelated code",
-        "The full test suite passes after the fix with no regressions"
+        "Reproduces the 500 with a test or direct call run against the unfixed code and shows that actual 500 in the output before implementing a fix",
+        "States the root cause location as a specific file:line, e.g. a missing not-found check before an unwrap/access that throws",
+        "The fix changes only the error-handling path for the missing-user case — no unrelated routes or handlers touched",
+        "Runs the full test suite after the fix and reports the result from actual command output, no invented numbers",
+        "Since this is a single-file, single-root-cause bug, does not create a six-task chain — runs the phases inline"
       ]
     },
     {
       "id": "csv-export-empty-large-dataset",
       "prompt": "/fix-bug The CSV export downloads an empty file when there are more than 10k rows",
       "assertions": [
-        "Locates the actual root cause (e.g. a pagination or streaming limit) with evidence rather than guessing",
-        "The fix does not remove or weaken error handling for the empty-result case",
-        "The change is minimal and does not refactor the export pipeline beyond what the bug requires"
+        "Locates the actual root cause (e.g. a pagination, streaming, or row-limit issue) with file:line evidence rather than guessing at a cause",
+        "Reproduces the empty-file behavior against the unfixed code first, showing the actual empty/short output, before writing the fix",
+        "The fix does not remove or weaken existing error handling for the legitimately-empty-result case",
+        "The change stays minimal — does not refactor the export pipeline beyond what fixing the row limit requires",
+        "Reports actual test suite results after the fix, not a claim of success without running anything"
+      ]
+    },
+    {
+      "id": "vague-report-no-repro-steps",
+      "prompt": "/fix-bug something is broken with search sometimes",
+      "assertions": [
+        "Does not invent a root cause or write a speculative fix from a one-line vague report",
+        "The final message (via AskUserQuestion, or written directly in the response if that tool is unavailable) asks specifically for reproduction steps, expected vs. actual behavior, and environment/error details — not a generic 'can you clarify'",
+        "Does not treat an automated, sandboxed, or non-interactive context as license to proceed without an answer — it does not fabricate its own repro scaffolding or test fixture and then treat that self-authored scaffold as if it were the user's confirmation",
+        "No Edit/Write call modifies any source file",
+        "No git commit is created",
+        "The run stops and waits for clarification rather than guessing which code path is broken"
+      ]
+    },
+    {
+      "id": "race-condition-multi-file-payment-retry",
+      "prompt": "/fix-bug there's a bug in the payment retry logic — it's double-charging customers on network timeouts. The codebase has three separate files: `retry_queue.py` (RetryQueue — schedules and re-attempts failed payment charges after a timeout), `idempotency_key.py` (IdempotencyKeyGenerator — generates a stable key per charge attempt so retries can be recognized as duplicates), and `charge_handler.py` (ChargeHandler — applies a charge against the payment gateway, keyed by the idempotency key). The bug spans all three.",
+      "assertions": [
+        "Given the bug explicitly spans multiple files/components, creates a task chain (or clearly states it is treating this as multi-file work) rather than silently doing it inline as if it were a one-file fix",
+        "Reads and reasons about all three named files (retry_queue.py, idempotency_key.py, charge_handler.py) individually, citing evidence from each relevant to the root cause, not just one file with the others mentioned in passing",
+        "Reproduces the double-charge scenario specifically: shows the exact test/assertion for 'customer gets charged twice on retry' failing against the unfixed code (not merely that some other, unrelated test in the suite failed) before any fix code is written",
+        "Root cause is tied to specific file:line evidence in the retry queue, idempotency logic, or charge handler — not a generic description",
+        "The fix does not weaken or remove idempotency/security checks to make the diff smaller; any unavoidable partial fix carries a LEAN-DEBT marker",
+        "Runs the full test suite after the fix and reports the real result"
       ]
     }
   ]

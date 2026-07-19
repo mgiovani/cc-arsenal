@@ -1,101 +1,83 @@
 ---
 name: docs-check
-description: Validate documentation freshness, completeness, and quality against the
-  current codebase state. This skill should be used when users want to check documentation
-  health, find stale docs, detect hallucinations in documentation, or audit documentation
-  quality.
+description: Read-only audit of documentation against the current codebase — flags
+  stale docs, missing sections, broken links, and hallucinated claims (wrong file
+  references, wrong counts, diagram entities that don't exist in code). Use for
+  "check the docs", "audit documentation", "are the docs stale", "find hallucinations
+  in docs", "docs health check", "does this doc still match the code", or before
+  onboarding/release. Reports only, never edits files — for actually fixing or
+  regenerating docs use docs-update instead.
 metadata:
   author: mgiovani
-  version: 1.0.0
-  source: https://github.com/mgiovani/skills
-disable-model-invocation: true
+  version: 2.0.0
 argument-hint: '[focus]'
 allowed-tools: Read, Grep, Glob, Bash(git *, find *), Task
 context: fork
 agent: general-purpose
 ---
 
-# Docs Check
-
-> **Cross-Platform AI Agent Skill**
-> This skill works with any AI agent platform that supports the skills.sh standard.
-
 # Check Documentation Quality
 
-Validate documentation freshness, completeness, and quality against current codebase state.
+Audit documentation freshness, completeness, and quality against the current codebase state. Read-only: never edit or write to any doc file.
 
 ## Anti-Hallucination Detection
 
-**CRITICAL**: This skill should DETECT hallucinations in existing docs:
-1. **Cross-reference claims** - For each claim in docs, verify against actual code
-2. **Verify component counts** - If docs say "5 services", count actual services
-3. **Check file references** - Verify all referenced files actually exist
-4. **Validate diagrams** - Ensure diagram components match real codebase
+This skill exists to catch docs that lie. For every claim in a doc, verify it against the actual codebase rather than trusting the doc text:
+1. **Cross-reference claims** — component/service names, described relationships
+2. **Verify counts** — if a doc says "5 services", count the actual services
+3. **Check file references** — confirm every referenced path exists
+4. **Validate diagrams** — every Mermaid entity must exist in real code
 
 ## Workflow
 
-### Phase 1: Parallel Documentation Analysis (Use Parallel Analysis)
+### Phase 1: Scan docs/
 
-#### For Multiple Documents
+1. Glob all documentation files (`docs/`, `docs/adr/`, `docs/rfc/`, top-level `README.md`, `CONTRIBUTING.md`).
+2. Infer focus categories from the filenames actually present — don't assume a fixed set. A repo with `docs/data-model.md` gets a "data" category; one with `docs/deployment.md` and `docs/docker-compose.yml` docs gets "infrastructure"; group whatever's there under a name that matches its content. If the user names a focus that doesn't match anything found, say so and list the categories that do exist instead of silently no-op'ing.
+3. Detect tech stack, database presence, deployment configs, and project type from the codebase (package files, Dockerfiles, etc.) to know what documentation *should* exist.
 
-Spawn parallel subagents for each documentation file:
+### Phase 2: Parse arguments
 
-#### For Single Document (Section-Level Verification)
+Extract an optional focus keyword from the invocation and match it against the categories found in Phase 1. No argument means check everything found.
 
-Even when checking ONE document, spawn subagents for each logical section. See [references/verification-patterns.md](references/verification-patterns.md) for detailed section-level verification patterns.
+### Phase 3: Verify claims against the codebase
 
-**Verification categories to parallelize**:
-- Component/service names - Do they exist?
-- Numeric counts - Are they accurate?
-- Diagram entities - Are they real?
-- File/path references - Do files exist?
-- Technology claims - Are they in package files?
-- Relationship claims - Do the connections exist in code?
+For a small doc set (a handful of files, or a one-shot check like "does this file exist"), verify directly inline with Read/Grep/Glob/git — spawning a subagent for a single lookup adds latency for no benefit.
 
-### Phase 2: Parse Arguments
+For a large multi-doc audit (a full `docs/` tree, many ADRs, cross-referencing several files against the codebase), spawn one Explore subagent per document or logical section so each verifies its claims independently. Where no Task tool is available, fall back to processing each document sequentially inline instead — same verification steps, one document at a time, no parallelism. See [references/verification-patterns.md](references/verification-patterns.md) for section-level verification patterns and bash commands.
 
-1. Extract optional focus area from `command arguments`
-2. Focus areas: `core`, `data`, `infrastructure`, `all`
-3. Default: check all documentation
+**Verification categories**: component/service names, numeric counts, diagram entities, file/path references, technology claims (against package files), relationship claims.
 
-### Phase 3: Scan and Analyze
+### Phase 4: Validation checks
 
-1. Find all documentation files in `docs/`
-2. Identify documentation types present
-3. Check for ADRs and RFCs
-4. Detect technology stack, database presence, deployment configs, project type
+**Relevance**: which docs are relevant given the detected stack; what's missing for detected technologies.
 
-### Phase 4: Perform Validation Checks
+**Freshness**: compare each doc's last-modified date (git log) against related code changes. A doc untouched since before a significant change to the code it describes is stale.
 
-**A. Relevance Check**: Determine which docs are relevant, identify missing documentation for detected technologies.
+**Completeness**: required sections present, no unreplaced `{{PLACEHOLDER}}` values, diagrams present where expected.
 
-**B. Freshness Check**: Compare doc last-modified dates with related code changes using git history. Flag docs not updated after significant code changes.
+**Quality**: valid Mermaid syntax, no broken internal links, no empty sections.
 
-**C. Completeness Check**: Verify all required sections are present, check for unreplaced `{{PLACEHOLDER}}` values, ensure diagrams exist where expected.
+See [references/verification-patterns.md](references/verification-patterns.md) for the exact commands.
 
-**D. Quality Check**: Validate Mermaid diagram syntax, check for broken internal links, verify markdown formatting, check for empty sections.
+### Phase 5: Rate each document
 
-For detailed verification commands and bash patterns, see [references/verification-patterns.md](references/verification-patterns.md).
+Skip numeric scoring — a 0-100 breakdown per doc implies precision this check doesn't have. Give each document one coarse rating instead:
 
-### Phase 5: Calculate Scores
+- **Good** — current, complete, no broken links or invalid diagrams
+- **Stale** — accurate but outdated (freshness or completeness gaps, no false claims)
+- **Broken** — contains hallucinations, broken links, or invalid Mermaid syntax
+- **Missing** — expected given the detected stack but doesn't exist
 
-See [references/scoring-criteria.md](references/scoring-criteria.md) for complete scoring rubrics.
+See [references/scoring-criteria.md](references/scoring-criteria.md) for the full rubric per rating.
 
-**Score categories per document**:
-- **Freshness** (0-100): Based on recency of updates relative to code changes
-- **Completeness** (0-100): Based on section coverage and placeholder replacement
-- **Quality** (0-100): Based on formatting, diagram validity, link integrity
+### Phase 6: Generate report
 
-**Overall Score**: Average of all document scores, weighted by importance (core docs > others).
-
-### Phase 6: Generate Report
-
-Produce a comprehensive report containing:
-- Status summary with overall score
-- List of documents by status (Good, Needs Attention, Missing)
-- **Hallucination Report** - Claims that do not match reality
-- Quality issues with specific locations and line numbers
-- Actionable recommendations with specific commands
+- Status summary with counts per rating
+- Documents grouped by rating (Good / Stale / Broken / Missing)
+- **Hallucination Report** — claims that don't match reality, with evidence
+- Quality issues with specific file:line locations
+- Actionable recommendations naming a specific follow-up command (docs-update, docs-diagram) and why
 
 ## Output Format
 
@@ -103,156 +85,75 @@ Produce a comprehensive report containing:
 ```
 Documentation Health Report
 
-Overall Score: 85/100
-
 Good (3 docs):
- docs/architecture.md (Score: 95/100)
- docs/onboarding.md (Score: 92/100)
- docs/adr/ (5 records, Score: 88/100)
+  docs/architecture.md
+  docs/onboarding.md
+  docs/adr/ (5 records)
 
-Needs Attention (2 docs):
- docs/data-model.md (Score: 65/100)
- docs/deployment.md (Score: 58/100)
+Stale (2 docs):
+  docs/data-model.md — last updated 2025-03-01, schema changed 2025-06-15
+  docs/deployment.md — references removed staging environment
 
-Missing (2 docs):
- docs/security.md
- docs/api-documentation.md
+Broken (1 doc):
+  docs/architecture.md — Hallucination: claims "6 microservices", 3 found
 
-Quality Issues:
- docs/data-model.md:42 - Invalid Mermaid syntax
- docs/architecture.md:15 - Broken link to [non-existent.md]
+Missing (1 doc, expected for detected stack):
+  docs/security.md — auth code present, no security doc
+```
+
+### Hallucination Report
+
+```
+Hallucinations Detected:
+
+docs/architecture.md:
+  - Line 45: Claims "6 microservices" but only 3 found
+    Verified with: find . -name "*service*" -type d | wc -l -> 3
+  - Line 78: References "AuthService" which doesn't exist
+    Verified with: grep -r "class AuthService" . -> no results
+```
+
 ### Recommendations Format
 
 ```
 Priority Recommendations:
 
-1. HIGH: Update data model documentation
- Command: docs-diagram er
- Reason: Schema changed 5 days ago, ER diagram missing
+1. HIGH: docs/architecture.md claims 6 microservices, only 3 exist
+   Command: docs-update architecture
+   Reason: hallucinated count, misleads new engineers
 
-2. MEDIUM: Fix deployment documentation placeholders
- Command: docs-update deployment
- Reason: Contains unreplaced placeholders
+2. MEDIUM: docs/data-model.md has 2 unreplaced {{PLACEHOLDER}} values
+   Command: docs-update data-model
+   Reason: incomplete since scaffolding
 
-3. LOW: Add security documentation
- Command: docs-diagram security
- Reason: Good practice for complete documentation
+3. LOW: docs/security.md missing, auth module exists
+   Command: docs-diagram security or docs-init security
+   Reason: no security documentation for an app with auth
+```
+
 ## Usage Examples
 
-Check all documentation:
 ```
-docs-check
-With specific focus:
-```
-docs-check core
-docs-check data
+docs-check                      # check everything found in docs/
+docs-check core                 # focus on whatever category maps to "core" in this repo
 docs-check focus on database documentation
-Quick check:
 ```
-docs-check quick
+
 ## Important Notes
 
-- **Non-destructive**: Only reads, never modifies documentation
-- **Git-aware**: Uses git history to assess freshness
-- **Context-aware**: Understands project type and relevant docs
-- **Actionable**: Provides specific commands to fix issues
-- **Incremental**: Can be run frequently
+- Non-destructive: only reads, never modifies documentation.
+- Every number reported (counts, dates, "N days stale") must come from a command actually run in this session — never estimate or infer a count without running find/grep/git for it.
+- Recommends `docs-update` or `docs-diagram` as the fix — this skill only reports.
 
 ## When to Run
 
 - Before onboarding new team members
 - During documentation reviews
 - After major refactoring
-- As part of pre-release checklist
+- As part of a pre-release checklist
 - When documentation feels stale
-- Regularly (weekly or bi-weekly)
 
 ## Additional Resources
 
-- For detailed verification commands and bash patterns, see [references/verification-patterns.md](references/verification-patterns.md)
-- For complete scoring rubrics and thresholds, see [references/scoring-criteria.md](references/scoring-criteria.md)
-
-## Claude Code Enhanced Features
-
-This skill includes the following Claude Code-specific enhancements:
-
-## Workflow
-
-### Phase 1: Parallel Documentation Analysis (Use SubAgents)
-
-#### For Multiple Documents
-
-Spawn parallel subagents for each documentation file:
-
-```
-Use Task tool with multiple parallel agents:
-
-Agent 1 - Core Docs Verification:
-- prompt: "Read docs/architecture.md and verify EVERY claim against the actual codebase. For each component mentioned, confirm it exists. For each count, verify with find/glob. Report any claims that cannot be verified."
-- subagent_type: "general-purpose"
-
-Agent 2 - Data Docs Verification:
-- prompt: "Read docs/data-model.md and verify all entities exist in actual model files. Check each relationship claimed is real. Report mismatches."
-- subagent_type: "general-purpose"
-
-Agent 3 - Explore Codebase Reality:
-- prompt: "Analyze the actual codebase structure. Count real components, services, models. This will be compared against documentation claims."
-- subagent_type: "Explore"
-```
-
-#### For Single Document (Section-Level Verification)
-
-Even when checking ONE document, spawn subagents for each logical section. See [references/verification-patterns.md](references/verification-patterns.md) for detailed section-level verification patterns.
-
-**Verification categories to parallelize**:
-- Component/service names - Do they exist?
-- Numeric counts - Are they accurate?
-- Diagram entities - Are they real?
-- File/path references - Do files exist?
-- Technology claims - Are they in package files?
-- Relationship claims - Do the connections exist in code?
-
-### Phase 2: Parse Arguments
-
-1. Extract optional focus area from `$ARGUMENTS`
-2. Focus areas: `core`, `data`, `infrastructure`, `all`
-3. Default: check all documentation
-
-### Phase 3: Scan and Analyze
-
-1. Find all documentation files in `docs/`
-2. Identify documentation types present
-3. Check for ADRs and RFCs
-4. Detect technology stack, database presence, deployment configs, project type
-
-### Phase 4: Perform Validation Checks
-
-**A. Relevance Check**: Determine which docs are relevant, identify missing documentation for detected technologies.
-
-**B. Freshness Check**: Compare doc last-modified dates with related code changes using git history. Flag docs not updated after significant code changes.
-
-**C. Completeness Check**: Verify all required sections are present, check for unreplaced `{{PLACEHOLDER}}` values, ensure diagrams exist where expected.
-
-**D. Quality Check**: Validate Mermaid diagram syntax, check for broken internal links, verify markdown formatting, check for empty sections.
-
-For detailed verification commands and bash patterns, see [references/verification-patterns.md](references/verification-patterns.md).
-
-### Phase 5: Calculate Scores
-
-See [references/scoring-criteria.md](references/scoring-criteria.md) for complete scoring rubrics.
-
-**Score categories per document**:
-- **Freshness** (0-100): Based on recency of updates relative to code changes
-- **Completeness** (0-100): Based on section coverage and placeholder replacement
-- **Quality** (0-100): Based on formatting, diagram validity, link integrity
-
-**Overall Score**: Average of all document scores, weighted by importance (core docs > others).
-
-### Phase 6: Generate Report
-
-Produce a comprehensive report containing:
-- Status summary with overall score
-- List of documents by status (Good, Needs Attention, Missing)
-- **Hallucination Report** - Claims that do not match reality
-- Quality issues with specific locations and line numbers
-- Actionable recommendations with specific commands
+- [references/verification-patterns.md](references/verification-patterns.md) — load when running Phase 3/4 verification, for exact bash/grep patterns and the subagent prompt templates
+- [references/scoring-criteria.md](references/scoring-criteria.md) — load when assigning Phase 5 ratings, for the full Good/Stale/Broken/Missing rubric

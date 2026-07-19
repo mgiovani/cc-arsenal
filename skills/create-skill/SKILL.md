@@ -1,9 +1,9 @@
 ---
 name: create-skill
-description: "Create new agent skills with specification-driven generation, live documentation fetching, and interactive planning. Use this skill whenever the user wants to create a new skill, slash command, or agent capability — even if they say 'make a command' or 'turn this into a reusable workflow'."
+description: "Create a new agent skill (or Claude Code slash command) from a plain-language description, using live spec fetching, pattern research, and an approval-gated blueprint before any files are written. Use whenever the user wants to build, scaffold, or author a new skill, subagent capability, or slash command — including phrasings like 'make a command for X', 'create a slash command', 'turn this into a reusable skill', or 'package this workflow as a skill'. Not for editing CLAUDE.md/AGENTS.md memory rules (use create-rule) or discovering/installing existing third-party skills (use find-skills)."
 metadata:
   author: mgiovani
-  version: 2.0.0
+  version: 3.0.0
 argument-hint: "[skill-description]"
 allowed-tools:
   - Read
@@ -15,10 +15,6 @@ allowed-tools:
   - Bash(python *)
   - Bash(uv run *)
   - Task
-  - TaskCreate
-  - TaskUpdate
-  - TaskList
-  - TaskGet
   - WebFetch
   - AskUserQuestion
   - EnterPlanMode
@@ -31,45 +27,30 @@ Create new agent skills with specification-driven generation, live documentation
 
 ## Writing Philosophy
 
-Before starting, internalize these principles — they make the difference between a skill that works once vs. one that works reliably across varied inputs:
+Apply these when drafting the generated skill's description and body in Phase 4 — they make the difference between a skill that works once vs. one that works reliably across varied inputs:
 
-**Explain the why**: Replace heavy-handed "MUSTs" with reasoning. LLMs respond better to understanding why a constraint exists than to being commanded. "Fetch live specs because specifications evolve weekly" beats "ALWAYS fetch live specs."
+**Descriptions lead with use case.** Open with the concrete use case, then the trigger phrases a user would actually type — third person, WHAT the skill does + WHEN to use it. If a sibling skill covers adjacent territory, add one "Not for X (use <sibling>)" clause per real overlap — that single clause prevents more wrong triggers than three extra trigger phrases. Cap at 1024 chars (the bundled validator enforces it).
 
-**Pushy descriptions**: Combat undertriggering by making descriptions assertive. "Use this whenever someone says 'create a workflow', 'make a command', or 'turn this into a skill'" beats "Use for skill creation." Model-invoked skills that don't trigger aren't useful.
+**Explain WHY only at hard boundaries.** Add reasoning only where an agent would otherwise plausibly do the wrong thing (e.g. "fetch live specs — cached docs go stale within weeks"). Everywhere else, a plain imperative ("Run the validator.") is faster to read and no less correct. Justifying every line is noise, not guidance.
 
-**Keep it lean**: Remove instructions that aren't pulling their weight. Every line competes for attention in the context window. A 100-line skill often beats a 500-line skill if the extra 400 lines are noise, redundancy, or edge cases that never occur.
+**Keep it lean; reserve ALL-CAPS for true invariants.** Remove instructions that aren't pulling their weight — a 100-line skill often beats a 500-line skill diluted with edge cases that never occur. CRITICAL/MUST/ALWAYS/NEVER should mark the handful of things that really are non-negotiable; a word repeated ten times protects nothing.
 
 **Generalize, don't overfit**: Skills designed only around their own test examples fail in practice. Design for the pattern, not the specific instance. Ask: "Would this instruction still apply if the user's request looked different?"
 
 **Mine conversations first**: Users rarely articulate needs perfectly upfront. Extract information they've already provided before asking more questions.
 
+**Refusal and precondition paths end at the question.** When the generated skill needs the user to resolve an ambiguity or confirm before a destructive step, its instruction should stop at asking — never "ask, then proceed anyway if there's no reply." A non-interactive eval run can't pause mid-task; a skill written to assume it can either hangs or silently guesses.
+
 ## Workflow
 
 ### Phase 0: Fetch Live Specifications
 
-Fetch latest specs before every creation — never rely on memory or bundled docs, because specifications evolve.
+Fetch latest specs before every creation — never rely on memory or bundled docs, because specifications evolve. This is two small fetches, not a research task — call WebFetch directly rather than spawning agents for it:
 
-Spawn 2 parallel Explore agents (model: haiku to minimize cost):
+1. WebFetch `https://agentskills.io/specification.md` — frontmatter fields, `allowed-tools` syntax, directory rules
+2. WebFetch `https://platform.claude.com/docs/skills/best-practices.md` — progressive disclosure, writing style, anti-hallucination patterns. If the fetch fails, fall back to bundled `references/skill-anatomy.md` and `references/frontmatter-fields.md`
 
-```
-Agent 1 - Fetch Skill Specifications:
-- subagent_type: "Explore"
-- model: "haiku"
-- prompt: "Fetch and summarize the latest skill specifications:
-  1. WebFetch https://agentskills.io/what-are-skills.md — extract: what skills are, anatomy, when to use
-  2. WebFetch https://agentskills.io/specification.md — extract: frontmatter fields, allowed-tools syntax, directory rules
-  Return: Structured summary with examples"
-
-Agent 2 - Fetch Best Practices:
-- subagent_type: "Explore"
-- model: "haiku"
-- prompt: "Fetch Claude Code skill best practices:
-  1. WebFetch https://platform.claude.com/docs/skills/best-practices.md — extract: progressive disclosure, writing style, anti-hallucination patterns
-  2. If URL fails, read bundled: skills/create-skill/references/skill-anatomy.md
-  Return: Key guidelines and common pitfalls"
-```
-
-Hold results in context. Do not proceed until both agents return.
+Hold both results in context. Do not proceed until both are fetched.
 
 ### Phase 1: Understand Requirements
 
@@ -100,6 +81,8 @@ Adapt communication style to the user. Technical users: use precise terms (front
 
 ### Phase 2: Research Existing Patterns & Composition
 
+No `Task` tool here? Do this research yourself, sequentially — read the same targets each agent below would, one after the other. The two research tracks are what matters, not the parallel dispatch.
+
 Spawn 2 parallel Explore agents (model: haiku) using the Task tool:
 
 ```
@@ -128,7 +111,7 @@ Consolidate into: pattern summary, composable skills list, decision rationale.
 
 ### Phase 3: Plan Skill Structure (User Approval Required)
 
-Use EnterPlanMode to require explicit user approval before generating any files.
+Use EnterPlanMode to require explicit user approval before generating any files. If EnterPlanMode isn't available, present the same blueprint as plain text and wait for an explicit go-ahead — do not generate files on silence or an ambiguous reply.
 
 Present a complete blueprint:
 
@@ -143,7 +126,9 @@ allowed-tools:            # only list tools actually used — each has a cost
   - Write
 ```
 
-Allowed frontmatter keys: `name`, `description`, `license`, `allowed-tools`, `metadata`, `compatibility`, `disable-model-invocation`, `argument-hint`. Reject anything else — unknown keys cause validation failures.
+Allowed frontmatter keys: `name`, `description`, `license`, `allowed-tools`, `metadata`, `compatibility`, `disable-model-invocation`, `argument-hint`, `context`, `agent`, `hooks`. Reject anything else — unknown keys cause validation failures. Add `context: fork` + `agent: <type>` only when the skill should run isolated from conversation history (the SKILL.md content becomes the subagent's entire prompt) — see `references/frontmatter-fields.md` for the full field reference and `$ARGUMENTS`/`$0`/`$1` substitution syntax.
+
+If the new skill builds on an existing one, follow the **Skill composition** convention in `AGENTS.md`: name the sibling skill in prose and state its tool-neutral fallback in the same sentence (via the `Skill` tool where available, otherwise apply its documented steps) — don't invent `uses:`/`composes:` frontmatter for it.
 
 **2. Directory Structure** — explain why each directory is or isn't included:
 ```
@@ -171,17 +156,13 @@ Create files only after approval from Phase 3.
 
 **Writing SKILL.md:**
 
-Lead with what the skill does (outcome), not what it is. Structure instructions as imperative phases: "Fetch...", "Create...", "Validate..." — not "You should fetch..." or "Claude will create..."
-
-Each phase should explain WHY the step matters:
-- BAD: "Run the validator."
-- GOOD: "Run the validator — it catches frontmatter key typos that silently break skill loading."
+Lead with what the skill does (outcome), not what it is. Structure instructions as imperative phases: "Fetch...", "Create...", "Validate..." — not "You should fetch..." or "Claude will create..." Explain WHY only at hard boundaries (see Writing Philosophy above) — not every step needs a justification clause.
 
 Include verification checkpoints: what does success look like mid-workflow?
 
 Anti-hallucination section — what should the skill explicitly verify before assuming?
 
-**Writing evals/evals.json** (create if Q4 was "yes"):
+**Writing `evals/evals.json`** (create if Q4 was "yes") — see `references/schemas.md` for the full schema:
 ```json
 {
   "skill": "skill-name",
@@ -200,15 +181,30 @@ Anti-hallucination section — what should the skill explicitly verify before as
 }
 ```
 
-Write prompts first — they're easy. Draft assertions while reasoning about what good output looks like for each prompt.
+Write prompts first — they're easy. Draft assertions while reasoning about what good output looks like for each prompt. Cover at minimum: a happy-path scenario, a judgment-call scenario (ambiguous input, no single correct output), and an edge case or refusal.
+
+Eval-design rules that keep evals scoreable in a non-interactive run:
+- A correct refusal must be able to score 100% — don't bundle a refusal assertion in the same eval as assertions that only make sense if the skill proceeded; a scenario that stops early can't satisfy both. Split guard behavior into its own scenario.
+- Refusal/precondition scenarios must assert that **no mutating command ran** (no file writes, no `git commit`, no destructive Bash) — otherwise a broken "helpful" auto-fix that ignores the guard passes anyway.
+- Never assert on interactive mid-run input (a sandboxed eval runner can't pause). Instead assert the run's final message asks the right question and stops there.
+- Bake any fixtures the prompt needs (sample file contents, a repo state) directly into the eval prompt text, so the scenario is self-contained and deterministic.
+
+**Writing `evals/trigger-eval.json`** (create alongside evals.json for any model-invoked skill): a top-level JSON array — no wrapper object — of `{"query": "...", "should_trigger": true|false}` entries, roughly half realistic near-miss negatives pulled from sibling skills' territory (the cases a bad description would falsely trigger on):
+```json
+[
+  {"query": "create a skill that generates changelog entries from commits", "should_trigger": true},
+  {"query": "add a rule to CLAUDE.md about commit message style", "should_trigger": false}
+]
+```
 
 **Self-check before finalizing:**
 - [ ] No broken internal file references (every referenced file exists)
 - [ ] SKILL.md under 500 lines (move details to `references/` if needed)
-- [ ] Description is assertive, covers multiple trigger phrasings, 50-1024 chars
+- [ ] Description is assertive, covers multiple trigger phrasings, 50-1024 chars, has a sibling disambiguation clause if one applies
 - [ ] All tools in `allowed-tools` are actually used in the workflow
 - [ ] No allowed-tools with unknown keys
 - [ ] No TODO or placeholder text remains in generated files
+- [ ] If the skill is model-invoked, `evals/evals.json` and `evals/trigger-eval.json` were authored, not skipped
 
 ### Phase 5: Validate and Package
 
@@ -260,12 +256,14 @@ When iterating on an existing skill after seeing it in use:
 - Read existing code before suggesting modifications
 - Confirm all internal skill references resolve before writing them
 - Only include tools in `allowed-tools` that you've verified exist in the platform spec
+- Never write a percentage, count, or score into a generated skill or report unless it came from a command actually run this session (validator stdout, eval script output, a grep count) — a fabricated number in a generated skill teaches the same fabrication pattern forward into every skill it produces
 
 ## Reference Documentation
 
 - **`references/skill-anatomy.md`** — Deep dive: folder conventions, progressive disclosure, composition patterns
+- **`references/frontmatter-fields.md`** — Full frontmatter field reference, `$ARGUMENTS` substitution syntax, the `context: fork` isolated-subagent pattern
 - **`references/specification-urls.md`** — Canonical URLs for specs, best practices, examples
-- **`references/schemas.md`** — JSON schemas for evals.json, grading.json, metrics.json
+- **`references/schemas.md`** — JSON schemas for evals.json, trigger-eval.json, grading.json, metrics.json
 
 ---
 
@@ -325,18 +323,10 @@ uv run skills/create-skill/scripts/generate_report.py [SKILL_PATH]
 
 For model-invoked skills, the description is the trigger mechanism. Optimizing it improves precision.
 
-Use the description optimizer:
+Use the description optimizer — it generates should/should-not-trigger queries, iterates the description against a train split via `claude -p`, then validates on a held-out test split to avoid overfitting (see the script's own docstring for the full algorithm):
 ```bash
 uv run skills/create-skill/scripts/improve_description.py [SKILL_PATH]
 ```
-
-This script:
-1. Generates 20 trigger queries (10 should-trigger, 10 should-not-trigger)
-2. Splits 60/40 into train/test sets (stratified by trigger intent)
-3. Tests the current description against train set via `claude -p`
-4. Iterates up to 5 times, improving based on failures
-5. Validates best iteration on test set to prevent overfitting
-6. Auto-shortens if description exceeds 1024 chars (then re-validates)
 
 Then package for distribution:
 ```bash

@@ -18,5 +18,6 @@
   {"query": "the CSV export button is broken, it downloads an empty file", "should_trigger": false},
   {"query": "clean up the OAuth2 integration, it's got dead code everywhere", "should_trigger": false},
   {"query": "generate a changelog for the last release", "should_trigger": false},
-  {"query": "set up CI to run tests on every PR", "should_trigger": false}
+  {"query": "set up CI to run tests on every PR", "should_trigger": false},
+  {"query": "spin up the full team to build our new multi-service checkout platform from scratch, want the whole squad on this", "should_trigger": false}
 ]

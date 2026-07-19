@@ -1,0 +1,22 @@
+[
+  {"query": "our docs are stale after the refactor, can you sync them with the code", "should_trigger": true},
+  {"query": "update docs/architecture.md to match the new microservices split", "should_trigger": true},
+  {"query": "run docs-update on category:core", "should_trigger": true},
+  {"query": "the onboarding doc mentions commands that no longer exist, please fix it", "should_trigger": true},
+  {"query": "update data-model.md after the schema migration", "should_trigger": true},
+  {"query": "docs-update all", "should_trigger": true},
+  {"query": "regenerate deployment docs now that we moved to k8s", "should_trigger": true},
+  {"query": "refresh contributing.md, the workflow changed", "should_trigger": true},
+  {"query": "our architecture doc is out of sync with the new payment service, update it", "should_trigger": true},
+  {"query": "sync the docs with the schema changes we just made", "should_trigger": true},
+  {"query": "create the initial docs/ structure for this new project", "should_trigger": false},
+  {"query": "audit our docs and tell me what's stale, don't change anything", "should_trigger": false},
+  {"query": "does docs/architecture.md still match the actual services we have? just check, don't edit", "should_trigger": false},
+  {"query": "generate a Mermaid diagram of the service architecture", "should_trigger": false},
+  {"query": "write an ADR for switching to event sourcing", "should_trigger": false},
+  {"query": "draft an RFC proposing we move to a monorepo", "should_trigger": false},
+  {"query": "bootstrap documentation for this brand new repo from scratch", "should_trigger": false},
+  {"query": "review this PR for correctness and style before I merge", "should_trigger": false},
+  {"query": "write a conventional commit message for these staged changes", "should_trigger": false},
+  {"query": "check if our onboarding doc is missing any required sections", "should_trigger": false}
+]

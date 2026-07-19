@@ -2,6 +2,8 @@
 
 Detailed grep patterns and agent prompts for each performance category. Load this reference when running Phase 3 parallel performance scanning.
 
+**On a PR/commit review, `[FILES_LIST]` is the complete and only set of files any agent may grep or read** - never follow an import, a caller, or "related-looking" file outside it, even if the anti-pattern would clearly extend there. Each file in `[FILES_LIST]` carries its Phase 0 hunk ranges; every match below gets classified against them before being written up - see the "0." step added to each agent's "For each finding" list.
+
 ## Agent 1 - N+1 Queries & Database Performance
 
 ```
@@ -49,6 +51,7 @@ Use Grep to search for:
 - Missing connection pool configuration
 
 For each finding:
+0. On a PR/commit review, confirm the file is in [FILES_LIST]; if not, skip it entirely. Check whether the match's line falls inside one of that file's hunk ranges - if it's outside every hunk, it's pre-existing code, not a PR finding; route it to the separate pre-existing bucket instead of continuing this list
 1. Read the file to verify context and trace the query pattern
 2. Check if the query runs in a loop or is called per-request
 3. Extract exact code snippet (5-10 lines) showing the anti-pattern
@@ -119,6 +122,7 @@ Use Grep to search for:
 - Missing base case guards (potential stack overflow)
 
 For each finding:
+0. On a PR/commit review, confirm the file is in [FILES_LIST]; if not, skip it entirely. Check whether the match's line falls inside one of that file's hunk ranges - if it's outside every hunk, it's pre-existing code, not a PR finding; route it to the separate pre-existing bucket instead of continuing this list
 1. Read the code to verify the complexity claim
 2. Determine the expected data size (small/medium/large)
 3. Calculate actual Big O complexity
@@ -199,6 +203,7 @@ Use Grep to search for:
 - Interaction to Next Paint: Long tasks on main thread, heavy event handlers
 
 For each finding:
+0. On a PR/commit review, confirm the file is in [FILES_LIST]; if not, skip it entirely. Check whether the match's line falls inside one of that file's hunk ranges - if it's outside every hunk, it's pre-existing code, not a PR finding; route it to the separate pre-existing bucket instead of continuing this list
 1. Read the component/file to verify the rendering context
 2. Assess impact on Core Web Vitals (LCP, CLS, INP)
 3. Check if the component is in a critical rendering path
@@ -284,6 +289,7 @@ Use Grep to search for:
 - Blocking operations in async pools
 
 For each finding:
+0. On a PR/commit review, confirm the file is in [FILES_LIST]; if not, skip it entirely. Check whether the match's line falls inside one of that file's hunk ranges - if it's outside every hunk, it's pre-existing code, not a PR finding; route it to the separate pre-existing bucket instead of continuing this list
 1. Read the file to trace resource lifecycle (acquire → use → release)
 2. Verify that cleanup/release is missing or conditional
 3. Check error handling paths (does the resource leak on exception?)

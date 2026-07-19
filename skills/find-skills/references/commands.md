@@ -1,6 +1,6 @@
 # CLI Command Reference
 
-Complete reference for the `npx skills` CLI tool (npm package: `skills`, maintained by Vercel Labs).
+Reference for the `npx skills` CLI tool (npm package: `skills`, maintained by Vercel Labs). This is a third-party tool this repo doesn't control -- if a flag below doesn't behave as documented, run `npx skills <command> --help` and trust that output over this file.
 
 ## Installation
 
@@ -137,6 +137,8 @@ npx skills ls -a claude-code -a cursor
 
 Remove installed skills.
 
+`-y`/`--all` exist so the CLI itself skips its own prompts -- that's for scripted/CI use, not a license for the agent to skip *its* confirmation. List what's installed and get the user's explicit yes before running any `remove`/`rm` command; see SKILL.md's "Ask First" section.
+
 ```bash
 npx skills remove [name] [options]
 npx skills rm [name] [options]
@@ -207,51 +209,14 @@ npx skills init my-skill     # Create in a named subdirectory
 
 ---
 
-## Installation Paths
-
-### Claude Code Paths
+## Installation Paths (Claude Code)
 
 | Scope | Path |
 |-------|------|
 | Project | `.claude/skills/<skill-name>/SKILL.md` |
 | Global | `~/.claude/skills/<skill-name>/SKILL.md` |
 
-### Other Agent Paths
-
-| Agent | Project Path | Global Path |
-|-------|--------------|-------------|
-| Cursor | `.cursor/skills/` | `~/.cursor/skills/` |
-| Codex | `.codex/skills/` | `~/.codex/skills/` |
-| Gemini CLI | `.gemini/skills/` | `~/.gemini/skills/` |
-| GitHub Copilot | `.github/skills/` | `~/.copilot/skills/` |
-| OpenCode | `.opencode/skills/` | `~/.config/opencode/skills/` |
-| Cline | `.cline/skills/` | `~/.cline/skills/` |
-| Windsurf | `.windsurf/skills/` | `~/.codeium/windsurf/skills/` |
-| Roo Code | `.roo/skills/` | `~/.roo/skills/` |
-| Goose | `.goose/skills/` | `~/.config/goose/skills/` |
-
-The CLI auto-detects installed agents. If none are detected, it prompts for target agent selection.
-
----
-
-## Skill Discovery Paths
-
-When scanning a repository for skills, the CLI checks these locations for `SKILL.md` files:
-- Root directory (`./SKILL.md`)
-- `skills/` and subdirectories
-- `skills/.curated/`, `skills/.experimental/`, `skills/.system/`
-- Agent-specific directories (`.claude/skills/`, `.cursor/skills/`, etc.)
-- Falls back to recursive search if no standard locations contain skills
-
----
-
-## Environment Variables
-
-| Variable | Purpose |
-|----------|---------|
-| `INSTALL_INTERNAL_SKILLS` | Set to `1` to show skills marked with `metadata.internal: true` |
-| `DISABLE_TELEMETRY` | Disable anonymous usage telemetry |
-| `DO_NOT_TRACK` | Alternative telemetry disable method |
+The CLI also supports Cursor, Codex, Gemini CLI, GitHub Copilot, and other agents -- it auto-detects installed agents and prompts for target selection. Run `npx skills add <source> --help` or check `npx skills --help` for the full, current agent list rather than relying on a list here, which will drift out of sync with the CLI.
 
 ---
 

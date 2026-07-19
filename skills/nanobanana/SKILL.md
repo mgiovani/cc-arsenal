@@ -1,10 +1,9 @@
 ---
 name: nanobanana
-description: "Generate and edit images using Nano Banana (Gemini image generation). Use when users want to create images, generate visuals, edit photos, design mockups, produce thumbnails, create logos, make hero images, or integrate Nano Banana into their codebase."
+description: "Generates and edits images by calling Google's Nano Banana / Gemini image generation API (requires a GEMINI_API_KEY) — a real, billed API call. This skill is explicit-invocation only: use it only when the user names it or the Gemini path directly — \"nanobanana\", \"nano banana\", \"gemini image generation\", \"GEMINI_API_KEY\", \"use nanobanana to …\" — or wants to integrate the Nano Banana / Gemini image API into their own codebase. For any implicit or general image-generation request (\"generate an image\", \"create a logo/hero/mascot\"), the default generator is codex-imagegen, not this skill. Not a design/mockup critique tool (use review-design) and not a browser-driven screenshot flow (use agent-browser)."
 metadata:
   author: mgiovani
-  version: 1.0.0
-  source: https://github.com/mgiovani/skills
+  version: 1.1.0
 allowed-tools:
   - Bash
   - Read
@@ -17,6 +16,8 @@ allowed-tools:
 Generate and edit images using Google's Nano Banana (Gemini image generation API). This skill handles direct image generation, iterative editing, and expert guidance for integrating the API into codebases.
 
 **Core differentiator**: A prompt enhancement system that analyzes user intent and project context to craft optimized prompts before calling the API.
+
+This is the explicit Gemini/Nano Banana path (named directly by the user) — for a generic "generate an image" request with no engine named, codex-imagegen is the default generator instead.
 
 ---
 
@@ -125,9 +126,11 @@ Apply category-specific enhancements:
 
 Incorporate any project context found in Phase 1 (brand colors, design system, domain).
 
-### Present Enhanced Prompt for Approval
+### Present Enhanced Prompt for Approval — Scale to Intent
 
-**ALWAYS show this before generating. Never skip this step.**
+Two paths, chosen by what the user actually asked for:
+
+**Full review block** — use for final/production assets: explicit "final", "production-ready", "for the website/app", hero images, logos, or anything incorporating brand/project context from Phase 1. Getting these wrong costs real API spend and rework, so confirm before spending it:
 
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -151,11 +154,17 @@ Proceed with enhanced prompt? (yes / modify / use original)
 
 If the user wants modifications, update the enhanced prompt and show the review block again before proceeding.
 
+**One-line summary** — use for drafts/exploration: "quick draft", "just try something", "rough concept", "let's iterate", or any low-stakes/throwaway request. State the enhanced prompt, model, and aspect ratio in one line and proceed straight to Phase 4 — don't make the user click through ceremony for a $0.02 draft image.
+
+When intent is ambiguous, default to the full review block on the *first* generation in a session; once the user has approved the pattern once, later iterations in the same session can use the one-line summary.
+
 ---
 
 ## Phase 3: Select Model & Parameters
 
 **Default**: Nano Banana 2 (`gemini-3.1-flash-image-preview`) at 2K resolution.
+
+> Model IDs and prices below are point-in-time. If the script returns `INVALID_MODEL`, don't guess a replacement — check https://ai.google.dev/pricing for current model IDs first.
 
 See `references/model-guide.md` for full details. Quick reference:
 
@@ -222,6 +231,9 @@ The script outputs a JSON object. Parse and handle each case:
 | `NO_IMAGE_GENERATED` | Model returned no image | Try rephrasing prompt; try different model |
 | `DEPENDENCY_ERROR` | `google-genai` not installed | Ensure `uv` is available; `uv run` handles deps automatically via PEP 723 metadata |
 | `FILE_NOT_FOUND` | Input image path invalid | Verify the path and re-run |
+| `INVALID_MODEL` | `--model` value not recognized | Check https://ai.google.dev/pricing for current model IDs — don't fabricate one |
+| `TIMEOUT` | Request took too long | Retry, or drop to a lower resolution |
+| `API_ERROR` | Unclassified API failure | Report the raw error message to the user; don't retry silently more than the script already does |
 
 ---
 

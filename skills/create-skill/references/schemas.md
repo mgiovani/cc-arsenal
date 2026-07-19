@@ -76,6 +76,26 @@ The evaluation definition file. Created during Phase 4 of skill creation.
 }
 ```
 
+## evals/trigger-eval.json
+
+Description-triggering evals. Tests whether the skill's `description` fires (or correctly doesn't) on realistic prompts — a separate concern from evals.json, which tests task completion once the skill is active.
+
+**Top-level JSON array — no wrapper object.** The schema test enforces this shape:
+
+```json
+[
+  {"query": "create a skill that generates changelog entries from commits", "should_trigger": true},
+  {"query": "add a rule to CLAUDE.md about commit message style", "should_trigger": false}
+]
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `query` | string | A realistic prompt a user might type |
+| `should_trigger` | bool | Whether the skill's description should cause it to fire on this query |
+
+~20 entries, roughly half `should_trigger: false`. Make the negatives near-misses — phrasings from sibling skills' territory that a loose description would wrongly catch — not obviously unrelated queries; those don't discriminate anything.
+
 ## evals/results/{eval_id}/grading.json
 
 Output from the grader agent. Created during eval execution.

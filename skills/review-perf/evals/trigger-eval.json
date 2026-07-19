@@ -1,0 +1,22 @@
+[
+  {"query": "can you do a dedicated performance audit on PR 512", "should_trigger": true},
+  {"query": "find N+1 queries in the orders service", "should_trigger": true},
+  {"query": "check for memory leaks in the worker process", "should_trigger": true},
+  {"query": "review query efficiency on the reports module, it's really thorough analysis I need", "should_trigger": true},
+  {"query": "/review-perf --all --scope frontend", "should_trigger": true},
+  {"query": "audit performance across the whole codebase for algorithmic complexity issues", "should_trigger": true},
+  {"query": "our API is slow, can you do a deep perf review of commit abc123 focusing on database", "should_trigger": true},
+  {"query": "I need a severity-ranked report on resource leaks, connection pools and file handles", "should_trigger": true},
+  {"query": "scan this PR specifically for O(n^2) loops and bad data structure choices", "should_trigger": true},
+  {"query": "give me a proper performance audit, not just a general code review, of the checkout flow", "should_trigger": true},
+  {"query": "review this PR before I merge it", "should_trigger": false},
+  {"query": "do a full six-dimension code review of this diff", "should_trigger": false},
+  {"query": "run a security review on the auth endpoints", "should_trigger": false},
+  {"query": "the checkout API times out under load, can you fix the root cause", "should_trigger": false},
+  {"query": "profile the app in production and tell me actual latency numbers", "should_trigger": false},
+  {"query": "write some load tests for the /api/orders endpoint", "should_trigger": false},
+  {"query": "refactor this slow function to make it cleaner", "should_trigger": false},
+  {"query": "generate an architecture diagram of the payment service", "should_trigger": false},
+  {"query": "simplify this over-engineered caching layer", "should_trigger": false},
+  {"query": "write a commit message summarizing these query optimizations", "should_trigger": false}
+]

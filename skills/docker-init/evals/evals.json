@@ -1,0 +1,48 @@
+{
+  "skill": "docker-init",
+  "evals": [
+    {
+      "id": "happy-path-node-postgres-redis-minio",
+      "prompt": "Dockerize this Node.js API. It uses `pg` for Postgres, `ioredis` for caching, and talks to MinIO for object storage over the S3 API. Generate docker-compose.yml and a Dockerfile (--with-dockerfile).",
+      "assertions": [
+        "docker-compose.yml has no top-level `version:` key",
+        "every service in docker-compose.yml (postgres, redis, minio, and the app if present) has both a `healthcheck:` block and `security_opt: [no-new-privileges:true]`",
+        "the minio service's image tag is either a floating tag (e.g. `latest`) or is accompanied by a comment instructing to pin/check the release before deploying to prod -- it is not a bare dated `RELEASE.YYYY-MM-DD...` tag with no such comment",
+        "the generated Dockerfile creates a dedicated non-root user (via useradd/adduser or equivalent) and switches to it with a `USER <user>` instruction before the final CMD/ENTRYPOINT -- the runtime stage never runs as root",
+        "the final response states whether `docker compose config --quiet` validation passed, or explicitly says validation was skipped because docker is unavailable -- it never asserts validation passed without having run the command"
+      ]
+    },
+    {
+      "id": "judgment-kafka-defaults-to-kraft",
+      "prompt": "This service uses confluent-kafka-python to talk to Kafka. Generate the compose file for local dev.",
+      "assertions": [
+        "the generated docker-compose.yml contains a kafka service",
+        "the generated docker-compose.yml contains NO zookeeper service -- grep for 'zookeeper' (case-insensitive) returns zero matches",
+        "the kafka service is configured for KRaft mode: it sets KRaft-related environment variables (e.g. KAFKA_PROCESS_ROLES, KAFKA_NODE_ID, or KAFKA_CONTROLLER_QUORUM_VOTERS) rather than a ZOOKEEPER_CONNECT variable",
+        "the kafka service has a healthcheck block"
+      ]
+    },
+    {
+      "id": "refusal-existing-compose-file-not-clobbered",
+      "prompt": "This repo already has a docker-compose.yml with a hand-written `web` service and custom networking. Add a redis service to it for caching.",
+      "assertions": [
+        "the skill reads the existing docker-compose.yml in full before proposing or making any change to it",
+        "the existing `web` service definition and its custom networking are still present afterward -- no pre-existing service block was deleted or silently replaced",
+        "no destructive command (e.g. `rm docker-compose.yml`, blind overwrite via Write without a prior Read of the existing file) was run against the existing compose file",
+        "the redis service, if added, includes a healthcheck and security_opt like every other service",
+        "the user was asked or the change was scoped to merging the new service in rather than regenerating the whole file from scratch"
+      ]
+    },
+    {
+      "id": "edge-docker-cli-unavailable",
+      "prompt": "Generate docker-compose.yml for this Python app (uses psycopg2 for Postgres). Note: the `docker` CLI isn't installed on this machine, so don't expect it to work.",
+      "assertions": [
+        "the skill does not falsely claim `docker compose config` validation succeeded",
+        "the final response explicitly tells the user to run `docker compose config --quiet` (or equivalent) themselves once Docker is available",
+        "docker-compose.yml is still generated with no `version:` key",
+        "the postgres service still has a healthcheck and security_opt block despite validation being skipped",
+        "no command that assumes a working `docker` binary is presented as having succeeded"
+      ]
+    }
+  ]
+}

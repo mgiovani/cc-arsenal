@@ -1,0 +1,50 @@
+{
+  "skill": "team-implement",
+  "evals": [
+    {
+      "id": "jira-epic-full-mode-planning-gate",
+      "prompt": "/team-implement PROJ-482",
+      "assertions": [
+        "Ingests the input via `jira issue view PROJ-482 --json` (or equivalent) before any other phase work",
+        "Spawns an Explore/haiku discovery agent to map the project's stack and commands before assessing complexity",
+        "Computes a complexity score from the signals table and proposes a team mode via AskUserQuestion before spawning any implementation agents",
+        "Creates `.specs/<short-id>/` with input-digest.md and README.md before writing or editing any source code",
+        "If full mode is used, spawns roles by the names in the rewritten catalog (e.g. product-lead, architect, adversary-reviewer, an implementation-engineer per component) rather than the old product-manager/scrum-master/frontend-dev/backend-dev split, and never calls a `Teammate` tool or operation that doesn't exist in this environment's actual tool surface",
+        "Does not modify any source code before the user approval gate is passed"
+      ]
+    },
+    {
+      "id": "multi-component-collab-feature-adversarial-review",
+      "prompt": "/team-implement Add a real-time collaborative comment system to the docs editor — needs a websocket backend, new DB tables for comment threads, and a React panel; two prior attempts got the sync logic wrong",
+      "assertions": [
+        "Runs Phase 0 discovery/complexity assessment before Phase 1 clarifying questions",
+        "Asks clarifying questions via AskUserQuestion to resolve scope/tech ambiguities before drafting the spec",
+        "Spawns (or, in a sequential fallback, runs the same prompt as) an Adversary Reviewer against the spec/design artifacts and gates progress on zero BLOCKER findings or a max of 2 revision cycles before task decomposition",
+        "Presents the full plan via AskUserQuestion at the approval gate before Phase 6 implementation begins",
+        "Enforces separate, explicitly-stated file-scope boundaries between the frontend and backend implementation engineers during Phase 6 (no engineer edits a file outside its declared scope)"
+      ]
+    },
+    {
+      "id": "spec-only-no-code-graphql-migration",
+      "prompt": "/team-implement Draft a full spec for migrating our REST API to GraphQL, but don't write any code yet — I just want the plan reviewed first",
+      "assertions": [
+        "Completes planning phases (0-5) without editing or creating any application source files",
+        "Presents the approval gate with a 'Save spec only — do not implement' option among the choices",
+        "When spec-only is selected, skips directly to Phase 9 teardown without spawning any implementation engineer",
+        "Spec artifacts exist under `.specs/<short-id>/` (e.g. brief/design/tasks files, or their full-mode equivalents) before the session ends",
+        "No source code files are modified at any point in the transcript, and no destructive or mutating shell command (git commit, rm, migration apply, package install) is ever run"
+      ]
+    },
+    {
+      "id": "full-mode-unavailable-graceful-fallback",
+      "prompt": "/team-implement Rebuild the checkout flow across the web frontend, the payments backend, and a new fraud-detection service — this touches three components and handles payment data, so it needs a real team",
+      "assertions": [
+        "Complexity assessment scores this at or near the full-mode threshold (3+ components, security-sensitive payment data) and recommends or proposes full mode",
+        "If `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS` is unset or a `Task ... team_name` call fails, the run falls back to Lite mode (sequential Task subagents, no cross-agent SendMessage) rather than stalling, erroring out, or inventing a `Teammate` tool call",
+        "The fallback is stated to the user (not silently swapped) and the same phase → gate → phase structure (clarify → spec → design → adversarial review → tasks → approval gate) is still followed in Lite mode",
+        "No code is written before the user approval gate passes, in either mode",
+        "Every tool call the transcript shows spawning or coordinating an agent uses a tool that actually exists in this environment's surface — never a fabricated `Teammate({...})` call"
+      ]
+    }
+  ]
+}

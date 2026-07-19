@@ -1,0 +1,22 @@
+[
+  {"query": "/team-review 482", "should_trigger": true},
+  {"query": "can you spin up the review team to go over PR 119, it touches auth and payments", "should_trigger": true},
+  {"query": "we need a full multi-agent review before this schema migration goes to prod, use team-review", "should_trigger": true},
+  {"query": "/team-review --all, we need a compliance sign-off audit of the whole repo", "should_trigger": true},
+  {"query": "this PR is 20+ files across three services, get the review team on it with the adversary pass too", "should_trigger": true},
+  {"query": "team-review commit 9f3ab21 --focus security, it's touching the login flow", "should_trigger": true},
+  {"query": "run team-review in lite mode on PR 55, just want it cheap but still multi-perspective", "should_trigger": true},
+  {"query": "can we get architecture, security, and adversary reviewers all looking at this PII handling change together", "should_trigger": true},
+  {"query": "re-review PR 482 after the fixes, spin the team back up on just the changed files", "should_trigger": true},
+  {"query": "this is a big architectural change introducing a new event-sourcing pattern, I want the full review team on it not just a quick pass", "should_trigger": true},
+  {"query": "review this PR before I merge it, nothing fancy needed", "should_trigger": false},
+  {"query": "can you do a quick code review of my diff", "should_trigger": false},
+  {"query": "run a security review on the auth changes in this branch", "should_trigger": false},
+  {"query": "check this PR for over-engineering and things we can delete", "should_trigger": false},
+  {"query": "implement the new payment retry feature we discussed", "should_trigger": false},
+  {"query": "fix the bug where discount codes don't expire", "should_trigger": false},
+  {"query": "generate a diagram of the architecture for this service", "should_trigger": false},
+  {"query": "write tests for the new checkout module", "should_trigger": false},
+  {"query": "can you review this PR and just leave inline comments with /code-review", "should_trigger": false},
+  {"query": "do a security audit of the whole codebase for OWASP issues", "should_trigger": false}
+]

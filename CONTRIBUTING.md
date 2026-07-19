@@ -68,15 +68,11 @@ All contributions must meet these standards:
 
 ## Contributing Different Types of Components
 
-The CC-Arsenal currently supports three types of components:
-
-- **Skills** (2): Model-invoked capabilities that Claude automatically loads when relevant
-- **Commands** (8): User-invoked workflow automation (git operations, documentation tools)
-- **Hooks** (2): Event-driven safety and validation scripts
+CC-Arsenal's only component type is the **skill** (45 currently — see [docs/features.md](docs/features.md) for the full, categorized list). Every workflow, whether user-invoked (a slash command like `/git-commit`) or model-invoked (auto-loaded like `review-code`), is a skill under `skills/<name>/SKILL.md`.
 
 ### Creating New Skills
 
-Skills are modular capabilities that Claude automatically invokes when relevant. To create a new skill, use the create-skill skill for guidance:
+Skills are modular capabilities Claude loads via progressive disclosure. To create a new skill, use the create-skill skill for guidance:
 
 ```bash
 # The create-skill provides specification-driven creation with live documentation fetching
@@ -89,78 +85,15 @@ Each skill should have a `SKILL.md` file with YAML frontmatter:
 ---
 name: "skill-name"
 description: "Skill description"
+disable-model-invocation: true  # false/omit for a model-invoked (auto-loading) skill
 ---
 
 # Skill implementation with progressive disclosure...
 ```
 
-Skills can bundle scripts, references, and assets in subdirectories.
+Skills can bundle `scripts/`, `references/`, and `assets/` in subdirectories. Add `evals/evals.json` (task assertions) and `evals/trigger-eval.json` (trigger/near-miss queries) so the skill's behavior and triggering are testable — see any existing skill's `evals/` directory for the schema.
 
-### Creating New Commands
-
-Commands should be placed in the appropriate category under `commands/`:
-
-```yaml
----
-description: "Command description"
-argument-hint: "<argument_format>"
-allowed-tools: ["Tool1", "Tool2"]
----
-
-# Command implementation...
-```
-
-### Creating New Hooks
-
-Hooks are Python scripts placed in category subdirectories under `hooks/` (e.g., `hooks/security/`, `hooks/quality/`). They should follow this structure:
-
-```python
-#!/usr/bin/env python3
-"""
-Hook description and purpose.
-
-Exit codes:
-- 0: Validation passed or hook skipped (not applicable)
-- 2: Validation failed, blocks the operation (Claude sees stderr feedback)
-- 1: Error in hook execution (non-blocking)
-"""
-
-import json
-import sys
-from pathlib import Path
-
-
-class MyHookValidator:
-    """Hook implementation with validation logic."""
-
-    def __init__(self, project_root: Path) -> None:
-        self.project_root = project_root
-        self.issues = []
-
-    def validate(self) -> bool:
-        """Run validation checks. Returns True if passed."""
-        # Hook logic here
-        return len(self.issues) == 0
-
-
-def main() -> None:
-    """Hook entry point."""
-    event_data = json.loads(sys.stdin.read())
-    project_root = Path(event_data.get('cwd', '.')).resolve()
-
-    validator = MyHookValidator(project_root)
-    if validator.validate():
-        sys.exit(0)
-    else:
-        print(json.dumps({'issues': validator.issues}), file=sys.stderr)
-        sys.exit(2)
-
-
-if __name__ == "__main__":
-    main()
-```
-
-After creating a hook, register it in `hooks/hooks.json`.
+After creating a skill, add its path to the relevant plugin(s) in `.claude-plugin/marketplace.json` and add its entry to `docs/features.md`.
 
 ## Code Style Guidelines
 
@@ -199,7 +132,7 @@ make test
 make coverage
 
 # Run specific test file
-uv run pytest tests/test_specific.py
+uv run pytest scripts/tests/test_install.py
 
 # Run tests with verbose output
 uv run pytest -v

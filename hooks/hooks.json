@@ -1,5 +1,0 @@
-{
-  "$schema": "https://claude.ai/schemas/hooks.json",
-  "description": "CC-Arsenal hooks for enhanced development workflow",
-  "hooks": {}
-}

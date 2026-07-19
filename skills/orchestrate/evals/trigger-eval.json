@@ -1,0 +1,22 @@
+[
+  {"query": "act as orchestrator and spawn subagents for this", "should_trigger": true},
+  {"query": "delegate this with the right models across parallel agents", "should_trigger": true},
+  {"query": "run this in parallel with separate subagents, one per file", "should_trigger": true},
+  {"query": "I need you to fan this out — decompose it and assign the right model to each piece", "should_trigger": true},
+  {"query": "spawn haiku for research and sonnet for implementation on this task", "should_trigger": true},
+  {"query": "break this into parallel workstreams with strict file ownership and orchestrate it", "should_trigger": true},
+  {"query": "orchestrate a research sweep across these five topics using subagents", "should_trigger": true},
+  {"query": "set up a model-tiered plan and run these subtasks in parallel", "should_trigger": true},
+  {"query": "can you orchestrate the migration of these 12 modules with subagents", "should_trigger": true},
+  {"query": "act as an orchestrator: decompose, assign models, parallelize, synthesize", "should_trigger": true},
+  {"query": "implement OAuth2 login for this app", "should_trigger": false},
+  {"query": "run the full team-implement spec workflow for this large multi-service epic", "should_trigger": false},
+  {"query": "review this PR for correctness bugs", "should_trigger": false},
+  {"query": "break this project into a dependency-ordered task list with a Mermaid diagram", "should_trigger": false},
+  {"query": "run the CI checks locally on this branch", "should_trigger": false},
+  {"query": "fix the bug where checkout throws a 500 error", "should_trigger": false},
+  {"query": "refactor this module to reduce duplication", "should_trigger": false},
+  {"query": "write a conventional commit message for these changes", "should_trigger": false},
+  {"query": "generate a test suite for the payment module", "should_trigger": false},
+  {"query": "just fix this single typo yourself, it's a one-line change", "should_trigger": false}
+]

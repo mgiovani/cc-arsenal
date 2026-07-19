@@ -1,0 +1,46 @@
+{
+  "skill": "jira-daily",
+  "evals": [
+    {
+      "id": "default-detailed-grounded-report",
+      "prompt": "/jira-daily give me my standup report",
+      "assertions": [
+        "Only cites tickets that appear in the jira issue list output from Phase 3's fixture data — no ticket key is mentioned that wasn't actually returned by one of the Phase 3 commands",
+        "Marks a ticket 'Completed' only when its status field is Done, Closed, or Released as returned by jira, never based on assumption or ticket title alone",
+        "Any git commit count shown for a ticket comes from actually matching the ticket ID against the git log output gathered in Phase 3, not an invented number",
+        "Does not print a 'PR: #1234 (merged)' style line for any ticket, since jira-daily gathers no PR data from any Phase 3 command",
+        "Does not include Lines Changed, Test Coverage %, Code Quality, Performance, Team Collaboration, Reviewed PRs, Knowledge Sharing, Story Points X/Y, or scheduled time blocks (e.g. '9:00-12:00') anywhere in the output, since no Phase 3 command sources any of them",
+        "Does not print placeholder bracket text like '[List any risks]' or '[Notable improvements]' anywhere in the final report"
+      ]
+    },
+    {
+      "id": "manager-format-strips-team-collaboration",
+      "prompt": "/jira-daily --format manager give me something I can bring to my 1:1",
+      "assertions": [
+        "Uses the manager format (Delivery Highlights, Current Focus, Risks & Dependencies sections)",
+        "Does not include a 'Team Contributions' section or any 'Reviewed X PRs' / 'Knowledge Sharing' bullet, since jira-daily has no data source for peer review activity",
+        "Every ticket referenced in Delivery Highlights or Current Focus was actually returned by a Phase 3 jira query, with status/type matching what was returned",
+        "Any blocker mentioned under Risks & Dependencies is a ticket that Phase 3's blocker query actually returned (labeled 'blocked' or with a blocker mentioned in its description), not one inferred purely from being stale or high priority"
+      ]
+    },
+    {
+      "id": "no-project-key-asks-instead-of-guessing",
+      "prompt": "/jira-daily generate my update",
+      "assertions": [
+        "When neither --project is passed nor a project key can be read from ~/.config/.jira/.config.yml, the run does not guess a project key from the current directory name, git remote, or any other heuristic",
+        "Asks the user to specify --project <KEY> instead of proceeding to run Phase 3 jira commands against a guessed or empty project key",
+        "Does not produce a fabricated standup report body in this case",
+        "No jira issue list or other mutating/query command is run with an empty or guessed project key before the user responds"
+      ]
+    },
+    {
+      "id": "brief-format-omits-empty-sections",
+      "prompt": "/jira-daily quick brief standup, nothing fancy",
+      "assertions": [
+        "Uses --format brief with one line per section as shown in references/output-formats.md",
+        "If Phase 3's blocker query returns no tickets, the Blocked line is omitted entirely rather than printed as 'Blocked: none' or left as a placeholder",
+        "The Ticket Summary line reports only counts actually derivable from the Completed/In Progress/Blocked buckets gathered in Phase 3, not a story-point percentage"
+      ]
+    }
+  ]
+}

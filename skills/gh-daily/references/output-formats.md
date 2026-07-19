@@ -2,6 +2,8 @@
 
 Reference templates for all supported output formats. Select the appropriate format based on the audience and context.
 
+Every section below is conditional: include it only when Phase 3/4 actually produced matching data. A repo with no blocked items has no Blockers section; a report where `--include-reviews` wasn't set has no Reviews Requested section. Never fabricate numbers or leave placeholder brackets in the final output.
+
 ## Default (Detailed) Format
 
 The full standup report with all sections. Used when no `--format` flag is specified or with `--format detailed`.
@@ -23,7 +25,6 @@ The full standup report with all sections. Used when no `--format` flag is speci
 
 ### Pull Requests Merged
 **PR #1240** - Fix session timeout handling
-├── Reviews: 2 approved | +145 / -32 lines
 ├── **Linked**: Closes #1234
 └── **Merged**: {YESTERDAY}
 
@@ -41,7 +42,7 @@ The full standup report with all sections. Used when no `--format` flag is speci
 
 ### Reviews Requested
 **PR #1250** by @teammate - Add caching layer for API responses
-├── Labels: performance | +89 / -12 lines
+├── Labels: performance
 ├── **Requested**: 2 hours ago
 └── **Action**: Review during collaboration window
 
@@ -52,33 +53,12 @@ The full standup report with all sections. Used when no `--format` flag is speci
 ├── **Need**: Infrastructure team input on scaling strategy
 └── **Escalation**: Will follow up in #infrastructure channel
 
-### Milestone Progress
-- **v2.1 Milestone**: X/Y issues closed (Z%)
-- **Due**: {MILESTONE_DATE}
-- **On Track**: Yes/No
-- **Risk Items**: [List any risks]
-
-### Technical Highlights
-- **Code Quality**: [Notable improvements]
-- **Performance**: [Optimizations made]
-- **Testing**: [Test coverage changes]
-
-### Team Collaboration
-- **Code Reviews**: Reviewed X PRs (+Y comments)
-- **Knowledge Sharing**: [Documentation, mentoring]
-- **Discussions**: [Issue comments, design reviews]
-
 ### Metrics Summary
-- **Commits**: X commits across Y files
-- **Lines Changed**: +X / -Y
+- **Commits**: X (from `git rev-list --count`)
 - **Issues Closed**: X | **PRs Merged**: Y
-- **Reviews Given**: X
-
-### Today's Focus Areas
-1. **9:00-12:00**: [Primary focus]
-2. **1:00-3:00**: [Secondary tasks]
-3. **3:00-5:00**: [Reviews, collaboration]
 ```
+
+Omit the Metrics Summary line for any metric that Phase 3 didn't gather (e.g. no lines-changed or reviews-given command runs by default — leave those out rather than guessing).
 
 ## Brief Format (`--format brief`)
 
@@ -89,10 +69,8 @@ Concise version for quick standups. Each section is a single line.
 
 **Completed**: #1234 (bug fix), #1201 (validation) | PR #1240 merged
 **In Progress**: #1156 (dashboard - 4h remaining), PR #1245 (review feedback)
-**Reviews Pending**: PR #1250 from @teammate (caching)
+**Reviews Pending**: PR #1250 from @teammate (caching)  [only with `--include-reviews`]
 **Blocked**: #1302 (waiting on infra - 2 days)
-**Today's Focus**: Complete #1156 APIs, review PR #1250, address PR #1245 feedback
-**Milestone**: v2.1 - X/Y issues (Z%) - on track
 ```
 
 ## Slack Format (`--format slack`)
@@ -116,6 +94,6 @@ Formatted for Slack/Teams posting with appropriate markdown.
 
 *Blockers*
 • #1302: Waiting 2 days for infra team approval
-
-*Milestone*: v2.1 - X/Y issues (Z%) - on track
 ```
+
+`*Reviews Requested*` only appears with `--include-reviews` (detailed format includes it by default).

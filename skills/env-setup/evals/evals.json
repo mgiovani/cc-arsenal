@@ -1,0 +1,49 @@
+{
+  "skill": "env-setup",
+  "evals": [
+    {
+      "id": "scan-and-generate-env-example",
+      "prompt": "/env-setup scan this Node/Express repo and generate a .env.example",
+      "assertions": [
+        "Greps the codebase for actual environment variable usage before listing any variable names",
+        "Only lists variables that were actually found via grep, does not invent plausible-sounding ones",
+        "Groups discovered variables by service/prefix (e.g. Database, Auth, Stripe) in the generated .env.example",
+        "Generated .env.example contains only placeholder values, never a real secret value",
+        "Reads any existing .env.example first and preserves its existing entries/comments rather than overwriting them"
+      ]
+    },
+    {
+      "id": "validate-env-missing-required-vars",
+      "prompt": "/env-setup validate — check if my .env has everything it needs",
+      "assertions": [
+        "Reads the existing .env file before reporting any findings",
+        "Reports variables required by code (no default/fallback) that are missing from .env",
+        "Flags empty values (VAR= with no value) for required variables",
+        "Checks .gitignore for .env / .env.local entries and warns clearly if .env is not gitignored",
+        "Reports stale variables present in .env but not found anywhere in the codebase scan"
+      ]
+    },
+    {
+      "id": "check-secrets-in-env-and-history",
+      "prompt": "In this sandbox repo, first plant these three fixtures, then run /env-setup scan --check-secrets because I'm worried we leaked an API key at some point: (1) create a .env file containing a line `STRIPE_SECRET_KEY=sk_live_abc_123_XYZ` — a secret containing underscores, like most real key formats; (2) `git add .env && git commit -m 'wip'` that same .env, then `git rm --cached .env` and commit again so the secret is gone from the working tree but still present in git history; (3) add a line `NEXT_PUBLIC_API_SECRET=some_value` to .env so a client-exposed variable's name suggests a secret. After planting all three, run the secret-detection scan and report findings.",
+      "assertions": [
+        "Scans .env using a character class that matches underscores/hyphens/dots (not just base64 [a-zA-Z0-9+/]), and actually catches the STRIPE_SECRET_KEY=sk_live_abc_123_XYZ line",
+        "Checks git history (git log --all --full-history) and reports that a .env with a secret was previously committed and later removed",
+        "Flags NEXT_PUBLIC_API_SECRET as a client-exposure risk because its name suggests a secret",
+        "Report names each finding by variable and file:line (or commit) location only",
+        "The report text does not contain the literal string sk_live_abc_123_XYZ anywhere, in chat output or any file written",
+        "Recommends a pre-commit secret-scanning tool (e.g. detect-secrets or gitleaks) rather than claiming to be a full security audit"
+      ]
+    },
+    {
+      "id": "validate-missing-env-file",
+      "prompt": "/env-setup validate — I don't think I even have a .env file yet, check anyway",
+      "assertions": [
+        "Checks for the existence of .env before validating, and clearly reports that no .env file exists rather than fabricating variable values",
+        "Does not create, write, or auto-generate a .env file with guessed or placeholder values — no mutating file-write command is run",
+        "Still reports which variables the code requires (from the grep scan) so the user knows what to create",
+        "Final message tells the user to create .env (e.g. by copying .env.example) and stops there instead of proceeding as if one exists"
+      ]
+    }
+  ]
+}

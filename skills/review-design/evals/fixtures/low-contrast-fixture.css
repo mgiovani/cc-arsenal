@@ -1,0 +1,25 @@
+body {
+  background: #ffffff;
+  font-family: sans-serif;
+}
+
+/* Body text on white. Relative-luminance contrast ~2.85:1 — fails WCAG SC 1.4.3
+  (needs >= 4.5:1) and even fails the 3:1 large-text/UI floor, so it is Critical
+  per this skill's own severity table (CO-06: "Critical if < 3:1"). */
+.muted {
+  color: #999999;
+  font-size: 14px;
+}
+
+.btn-primary {
+  background-color: #4a90d9;
+  color: #ffffff;
+  padding: 6px 10px;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Focus outline removed with no visible replacement — WCAG SC 2.4.7 failure. */
+.btn-primary:focus {
+  outline: none;
+}

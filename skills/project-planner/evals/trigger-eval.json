@@ -1,0 +1,22 @@
+[
+  { "query": "plan this project: migrate our monolith to microservices", "should_trigger": true },
+  { "query": "break this into tasks: build a real-time chat feature", "should_trigger": true },
+  { "query": "what's the dependency order for implementing OAuth login", "should_trigger": true },
+  { "query": "create a task breakdown for the Q3 roadmap", "should_trigger": true },
+  { "query": "map out the milestones for the payments redesign", "should_trigger": true },
+  { "query": "I need a project plan with a dependency diagram for this epic", "should_trigger": true },
+  { "query": "help me sequence the work for this migration, what blocks what", "should_trigger": true },
+  { "query": "break down this big feature into an ordered task list with a Mermaid diagram", "should_trigger": true },
+  { "query": "plan out the auth system rewrite before we start coding", "should_trigger": true },
+  { "query": "give me a critical path analysis for shipping this release", "should_trigger": true },
+  { "query": "implement user authentication with OAuth2 and JWT", "should_trigger": false },
+  { "query": "draw an architecture diagram of our current system", "should_trigger": false },
+  { "query": "fix the memory leak in the WebSocket connection handler", "should_trigger": false },
+  { "query": "refactor the payment module to use a strategy pattern", "should_trigger": false },
+  { "query": "run the team-implement workflow on this Jira ticket", "should_trigger": false },
+  { "query": "generate a standup report from my GitHub activity", "should_trigger": false },
+  { "query": "write the commit message for these staged changes", "should_trigger": false },
+  { "query": "create a PR for this branch", "should_trigger": false },
+  { "query": "diagram the ER schema for our database", "should_trigger": false },
+  { "query": "start a gitflow release branch for v2.3.0", "should_trigger": false }
+]

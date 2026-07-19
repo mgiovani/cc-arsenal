@@ -2,6 +2,8 @@
 
 This file contains examples for automating Jira operations with scripts and integrating with CI/CD pipelines.
 
+For a formatted daily standup report or sprint status readout, use the `jira-daily` skill instead — it correlates Jira activity with git commits and produces a reviewed summary, not just raw command output. This file is for automation that isn't already a curated skill: bulk mutations, CI hooks, and metrics extraction.
+
 ## Bash Scripting Examples
 
 ### Tickets Created Per Day This Month
@@ -47,58 +49,6 @@ echo "${sprints}" | while IFS=$'\t' read -r id name; do
     awk '{print $2}' | awk NF | sort -n | uniq | wc -l)
   printf "%10s: %3d people\n" "${name}" $((count))
 done
-```
-
-### Daily Standup Report
-
-```bash
-#!/usr/bin/env bash
-# Generate daily standup report
-
-echo "=== Daily Standup Report ==="
-echo ""
-
-echo "Yesterday's work (updated in last 24h):"
-jira issue list -a$(jira me) --updated -1d --plain --columns key,summary
-
-echo ""
-echo "Currently working on:"
-jira issue list -a$(jira me) -s"In Progress" --plain --columns key,summary
-
-echo ""
-echo "Closed this week:"
-jira issue list -a$(jira me) -sDone --updated week --plain --columns key,summary
-```
-
-### Sprint Report Generator
-
-```bash
-#!/usr/bin/env bash
-# Generate sprint summary report
-
-SPRINT_ID=$1
-
-if [ -z "$SPRINT_ID" ]; then
-  echo "Usage: $0 <sprint-id>"
-  exit 1
-fi
-
-echo "=== Sprint Report for Sprint $SPRINT_ID ==="
-echo ""
-
-total=$(jira sprint list "$SPRINT_ID" --plain --no-headers | wc -l)
-done_count=$(jira sprint list "$SPRINT_ID" -sDone --plain --no-headers | wc -l)
-in_progress=$(jira sprint list "$SPRINT_ID" -s"In Progress" --plain --no-headers | wc -l)
-todo=$(jira sprint list "$SPRINT_ID" -s"To Do" --plain --no-headers | wc -l)
-
-echo "Total tickets: $total"
-echo "Done: $done_count"
-echo "In Progress: $in_progress"
-echo "To Do: $todo"
-echo ""
-
-completion_rate=$(echo "scale=2; ($done_count / $total) * 100" | bc)
-echo "Completion rate: ${completion_rate}%"
 ```
 
 ### Bulk Issue Assignment

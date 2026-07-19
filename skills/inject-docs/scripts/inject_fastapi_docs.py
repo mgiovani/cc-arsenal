@@ -108,11 +108,7 @@ def main() -> int:
     file_existed = target_file.exists()
 
     # Read existing content or start with empty
-    if file_existed:
-        existing_content = target_file.read_text(encoding='utf-8')
-        len(existing_content.encode('utf-8'))
-    else:
-        existing_content = ''
+    existing_content = target_file.read_text(encoding='utf-8') if file_existed else ''
 
     # Read FastAPI best practices content
     try:
@@ -127,17 +123,14 @@ def main() -> int:
 
     # Write updated content
     target_file.write_text(updated_content, encoding='utf-8')
-    len(updated_content.encode('utf-8'))
+    new_size = len(updated_content.encode('utf-8'))
 
     # Report results
-
-    if file_existed:
-        if was_updated:
-            pass
-        else:
-            pass
-    else:
-        pass
+    action = 'Created' if not file_existed else 'Updated'
+    section_note = 'updated existing section' if was_updated else 'appended new section'
+    print(  # noqa: T201 -- CLI script, stdlib-only by design
+        f'{action} {target_file.name} ({format_file_size(new_size)}) - {section_note}'
+    )
 
     return 0
 

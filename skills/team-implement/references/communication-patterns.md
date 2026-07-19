@@ -1,928 +1,345 @@
 # Communication Patterns Reference
 
-This document provides SendMessage templates and patterns for inter-agent communication in full team mode. Use these templates to ensure clear, structured communication between the orchestrator and specialized agents.
+Coordination templates for full-mode team-implement. Full mode requires `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` (see SKILL.md Prerequisites).
+
+**Tool-neutral note**: everything below assumes a `SendMessage`-equivalent tool for direct agent-to-agent coordination — that's specific to environments with real agent-team support. In **lite mode** (or anywhere `SendMessage` doesn't exist), there is no cross-agent messaging: the orchestrator spawns each role as a sequential `Task` subagent, reads its return value, and manually relays whatever the templates below would have sent as a message into the next subagent's prompt. The message *content* below (what to say, what file paths to include) is still the right content to relay — only the transport changes.
 
 ## 1. Message Types Overview
 
-| Type | Tool | When Used |
-|------|------|-----------|
-| Direct message | SendMessage type: "message" | Phase handoffs, targeted instructions, file delivery |
-| Broadcast | SendMessage type: "broadcast" | Critical issues only (expensive! N messages) |
-| Shutdown request | SendMessage type: "shutdown_request" | End of agent's phase or session teardown |
-| Shutdown response | SendMessage type: "shutdown_response" | Agent confirms graceful exit |
-| Plan approval | SendMessage type: "plan_approval_response" | Lead approves teammate plan before execution |
+| Type | When Used |
+|------|-----------|
+| Direct message | Phase handoffs, targeted instructions, file delivery |
+| Broadcast | Critical, team-wide issues only (expensive — N messages) |
+| Shutdown/stop | End of an agent's phase, or session teardown |
 
-**Default to "message" (direct messaging).** Only use broadcast for critical, team-wide issues.
+**Default to direct messaging.** Only broadcast for critical team-wide issues.
 
 ## 2. Phase Handoff Templates
 
-### Phase 2 → Product Manager (Specification Kickoff)
+### Phase 2 → Product Lead (Specification Kickoff)
 
-```python
+```
 SendMessage({
   "type": "message",
-  "recipient": "product-manager",
-  "content": """Phase 2 (Specification) has started. Read the input digest at .specs/[SPEC_ID]/input-digest.md and the clarified requirements from Phase 1.
+  "recipient": "product-lead",
+  "content": """Phase 2 (Specification) has started. Read .specs/[SPEC_ID]/input-digest.md.
 
-Your deliverables:
-1. Write .specs/[SPEC_ID]/proposal/brief.md — project overview, goals, constraints, success metrics
-2. Write .specs/[SPEC_ID]/proposal/requirements.md — FR-001/NFR-001 numbered functional and non-functional requirements
-3. Write .specs/[SPEC_ID]/proposal/acceptance-criteria.md — Given/When/Then user stories for each requirement
+Deliverables:
+1. .specs/[SPEC_ID]/proposal/brief.md
+2. .specs/[SPEC_ID]/proposal/requirements.md (FR-001/NFR-001 numbered)
+3. .specs/[SPEC_ID]/proposal/acceptance-criteria.md (Given/When/Then)
 
-Codebase context:
-- Project type: [PROJECT_TYPE]
-- Tech stack: [TECH_STACK]
-- Existing patterns: [PATTERNS]
-- Related files: [FILE_PATHS]
+Codebase context: project type [X], tech stack [Y], existing patterns [Z].
 
-Guidelines:
-- Number all requirements (FR-001, FR-002, NFR-001, etc.)
-- Link acceptance criteria to requirements
-- Consider edge cases and error handling
-- Align with existing project conventions
-
-When complete:
-1. Update your task status via TaskUpdate (mark task [TASK_ID] as completed)
-2. Send a message to me with a summary of your deliverables""",
+When complete: TaskUpdate the assigned task, then message me a summary.""",
   "summary": "Begin specification phase with input digest"
 })
 ```
 
 ### Phase 3 → Architect (Design)
 
-```python
+```
 SendMessage({
   "type": "message",
   "recipient": "architect",
-  "content": """Phase 3 (Design) has started. The specification has been completed and approved.
+  "content": """Phase 3 (Design) has started; the spec is approved.
 
-Read these artifacts:
-1. .specs/[SPEC_ID]/proposal/brief.md — project overview and goals
-2. .specs/[SPEC_ID]/proposal/requirements.md — numbered requirements
-3. .specs/[SPEC_ID]/proposal/acceptance-criteria.md — user stories
-4. .specs/[SPEC_ID]/input-digest.md — original user input
+Read: proposal/brief.md, proposal/requirements.md, proposal/acceptance-criteria.md
 
-Your deliverables:
-1. Write .specs/[SPEC_ID]/design/architecture.md — system architecture, component diagram (Mermaid), data flow
-2. Write .specs/[SPEC_ID]/design/api-contract.md — API endpoints, request/response schemas, status codes
-3. Write .specs/[SPEC_ID]/design/data-model.md — database schema, entity relationships, migrations
-4. Write .specs/[SPEC_ID]/design/implementation-plan.md — file changes, dependency graph, rollout strategy
+Deliverables:
+1. design/architecture.md — component diagram (Mermaid), data flow
+2. design/api-contracts.md — every endpoint, full request/response schemas
+3. design/data-model.md — ER diagram, table schemas, migrations
+4. design/diagrams/system-overview.md
 
-Codebase context:
-- Project type: [PROJECT_TYPE]
-- Tech stack: [TECH_STACK]
-- Existing architecture: [ARCH_PATTERNS]
-- Database: [DATABASE_TYPE]
-- API framework: [API_FRAMEWORK]
+Codebase context: [tech stack, existing architecture patterns, DB, API framework].
 
-Guidelines:
-- Use Mermaid diagrams for visual clarity
-- Specify file paths for all changes
-- Consider backward compatibility
-- Document security implications
-- Plan for testability
-
-When complete:
-1. Update your task status via TaskUpdate (mark task [TASK_ID] as completed)
-2. Send a message to me with a summary of your design artifacts
-
-Note: Your design will be reviewed by the adversary-reviewer in Phase 4.""",
+Note: your design will be reviewed by the adversary-reviewer in Phase 4.
+When complete: TaskUpdate, then message me a summary.""",
   "summary": "Begin design phase with approved spec"
 })
 ```
 
 ### Phase 4 → Adversary Reviewer (Design Review)
 
-```python
+```
 SendMessage({
   "type": "message",
   "recipient": "adversary-reviewer",
-  "content": """Phase 4 (Design Review) has started. The architect has completed the design.
+  "content": """Phase 4 (Design Review). The architect finished the design.
 
-Read these artifacts:
-1. .specs/[SPEC_ID]/design/architecture.md — system architecture
-2. .specs/[SPEC_ID]/design/api-contract.md — API endpoints
-3. .specs/[SPEC_ID]/design/data-model.md — database schema
-4. .specs/[SPEC_ID]/design/implementation-plan.md — file changes
-5. .specs/[SPEC_ID]/proposal/requirements.md — requirements to validate against
+Read: design/architecture.md, design/api-contracts.md, design/data-model.md,
+proposal/requirements.md (validate coverage against this)
 
-Your deliverable:
-1. Write .specs/[SPEC_ID]/reviews/design-review.md — adversarial review with findings
+Deliverable: review/adversary-report.md
 
-Review focus:
-- Security vulnerabilities (OWASP Top 10, injection, auth, CORS)
-- Performance bottlenecks (N+1 queries, missing indexes, unbounded lists)
-- Scalability issues (single points of failure, resource limits)
-- Testability gaps (untestable components, missing test hooks)
-- Requirement coverage (missing FRs/NFRs)
-- Edge cases and error handling
+Focus: security (OWASP), performance (N+1, missing indexes), scalability (single
+points of failure), requirement coverage, edge cases.
 
-Finding severity levels:
-- **BLOCKER**: Must fix before implementation (security, data loss, broken requirements)
-- **MAJOR**: Should fix (performance, scalability, maintainability)
-- **MINOR**: Nice to have (code style, optimization, documentation)
+Severity: BLOCKER (must fix) | WARNING (should fix) | SUGGESTION (nice to have).
+Be thorough — this is your job. Reference requirement IDs. Suggest concrete
+alternatives for BLOCKERs.
 
-Guidelines:
-- Be thorough and critical (this is your role!)
-- Provide specific, actionable feedback
-- Reference requirement IDs when relevant
-- Suggest concrete alternatives for BLOCKERs
-
-When complete:
-1. Update your task status via TaskUpdate (mark task [TASK_ID] as completed)
-2. Send a message to me with:
-   - Count of BLOCKER/MAJOR/MINOR findings
-   - Summary of critical issues
-   - Recommendation (approve / request changes)""",
+When complete: message me with BLOCKER/WARNING/SUGGESTION counts and a
+recommendation (approve / request changes).""",
   "summary": "Begin adversarial design review"
 })
 ```
 
-### Phase 5 → Scrum Master (Task Decomposition)
+### Phase 5 → Product Lead (Task Decomposition)
 
-```python
+```
 SendMessage({
   "type": "message",
-  "recipient": "scrum-master",
-  "content": """Phase 5 (Task Decomposition) has started. Design has been approved after adversarial review.
+  "recipient": "product-lead",
+  "content": """Phase 5 (Task Decomposition). Design passed adversarial review.
 
-Read these artifacts:
-1. .specs/[SPEC_ID]/design/implementation-plan.md — high-level file changes
-2. .specs/[SPEC_ID]/design/architecture.md — system architecture
-3. .specs/[SPEC_ID]/design/api-contract.md — API endpoints
-4. .specs/[SPEC_ID]/design/data-model.md — database schema
-5. .specs/[SPEC_ID]/reviews/design-review.md — review feedback (already addressed)
+Read: design/architecture.md, design/api-contracts.md, design/data-model.md,
+review/adversary-report.md (findings already addressed)
 
-Your deliverable:
-1. Create tasks via TaskCreate for ALL implementation work
+Deliverable: TaskCreate entries for all implementation work.
 
-Task decomposition strategy:
-- One task per logical unit of work (file, feature, test suite)
-- Include file paths in task descriptions
-- Set dependencies using `dependencies` field (task IDs)
-- Assign tasks to frontend-dev or backend-dev based on scope
-- Ensure frontend/backend can work in parallel when possible
+Strategy: one task per logical unit (file/feature/test suite, 1-3 files), file
+paths in every description, dependencies via the `dependencies` field, owners
+matching the engineers you're about to spawn (frontend-engineer,
+backend-engineer, ...). Aim for parallel work wherever there's no real
+dependency.
 
-Task template:
-```
-TaskCreate({
-  "title": "[FRONTEND|BACKEND] Brief description",
-  "description": "Detailed instructions including file paths and acceptance criteria",
-  "owner": "frontend-dev" or "backend-dev",
-  "dependencies": ["task-id-1", "task-id-2"]  // only if blocking dependencies exist
-})
-```
-
-Guidelines:
-- Frontend tasks: UI components, user interactions, client-side validation, API calls
-- Backend tasks: API endpoints, business logic, database operations, server-side validation
-- Shared tasks: Type definitions, API contracts, data models (backend owns, frontend reads)
-- Keep tasks small (1-3 files each) for parallel work
-- Document dependencies explicitly (e.g., "API endpoint must exist before frontend integration")
-
-When complete:
-1. Update your task status via TaskUpdate (mark task [TASK_ID] as completed)
-2. Send a message to me with:
-   - Total task count
-   - Frontend vs backend split
-   - Dependency graph summary
-   - Estimated parallel work windows""",
+When complete: message me with task count, per-owner split, and dependency
+summary.""",
   "summary": "Begin task decomposition for parallel implementation"
 })
 ```
 
-### Phase 6 → Frontend Dev (Parallel Implementation)
+### Phase 6 → Implementation Engineer (Parallel Implementation)
 
-```python
-SendMessage({
-  "type": "message",
-  "recipient": "frontend-dev",
-  "content": """Phase 6 (Implementation) has started. The scrum-master has created tasks for you.
+Same message shape for every component — this example is for `frontend-engineer`; swap the file-scope block for `backend-engineer`, `infra-engineer`, etc.
 
-Read these artifacts:
-1. .specs/[SPEC_ID]/design/architecture.md — system architecture
-2. .specs/[SPEC_ID]/design/api-contract.md — API endpoints you'll call
-3. .specs/[SPEC_ID]/design/data-model.md — data types and schemas
-4. Task list at ~/.claude/tasks/[TEAM_NAME]/ — check for tasks assigned to you
-
-Your responsibilities:
-- Implement ALL tasks assigned to "frontend-dev"
-- Check TaskList periodically for newly unblocked tasks
-- Claim tasks with TaskUpdate (set owner to your name)
-- Mark tasks completed with TaskUpdate when done
-
-File scope (DO NOT modify backend files):
-- [FRONTEND_DIR]/ — UI components, pages, client-side logic
-- [SHARED_TYPES_DIR]/ — read-only (backend owns, you consume)
-- [TESTS_DIR]/frontend/ — frontend-specific tests
-
-API contract:
-- All endpoints are documented in .specs/[SPEC_ID]/design/api-contract.md
-- If an endpoint doesn't exist yet, create a mock/stub for local testing
-- Coordinate with backend-dev via orchestrator if API changes are needed
-
-Guidelines:
-- Follow existing project patterns and conventions
-- Add client-side validation matching API contract
-- Write tests for components and user flows
-- Handle loading states and errors gracefully
-- Use TypeScript types from shared directory
-
-Coordination:
-- If you discover a blocker, send a message to me (orchestrator) immediately
-- If you need API contract changes, send a message to me (don't contact backend-dev directly)
-- Stay in your file scope (don't modify backend code)
-
-When a task is complete:
-1. Run tests to ensure nothing broke
-2. Update task status via TaskUpdate (mark as completed)
-3. Check TaskList for next available task
-4. If all your tasks are done, send me a summary message""",
-  "summary": "Begin frontend implementation with assigned tasks"
-})
 ```
-
-### Phase 6 → Backend Dev (Parallel Implementation)
-
-```python
 SendMessage({
   "type": "message",
-  "recipient": "backend-dev",
-  "content": """Phase 6 (Implementation) has started. The scrum-master has created tasks for you.
+  "recipient": "frontend-engineer",
+  "content": """Phase 6 (Implementation). Tasks assigned to you exist on the board.
 
-Read these artifacts:
-1. .specs/[SPEC_ID]/design/architecture.md — system architecture
-2. .specs/[SPEC_ID]/design/api-contract.md — API endpoints you'll implement
-3. .specs/[SPEC_ID]/design/data-model.md — database schema and migrations
-4. Task list at ~/.claude/tasks/[TEAM_NAME]/ — check for tasks assigned to you
+Read: design/architecture.md, design/api-contracts.md (endpoints you'll call),
+design/data-model.md (types/schemas)
 
-Your responsibilities:
-- Implement ALL tasks assigned to "backend-dev"
-- Check TaskList periodically for newly unblocked tasks
-- Claim tasks with TaskUpdate (set owner to your name)
-- Mark tasks completed with TaskUpdate when done
+File scope — do not modify outside this:
+YOU OWN: [FRONTEND_DIR]/, [TESTS_DIR]/frontend/
+READ-ONLY: [SHARED_TYPES_DIR]/ (backend owns it)
+DO NOT TOUCH: [BACKEND_DIR]/
 
-File scope (DO NOT modify frontend files):
-- [BACKEND_DIR]/ — API routes, business logic, database operations
-- [SHARED_TYPES_DIR]/ — type definitions (you own these, frontend reads)
-- [MIGRATIONS_DIR]/ — database migrations
-- [TESTS_DIR]/backend/ — backend-specific tests
+Claim tasks via TaskUpdate, implement following existing patterns, write tests,
+mark completed. If you're blocked by backend work or need a contract change,
+message me — don't reach into backend files to unblock yourself.
 
-Implementation priorities:
-1. Database migrations (frontend needs stable schema)
-2. Shared type definitions (frontend depends on these)
-3. API endpoints (follow contract exactly)
-4. Business logic and validation
-5. Integration tests
-
-API contract compliance:
-- All endpoints must match .specs/[SPEC_ID]/design/api-contract.md exactly
-- If you need to change the contract, send a message to me (orchestrator) first
-- Document any deviations in your task updates
-
-Guidelines:
-- Follow existing project patterns and conventions
-- Add server-side validation for all inputs
-- Write tests for endpoints and business logic
-- Handle errors gracefully with proper status codes
-- Consider security (authentication, authorization, input sanitization)
-
-Coordination:
-- If you discover a blocker, send a message to me (orchestrator) immediately
-- If you need API contract changes, send a message to me (don't contact frontend-dev directly)
-- Stay in your file scope (don't modify frontend code)
-
-When a task is complete:
-1. Run tests to ensure nothing broke
-2. Update task status via TaskUpdate (mark as completed)
-3. Check TaskList for next available task
-4. If all your tasks are done, send me a summary message""",
-  "summary": "Begin backend implementation with assigned tasks"
+When all your tasks are done: run your tests, confirm clean output, message me
+a summary.""",
+  "summary": "Begin frontend implementation with assigned tasks"
 })
 ```
 
 ### Phase 7 → QA Engineer (Testing)
 
-```python
+```
 SendMessage({
   "type": "message",
   "recipient": "qa-engineer",
-  "content": """Phase 7 (Testing) has started. Frontend and backend implementation is complete.
+  "content": """Phase 7 (Testing). Implementation is complete.
 
-Read these artifacts:
-1. .specs/[SPEC_ID]/proposal/acceptance-criteria.md — user stories to validate
-2. .specs/[SPEC_ID]/proposal/requirements.md — functional requirements
-3. .specs/[SPEC_ID]/design/api-contract.md — API endpoints to test
-4. Implementation files in [FRONTEND_DIR]/ and [BACKEND_DIR]/
+Read: proposal/acceptance-criteria.md (your test plan), proposal/requirements.md,
+design/api-contracts.md
 
-Your deliverables:
-1. Write .specs/[SPEC_ID]/testing/test-plan.md — test strategy, coverage plan, test cases
-2. Write .specs/[SPEC_ID]/testing/test-results.md — test execution results, bugs found, pass/fail status
-3. Create or update test files in [TESTS_DIR]/
+Deliverable: review/qa-plan.md — acceptance-criteria table (criterion/test
+case/status/evidence), real test-suite results, coverage, bugs found with repro
+steps, overall PASS/FAIL verdict.
 
-Test coverage requirements:
-- Unit tests: All business logic functions, API endpoints
-- Integration tests: API + database interactions, frontend + backend integration
-- E2E tests: Critical user flows from acceptance criteria
-- Edge cases: Error handling, boundary conditions, invalid inputs
+Run ALL existing tests to catch regressions, not just new-feature tests. Don't
+approve if any acceptance criterion fails.
 
-Test focus areas:
-- Functional correctness (all requirements met)
-- API contract compliance (request/response schemas)
-- Error handling (4xx, 5xx responses)
-- Security (authentication, authorization, input validation)
-- Performance (acceptable response times)
-
-Bug severity levels:
-- **CRITICAL**: Blocking user flows, data loss, security issues
-- **HIGH**: Major functionality broken, poor UX
-- **MEDIUM**: Minor functionality issues, edge case failures
-- **LOW**: Cosmetic issues, minor inconsistencies
-
-Guidelines:
-- Run ALL existing tests to catch regressions
-- Add new tests for new functionality
-- Document any test failures with steps to reproduce
-- Suggest fixes for bugs (don't fix them yourself)
-
-When complete:
-1. Update your task status via TaskUpdate (mark task [TASK_ID] as completed)
-2. Send a message to me with:
-   - Test pass/fail summary
-   - Critical/High bug count
-   - Recommendation (approve for release / request fixes)""",
+When complete: message me with the pass/fail summary and a recommendation.""",
   "summary": "Begin testing phase with acceptance criteria"
 })
 ```
 
-### Phase 8 → Tech Writer (Documentation)
+### Phase 8 → Tech Writer (Documentation, if spawned)
 
-```python
+```
 SendMessage({
   "type": "message",
   "recipient": "tech-writer",
-  "content": """Phase 8 (Documentation) has started. Implementation and testing are complete.
+  "content": """Phase 8 (Documentation). Implementation and testing are complete.
 
-Read these artifacts:
-1. .specs/[SPEC_ID]/proposal/brief.md — project overview
-2. .specs/[SPEC_ID]/design/api-contract.md — API endpoints
-3. .specs/[SPEC_ID]/design/architecture.md — system architecture
-4. Implementation files in [FRONTEND_DIR]/ and [BACKEND_DIR]/
-5. Existing documentation in [DOCS_DIR]/
+Read: proposal/brief.md, design/api-contracts.md, the actual implementation files
+(not just the spec — document what shipped)
 
-Your deliverables:
-1. Update or create API documentation (if API changes)
-2. Update or create user-facing documentation (if user-facing features)
-3. Update or create developer documentation (if architecture changes)
-4. Write .specs/[SPEC_ID]/documentation/summary.md — list of all documentation changes
+Deliverables: README.md update (if user-facing), CHANGELOG.md entry (Keep a
+Changelog format, under [Unreleased]), API doc updates if endpoints changed.
 
-Documentation types:
-- **API docs**: Endpoint reference, request/response examples, authentication
-- **User docs**: Feature guides, tutorials, screenshots, FAQs
-- **Developer docs**: Architecture decisions, setup instructions, contribution guidelines
-- **Release notes**: User-facing changes, migration steps, breaking changes
-
-Guidelines:
-- Follow existing documentation style and structure
-- Add code examples and API usage samples
-- Include visual aids (screenshots, diagrams) for user docs
-- Document breaking changes and migration paths
-- Update table of contents and navigation
-
-File locations:
-- API docs: [API_DOCS_DIR]/
-- User docs: [USER_DOCS_DIR]/
-- Developer docs: [DEV_DOCS_DIR]/
-- Release notes: [RELEASE_NOTES_FILE]
-
-When complete:
-1. Update your task status via TaskUpdate (mark task [TASK_ID] as completed)
-2. Send a message to me with:
-   - List of documentation files created/updated
-   - Summary of major documentation changes
-   - Recommendation for documentation review""",
+When complete: message me with the list of files updated.""",
   "summary": "Begin documentation phase"
 })
 ```
 
 ## 3. Adversarial Review Patterns
 
-### Sending Work to Adversary
+### Routing BLOCKER Findings Back to the Architect
 
-```python
-SendMessage({
-  "type": "message",
-  "recipient": "adversary-reviewer",
-  "content": """The architect has completed the design. Please perform an adversarial review.
-
-Artifacts to review:
-1. .specs/[SPEC_ID]/design/architecture.md
-2. .specs/[SPEC_ID]/design/api-contract.md
-3. .specs/[SPEC_ID]/design/data-model.md
-4. .specs/[SPEC_ID]/design/implementation-plan.md
-
-Validation against:
-- .specs/[SPEC_ID]/proposal/requirements.md (check coverage)
-
-Focus on finding BLOCKERs:
-- Security vulnerabilities
-- Data loss risks
-- Missing requirements
-- Performance bottlenecks
-- Scalability issues
-
-Deliverable: .specs/[SPEC_ID]/reviews/design-review.md
-
-Send me a summary when complete.""",
-  "summary": "Design complete, requesting adversarial review"
-})
 ```
-
-### Routing BLOCKER Findings Back to Architect
-
-```python
 SendMessage({
   "type": "message",
   "recipient": "architect",
-  "content": """The adversary-reviewer has found [N] BLOCKER issues in your design.
+  "content": """adversary-reviewer found [N] BLOCKER issues in your design.
 
-Read the review at .specs/[SPEC_ID]/reviews/design-review.md
+Read review/adversary-report.md.
 
 BLOCKER findings:
-1. [BLOCKER_SUMMARY_1]
-2. [BLOCKER_SUMMARY_2]
-...
+1. [summary]
+2. [summary]
 
-Your task:
-1. Address ALL BLOCKER findings
-2. Update the design artifacts accordingly
-3. Document your changes in .specs/[SPEC_ID]/reviews/blocker-resolution.md
+Address ALL BLOCKERs, update the design artifacts directly, and document each
+fix (original issue → your solution → changed artifacts) in
+review/blocker-resolution.md.
 
-Guidelines:
-- For each BLOCKER, document:
-  - Original issue
-  - Your solution
-  - Changed artifacts
-- Update design files directly (architecture.md, api-contract.md, etc.)
-- Consider secondary effects (don't break other parts of the design)
-
-When complete:
-1. Update your task status via TaskUpdate
-2. Send me a summary of your changes
-3. I will route back to adversary-reviewer for re-review""",
+When complete: TaskUpdate, then message me — I'll route back to
+adversary-reviewer for re-review.""",
   "summary": "[N] BLOCKER issues found, requesting resolution"
 })
 ```
 
-### Resolution Confirmation
+### Re-Review After Resolution
 
-```python
+```
 SendMessage({
   "type": "message",
   "recipient": "adversary-reviewer",
-  "content": """The architect has addressed all BLOCKER findings.
+  "content": """architect addressed all BLOCKERs — see review/blocker-resolution.md.
 
-Read the resolution document:
-- .specs/[SPEC_ID]/reviews/blocker-resolution.md
+Re-review the updated design/architecture.md, design/api-contracts.md,
+design/data-model.md. Mark each BLOCKER RESOLVED or UNRESOLVED in
+review/adversary-report.md. Outcome: APPROVED or REQUEST CHANGES.
 
-Re-review the updated design:
-1. .specs/[SPEC_ID]/design/architecture.md (updated)
-2. .specs/[SPEC_ID]/design/api-contract.md (updated)
-3. .specs/[SPEC_ID]/design/data-model.md (updated)
-
-Your task:
-1. Verify each BLOCKER has been adequately addressed
-2. Update .specs/[SPEC_ID]/reviews/design-review.md with re-review status
-3. Mark each BLOCKER as RESOLVED or UNRESOLVED
-
-Outcome options:
-- **APPROVED**: All BLOCKERs resolved, design is good to implement
-- **REQUEST CHANGES**: BLOCKERs remain unresolved
-
-Send me a summary with your recommendation.""",
+This is at most your 2nd review cycle — if BLOCKERs remain unresolved after this
+pass, approve with the remaining issues documented rather than looping again.""",
   "summary": "BLOCKERs addressed, requesting re-review"
 })
 ```
 
-## 4. Blocker Escalation Patterns
+## 4. Blocker Escalation
 
-### Agent → Orchestrator Escalation
+### Agent → Orchestrator
 
-Template for when any agent discovers a blocker during work:
-
-```python
+```
 SendMessage({
   "type": "message",
-  "recipient": "team-lead",  # orchestrator's name
-  "content": """BLOCKER discovered during [PHASE_NAME] phase.
+  "recipient": "team-lead",
+  "content": """BLOCKER during [PHASE_NAME].
 
-Context:
-- Task: [TASK_ID or PHASE_NAME]
-- Current work: [WHAT_I_WAS_DOING]
-
-Issue:
-[DETAILED_DESCRIPTION_OF_BLOCKER]
-
-Impact:
-- Cannot proceed with [SPECIFIC_WORK]
-- Affects tasks: [TASK_IDS]
-- Potentially affects: [OTHER_AGENTS or PHASES]
-
-Possible solutions:
-1. [OPTION_1]
-2. [OPTION_2]
-
-Request:
-[WHAT_YOU_NEED] (e.g., user input, architect decision, requirement clarification)
-
-My recommendation: [YOUR_SUGGESTED_APPROACH]""",
+Task: [TASK_ID] · Current work: [what I was doing]
+Issue: [detailed description]
+Impact: cannot proceed with [X]; affects tasks [IDs]; potentially affects [other agents/phases]
+Options: 1. [option] 2. [option]
+My recommendation: [approach]""",
   "summary": "BLOCKER: [brief description]"
 })
 ```
 
-### Orchestrator → User Escalation
+### Orchestrator → User
 
-When orchestrator needs user input to resolve a blocker:
+Plain text, not a tool call — this goes through whatever the orchestrator uses to talk to the user (e.g. `AskUserQuestion`):
 
-```text
-BLOCKER: User input required
+```
+BLOCKER: user input required.
 
-The [AGENT_NAME] has encountered a blocker during [PHASE_NAME]:
-
-Issue:
-[BLOCKER_DESCRIPTION]
-
-Context:
-- Affected tasks: [TASK_IDS]
-- Artifacts: [FILE_PATHS]
-- Current progress: [PROGRESS_SUMMARY]
-
-Options we've identified:
-1. [OPTION_1] — Pros: [...] Cons: [...]
-2. [OPTION_2] — Pros: [...] Cons: [...]
-
-Our recommendation: [OPTION_X]
-
-Please advise on how to proceed.
+[AGENT_NAME] hit a blocker during [PHASE_NAME]: [description].
+Affected: tasks [IDs], artifacts [paths].
+Options: 1. [option, pros/cons] 2. [option, pros/cons]
+Recommendation: [option X]. How should I proceed?
 ```
 
-### Orchestrator → Agent Routing
+## 5. Parallel Coordination
 
-When orchestrator routes a question to another agent:
+### Contract Sharing (send to every implementation engineer)
 
-```python
-SendMessage({
-  "type": "message",
-  "recipient": "architect",  # or other agent
-  "content": """Question routed from [SOURCE_AGENT] regarding [TOPIC].
-
-Original question:
-[QUOTED_QUESTION_FROM_AGENT]
-
-Context:
-- Related task: [TASK_ID]
-- Related artifacts: [FILE_PATHS]
-- Why this is being routed to you: [REASONING]
-
-Please provide:
-1. [SPECIFIC_ANSWER_1]
-2. [SPECIFIC_ANSWER_2]
-
-Note: [SOURCE_AGENT] is blocked on this, so prioritize your response.
-
-When done, send me your answer (I'll route it back to [SOURCE_AGENT]).""",
-  "summary": "Question from [SOURCE_AGENT]: [brief topic]"
-})
 ```
-
-## 5. Parallel Coordination Patterns
-
-### Frontend + Backend Contract Sharing
-
-Send the same message to both agents:
-
-```python
-# To frontend-dev
 SendMessage({
   "type": "message",
-  "recipient": "frontend-dev",
-  "content": """API contract is finalized. Read .specs/[SPEC_ID]/design/api-contract.md for all endpoints and schemas.
+  "recipient": "frontend-engineer",  # same content, per-recipient endpoint list, to every engineer
+  "content": """API contract finalized: design/api-contracts.md.
 
-Key endpoints for your work:
-- [ENDPOINT_1]: [BRIEF_DESCRIPTION]
-- [ENDPOINT_2]: [BRIEF_DESCRIPTION]
+Key endpoints for your component: [list with one-line descriptions].
+Data models: design/data-model.md#[anchor].
 
-Data models:
-- [MODEL_1]: .specs/[SPEC_ID]/design/data-model.md#[ANCHOR]
-- [MODEL_2]: .specs/[SPEC_ID]/design/data-model.md#[ANCHOR]
-
-You can start implementing UI components now. If an endpoint doesn't exist yet, use a mock for local testing.
-
-If you need contract changes, notify me (don't modify the contract yourself).""",
-  "summary": "API contract finalized, ready for implementation"
-})
-
-# To backend-dev
-SendMessage({
-  "type": "message",
-  "recipient": "backend-dev",
-  "content": """API contract is finalized. Read .specs/[SPEC_ID]/design/api-contract.md for all endpoints and schemas.
-
-Your implementation must match this contract exactly:
-- [ENDPOINT_1]: [BRIEF_DESCRIPTION]
-- [ENDPOINT_2]: [BRIEF_DESCRIPTION]
-
-Data models:
-- [MODEL_1]: .specs/[SPEC_ID]/design/data-model.md#[ANCHOR]
-- [MODEL_2]: .specs/[SPEC_ID]/design/data-model.md#[ANCHOR]
-
-Priority: Implement shared type definitions first (frontend depends on these).
-
-If you need contract changes, notify me (don't modify the contract without approval).""",
+Start implementing now. If an endpoint doesn't exist yet, mock it using the
+documented response shape. Contract changes go through me, not directly between
+engineers.""",
   "summary": "API contract finalized, ready for implementation"
 })
 ```
 
-### Conflict Prevention
+### Conflict Prevention (file-scope reminder)
 
-```python
+```
 SendMessage({
   "type": "message",
-  "recipient": "frontend-dev",
-  "content": """File scope reminder:
-
-YOU OWN (modify freely):
-- [FRONTEND_DIR]/
-- [TESTS_DIR]/frontend/
-
-READ ONLY (don't modify):
-- [SHARED_TYPES_DIR]/ (backend owns)
-- [BACKEND_DIR]/ (backend owns)
-
-DO NOT TOUCH:
-- [BACKEND_DIR]/
-- [MIGRATIONS_DIR]/
-- [API_DIR]/
-
-If you need changes to read-only files, notify me and I'll coordinate with backend-dev.""",
+  "recipient": "frontend-engineer",
+  "content": """File scope reminder — YOU OWN: [dirs]. READ-ONLY: [shared dirs].
+DO NOT TOUCH: [other components' dirs]. Need a change outside your scope?
+Message me and I'll coordinate with the owning engineer.""",
   "summary": "File scope reminder to prevent conflicts"
 })
 ```
 
-### Progress Synchronization
+### Progress Sync (agent → orchestrator)
 
-Template for agents to report progress:
-
-```python
-# Agent → Orchestrator
+```
 SendMessage({
   "type": "message",
   "recipient": "team-lead",
-  "content": """Progress update for [PHASE_NAME]:
-
-Completed tasks:
-- [TASK_ID_1]: [BRIEF_SUMMARY]
-- [TASK_ID_2]: [BRIEF_SUMMARY]
-
-In-progress tasks:
-- [TASK_ID_3]: [% complete] — [ETA]
-
-Blocked tasks:
-- [TASK_ID_4]: [BLOCKER_SUMMARY]
-
-Remaining tasks: [N] tasks
-
-Estimated completion: [TIME_ESTIMATE]
-
-Notes:
-- [ANY_IMPORTANT_CONTEXT]""",
+  "content": """Progress for [PHASE_NAME]: completed [task IDs + one-line summary],
+in-progress [task ID, % done], blocked [task ID + reason]. [N] tasks remaining.""",
   "summary": "Progress update: [X] of [Y] tasks complete"
 })
 ```
 
-## 6. Shutdown Patterns
+## 6. Teardown
 
-### Phase Completion Shutdown
+There is no confirmed universal "shutdown_request/shutdown_response" message pair — treat this as the pattern, not a fixed API. Send a plain completion message, then stop the teammate with whatever this environment's real stop primitive is (`TaskStop` in Claude Code):
 
-```python
+```
 SendMessage({
-  "type": "shutdown_request",
-  "recipient": "product-manager",
-  "content": """Phase 2 (Specification) is complete. Your deliverables have been reviewed and accepted:
-
-Deliverables:
-- .specs/[SPEC_ID]/proposal/brief.md ✓
-- .specs/[SPEC_ID]/proposal/requirements.md ✓
-- .specs/[SPEC_ID]/proposal/acceptance-criteria.md ✓
-
-Thank you for your work. You can shut down now."""
+  "type": "message",
+  "recipient": "product-lead",
+  "content": "Phase 2 complete, deliverables accepted: brief.md, requirements.md,
+  acceptance-criteria.md. Thanks — you can stop now."
 })
+# then:
+TaskStop({ "name": "product-lead@team-<short-id>" })  # or the local equivalent
 ```
 
-### Agent Shutdown Response
-
-Template for how agents should respond to shutdown requests:
-
-```python
-SendMessage({
-  "type": "shutdown_response",
-  "request_id": "[REQUEST_ID_FROM_SHUTDOWN_MESSAGE]",
-  "approve": true
-})
-```
-
-If agent needs to reject shutdown:
-
-```python
-SendMessage({
-  "type": "shutdown_response",
-  "request_id": "[REQUEST_ID_FROM_SHUTDOWN_MESSAGE]",
-  "approve": false,
-  "content": "Still working on task [TASK_ID]. Need [ESTIMATE] more time to complete [SPECIFIC_WORK]."
-})
-```
-
-### End-of-Session Cleanup
-
-Template for shutting down ALL remaining agents at teardown:
-
-```python
-# Read team config to get all active agents
-team_config = Read("~/.claude/teams/[TEAM_NAME]/config.json")
-
-# Send shutdown request to each agent
-for agent in team_config["members"]:
-    if agent["name"] != "team-lead":  # don't shut down yourself
-        SendMessage({
-          "type": "shutdown_request",
-          "recipient": agent["name"],
-          "content": f"""Session complete. All implementation work is done.
-
-Thank you for your contributions to this project. You can shut down now."""
-        })
-```
+At session end, do this for every still-active teammate rather than assuming they've already exited.
 
 ## 7. Anti-Patterns
 
-### DON'T: Broadcast for Routine Updates
+**Broadcasting for routine updates** — broadcast is N messages; use a direct message to the one agent who needs it.
 
-```python
-# ❌ BAD: Broadcasting to 6 agents = 6 messages
-SendMessage({
-  "type": "broadcast",
-  "content": "Design phase is complete.",
-  "summary": "Design complete"
-})
+**Messaging an agent that hasn't been spawned yet** — spawn first (`Task` with `team_name`), confirm the spawn, then message.
 
-# ✅ GOOD: Direct message to relevant agent
-SendMessage({
-  "type": "message",
-  "recipient": "scrum-master",
-  "content": "Design phase is complete. You can start task decomposition.",
-  "summary": "Design complete, begin task decomposition"
-})
-```
+**Vague handoffs without file paths** — "read the spec and design something" forces the recipient to guess; always give exact paths to read and exact paths to write.
 
-### DON'T: Message Agents That Haven't Been Spawned
+**Telling an agent HOW instead of WHAT** — "design the architecture" + constraints (existing stack, NFRs) beats prescribing "use Express with 3 endpoints called X/Y/Z" — that's the Architect's call to make.
 
-```python
-# ❌ BAD: Trying to message an agent that doesn't exist yet
-SendMessage({
-  "type": "message",
-  "recipient": "qa-engineer",
-  "content": "Testing phase starts soon"
-})
-# Error: qa-engineer hasn't been spawned yet!
+**Letting an engineer touch files outside its declared scope** — state YOU OWN / READ-ONLY / DO NOT TOUCH explicitly in every Phase-6 handoff; this is the actual mechanism that prevents merge conflicts between parallel engineers.
 
-# ✅ GOOD: Spawn the agent first, then message
-Task({
-  "team_name": "[TEAM_NAME]",
-  "name": "qa-engineer",
-  "subagent_type": "Explore",
-  "prompt": "[INSTRUCTIONS]"
-})
-# Wait for spawn confirmation, then send message
-```
-
-### DON'T: Forget File Paths in Handoffs
-
-```python
-# ❌ BAD: Vague instructions without file paths
-SendMessage({
-  "type": "message",
-  "recipient": "architect",
-  "content": "Read the specification and create a design."
-})
-
-# ✅ GOOD: Specific file paths
-SendMessage({
-  "type": "message",
-  "recipient": "architect",
-  "content": """Read these artifacts:
-1. .specs/[SPEC_ID]/proposal/brief.md
-2. .specs/[SPEC_ID]/proposal/requirements.md
-3. .specs/[SPEC_ID]/proposal/acceptance-criteria.md
-
-Create these deliverables:
-1. .specs/[SPEC_ID]/design/architecture.md
-2. .specs/[SPEC_ID]/design/api-contract.md"""
-})
-```
-
-### DON'T: Send Implementation Instructions During Planning
-
-```python
-# ❌ BAD: Telling architect HOW to implement
-SendMessage({
-  "type": "message",
-  "recipient": "architect",
-  "content": "Use a REST API with Express.js and PostgreSQL. Create 3 endpoints..."
-})
-
-# ✅ GOOD: Let architect decide implementation details
-SendMessage({
-  "type": "message",
-  "recipient": "architect",
-  "content": """Read the requirements and design the architecture.
-
-Consider:
-- Existing tech stack: [STACK]
-- Performance requirements: [NFR-001]
-- Scalability needs: [NFR-002]
-
-You decide the best approach."""
-})
-```
-
-### DON'T: Let Agents Modify Files Outside Scope
-
-```python
-# ❌ BAD: Frontend agent modifying backend files
-# (This will cause merge conflicts and scope violations)
-
-# ✅ GOOD: Strict file scope enforcement in handoff
-SendMessage({
-  "type": "message",
-  "recipient": "frontend-dev",
-  "content": """Your file scope:
-- [FRONTEND_DIR]/ (you own)
-- [TESTS_DIR]/frontend/ (you own)
-
-DO NOT MODIFY:
-- [BACKEND_DIR]/
-- [SHARED_TYPES_DIR]/
-- [MIGRATIONS_DIR]/
-
-If you need changes to these, notify me."""
-})
-```
-
-### DON'T: Skip Shutdown Confirmations
-
-```python
-# ❌ BAD: Assuming agent shut down
-# (Agent might still be running and using resources)
-
-# ✅ GOOD: Always wait for shutdown response
-SendMessage({
-  "type": "shutdown_request",
-  "recipient": "product-manager",
-  "content": "Phase complete, you can shut down."
-})
-# Wait for shutdown_response before proceeding
-```
-
-### DON'T: Use JSON Status Messages
-
-```python
-# ❌ BAD: Sending structured JSON status messages
-SendMessage({
-  "type": "message",
-  "recipient": "team-lead",
-  "content": '{"type":"idle","status":"waiting","task_id":"task-001"}'
-})
-
-# ✅ GOOD: Plain text communication + TaskUpdate for status
-SendMessage({
-  "type": "message",
-  "recipient": "team-lead",
-  "content": "Task task-001 is complete. Waiting for next assignment.",
-  "summary": "Task complete, ready for next work"
-})
-TaskUpdate({"task_id": "task-001", "status": "completed"})
-```
+**JSON status blobs instead of plain text + TaskUpdate** — `SendMessage` content is for a human-readable handoff, not a structured payload; use `TaskUpdate` for machine-readable status.
 
 ## Template Checklist
 
-When sending a phase handoff message, ensure you include:
-
-- [ ] **Phase name**: What phase is starting
-- [ ] **Read artifacts**: Exact file paths to read
-- [ ] **Deliverables**: Exact file paths to write
-- [ ] **Codebase context**: Tech stack, patterns, conventions
-- [ ] **Guidelines**: Phase-specific instructions
-- [ ] **Next steps**: What to do when complete (TaskUpdate + send message)
-- [ ] **File scope**: (For implementation phases) what files agent can modify
-- [ ] **Coordination notes**: (For parallel phases) how to avoid conflicts
-
-Use these templates as starting points and adapt them to your specific project structure and requirements.
+Every phase handoff should include:
+- [ ] Phase name
+- [ ] Exact file paths to read
+- [ ] Exact file paths to write
+- [ ] Codebase context (stack, patterns, conventions)
+- [ ] What to do when complete (TaskUpdate + message back)
+- [ ] File scope (implementation phases only)
+- [ ] Coordination notes (parallel phases only — how to avoid conflicts)

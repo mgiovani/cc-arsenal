@@ -1,12 +1,15 @@
 ---
 name: docs-update
-description: Update documentation by synchronizing with the current codebase state.
-  This skill should be used when users want to refresh stale documentation, sync docs
-  with code changes, or update specific documentation files or categories.
+description: Refresh existing docs (architecture, onboarding, data-model, deployment,
+  security, contributing) so they match the current codebase, verifying every claim
+  against real code instead of guessing. Use when the user says docs are stale, asks
+  to sync docs with recent code changes, update a specific doc file, or update a whole
+  category (core/data/infrastructure/development) after a refactor or schema change.
+  Not for creating docs that don't exist yet (use docs-init) or scoring/auditing doc
+  health without editing (use docs-check).
 metadata:
   author: mgiovani
-  version: 1.0.0
-  source: https://github.com/mgiovani/skills
+  version: 1.1.0
 disable-model-invocation: true
 argument-hint: '[all|<doc-name>|category:<name>]'
 allowed-tools: Read, Write, Grep, Glob, Bash(git *), Task, TodoWrite
@@ -14,319 +17,126 @@ context: fork
 agent: general-purpose
 ---
 
-# Docs Update
-
-> **Cross-Platform AI Agent Skill**
-> This skill works with any AI agent platform that supports the skills.sh standard.
-
 # Update Documentation
 
-Synchronize documentation with the current codebase state. Can update all docs, specific files, or entire categories.
+Synchronize documentation with the current codebase state — one file, a category, or everything in `docs/`.
 
 ## Anti-Hallucination Guidelines
 
-**CRITICAL**: Documentation updates must reflect REALITY, not assumptions:
-1. **Explore before updating** - Use Explore agent to understand actual codebase state
-2. **Verify every claim** - Before writing any statement, verify it with code
-3. **Count accurately** - Use find/glob for exact counts, never estimate
-4. **Remove stale content** - Delete claims about features that no longer exist
-5. **Cross-reference** - After updating, verify the update matches reality
+Every statement written must trace back to a file read or grepped this run:
+1. Verify each claim before writing it — read the actual source, don't recall it
+2. Get counts from `find`/`grep`, never estimate ("5 services" means 5 files were counted this run)
+3. Delete claims about features that no longer exist rather than leaving them stale
+4. After writing, re-read the diff and drop anything not backed by evidence gathered this run
 
 ## Workflow
 
-### Phase 1: Deep Codebase Analysis (Explore Codebase)
+### Phase 1: Resolve Scope
 
-Before updating ANY documentation, thoroughly explore the codebase:
+Parse the invocation argument:
+- No argument or `all` — update every doc that exists in `docs/`
+- `<doc-name>` (e.g. `architecture`) — resolve via the mapping below, update only that file
+- `category:<name>` (`core`, `data`, `infrastructure`, `development`) — update every doc in that category
 
-### Phase 2: Track Progress (Use TodoWrite)
+| Argument | File Path | Category |
+|---|---|---|
+| `architecture` | `docs/architecture.md` | core |
+| `onboarding` | `docs/onboarding.md` | core |
+| `data-model` | `docs/data-model.md` | data |
+| `deployment` | `docs/deployment.md` | infrastructure |
+| `security` | `docs/security.md` | infrastructure |
+| `contributing` | `docs/contributing.md` | development |
 
-For updating multiple documents, use TodoWrite to track progress:
-```
-Create todos for each document to update, marking them in_progress as you work
-### Phase 3: Parse Arguments
+**Existence check — stop before doing anything else if the target is missing.** This skill only updates docs that already exist; it never creates one.
 
-1. Extract update mode from `command arguments`
-2. Modes:
- - No args or `all` -> Update all relevant docs
- - `<doc-name>` -> Update specific doc (e.g., `architecture`)
- - `category:<name>` -> Update category (e.g., `category:data`)
-3. Default: Update all
+- `all` or `category:<name>` — silently exclude any mapped path that isn't on disk (e.g. `find docs/*.md` and intersect with the category's paths); the run proceeds with whatever remains
+- `<doc-name>` — resolve the path, then check it with `test -f <resolved-doc-path>` (or Read). If it does not exist, STOP the entire skill run right here: do not read further, do not run Phase 2-5, do not Write or Edit that path under any pretext (not as a "special case," not with a caveat about verified content). Tell the user the doc doesn't exist yet and point them to `docs-init`, which owns creation and the canonical templates. This is the final action for that run.
 
-### Phase 4: Determine Update Scope and Analyze
+For a multi-doc run that passes the existence check, track progress with TodoWrite — one todo per document, marked `in_progress` while it's being worked and `completed` once written.
 
-**For "all" mode**: Analyze entire project, identify all relevant documentation types, update everything that exists or should exist.
+### Phase 2: Check Freshness
 
-**For specific doc mode**: Validate doc name, find the corresponding file, update only that document.
-
-**For category mode**: Parse category name (`core`, `data`, `infrastructure`, `development`), identify all docs in that category, update all.
-
-### Phase 5: Check Documentation Freshness
+For each doc resolved in Phase 1 — using its actual path, not a fixed one — compare its last commit against source changes since:
 
 ```bash
-# For each doc, compare with related code changes
-!`git log --since="$(git log -1 --format=%ai docs/architecture.md)" --oneline --name-only | head -30`
-Identify which docs are outdated and prioritize updates.
-
-### Phase 6: Parallel Updates (Use Parallel Analysis)
-
-For multiple document updates, see [references/update-strategies.md](references/update-strategies.md) for parallel subagent patterns.
-
-#### For Multiple Documents ("all" or "category" mode)
-
-#### For Single Document (Section-Level Parallelization)
-
-Even when updating ONE document, spawn subagents for each major section. See [references/update-strategies.md](references/update-strategies.md) for section-level patterns.
-
-### Phase 7: Update Each Document
-
-- Re-analyze relevant parts of codebase
-- **Verify each claim before writing** - Read actual files
-- Regenerate diagrams if needed
-- Update content while preserving custom sections
-- Replace placeholders with current values
-- **Remove claims that cannot be verified**
-
-### Phase 8: Post-Update Verification
-
-After updating, verify the updates are accurate:
+git log --since="$(git log -1 --format=%ai -- <resolved-doc-path> 2>/dev/null || echo '30 days ago')" --oneline --name-only -- . ':!docs' | head -30
 ```
-For each updated document:
-1. Re-read the document
-2. For each major claim, verify against actual code
-3. If any claim cannot be verified, remove it
-4. Run docs-check to validate
-### Phase 9: Preserve Custom Content (Important)
 
-- Keep manually added sections
-- Preserve non-template content
-- Only update auto-generated parts
-- If unsure, ask before overwriting
+A doc whose last update predates relevant source changes is a candidate for this run. If git history is unavailable (no `.git`, doc untracked, first commit), fall back to the commands in [references/change-detection.md](references/change-detection.md) and note in the final report that freshness couldn't be determined from git.
 
-### Phase 10: Report Results
+### Phase 3: Verify Against the Codebase
 
-- List documents updated
-- List documents skipped (up to date)
-- List documents created (if missing)
-- Show summary of changes
+**Single document**: read it fully, then grep the codebase for each claim it makes (component names, counts, file paths, tech stack). No subagent needed — one Explore pass funnels into one file write either way.
 
-## Documentation Categories
+**Multiple documents** (`all` or `category` mode): spawn one subagent per document so verification runs concurrently — see [references/update-strategies.md](references/update-strategies.md) for the per-document-type checklist and prompt pattern. If no Task/subagent tool is available, run the same read-verify-write pass for each document sequentially instead.
 
-### Core Documentation
-Files that are always relevant:
-- `docs/architecture.md` - System architecture
-- `docs/onboarding.md` - Developer onboarding
-- `docs/adr/` - Architecture Decision Records
+### Phase 4: Write Updates
 
-**Update when**: Architecture changes, setup process changes
+- Preserve manually added sections and any content that doesn't match the template structure — only touch parts backed by verified facts from Phase 3
+- Templates are shared with docs-init: [`../docs-init/assets/templates/`](../docs-init/assets/templates/) relative to this skill's own directory (works when both skills are installed side by side, e.g. via the cc-arsenal plugin or `npx skills add`). If docs-init isn't installed alongside this skill, fetch the same templates from the [cc-arsenal repo](https://github.com/mgiovani/cc-arsenal/tree/main/skills/docs-init/assets/templates) instead of inventing structure
+- Before filling placeholders, run `grep -oE '\{\{[A-Z_]+\}\}' <template-file>` to see the tokens that specific template actually uses — each template has its own set (architecture.md alone uses over a dozen), never assume a fixed list
+- Regenerate diagrams whose depicted components/entities changed
+- Remove claims Phase 3 could not verify
+- If it's ambiguous whether a section is custom or auto-generated, ask before overwriting rather than guessing
 
-### Data Documentation
-Files relevant if database detected:
-- `docs/data-model.md` - Database schema and ER diagrams
+### Phase 5: Report
 
-**Update when**: Schema changes, models modified
+List documents updated (with what changed and numbers pulled from Phase 3, e.g. "3 services found" not "several services"), skipped (already fresh), and not found (excluded from an `all`/`category` run because the file doesn't exist — mention docs-init, don't create it). This skill never reports a "created" doc; creation is docs-init's job.
 
-### Infrastructure Documentation
-Files relevant if deployment configs detected:
-- `docs/deployment.md` - CI/CD and deployment
-- `docs/security.md` - Security architecture
+## Example Output: All Docs Update
 
-**Update when**: Infrastructure changes, security updates
-
-### Development Documentation
-Files relevant for collaborative projects:
-- `docs/contributing.md` - Contribution guidelines
-- `docs/rfc/` - RFC documents
-- `docs/api-documentation.md` - API documentation
-
-**Update when**: Process changes, API changes
-
-## Document Name Mapping
-
-| Argument | File Path |
-|----------------|----------------------------|
-| `architecture` | `docs/architecture.md` |
-| `onboarding` | `docs/onboarding.md` |
-| `data-model` | `docs/data-model.md` |
-| `deployment` | `docs/deployment.md` |
-| `security` | `docs/security.md` |
-| `contributing` | `docs/contributing.md` |
-| `api-docs` | `docs/api-documentation.md`|
-
-## Usage Examples
-
-Update all documentation:
 ```
-docs-update
-docs-update all
-Update specific document:
+Documentation Update Complete
+
+Updated (2 docs):
+  docs/architecture.md (added AuthService, NotificationService — found via grep of src/services/)
+  docs/data-model.md (schema changed, ER diagram regenerated from 6 models)
+
+Up to Date (1 doc):
+  docs/onboarding.md (no source changes since last update)
+
+Skipped — could not verify (1 doc):
+  docs/security.md (claims about SSO could not be confirmed in code, left as-is, flagged for manual review)
 ```
-docs-update architecture
-docs-update data-model
-docs-update onboarding
-docs-update deployment
-docs-update security
-Update entire category:
+
+## Example Output: Specific Doc Update
+
 ```
-docs-update category:core
-docs-update category:data
-docs-update category:infrastructure
-docs-update category:development
-With context:
+Architecture Documentation Updated
+
+File: docs/architecture.md
+
+Changes:
+  Added 2 new services (AuthService, NotificationService) — src/services/auth.py, src/services/notify.py
+  Updated architecture diagram to include the new message queue integration
+  Preserved custom "Deployment Notes" section (not touched)
+
+Verified:
+  5 services total (find src/services -name '*.py' | wc -l)
+  3 databases: PostgreSQL, Redis, MongoDB (grep of config/database.yml)
 ```
-docs-update architecture after microservices refactor
-docs-update data-model after schema migration
-docs-update category:core for onboarding review
-## Template Placeholder Replacement
 
-Replace these placeholders during update:
-- `{{PROJECT_NAME}}` - Current project name
-- `{{DATE}}` - Current date
-- `{{TECH_STACK}}` - Detected technologies
-- `{{ER_DIAGRAM}}` - Generated ER diagram
-- `{{ARCHITECTURE_DIAGRAM}}` - Generated architecture diagram
-- `{{ENTITIES}}` - Extracted entity descriptions
-- `{{COMPONENTS}}` - Extracted component descriptions
+## Example Output: Target Doc Doesn't Exist
 
-## Important Notes
+```
+docs/security.md doesn't exist yet — nothing to update.
 
-- **Preserves custom content**: Does not blindly overwrite
-- **Smart updates**: Only updates outdated sections
-- **Diagram regeneration**: Auto-regenerates diagrams
-- **Git-aware**: Uses git to detect what changed
-- **Safe**: Asks before major changes
-- **Incremental**: Can be run frequently
+This skill only refreshes existing docs. Run docs-init to create
+docs/security.md from the canonical template first, then re-run
+docs-update security to keep it in sync going forward.
+```
 
-## When to Run
+No file was written and no other phase ran.
 
-- After major refactoring
-- When database schema changes
-- After adding new features or components
-- Before onboarding new team members
-- When documentation becomes stale
-- As part of release process
-- After infrastructure changes
-- Before documentation reviews
+## Notes
 
-## Best Practices
-
-- **Run regularly**: Keep documentation current
-- **Review changes**: Always review auto-generated updates
-- **Preserve custom**: Keep manual additions safe
-- **Commit with code**: Update docs alongside code changes
-- **Be specific**: Use specific doc names for targeted updates
-- **Bulk updates**: Use category updates for efficiency
-- **Verify diagrams**: Check generated diagrams for accuracy
+- Never creates a doc that doesn't exist — a missing target stops the run and points to docs-init instead
+- Preserves custom content by default — asks rather than overwrites when a section's status is unclear
+- Git-aware: freshness comes from `git log`, not assumption
+- Safe to run repeatedly (after refactors, schema changes, infra changes, or before onboarding/releases)
+- For a full category, see [references/update-strategies.md](references/update-strategies.md) for the category-level output format and per-doc-type verification steps
 
 ## Additional Resources
 
-- For parallel update patterns and section-level strategies, see [references/update-strategies.md](references/update-strategies.md)
-- For change detection commands, see [references/change-detection.md](references/change-detection.md)
-
-## Claude Code Enhanced Features
-
-This skill includes the following Claude Code-specific enhancements:
-
-## Workflow
-
-### Phase 1: Deep Codebase Analysis (Use Explore Agent)
-
-Before updating ANY documentation, thoroughly explore the codebase:
-
-```
-Use Task tool with Explore agent:
-- prompt: "Comprehensively analyze this codebase. Find: 1) All actual source files and their purposes, 2) Real component counts (services, models, APIs), 3) Actual directory structure with content verification, 4) Technologies actually in use (check package files). Return ONLY verified facts with file paths as evidence."
-- subagent_type: "Explore"
-```
-
-### Phase 2: Track Progress (Use TodoWrite)
-
-For updating multiple documents, use TodoWrite to track progress:
-```
-Create todos for each document to update, marking them in_progress as you work
-```
-
-### Phase 3: Parse Arguments
-
-1. Extract update mode from `$ARGUMENTS`
-2. Modes:
-   - No args or `all` -> Update all relevant docs
-   - `<doc-name>` -> Update specific doc (e.g., `architecture`)
-   - `category:<name>` -> Update category (e.g., `category:data`)
-3. Default: Update all
-
-### Phase 4: Determine Update Scope and Analyze
-
-**For "all" mode**: Analyze entire project, identify all relevant documentation types, update everything that exists or should exist.
-
-**For specific doc mode**: Validate doc name, find the corresponding file, update only that document.
-
-**For category mode**: Parse category name (`core`, `data`, `infrastructure`, `development`), identify all docs in that category, update all.
-
-### Phase 5: Check Documentation Freshness
-
-```bash
-# For each doc, compare with related code changes
-!`git log --since="$(git log -1 --format=%ai docs/architecture.md)" --oneline --name-only | head -30`
-```
-
-Identify which docs are outdated and prioritize updates.
-
-### Phase 6: Parallel Updates (Use SubAgents)
-
-For multiple document updates, see [references/update-strategies.md](references/update-strategies.md) for parallel subagent patterns.
-
-#### For Multiple Documents ("all" or "category" mode)
-
-```
-Use Task tool with multiple parallel agents:
-
-Agent 1 - Architecture Update:
-- prompt: "Update docs/architecture.md. Explore codebase, verify claims, remove false info, add missing components."
-- subagent_type: "general-purpose"
-
-Agent 2 - Data Model Update:
-- prompt: "Update docs/data-model.md. Find actual models, verify ER diagram accuracy."
-- subagent_type: "general-purpose"
-
-Agent 3 - Onboarding Update:
-- prompt: "Update docs/onboarding.md. Verify setup instructions and commands exist."
-- subagent_type: "general-purpose"
-```
-
-#### For Single Document (Section-Level Parallelization)
-
-Even when updating ONE document, spawn subagents for each major section. See [references/update-strategies.md](references/update-strategies.md) for section-level patterns.
-
-### Phase 7: Update Each Document
-
-- Re-analyze relevant parts of codebase
-- **Verify each claim before writing** - Read actual files
-- Regenerate diagrams if needed
-- Update content while preserving custom sections
-- Replace placeholders with current values
-- **Remove claims that cannot be verified**
-
-### Phase 8: Post-Update Verification
-
-After updating, verify the updates are accurate:
-```
-For each updated document:
-1. Re-read the document
-2. For each major claim, verify against actual code
-3. If any claim cannot be verified, remove it
-4. Run /docs-check to validate
-```
-
-### Phase 9: Preserve Custom Content (Important)
-
-- Keep manually added sections
-- Preserve non-template content
-- Only update auto-generated parts
-- If unsure, ask before overwriting
-
-### Phase 10: Report Results
-
-- List documents updated
-- List documents skipped (up to date)
-- List documents created (if missing)
-- Show summary of changes
+- [references/update-strategies.md](references/update-strategies.md) — parallel subagent pattern, per-document-type checklist, category-update output format
+- [references/change-detection.md](references/change-detection.md) — fallback change-detection commands when git history is unavailable

@@ -43,14 +43,14 @@ def organize_by_category(
 
     Returns:
         Dict structure: {category: {subcategory: [items]}}
-        Example: {'commands': {'docs': [item1, item2], 'git': [item3]}}
+        Example: {'skills': {'docs-adr': [item1, item2], 'git-commit': [item3]}}
     """
     organized: dict[str, dict[str, list[InstallationItem]]] = defaultdict(
         lambda: defaultdict(list)
     )
 
     for item in items:
-        # Extract subcategory from path (e.g., "commands/docs/adr.md" -> "docs")
+        # Extract subcategory from path (e.g., "skills/docs-adr/SKILL.md" -> "docs-adr")
         parts = Path(item.name).parts
         if len(parts) > 1:
             subcategory = parts[0]
@@ -211,7 +211,9 @@ def main(dry_run: bool) -> None:
     # Handle conflicts
     conflict_manager = ConflictManager(config)
     conflicts = conflict_manager.analyze_conflicts(selected_items)
-    resolutions = conflict_manager.resolve_conflicts(conflicts)
+    resolutions = conflict_manager.resolve_conflicts_interactive(
+        conflicts['existing_files']
+    )
 
     # Install selected components
     console.print('\n🚀 Installing selected components...')

@@ -7,15 +7,15 @@
   },
   "metadata": {
     "description": "Claude Code Arsenal - Professional skills for development workflows",
-    "version": "3.3.0"
+    "version": "5.0.0"
   },
   "plugins": [
     {
       "name": "cc-arsenal",
       "source": "./",
       "strict": true,
-      "description": "Complete toolkit: all 39 skills covering development, documentation, git, github, jira, code review, testing, refactoring, CI/CD, image generation, framework documentation injection, skill creation, and more",
-      "version": "3.3.0",
+      "description": "Complete toolkit: all 45 skills covering development, documentation, git, github, jira, code review, testing, refactoring, CI/CD, image generation, framework documentation injection, multi-agent orchestration, open-source launch prep, skill creation and improvement, and more",
+      "version": "5.0.0",
       "author": {
         "name": "Giovani Moutinho",
         "email": "e@giovani.dev",
@@ -31,8 +31,8 @@
       "name": "cc-arsenal-dev",
       "source": "./",
       "strict": false,
-      "description": "Development skills: feature implementation, bug fixing, code review, testing, refactoring, security review, dependency audit, CI/CD generation, performance analysis, framework documentation injection (Next.js/FastAPI), image generation (Nano Banana/Gemini), and project planning",
-      "version": "3.3.0",
+      "description": "Development skills: feature implementation, bug fixing, testing, refactoring, CI/CD generation, framework documentation injection, project planning, image generation (Nano Banana/Gemini and Codex imagegen), database migrations, Docker setup, environment setup, visual regression checks, i18n checks, release shipping, and open-source launch prep",
+      "version": "5.0.0",
       "author": {
         "name": "Giovani Moutinho",
         "email": "e@giovani.dev",
@@ -41,23 +41,50 @@
       "homepage": "https://github.com/mgiovani/cc-arsenal",
       "repository": "https://github.com/mgiovani/cc-arsenal",
       "license": "MIT",
-      "keywords": ["development", "feature", "implementation", "subagents", "security", "debugging"],
+      "keywords": ["development", "feature", "implementation", "subagents", "testing", "refactoring", "ci-cd"],
       "category": "development",
       "skills": [
         "./skills/implement-feature/",
         "./skills/fix-bug/",
         "./skills/test-suite/",
         "./skills/refactor/",
+        "./skills/ci-generate/",
+        "./skills/ci-local/",
+        "./skills/inject-docs/",
+        "./skills/project-planner/",
+        "./skills/nanobanana/",
+        "./skills/db-migrate/",
+        "./skills/docker-init/",
+        "./skills/env-setup/",
+        "./skills/vrt-check/",
+        "./skills/i18n-check/",
+        "./skills/ship/",
+        "./skills/codex-imagegen/",
+        "./skills/oss-launch/"
+      ]
+    },
+    {
+      "name": "cc-arsenal-review",
+      "source": "./",
+      "strict": false,
+      "description": "Code review and quality skills: code review, security review, dependency audit, and performance analysis",
+      "version": "5.0.0",
+      "author": {
+        "name": "Giovani Moutinho",
+        "email": "e@giovani.dev",
+        "url": "https://github.com/mgiovani/cc-arsenal"
+      },
+      "homepage": "https://github.com/mgiovani/cc-arsenal",
+      "repository": "https://github.com/mgiovani/cc-arsenal",
+      "license": "MIT",
+      "keywords": ["code-review", "security", "performance", "dependencies", "quality", "audit"],
+      "category": "development",
+      "skills": [
         "./skills/review-code/",
         "./skills/review-security/",
         "./skills/review-deps/",
         "./skills/review-perf/",
-        "./skills/review-design/",
-        "./skills/ci-generate/",
-        "./skills/inject-docs/",
-        "./skills/inject-nextjs-docs/",
-        "./skills/project-planner/",
-        "./skills/nanobanana/"
+        "./skills/review-design/"
       ]
     },
     {
@@ -65,7 +92,7 @@
       "source": "./",
       "strict": false,
       "description": "Documentation skills: ADR, RFC, diagrams, init, check, and update",
-      "version": "3.3.0",
+      "version": "5.0.0",
       "author": {
         "name": "Giovani Moutinho",
         "email": "e@giovani.dev",
@@ -89,8 +116,8 @@
       "name": "cc-arsenal-git",
       "source": "./",
       "strict": false,
-      "description": "Git and GitHub workflow skills: conventional commits, PR creation, release management, and GitHub Issues daily planner",
-      "version": "3.3.0",
+      "description": "Git and GitHub workflow skills: conventional commits, PR creation, release management, gitflow branching, GitHub Issues daily planner, and branch syncing",
+      "version": "5.0.0",
       "author": {
         "name": "Giovani Moutinho",
         "email": "e@giovani.dev",
@@ -106,15 +133,16 @@
         "./skills/git-create-pr/",
         "./skills/git-release/",
         "./skills/gitflow/",
-        "./skills/gh-daily/"
+        "./skills/gh-daily/",
+        "./skills/git-sync/"
       ]
     },
     {
-      "name": "cc-arsenal-skills",
+      "name": "cc-arsenal-jira",
       "source": "./",
       "strict": false,
-      "description": "Specialty skills: Browser automation (agent-browser), Jira CLI, specification-driven skill creation with eval system and description optimization (create-skill v2.0), and third-party skill discovery (find-skills)",
-      "version": "3.3.0",
+      "description": "Jira standup reports, daily planning, and CLI integration",
+      "version": "5.0.0",
       "author": {
         "name": "Giovani Moutinho",
         "email": "e@giovani.dev",
@@ -123,13 +151,37 @@
       "homepage": "https://github.com/mgiovani/cc-arsenal",
       "repository": "https://github.com/mgiovani/cc-arsenal",
       "license": "MIT",
-      "keywords": ["skills", "jira", "skill-creator", "browser-automation", "agent-browser", "productivity"],
+      "keywords": ["jira", "standup", "planning", "cli", "productivity"],
+      "category": "productivity",
+      "skills": [
+        "./skills/jira-cli/",
+        "./skills/jira-daily/",
+        "./skills/jira-todo/"
+      ]
+    },
+    {
+      "name": "cc-arsenal-skills",
+      "source": "./",
+      "strict": false,
+      "description": "Specialty skills: Browser automation (agent-browser), third-party skill discovery (find-skills), specification-driven skill creation with eval system and description optimization (create-skill v2.0), CLAUDE.md rule creation (create-rule), evidence-based improvement of existing skills (improve-skill), and model-tiered multi-agent orchestration (orchestrate)",
+      "version": "5.0.0",
+      "author": {
+        "name": "Giovani Moutinho",
+        "email": "e@giovani.dev",
+        "url": "https://github.com/mgiovani/cc-arsenal"
+      },
+      "homepage": "https://github.com/mgiovani/cc-arsenal",
+      "repository": "https://github.com/mgiovani/cc-arsenal",
+      "license": "MIT",
+      "keywords": ["skills", "skill-creator", "browser-automation", "agent-browser", "productivity"],
       "category": "productivity",
       "skills": [
         "./skills/agent-browser/",
         "./skills/find-skills/",
-        "./skills/jira-cli/",
-        "./skills/create-skill/"
+        "./skills/create-skill/",
+        "./skills/create-rule/",
+        "./skills/improve-skill/",
+        "./skills/orchestrate/"
       ]
     },
     {
@@ -137,7 +189,7 @@
       "source": "./",
       "strict": false,
       "description": "Team orchestration skills: spec-driven development team (team-implement) and multi-agent PR review team (team-review)",
-      "version": "3.3.0",
+      "version": "5.0.0",
       "author": {
         "name": "Giovani Moutinho",
         "email": "e@giovani.dev",
@@ -151,30 +203,6 @@
       "skills": [
         "./skills/team-implement/",
         "./skills/team-review/"
-      ]
-    },
-    {
-      "name": "cc-arsenal-review",
-      "source": "./",
-      "strict": false,
-      "description": "Code review and quality skills: code review, security review, dependency audit, and performance analysis",
-      "version": "3.3.0",
-      "author": {
-        "name": "Giovani Moutinho",
-        "email": "e@giovani.dev",
-        "url": "https://github.com/mgiovani/cc-arsenal"
-      },
-      "homepage": "https://github.com/mgiovani/cc-arsenal",
-      "repository": "https://github.com/mgiovani/cc-arsenal",
-      "license": "MIT",
-      "keywords": ["code-review", "security", "performance", "dependencies", "quality", "audit"],
-      "category": "development",
-      "skills": [
-        "./skills/review-code/",
-        "./skills/review-security/",
-        "./skills/review-deps/",
-        "./skills/review-perf/",
-        "./skills/review-design/"
       ]
     }
   ]

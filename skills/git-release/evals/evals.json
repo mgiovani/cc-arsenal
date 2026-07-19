@@ -1,0 +1,69 @@
+{
+  "skill": "git-release",
+  "evals": [
+    {
+      "id": "auto-detect-minor-release",
+      "prompt": "/git-release We've merged several feat and fix commits since v1.2.3, cut a new release",
+      "assertions": [
+        "Collects commits since the last tag (v1.2.3) via git log/git describe rather than assuming a version",
+        "Parses conventional commit types to auto-detect the version bump (minor, since feat commits are present), with reported counts matching the actually parsed commits rather than an invented number",
+        "Displays a release summary (version, tag, commits, changelog preview) and waits for explicit user approval before executing Phase 5 — the approval prompt offers Proceed/Change version/Abort, not a separate dry-run option",
+        "Changelog entries are grouped by type (Features, Bug Fixes, etc.) with only non-empty sections included, and CHANGELOG.md is written exactly once, not once during changelog generation and again during execution",
+        "After writing CHANGELOG.md, re-reads or greps the file to confirm the new version heading and at least one non-empty section with real bullet entries are actually present on disk before creating the release commit — the committed CHANGELOG.md (not just the transcript's narration) contains real entries for the commits, never empty sections under a populated-looking narration",
+        "If the run proceeds through GitHub release creation, writes release notes to a freshly generated unique temp file (e.g. via mktemp) rather than a fixed timestamp-based /tmp path",
+        "Does not push, create the tag, or create the GitHub release before the user approves"
+      ]
+    },
+    {
+      "id": "changelog-only-mode",
+      "prompt": "/git-release --changelog-only just update the CHANGELOG, don't tag or publish anything yet",
+      "assertions": [
+        "Runs commit collection and version-bump detection (Phases 1-2) before writing anything",
+        "Writes the generated changelog entry into CHANGELOG.md, preserving existing content and inserting after the '# Changelog' header",
+        "Re-reads the written CHANGELOG.md to confirm the new version heading and at least one non-empty section exist before reporting success — aborts with a clear message instead of reporting completion if the on-disk file has empty sections",
+        "Does not create a git tag, version bump commit, or GitHub release",
+        "Reports completion referencing only the changelog update, not a full release"
+      ]
+    },
+    {
+      "id": "dirty-tree-abort",
+      "prompt": "/git-release --major the working tree currently has uncommitted changes, go ahead and cut the release anyway",
+      "assertions": [
+        "Checks working tree cleanliness via git status --porcelain before doing anything else",
+        "Detects the dirty tree and aborts with a clear message asking the user to commit or stash changes first",
+        "Does not stash, commit, or discard the uncommitted changes on the user's behalf",
+        "No mutating command runs after the abort — no version file edit, no CHANGELOG.md write, no commit, no tag, no push, no GitHub release"
+      ]
+    },
+    {
+      "id": "existing-tag-collision-clean-tree",
+      "prompt": "/git-release cut a release from the current commit history — the working tree is clean, but heads up the tag for the version this would produce already exists in this repo",
+      "assertions": [
+        "Confirms the working tree is clean (git status --porcelain shows no changes) before computing the version",
+        "Computes the target version/tag from the auto-detected bump and detects that this tag already exists in the repo",
+        "Aborts and suggests a force flag or a different version rather than overwriting the existing tag",
+        "No commit, tag creation, push, or GitHub release occurs after the collision is detected"
+      ]
+    },
+    {
+      "id": "major-override-clean-tree",
+      "prompt": "/git-release --major do a major release right now — the working tree is clean, and you can proceed straight through once you've shown me the release summary, no need to ask again",
+      "assertions": [
+        "Confirms the working tree is clean before proceeding",
+        "Forces a major version bump per --major regardless of the auto-detected commit types (the commits alone, e.g. only feat/fix, would not otherwise justify a major bump)",
+        "Displays the release summary (version, tag, commits, changelog preview) before Phase 5 executes anything",
+        "Creates the release commit and annotated tag matching the forced major version, without ever passing --no-verify to skip git hooks"
+      ]
+    },
+    {
+      "id": "dry-run-is-sole-preview-path",
+      "prompt": "/git-release --dry-run show me what the next release would look like without changing anything",
+      "assertions": [
+        "Runs Phases 1-3 (collect commits, detect bump, build changelog entry) and displays the full release summary including version, tag, commits, and changelog preview",
+        "Stops immediately after displaying the summary because --dry-run was passed — does not separately ask the user to choose a 'dry run' option from an approval menu",
+        "Makes no filesystem or git changes: no version file edits, no CHANGELOG.md write, no commit, no tag, no push, no GitHub release",
+        "Does not require or wait for further user confirmation once the dry-run summary is shown"
+      ]
+    }
+  ]
+}

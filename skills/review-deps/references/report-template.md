@@ -11,20 +11,11 @@ Use this template when generating the dependency report in Phase 5.
 **Date**: [YYYY-MM-DD]
 **Package Managers**: [npm, pip, cargo, ...]
 **Total Dependencies**: [N direct + N transitive]
-**Health Score**: [0-100]
+**Critical Issues Found**: [Yes — N critical / No]
 
 ## Executive Summary
 
 [2-3 sentence overview of dependency health posture, critical issues, and recommended priority actions]
-
-## Health Score Breakdown
-
-| Dimension | Score | Weight | Details |
-|-----------|-------|--------|---------|
-| Vulnerabilities | N/100 | 40% | N critical, N high, N medium, N low |
-| License Compliance | N/100 | 30% | N risks identified |
-| Freshness | N/100 | 30% | N packages stale, N deprecated |
-| **Overall** | **N/100** | | |
 
 ## Severity Summary
 
@@ -189,38 +180,3 @@ Based on this analysis, consider adding:
 
 **Next Steps**: Apply immediate patches, plan short-term upgrades, and configure automated dependency monitoring.
 ```
-
-## Health Score Calculation
-
-The health score (0-100) is calculated as a weighted composite:
-
-- **Vulnerability Score (40% weight)**:
-  - Start at 100
-  - Deduct 25 per critical vulnerability
-  - Deduct 15 per high vulnerability
-  - Deduct 5 per medium vulnerability
-  - Deduct 1 per low vulnerability
-  - Floor at 0
-
-- **License Score (30% weight)**:
-  - Start at 100
-  - Deduct 30 per critical license risk
-  - Deduct 15 per high license risk
-  - Deduct 5 per medium license risk
-  - Floor at 0
-
-- **Freshness Score (30% weight)**:
-  - Start at 100
-  - Deduct 20 per critically stale package
-  - Deduct 10 per highly stale package
-  - Deduct 3 per moderately stale package
-  - Floor at 0
-
-**Overall = (Vuln × 0.4) + (License × 0.3) + (Freshness × 0.3)**
-
-Score ranges:
-- 90-100: Excellent — dependencies are well-maintained
-- 70-89: Good — minor issues to address
-- 50-69: Fair — several issues need attention
-- 30-49: Poor — significant risks present
-- 0-29: Critical — immediate action required

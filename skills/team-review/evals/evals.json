@@ -1,0 +1,51 @@
+{
+  "skill": "team-review",
+  "evals": [
+    {
+      "id": "payments-auth-pr-full-mode-real-primitives",
+      "prompt": "/team-review 482 — this PR touches our payment processing and adds a new auth middleware, want a thorough review before we merge",
+      "assertions": [
+        "Ingests the PR via gh pr view/gh pr diff (or equivalent) rather than guessing at the changes",
+        "Runs a Phase 1 project discovery step before spawning reviewers",
+        "Given the security-sensitive scope (payments, auth), selects full mode (7 reviewers) without asking, per the plain triggers in the skill",
+        "Spawns reviewers as named agents via the Task tool and never references a 'Teammate' tool, 'spawnTeam' operation, or a shutdown_request/shutdown_response handshake",
+        "The adversary reviewer's output explicitly engages with (agrees, disagrees, or adjusts) at least one other reviewer's finding rather than only listing independent findings",
+        "Produces a single consolidated report with severity-classified findings (Critical/Major/Minor/Nit), each grounded in a real file:line the reviewer read",
+        "Does not edit any code, run tests, or commit changes"
+      ]
+    },
+    {
+      "id": "ambiguous-scope-asks-before-choosing-mode",
+      "prompt": "/team-review 91 — small PR, 3 files, but one of them touches the login token refresh logic",
+      "assertions": [
+        "Recognizes the signals are mixed (small file count but touches auth) rather than silently defaulting to either mode",
+        "Uses AskUserQuestion (or states it would, if AskUserQuestion is unavailable) to ask the user to choose full vs lite mode instead of guessing",
+        "The question presents both options with their real tradeoff (agent count / cost vs thoroughness), not a vague yes/no",
+        "Does not spawn any reviewer agents, run gh/git ingestion for a full review, or produce a findings report before the mode question is resolved",
+        "Does not fabricate or assume a scoring formula (no point totals) — reasoning is stated in the plain-language trigger terms from the skill, not arithmetic"
+      ]
+    },
+    {
+      "id": "no-subagent-tools-sequential-checklist",
+      "prompt": "/team-review 200 — please review this PR, but Task/subagent tools aren't available in this environment right now",
+      "assertions": [
+        "Does not attempt to spawn Task subagents or named agents given the stated constraint",
+        "Follows the sequential fallback: reads the files in scope itself and works through the checklist dimensions (architecture, security, performance, testing, style, docs/UX) one after another as the lead",
+        "Performs an explicit self-adversary pass over its own findings (checks for false positives / blind spots) rather than skipping straight to the report",
+        "Still produces findings grounded in file:line references from files actually read, with severity levels (Critical/Major/Minor/Nit)",
+        "Does not claim to have run 7 parallel agents or reference SendMessage/TaskStop calls that were never made"
+      ]
+    },
+    {
+      "id": "nonexistent-pr-aborts-without-spinning-up-reviewers",
+      "prompt": "/team-review 99999 — review this PR before we merge (this PR number does not exist in the repo)",
+      "assertions": [
+        "Attempts to ingest the PR (gh pr view/diff or equivalent) and detects that the scope is not readable/does not exist",
+        "Aborts early and reports the scope is invalid rather than fabricating findings against files that were never read",
+        "Does not spawn any reviewer agents (Task calls), run TaskCreate/TaskUpdate for reviewer assignments, or attempt project discovery for a scope that was never confirmed to exist",
+        "Does not run any mutating command (no git checkout/reset, no file edits, no commits)",
+        "Final message clearly states the PR/commit could not be found and asks the user to confirm the correct number, rather than silently reviewing something else (e.g. --all) as a substitute"
+      ]
+    }
+  ]
+}

@@ -1,285 +1,156 @@
 ---
 name: jira-daily
-description: Generate smart standup reports from Jira activity and git history. This
-  skill should be used when users want to prepare for daily standups, generate activity
-  reports, or summarize recent work across Jira tickets and git commits.
+description: Generate a standup report from recent Jira activity and git history —
+  completed tickets, in-progress work, blockers, and commit correlation. Use when
+  the user wants to prepare for a daily standup, asks "what did I do yesterday",
+  or wants a Jira/git activity summary in brief, slack, or manager format. Use
+  jira-todo instead for forward-looking "what should I work on" planning. Not for
+  GitHub-only standups (use gh-daily) — jira-daily is Jira-only and never queries
+  GitHub issues or PRs.
 metadata:
   author: mgiovani
-  version: 1.0.0
-  source: https://github.com/mgiovani/skills
+  version: 1.1.0
 disable-model-invocation: true
 argument-hint: '[--project <KEY>] [--since <date>] [--format <format>]'
-allowed-tools: Bash(jira *), Bash(git *), Bash(cat *), Bash(date *), Read, Task, TodoWrite
+allowed-tools: Bash(jira *), Bash(git *), Bash(cat *), Bash(date *), Read, TodoWrite
 context: fork
 agent: general-purpose
 ---
 
-# Jira Daily
-
-> **Cross-Platform AI Agent Skill**
-> This skill works with any AI agent platform that supports the skills.sh standard.
-
 # Jira Daily - Standup Meeting Preparation
 
-Smart standup report generator that analyzes work activity and provides structured updates for daily meetings. This skill complements the **jira-cli** skill, which provides general Jira CLI knowledge and command reference.
+Generates a structured standup update from real Jira and git activity. Complements
+**jira-cli** (general Jira command reference) and **jira-todo** (forward-looking
+planning — this skill looks backward at what was actually done).
 
 ## Anti-Hallucination Guidelines
 
-**CRITICAL**: Standup reports must reflect ACTUAL work done:
-1. **Only list real tickets** - Every ticket must come from jira CLI output
-2. **Verify completion** - Only mark as "Completed" if status is Done/Closed/Released
-3. **Real commit counts** - Use actual git log output, never estimate
-4. **Actual blockers** - Only mention blockers explicitly in Jira or discussed
-5. **True metrics** - Story points and progress from actual sprint data
+A standup report is only useful if every line traces back to a real query result:
 
-## Project Key Detection
+1. Only list tickets that came from actual `jira` CLI output.
+2. Only mark a ticket "Completed" if its status is Done/Closed/Released.
+3. Use real git log commit counts, never estimate.
+4. Only mention blockers explicitly labeled or discussed in Jira.
+5. Only include a report section if Phase 3 actually gathered data for it. Never
+   fill a section with placeholder text like "[List any risks]" or invented
+   numbers (story points, lines changed, coverage %) — omit the section or field
+   entirely instead. If a template field (Next steps, due date) isn't stated in
+   the ticket's own description/comments/due-date field, leave it out rather than
+   guessing.
+
+## Workflow
 
 ### Phase 1: Determine Project Key
 
-Get the project key from (in order of priority):
-1. **Command argument**: `--project ABC` or `-p ABC`
-2. **Jira CLI config**: Read from `~/.config/.jira/.config.yml`
+Priority order:
+1. Command argument: `--project ABC` or `-p ABC`
+2. Jira CLI config: read from `~/.config/.jira/.config.yml`
 
 ```bash
-# Try to get project key from jira CLI config
 PROJECT_KEY=$(cat ~/.config/.jira/.config.yml 2>/dev/null | grep -A1 "^project:" | grep "key:" | awk '{print $2}')
 echo "Detected project: $PROJECT_KEY"
-If no project key found, ask the user to specify with `--project <KEY>`.
+```
 
-## Workflow
+If no project key is found, ask the user to specify `--project <KEY>` rather than
+guessing one from repo name or branch.
 
 ### Phase 2: Calculate Date Range
 
 ```bash
-# Calculate since date (yesterday, or Friday if today is Monday)
+# Report since yesterday, or since Friday if today is Monday
 if [[ $(date +%u) == 1 ]]; then
- # Monday - report from Friday
- SINCE_DATE=$(date -v-3d +%Y-%m-%d 2>/dev/null || date -d "3 days ago" +%Y-%m-%d)
+  SINCE_DATE=$(date -v-3d +%Y-%m-%d 2>/dev/null || date -d "3 days ago" +%Y-%m-%d)
 else
- # Other days - report from yesterday
- SINCE_DATE=$(date -v-1d +%Y-%m-%d 2>/dev/null || date -d "yesterday" +%Y-%m-%d)
+  SINCE_DATE=$(date -v-1d +%Y-%m-%d 2>/dev/null || date -d "yesterday" +%Y-%m-%d)
 fi
 echo "Reporting since: $SINCE_DATE"
+```
+
+`--since <date>` overrides `$SINCE_DATE` directly.
+
 ### Phase 3: Gather Activity Data
 
+Every field that ends up in the report has to come from one of these commands —
+if a template field in Phase 5 isn't backed by output here, cut the field, not
+the discipline.
+
 ```bash
-# Get tickets updated recently
+# Tickets updated recently
 jira issue list --updated -1d --plain --columns key,summary,status,priority,type
 
-# Get tickets moved to done/completed
-jira issue list --jql "status changed to (Done, Released, Closed) after -1d AND assignee was currentUser" --plain
+# Tickets moved to done/completed (also gives the type breakdown for Completed)
+jira issue list --jql "status changed to (Done, Released, Closed) after -1d AND assignee was currentUser()" --plain --columns key,summary,status,priority,type
 
-# Get tickets currently in progress
-jira issue list --assignee $(jira me) --status "In Progress" "Code Review" "In Review" --plain
+# Tickets currently in progress
+jira issue list --assignee $(jira me) --status "In Progress" "Code Review" "In Review" --plain --columns key,summary,status,priority,type,duedate
 
-# Check for blockers
+# Blockers
 jira issue list --assignee $(jira me) --jql "labels = 'blocked' OR description ~ 'blocked'" --plain
 
-# Get git activity
+# Git activity (for commit-correlation, not for a lines-changed or coverage metric)
 git log --author="$(git config user.email)" --since="$SINCE_DATE" --oneline --all --no-merges
-
-# Count commits and files
 git rev-list --count --since="$SINCE_DATE" --author="$(git config user.email)" --all 2>/dev/null || echo "0"
-### Phase 4: Analyze with SubAgents (For Comprehensive Reports)
-
-For detailed format, use parallel analysis:
-
 ```
-Agent 1 - Work Classification:
-- prompt: "Classify these Jira tickets into: Completed, In Progress, Blocked, Started. Base ONLY on actual status field. Return categorized list."
-- agent-type: "general-purpose"
 
-Agent 2 - Impact Analysis:
-- prompt: "For completed tickets, summarize the business/technical impact based on ticket description and type. Keep it factual."
-- agent-type: "general-purpose"
+### Phase 4: Classify and Correlate
 
-Agent 3 - Git Correlation:
-- prompt: "Match git commits to Jira tickets by ticket ID in commit messages. Report which tickets have code changes."
-- agent-type: "Explore"
+Do this inline — a standup's ticket count is small enough that spinning up
+subagents just adds latency for no benefit:
+1. Bucket each ticket into Completed / In Progress / Blocked / Started, based only
+   on its actual status field.
+2. Match git commit messages against each ticket ID (e.g. `ABC-1234` appearing in
+   the subject line) to get a real commit count per ticket — this is the only
+   code-activity signal available; jira-daily has no PR data, so never print a
+   `PR: #1234 (merged)` line, there's nothing in Phase 3 that could back it.
+3. For completed tickets, note business/technical impact from the ticket
+   description — keep it factual, not speculative.
+
 ### Phase 5: Generate Report
 
-Track sections completed with TodoWrite.
+Track sections completed with TodoWrite, then render using the requested format.
+Every section is conditional on Phase 3/4 actually producing matching data — a
+report with no blockers has no Blockers section.
 
 ## Output Formats
 
-For detailed output format templates (default, brief, slack, manager), see [references/output-formats.md](references/output-formats.md).
+For detailed templates (default, brief, slack, manager), see
+[references/output-formats.md](references/output-formats.md) (load when
+rendering the final report).
 
-**Available formats:**
-- **Default (Detailed)**: Full report with completed work, in-progress items, blockers, sprint progress, technical highlights, metrics, and schedule
-- **Brief** (`--format brief`): Concise one-line-per-section format for quick standups
-- **Slack** (`--format slack`): Formatted for Slack/Teams posting with markdown
-- **Manager** (`--format manager`): Executive summary focusing on delivery highlights and risks
+- **Default (Detailed)**: completed work, in-progress items, blockers, ticket
+  summary
+- **Brief** (`--format brief`): one line per section, for quick standups
+- **Slack** (`--format slack`): markdown formatted for Slack/Teams posting
+- **Manager** (`--format manager`): executive summary of delivery highlights and
+  risks
 
 ## Command Options
 
-### `--project <KEY>` or `-p <KEY>`
-Specify the Jira project key explicitly.
-
-### `--since <date>`
-Override the automatic date calculation.
-```bash
-jira-daily --since 2025-01-20
-### `--format <format>`
-Choose output format for different audiences.
-```bash
-jira-daily --format brief # Concise version for quick standups
-jira-daily --format detailed # Full version with technical details (default)
-jira-daily --format slack # Formatted for Slack/Teams posting
-jira-daily --format manager # Executive summary format
-### `--include-planned`
-Include tickets planned for today (not just completed/in-progress).
-
-## Smart Features
-
-### Context Awareness
-- Detect Monday condition and report from last Friday
-- Identify sprint boundaries and adjust progress tracking
-- Recognize critical/blocking tickets and highlight urgency
-- Correlate git commits with Jira ticket references
-
-### Progress Intelligence
-- Calculate sprint velocity and burndown trends
-- Compare current productivity to historical averages
-- Identify patterns in blocking issues
-- Track code review participation and response times
-
-### Goal Alignment
-- Map completed work to sprint objectives
-- Highlight work that unblocks teammates
-- Identify contributions to team goals
-- Suggest proactive communications
-
-## Integration Points
-
-### With jira-todo Skill
-- Reference yesterday's planned work vs. actual completion
-- Update priority recommendations based on standup outcomes
-
-### With jira-cli Skill
-- Use jira-cli for detailed command syntax and flag reference
-- Refer to jira-cli workflows for sprint and epic management patterns
-
-### With Development Tools
-- Parse commit messages for automatic work categorization
-- Link git branches to Jira tickets for complete picture
-- Integrate with PR status for review workflow visibility
+- `--project <KEY>` / `-p <KEY>` — Jira project key
+- `--since <date>` — override the automatic date calculation, e.g. `jira-daily --since 2025-01-20`
+- `--format <format>` — `brief` | `detailed` (default) | `slack` | `manager`
+- `--include-planned` — include tickets planned for today, not just completed/in-progress
 
 ## Usage Examples
 
 ```bash
-# Basic usage (auto-detects project, yesterday's activity)
-jira-daily
-
-# Specify project explicitly
+jira-daily                                          # auto-detect project, yesterday's activity
 jira-daily --project ABC
-
-# Quick standup format
-jira-daily --format brief
-
-# For Slack posting
-jira-daily --format slack
-
-# For manager 1:1
-jira-daily --format manager
-
-# Custom date range
+jira-daily --format brief                            # quick standup
+jira-daily --format slack                            # for Slack posting
+jira-daily --format manager                          # for a manager 1:1
 jira-daily --since 2025-01-15
-
-# Weekly summary for manager
-jira-daily --since $(date -v-7d +%Y-%m-%d) --format manager
-## Daily Routine Integration
-
-### Morning Preparation (5 minutes)
-```bash
-jira-daily --format brief
-# Review and adjust for accuracy
-# Copy to standup notes
-### Standup Meeting (2 minutes per person)
-- Read directly from generated report
-- Add context or clarifications as needed
-- Note any team dependencies or offers to help
-
-### Manager 1:1s (weekly)
-```bash
-jira-daily --since $(date -v-7d +%Y-%m-%d) --format manager
-## Quality Checklist
-
-The report ensures the standup covers:
-- [ ] Concrete accomplishments with business impact
-- [ ] Clear current work with time estimates
-- [ ] Specific blockers with escalation plans
-- [ ] Team collaboration and knowledge sharing
-- [ ] Sprint/goal alignment and risk identification
-- [ ] Proactive communication about dependencies
-
-## Important Notes
-
-- **Requires jira-cli**: Install from https://github.com/ankitpokhrel/jira-cli
-- **Config location**: `~/.config/.jira/.config.yml`
-- **Project key**: Auto-detected from config or specify with `--project`
-- **Git integration**: Uses local git repository for commit analysis
-- **Real data only**: All metrics based on actual Jira and git data
-
-## Claude Code Enhanced Features
-
-This skill includes the following Claude Code-specific enhancements:
-
-## Workflow
-
-### Phase 2: Calculate Date Range
-
-```bash
-# Calculate since date (yesterday, or Friday if today is Monday)
-if [[ $(date +%u) == 1 ]]; then
-    # Monday - report from Friday
-    SINCE_DATE=$(date -v-3d +%Y-%m-%d 2>/dev/null || date -d "3 days ago" +%Y-%m-%d)
-else
-    # Other days - report from yesterday
-    SINCE_DATE=$(date -v-1d +%Y-%m-%d 2>/dev/null || date -d "yesterday" +%Y-%m-%d)
-fi
-echo "Reporting since: $SINCE_DATE"
+jira-daily --since $(date -v-7d +%Y-%m-%d) --format manager   # weekly summary
 ```
 
-### Phase 3: Gather Activity Data
+## Integration Points
 
-```bash
-# Get tickets updated recently
-jira issue list --updated -1d --plain --columns key,summary,status,priority,type
+- **jira-todo**: compare yesterday's planned work against actual completion
+- **jira-cli**: use for detailed command syntax and sprint/epic workflows
+- **gh-daily**: use instead when the work lives in GitHub Issues/PRs, not Jira
 
-# Get tickets moved to done/completed
-jira issue list --jql "status changed to (Done, Released, Closed) after -1d AND assignee was currentUser()" --plain
+## Requirements
 
-# Get tickets currently in progress
-jira issue list --assignee $(jira me) --status "In Progress" "Code Review" "In Review" --plain
-
-# Check for blockers
-jira issue list --assignee $(jira me) --jql "labels = 'blocked' OR description ~ 'blocked'" --plain
-
-# Get git activity
-git log --author="$(git config user.email)" --since="$SINCE_DATE" --oneline --all --no-merges
-
-# Count commits and files
-git rev-list --count --since="$SINCE_DATE" --author="$(git config user.email)" --all 2>/dev/null || echo "0"
-```
-
-### Phase 4: Analyze with SubAgents (For Comprehensive Reports)
-
-For detailed format, use parallel analysis:
-
-```
-Agent 1 - Work Classification:
-- prompt: "Classify these Jira tickets into: Completed, In Progress, Blocked, Started. Base ONLY on actual status field. Return categorized list."
-- subagent_type: "general-purpose"
-
-Agent 2 - Impact Analysis:
-- prompt: "For completed tickets, summarize the business/technical impact based on ticket description and type. Keep it factual."
-- subagent_type: "general-purpose"
-
-Agent 3 - Git Correlation:
-- prompt: "Match git commits to Jira tickets by ticket ID in commit messages. Report which tickets have code changes."
-- subagent_type: "Explore"
-```
-
-### Phase 5: Generate Report
-
-Track sections completed with TodoWrite.
+- `jira-cli` installed: https://github.com/ankitpokhrel/jira-cli
+- Config at `~/.config/.jira/.config.yml`
+- A local git repository for commit correlation

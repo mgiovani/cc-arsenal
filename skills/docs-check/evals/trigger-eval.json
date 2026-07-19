@@ -1,0 +1,22 @@
+[
+  {"query": "can you check if our docs are stale compared to the code", "should_trigger": true},
+  {"query": "audit documentation in docs/ and tell me what's out of date", "should_trigger": true},
+  {"query": "does docs/architecture.md still match the actual services we have?", "should_trigger": true},
+  {"query": "find hallucinations in our README, like made-up file references", "should_trigger": true},
+  {"query": "run a docs health check before we onboard the new hires", "should_trigger": true},
+  {"query": "is the ER diagram in data-model.md still accurate?", "should_trigger": true},
+  {"query": "we're about to release, can you flag any broken links or stale sections in the docs", "should_trigger": true},
+  {"query": "the README claims 5 microservices, is that still true?", "should_trigger": true},
+  {"query": "check docs quality, focus on core", "should_trigger": true},
+  {"query": "our onboarding doc might be out of sync with the codebase, verify it", "should_trigger": true},
+  {"query": "update the architecture doc to match the new microservices split", "should_trigger": false},
+  {"query": "regenerate the ER diagram for data-model.md", "should_trigger": false},
+  {"query": "write an ADR for switching to event sourcing", "should_trigger": false},
+  {"query": "create the initial docs/ structure for this new project", "should_trigger": false},
+  {"query": "review this PR for correctness and style before I merge", "should_trigger": false},
+  {"query": "do a security review of the auth module", "should_trigger": false},
+  {"query": "draft an RFC proposing we move to a monorepo", "should_trigger": false},
+  {"query": "sync the README with the current package.json dependencies", "should_trigger": false},
+  {"query": "generate a Mermaid diagram of the service architecture", "should_trigger": false},
+  {"query": "fix the broken links you found in the docs last time", "should_trigger": false}
+]

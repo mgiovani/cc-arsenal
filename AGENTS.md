@@ -1,172 +1,138 @@
 # AGENTS.md
 
-This file provides guidance to Codex (Codex.ai/code) when working with code in this repository.
+This is the canonical, tool-agnostic guidance file for **cc-arsenal** — read natively by Codex, Cursor, Copilot, Gemini CLI, OpenCode, and any other AGENTS.md-aware tool. Claude Code does not read this file directly; `CLAUDE.md` imports it via `@AGENTS.md` and adds Claude-Code-only content on top.
 
 ## Repository Architecture
 
-This is the **Codex Arsenal** - a professional collection of skills for development workflow automation. All components are now **skills** (migrated from the legacy commands format in v2.0.0).
+cc-arsenal is a collection of **45 Agent Skills** ([agentskills.io](https://agentskills.io) open standard) for development workflow automation. `skills/` is the single canonical tier — every skill lives there once, written tool-neutral, and any tool that speaks the Agent Skills format can load it directly.
 
 ### Core Components
 
-- **Skills** (`skills/`): 22 skills covering development, documentation, git, jira, Codex utilities, browser automation, project planning, and skill discovery
-- **Scripts** (`scripts/`): Professional Python utilities for installation, configuration, and code generation
-- **Commands** (`commands/`): Legacy commands kept for backward compatibility (skills take precedence)
+- **Skills** (`skills/`): 45 skills covering development, code review, documentation, git/GitHub, jira, teams, browser automation, project planning, multi-agent orchestration, open-source launch prep, and skill discovery/creation/improvement
+- **Scripts** (`scripts/`): Python utilities for installation, configuration, and code generation (Claude-Code-specific; see `CLAUDE.md`)
 
-## Installation
-
-### Plugin System (Recommended)
-
-This is the primary installation method for all users. Register this repository as a Codex Plugin marketplace:
-```bash
-/plugin marketplace add mgiovani/cc-arsenal
-```
-
-Then, to install a specific plugin set:
-1. Select **Browse and install plugins**
-2. Select **cc-arsenal-marketplace**
-3. Select one of:
-   - **cc-arsenal** - Complete toolkit (all 22 skills)
-   - **cc-arsenal-dev** - Development skills only (implement-feature, fix-bug, review-security, inject-nextjs-docs, project-planner)
-   - **cc-arsenal-docs** - Documentation skills only (ADR, RFC, diagrams, init, check, update)
-   - **cc-arsenal-git** - Git workflow skills only (commit, create-pr)
-   - **cc-arsenal-skills** - Specialty skills only (agent-browser, jira-cli, create-skill, find-skills)
-   - **cc-arsenal-teams** - Spec-driven team orchestration (team-implement)
-4. Select **Install now**
-
-Alternatively, directly install via:
-```bash
-/plugin install cc-arsenal@cc-arsenal-marketplace
-```
-
-For local development, add a local marketplace instead:
-```bash
-/plugin marketplace add /path/to/cc-arsenal
-```
-
-**Benefits:**
-- Clean, managed installation
-- Automatic updates
-- Easy to enable/disable
-- No system-wide symlinks
-
-**Plugin Variants Pattern:**
-
-This repository uses a "plugin variants" architecture where multiple installation options are provided from a single source repository. All variants point to the same codebase (`"source": "./"`) but expose different subsets of skills:
-
-| Plugin | Skills Loaded | Use Case |
-|--------|--------------|----------|
-| `cc-arsenal` | All 22 skills | Full toolkit for complete workflow automation |
-| `cc-arsenal-dev` | implement-feature, fix-bug, review-security, inject-nextjs-docs, project-planner | Development workflows with subagents |
-| `cc-arsenal-docs` | docs-adr, docs-check, docs-diagram, docs-init, docs-rfc, docs-update | Documentation generation only |
-| `cc-arsenal-git` | git-commit, git-create-pr | Git workflow automation |
-| `cc-arsenal-skills` | agent-browser, jira-cli, create-skill, find-skills | Specialty model-invoked capabilities |
-| `cc-arsenal-teams` | team-implement | Spec-driven team orchestration (experimental) |
-
-**How It Works:**
-- Single repository with all skills in `skills/` directory
-- Marketplace manifest (`.Codex-plugin/marketplace.json`) defines multiple "plugins"
-- Each plugin entry specifies which skills to load via the `skills` field
-- Users install only what they need without duplicating code
-
-**When to Use Each Variant:**
-- **Full installation** (`cc-arsenal`): Development teams wanting complete automation
-- **Selective installation** (variant plugins): Minimalist setups, focused workflows, or avoiding namespace pollution
-- **Custom combinations**: Install multiple variants (e.g., `cc-arsenal-git` + `cc-arsenal-docs`)
-
-**Troubleshooting Plugin Updates:**
-
-If plugin updates from a local marketplace don't show new components:
-```bash
-# Clear the plugin cache to force reload
-rm -rf ~/.Codex/plugins/cache/cc-arsenal-marketplace/
-
-# Then update the plugin in Codex
-/plugin → Update now
-```
-
-This happens when the cache contains an older version and doesn't detect local changes.
-
-### Development Installation (Symlink Method)
-
-**Only use this if you're developing cc-arsenal itself.** Regular users should use the plugin system above.
-
-This method creates symlinks to `~/.Codex/` for immediate file updates during development:
+## Install in any agent
 
 ```bash
-# Install Python dependencies
-uv sync --extra dev
-
-# Install to ~/.Codex directory (creates symlinks)
-uv run python -m scripts.setup.install
-
-# Configure components (optional)
-uv run python -m scripts.setup.configure
-
-# Quick start with preview
-make dry-run
-make install
-make configure
+# Any Agent-Skills-compatible tool (Codex, Cursor, Gemini CLI, OpenCode, ...)
+npx skills add mgiovani/cc-arsenal
 ```
 
-**Benefits:**
-- Immediate file updates (no reinstall needed)
-- Better for development and testing
-- Direct access to source code
+`npx skills` is the [skills.sh](https://skills.sh) CLI — it copies each skill into the target tool's own skills directory, no plugin system required.
 
-### Team Configuration
+Using Claude Code? See `CLAUDE.md` for the plugin marketplace install, plugin variants, and other Claude-Code-only extras.
 
-For automatic installation across team members, add to `.Codex/settings.json`:
+## Portability convention
 
-```json
-{
-  "extraKnownMarketplaces": {
-    "cc-arsenal": {
-      "source": {
-        "source": "github",
-        "repo": "mgiovani/cc-arsenal"
-      }
-    }
-  },
-  "enabledPlugins": ["cc-arsenal"]
-}
+Skills in this repo are written **tool-neutral first**:
+
+- Only `name` and `description` frontmatter are required for a skill to work anywhere.
+- Claude-Code-only frontmatter keys (`allowed-tools`, `disable-model-invocation`, `hooks`, `context`, `agent`) are enhancement layers. Other tools ignore unknown frontmatter keys safely — a skill's correctness must never depend on them being honored.
+- Orchestration skills (those that spawn subagents/parallel tasks in Claude Code) degrade gracefully to sequential inline execution when no subagent/task tool exists. The instructions describe the sequential fallback explicitly rather than assuming Task/Agent tools are always present.
+- Paths and shell commands referenced inside a skill must be real, tool-independent commands (e.g. `git`, `gh`, `make`) — never a Claude-Code-only tool name used as if it were a shell command.
+
+## Skill composition
+
+Skills may build on each other along two distinct axes — keep them separate:
+
+- **Sibling invocation (borrow a *procedure*)**: a skill may invoke another skill by name to reuse its steps, via the Claude Code `Skill` tool where available. Because `Skill` is Claude-Code-only and other CLIs can only read a sibling's `SKILL.md` as text, **every such call must state the tool-neutral fallback in the same sentence** — apply the sibling's documented rules/steps inline. Announce it with a `Using <skill> to <purpose>` line. For example: "use the `git-commit` skill to write the message (via the `Skill` tool where available, otherwise apply its conventional-commit rules inline)".
+- **Subagent delegation (spawn a *role*)**: a skill may fan work out to a subagent via the Claude Code `Task`/`Agent` tools. This is the orchestration path the Portability convention already covers, and it degrades to sequential inline execution when no subagent tool exists.
+
+Do not add `uses:`/`composes:` frontmatter and do not route composition through a mandatory dispatcher skill — plain prose naming the sibling, with its in-sentence fallback, is the whole mechanism.
+
+## Available Skills (45 total)
+
+All skills use progressive disclosure (SKILL.md + optional references/scripts/assets directories).
+
+### Development (16 skills)
+- **implement-feature**: Feature implementation with senior staff engineer best practices and parallel subagent orchestration where available
+- **fix-bug**: Test-driven debugging with strict sequential task chain and dependency enforcement
+- **test-suite**: Generate test suites by analyzing coverage gaps and writing tests that match project conventions
+- **refactor**: Restructure existing code without changing behavior, verified against the full test suite at each step
+- **ci-generate**: Generate a production-ready CI/CD pipeline config (GitHub Actions, GitLab CI, CircleCI, Jenkins)
+- **ci-local**: Run the checks a GitHub Actions workflow would run, locally, when Actions is unavailable
+- **vrt-check**: Runs the project's visual regression testing workflow, whatever tooling the repo actually uses
+- **i18n-check**: i18n completeness checker — detects the project's i18n framework and diffs locale files
+- **inject-docs**: Inject compressed framework-specific best practices and docs into CLAUDE.md/AGENTS.md
+- **db-migrate**: Create, validate, and manage database migrations across any framework
+- **docker-init**: Generate Dockerfiles and docker-compose.yml with auto-detected services and security hardening
+- **env-setup**: Scan a codebase for env var usage, sync .env.example, and detect leaked secrets
+- **project-planner**: Break down large projects into dependency-aware tasks with Mermaid visualization
+- **nanobanana**: Generate and edit images using Nano Banana (Gemini image generation)
+- **codex-imagegen**: Generate polished raster art (logos, mascots, heroes, sprites, mockups) via Codex CLI's `$imagegen`, with chroma-key transparency handling and QC
+- **oss-launch**: Take a private project to a public GitHub launch — secrets/license pre-flight, review fixes, branding, README/description rewrite, mention scrub, gated history rewrite, then flip public
+
+### Code Review & Quality (5 skills)
+- **review-code**: Multi-agent code review across correctness, performance, style, tests, and error handling
+- **review-security**: OWASP Top 10 2025 security analysis with parallel scanning agents where available
+- **review-deps**: Audit dependencies for vulnerabilities, license risk, and staleness
+- **review-perf**: Deep-dive performance audit of queries, algorithmic complexity, and resource leaks
+- **review-design**: UX/UI/design quality audit mapped to WCAG 2.2 AA, Material Design 3, and Apple HIG
+
+### Documentation (6 skills)
+- **docs-adr**: Architecture Decision Records creation and management
+- **docs-check**: Documentation validation and health scoring
+- **docs-diagram**: Architecture diagrams generation (Mermaid)
+- **docs-init**: Documentation structure initialization
+- **docs-rfc**: Request for Comments documentation
+- **docs-update**: Documentation sync with codebase state
+
+### Git & GitHub (7 skills)
+- **git-commit**: Conventional commit message generation
+- **git-create-pr**: Pull request creation with standardized formats
+- **git-release**: Semantic version releases with automated changelog generation
+- **gitflow**: Manage a gitflow branching workflow (feature/release/hotfix branches)
+- **git-sync**: Sync the current feature branch with its base/upstream via merge or rebase
+- **ship**: Orchestrates a branch from "code done" to "merged" — runs review-code plus project-specific pre-merge checks
+- **gh-daily**: GitHub-based standup report from assigned issues, PRs, and commit history
+
+### Jira (2 skills)
+- **jira-daily**: Smart standup report generator with activity analysis
+- **jira-todo**: Smart daily work planner with intelligent prioritization
+
+### Teams (2 skills)
+- **team-implement**: Spec-driven team orchestration — adaptive development team scaling from 3 to 11 agents based on complexity. Accepts plain text, Jira tickets, GitHub issues, PRs, files, or URLs. Requires `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` for full mode in Claude Code; degrades to a single-agent sequential run elsewhere.
+- **team-review**: Multi-agent PR review team (architecture, security, performance, testing, style, docs/UX, plus an adversary) for security-sensitive or large PRs
+
+### Utilities (7 skills)
+- **create-skill**: Specification-driven skill creation with eval system and description optimization
+- **create-rule**: Create CLAUDE.md/AGENTS.md rules and memory guidelines
+- **improve-skill**: Improve an existing skill to the authoring standard with measured before/after evidence — snapshots the baseline, rewrites to the rubric, and benchmarks new-vs-old
+- **orchestrate**: Turn any task into a model-tiered multi-agent plan — decompose, map each subtask to the right model, run independent tracks in parallel under strict file ownership, then synthesize
+- **find-skills**: Discover and install third-party agent skills from skills.sh
+- **agent-browser**: AI-optimized browser automation with far less context overhead than raw Playwright/DOM tools
+- **jira-cli**: Interactive command-line tool for Atlassian Jira
+
+## Skill Anatomy
+
+Skills are modular capabilities organized with this structure:
+
+```
+skill-name/
+├── SKILL.md (required)
+│   ├── YAML frontmatter (name, description, + optional tool-enhancement keys)
+│   └── Markdown instructions
+├── evals/ (optional but recommended)
+│   ├── evals.json         - task-completion evals: prompt + assertions per scenario
+│   └── trigger-eval.json  - description-triggering evals: does the skill fire on the right prompts?
+└── Bundled Resources (optional)
+    ├── scripts/      - Executable code (Python/Bash/etc.)
+    ├── references/   - Documentation loaded as needed
+    └── assets/       - Files used in output (templates, etc.)
 ```
 
-When team members trust the repository folder, Codex automatically installs the marketplace and plugin.
+### Progressive Disclosure
 
-### Selective Installation (Advanced)
+Skills use a three-level loading system:
+1. **Metadata** (name + description) — always in context (~100 words)
+2. **SKILL.md body** — loaded when the skill activates (<5k words)
+3. **Bundled resources** — loaded only when the agent needs them
 
-By default, `make install` installs **all components** by symlinking everything to `~/.Codex/`. If you want to selectively install only specific components, use the interactive configuration wizard:
+### Eval Convention
 
-```bash
-# Interactive configuration - choose specific components to symlink
-make configure
-```
-
-**What it does:**
-- Discovers all available skills from the repository
-- Shows skills organized by category
-- Lets you interactively select which items to symlink
-- **Never modifies** your `~/.Codex/settings.json` file
-- Creates symlinks only for selected components
-
-**When to use:**
-- You only want specific skills (e.g., just git skills, not docs)
-- Testing individual components without installing everything
-- Creating a lightweight installation with minimal disk usage
-- For full installation, use `make install` instead
-
-**Note:** This is separate from the plugin system. Plugin installation uses the variant definitions from marketplace.json. Use `make configure` when you want granular control over which files are symlinked.
+Each skill's `evals/evals.json` lists concrete scenarios (`id`, `prompt`, `assertions`) that a run of the skill must satisfy — used to catch regressions when a SKILL.md is edited. `evals/trigger-eval.json` instead tests description-triggering: given a set of realistic user prompts, does the skill's frontmatter `description` cause it to fire (or correctly not fire)? Use the `create-skill` skill's eval tooling to run either against a live agent.
 
 ## Development Commands
-
-The repository uses a **modular Makefile architecture** with focused command sets:
-
-- **Core Makefile** (19 commands): Essential development, testing, and installation
-- **Feature Makefiles**: Optional tools with their own command sets
-  - `scripts/Codex/statusline/Makefile` (9 commands): Statusline management
-  - `scripts/Codex-hi/Makefile` (12 commands): Session scheduler and automation
-
-### Core Development Workflow
 
 ```bash
 # Development Environment
@@ -177,17 +143,12 @@ make pre-commit-run       # Run pre-commit on all files
 # Code Quality
 make check                # Run all checks (lint + type-check)
 make lint                 # Run ruff linting
-make format               # Format code with ruff
+make format                # Format code with ruff
 make type-check           # Run pyright type checking
 
 # Testing
 make test                 # Run unit tests
 make coverage             # Tests with coverage report
-
-# Installation
-make install              # Install all components to ~/.Codex
-make dry-run              # Preview installation
-make configure            # Interactive: choose specific skills to enable
 
 # Utilities
 make clean                # Clean caches and build artifacts
@@ -196,162 +157,45 @@ make validate-structure   # Validate repository structure
 make validate-plugins     # Validate plugin manifests
 ```
 
-### Optional Features
+Claude-Code-specific install/config commands (`make install`, `make dry-run`, `make configure`, statusline, claude-hi) live in `CLAUDE.md`.
 
-```bash
-# Statusline Management
-make install-statusline           # Install statusline (delegates to feature Makefile)
-make uninstall-statusline         # Uninstall statusline (delegates to feature Makefile)
-make -C scripts/Codex/statusline help           # Show all statusline commands
-make -C scripts/Codex/statusline status         # Show statusline configuration
-make -C scripts/Codex/statusline test           # Test statusline
-make -C scripts/Codex/statusline list-backups   # List backups
+## Contributing
 
-# Session Scheduler (Codex Hi)
-make -C scripts/Codex-hi help      # Show all scheduler commands
-make -C scripts/Codex-hi standard  # Set up 9am/2pm/7pm schedule
-make -C scripts/Codex-hi status    # Check current schedule
-make -C scripts/Codex-hi remove    # Remove schedule
-make -C scripts/Codex-hi now       # Send 'hi' immediately
-```
+1. **Fork** the repository and create a feature branch
+2. **Develop** your skill or change — new skills go under `skills/<name>/SKILL.md`; keep frontmatter to `name` + `description` unless the skill genuinely needs a Claude-Code-only key (see Portability convention above)
+3. **Add evals** — new or changed skills should ship an `evals/evals.json` (and `trigger-eval.json` if the description changed)
+4. **Validate** with `make check` and `make validate-structure` / `make validate-plugins`
+5. **Update CHANGELOG.md** for user-facing changes
+6. **Submit** a pull request with a clear description
 
-## Available Skills (22 total)
-
-All components are skills with progressive disclosure (SKILL.md + optional references/scripts/assets directories).
-
-### Development (5 skills)
-- **implement-feature**: Feature implementation with senior staff engineer best practices, parallel subagent orchestration, and Task Management System integration
-- **fix-bug**: Test-driven debugging with strict sequential task chain and dependency enforcement
-- **review-security**: OWASP Top 10 2025 security analysis with parallel scanning agents
-- **inject-nextjs-docs**: Run Next.js agents-md codemod to inject framework docs
-- **project-planner**: Break down large projects into dependency-aware tasks with Mermaid visualization
-
-### Documentation (6 skills)
-- **docs-adr**: Architecture Decision Records creation and management
-- **docs-check**: Documentation validation and health scoring
-- **docs-diagram**: Architecture diagrams generation (Mermaid)
-- **docs-init**: Documentation structure initialization
-- **docs-rfc**: Request for Comments documentation
-- **docs-update**: Documentation sync with codebase state
-
-### Git Operations (2 skills)
-- **git-commit**: Conventional commit message generation
-- **git-create-pr**: Pull request creation with standardized formats
-
-### Jira Integration (2 skills)
-- **jira-daily**: Smart standup report generator with activity analysis
-- **jira-todo**: Smart daily work planner with intelligent prioritization
-
-### Codex Utilities (2 skills)
-- **create-command**: Create new skills (slash commands) from templates
-- **create-rule**: Create AGENTS.md rules and memory guidelines
-
-### Teams (1 skill)
-- **team-implement**: Spec-driven team orchestration — adaptive development team scaling from 3 to 11 agents based on complexity. Accepts plain text, Jira tickets, GitHub issues, PRs, files, or URLs. Requires `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` for full mode.
-
-### Specialty Skills (4 skills)
-- **agent-browser**: AI-optimized browser automation with 93% less context overhead than Playwright MCP
-- **find-skills**: Discover and install third-party agent skills from skills.sh
-- **create-skill**: Specification-driven skill creation with live documentation fetching and interactive planning
-- **jira-cli**: Interactive command-line tool for Atlassian Jira
-
-## Development Patterns
-
-### Understanding Skills
-
-All components in cc-arsenal are **skills**. Skills come in two flavors:
-
-- **User-invoked skills** (`disable-model-invocation: true`): Explicit slash commands that users run directly
-  - Examples: `/git-commit`, `/docs-adr`, `/project-planner`
-  - Best for: Git operations, documentation generation, project planning
-  - Can still be invoked with `/` slash commands
-  - 16 user-invoked skills available
-
-- **Model-invoked skills** (`disable-model-invocation: false` or unset): Capabilities Codex automatically loads when relevant
-  - Examples: implement-feature, fix-bug, agent-browser, jira-cli, create-skill, find-skills
-  - Codex detects context automatically (e.g., "let's implement X" or "fix this bug")
-  - No confirmation dialogs - users can abort with natural language if needed
-  - Best for: Feature implementation, bug fixing, domain expertise, tool integrations
-  - 6 model-invoked skills available
-
-### Skills Architecture
-
-Skills are modular capabilities organized with this structure:
-
-```
-skill-name/
-├── SKILL.md (required)
-│   ├── YAML frontmatter (name, description, allowed-tools, etc.)
-│   └── Markdown instructions
-└── Bundled Resources (optional)
-    ├── scripts/      - Executable code (Python/Bash/etc.)
-    ├── references/   - Documentation loaded as needed
-    └── assets/       - Files used in output (templates, etc.)
-```
-
-### Progressive Disclosure
-
-Skills use a three-level loading system:
-1. **Metadata** (name + description) - Always in context (~100 words)
-2. **SKILL.md body** - Loaded when skill activates (<5k words)
-3. **Bundled resources** - Loaded only when Codex needs them
-
-### Local Development Cache Management
-
-**CRITICAL: When developing with a local directory marketplace, you must manually clear the cache after any changes.**
-
-Local directory marketplaces (`"source": "directory"`) do NOT support auto-update or version detection. After creating new skills or bumping versions:
-
-```bash
-# Clear the plugin cache to force reload
-rm -rf ~/.Codex/plugins/cache/cc-arsenal-marketplace/
-
-# Then update the plugin in Codex
-/plugin → Update now
-```
-
-**Why this is needed:**
-- Codex caches the marketplace.json metadata on first install
-- Changes to local files don't trigger cache invalidation
-- Auto-update and manual "Update now" only work for remote GitHub sources
-- Without clearing cache, new components won't appear
-
-**Alternative:** Use GitHub remote marketplace for automatic updates (recommended for production use).
-
-### Documentation Guidelines
-
-**IMPORTANT: No README files in component directories**
-
-Do not add README.md files inside the `skills/` directory. Codex will incorrectly detect them as actual components.
-
-Instead:
-- All documentation goes in the `docs/` folder
-- Reference documentation in the main project README.md if needed
-- Use AGENTS.md for development guidance
-- Individual skills use SKILL.md as their native format
-
-### Quality Assurance
-All code changes should go through integrated quality gates:
-- Code quality enforcement via pre-commit hooks
-- Comprehensive testing and validation
-- Documentation requirements
-- **CHANGELOG updates**: Update CHANGELOG.md after big changes or when opening PRs
-
-### Technology Stack
-- **Python 3.12+** with UV package management
-- **Rich CLI interfaces** with progress indicators
-- **Pydantic** for data validation and settings
-- **Type hints** required for all functions
-- **Comprehensive testing** with pytest and >90% coverage
+See `CONTRIBUTING.md` for the full development setup.
 
 ## File Organization
 ```
 cc-arsenal/
-├── skills/          # All 22 skills (primary component type)
+├── skills/          # All 45 skills (canonical, tool-agnostic)
 │   ├── implement-feature/   # Feature implementation with subagents
 │   ├── fix-bug/             # Test-driven debugging
+│   ├── test-suite/          # Test suite generation
+│   ├── refactor/            # Behavior-preserving restructuring
+│   ├── ship/                # Code-done-to-merged orchestration
+│   ├── ci-generate/         # CI/CD pipeline generation
+│   ├── ci-local/            # Run CI checks locally
+│   ├── vrt-check/           # Visual regression testing
+│   ├── i18n-check/          # i18n completeness checking
+│   ├── inject-docs/         # Framework docs injection
+│   ├── db-migrate/          # Database migration management
+│   ├── docker-init/         # Dockerfile/compose generation
+│   ├── env-setup/           # .env.example sync and secret scanning
+│   ├── project-planner/     # Dependency-aware task planning
+│   ├── nanobanana/          # Image generation (Nano Banana/Gemini)
+│   ├── codex-imagegen/      # Raster art via Codex $imagegen
+│   ├── oss-launch/          # Private-to-public GitHub launch prep
+│   ├── review-code/         # Multi-agent code review
 │   ├── review-security/     # OWASP security analysis
-│   ├── inject-nextjs-docs/  # Next.js docs injection
+│   ├── review-deps/         # Dependency vulnerability/license audit
+│   ├── review-perf/         # Performance audit
+│   ├── review-design/       # UX/UI/design audit
 │   ├── docs-adr/            # Architecture Decision Records
 │   ├── docs-check/          # Documentation validation
 │   ├── docs-diagram/        # Architecture diagrams
@@ -360,26 +204,20 @@ cc-arsenal/
 │   ├── docs-update/         # Documentation updates
 │   ├── git-commit/          # Conventional commits
 │   ├── git-create-pr/       # Pull request creation
+│   ├── git-release/         # Semantic version releases
+│   ├── gitflow/             # Gitflow branching workflow
+│   ├── git-sync/            # Branch sync/rebase
+│   ├── gh-daily/            # GitHub-based standup reports
+│   ├── jira-cli/            # Jira CLI integration
 │   ├── jira-daily/          # Daily standup reports
 │   ├── jira-todo/           # Work prioritization
-│   ├── create-command/      # Create new skills
-│   ├── create-rule/         # Create memory rules
-│   ├── agent-browser/       # Browser automation
-│   ├── find-skills/         # Third-party skill discovery
+│   ├── team-implement/      # Spec-driven team orchestration
+│   ├── team-review/         # Multi-agent PR review team
 │   ├── create-skill/        # Specification-driven skill creation
-│   ├── jira-cli/            # Jira CLI integration
-│   └── team-implement/      # Spec-driven team orchestration
-├── commands/        # Legacy commands (backward compatibility)
-│   ├── dev/            # Development commands
-│   ├── docs/           # Documentation commands
-│   ├── git/            # Git commands
-│   ├── Codex/         # Codex utility commands
-│   └── jira/           # Jira commands
-├── resources/      # Templates and assets
-│   └── templates/      # ADR, RFC, and doc templates
-├── scripts/        # Installation and utilities
-│   ├── setup/          # install.py, configure.py
-│   ├── generators/     # Code generation utilities
-│   ├── Codex/         # Codex utilities (statusline)
-│   └── Codex-hi/      # Session management and scheduling
+│   ├── create-rule/         # Create memory rules
+│   ├── improve-skill/       # Evidence-based skill improvement
+│   ├── orchestrate/         # Model-tiered multi-agent orchestration
+│   ├── find-skills/         # Third-party skill discovery
+│   └── agent-browser/       # Browser automation
+└── scripts/        # Installation and utilities (see CLAUDE.md for Claude-Code-specific ones)
 ```

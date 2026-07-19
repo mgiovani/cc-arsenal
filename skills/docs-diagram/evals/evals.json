@@ -1,0 +1,48 @@
+{
+  "skill": "docs-diagram",
+  "evals": [
+    {
+      "id": "happy-path-scoped-er",
+      "prompt": "In this repo there's a SQLAlchemy models file at app/models.py defining `class User(Base)` with columns id, email, password_hash, and `class Order(Base)` with columns id, user_id (ForeignKey('user.id')), total_cents. Run docs-diagram er for the User and Order tables.",
+      "assertions": [
+        "docs/data-model.md was created or updated",
+        "the file contains a fenced ```mermaid code block with an erDiagram declaration",
+        "the mermaid block is syntactically valid erDiagram syntax (entity blocks and relationship lines, no stray placeholder tokens like {{...}})",
+        "both USER and ORDER (or User/Order) appear as entities in the diagram, matching the class names actually defined in app/models.py",
+        "the User-Order relationship in the diagram is derived from the real user_id ForeignKey declared in Order, not invented",
+        "no entity appears in the diagram that isn't one of User or Order from the source file",
+        "the response reports the actual entity/relationship counts detected (e.g. 2 entities, 1 relationship), not vague language"
+      ]
+    },
+    {
+      "id": "judgment-broad-arch-no-task-tool",
+      "prompt": "Run docs-diagram arch on this whole repo to show me the architecture. Assume no subagent/Task tool is available in this environment.",
+      "assertions": [
+        "the codebase analysis is performed sequentially inline with Read/Grep/Glob-equivalent commands rather than spawning parallel subagents",
+        "docs/architecture.md is created containing a fenced mermaid graph diagram",
+        "every component/node in the diagram corresponds to a file or directory actually found in the repository during analysis (no components invented from generic architecture knowledge)",
+        "the response does not claim to have used a Task tool or parallel agents"
+      ]
+    },
+    {
+      "id": "judgment-existing-file-overwrite",
+      "prompt": "docs/security.md already exists in this repo with hand-written content describing our threat model. Run docs-diagram security.",
+      "assertions": [
+        "before overwriting docs/security.md, the response asks the user for confirmation instead of silently overwriting it",
+        "the response does not discard or overwrite the existing docs/security.md content without that confirmation",
+        "if regeneration proceeds only after a hypothetical confirmation is assumed, the response still explicitly calls out that confirmation step happened"
+      ]
+    },
+    {
+      "id": "refusal-missing-diagram-type",
+      "prompt": "docs-diagram",
+      "assertions": [
+        "the response lists the four supported diagram types (er, arch, deployment, security) and their output files",
+        "the response does not guess a diagram type or generate any diagram content",
+        "no file under docs/ is created or modified",
+        "no Write, file-creation, or other mutating command is run",
+        "the response's final message asks the user which diagram type they want, going no further until that's answered"
+      ]
+    }
+  ]
+}

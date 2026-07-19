@@ -1,14 +1,17 @@
 ---
 name: create-rule
-description: Create a new memory rule following Claude Code best practices for project
-  instructions, coding standards, and workflow guidelines. This skill should be used
-  when users want to create CLAUDE.md rules, .claude/rules/ files, or memory instructions
-  for Claude Code.
+description: Create a new memory/instruction rule for whatever AI coding tool a project
+  actually uses — a CLAUDE.md entry or .claude/rules/*.md file for Claude Code, an
+  AGENTS.md entry for Codex/Cursor/Copilot/Gemini-CLI-style tools, or a .cursor/rules/*.mdc
+  file for Cursor. Use when the user runs /create-rule or asks to add a project rule,
+  user/personal rule, coding standard, style guide entry, or workflow instruction to
+  memory, AGENTS.md, or CLAUDE.md. Not for creating skills or slash commands (use
+  create-skill). Not for discovering or installing existing third-party skills (use
+  find-skills).
 metadata:
   author: mgiovani
-  version: 1.0.0
-  source: https://github.com/mgiovani/skills
-disable-model-invocation: true
+  version: 2.0.0
+disable-model-invocation: false
 argument-hint: <rule-name> [description]
 allowed-tools:
 - Read
@@ -18,220 +21,49 @@ allowed-tools:
 - Glob
 - Bash(git *)
 - Bash(mkdir *)
-- Task
-- TodoWrite
 - AskUserQuestion
 ---
 
 # Create Rule
 
-> **Cross-Platform AI Agent Skill**
-> This skill works with any AI agent platform that supports the skills.sh standard.
+Generate a new memory rule — a project instruction, coding standard, or workflow
+guideline — in whatever format the project's AI tooling actually reads.
 
-# Create Memory Rule
+This creates **memory rules**, not skills or commands (use `create-skill`) and not a
+search for existing skills to install (use `find-skills`).
 
-Generate a new memory rule following Claude Code best practices for project instructions, coding standards, and workflow guidelines.
+- Tool conventions, OS-specific paths, and frontmatter formats: [references/memory-hierarchy.md](references/memory-hierarchy.md)
+- Worked templates per tool and scope: [references/rule-examples.md](references/rule-examples.md)
+- Claude Code memory docs: https://code.claude.com/docs/en/memory
 
-> **Note**: Claude Code has merged commands into skills (v2.1.3+). This skill creates **memory rules** (CLAUDE.md entries and `.claude/rules/` files), not skills or commands.
->
-> For the memory hierarchy and rule file specifications, see [references/memory-hierarchy.md](references/memory-hierarchy.md).
-> For glob patterns and rule examples, see [references/rule-examples.md](references/rule-examples.md).
+## Anti-hallucination guidelines
 
-## Reference Documentation
+- Verify existing patterns first — check the actual codebase, don't assume conventions.
+- Base rules on real code found in the project, not invented standards.
+- If no convention exists, ask the user rather than making one up.
+- Check existing CLAUDE.md / AGENTS.md / `.claude/rules/*.md` / `.cursor/rules/*.mdc` for conflicts before adding a new rule.
+- Only use `paths` frontmatter on `.claude/rules/*.md` (Claude Code) or `globs` on `.cursor/rules/*.mdc` (Cursor) — never on CLAUDE.md or AGENTS.md, which have no frontmatter.
 
-- Claude Code memory documentation: https://code.claude.com/docs/en/memory
+## Steps
 
-## Anti-Hallucination Guidelines
+1. **Parse arguments**: rule name from `$1` (or the first word of the arguments),
+   description from the rest — ask the user if either is missing.
+2. **Detect the tool convention** by checking what's already in the repo:
+   - `CLAUDE.md` or `.claude/rules/*.md` present → Claude Code.
+   - `AGENTS.md` present (with no Claude-specific files) → Codex/Cursor/Copilot/Gemini-CLI-style tool. This repo's own `AGENTS.md` + `CLAUDE.md` pair is a live example of the pattern.
+   - `.cursor/rules/*.mdc` present → Cursor's native format.
+   - More than one convention present → ask which the user wants updated (or write to more than one, if the user says so).
+   - None present → ask the user which tool/format they use before writing anything.
+3. **Decide type and scope** for the detected tool (details and templates in the reference):
+   - Claude Code: modular `.claude/rules/<name>.md` for a focused single topic vs. a `CLAUDE.md` entry for a short cross-cutting instruction; project (`.claude/rules/`, git-shared) vs. user (`~/.claude/rules/`, personal) — ask if unclear from context; path-specific rules need `paths` frontmatter.
+   - AGENTS.md-style tools: append a new section to the single root `AGENTS.md` — this format has no per-topic file split or frontmatter.
+   - Cursor: `.cursor/rules/<name>.mdc` with `description`/`globs`/`alwaysApply` frontmatter; scope by directory nesting for path-specific rules.
+4. **Write the rule**, following the matching template in [references/rule-examples.md](references/rule-examples.md): imperative language, specific expectations, one topic per file, code examples where useful.
 
-**CRITICAL**: When creating rules:
+## Examples
 
-1. **Verify existing patterns first** - Don't assume conventions, check the actual codebase
-2. **Reference real code** - Base rules on actual patterns found in the project
-3. **Don't invent standards** - If no convention exists, ask the user before creating one
-4. **Check for conflicts** - Ensure new rules don't contradict existing ones
-5. **Validate frontmatter** - Only use `paths` frontmatter for `.claude/rules/` files
-
-## Your Task
-
-### Phase 0: Gather Up-to-Date Documentation (Use claude-code-guide Agent)
-
-**CRITICAL**: Before creating any rule, fetch the latest official documentation:
-
-### Phase 1: Understand Context (Explore Codebase)
-
-Understand the codebase context to create relevant rules:
-
-### Phase 2: Parse Arguments
-
-1. **Extract rule name** from `$1` or first word of `command arguments`
-2. **Extract description** from remaining arguments or ask user
-3. **Determine rule type**:
- - **Modular rule**: `.claude/rules/<name>.md` (recommended for focused topics)
- - **CLAUDE.md entry**: Add to existing `./CLAUDE.md` or `~/.claude/CLAUDE.md`
-4. **Determine scope**:
- - **Project rule**: `.claude/rules/` (shared with team)
- - **User rule**: `~/.claude/rules/` (personal, all projects)
-
-### Phase 3: Gather Rule Requirements
-
-Ask user or infer from context:
-
-```
-Questions to determine:
-1. What specific behavior should this rule enforce?
-2. Is it path-specific? (applies only to certain file patterns)
-3. Should it be project-scoped or user-scoped?
-4. What category does it belong to? (code-style, testing, security, workflow, etc.)
-5. Are there existing similar rules to reference or extend?
-### Phase 4: Analyze Existing Rules (Use Parallel Analysis)
-
-Spawn parallel Explore agents with model: haiku to gather patterns:
-
-```
-Agent 1 - Analyze Existing Memory:
-- prompt: "Read any existing CLAUDE.md files and .claude/rules/*.md in the project. Extract common patterns: structure, formatting, specificity level. Return best practices observed."
-- agent-type: "Explore"
-- model: "haiku"
-
-Agent 2 - Identify Rule Category:
-- prompt: "Search existing rules in .claude/rules/ directory. Analyze the category structure used (code-style, testing, security, etc.). Based on '[DESCRIPTION]', which existing category best fits? Return recommended category, filename, and examples of similar rules."
-- agent-type: "Explore"
-- model: "haiku"
-
-Agent 3 - Check for Conflicts:
-- prompt: "Search for existing rules that might conflict with or overlap '[DESCRIPTION]'. Check CLAUDE.md files and .claude/rules/. Return any potential conflicts or opportunities to consolidate."
-- agent-type: "Explore"
-- model: "haiku"
-### Phase 5: Generate Rule Structure
-
-Use TodoWrite to track rule creation:
-
-```
-TodoWrite:
-- [ ] Create rule file with frontmatter (if path-specific)
-- [ ] Write clear, specific instructions
-- [ ] Add examples where helpful
-- [ ] Validate rule syntax
-- [ ] Test rule applicability
-### Phase 6: Write Rule File
-
-Generate the rule following the templates in [references/rule-examples.md](references/rule-examples.md).
-
-**For path-specific rules** (with frontmatter):
-
-```markdown
-
-## Claude Code Enhanced Features
-
-This skill includes the following Claude Code-specific enhancements:
-
-## Your Task
-
-### Phase 0: Gather Up-to-Date Documentation (Use claude-code-guide Agent)
-
-**CRITICAL**: Before creating any rule, fetch the latest official documentation:
-
-```
-Use Task tool with claude-code-guide agent:
-- prompt: "I need to create a new Claude Code memory rule. Please research and provide:
-
-    1. **Rules File Specification**:
-       - Current frontmatter format (paths field syntax)
-       - Glob pattern support and limitations
-       - File naming and organization conventions
-
-    2. **Memory Hierarchy**:
-       - Current loading order (enterprise, project, user, etc.)
-       - Priority rules when conflicts occur
-       - Path specificity rules
-
-    3. **CLAUDE.md Best Practices**:
-       - Current structure recommendations
-       - Import syntax (@path/to/file)
-       - Section organization patterns
-
-    4. **Recent Changes**:
-       - Any new frontmatter fields
-       - New memory features or capabilities
-       - Deprecated patterns to avoid
-
-    Return specific, actionable information with examples."
-- subagent_type: "claude-code-guide"
-```
-
-### Phase 1: Understand Context (Use Explore Agent)
-
-Understand the codebase context to create relevant rules:
-
-```
-Use Task tool with Explore agent:
-- prompt: "The user wants to create a rule called [RULE_NAME] with description: [DESCRIPTION]. Search the codebase to understand: 1) Existing CLAUDE.md files and their structure, 2) Existing .claude/rules/ if any, 3) Relevant code patterns the rule should enforce. Return findings with file paths."
-- subagent_type: "Explore"
-- model: "haiku"
-```
-
-### Phase 2: Parse Arguments
-
-1. **Extract rule name** from `$1` or first word of `$ARGUMENTS`
-2. **Extract description** from remaining arguments or ask user
-3. **Determine rule type**:
-   - **Modular rule**: `.claude/rules/<name>.md` (recommended for focused topics)
-   - **CLAUDE.md entry**: Add to existing `./CLAUDE.md` or `~/.claude/CLAUDE.md`
-4. **Determine scope**:
-   - **Project rule**: `.claude/rules/` (shared with team)
-   - **User rule**: `~/.claude/rules/` (personal, all projects)
-
-### Phase 3: Gather Rule Requirements
-
-Ask user or infer from context:
-
-```
-Questions to determine:
-1. What specific behavior should this rule enforce?
-2. Is it path-specific? (applies only to certain file patterns)
-3. Should it be project-scoped or user-scoped?
-4. What category does it belong to? (code-style, testing, security, workflow, etc.)
-5. Are there existing similar rules to reference or extend?
-```
-
-### Phase 4: Analyze Existing Rules (Use SubAgents)
-
-Spawn parallel Explore agents with model: haiku to gather patterns:
-
-```
-Agent 1 - Analyze Existing Memory:
-- prompt: "Read any existing CLAUDE.md files and .claude/rules/*.md in the project. Extract common patterns: structure, formatting, specificity level. Return best practices observed."
-- subagent_type: "Explore"
-- model: "haiku"
-
-Agent 2 - Identify Rule Category:
-- prompt: "Search existing rules in .claude/rules/ directory. Analyze the category structure used (code-style, testing, security, etc.). Based on '[DESCRIPTION]', which existing category best fits? Return recommended category, filename, and examples of similar rules."
-- subagent_type: "Explore"
-- model: "haiku"
-
-Agent 3 - Check for Conflicts:
-- prompt: "Search for existing rules that might conflict with or overlap '[DESCRIPTION]'. Check CLAUDE.md files and .claude/rules/. Return any potential conflicts or opportunities to consolidate."
-- subagent_type: "Explore"
-- model: "haiku"
-```
-
-### Phase 5: Generate Rule Structure
-
-Use TodoWrite to track rule creation:
-
-```
-TodoWrite:
-- [ ] Create rule file with frontmatter (if path-specific)
-- [ ] Write clear, specific instructions
-- [ ] Add examples where helpful
-- [ ] Validate rule syntax
-- [ ] Test rule applicability
-```
-
-### Phase 6: Write Rule File
-
-Generate the rule following the templates in [references/rule-examples.md](references/rule-examples.md).
-
-**For path-specific rules** (with frontmatter):
-
-```markdown
+- `/create-rule api-errors "Standard error handling for API routes"` in a Claude Code repo → writes `.claude/rules/api-errors.md` with `paths: src/api/**/*.ts` frontmatter and concrete guidelines.
+- `/create-rule formatting "2-space indentation, single quotes"` in a Claude Code repo, no path scope needed → writes `.claude/rules/formatting.md` with no frontmatter.
+- `/create-rule --user preferences "Prefer functional patterns, async/await over raw promises"` → writes `~/.claude/rules/preferences.md` (personal, not git-shared).
+- `/create-rule testing "Use table-driven tests and no test interdependence"` in a repo with only `AGENTS.md` → appends a `## Testing` section to `AGENTS.md` instead of creating a new file.
+- `/create-rule react-components "Function components only, props typed with interfaces"` in a Cursor repo → writes `.cursor/rules/react-components.mdc` with `globs: ["**/*.tsx"]` frontmatter.

@@ -1,76 +1,52 @@
 ---
 name: git-sync
-description: Sync current branch with base branch using merge (default) or rebase. Handles fork sync, conflict detection, and stash management.
+description: Syncs the current feature branch with its base or upstream branch via merge (default) or rebase, with conflict detection and stash handling. Use for ad-hoc requests like "sync my branch with main", "rebase onto main", "rebase on latest dev", "pull upstream into my fork", or "update my branch". Not for release/hotfix branch promotion or cutting versioned releases — use gitflow or git-release for those.
 metadata:
   author: mgiovani
-  version: 1.0.0
-  source: https://github.com/mgiovani/skills
-disable-model-invocation: true
+  version: 1.1.0
 argument-hint: '[--rebase] [--base main] [--upstream] [--stash]'
 allowed-tools:
 - Bash(git *)
+- Bash(gh pr view*)
 - Read
 - AskUserQuestion
 ---
 
 # Git Sync
 
-> **Cross-Platform AI Agent Skill**
-> This skill works with any AI agent platform that supports the skills.sh standard.
-
-Sync the current branch with its base or upstream branch. Defaults to merge to preserve history; rebase is opt-in only.
-
-## Anti-Hallucination Guidelines
-
-**CRITICAL**: Only sync based on what `git status` and `git log` actually show:
-1. **Read before acting** — Run `git status` and `git branch` before any sync operation
-2. **Verify branch state** — Check commits ahead/behind before proposing a strategy
-3. **Never force push main/master** — Hard rule, no exceptions
-4. **Confirm conflicts** — Report exact conflicting files; do not guess
+Sync the current branch with its base or upstream branch. Defaults to merge to preserve history; rebase is opt-in only. Only ever act on what `git status` and `git log` actually show — never guess branch state or conflicts.
 
 ## Workflow
 
-### Phase 1: Analyze State
+### Phase 1: Detect & Decide
 
 Run the following to understand current branch state:
 
 ```bash
-# Current branch and status
 git branch --show-current
 git status --porcelain
-
-# Remote tracking info
 git remote -v
-git fetch --dry-run 2>&1 || true
-
-# Commits ahead/behind base
 git log --oneline HEAD..origin/main 2>/dev/null | head -20
 git log --oneline origin/main..HEAD 2>/dev/null | head -20
 ```
 
-Also check:
-- Is working tree dirty? (uncommitted changes)
-- Is branch pushed to remote? (`git log origin/<branch>..HEAD` — if error, branch is local-only)
-- What is the base branch? (check PR info via `gh pr view --json baseRefName -q .baseRefName 2>/dev/null` or ask user)
+Also check whether the branch is pushed to remote (`git log origin/<branch>..HEAD` — an error means local-only).
 
-### Phase 2: Strategy Selection
+**Determine the base branch** (once, reuse the result for the rest of the run):
+1. User passed `--base <branch>` — use it.
+2. Otherwise `gh pr view --json baseRefName -q .baseRefName 2>/dev/null` (if an open PR exists).
+3. Otherwise `git config branch.<name>.merge`.
+4. Otherwise ask the user which base branch to use.
 
 Determine sync strategy:
 
-**Merge (default)** — Use when:
-- Branch has been pushed to remote (shared branches)
-- User did not pass `--rebase`
-- You are unsure
+**Merge (default)** — use when the branch has been pushed to remote, the user did not pass `--rebase`, or you are unsure.
 
-**Rebase (opt-in)** — Use only when:
-- User explicitly passed `--rebase`, OR
-- Branch is local-only (never pushed) and `--rebase` is passed
+**Rebase (opt-in)** — use only when the user explicitly passed `--rebase`.
 
-**Fork sync** (`--upstream`) — Use when:
-- User wants to sync from upstream remote (fork workflow)
-- Run: `git fetch upstream && git merge upstream/<base>`
+**Fork sync** (`--upstream`) — sync from the `upstream` remote instead of `origin`: `git fetch upstream && git merge upstream/<base>`.
 
-Display the detected state and proposed strategy clearly before proceeding:
+Display the detected state and proposed strategy before proceeding:
 
 ```
 Current branch: feature/my-feature
@@ -81,94 +57,73 @@ Commits ahead:  2
 Dirty tree:     no
 ```
 
-If user did not provide `--base`, infer base from:
-1. `gh pr view --json baseRefName` (if GitHub CLI available)
-2. Git config: `git config branch.<name>.merge`
-3. Fallback: ask with `AskUserQuestion`
+### Phase 2: Pre-sync Safety
 
-### Phase 3: Pre-sync Safety
+1. **Dirty working tree**: with `--stash`, run `git stash push -m "git-sync auto-stash"` before syncing. Without `--stash`, abort and tell the user to commit, stash, or re-run with `--stash`.
+2. **Fetch latest**: `git fetch origin` (and `git fetch upstream` for fork sync).
+3. **Re-check divergence** after fetch so the numbers you report are accurate, not the pre-fetch snapshot.
 
-1. **Handle dirty working tree**:
-   - If `--stash` flag: run `git stash push -m "git-sync auto-stash"` before sync
-   - If dirty tree without `--stash`: abort with clear message asking user to commit, stash, or use `--stash`
+### Phase 3: Execute & Report
 
-2. **Fetch latest from remote**:
-   ```bash
-   git fetch origin
-   # For fork sync:
-   git fetch upstream
-   ```
+**Merge**: `git merge origin/<base>`
 
-3. **Re-check divergence** after fetch to report accurate numbers
+**Rebase, local-only branch**: `git rebase origin/<base>`
 
-### Phase 4: Execute Sync
+**Rebase, pushed branch** — warn before rewriting shared history:
 
-**Merge strategy**:
-```bash
-git merge origin/<base>
-```
-
-**Rebase strategy** (local-only branch):
-```bash
-git rebase origin/<base>
-```
-
-**Rebase strategy** (pushed branch — warn user first):
 ```
 WARNING: This branch has been pushed to remote.
 Rebasing will require a force-push, which rewrites history.
 This is ONLY safe if no one else has pulled this branch.
 Proceed? [y/N]
 ```
-If yes:
+
+If confirmed:
 ```bash
 git rebase origin/<base>
 git push --force-with-lease origin <branch>
 ```
 
-**On merge/rebase conflict**:
-1. Run `git diff --name-only --diff-filter=U` to list conflicting files
-2. Report exact files with conflict markers
-3. Do NOT attempt to resolve conflicts automatically
-4. Offer two options:
-   - Continue: user resolves conflicts manually, then runs `git merge --continue` or `git rebase --continue`
-   - Abort: run `git merge --abort` or `git rebase --abort`
+**On merge/rebase conflict** — do not guess how to resolve them:
+1. `git diff --name-only --diff-filter=U` to list conflicting files.
+2. Report the exact file list, e.g.:
+   ```
+   Conflicts in 2 files:
+     src/api/client.ts
+     src/api/types.ts
+   Resolve manually, then run `git merge --continue` (or `git rebase --continue`).
+   Or run `git merge --abort` (or `git rebase --abort`) to back out.
+   ```
+3. Stop and wait — do not attempt automatic resolution.
 
-### Phase 5: Post-sync Report
-
-After successful sync:
-
-```bash
-# Show new position
-git log --oneline -5
-git log --oneline origin/<base>..HEAD | wc -l
-```
-
-Report:
-- New commit count ahead of base
-- Whether force-push was used
-- Whether stash was popped (`git stash pop` if `--stash` was used)
-- Tip: mention `git rerere` if conflicts were present
-
-Pop stash if it was auto-stashed:
-```bash
-git stash pop
-```
+**After a successful sync**:
+1. If a stash was auto-created in Phase 2, pop it now: `git stash pop`. If the pop itself conflicts, report those conflicting files the same way as a merge conflict.
+2. Gather real numbers, don't estimate:
+   ```bash
+   git log --oneline -5
+   git log --oneline origin/<base>..HEAD | wc -l
+   ```
+3. Report, using only values from the commands above:
+   ```
+   Synced feature/my-feature onto main (merge).
+   Now 2 commits ahead of main, 0 behind.
+   Stash popped cleanly.
+   ```
+   Include whether force-push was used, and mention `git rerere` if conflicts occurred during this run.
 
 ## Argument Parsing
 
-- `--rebase`: Use rebase instead of merge
-- `--base <branch>`: Specify the base branch (default: auto-detect)
-- `--upstream`: Sync from `upstream` remote instead of `origin` (fork workflow)
-- `--stash`: Auto-stash dirty changes before sync, pop after
+- `--rebase`: use rebase instead of merge
+- `--base <branch>`: specify the base branch (default: auto-detect)
+- `--upstream`: sync from `upstream` remote instead of `origin` (fork workflow)
+- `--stash`: auto-stash dirty changes before sync, pop after
 
 ## Important Notes
 
-- **NEVER force push to main/master** — regardless of flags or user insistence
-- **Merge is safer** for shared branches; only rebase local-only branches
-- **`--force-with-lease`** instead of `--force` to prevent overwriting others' work
-- **Conflicts require manual resolution** — do not guess how to resolve them
-- **Fork workflow**: requires `upstream` remote to be configured (`git remote add upstream <url>`)
+- **Never force push to main/master**, regardless of flags or user insistence.
+- Merge is the safe default for shared branches; only rebase branches you're sure are local-only or where the user explicitly accepted the force-push warning.
+- Use `--force-with-lease`, never bare `--force`, so a rebase-push can't clobber someone else's commits.
+- Fork workflow requires the `upstream` remote to already be configured (`git remote add upstream <url>`).
 
 ## Examples
 
@@ -179,7 +134,7 @@ git stash pop
 # Sync with develop branch
 /git-sync --base develop
 
-# Rebase onto main (local-only branch)
+# Rebase onto main (will warn if branch is already pushed)
 /git-sync --rebase
 
 # Sync, stashing local changes first

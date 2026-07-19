@@ -1,0 +1,22 @@
+[
+  {"query": "can you write an RFC proposing we switch our database to Postgres", "should_trigger": true},
+  {"query": "draft a proposal for adding GraphQL support so the team can weigh in", "should_trigger": true},
+  {"query": "we need to document this change before we build it and get feedback", "should_trigger": true},
+  {"query": "write up a formal RFC for migrating to microservices, still deciding", "should_trigger": true},
+  {"query": "/docs-rfc \"Add GraphQL API Support\"", "should_trigger": true},
+  {"query": "need a numbered RFC for the new caching layer proposal, minimal variant", "should_trigger": true},
+  {"query": "can you draft a detailed RFC for the event-driven architecture idea we're floating", "should_trigger": true},
+  {"query": "open this design up for discussion with an RFC doc", "should_trigger": true},
+  {"query": "we're still debating REST vs GraphQL, write up an RFC to get feedback from the team", "should_trigger": true},
+  {"query": "create rfc standard variant for the api gateway proposal", "should_trigger": true},
+  {"query": "we finally decided to go with Kafka over RabbitMQ, record why we chose that", "should_trigger": false},
+  {"query": "document this architectural decision about our new auth strategy", "should_trigger": false},
+  {"query": "write a lightweight ADR for using Redis for session storage", "should_trigger": false},
+  {"query": "we already decided on the caching approach, just need it recorded for posterity", "should_trigger": false},
+  {"query": "generate a mermaid diagram of our current service architecture", "should_trigger": false},
+  {"query": "check if our docs are outdated compared to the codebase", "should_trigger": false},
+  {"query": "sync the README with the current state of the code", "should_trigger": false},
+  {"query": "set up the initial docs folder structure for this new project", "should_trigger": false},
+  {"query": "implement the event-driven architecture we discussed", "should_trigger": false},
+  {"query": "open a PR for the database migration I just finished", "should_trigger": false}
+]

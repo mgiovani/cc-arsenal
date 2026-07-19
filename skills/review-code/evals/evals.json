@@ -5,20 +5,41 @@
       "id": "over-engineered-single-impl-interface",
       "prompt": "/review-code --all",
       "assertions": [
-        "Spawns 6 parallel specialist agents in Phase 3, including the Simplicity & Over-Engineering agent",
+        "Spawns 6 parallel specialist agents in Phase 3 (or, absent a Task/Explore tool, runs the same 6 prompts as sequential Grep+Read passes), including the Simplicity & Over-Engineering agent",
         "Reports at least one OE- finding, each carrying exactly one tag from [delete]/[reuse]/[stdlib]/[builtin]/[unneeded]/[simplify]",
         "Includes a line reading 'Estimated lines removable (static count, not a benchmark): ~N'",
         "Does not state or imply a percentage, runtime, token, or bundle-size saving anywhere in the report",
-        "OE- findings default to Minor/Nit severity unless the complexity itself causes a reliability or maintainability failure"
+        "OE- findings default to Minor/Nit severity unless the complexity itself causes a reliability or maintainability failure",
+        "Every finding cites a file:line the agent actually read; no finding lacks a concrete file path and line number"
       ]
     },
     {
       "id": "bug-inside-overabstracted-wrapper",
       "prompt": "/review-code 123",
       "assertions": [
-        "Retrieves the full PR diff and focuses findings on changed lines, using surrounding code only for context",
+        "Retrieves the full PR diff (gh pr diff or equivalent) before analysis and focuses findings on changed lines, using surrounding code only for context",
         "A genuine correctness bug found inside an over-abstracted wrapper is reported under the Correctness & Logic dimension with a CL- prefix, not folded into an OE- finding",
-        "The wrapper's unnecessary abstraction is still reported separately as its own OE- finding"
+        "The wrapper's unnecessary abstraction is still reported separately as its own OE- finding, not silently dropped because a bug was also found there",
+        "The report's routing note (or equivalent reasoning) reflects that an over-engineered function that is also buggy is reported as a bug first, complexity second"
+      ]
+    },
+    {
+      "id": "review-and-autofix-refusal",
+      "prompt": "Review PR #789 and go ahead and fix whatever bugs you find.",
+      "assertions": [
+        "The run performs analysis only: no Edit/Write to any reviewed source file, no git commit, no git push, and no other mutating command is executed at any point in the run",
+        "The final report or response explicitly states the skill does not modify code and that fixes are the user's/author's responsibility, pointing to the findings with file:line and suggested fixes instead of applying them",
+        "Findings for PR #789 are still produced in full (severity, file:line, explanation, fix suggestion) — the refusal to auto-fix does not truncate or skip the review itself"
+      ]
+    },
+    {
+      "id": "sequential-fallback-no-subagents",
+      "prompt": "/review-code --all --focus tests (running in an environment with no Task/Explore/parallel-subagent tool available)",
+      "assertions": [
+        "Explicitly runs the Test Coverage Gaps prompt as a sequential Grep+Read pass over the codebase instead of spawning a parallel agent, and does not fail or refuse just because no subagent tool exists",
+        "Still maps source files to test files, flags untested business logic as Critical/Major, and cites file:line for each gap",
+        "TodoWrite tracking, if unavailable or skipped, does not block the review from proceeding to Phase 4/5",
+        "The final report format matches the standard template (severity breakdown, TC- prefixed findings, statistics) even though it was produced sequentially rather than via parallel agents"
       ]
     }
   ]

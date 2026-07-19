@@ -1,6 +1,6 @@
 ---
 name: agent-browser
-description: "Headless browser automation CLI optimized for AI agents. Uses snapshot + refs system for 93% less context overhead vs Playwright. Purpose-built for web testing, form automation, screenshots, and data extraction."
+description: "Headless browser automation CLI optimized for AI agents — drives a real browser via accessibility-tree snapshots and @e1-style refs for ~93% less context than raw DOM tools. Use whenever a task needs to interact with a live web page: click, fill forms, log in, extract text or data, take screenshots, test a running web app, or scrape a site. Triggers on 'automate the browser', 'fill this form', 'click the button', 'take a screenshot of the page', 'log into', 'scrape this site', 'test my web app', 'headless browser'. Not for Playwright test-suite authoring or CDP/service-worker work needing the full JS API — use Playwright directly. Not for driving the user's own already-open, logged-in Chrome tab — use claude-in-chrome for that."
 hooks:
   Stop:
     - hooks:
@@ -14,23 +14,9 @@ hooks:
 
 ## Overview
 
-**agent-browser** is an open-source browser automation CLI from Vercel Labs, purpose-built for AI agents. Unlike traditional browser automation tools, it's designed from the ground up for LLM interaction with a **snapshot + refs** system that reduces context usage by up to 93% compared to Playwright MCP.
+**agent-browser** is an open-source browser automation CLI from Vercel Labs, built for LLM interaction with a **snapshot + refs** system: instead of a full DOM, `snapshot` returns an accessibility tree of just the interactive elements (buttons, inputs, links) with semantic labels, each tagged with a stable `@e1`-style ref. Full DOM dumps run 5000+ nodes / 200KB of context; an accessibility-tree snapshot is 50-100 elements / ~10KB — roughly a 93% reduction. Refs also survive re-renders, so they don't need re-deriving after every DOM tweak the way CSS selectors do.
 
-### Key Advantages
-
-- **93% less context overhead** - Accessibility tree snapshots instead of full DOM
-- **Zero configuration** - Ready to use after installation
-- **Semantic element targeting** - `@e1` refs instead of fragile CSS selectors
-- **Rust + Node.js architecture** - Fast CLI with robust browser control
-- **Session isolation** - Run multiple browsers with separate state
-- **AI-optimized output** - Structured data perfect for LLM parsing
-
-### Architecture
-
-Three-layer design for performance and reliability:
-1. **Rust CLI** - Fast command parsing and daemon communication
-2. **Node.js Daemon** - Playwright-based browser lifecycle management
-3. **Fallback Mode** - Pure Node.js when native binaries unavailable
+See [When to Use vs Playwright](#when-to-use-vs-playwright) for when this CLI beats DOM-based tools.
 
 ### Installation
 
@@ -77,9 +63,15 @@ agent-browser wait --load networkidle
 agent-browser snapshot -i
 ```
 
+Refs are invalidated whenever the page changes (navigation, dropdown opening,
+DOM re-render). Re-run `snapshot -i` after any action that could change the
+page before reusing a ref — an ref from before the action may now point at a
+different element or nothing at all.
+
 ### Session Management
 
-Always pass `--session` — one named session per project prevents stale daemons from accumulating across parallel Claude Code sessions.
+Always pass `--session` — one named session per project prevents stale
+daemons from accumulating across parallel agent sessions.
 
 ```bash
 # Use project name as session (run this pattern everywhere)
@@ -113,296 +105,138 @@ agent-browser close --session "$(basename "$PWD")"
 
 Rule: **if it only reads public pages and needs no login or screenshot → Lightpanda. Otherwise Chrome.**
 
-## Snapshot + Refs System
-
-The **snapshot** command is the core of agent-browser's AI optimization. It generates an **accessibility tree** - a structured, semantic representation of interactive elements.
-
-### Why Accessibility Trees?
-
-Traditional tools expose full DOM trees with thousands of nodes. Accessibility trees contain **only interactive elements** (buttons, inputs, links) with semantic labels - exactly what AI agents need.
-
-**Comparison:**
-- **Full DOM**: 5000+ nodes, 200KB context
-- **Accessibility tree**: 50-100 elements, 10KB context
-- **Savings**: 93% reduction in token usage
-
-### Snapshot Modes
+## Command Cheat Sheet
 
 ```bash
-# Interactive elements only (recommended for AI)
+agent-browser --session "$(basename "$PWD")" open <url>   # navigate
+agent-browser snapshot -i                                  # get @refs
+agent-browser click @e1                                    # click
+agent-browser fill @e2 "text"                               # fill a field
+agent-browser wait --load networkidle                       # wait for load
+agent-browser get text @e3                                  # read element
+agent-browser is visible @e1                                 # verify state
+agent-browser screenshot page.png                            # capture
+agent-browser close --session "$(basename "$PWD")"          # cleanup
+```
+
+Full command surface — navigation, all interactions, `find` semantic
+locators, waits, screenshots/video, tabs, network, cookies, auth, MCP server,
+global flags — lives in [references/commands.md](references/commands.md).
+
+## Verify Before You Claim
+
+Browser automation's core failure mode is confidently reporting page state
+nobody actually read. Before writing any claim into your final report:
+
+- **Every claimed value traces to a command.** A total, a heading, a success
+  banner — read it with `get text` / `get value` (or a `snapshot` that
+  covers it) and quote the exact string returned. Never restate a value from
+  the test plan or a product label as if it were observed on the page.
+- **`snapshot -i` hides non-interactive content.** Totals, prices, and
+  confirmation banners often live in a `<span>`/`<div>`, not a button or
+  input — `-i` won't surface them. Use plain `snapshot` or
+  `get text <selector>` to reach them.
+- **A screenshot filename is a claim.** Confirm you're on the expected page
+  (`get url` or a snapshot heading) immediately before calling `screenshot`,
+  and name the file after what you just confirmed — not what you set out to
+  capture.
+- **Own every process you start.** If the task needs a local server to test
+  against, announce it when you start it (command, port, PID) and stop it
+  before finishing — state the kill explicitly. "Closed the browser session"
+  is not the same claim as "shut down the app."
+
+## Worked Examples
+
+### Login and verify
+
+```bash
+agent-browser --session myapp open https://app.example.com/login
 agent-browser snapshot -i
-
-# Full accessibility tree
-agent-browser snapshot
-
-# Compact format (fewer details)
-agent-browser snapshot -c
-
-# Limit tree depth (for large pages)
-agent-browser snapshot -d 3
-
-# Scope to specific section
-agent-browser snapshot -s "#main-content"
-```
-
-### Understanding Refs
-
-Refs are **stable identifiers** assigned to interactive elements in snapshots:
-
-```
-textbox "Email address" [ref=e1]
-  placeholder: "Enter your email"
-  required: true
-
-button "Sign In" [ref=e5]
-  role: button
-  enabled: true
-```
-
-Use refs in commands: `@e1`, `@e5`, etc.
-
-**Advantages over CSS selectors:**
-- Semantic and human-readable
-- Survive DOM changes (stable across re-renders)
-- No need to inspect HTML structure
-- AI agents can reason about element purpose
-
-## Essential Commands
-
-### Navigation
-
-```bash
-# Open URL (auto-prepends https://)
-agent-browser open example.com
-
-# History control
-agent-browser back
-agent-browser forward
-agent-browser reload
-
-# Close browser
-agent-browser close
-```
-
-### Interaction
-
-```bash
-# Click elements
+agent-browser fill @e1 "user@example.com"
+agent-browser fill @e2 "password123"
 agent-browser click @e3
-agent-browser dblclick @e5
-
-# Fill forms (clears then types)
-agent-browser fill @e1 "text"
-
-# Type text (preserves existing content)
-agent-browser type @e2 "additional text"
-
-# Press keys
-agent-browser press Enter
-agent-browser press "Control+A"
-
-# Checkboxes
-agent-browser check @e4
-agent-browser uncheck @e4
-
-# Dropdowns
-agent-browser select @e6 "Option 2"
-
-# Hover (reveals hidden elements)
-agent-browser hover @e7
-
-# Scroll
-agent-browser scroll 0 500
-agent-browser scrollintoview @e8
-
-# File upload
-agent-browser upload @e9 /path/to/file.pdf
-
-# Drag and drop
-agent-browser drag @e10 @e11
-```
-
-### Information Retrieval
-
-```bash
-# Get element data
-agent-browser get text @e1
-agent-browser get html @e2
-agent-browser get value @e3        # Input field value
-agent-browser get attr @e4 href    # Attribute value
-
-# Page metadata
-agent-browser get title
-agent-browser get url
-
-# Element metrics
-agent-browser get count ".product-card"
-agent-browser get box @e5          # Bounding box coordinates
-agent-browser get styles @e6       # Computed CSS
-```
-
-### State Verification
-
-```bash
-# Check element state before interaction
-agent-browser is visible @e1
-agent-browser is enabled @e2
-agent-browser is checked @e3
-```
-
-### Waiting
-
-```bash
-# Wait for element
-agent-browser wait @e5
-
-# Wait duration (milliseconds)
-agent-browser wait 2000
-
-# Wait for text
-agent-browser wait --text "Success"
-
-# Wait for URL pattern (glob)
-agent-browser wait --url "**/dashboard"
-
-# Wait for network idle
 agent-browser wait --load networkidle
-
-# Wait for JavaScript condition
-agent-browser wait --fn "document.readyState === 'complete'"
+agent-browser get url               # confirm redirected off /login
+agent-browser close --session myapp
 ```
 
-### Media Capture
+### Scrape a public listing (stateless)
 
 ```bash
-# Screenshot (PNG)
-agent-browser screenshot page.png
-agent-browser screenshot page.png --full    # Full page scroll
-
-# PDF export
-agent-browser pdf document.pdf
-
-# Video recording (webm)
-agent-browser record start demo.webm
-agent-browser click @e1
-agent-browser record stop
+agent-browser --session catalog --engine lightpanda open https://shop.example.com/catalog
+agent-browser get count ".product-card"
+agent-browser snapshot -i -s ".product-card"
+agent-browser close --session catalog
 ```
 
-## Semantic Find Commands
-
-Alternative to refs - use **human-readable locators** for direct targeting:
+### Verify state before asserting success
 
 ```bash
-# By ARIA role
-find role button click --name "Submit"
-find role textbox fill --label "Email" "user@example.com"
-
-# By text content
-find text "Click here" click
-find text "Exact Match" click --exact
-
-# By form labels
-find label "Username" fill "admin"
-
-# By placeholder
-find placeholder "Search..." fill "query"
-
-# By alt text (images)
-find alt "Logo" click
-
-# By title attribute
-find title "Close dialog" click
-
-# By test ID
-find testid "submit-btn" click
-
-# Position-based
-find first "button" click
-find last ".item" click
-find nth 2 ".card" click
+agent-browser --session checkout open http://localhost:3000/cart
+agent-browser snapshot -i
+agent-browser click @e4             # Add to cart
+agent-browser get text .cart-total  # read the total — e.g. "$9.99" — don't assume it changed
+agent-browser click @e9             # Checkout
+agent-browser wait --url "**/confirmation"
+agent-browser get text @e2          # read the confirmation heading
+agent-browser close --session checkout
 ```
 
-**When to use find vs refs:**
-- **Refs** - Reliable, AI-optimized, survives DOM changes
-- **Find** - Quick one-off actions, human-readable scripts
+Report only the strings those two `get text` calls actually returned — not
+a number copied from the test plan.
+
+### Test an app you started locally
+
+```bash
+python3 -m http.server 3111 --directory ./dist &   # note the PID
+echo "started static server on :3111, pid $!"
+agent-browser --session localtest open http://localhost:3111
+agent-browser snapshot -i
+agent-browser get url                # confirm you're on the expected page first
+agent-browser screenshot cart-page.png              # name matches what get url just confirmed
+agent-browser close --session localtest
+kill %1                              # stop the server you started, before declaring done
+echo "stopped server on :3111"
+```
 
 ## When to Use vs Playwright
 
-### Use agent-browser when:
-
-✓ **AI agent automation** - Optimized for LLM workflows
-✓ **CLI-first workflows** - Simple command-line usage
-✓ **Context efficiency matters** - 93% less token overhead
-✓ **Rapid prototyping** - Zero configuration needed
-✓ **Multiple sessions** - Easy session isolation
-✓ **Semantic targeting** - Prefer accessibility tree over DOM
-
-### Use Playwright MCP when:
-
-✓ **Complex programmatic control** - Full JavaScript API
-✓ **Advanced browser features** - Service workers, device emulation
-✓ **Existing Playwright tests** - Reuse test infrastructure
-✓ **Fine-grained control** - Direct access to CDP
-✓ **TypeScript integration** - Type-safe browser automation
-
-**Summary**: agent-browser excels at **AI-driven automation** with minimal context. Playwright excels at **programmatic control** with maximum flexibility.
+| Need | Use | Why |
+|---|---|---|
+| AI agent driving a browser, CLI-first, minimal tokens | agent-browser | ~93% less context via accessibility-tree snapshots, zero config, `@e1` refs survive DOM changes |
+| Multiple isolated sessions in parallel | agent-browser | Built-in `--session` isolation |
+| Full JS API, service workers, device emulation, CDP internals | Playwright (direct) | agent-browser doesn't expose the full programmatic API |
+| Reusing an existing Playwright test suite | Playwright (direct) | Don't rewrite working tests to switch tools |
+| Interacting with the user's already-open, logged-in Chrome tab | claude-in-chrome | agent-browser drives its own separate browser instance, not the user's live session |
 
 ## Reference File Guide
 
-Detailed information is available in bundled reference files (loaded on-demand):
+Detailed reference material lives in bundled files, loaded on-demand, and is
+regenerated from the CLI's own `agent-browser skills get core --full` so it
+stays in sync with the installed version. Load each only when the task
+needs it:
 
-### `references/command-reference.md`
-Complete command documentation including:
-- All command signatures and options
-- Browser configuration (viewport, geolocation, headers)
-- Storage management (cookies, localStorage)
-- Network interception and mocking
-- Multi-tab/window/frame operations
-- Dialog handling
-- JavaScript execution (`eval`)
-- Global flags and environment variables
+- **[references/commands.md](references/commands.md)** — load when you need a command signature, flag, or alias not covered by the cheat sheet above (navigation, interaction, `find`, wait, screenshot/video, settings, tabs, frames, network/console, MCP server, global flags).
+- **[references/advanced.md](references/advanced.md)** — load for session-state persistence, authentication (login flows, OAuth, 2FA, cookie import), trust-boundary safety rules, proxy configuration, or Chrome DevTools profiling.
+- **[references/workflows.md](references/workflows.md)** — load for the snapshot + ref model in depth, or video-recording patterns.
 
-### `references/advanced-patterns.md`
-Advanced usage patterns:
-- Authentication state persistence
-- Parallel session workflows
-- Network request interception
-- File download handling
-- Custom proxy configuration
-- Cloud provider integration (BrowserUse, BrowserBase)
-- Video recording workflows
-- CDP (Chrome DevTools Protocol) integration
-
-### `references/best-practices.md`
-Optimization and reliability guidance:
-- Token efficiency strategies
-- Error handling patterns
-- Performance optimization
-- Debugging techniques
-- Common pitfalls and solutions
-- Production deployment considerations
-
-### `references/examples.md`
-Real-world scenarios:
-- E-commerce checkout automation
-- Form submission and validation
-- Web scraping with pagination
-- Screenshot testing
-- Data extraction workflows
-- Multi-step authentication
+If these ever drift from the installed CLI, regenerate with
+`agent-browser skills get core --full` and re-split (see git history of this
+file for the split points).
 
 ## Resources
 
 ### Official Documentation
+
 - **GitHub**: https://github.com/vercel-labs/agent-browser
-- **AGENTS.md**: AI agent integration guide
-- **Source Code**: Available in `opensrc/` directory
+- **AGENTS.md**: AI agent integration guide, bundled with the CLI
+- **CLI source**: `npx opensrc vercel-labs/agent-browser` (fetches the actual source for reference — there is no vendored copy in this skill)
 
 ### Environment Variables
 
 ```bash
 AGENT_BROWSER_IDLE_TIMEOUT_MS   # Auto-close daemon after N ms idle (set 300000 in dotfiles)
-AGENT_BROWSER_SESSION           # Default session name (set per-project in CLAUDE.md)
+AGENT_BROWSER_SESSION           # Default session name (set per-project in your agent config file)
 AGENT_BROWSER_ENGINE            # Default engine: chrome | lightpanda
 AGENT_BROWSER_EXECUTABLE_PATH   # Custom browser binary path
 AGENT_BROWSER_EXTENSIONS        # Comma-separated extension paths
@@ -412,68 +246,12 @@ AGENT_BROWSER_STREAM_PORT       # WebSocket port for streaming
 AGENT_BROWSER_HOME              # Installation directory
 ```
 
-### Operational Rules (mgiovani-specific)
+### Operational Rules
 
-- **Always pass `--session <project-name>`** — prevents 4-daemon stale socket accumulation (was causing OOM)
-- **Never run `agent-browser close --all`** or `pkill chrome-headless-shell` — breaks other projects' parallel sessions
-- **`.claude/browser-profile/` must be in `.gitignore`** — contains plaintext cookies and login tokens
-- **Omit `--profile` for stateless work** — persistent profiles accumulate Chrome cache; idle-timeout only reclaims RAM, not disk cache
+- **Always pass `--session <project-name>`** — prevents stale-socket accumulation across parallel sessions (can cause daemon OOM)
+- **Never run `agent-browser close --all`** or kill the browser process globally — breaks other projects' parallel sessions
+- **Persistent profile directories (e.g. `.claude/browser-profile/`) must be in `.gitignore`** — they contain plaintext cookies and login tokens
+- **Omit `--profile` for stateless work** — persistent profiles accumulate browser cache; idle-timeout only reclaims RAM, not disk cache
 - **Run `agent-browser doctor --fix`** when sessions feel stuck — cleans stale sockets without killing active sessions
+- **A test-target server you started is your process to stop** — `agent-browser close` only tears down the browser session, not an app server; kill it explicitly and say so (see [Verify Before You Claim](#verify-before-you-claim))
 - **For the authoritative, version-matched command reference**: `agent-browser skills get core --full`
-
-### Code Style Requirements
-
-- **No emojis** in code, output, or documentation
-- Unicode symbols acceptable: ✓, ✗, →, ⚠
-- Use `cli/src/color.rs` for colored output (respects `NO_COLOR`)
-
-### Fetching Dependency Source
-
-```bash
-# npm packages
-npx opensrc <package>
-
-# Python packages
-npx opensrc pypi:<package>
-
-# Rust crates
-npx opensrc crates:<package>
-
-# GitHub repos
-npx opensrc <owner>/<repo>
-```
-
----
-
-**Quick Reference Card**
-
-```bash
-# Navigate
-agent-browser open <url>
-
-# Analyze
-agent-browser snapshot -i
-
-# Interact
-agent-browser click @e1
-agent-browser fill @e2 "text"
-agent-browser wait @e3
-
-# Verify
-agent-browser is visible @e1
-
-# Capture
-agent-browser screenshot page.png
-
-# Semantic find
-find role button click --name "Submit"
-```
-
-**Best Practices:**
-1. Always `snapshot -i` before interacting
-2. Use refs (`@e1`) for reliability
-3. Wait strategically (`--load networkidle`, `--url` patterns)
-4. Scope snapshots (`-s` selector) for large pages
-5. Verify state (`is visible`, `is enabled`) before interaction
-6. Use sessions (`--session`) for isolation
-7. Save/load authentication state to avoid repetitive logins

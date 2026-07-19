@@ -1,0 +1,22 @@
+[
+  { "query": "inject Next.js docs into CLAUDE.md", "should_trigger": true },
+  { "query": "add FastAPI best practices to our AGENTS.md", "should_trigger": true },
+  { "query": "run the Vercel agents-md codemod on this repo", "should_trigger": true },
+  { "query": "improve AI agent performance on our FastAPI project by adding framework docs", "should_trigger": true },
+  { "query": "our project uses Next.js 15, can you inject the framework docs for Claude?", "should_trigger": true },
+  { "query": "inject framework best practices for AI agents into CLAUDE.md", "should_trigger": true },
+  { "query": "add FastAPI docs to CLAUDE.md so Claude knows our conventions", "should_trigger": true },
+  { "query": "update AGENTS.md with Next.js framework knowledge", "should_trigger": true },
+  { "query": "give Claude passive knowledge of FastAPI patterns via CLAUDE.md", "should_trigger": true },
+  { "query": "inject the Next.js agents-md index into our docs", "should_trigger": true },
+  { "query": "initialize a docs/ folder structure for this new project", "should_trigger": false },
+  { "query": "check whether our documentation is out of date", "should_trigger": false },
+  { "query": "sync our README and docs with the current codebase state", "should_trigger": false },
+  { "query": "generate an architecture diagram of our system", "should_trigger": false },
+  { "query": "write an ADR for switching to Postgres", "should_trigger": false },
+  { "query": "draft an RFC for the new auth system", "should_trigger": false },
+  { "query": "generate a GitHub Actions CI pipeline for our Next.js app", "should_trigger": false },
+  { "query": "create a new skill that injects Vue.js docs into CLAUDE.md", "should_trigger": false },
+  { "query": "add a CLAUDE.md rule about always using absolute imports", "should_trigger": false },
+  { "query": "inject Vue.js best practices into CLAUDE.md", "should_trigger": false }
+]

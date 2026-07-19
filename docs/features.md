@@ -2,137 +2,200 @@
 
 Complete reference for all cc-arsenal skills and optional features.
 
-## Skills
+Skills are the single component type in this repository. Each skill lives in `skills/<name>/SKILL.md`; many bundle `references/`, `scripts/`, `assets/`, and `evals/` alongside it (see [Architecture](architecture.md) for the anatomy).
 
-### Development (12 skills)
+## Skills (45 total)
 
-#### `/implement-feature`
+Every skill is callable as `/<name>` in Claude Code. **— auto** marks skills that *also* trigger automatically when Claude detects a relevant task; **— manual** marks slash-only skills (`disable-model-invocation: true`).
+
+### Development (21 skills)
+
+#### `/implement-feature` — auto
 Feature implementation with parallel subagents and automated test verification.
 - Parallel subagent orchestration
 - Automated test verification
 - SOLID, DRY, and YAGNI principles
 
-#### `/fix-bug`
+#### `/fix-bug` — auto
 Test-driven debugging with fix verification.
 - Root cause analysis
 - Regression testing
 - Fix verification hook
 
-#### `/test-suite`
-Test generation and coverage analysis (model-invoked).
+#### `/test-suite` — auto
+Test generation and coverage analysis.
 - Comprehensive test generation
 - Coverage analysis and reporting
 
-#### `/refactor`
-Safe codebase refactoring with characterization tests (model-invoked).
+#### `/refactor` — auto
+Safe codebase refactoring with characterization tests.
 - Characterization test generation
 - Safe refactoring patterns
 - Regression prevention
 
-#### `/review-code`
-Multi-agent PR code review with 5 parallel specialists.
-- 5 specialized review agents
+#### `/review-code` — auto
+Multi-agent PR code review with parallel specialists.
+- Specialized review agents (correctness, performance, style, tests, error handling, simplicity)
 - Comprehensive code quality analysis
-- Security, performance, and best practices
 
-#### `/review-security`
+#### `/review-security` — manual
 OWASP Top 10 2025 security analysis.
 - Automated vulnerability scanning
 - OWASP compliance checking
 - Security best practices
 
-#### `/review-deps`
+#### `/review-deps` — manual
 Dependency audit, vulnerability scanning, and upgrade planning.
 - Vulnerability detection
 - Upgrade recommendations
 - Dependency health scoring
 
-#### `/review-perf`
-Performance analysis with 4 parallel agents.
+#### `/review-perf` — manual
+Performance analysis with parallel agents.
 - Database optimization
 - Algorithm analysis
 - Frontend performance
 - Resource optimization
 
-#### `/ci-generate`
+#### `/review-design` — manual
+UX/UI design quality audit.
+- Visual and interaction critique
+- Accessibility basics
+- Consistency checks
+
+#### `/ci-generate` — manual
 CI/CD workflow generator.
 - GitHub Actions, GitLab CI, CircleCI, Jenkins
 - Best practices templates
 - Test integration
 
-#### `/inject-docs`
+#### `/ci-local` — auto
+Runs the checks a GitHub Actions workflow would run, locally, when Actions is unavailable or out of quota.
+- Parses `.github/workflows/*.yml` and replicates gating steps locally
+- Reports a parity table of what could/couldn't be replicated
+
+#### `/inject-docs` — manual
 Framework documentation injector.
 - Next.js via agents-md
 - FastAPI via best practices
 - Framework-specific patterns
 
-#### `/inject-nextjs-docs` (legacy)
-Next.js agents-md codemod (use `/inject-docs` instead).
-
-#### `/project-planner`
+#### `/project-planner` — auto
 Break down large projects into dependency-aware tasks.
 - Dependency graph generation
 - Task breakdown with estimates
 - Mermaid visualization
 
+#### `/nanobanana` — auto
+Generate and edit images via the Nano Banana / Gemini API — a real, billed call.
+- Fires only on explicit mentions (nano banana, GEMINI_API_KEY); `codex-imagegen` is the default for generic image requests
+
+#### `/codex-imagegen` — auto
+The default image generator — polished raster art (logos, mascots, heroes, icons, sprites, mockups) via Codex CLI's `$imagegen`.
+- Single-quoted invocation, effort budgeting, explicit save paths
+- Chroma-key transparency handling (no-despill on pink), pixel-level QC
+
+#### `/oss-launch` — auto
+Take a private project to a public GitHub launch.
+- Secrets/license pre-flight, review-code fixes, branding, README/description rewrite
+- Mention scrub (presents matches, never auto-edits) and a gated history rewrite (private-only, explicit confirm, refuses on already-public repos)
+- Flips the repo public with topics set, reports a stage table of real commands
+
+#### `/vrt-check` — auto
+Runs the project's visual regression testing workflow.
+- Auto-detects VRT tooling (Playwright, Storybook, Chromatic, Loki, Percy)
+- Triages failures as real regressions vs. intended changes
+
+#### `/i18n-check` — auto
+i18n completeness checker.
+- Detects the project's i18n framework and diffs locale files for missing/untranslated/orphan keys
+- Scans for hardcoded user-facing strings bypassing the i18n layer
+
+#### `/db-migrate` — auto
+Create, validate, and manage database migrations across any framework.
+- Auto-detects Alembic, Prisma, Knex, Django, Flyway, Rails
+
+#### `/docker-init` — manual
+Generate Dockerfiles and docker-compose.yml.
+- Auto-detected services, health checks, security hardening, resource limits
+
+#### `/env-setup` — manual
+Scan a codebase for environment variable usage.
+- Generates/syncs `.env.example`, validates completeness, detects leaked secrets
+
 ### Documentation (6 skills)
 
-#### `/docs-init`
+#### `/docs-init` — manual
 Initialize comprehensive documentation structure.
 - Standard documentation templates
 - Best practices structure
 
-#### `/docs-adr`
+#### `/docs-adr` — manual
 Architecture Decision Records creation.
 - ADR templates (full, lightweight, Nygard)
 - Decision documentation
 - Context and consequences
 
-#### `/docs-rfc`
+#### `/docs-rfc` — manual
 Request for Comments documentation.
 - RFC templates (detailed, minimal, standard)
 - Proposal structure
 - Review workflow
 
-#### `/docs-diagram`
+#### `/docs-diagram` — manual
 Architecture diagrams (Mermaid).
 - System architecture
 - Component diagrams
 - Flow diagrams
 
-#### `/docs-check`
+#### `/docs-check` — auto
 Documentation validation and health scoring.
 - Freshness checks
 - Completeness analysis
 - Quality scoring
 
-#### `/docs-update`
+#### `/docs-update` — manual
 Documentation sync with codebase.
 - Automatic update detection
 - Sync recommendations
 - Change tracking
 
-### Git & GitHub (4 skills)
+### Git & GitHub (7 skills)
 
-#### `/git-commit`
+#### `/git-commit` — auto
 Conventional commits with automated linting.
 - Conventional Commits format
 - Pre-commit linting hook
 - Multi-language linter support
 
-#### `/git-create-pr`
+#### `/git-create-pr` — auto
 PR creation with templates and test verification.
 - PR templates
 - Test verification hook
 - Automated checklist
 
-#### `/git-release`
+#### `/git-release` — auto
 Release management with automated changelog generation.
 - Semantic versioning
 - Automated changelog
 - Release notes generation
 
-#### `/gh-daily`
+#### `/gitflow` — auto
+Manage a full gitflow branching workflow.
+- Start/finish feature, release, and hotfix branches
+- Cut versioned releases with changelog generation
+- Emergency hotfix coordination
+
+#### `/git-sync` — auto
+Sync the current feature branch with its base or upstream branch.
+- Merge or rebase, with conflict detection and stash handling
+
+#### `/ship` — auto
+Orchestrates the current branch from "code done" to "merged".
+- Runs review-code, project pre-merge checks, git-commit, then git-create-pr
+- Optionally watches CI and reports or merges on green
+
+#### `/gh-daily` — manual
 GitHub Issues daily planner with priority scoring.
 - Priority scoring algorithm
 - Daily task planning
@@ -140,68 +203,76 @@ GitHub Issues daily planner with priority scoring.
 
 ### Jira (2 skills)
 
-#### `/jira-daily`
+#### `/jira-daily` — manual
 Standup report generator with activity analysis.
 - Activity analysis
 - Report generation
 - Status tracking
 
-#### `/jira-todo`
+#### `/jira-todo` — manual
 Work prioritization planner with intelligent prioritization.
 - Intelligent prioritization
 - Task recommendations
 - Workload balancing
 
-### Teams (2 skills - experimental)
+### Teams (2 skills)
 
-#### `/team-implement`
+#### `/team-implement` — manual
 Spec-driven team orchestration (3-11 agents).
 - Adaptive team scaling
 - Spec-driven development
 - Multi-phase workflow
 
-#### `/team-review`
+#### `/team-review` — manual
 Multi-agent PR review team.
-- 7 specialized reviewers
+- Specialized reviewers
 - Adversary reviewer
 - Comprehensive analysis
 
-### Utilities (6 skills)
+### Utilities (7 skills)
 
-#### `/create-command` (skill)
-Create new skills following best practices.
-- Skill templates
-- Best practices guidance
-
-#### `/create-rule` (skill)
-Create memory rules for Claude Code.
-- CLAUDE.md guidelines
-- Memory patterns
-
-#### `agent-browser` (model-invoked)
+#### `/agent-browser` — auto
 AI-optimized browser automation.
 - 93% less context overhead vs Playwright
 - Snapshot + refs system
 - Web testing and automation
 
-#### `find-skills` (model-invoked)
+#### `/find-skills` — manual
 Discover third-party skills from skills.sh.
 - Skill discovery
 - Installation automation
 - Community skills
 
-#### `jira-cli` (model-invoked)
+#### `/jira-cli` — manual
 Interactive command-line tool for Jira.
 - Issue management
 - Sprint planning
 - Epic tracking
 
-#### `create-skill` (model-invoked)
+#### `/create-skill` — auto
 Specification-driven skill creation with live documentation fetching.
 - Fetches latest specifications from agentskills.io
 - Interactive clarification with user
 - Multi-source example research
 - User approval gates before file generation
+- Also covers what `create-command` used to (they were merged)
+
+#### `/create-rule` — auto
+Create memory rules for Claude Code.
+- CLAUDE.md guidelines
+- Memory patterns
+
+#### `/improve-skill` — auto
+Improve an existing skill to the authoring standard with measured before/after evidence.
+- Snapshots the baseline, rewrites to the rubric, authors evals, benchmarks new-vs-old
+- Per-dimension restraint gate — an already-compliant skill gets a small diff, not a fresh draft
+- Reuses create-skill's validator; never commits (hands off to git-commit/ship)
+
+#### `/orchestrate` — auto
+Turn any task into a model-tiered multi-agent plan.
+- Decompose, classify, map each subtask to the right model (haiku research, opus planning, sonnet impl)
+- Parallel tracks under strict one-owner-per-file discipline; orchestrator does synthesis and git
+- Declines to orchestrate trivial single-file tasks
 
 ## Optional Features
 
@@ -227,7 +298,7 @@ Real-time cost and usage tracking in your Claude Code prompt.
 
 **Installation:**
 ```bash
-make statusline-install
+make install-statusline
 ```
 
 **Documentation:** [Statusline Guide](../scripts/claude/statusline/STATUSLINE.md)
@@ -244,34 +315,49 @@ Automatically start fresh 5-hour windows before your peak coding times.
 
 **Installation:**
 ```bash
-make claude-hi-setup      # Interactive setup
-make claude-hi-standard   # Quick 9am/2pm/7pm schedule
+make -C scripts/claude-hi setup     # Interactive setup
+make -C scripts/claude-hi standard  # Quick 9am/2pm/7pm schedule
 ```
 
 **Documentation:** [Claude Hi Guide](../scripts/claude-hi/README.md)
 
-## Platform Compatibility
+## Installation Options
 
-### Enhanced Skills (Claude Code)
-- **Full feature set**: Subagents, hooks, Task Management System
+### Plugin Marketplace (Claude Code)
 - **Installation**: `/plugin install cc-arsenal@cc-arsenal-marketplace`
-- **Skills**: All 32 skills with Claude Code optimizations
+- **Skills**: All 45 skills, or a focused variant (`cc-arsenal-dev`, `cc-arsenal-docs`, `cc-arsenal-git`, `cc-arsenal-skills`, `cc-arsenal-teams`, `cc-arsenal-review`)
+- See [Getting Started](getting-started.md) for the full variant list
 
-### Base Skills (Cross-Platform)
-- **Compatible with**: Claude Code, Cursor, Windsurf, and 30+ AI agents
-- **Installation**: `npx skills add mgiovani/skills`
-- **Skills**: 22 core skills in platform-agnostic format
-- **Repository**: [mgiovani/skills](https://github.com/mgiovani/skills)
+### Symlink Install (Contributors)
+- **Use case**: Developing cc-arsenal itself
+- **Installation**: `make install` (or `make configure` to select specific skills)
 
-## Model-Invoked vs User-Invoked Skills
+## Using with Other Agents
 
-**User-Invoked** (slash commands):
-- Triggered explicitly by user (e.g., `/git-commit`, `/docs-adr`)
-- Workflow automation for specific tasks
-- 26 user-invoked skills
+cc-arsenal skills follow the open [Agent Skills standard](https://agentskills.io): a `SKILL.md` with just `name` + `description` frontmatter is portable to any tool that supports it, not only Claude Code.
 
-**Model-Invoked** (automatic):
-- Claude detects context and loads automatically
-- No confirmation dialogs
-- Examples: `agent-browser`, `jira-cli`, `create-skill`, `find-skills`, `test-suite`, `refactor`
-- 6 model-invoked skills
+**Install for any agent:**
+```bash
+npx skills add mgiovani/cc-arsenal
+```
+
+**Per-tool install directories** (where the CLI places skill files):
+- Claude Code: `.claude/skills/`
+- Other agents (Codex, Cursor, OpenCode, Gemini CLI, etc.): `.agents/skills/`
+
+**Claude Code-only features** (ignored by other tools, since they read only `name`/`description`):
+- Plugin variants via `/plugin marketplace add mgiovani/cc-arsenal` (`.claude-plugin/marketplace.json`)
+- `hooks`, `allowed-tools`, `disable-model-invocation`, `context`, `agent` frontmatter keys
+- Statusline and Claude Hi scheduler (see Optional Features above)
+- Subagent (Task tool) orchestration used by skills like `implement-feature` and `review-code`
+
+The same `skills/<name>/SKILL.md` files serve both the agnostic and Claude Code-enhanced use cases.
+
+## Auto-trigger vs. manual skills
+
+In Claude Code every skill is callable as `/<name>`. The only difference is whether Claude may *also* load it automatically:
+
+- **— auto**: auto-triggers when Claude detects a relevant task (no confirmation dialog) *and* runs as `/<name>`.
+- **— manual**: `/<name>` only — `disable-model-invocation: true` in the skill's frontmatter suppresses auto-triggering.
+
+The split is defined per-skill by the `disable-model-invocation` frontmatter field (authoritative) — see [Architecture](architecture.md) for the current count, since it changes as skills are added.

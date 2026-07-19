@@ -1,0 +1,22 @@
+[
+  {"query": "can you commit these changes for me", "should_trigger": true},
+  {"query": "write a conventional commit message for these changes", "should_trigger": true},
+  {"query": "I staged my fix, go ahead and commit it", "should_trigger": true},
+  {"query": "commit this with a proper message please", "should_trigger": true},
+  {"query": "git commit my changes to the auth module", "should_trigger": true},
+  {"query": "stage everything and commit with a good message", "should_trigger": true},
+  {"query": "I need a commit message for this diff", "should_trigger": true},
+  {"query": "can you write and make the commit for these edits", "should_trigger": true},
+  {"query": "commit my WIP changes to user.py", "should_trigger": true},
+  {"query": "just commit it, follow conventional commits format", "should_trigger": true},
+  {"query": "cut a new release and update the changelog", "should_trigger": false},
+  {"query": "finish this feature branch with gitflow", "should_trigger": false},
+  {"query": "create a PR for my changes", "should_trigger": false},
+  {"query": "bump the version and tag a release", "should_trigger": false},
+  {"query": "merge dev into main and promote it", "should_trigger": false},
+  {"query": "squash my last 5 commits into one", "should_trigger": false},
+  {"query": "help me resolve this merge conflict", "should_trigger": false},
+  {"query": "start a hotfix branch off main", "should_trigger": false},
+  {"query": "review this diff for bugs before I ship it", "should_trigger": false},
+  {"query": "write release notes for v2.3.0", "should_trigger": false}
+]

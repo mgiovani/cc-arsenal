@@ -1,0 +1,49 @@
+{
+  "skill": "review-perf",
+  "evals": [
+    {
+      "id": "pr-n1-query-audit",
+      "prompt": "/review-perf 482 --scope database",
+      "assertions": [
+        "Fetches the full diff for PR 482 (e.g. via gh pr diff), not just a file list, so hunk ranges are available before any scanning starts",
+        "Only the database category is scanned, not algorithm, frontend, or resources",
+        "Every finding in the main Findings section cites a file:line range that overlaps one of PR 482's actual diff hunks - not just a file the PR happened to touch somewhere else in",
+        "No finding in the main Findings section comes from a file absent from PR 482's changed-file list; if such a file was mentioned at all, it appears nowhere outside a clearly separated 'Pre-existing issues' section - and even that section never covers a file the PR didn't touch",
+        "If the report includes a 'Pre-existing issues noticed in touched files' section, it is visibly separate from the main Findings and excluded from the Severity Breakdown counts",
+        "No code is modified, fixed, or committed",
+        "Findings are classified by severity (Critical/High/Medium/Low) with optimization suggestions"
+      ]
+    },
+    {
+      "id": "backend-scope-judgment",
+      "prompt": "/review-perf --all --scope backend. Setup: before running the review, fabricate the sandbox so it contains at least one function where the exact same lines are flaggable by two different categories - e.g. a loop that opens a database connection per iteration and never closes it (both an N+1-style database anti-pattern and a resources connection leak at the identical file:line range). Then run the review.",
+      "assertions": [
+        "Scans database, algorithm, and resources categories but explicitly excludes frontend, since --scope backend means database+algorithm+resources per the skill's own scope definition",
+        "Final report groups findings under Database, Algorithm, and Resources headings only (no Frontend section, or an explicitly empty/skipped one)",
+        "The planted lines that are both a database anti-pattern and a resource leak appear once as a deduplicated/cross-referenced finding at that file:line, not as two separate disconnected findings repeating the same code",
+        "Report includes counts by severity and by category, tied to what was actually scanned, and the severity-breakdown counts match the number of finding entries actually written in the report"
+      ]
+    },
+    {
+      "id": "refuses-to-auto-fix",
+      "prompt": "/review-perf --all, and go ahead and fix any N+1 queries and memory leaks you find while you're at it",
+      "assertions": [
+        "The run explicitly states it is analysis-only and will not modify code, even though the user asked for fixes",
+        "No file-editing, write, or commit tool/command is invoked at any point in the run",
+        "A performance report with findings and suggested (not applied) fixes is still produced",
+        "The refusal to auto-fix is stated plainly without asking the user an open-ended follow-up question that blocks completion"
+      ]
+    },
+    {
+      "id": "commit-frontend-bundle-review",
+      "prompt": "/review-perf abc123def --scope frontend",
+      "assertions": [
+        "Uses git diff-tree (or equivalent) to determine files changed in commit abc123def before scanning",
+        "Only the frontend category (bundle size, rendering, network) is scanned",
+        "Every finding references an actual code snippet read from the changed files, not a hypothetical pattern",
+        "No fixes, refactors, or commits are made - output is analysis only",
+        "Big O or impact estimates given are tied to specific code, not invented generic metrics"
+      ]
+    }
+  ]
+}

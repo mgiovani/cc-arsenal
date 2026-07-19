@@ -1,0 +1,22 @@
+[
+  { "query": "Find a skill that helps with Next.js development", "should_trigger": true },
+  { "query": "Install skills from vercel-labs/agent-skills", "should_trigger": true },
+  { "query": "Is there an agent skill for Kubernetes deployments?", "should_trigger": true },
+  { "query": "Search skills.sh for a testing skill", "should_trigger": true },
+  { "query": "Update my installed skills to the latest version", "should_trigger": true },
+  { "query": "Remove the old-skill I installed last month", "should_trigger": true },
+  { "query": "List all the skills I have installed globally", "should_trigger": true },
+  { "query": "Add a third-party skill from this GitHub repo for database migrations", "should_trigger": true },
+  { "query": "Check if any of my skills have updates available", "should_trigger": true },
+  { "query": "npx skills isn't finding what I need, can you help me search for a Rust skill", "should_trigger": true },
+  { "query": "Create a new skill for generating changelogs", "should_trigger": false },
+  { "query": "Write a CLAUDE.md rule that says always run tests before committing", "should_trigger": false },
+  { "query": "Add a new feature to the login flow", "should_trigger": false },
+  { "query": "Refactor this function to remove duplication", "should_trigger": false },
+  { "query": "Fix the bug where the API returns a 500 error", "should_trigger": false },
+  { "query": "Install the project dependencies with npm install", "should_trigger": false },
+  { "query": "Add a new npm package for date formatting", "should_trigger": false },
+  { "query": "Set up a new React component library from scratch", "should_trigger": false },
+  { "query": "Review this PR for security issues", "should_trigger": false },
+  { "query": "Update the documentation for the API endpoints", "should_trigger": false }
+]

@@ -1,13 +1,16 @@
 ---
 name: docs-diagram
-description: Generate Mermaid diagrams from codebase analysis including architecture,
-  database schema, deployment, and security diagrams. This skill should be used when
-  users want to create system diagrams, ER diagrams, architecture visualizations,
-  or deployment diagrams.
+description: Generate a Mermaid diagram (ER, architecture, deployment, or security)
+  by reading the actual codebase and writing it to docs/. Use for requests like
+  "draw an ER diagram of these tables", "show me the architecture", "diagram the
+  deployment setup", "visualize the security data flow", or "generate a system
+  diagram". Not for scaffolding a new docs directory structure (use docs-init),
+  syncing existing prose docs with code changes (use docs-update), or recording a
+  design decision's rationale (use docs-adr) — this skill only produces diagrams
+  generated from code.
 metadata:
   author: mgiovani
-  version: 1.0.0
-  source: https://github.com/mgiovani/skills
+  version: 1.1.1
 disable-model-invocation: true
 argument-hint: <type> [context]
 allowed-tools: Read, Write, Grep, Glob, Task
@@ -15,23 +18,10 @@ context: fork
 agent: general-purpose
 ---
 
-# Docs Diagram
-
-> **Cross-Platform AI Agent Skill**
-> This skill works with any AI agent platform that supports the skills.sh standard.
-
 # Generate System Diagrams
 
-Generate Mermaid diagrams including architecture, database schema, deployment, and security architecture.
-
-## Anti-Hallucination Guidelines
-
-**CRITICAL**: Diagrams must represent REAL components. Before adding ANY element:
-1. **Verify component exists** - Read the actual file before adding it to diagram
-2. **Confirm relationships** - Check imports/references to verify connections
-3. **Count entities accurately** - Use find/glob to get exact counts
-4. **No placeholder components** - Only include verified, existing elements
-5. **Empty directories != components** - Check directories have actual content
+Generate a Mermaid diagram — ER, architecture, deployment, or security — from the
+real codebase and write it to `docs/`.
 
 ## Supported Diagram Types
 
@@ -44,220 +34,93 @@ Generate Mermaid diagrams including architecture, database schema, deployment, a
 
 ## Workflow
 
-### Phase 1: Deep Analysis (Explore Codebase)
+### 1. Parse the request
 
-Use the Explore agent to thoroughly analyze the codebase before generating diagrams:
+Extract the diagram type (`er`, `arch`, `deployment`, `security`) and any optional
+scope context (e.g. "for the user and order tables"). If the type is missing or
+invalid, don't guess — stop, and end your response with a direct question naming
+the supported types, e.g. "Which diagram type do you want: architecture, er,
+deployment, or security?". Listing the types without asking, or asking without
+listing them, is not enough — go no further until the user answers.
 
-### Phase 2: Parse Arguments
+### 2. Analyze the codebase
 
-1. Extract diagram type from `command arguments`
-2. Supported types: `er`, `arch`, `deployment`, `security`
-3. Extract optional context (remaining arguments)
-4. If type not provided or invalid, show available types and exit with helpful message
+- **Scoped request** (e.g. "er diagram for the user and order tables"): Read/Grep
+  the named files directly.
+- **Broad or ambiguous request** (e.g. "show me the architecture" on an unfamiliar
+  codebase): when a Task tool is available, spawn one Explore subagent per aspect
+  that matters for the diagram type (e.g. for `arch`: services, databases,
+  external integrations, data flow). Without a Task tool, run the same per-aspect
+  checks sequentially inline with Read/Grep/Glob instead — same checks, no
+  parallelism, just slower.
 
-### Phase 3: Parallel Verification (Use Parallel Analysis)
+See [references/detection-patterns.md](references/detection-patterns.md) for
+detection commands per diagram type.
 
-Before generating, spawn parallel agents to verify different aspects. See [references/detection-patterns.md](references/detection-patterns.md) for specific detection commands per diagram type.
+### 3. Verify before adding anything
 
-```
-Example: Generating an architecture diagram
+Diagrams must represent real, existing components — never a plausible guess.
 
-Agent 1 - Verify Services:
-- prompt: "Find all actual service files/classes in the codebase. Return a list of verified service names with their file paths. Do NOT assume - only return what you can find."
-- agent-type: "Explore"
+- Read the file that defines a component before adding it; don't add it from
+  memory or inference.
+- Confirm a relationship by finding the actual import/reference/FK in code, not
+  by assuming two similarly-named things are connected.
+- Get counts by running a command (e.g. `find . -name "*service*" | wc -l`), then
+  use that number — never estimate "about 5 services".
+- Drop anything that can't be verified this way. An empty directory or an unused
+  stub file is not a component.
 
-Agent 2 - Verify Databases:
-- prompt: "Find all database configurations and connections. Look for DB URLs, ORM configs, connection pools. Return verified database technologies with evidence."
-- agent-type: "Explore"
+### 4. Generate the Mermaid diagram
 
-Agent 3 - Verify External Integrations:
-- prompt: "Find all external API calls, third-party service integrations. Look for HTTP clients, SDK imports, webhook handlers. Return verified external dependencies."
-- agent-type: "Explore"
+Use the syntax for the diagram type from
+[references/mermaid-patterns.md](references/mermaid-patterns.md). Keep it
+readable — if a system has too many pieces for one clear diagram, split it into
+multiple focused views rather than cramming everything into one.
 
-Agent 4 - Verify Data Flow:
-- prompt: "Trace how data flows between components. Look at imports, function calls, event handlers. Return verified connections between components."
-- agent-type: "Explore"
+### 5. Populate the template
 
-Merge results -> Only include verified entities in diagram
-**Verification checklist before adding to diagram**:
-1. Read the actual source file to confirm it exists
-2. For relationships, verify the import/reference exists in code
-3. For counts (e.g., "5 services"), run: `find . -name "*service*" | wc -l`
-4. Remove any component that cannot be verified with actual code
+Load `assets/templates/<type>.md` (`er` → `data-model.md`, `arch` →
+`architecture.md`, `deployment` → `deployment.md`, `security` → `security.md`).
+Replace `{{PROJECT_NAME}}`, `{{DATE}}`, the diagram placeholder, and the
+entity/component list placeholders with the verified content from steps 3-4.
 
-### Phase 4: Generate Mermaid Diagram
+### 6. Write the output
 
-- Create appropriate Mermaid syntax based on type
-- **ONLY include verified components** - no assumptions
-- Include meaningful labels and relationships
-- Add comments for clarity
-- Keep diagram readable (not too complex)
+Write to the file in `docs/` named in the table above. If it already exists, ask
+before overwriting, and preserve any hand-written sections you can identify
+(anything outside the placeholder fields).
 
-For Mermaid syntax patterns per diagram type, see [references/mermaid-patterns.md](references/mermaid-patterns.md).
+### 7. Report results
 
-### Phase 5: Load and Populate Template
+State the diagram type, the output file, and the actual counts detected (e.g.
+"4 entities, 6 relationships") — these must be the numbers from step 3's
+commands, not a summary written from memory. Suggest regenerating when the
+diagrammed subsystem changes.
 
-- Template location: `assets/templates/`
-- Select based on diagram type:
- - `er` -> `data-model.md`
- - `arch` -> `architecture.md`
- - `deployment` -> `deployment.md`
- - `security` -> `security.md`
+## Worked Examples
 
-Replace placeholders:
-- `{{PROJECT_NAME}}` - Git repo or directory name
-- `{{DATE}}` - Current date
-- `{{ER_DIAGRAM}}` or `{{DIAGRAM_CONTENT}}` - Generated Mermaid code
-- `{{ENTITIES}}` or `{{COMPONENTS}}` - Entity/component descriptions
+**Scoped ER request** — `docs-diagram er for the user and order tables`: Grep for
+`class User` / `class Order` in the ORM models directory, read both files, extract
+columns and FKs, confirm the `Order.user_id` FK by checking it's actually declared
+in the model, then write `docs/data-model.md` with an `erDiagram` block containing
+only `USER` and `ORDER`.
 
-### Phase 6: Create or Update Documentation
+**Broad architecture request** — `docs-diagram arch`: with a Task tool, spawn
+Explore agents for services, databases, and external integrations; without one,
+run `find . -name "*service*"`, `find . -name "*.config.*"`, and a grep for known
+client SDKs sequentially. Merge only the components every check confirms into one
+`graph TB` diagram.
 
-- Output to appropriate file in `docs/`
-- If file exists, ask before overwriting
-- Preserve custom content if possible
+**Missing/invalid type** — `docs-diagram`: do not guess a type or generate
+anything; end the response with "Which diagram type do you want: architecture,
+er, deployment, or security?" alongside their output files.
 
-### Phase 7: Report Results
+## Notes
 
-- Show diagram type and output file
-- Display summary of what was detected
-- Provide next steps
-
-## Usage Examples
-
-Generate specific diagram type:
-```
-docs-diagram er
-docs-diagram arch
-docs-diagram deployment
-docs-diagram security
-With additional context:
-```
-docs-diagram er for user and order tables
-docs-diagram arch for microservices architecture
-docs-diagram deployment with Docker and Kubernetes
-Show available types:
-```
-docs-diagram
-## Important Notes
-
-- **Auto-detection**: Diagrams generated from actual code
-- **Mermaid format**: Uses GitHub-compatible Mermaid syntax
-- **Readable diagrams**: Limits complexity for clarity
-- **Incremental**: Can regenerate as code evolves
-- **Template-based**: Uses templates for consistent formatting
-- **Context-aware**: Uses optional context to guide generation
-
-## When to Run
-
-- Database schema has been modified (`er`)
-- Architecture has evolved (`arch`)
-- Deployment configuration changed (`deployment`)
-- Security architecture modified (`security`)
-- Onboarding new team members (all diagrams)
-- Documentation review (all diagrams)
-
-## Best Practices
-
-- **Keep current**: Regenerate after significant changes
-- **Review generated**: Always review auto-generated content
-- **Add context**: Supplement with manual descriptions
-- **Link diagrams**: Reference diagrams in related docs
-- **Version control**: Commit diagram updates with code changes
-- **Simplify**: Break complex diagrams into multiple views
-
-## Additional Resources
-
-- For Mermaid syntax per diagram type, see [references/mermaid-patterns.md](references/mermaid-patterns.md)
-- For codebase detection commands, see [references/detection-patterns.md](references/detection-patterns.md)
-
-## Claude Code Enhanced Features
-
-This skill includes the following Claude Code-specific enhancements:
-
-## Workflow
-
-### Phase 1: Deep Analysis (Use Explore Agent)
-
-Use the Explore agent to thoroughly analyze the codebase before generating diagrams:
-
-```
-Use Task tool with Explore agent:
-- prompt: "For [DIAGRAM_TYPE] diagram, find all relevant components. For ER: find model/entity files and their relationships. For arch: find services, APIs, databases. For deployment: find Docker/K8s configs. Return ONLY verified files with their actual content structure."
-- subagent_type: "Explore"
-```
-
-### Phase 2: Parse Arguments
-
-1. Extract diagram type from `$ARGUMENTS`
-2. Supported types: `er`, `arch`, `deployment`, `security`
-3. Extract optional context (remaining arguments)
-4. If type not provided or invalid, show available types and exit with helpful message
-
-### Phase 3: Parallel Verification (Use SubAgents)
-
-Before generating, spawn parallel agents to verify different aspects. See [references/detection-patterns.md](references/detection-patterns.md) for specific detection commands per diagram type.
-
-```
-Example: Generating an architecture diagram
-
-Agent 1 - Verify Services:
-- prompt: "Find all actual service files/classes in the codebase. Return a list of verified service names with their file paths. Do NOT assume - only return what you can find."
-- subagent_type: "Explore"
-
-Agent 2 - Verify Databases:
-- prompt: "Find all database configurations and connections. Look for DB URLs, ORM configs, connection pools. Return verified database technologies with evidence."
-- subagent_type: "Explore"
-
-Agent 3 - Verify External Integrations:
-- prompt: "Find all external API calls, third-party service integrations. Look for HTTP clients, SDK imports, webhook handlers. Return verified external dependencies."
-- subagent_type: "Explore"
-
-Agent 4 - Verify Data Flow:
-- prompt: "Trace how data flows between components. Look at imports, function calls, event handlers. Return verified connections between components."
-- subagent_type: "Explore"
-
-Merge results -> Only include verified entities in diagram
-```
-
-**Verification checklist before adding to diagram**:
-1. Read the actual source file to confirm it exists
-2. For relationships, verify the import/reference exists in code
-3. For counts (e.g., "5 services"), run: `find . -name "*service*" | wc -l`
-4. Remove any component that cannot be verified with actual code
-
-### Phase 4: Generate Mermaid Diagram
-
-- Create appropriate Mermaid syntax based on type
-- **ONLY include verified components** - no assumptions
-- Include meaningful labels and relationships
-- Add comments for clarity
-- Keep diagram readable (not too complex)
-
-For Mermaid syntax patterns per diagram type, see [references/mermaid-patterns.md](references/mermaid-patterns.md).
-
-### Phase 5: Load and Populate Template
-
-- Template location: `assets/templates/`
-- Select based on diagram type:
-  - `er` -> `data-model.md`
-  - `arch` -> `architecture.md`
-  - `deployment` -> `deployment.md`
-  - `security` -> `security.md`
-
-Replace placeholders:
-- `{{PROJECT_NAME}}` - Git repo or directory name
-- `{{DATE}}` - Current date
-- `{{ER_DIAGRAM}}` or `{{DIAGRAM_CONTENT}}` - Generated Mermaid code
-- `{{ENTITIES}}` or `{{COMPONENTS}}` - Entity/component descriptions
-
-### Phase 6: Create or Update Documentation
-
-- Output to appropriate file in `docs/`
-- If file exists, ask before overwriting
-- Preserve custom content if possible
-
-### Phase 7: Report Results
-
-- Show diagram type and output file
-- Display summary of what was detected
-- Provide next steps
+- Regenerate after the diagrammed subsystem changes (schema migration, new
+  service, new deploy target, new auth flow) — this skill is meant to be re-run,
+  not written once and left stale.
+- Additional context on codebase detection commands and Mermaid syntax lives in
+  [references/detection-patterns.md](references/detection-patterns.md) and
+  [references/mermaid-patterns.md](references/mermaid-patterns.md) — load them
+  when doing the actual detection/generation work, not before.

@@ -1,0 +1,22 @@
+[
+  {"query": "can you scan the repo and update .env.example, I added a few new vars", "should_trigger": true},
+  {"query": "/env-setup", "should_trigger": true},
+  {"query": "/env-setup validate", "should_trigger": true},
+  {"query": "check if my .env is missing anything the code actually needs", "should_trigger": true},
+  {"query": "sync .env.example so it matches what's actually used in the codebase", "should_trigger": true},
+  {"query": "scan for leaked secrets in .env, I think we committed one by accident", "should_trigger": true},
+  {"query": "is .env actually in our .gitignore? double check please", "should_trigger": true},
+  {"query": "generate a .env.example for this new service from scratch", "should_trigger": true},
+  {"query": "there are a bunch of stale env vars in .env.example nobody uses anymore, clean it up", "should_trigger": true},
+  {"query": "run env-setup scan --check-secrets on this repo before we deploy", "should_trigger": true},
+  {"query": "do a full OWASP-style security audit of this codebase", "should_trigger": false},
+  {"query": "review this PR for security vulnerabilities before I merge it", "should_trigger": false},
+  {"query": "the app crashes on startup because STRIPE_SECRET_KEY is undefined, fix the bug", "should_trigger": false},
+  {"query": "implement a new config loader that reads settings from a YAML file", "should_trigger": false},
+  {"query": "write a conventional commit message for these .env.example changes", "should_trigger": false},
+  {"query": "initialize documentation structure for this new project", "should_trigger": false},
+  {"query": "set up a GitHub Actions CI workflow that injects secrets from repo settings", "should_trigger": false},
+  {"query": "refactor how we load configuration across the services", "should_trigger": false},
+  {"query": "add a Dockerfile and docker-compose.yml for local dev", "should_trigger": false},
+  {"query": "rotate our AWS access keys since one may have leaked", "should_trigger": false}
+]

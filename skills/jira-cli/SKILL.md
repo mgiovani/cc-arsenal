@@ -1,30 +1,26 @@
 ---
 name: jira-cli
-description: Interactive CLI for Atlassian Jira issue, epic, and sprint management.
+description: Run raw ankitpokhrel/jira-cli commands directly against Jira Cloud or on-prem — issue/epic/sprint CRUD, JQL-style filtering, and scripting/CI automation (bulk assign, auto-label, sprint add). Invoke explicitly via /jira-cli, or when the user wants literal `jira` CLI syntax, a filter the curated skills don't expose, or a bash/CI script that drives jira-cli. Manual-invocation skill — does not auto-fire on general mentions of "jira" or "ticket". Not for a ready-made standup summary correlated with git commits (use jira-daily). Not for a prioritized "what should I work on" plan (use jira-todo).
 disable-model-invocation: true
 ---
 
 # Jira CLI
 
-Interactive command-line tool for Atlassian Jira that minimizes reliance on the web interface while maintaining essential functionality for daily Jira operations.
+Command reference and scripting patterns for `jira-cli`, the command-line tool for managing Jira issues, epics, and sprints without the web UI.
 
-## Overview
+## Prerequisites
 
-JiraCLI (`jira-cli`) is a command line tool for managing Jira issues, epics, and sprints. Supports both Jira Cloud and on-premise installations with multiple authentication methods.
+These references assume `jira` on `PATH` is [ankitpokhrel/jira-cli](https://github.com/ankitpokhrel/jira-cli) — a different tool can claim the same binary name. Before trusting any command below, run `jira version` once per session and confirm the output looks like this project (e.g. `jira version 1.x.x` with a `Homepage: https://github.com/ankitpokhrel/jira-cli` line). If it doesn't, stop and check `which jira` instead of guessing at flags.
 
-**For AI use, always add `--plain` flag to get plain text output suitable for parsing.**
+For AI use, always add `--plain` (and usually `--no-headers`) to get parseable text output instead of the interactive table.
 
 ## When to Use This Skill
 
-Use this skill when:
-- Managing Jira issues from the command line
-- Creating, editing, or viewing Jira tickets
-- Working with epics and sprints
-- Automating Jira workflows
-- Users mention "jira", "ticket", "issue", "epic", or "sprint"
-- Writing scripts for Jira automation
+Manual slash-command skill (`/jira-cli`) — it does not auto-trigger on mentions of "jira" or "ticket". Invoke it directly for raw `jira` CLI commands (issues, epics, sprints) or scripting/automation. On tools that don't read Claude-Code frontmatter, `disable-model-invocation` is ignored — the `/jira-cli` phrasing itself is the manual-invocation signal there too.
 
 ## Essential Commands
+
+Curated top-7 for the most common operations. For anything else — filters, epic/sprint management, releases, output formats — load [references/commands.md](./references/commands.md); don't try to recall the rest from memory.
 
 ```bash
 # List recent issues (always use --plain for AI)
@@ -34,7 +30,7 @@ jira issue list --plain
 jira issue view ISSUE-1 --plain
 
 # Create an issue
-jira issue create -tBug -s"Bug title" -yHigh -b"Description"
+jira issue create -tBug -s"Bug title" -yHigh -b"Description" --no-input
 
 # Assign issue to yourself
 jira issue assign ISSUE-1 $(jira me)
@@ -49,140 +45,63 @@ jira issue comment add ISSUE-1 --comment "My comment"
 jira issue worklog add ISSUE-1 "2h" --comment "Implementation work"
 ```
 
+## Worked Examples
+
+**Confirm the CLI flavor before anything else:**
+```
+$ jira version
+jira version 1.5.1
+Homepage: https://github.com/ankitpokhrel/jira-cli
+```
+A different `jira version` output (or a "command not found") means stop and resolve `which jira` before running any command from this skill.
+
+**Parse `--plain` output for scripting** — columns are tab-separated, headers are on unless suppressed:
+```
+$ jira issue list -a$(jira me) -s"In Progress" --plain --no-headers --columns key,summary
+PROJ-123	Fix login redirect loop
+PROJ-124	Add rate limiting to API
+```
+```bash
+jira issue list -a$(jira me) -s"In Progress" --plain --no-headers --columns key,summary | \
+  while IFS=$'\t' read -r key summary; do echo "Working: $key - $summary"; done
+```
+
+**Create non-interactively and capture the new key from the URL jira-cli prints:**
+```
+$ jira issue create -tBug -s"Login redirect loop" -yHigh --no-input
+Issue created
+https://your-domain.atlassian.net/browse/PROJ-125
+```
+```bash
+key=$(jira issue create -tBug -s"Login redirect loop" -yHigh --no-input | grep -oE '[A-Z]+-[0-9]+$')
+```
+
+**Bulk sprint add sourced from a live filter, not a hardcoded list:**
+```bash
+jira sprint add SPRINT_ID $(jira issue list -s"Ready for Dev" --plain --columns key --no-headers | tr '\n' ' ')
+```
+
 ## How to Use This Skill
 
-**For detailed command reference and examples, load the appropriate reference file:**
+Load reference files on demand — don't pull all three into context for a single command.
 
 ### 1. Comprehensive Commands Reference
 
 **Load:** [references/commands.md](./references/commands.md)
 
-Use this file when you need:
-- Detailed command syntax and options
-- All available flags and parameters
-- Issue management operations (list, create, edit, assign, move, view, link, clone, delete)
-- Epic management (list, create, add/remove issues)
-- Sprint management (list, add issues)
-- Release management
-- Output format options
-- Non-interactive command patterns
+Detailed syntax for issue management (list, create, edit, assign, move, view, link, clone, delete, comments, worklog), epic management, sprint management, releases, and output-format options.
 
 ### 2. Common Workflow Examples
 
 **Load:** [references/workflows.md](./references/workflows.md)
 
-Use this file when you need:
-- Daily standup preparation workflows
-- Sprint planning commands
-- Code review workflow integration
-- Bug triage procedures
-- Team collaboration patterns
-- Best practices for different scenarios
+Multi-command patterns: sprint planning, code review handoff, bug triage, epic tracking, incident response, backlog grooming, cross-team coordination.
 
 ### 3. Scripting and Automation
 
 **Load:** [references/scripting.md](./references/scripting.md)
 
-Use this file when you need:
-- Bash automation scripts
-- Data extraction and reporting
-- Integration with CI/CD pipelines
-- Metrics and analytics examples
-- Bulk operations
-
-## Quick Reference
-
-### Powerful List Filters
-
-```bash
-# Combine flags for precise queries (always add --plain)
-jira issue list --plain -a$(jira me) -yHigh -s"To Do" --created -7d -lbackend
-
-# Use tilde (~) as NOT operator
-jira issue list --plain -s~Done --created-before -24w
-
-# Filter by multiple criteria
-jira issue list --plain -yHigh,Critical -s"In Progress" -lbug
-
-# List issues I'm watching
-jira issue list --plain -w
-
-# List issues assigned to no one created this week
-jira issue list --plain -ax --created week
-
-# List issues created within an hour
-jira issue list --plain --created -1h
-
-# List issues from history (recently viewed)
-jira issue list --plain --history
-```
-
-### Sprint Management
-
-```bash
-# List current active sprint issues
-jira sprint list --plain --current
-
-# List current sprint issues assigned to me
-jira sprint list --plain --current -a$(jira me)
-
-# List previous sprint issues
-jira sprint list --plain --prev
-
-# List next planned sprint issues
-jira sprint list --plain --next
-
-# List future and active sprints
-jira sprint list --plain --state future,active
-
-# List issues in a specific sprint (use sprint ID)
-jira sprint list --plain SPRINT_ID
-
-# Add issues to a sprint
-jira sprint add SPRINT_ID ISSUE-1 ISSUE-2
-```
-
-### Epic Management
-
-```bash
-# List epics in table view
-jira epic list --plain --table
-
-# List issues in an epic
-jira epic list --plain KEY-1
-
-# List unassigned high priority issues in an epic
-jira epic list --plain KEY-1 -ax -yHigh
-
-# Add issues to an epic (up to 50 at once)
-jira epic add EPIC-KEY ISSUE-1 ISSUE-2
-
-# Remove issues from an epic
-jira epic remove ISSUE-1 ISSUE-2
-```
-
-### Useful Scripts
-
-```bash
-# Get ticket count per sprint
-sprints=$(jira sprint list --table --plain --columns id,name --no-headers)
-echo "${sprints}" | while read -r id name; do
-  count=$(jira sprint list "${id}" --plain --no-headers 2>/dev/null | wc -l)
-  printf "%s: %d\n" "${name}" "${count}"
-done
-
-# List tickets created today
-jira issue list --plain --created -1d
-
-# List high priority bugs assigned to me
-jira issue list --plain -a$(jira me) -tBug -yHigh
-
-# Get issues by date range
-jira issue list --plain --created week
-jira issue list --plain --created month
-jira issue list --plain --created -7d
-jira issue list --plain --updated -30m
-```
+Raw bash automation that isn't already a curated skill: bulk assignment, auto-labeling, CSV export, velocity/metrics calculation, CI/CD hooks (GitHub Actions, GitLab CI, Jenkins), error handling and rate-limiting patterns. For a formatted standup report or sprint status readout, use `jira-daily` instead of hand-rolling one here — those scripts were removed from this file for that reason.
 
 ## Resources
 

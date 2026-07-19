@@ -1,6 +1,6 @@
 ---
 name: find-skills
-description: Discover and install third-party agent skills from the skills.sh ecosystem.
+description: Search, install, update, and remove third-party Agent Skills from skills.sh or any GitHub/GitLab repo via the `npx skills` CLI. Use when the user wants to "find a skill", "install a skill from github", "search skills.sh", or add third-party capabilities to Claude Code/Cursor/other agents. Not for authoring new skills (see create-skill).
 disable-model-invocation: true
 ---
 
@@ -14,15 +14,16 @@ The **Agent Skills** format is an open standard for packaging procedural knowled
 
 **skills.sh** is the public directory and leaderboard for the ecosystem, hosting thousands of skills across categories like frontend, backend, DevOps, and more.
 
-### Built-in cc-arsenal Skills
+Before installing a third-party skill, check `ls skills/` in this repo (or run `/find-skills` again after browsing) -- cc-arsenal may already cover the same ground, and a hardcoded list here would just go stale.
 
-Before installing third-party skills, note that cc-arsenal already provides:
-- **agent-browser** -- AI-optimized headless browser automation (snapshot + refs system)
-- **jira-cli** -- Interactive Jira issue, epic, and sprint management
-- **create-skill** -- Specification-driven skill creation with live documentation fetching
-- **find-skills** -- This skill (discovery and installation of third-party skills)
+## Ask First, Never Mutate to "Show" Something
 
-Only install external skills that provide capabilities not already covered above.
+`add`, `remove`/`rm`, and `update` all touch the user's real filesystem (project `.claude/skills/` or global `~/.claude/skills/`) -- a wrong guess costs the user real state, not a free re-run. Two hard stops, both end the turn on a question rather than acting and reporting after:
+
+- **Scope or target is ambiguous.** If it isn't clear which skill/repo to install, or whether it belongs at project vs. global scope, end your response with the clarifying question. Don't run `npx skills add` first and confirm after, and don't install to a throwaway/local mock "just to show the flow" -- that still runs a real command against the user's real directories. Ask, stop, and install only in a later turn once the user answers.
+- **Any removal, one skill or all of them.** Removal is destructive and not undoable via the CLI. Run `npx skills list` (and `-g` if scope is unclear) to show what's actually installed, then end your response asking the user to confirm exactly what gets removed. Run `remove`/`rm`/`--all` only in a later turn, after the user replies with an explicit yes. The request is never the confirmation: "remove the foo skill, I don't use it anymore" names the action but does not green-light it -- if you catch yourself reasoning "the user already confirmed by naming it", that reasoning is exactly the failure this rule exists to stop.
+
+If a source can't be verified (repo doesn't exist, network/auth error), report the failure and stop -- never substitute a synthetic local repo and install it to demonstrate what would have happened.
 
 ## Quick Start
 
@@ -66,6 +67,20 @@ npx skills add owner/repo --skill skill-name -a claude-code -g
 # Install all skills from a repo to all detected agents
 npx skills add owner/repo --all
 ```
+
+## Worked Examples
+
+Map the user's request to the right subcommand and scope before running anything:
+
+| User says | Command |
+|---|---|
+| "find a skill for testing" | `npx skills find testing` |
+| "install the frontend-design skill from vercel-labs/agent-skills for this project" | `npx skills add vercel-labs/agent-skills --skill frontend-design -a claude-code` |
+| "install code-review globally so I have it everywhere" | `npx skills add owner/repo --skill code-review -a claude-code -g` |
+| "what skills do I have installed?" | `npx skills list` |
+| "remove the web-design-guidelines skill" | `npx skills list` to confirm it's installed, then ask "remove web-design-guidelines -- confirm?" and run `npx skills remove web-design-guidelines` only after a yes |
+
+See "Ask First, Never Mutate to 'Show' Something" above for exactly when to end the turn on a question instead of running the command.
 
 ## Essential Commands
 
@@ -114,7 +129,7 @@ npx skills add ./my-local-skills
 |------------|-------------|
 | `vercel-labs/agent-skills` | Vercel's official skill collection (React, Next.js, design) |
 | `anthropics/skills` | Anthropic's example skills |
-| `mgiovani/cc-arsenal` | This repository (browser, Jira, create-skill, find-skills) |
+| `mgiovani/cc-arsenal` | This repository -- see AGENTS.md or `ls skills/` for the current catalog |
 
 ## Reference Files
 

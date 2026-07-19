@@ -1,0 +1,22 @@
+[
+  {"query": "are our dependencies safe? can you audit them for vulnerabilities", "should_trigger": true},
+  {"query": "check package.json for any known CVEs before we ship", "should_trigger": true},
+  {"query": "run a license compliance check on our node_modules", "should_trigger": true},
+  {"query": "is anything in our requirements.txt outdated or abandoned upstream", "should_trigger": true},
+  {"query": "we got a dependabot alert, can you tell me how bad it is and what else is vulnerable", "should_trigger": true},
+  {"query": "audit our supply chain risk across the cargo and go deps", "should_trigger": true},
+  {"query": "can you check if any of our npm packages have copyleft licenses", "should_trigger": true},
+  {"query": "how stale are our dependencies, what's safe to upgrade and what's risky", "should_trigger": true},
+  {"query": "run npm audit and pip-audit and summarize the findings", "should_trigger": true},
+  {"query": "before the audit next week, tell me if we have any known-exploited vulns in our packages", "should_trigger": true},
+  {"query": "scan our codebase for SQL injection and XSS vulnerabilities", "should_trigger": false},
+  {"query": "upgrade express to the latest major version and fix any breaking changes", "should_trigger": false},
+  {"query": "run our unit tests and tell me what's failing", "should_trigger": false},
+  {"query": "refactor the auth module to remove duplicated validation logic", "should_trigger": false},
+  {"query": "write a conventional commit message for the lockfile bump", "should_trigger": false},
+  {"query": "review this PR before I merge it into main", "should_trigger": false},
+  {"query": "set up an ADR documenting why we chose pnpm over npm", "should_trigger": false},
+  {"query": "add a rate limiter middleware to the API gateway", "should_trigger": false},
+  {"query": "there's a bug where the checkout page throws a 500, can you fix it", "should_trigger": false},
+  {"query": "install the latest version of react and update the lockfile", "should_trigger": false}
+]

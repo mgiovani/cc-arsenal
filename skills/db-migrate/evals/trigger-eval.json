@@ -1,0 +1,22 @@
+[
+  { "query": "Create a new database migration for adding a phone_number column to users", "should_trigger": true },
+  { "query": "Check if there are any pending migrations on this project", "should_trigger": true },
+  { "query": "Validate this migration file for a missing rollback script", "should_trigger": true },
+  { "query": "Does this migration have a matching down/rollback function?", "should_trigger": true },
+  { "query": "Generate an alembic revision for the new orders table", "should_trigger": true },
+  { "query": "Run npx prisma migrate status and tell me what's outstanding", "should_trigger": true },
+  { "query": "I need a knex migration that adds an index on users.email", "should_trigger": true },
+  { "query": "Check this migration for DROP TABLE statements before I apply it", "should_trigger": true },
+  { "query": "What's the current schema version according to our migration tool?", "should_trigger": true },
+  { "query": "Create a rails migration to add a foreign key from orders to users", "should_trigger": true },
+  { "query": "Design the schema for a new orders and line_items feature end to end", "should_trigger": false },
+  { "query": "Implement the checkout feature, including whatever DB tables it needs", "should_trigger": false },
+  { "query": "This migration is throwing a foreign key constraint error at runtime, fix it", "should_trigger": false },
+  { "query": "Refactor the User model to split it into User and UserProfile", "should_trigger": false },
+  { "query": "Write a Dockerfile and docker-compose.yml with a Postgres service for local dev", "should_trigger": false },
+  { "query": "Sync .env.example with the DATABASE_URL and other env vars this app reads", "should_trigger": false },
+  { "query": "Review this PR for correctness bugs and error handling issues", "should_trigger": false },
+  { "query": "Generate a GitHub Actions workflow that runs our test suite on push", "should_trigger": false },
+  { "query": "Write an ADR documenting why we chose Postgres over MongoDB", "should_trigger": false },
+  { "query": "Add unit tests covering the new UserRepository class", "should_trigger": false }
+]

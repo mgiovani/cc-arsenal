@@ -6,14 +6,16 @@ description: Manage a gitflow branching workflow — starting and finishing feat
   branches in sync. Activates when users mention gitflow, feature/release/hotfix
   branches, cutting a release, branching strategy, promoting an integration branch
   to production, tagging a version, or rolling back a live release. Also reaches
-  for it when the user says "ship it", "promote dev to main", or "we need to hotfix
-  prod" without naming gitflow. Skip for general git mechanics (commit messages,
-  merge conflicts, interactive rebase, git education) or CI-failure debugging
-  unrelated to a release.
+  for it when the user says "promote dev to main" or "we need to hotfix prod"
+  without naming gitflow. Not for a single commit message (use git-commit).
+  Not for versioned releases on a simple main-branch workflow with no release/hotfix
+  branches (use git-release). Not for the mechanical review-to-merge pipeline on
+  a branch with no release/hotfix topology involved (use ship). Skip for general
+  git mechanics (merge conflicts, interactive rebase, git education) or CI-failure
+  debugging unrelated to a release.
 metadata:
   author: mgiovani
   version: 1.0.0
-  source: https://github.com/mgiovani/skills
 ---
 
 # Gitflow
@@ -40,7 +42,7 @@ If the intent is ambiguous (e.g. "ship the settings fix"), ask one question: is 
 
 These apply to every flow. They exist because `main` is live production and a mistake here is user-visible, so the cost of a shortcut is real.
 
-- **`main` is a deploy button.** Never merge to `main` while any CI check is not green. The full Definition-of-Done gate runs on a PR to `main`; wait for all of it. Poll CI every few minutes rather than tight-looping, to keep token cost sane.
+- **`main` is a deploy button.** Never merge to `main` while any CI check is not green. The full Definition-of-Done gate runs on a PR to `main`; wait for all of it. Poll CI every few minutes rather than tight-looping, to keep token cost sane. No CI pipeline configured on the repo? Skip the wait-for-green step and say so explicitly before merging.
 - **Always update `CHANGELOG.md`** during a release and a hotfix (never per-feature; the changelog is assembled at ship time). See `references/changelog.md` for the format.
 - **Conventional Commits.** Follow the [Conventional Commits](https://www.conventionalcommits.org/) spec. Keep commit messages, PR titles, PR bodies, the changelog, and release notes clean and professional.
 - **Never force-push.** Never bypass git hooks (`--no-verify` or equivalent). The pre-push hooks are part of the safety net. If a push fails due to a hook, investigate and root-fix the underlying issue; never bypass.
@@ -50,7 +52,7 @@ These apply to every flow. They exist because `main` is live production and a mi
 
 ## Versioning
 
-Semantic versioning. The current version lives in your project manifest (`package.json`, `pyproject.toml`, `Cargo.toml`, etc.) on both long-lived branches — kept in sync; both are at the last released version.
+Semantic versioning. The current version lives in your project manifest (`package.json`, `pyproject.toml`, `Cargo.toml`, etc.) on both long-lived branches — kept in sync; both are at the last released version. No version manifest in the repo? Version via the latest `git tag` alone and skip the bump-file step.
 
 - **Release**: bump minor for new features (e.g. `1.1.0` to `1.2.0`), major for breaking changes.
 - **Hotfix**: bump patch (e.g. `1.1.0` to `1.1.1`).

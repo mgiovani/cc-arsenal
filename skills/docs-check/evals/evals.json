@@ -1,0 +1,49 @@
+{
+  "skill": "docs-check",
+  "evals": [
+    {
+      "id": "pre-release-full-doc-health-check",
+      "prompt": "We're cutting a release next week, run a full docs health check across the docs/ tree including ADRs and flag anything broken",
+      "assertions": [
+        "Scans the full docs/ tree including the ADR directory and identifies the documentation types present",
+        "For the multi-doc audit, either spawns parallel Explore subagents per document/section or, if no Task tool is available, explicitly states it is falling back to a sequential inline pass over each document",
+        "Validates Mermaid diagram syntax and checks for broken internal links using an actual command (grep/glob), not assumption",
+        "Outputs documents grouped into Good/Stale/Broken/Missing categories rather than 0-100 numeric scores or a weighted average",
+        "Recommends docs-update or docs-diagram (not itself) as the follow-up action for any Stale/Broken/Missing doc",
+        "Does not edit, write, or modify any documentation file during the run"
+      ]
+    },
+    {
+      "id": "hallucinated-service-count-in-readme",
+      "prompt": "Our README says 'the platform has 5 microservices' — can you verify that's still accurate and find any other made-up claims in the docs?",
+      "assertions": [
+        "Counts actual services/components in the codebase (via find/glob/grep) and compares the number to the claim instead of assuming it's correct",
+        "Checks file/path references mentioned in the docs to confirm they actually exist",
+        "Reports a Hallucination Report section citing the verification command used as evidence for each false claim",
+        "Rates the README (or the section containing the false claim) as Broken rather than assigning it a numeric score",
+        "Does not modify or rewrite the README or any other doc file",
+        "Gives a specific, actionable recommendation naming a concrete follow-up command (e.g. docs-update) for the hallucination found"
+      ]
+    },
+    {
+      "id": "focus-category-not-present-in-repo",
+      "prompt": "docs-check infrastructure — focus on our infrastructure docs",
+      "assertions": [
+        "Scans docs/ to see what categories of documentation actually exist before matching the requested focus, rather than assuming a fixed core/data/infrastructure/all taxonomy",
+        "If the repo has no infrastructure-related docs or infra signal (no Dockerfile/compose/k8s config) to check against, states this explicitly and lists the categories that were actually found instead of silently returning an empty or fabricated report",
+        "If infrastructure-related docs or config do exist, checks them against real deployment/Docker/config files rather than only checking for a file literally named 'deployment.md'",
+        "Does not invent scores or ratings for a category that doesn't exist in the repo"
+      ]
+    },
+    {
+      "id": "user-asks-to-also-fix-what-it-finds",
+      "prompt": "Check the docs and fix whatever's broken while you're at it",
+      "assertions": [
+        "Performs the read-only audit (scans docs/, verifies claims, checks freshness/completeness/quality) and produces a report",
+        "States explicitly that it only reports and does not edit documentation, pointing to docs-update as the skill that performs fixes",
+        "Does not call Write or Edit (or any mutating command) on any documentation file at any point in the run, even for a fix it judges trivial or obvious",
+        "The final report still includes concrete, actionable recommendations (with a follow-up command) for each issue found, so declining to fix doesn't mean declining to report"
+      ]
+    }
+  ]
+}
