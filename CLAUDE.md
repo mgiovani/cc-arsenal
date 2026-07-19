@@ -12,15 +12,7 @@ Register this repository as a Claude Code Plugin marketplace:
 Then, to install a specific plugin set:
 1. Select **Browse and install plugins**
 2. Select **cc-arsenal-marketplace**
-3. Select one of:
-   - **cc-arsenal** - Complete toolkit (all 45 skills)
-   - **cc-arsenal-dev** - Development skills only (implement-feature, fix-bug, test-suite, refactor, ci-generate, ci-local, inject-docs, project-planner, nanobanana, db-migrate, docker-init, env-setup, vrt-check, i18n-check, ship, codex-imagegen, oss-launch)
-   - **cc-arsenal-review** - Code review and quality skills only (review-code, review-security, review-deps, review-perf, review-design)
-   - **cc-arsenal-docs** - Documentation skills only (ADR, RFC, diagrams, init, check, update)
-   - **cc-arsenal-git** - Git/GitHub workflow skills only (git-commit, git-create-pr, git-release, gitflow, gh-daily, git-sync)
-   - **cc-arsenal-jira** - Jira skills only (jira-cli, jira-daily, jira-todo)
-   - **cc-arsenal-skills** - Specialty skills only (agent-browser, find-skills, create-skill, create-rule, improve-skill, orchestrate)
-   - **cc-arsenal-teams** - Team orchestration (team-implement, team-review)
+3. Select one of the variants (see the table below)
 4. Select **Install now**
 
 Alternatively, directly install via:
@@ -35,24 +27,20 @@ For local development, add a local marketplace instead:
 
 **Benefits over `npx skills add`:** managed installation, automatic updates, easy enable/disable, no system-wide symlinks — plus the extras below (subagent orchestration, hooks, plugin variants) that only work inside Claude Code.
 
-**Plugin Variants (8 total):**
+**Plugin variants** — install the whole toolkit or a focused subset:
 
-| Plugin | Skills Loaded | Use Case |
-|--------|--------------|----------|
-| `cc-arsenal` | All 45 skills | Full toolkit for complete workflow automation |
-| `cc-arsenal-dev` | implement-feature, fix-bug, test-suite, refactor, ci-generate, ci-local, inject-docs, project-planner, nanobanana, db-migrate, docker-init, env-setup, vrt-check, i18n-check, ship, codex-imagegen, oss-launch | Development workflows with subagents |
-| `cc-arsenal-review` | review-code, review-security, review-deps, review-perf, review-design | Code review and quality audits |
-| `cc-arsenal-docs` | docs-adr, docs-check, docs-diagram, docs-init, docs-rfc, docs-update | Documentation generation only |
-| `cc-arsenal-git` | git-commit, git-create-pr, git-release, gitflow, gh-daily, git-sync | Git/GitHub workflow automation |
-| `cc-arsenal-jira` | jira-cli, jira-daily, jira-todo | Jira standup, planning, and CLI |
-| `cc-arsenal-skills` | agent-browser, find-skills, create-skill, create-rule, improve-skill, orchestrate | Specialty model-invoked capabilities |
-| `cc-arsenal-teams` | team-implement, team-review | Team orchestration (experimental) |
+| Plugin | Use Case |
+|--------|----------|
+| `cc-arsenal` | Complete toolkit — every skill |
+| `cc-arsenal-dev` | Development workflows |
+| `cc-arsenal-review` | Code review and quality audits |
+| `cc-arsenal-docs` | Documentation generation |
+| `cc-arsenal-git` | Git/GitHub workflow automation |
+| `cc-arsenal-jira` | Jira standup, planning, and CLI |
+| `cc-arsenal-skills` | Specialty model-invoked capabilities |
+| `cc-arsenal-teams` | Team orchestration (experimental) |
 
-The `cc-arsenal` plugin intentionally omits the `skills` field in `marketplace.json` — an unset `skills` field means "auto-load every skill in the repo," so it doesn't need to be kept in sync with the other variants.
-
-**How it works:**
-- `.claude-plugin/marketplace.json` defines the marketplace and each plugin variant's `skills` list
-- Users install only what they need without duplicating code
+Each variant's exact skill set is defined in [`.claude-plugin/marketplace.json`](.claude-plugin/marketplace.json) — the single source of truth, so the list never drifts across docs. The `cc-arsenal` variant intentionally omits the `skills` field there: an unset `skills` means "auto-load every skill in the repo," so it never needs syncing with the others.
 
 **Troubleshooting plugin updates:**
 
@@ -120,4 +108,4 @@ A few skills declare a `hooks` key in their SKILL.md frontmatter (e.g. `agent-br
 
 ## Documentation Guidelines
 
-**No README files inside `skills/`** — Claude Code detects them as actual components. Put docs in `docs/`, use `AGENTS.md` for cross-tool guidance and this file for Claude-Code specifics, and let each skill's `SKILL.md` be its own native doc.
+**No README files inside `skills/`** — Claude Code detects them as actual components. Put docs in `docs/` and let each skill's `SKILL.md` be its own native doc.

@@ -130,7 +130,7 @@ Skills use a three-level loading system:
 
 ### Eval Convention
 
-Each skill's `evals/evals.json` lists concrete scenarios (`id`, `prompt`, `assertions`) that a run of the skill must satisfy — used to catch regressions when a SKILL.md is edited. `evals/trigger-eval.json` instead tests description-triggering: given a set of realistic user prompts, does the skill's frontmatter `description` cause it to fire (or correctly not fire)? Use `cc-arsenal:create-skill`'s eval tooling to run either against a live agent.
+Each skill's `evals/evals.json` lists concrete scenarios (`id`, `prompt`, `assertions`) that a run of the skill must satisfy — used to catch regressions when a SKILL.md is edited. `evals/trigger-eval.json` instead tests description-triggering: given a set of realistic user prompts, does the skill's frontmatter `description` cause it to fire (or correctly not fire)? Use the `create-skill` skill's eval tooling to run either against a live agent.
 
 ## Development Commands
 
