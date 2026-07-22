@@ -152,7 +152,7 @@ To point the script at a different config file entirely (e.g. for previewing a c
 
 ## Multiple accounts
 
-The statusline supports more than one Claude account on the same machine, driven entirely by `CLAUDE_CODE_OAUTH_TOKEN`.
+The statusline supports more than one Claude account on the same machine. Per-account usage isolation (cache, lock, and backoff state) is keyed on `CLAUDE_CODE_OAUTH_TOKEN`; the account badge is independent of it and renders from `CLAUDE_STATUSLINE_ACCOUNT_LABEL` alone (see [Account badge](#account-badge)).
 
 ### Precedence
 
