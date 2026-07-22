@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
+- **Statusline: staff-level overhaul.** Removed ~3,900 lines of dead code (an entire abandoned cache subsystem, superseded flat modules, rotted dev tools) and retired the background daemon — its output had no consumers and the OAuth refresh now fires directly from the render path, non-blocking. The whole tree is shellcheck-clean, usage percentages are now threshold-colored (green/yellow/red), the test suite was rebuilt against the live modules with shared assert helpers, glob discovery, and full /tmp isolation (9/9 suites), docs were consolidated into STATUSLINE.md and verified against the code, and CI gained a Linux shellcheck+test job.
+
+### Fixed
+- **Statusline:** `extract_json` returned success with empty output on a grep-fallback miss, making every `||` fallback chain over it unreachable (e.g. session-id lookup never tried `session_id`/`conversation_id`); `lib/display/components.sh` didn't source its own `core/json.sh` dependency; `cache_clear` could expand `rm -rf` against `/*` if its directory variable was ever empty.
+
+### Changed
 - **New `integrations/` tier.** Agent-CLI-specific tooling now lives under `integrations/<agent-cli>/`, one subdirectory per agent CLI: the statusline moved from `scripts/claude/statusline` to `integrations/claude-code/statusline` and the claude-hi session scheduler from `scripts/claude-hi` to `integrations/claude-code/claude-hi`. The installed location (`~/.claude/scripts/claude/statusline`) is unchanged, so existing installs and `settings.json` entries keep working without migration.
 
 ### Added

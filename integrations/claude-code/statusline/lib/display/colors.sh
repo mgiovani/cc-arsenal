@@ -21,19 +21,27 @@ readonly STATUSLINE_YELLOW='\033[33m'
 readonly STATUSLINE_BLUE='\033[34m'
 readonly STATUSLINE_MAGENTA='\033[35m'
 readonly STATUSLINE_CYAN='\033[36m'
+# shellcheck disable=SC2034 # palette API: kept for callers even if unused directly today
 readonly STATUSLINE_WHITE='\033[37m'
 readonly STATUSLINE_GRAY='\033[90m'
 
 # Modifiers
+# shellcheck disable=SC2034 # palette API: kept for callers even if unused directly today
 readonly STATUSLINE_DIM='\033[2m'
+# shellcheck disable=SC2034 # palette API: kept for callers even if unused directly today
 readonly STATUSLINE_BOLD='\033[1m'
 
 # Bright colors
 readonly STATUSLINE_BRIGHT_GREEN='\033[92m'
+# shellcheck disable=SC2034 # palette API: kept for callers even if unused directly today
 readonly STATUSLINE_BRIGHT_YELLOW='\033[93m'
+# shellcheck disable=SC2034 # palette API: kept for callers even if unused directly today
 readonly STATUSLINE_BRIGHT_BLUE='\033[94m'
+# shellcheck disable=SC2034 # palette API: kept for callers even if unused directly today
 readonly STATUSLINE_BRIGHT_MAGENTA='\033[95m'
+# shellcheck disable=SC2034 # palette API: kept for callers even if unused directly today
 readonly STATUSLINE_BRIGHT_CYAN='\033[96m'
+# shellcheck disable=SC2034 # palette API: kept for callers even if unused directly today
 readonly STATUSLINE_BRIGHT_PURPLE='\033[95m'
 
 # Reset
@@ -117,32 +125,5 @@ get_usage_color() {
         echo "$STATUSLINE_YELLOW"
     else
         echo "$STATUSLINE_RED"
-    fi
-}
-
-# Get color based on cost
-# Usage: get_cost_color "1.50"
-get_cost_color() {
-    local cost="$1"
-
-    # Remove dollar sign if present
-    cost="${cost#\$}"
-
-    if [[ ! "$cost" =~ ^[0-9.]+$ ]]; then
-        echo "$STATUSLINE_GRAY"
-        return
-    fi
-
-    # Compare as integer (cost * 100)
-    local cost_cents
-    cost_cents=$(echo "$cost * 100" | bc 2>/dev/null || echo "0")
-    cost_cents="${cost_cents%.*}"
-
-    if [[ $cost_cents -lt 50 ]]; then
-        echo "$STATUSLINE_GRAY"
-    elif [[ $cost_cents -lt 200 ]]; then
-        echo "$STATUSLINE_YELLOW"
-    else
-        echo "$STATUSLINE_BRIGHT_YELLOW"
     fi
 }

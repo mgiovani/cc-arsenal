@@ -42,6 +42,7 @@ _cache_init() {
 
 # Setup cleanup trap (call once at script start)
 cache_setup_cleanup() {
+    # shellcheck disable=SC2064 # intentional: capture the dir now, not at EXIT time
     trap "rm -rf '$STATUSLINE_CACHE_DIR' 2>/dev/null || true" EXIT 2>/dev/null || true
 }
 
@@ -124,7 +125,7 @@ cache_delete() {
 # Usage: cache_clear
 cache_clear() {
     if [[ -d "$STATUSLINE_CACHE_DIR" && "$STATUSLINE_CACHE_DIR" == /tmp/* ]]; then
-        rm -rf "$STATUSLINE_CACHE_DIR"/* 2>/dev/null || true
+        rm -rf "${STATUSLINE_CACHE_DIR:?}"/* 2>/dev/null || true
     fi
 }
 

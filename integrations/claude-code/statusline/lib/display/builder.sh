@@ -69,10 +69,6 @@ extract_statusline_data() {
     # Context window - use percentage from Claude Code
     USED_PERCENTAGE=$(extract_json "$json" "context_window.used_percentage" 2>/dev/null || echo "")
 
-    # Token usage (still needed for usage line fallback heuristic)
-    INPUT_TOKENS=$(extract_json "$json" "context_window.current_usage.input_tokens" 2>/dev/null || echo "0")
-    OUTPUT_TOKENS=$(extract_json "$json" "context_window.current_usage.output_tokens" 2>/dev/null || echo "0")
-
     # Rate limits (native from Claude Code JSON)
     RATE_LIMIT_5H_PERCENT=$(extract_json "$json" "rate_limits.five_hour.used_percentage" 2>/dev/null || echo "")
     RATE_LIMIT_5H_RESETS=$(extract_json "$json" "rate_limits.five_hour.resets_at" 2>/dev/null || echo "")

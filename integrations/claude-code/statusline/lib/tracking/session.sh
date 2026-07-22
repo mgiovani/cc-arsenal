@@ -218,8 +218,12 @@ get_claude_session_start() {
         return
     fi
 
-    # Sort timestamps chronologically
-    IFS=$'\n' all_timestamps=($(sort -n <<< "${all_timestamps[*]}")); unset IFS
+    # Sort timestamps chronologically (bash 3.2 safe - no mapfile)
+    local sorted_timestamps=()
+    while IFS= read -r timestamp_line; do
+        [[ -n "$timestamp_line" ]] && sorted_timestamps+=("$timestamp_line")
+    done < <(printf '%s\n' "${all_timestamps[@]}" | sort -n)
+    all_timestamps=("${sorted_timestamps[@]}")
 
     # Apply session block detection algorithm
     local current_block_start=0

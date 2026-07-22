@@ -39,7 +39,8 @@ require_jq() {
 # Backup settings before modification
 backup_claude_settings() {
     if [[ -f "$CLAUDE_SETTINGS" ]]; then
-        local backup_file="$CLAUDE_SETTINGS.backup-$(date +%s)"
+        local backup_file
+        backup_file="$CLAUDE_SETTINGS.backup-$(date +%s)"
         cp "$CLAUDE_SETTINGS" "$backup_file"
         echo "Backed up existing settings to: $backup_file"
         echo "$backup_file"

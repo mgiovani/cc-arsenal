@@ -1,342 +1,257 @@
 # Claude Code Statusline
 
-Shows usage tracking, git status, and session information in your Claude Code prompt.
+Shows model, git, cost, context, and usage-window information in your Claude Code prompt — computed fresh on every call, no background daemon.
 
 ## Table of Contents
 
 - [Overview](#overview)
-- [Features](#features)
 - [Installation](#installation)
 - [Usage](#usage)
 - [Configuration](#configuration)
-- [Components](#components)
-- [Architecture](#architecture)
+- [Multiple accounts](#multiple-accounts)
+- [Platform support](#platform-support)
 - [Troubleshooting](#troubleshooting)
 
 ## Overview
 
-Shows session information at a glance:
-- Token usage and costs
-- Git status with worktree detection
-- Context window usage
-- 5-hour window reset countdown
-- Session duration
+The statusline renders two lines:
 
-## Features
+**Line 1** — model, directory, git, context, cost, session duration:
+```
+🤖 Opus │ 📁 cc-arsenal │ 🌿 main ● │ 📊 22% │ 💰 $0.043 │ ⏱️ 21m
+```
 
-### What it shows
-- 🤖 Model name and version
-- 📁 Current directory
-- 🌿 Git branch and uncommitted changes
-- 🌳 Git worktree name
-- 📊 Context window usage
-- 💰 Session costs
-- 🔄 Time until 5-hour reset
-- ⏱️ Session duration
+**Line 2** — usage-window details (only when rate-limit data is available):
+```
+🔄 5h: 16% → 21:00 │ 📅 7d: 39% → Dec 31 21:00
+```
 
-### How it works
-- Updates automatically with each Claude interaction
-- Direct calculation for all components (~50ms)
-- No background daemon required
-- Minimal resource usage
+Line 1 components, in order:
+- 🤖 **Model** — name/version, from `model.display_name` or `model.id`
+- 📁 **Directory** — current directory, `~`-shortened
+- 🌿 **Git** — branch, with `●` for uncommitted changes
+- 🌳 **Worktree** — worktree name, shown only when in a worktree
+- 📊 **Context** — `context_window.used_percentage`, rounded
+- 💰 **Cost** — `cost.total_cost_usd` for the session
+- 📝 **Lines changed** — `+added/-removed`; **disabled by default**, enable via config
+- ⏱️ **Session duration** — from `cost.total_duration_ms`; hidden until a session has run
+
+Line 2 is the usage line (see [Usage](#usage) for where its data comes from) plus, when multi-account is configured, an account badge (see [Multiple accounts](#multiple-accounts)).
+
+Git/worktree data prefers the native `worktree.branch`/`worktree.name` fields Claude Code passes on stdin; it only shells out to `git` when those are absent.
 
 ## Installation
 
 ### Prerequisites
+- **bash** and **jq** (jq is used for all JSON parsing; the script degrades to a minimal fallback line without it)
+- **git** (for branch/worktree detection when native JSON fields aren't present)
 
-The statusline requires:
-- **jq** - JSON processing (usually pre-installed on macOS/Linux)
-- **git** - For repository information (if using git features)
-
-### Quick Install
+### Quick install
 
 From the cc-arsenal project root:
-
 ```bash
-make statusline-install
+make install-statusline
+```
+This symlinks the statusline directory to `~/.claude/scripts/claude/statusline` and configures `~/.claude/settings.json` to invoke it.
+
+To remove it:
+```bash
+make uninstall-statusline
 ```
 
-This will:
-1. Install the statusline script to `~/.claude/scripts/claude/statusline/`
-2. Configure Claude Code to use the statusline
+### Manual installation
 
-### Manual Installation
+```bash
+mkdir -p ~/.claude/scripts/claude/statusline/
+cp -r integrations/claude-code/statusline/* ~/.claude/scripts/claude/statusline/
+chmod +x ~/.claude/scripts/claude/statusline/statusline.sh
+```
 
-1. **Copy the statusline to your Claude directory**:
-  ```bash
-  mkdir -p ~/.claude/scripts/claude/statusline/
-  cp integrations/claude-code/statusline/statusline.sh ~/.claude/scripts/claude/statusline/
-  chmod +x ~/.claude/scripts/claude/statusline/statusline.sh
-  ```
+Add to `~/.claude/settings.json`:
+```json
+{
+  "statusline": "bash ~/.claude/scripts/claude/statusline/statusline.sh"
+}
+```
 
-2. **Configure Claude Code settings**:
-  Add to your `~/.claude/settings.local.json`:
-  ```json
-  {
-    "statusline": "bash ~/.claude/scripts/claude/statusline/statusline.sh"
-  }
-  ```
-
-3. **Restart Claude Code** to apply changes
+Restart Claude Code to pick up the setting.
 
 ### Verification
 
-Test the installation:
-
 ```bash
-# Test the statusline directly
-echo '{"model":{"id":"claude-sonnet-4.5"},"workspace":{"current_dir":"'$PWD'"},"cost":{}}' | bash ~/.claude/scripts/claude/statusline/statusline.sh
+echo '{"model":{"id":"claude-opus-4-1","display_name":"Opus"},"workspace":{"current_dir":"'$PWD'"},"cost":{"total_cost_usd":0.043}}' \
+  | bash ~/.claude/scripts/claude/statusline/statusline.sh
 ```
 
 ## Usage
 
-### Basic Usage
+The statusline runs automatically — Claude Code pipes a JSON status object to it on every interaction (max ~300ms refresh rate per Claude Code docs). No manual step is required.
 
-The statusline runs automatically - Claude Code calls it on every interaction. No manual intervention needed!
+### The usage line (rate limits)
 
-### Example Output
+Line 2 comes from the `rate_limits` object Claude Code includes on stdin (`rate_limits.five_hour` / `rate_limits.seven_day` — `used_percentage` and `resets_at`). This is the default source and needs no configuration.
 
-**Regular repository:**
-```bash
-🤖 Sonnet 4.5 │ 📁 cc-arsenal │ 🌿 main │ 📊 22% │ 💰 $0.043 │ 🔄 2h15m
-```
+If nothing is piped in with `rate_limits` (e.g. the interactive/no-stdin fallback), line 2 is simply omitted.
 
-**With uncommitted changes:**
-```bash
-🤖 Sonnet 4.5 │ 📁 cc-arsenal │ 🌿 main ● │ 📊 22% │ 💰 $0.043 │ 🔄 2h15m
-```
+When `CLAUDE_CODE_OAUTH_TOKEN` is set (see [Multiple accounts](#multiple-accounts)), the script instead fetches usage directly from the Anthropic OAuth API for that account and uses it in place of whatever came in on stdin.
 
-**In a git worktree:**
-```bash
-🤖 Sonnet 4.5 │ 📁 feature-impl │ 🌿 feature-branch │ 🌳 feature-impl │ 📊 22% │ 💰 $0.043 │ 🔄 2h15m
-```
+### External consumers (tmux, etc.)
 
-**Worktree with uncommitted changes:**
-```bash
-🤖 Sonnet 4.5 │ 📁 feature-impl │ 🌿 feature-branch ● │ 🌳 feature-impl │ 📊 22% │ 💰 $0.043 │ 🔄 2h15m
-```
+On every run, the statusline persists the current rate-limit snapshot to `/tmp` so other tools (a tmux statusbar, a separate script) can read it without re-parsing stdin JSON:
 
-### Optional: Background Daemon (Advanced)
+- Default account (no `CLAUDE_CODE_OAUTH_TOKEN` set): `/tmp/claude_rate_limits_cache.json` — a stable, well-known path.
+- Per env-token account: `/tmp/claude_rate_limits_cache.<hash>.json`, where `<hash>` is the first 12 hex characters of the SHA-256 of the token value.
 
-The statusline includes an optional background daemon for caching git information. However, **the daemon is not enabled by default** as direct calculation is fast enough (~50ms).
-
-If you want to enable the daemon for slightly faster performance (~1ms), you can manually start it:
-
-```bash
-# Start the daemon manually (optional)
-bash ~/.claude/scripts/claude/statusline/statusline_daemon.sh start
-
-# Check daemon status
-bash ~/.claude/scripts/claude/statusline/statusline_daemon.sh status
-
-# Stop daemon
-bash ~/.claude/scripts/claude/statusline/statusline_daemon.sh stop
-```
-
-**Note:** The daemon is completely optional. The statusline works perfectly fine without it.
+Both files contain `{"five_hour": {...}, "seven_day": {...}}`. Treat the default path as stable for scripting; the hashed path is stable per-token but the hash itself is only reproducible if you compute it the same way (`shasum -a 256` truncated to 12 chars).
 
 ## Configuration
 
-**Note:** The statusline currently has a fixed component layout and is not user-configurable. A configuration tool (`configure_statusline.py`) exists but is not yet integrated with the statusline script.
+### Component layout
 
-The statusline displays these components in order:
-- `model` - Model name/version
-- `directory` - Current working directory
-- `git` - Git branch and status
-- `worktree` - Git worktree name (only shown when in a worktree)
-- `context` - Context window usage %
-- `session_cost` - Current session cost
-- `lines_changed` - Lines added/removed (when non-zero)
-- `session_duration` - Session duration (when available)
-- `reset_countdown` - Time until window reset
+Component order/visibility and formatting live in `~/.claude/cc-arsenal/statusline_config.json`. This file is **not** auto-created on first run — create or edit it with the interactive tool:
 
-The separator is fixed as ` │ ` (vertical bar with spaces).
-
-## Components
-
-### Event-Dependent Components
-(from Claude Code events)
-
-- **🤖 Model** - Current model information
-- **💰 Session Cost** - Cost of current session in USD
-- **📊 Context Usage** - Percentage of 200K context window used
-- **⏱️ Session Duration** - Time spent in current session
-
-### Git Components
-
-- **🌿 Git Status** - Branch and uncommitted changes (●)
-- **🌳 Worktree** - Worktree name (only when in a worktree)
-
-### Other Components
-
-- **📁 Directory** - Current directory
-- **🔄 Window Reset Timer** - Time until 5-hour reset
-  - Format: `2h15m until reset at 14:00`
-
-### Git Worktree Detection
-
-Automatically detects when you're in a git worktree:
-
-**Regular repo:**
 ```bash
-🌿 main
+make configure   # from integrations/claude-code/statusline/
 ```
 
-**In a worktree:**
-```bash
-🌿 feature-branch │ 🌳 feature-impl
+which drives `configure_statusline.py` (writes directly to `~/.claude/cc-arsenal/statusline_config.json`).
+
+Default shape:
+```json
+{
+  "components": {
+    "order": ["model", "directory", "git", "context", "session_cost", "daily_cost", "duration_info", "reset_countdown"],
+    "enabled": {
+      "model": true, "directory": true, "git": true, "context": true,
+      "session_cost": true, "daily_cost": true, "reset_countdown": true,
+      "duration_info": false, "lines_changed": false
+    }
+  },
+  "display": {
+    "display_mode": "emoji",
+    "separator": " │ ",
+    "compact_separator": "│",
+    "max_width": 120,
+    "compact_threshold": 80
+  },
+  "formatting": {
+    "directory_max_length": 25,
+    "git_branch_max_length": 15,
+    "cost_decimal_places": 3,
+    "daily_cost_decimal_places": 2
+  }
+}
 ```
 
-**Worktree with changes:**
-```bash
-🌿 feature-branch ● │ 🌳 feature-impl
+Only `display.display_mode` and `components.enabled.lines_changed` are currently read by `statusline.sh` itself (`lib/config.sh`, `lib/display/builder.sh`); the remaining keys are reserved for the config tool/future wiring.
+
+To point the script at a different config file entirely (e.g. for previewing a candidate config), set `STATUSLINE_CONFIG_OVERRIDE=/path/to/file.json`.
+
+### Environment variables
+
+| Variable | Effect |
+|---|---|
+| `STATUSLINE_DISPLAY_MODE` | `emoji` (default), `text`, or `ascii` — overrides the config file's `display.display_mode` |
+| `STATUSLINE_TEXT_MODE` | Legacy boolean (`true`/`1`) forcing text mode; superseded by `STATUSLINE_DISPLAY_MODE` |
+| `STATUSLINE_CONFIG_OVERRIDE` | Path to an alternate config JSON file, used instead of `~/.claude/cc-arsenal/statusline_config.json` |
+| `STATUSLINE_SEPARATOR` | Component separator on line 1 (default `│`) |
+| `STATUSLINE_DEBUG` | `1` to log raw input JSON and context-window extraction to `/tmp/claude_statusline_debug.log` |
+| `STATUSLINE_PERF` | `1` to print `[perf] <ms>ms` to stderr after each run |
+| `CLAUDE_CODE_OAUTH_TOKEN` | Selects a specific account's OAuth token and enables the multi-account code path — see below |
+| `CLAUDE_STATUSLINE_ACCOUNT_LABEL` | Badge text shown on line 2 when `CLAUDE_CODE_OAUTH_TOKEN` is also set; unset means no badge |
+| `OAUTH_USAGE_CACHE_FILE` | Overrides the OAuth usage cache path (otherwise auto-derived, see below) |
+| `OAUTH_USAGE_CACHE_TTL` | OAuth usage cache TTL in seconds (default `300`) |
+
+## Multiple accounts
+
+The statusline supports more than one Claude account on the same machine, driven entirely by `CLAUDE_CODE_OAUTH_TOKEN`.
+
+### Precedence
+
+`CLAUDE_CODE_OAUTH_TOKEN`, when set in the environment the statusline runs in (e.g. exported in a project's `.envrc`, or per-tmux-pane), always takes precedence over the OS keychain/credentials-file lookup that the default (single-account) path uses. Unset it to fall back to the default account resolved via macOS Keychain, Linux `secret-tool`, or `~/.claude/.credentials.json`.
+
+### Per-account isolation
+
+Everything scoped to an account is keyed by the first 12 hex characters of `sha256(token)` — **tokens themselves are never written to disk**, only this hash:
+
+- OAuth usage cache: `/tmp/claude_oauth_usage_cache.<hash>.json` (vs. `/tmp/claude_oauth_usage_cache.json` for the default account)
+- Rate-limit backoff/lock state (used by the background fetcher): `/tmp/statusline_live_cache/oauth_backoff.<hash>`, `oauth_backoff_count.<hash>`, `oauth_cache.lock.<hash>`
+- External-consumer rate-limit snapshot: `/tmp/claude_rate_limits_cache.<hash>.json` (vs. the stable `/tmp/claude_rate_limits_cache.json` for the default account)
+
+This means two accounts running statuslines concurrently (e.g. in separate tmux sessions with different `CLAUDE_CODE_OAUTH_TOKEN` exports) never clobber each other's cache, backoff, or lock state.
+
+### Account badge
+
+Set `CLAUDE_STATUSLINE_ACCOUNT_LABEL` (e.g. `work`, `personal`) alongside `CLAUDE_CODE_OAUTH_TOKEN` to show a badge on line 2:
 ```
+👤 work │ 🔄 5h: 16% → 21:00
+```
+Both must be set — an account without a label shows no badge (it still uses that account's isolated caches, just silently).
 
-The 🌳 worktree indicator only appears when needed.
+### Refresh behavior
 
-## Architecture
+`statusline.sh` kicks off a background, non-blocking refresh (`lib/oauth_fetcher.sh`) whenever the account's usage cache is older than `OAUTH_USAGE_CACHE_TTL` (default 300s). The statusline itself only ever reads the cache (`fetch_oauth_usage_cached_only`) — it never blocks on network I/O. The fetcher applies its own file locking (`flock`, with a PID-file fallback on systems without it) and exponential backoff on repeated rate-limit responses from the OAuth API (120s → 300s → 600s).
 
-### Simple Direct Calculation Design
+### Fail-soft behavior
 
-The statusline uses a **direct calculation approach** for simplicity and reliability:
+If the OAuth token is invalid, the network call fails, or the cache is simply empty/stale, the statusline falls straight back to whatever `rate_limits` data (if any) arrived on stdin for that call — it never blocks or errors the whole statusline over a failed usage fetch.
 
-**Statusline Script** (`statusline.sh`)
-- Called by Claude Code on each interaction
-- Calculates all components on-demand
-- Response time: ~50ms (fast enough for real-time display)
-- No background processes or daemon management needed
-- Combines git data with Claude event data
+## Platform support
 
-### Optional Cache Support
-
-For advanced users who want faster performance, a daemon is available:
-
-**Live Cache Daemon** (`statusline_daemon.sh`) - **Optional, not enabled by default**
-- Updates cache every 60 seconds in background
-- Can reduce statusline response to ~1ms
-- Battery-efficient: <0.1% CPU usage
-- Must be manually started
-
-The statusline will opportunistically use cached data if the daemon is running, but works perfectly fine without it.
-
-### Performance
-
-- **Statusline response**: ~50ms (direct calculation)
-- **With optional daemon**: ~1ms (cached)
-- **CPU usage**: Negligible (only runs on Claude interactions)
-- **Memory**: Minimal (~1-2MB if daemon is used)
-
-### Design Principles
-
-- **SOLID**: Single responsibility, dependency inversion, interface segregation
-- **DRY**: Reusable functions, no code duplication
-- **Fail-Safe**: Graceful degradation if any component fails
-- **Performance**: Minimal subshells, atomic writes, efficient JSON generation
+- **macOS and Linux**: first-class, actively used code paths (`lib/core/platform.sh` branches on `uname -s` for `stat`, hashing, and date parsing).
+- **WSL**: behaves as Linux (uses the Linux branches of `platform.sh`, and the file-based credentials fallback since there's no macOS Keychain).
+- **Native Git Bash on Windows**: best-effort, untested — the script sources `sha256sum`/`date -d` style Linux commands as a fallback, which Git Bash generally provides, but this path has no test coverage.
 
 ## Troubleshooting
 
-### Common Issues
+### Statusline not showing
 
-#### Statusline Not Showing
-
-**Check Claude Code configuration:**
 ```bash
-cat ~/.claude/settings.local.json | grep statusline
-```
-
-Should show:
-```json
-"statusline": "bash ~/.claude/scripts/claude/statusline/statusline.sh"
-```
-
-**Verify file exists and is executable:**
-```bash
+grep statusline ~/.claude/settings.json
 ls -l ~/.claude/scripts/claude/statusline/statusline.sh
 chmod +x ~/.claude/scripts/claude/statusline/statusline.sh
 ```
 
-#### Slow Performance
+### Debug a bad or missing value
 
-The statusline typically responds in ~50ms which should be fast enough. If you're experiencing slower performance:
-
-**Optional: Start the cache daemon for faster performance:**
 ```bash
-bash ~/.claude/scripts/claude/statusline/statusline_daemon.sh start
+STATUSLINE_DEBUG=1 bash -c 'echo "{\"model\":{\"id\":\"test\"}}" | ~/.claude/scripts/claude/statusline/statusline.sh'
+tail -20 /tmp/claude_statusline_debug.log
 ```
 
-This is completely optional and will reduce response time to ~1ms.
+### Check timing
 
-#### Incorrect Information
-
-The statusline calculates information directly on each call, so stale data should not occur.
-
-If you're using the optional daemon and see stale data:
-
-**Force cache update:**
 ```bash
-bash ~/.claude/scripts/claude/statusline/statusline_daemon.sh update
+echo '{"model":{"id":"test"}}' | STATUSLINE_PERF=1 ~/.claude/scripts/claude/statusline/statusline.sh
 ```
 
-**Check daemon logs:**
-```bash
-tail /tmp/statusline_live_cache/daemon.log
-```
+### Rate-limit / usage line missing or stale
 
-#### Git Worktree Not Detected
+- No line 2 at all: Claude Code isn't sending `rate_limits` on stdin for this call (normal on very first invocation) — it will appear once available.
+- Using `CLAUDE_CODE_OAUTH_TOKEN` and it's stale: check the fetcher's error log and force a fresh fetch:
+  ```bash
+  tail -20 /tmp/statusline_live_cache/oauth_errors.log
+  ~/.claude/scripts/claude/statusline/lib/oauth_fetcher.sh
+  ```
+- Clear a stuck cache for a specific account (replace `<hash>` or omit it for the default account):
+  ```bash
+  /bin/rm -f /tmp/claude_oauth_usage_cache.json /tmp/claude_rate_limits_cache.json
+  /bin/rm -f /tmp/claude_oauth_usage_cache.<hash>.json /tmp/claude_rate_limits_cache.<hash>.json
+  ```
 
-**Verify you're in a worktree:**
+### Git worktree not detected
+
 ```bash
 git rev-parse --git-dir
 git rev-parse --git-common-dir
 ```
+Different output for the two means you're in a worktree — the statusline detects this from git directly whenever `worktree.name`/`worktree.branch` aren't present on stdin.
 
-If these return different paths, you're in a worktree. The statusline should detect this automatically since it calculates git information directly on each call.
+### Getting help
 
-### Debug Mode
-
-Enable debug logging:
-
-```bash
-export STATUSLINE_DEBUG=1
-echo '{"model":{"id":"test"}}' | bash ~/.claude/scripts/claude/statusline/statusline.sh
-cat /tmp/claude_statusline_debug.log
-```
-
-Enable performance monitoring:
-
-```bash
-export STATUSLINE_PERF=1
-echo '{"model":{"id":"test"}}' | bash ~/.claude/scripts/claude/statusline/statusline.sh
-```
-
-### Cache Issues (Only if using optional daemon)
-
-If you're using the optional daemon and experiencing issues:
-
-**Inspect cache contents:**
-```bash
-bash ~/.claude/scripts/claude/statusline/cache_inspector.sh
-```
-
-**Clear cache and restart:**
-```bash
-rm -rf /tmp/statusline_live_cache/
-bash ~/.claude/scripts/claude/statusline/statusline_daemon.sh restart
-```
-
-**Note:** If you're not using the daemon, there's no cache to troubleshoot.
-
-### Getting Help
-
-If you encounter issues:
-
-1. Check the [troubleshooting section](#troubleshooting) above
-2. Test the statusline directly with debug mode enabled
-3. If using the optional daemon, check its status: `bash ~/.claude/scripts/claude/statusline/statusline_daemon.sh status`
-4. Open an issue on GitHub with:
-  - Debug log output (`STATUSLINE_DEBUG=1`)
-  - Your Claude Code settings
-  - Steps to reproduce the issue
+1. Reproduce with `STATUSLINE_DEBUG=1` (above) and check the log.
+2. If it involves usage/rate limits, also check `/tmp/statusline_live_cache/oauth_errors.log`.
+3. Open an issue on [GitHub](https://github.com/mgiovani/cc-arsenal/issues) with the debug log, your `~/.claude/settings.json` statusline entry, and steps to reproduce.
 
 ---
 

@@ -7,46 +7,12 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LIB_DIR="$(cd "$SCRIPT_DIR/../../lib" && pwd)"
 
+# Shared assert helpers (assert_equals, assert_not_empty, TESTS_RUN/PASSED/FAILED, ...)
+source "$SCRIPT_DIR/../lib/assert.sh"
+
 # Source dependencies
 source "$LIB_DIR/core/platform.sh"
 source "$LIB_DIR/core/json.sh"
-
-# Test counters
-TESTS_RUN=0
-TESTS_PASSED=0
-TESTS_FAILED=0
-
-# Test helper functions
-assert_equals() {
-    local expected="$1"
-    local actual="$2"
-    local test_name="$3"
-
-    TESTS_RUN=$((TESTS_RUN + 1))
-    if [[ "$expected" == "$actual" ]]; then
-        echo "✅ PASS: $test_name"
-        TESTS_PASSED=$((TESTS_PASSED + 1))
-    else
-        echo "❌ FAIL: $test_name"
-        echo "   Expected: '$expected'"
-        echo "   Actual:   '$actual'"
-        TESTS_FAILED=$((TESTS_FAILED + 1))
-    fi
-}
-
-assert_not_empty() {
-    local value="$1"
-    local test_name="$2"
-
-    TESTS_RUN=$((TESTS_RUN + 1))
-    if [[ -n "$value" ]]; then
-        echo "✅ PASS: $test_name"
-        TESTS_PASSED=$((TESTS_PASSED + 1))
-    else
-        echo "❌ FAIL: $test_name (value is empty)"
-        TESTS_FAILED=$((TESTS_FAILED + 1))
-    fi
-}
 
 # =============================================================================
 # Test: check_jq

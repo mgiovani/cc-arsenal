@@ -14,137 +14,10 @@ STATUSLINE_SH="$SCRIPT_DIR/../statusline.sh"
 # inside a subshell (that would let its guard clause skip re-derivation)
 source "$LIB_DIR/core/platform.sh"
 
-# Test counters
-TESTS_RUN=0
-TESTS_PASSED=0
-TESTS_FAILED=0
-
-# Test helper functions
-assert_equals() {
-    local expected="$1"
-    local actual="$2"
-    local test_name="$3"
-
-    TESTS_RUN=$((TESTS_RUN + 1))
-    if [[ "$expected" == "$actual" ]]; then
-        echo "✅ PASS: $test_name"
-        TESTS_PASSED=$((TESTS_PASSED + 1))
-    else
-        echo "❌ FAIL: $test_name"
-        echo "   Expected: '$expected'"
-        echo "   Actual:   '$actual'"
-        TESTS_FAILED=$((TESTS_FAILED + 1))
-    fi
-}
-
-assert_not_equals() {
-    local not_expected="$1"
-    local actual="$2"
-    local test_name="$3"
-
-    TESTS_RUN=$((TESTS_RUN + 1))
-    if [[ "$not_expected" != "$actual" ]]; then
-        echo "✅ PASS: $test_name"
-        TESTS_PASSED=$((TESTS_PASSED + 1))
-    else
-        echo "❌ FAIL: $test_name (both were '$actual')"
-        TESTS_FAILED=$((TESTS_FAILED + 1))
-    fi
-}
-
-assert_matches() {
-    local value="$1"
-    local pattern="$2"
-    local test_name="$3"
-
-    TESTS_RUN=$((TESTS_RUN + 1))
-    if [[ "$value" =~ $pattern ]]; then
-        echo "✅ PASS: $test_name"
-        TESTS_PASSED=$((TESTS_PASSED + 1))
-    else
-        echo "❌ FAIL: $test_name (value: '$value')"
-        TESTS_FAILED=$((TESTS_FAILED + 1))
-    fi
-}
-
-assert_contains() {
-    local haystack="$1"
-    local needle="$2"
-    local test_name="$3"
-
-    TESTS_RUN=$((TESTS_RUN + 1))
-    if [[ "$haystack" == *"$needle"* ]]; then
-        echo "✅ PASS: $test_name"
-        TESTS_PASSED=$((TESTS_PASSED + 1))
-    else
-        echo "❌ FAIL: $test_name"
-        echo "   Expected to contain: '$needle'"
-        echo "   Actual: '$haystack'"
-        TESTS_FAILED=$((TESTS_FAILED + 1))
-    fi
-}
-
-assert_not_contains() {
-    local haystack="$1"
-    local needle="$2"
-    local test_name="$3"
-
-    TESTS_RUN=$((TESTS_RUN + 1))
-    if [[ "$haystack" != *"$needle"* ]]; then
-        echo "✅ PASS: $test_name"
-        TESTS_PASSED=$((TESTS_PASSED + 1))
-    else
-        echo "❌ FAIL: $test_name (should not contain '$needle')"
-        echo "   Actual: '$haystack'"
-        TESTS_FAILED=$((TESTS_FAILED + 1))
-    fi
-}
-
-assert_file_exists() {
-    local file="$1"
-    local test_name="$2"
-
-    TESTS_RUN=$((TESTS_RUN + 1))
-    if [[ -f "$file" ]]; then
-        echo "✅ PASS: $test_name"
-        TESTS_PASSED=$((TESTS_PASSED + 1))
-    else
-        echo "❌ FAIL: $test_name (missing: '$file')"
-        TESTS_FAILED=$((TESTS_FAILED + 1))
-    fi
-}
-
-assert_file_absent() {
-    local file="$1"
-    local test_name="$2"
-
-    TESTS_RUN=$((TESTS_RUN + 1))
-    if [[ ! -f "$file" ]]; then
-        echo "✅ PASS: $test_name"
-        TESTS_PASSED=$((TESTS_PASSED + 1))
-    else
-        echo "❌ FAIL: $test_name (should not exist: '$file')"
-        TESTS_FAILED=$((TESTS_FAILED + 1))
-    fi
-}
-
-print_results() {
-    echo
-    echo "=========================================="
-    echo "Multi-Account Tests Results:"
-    echo "  Total:  $TESTS_RUN"
-    echo "  Passed: $TESTS_PASSED"
-    echo "  Failed: $TESTS_FAILED"
-    echo "=========================================="
-
-    if [[ $TESTS_FAILED -eq 0 ]]; then
-        echo "🎉 All tests passed!"
-        exit 0
-    else
-        echo "💥 Some tests failed!"
-        exit 1
-    fi
-}
+# Shared assert helpers (assert_equals, assert_not_equals, assert_matches,
+# assert_contains, assert_not_contains, assert_file_exists, assert_file_absent,
+# print_results, ...)
+source "$SCRIPT_DIR/lib/assert.sh"
 
 # =============================================================================
 # Isolated scratch space + mock command shims
@@ -269,8 +142,8 @@ test_cache_key_isolation() {
     assert_not_equals "$result_a" "$result_unset" "token A differs from legacy unset path"
     assert_matches "$result_a" "^/tmp/claude_oauth_usage_cache\.[a-f0-9]{12}\.json$" "token A path shape is <hash>.json"
     assert_matches "$result_b" "^/tmp/claude_oauth_usage_cache\.[a-f0-9]{12}\.json$" "token B path shape is <hash>.json"
-    assert_not_contains "$result_a" "$TOK_A" "token A path does not contain the raw token"
-    assert_not_contains "$result_b" "$TOK_B" "token B path does not contain the raw token"
+    assert_not_contains "$TOK_A" "$result_a" "token A path does not contain the raw token"
+    assert_not_contains "$TOK_B" "$result_b" "token B path does not contain the raw token"
     assert_equals "/tmp/claude_oauth_usage_cache.json" "$result_unset" "unset token uses the legacy cache path"
 
     # Explicit override always wins over a set token
@@ -289,7 +162,7 @@ test_cache_key_isolation() {
                          export CLAUDE_CODE_OAUTH_TOKEN="$TOK_A"
                          source "$LIB_DIR/oauth_fetcher.sh"
                          echo "$BACKOFF_FILE" ) 2>/dev/null )
-    assert_contains "$backoff_result" ".${expected_hash}" "oauth_fetcher BACKOFF_FILE carries the account hash suffix"
+    assert_contains ".${expected_hash}" "$backoff_result" "oauth_fetcher BACKOFF_FILE carries the account hash suffix"
 }
 
 # =============================================================================
@@ -345,8 +218,8 @@ test_failsoft_render() {
                 unset OAUTH_USAGE_CACHE_FILE CLAUDE_STATUSLINE_ACCOUNT_LABEL
                 export CLAUDE_CODE_OAUTH_TOKEN="$TOK_RENDER"
                 echo "$stdin_json" | bash "$STATUSLINE_SH" ) 2>/dev/null )
-    assert_contains "$output" "42%" "stdin 5h percentage renders with no cache present"
-    assert_not_contains "$output" "👤" "no account badge when label is unset"
+    assert_contains "42%" "$output" "stdin 5h percentage renders with no cache present"
+    assert_not_contains "👤" "$output" "no account badge when label is unset"
 
     # Token set AND label set - badge appears
     output=$( ( export PATH="$MOCK_BIN_DIR:$PATH"
@@ -354,13 +227,13 @@ test_failsoft_render() {
                 export CLAUDE_CODE_OAUTH_TOKEN="$TOK_RENDER"
                 export CLAUDE_STATUSLINE_ACCOUNT_LABEL="testacct"
                 echo "$stdin_json" | bash "$STATUSLINE_SH" ) 2>/dev/null )
-    assert_contains "$output" "testacct" "account badge renders when both token and label are set"
+    assert_contains "testacct" "$output" "account badge renders when both token and label are set"
 
     # Both unset - default single-account rendering, no label
     output=$( ( unset OAUTH_USAGE_CACHE_FILE CLAUDE_CODE_OAUTH_TOKEN CLAUDE_STATUSLINE_ACCOUNT_LABEL
                 echo "$stdin_json" | bash "$STATUSLINE_SH" ) 2>/dev/null )
-    assert_contains "$output" "42%" "stdin numbers render with no account env set"
-    assert_not_contains "$output" "testacct" "no label leaks when account env is fully unset"
+    assert_contains "42%" "$output" "stdin numbers render with no account env set"
+    assert_not_contains "testacct" "$output" "no label leaks when account env is fully unset"
 
     rm -f "/tmp/claude_oauth_usage_cache.${hash}.json" 2>/dev/null || true
 }
@@ -384,8 +257,8 @@ test_fetched_over_stdin() {
                 export CLAUDE_CODE_OAUTH_TOKEN="$TOK_FETCH"
                 echo "$stdin_json" | bash "$STATUSLINE_SH" ) 2>/dev/null )
 
-    assert_contains "$output" "77%" "fetched per-account usage renders"
-    assert_not_contains "$output" "13%" "stdin usage is overridden, not rendered"
+    assert_contains "77%" "$output" "fetched per-account usage renders"
+    assert_not_contains "13%" "$output" "stdin usage is overridden, not rendered"
 
     rm -f "$cache_file" 2>/dev/null || true
 }
@@ -411,7 +284,7 @@ main() {
     echo
     test_fetched_over_stdin
 
-    print_results
+    print_results "Multi-Account Tests"
 }
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then

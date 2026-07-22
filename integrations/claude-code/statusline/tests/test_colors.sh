@@ -1,69 +1,15 @@
 #!/bin/bash
-# Unit tests for colors.sh
+# Unit tests for lib/display/colors.sh
 
 # Test framework setup
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LIB_DIR="$SCRIPT_DIR/../lib"
 
+# Shared assert helpers (assert_equals, assert_not_empty, print_results, ...)
+source "$SCRIPT_DIR/lib/assert.sh"
+
 # Source the module under test
-source "$LIB_DIR/colors.sh"
-
-# Test counters
-TESTS_RUN=0
-TESTS_PASSED=0
-TESTS_FAILED=0
-
-# Test helper functions
-assert_equals() {
-    local expected="$1"
-    local actual="$2"
-    local test_name="$3"
-
-    TESTS_RUN=$((TESTS_RUN + 1))
-
-    if [[ "$expected" == "$actual" ]]; then
-        echo "✅ PASS: $test_name"
-        TESTS_PASSED=$((TESTS_PASSED + 1))
-    else
-        echo "❌ FAIL: $test_name"
-        echo "   Expected: '$expected'"
-        echo "   Actual:   '$actual'"
-        TESTS_FAILED=$((TESTS_FAILED + 1))
-    fi
-}
-
-assert_not_empty() {
-    local actual="$1"
-    local test_name="$2"
-
-    TESTS_RUN=$((TESTS_RUN + 1))
-
-    if [[ -n "$actual" ]]; then
-        echo "✅ PASS: $test_name"
-        TESTS_PASSED=$((TESTS_PASSED + 1))
-    else
-        echo "❌ FAIL: $test_name (expected non-empty value)"
-        TESTS_FAILED=$((TESTS_FAILED + 1))
-    fi
-}
-
-print_results() {
-    echo
-    echo "=========================================="
-    echo "Color Tests Results:"
-    echo "  Total:  $TESTS_RUN"
-    echo "  Passed: $TESTS_PASSED"
-    echo "  Failed: $TESTS_FAILED"
-    echo "=========================================="
-
-    if [[ $TESTS_FAILED -eq 0 ]]; then
-        echo "🎉 All tests passed!"
-        exit 0
-    else
-        echo "💥 Some tests failed!"
-        exit 1
-    fi
-}
+source "$LIB_DIR/display/colors.sh"
 
 # Test color constants are defined
 test_color_constants() {
@@ -162,7 +108,7 @@ main() {
     test_get_reset_color
     test_get_git_status_color
 
-    print_results
+    print_results "Color Tests"
 }
 
 # Execute main function if script is run directly

@@ -59,15 +59,6 @@ START_TIME=$(get_current_nanos)
 # Setup cache cleanup on exit
 cache_setup_cleanup
 
-# =============================================================================
-# Daemon Auto-Start (Non-blocking)
-# =============================================================================
-
-# Auto-start daemon if not running (flock-based singleton ensures no duplicates)
-if [[ -f "$SCRIPT_DIR/statusline_daemon.sh" ]]; then
-    "$SCRIPT_DIR/statusline_daemon.sh" autostart >/dev/null 2>&1 &
-fi
-
 # Trigger a background OAuth usage refresh when the account cache is stale
 # (fetcher handles its own locking/backoff; this just decides when to fire it)
 if [[ -n "${CLAUDE_CODE_OAUTH_TOKEN:-}" ]] && [[ -f "$SCRIPT_DIR/lib/oauth_fetcher.sh" ]]; then

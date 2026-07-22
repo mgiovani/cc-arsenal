@@ -5,65 +5,8 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 STATUSLINE_SCRIPT="$SCRIPT_DIR/../statusline.sh"
 
-# Test counters
-TESTS_RUN=0
-TESTS_PASSED=0
-TESTS_FAILED=0
-
-# Test helper functions
-assert_contains() {
-    local expected_substring="$1"
-    local actual="$2"
-    local test_name="$3"
-
-    TESTS_RUN=$((TESTS_RUN + 1))
-
-    if [[ "$actual" == *"$expected_substring"* ]]; then
-        echo "✅ PASS: $test_name"
-        TESTS_PASSED=$((TESTS_PASSED + 1))
-    else
-        echo "❌ FAIL: $test_name"
-        echo "   Expected substring: '$expected_substring'"
-        echo "   Actual:             '$actual'"
-        TESTS_FAILED=$((TESTS_FAILED + 1))
-    fi
-}
-
-assert_equals() {
-    local expected="$1"
-    local actual="$2"
-    local test_name="$3"
-
-    TESTS_RUN=$((TESTS_RUN + 1))
-
-    if [[ "$expected" == "$actual" ]]; then
-        echo "✅ PASS: $test_name"
-        TESTS_PASSED=$((TESTS_PASSED + 1))
-    else
-        echo "❌ FAIL: $test_name"
-        echo "   Expected: '$expected'"
-        echo "   Actual:   '$actual'"
-        TESTS_FAILED=$((TESTS_FAILED + 1))
-    fi
-}
-
-print_results() {
-    echo
-    echo "=========================================="
-    echo "Context Window Tests Results:"
-    echo "  Total:  $TESTS_RUN"
-    echo "  Passed: $TESTS_PASSED"
-    echo "  Failed: $TESTS_FAILED"
-    echo "=========================================="
-
-    if [[ $TESTS_FAILED -eq 0 ]]; then
-        echo "🎉 All tests passed!"
-        exit 0
-    else
-        echo "💥 Some tests failed!"
-        exit 1
-    fi
-}
+# Shared assert helpers (assert_equals, assert_contains, print_results, ...)
+source "$SCRIPT_DIR/lib/assert.sh"
 
 # Test context window with 200K context (standard)
 test_context_window_200k() {
@@ -470,7 +413,7 @@ test_native_rate_limits_basic() {
     }'
 
     local output
-    output=$(echo "$json" | "$STATUSLINE_SCRIPT" 2>/dev/null)
+    output=$(strip_ansi "$(echo "$json" | "$STATUSLINE_SCRIPT" 2>/dev/null)")
 
     assert_contains "5h: 24%" "$output" "Native rate_limits: 5h percentage shown (23.5 rounds to 24)"
     assert_contains "7d: 41%" "$output" "Native rate_limits: 7d percentage shown (41.2 rounds to 41)"
@@ -493,7 +436,7 @@ test_native_rate_limits_five_hour_only() {
     }'
 
     local output
-    output=$(echo "$json" | "$STATUSLINE_SCRIPT" 2>/dev/null)
+    output=$(strip_ansi "$(echo "$json" | "$STATUSLINE_SCRIPT" 2>/dev/null)")
 
     assert_contains "5h: 50%" "$output" "Native rate_limits: 5h-only percentage shown"
 }
@@ -589,7 +532,7 @@ main() {
     # Native worktree tests
     test_native_worktree
 
-    print_results
+    print_results "Context Window Tests"
 }
 
 # Execute main function if script is run directly

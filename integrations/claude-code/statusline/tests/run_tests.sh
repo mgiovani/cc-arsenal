@@ -167,44 +167,38 @@ run_integration_test() {
     fi
 }
 
+suite_name_for() {
+    local base
+    base="$(basename "$1" .sh)"
+    base="${base#test_}"
+    base="${base//_/ }"
+    # Title-case each word (bash 3.2 safe - no ${var^})
+    local word result=""
+    for word in $base; do
+        result="$result${result:+ }$(echo "${word:0:1}" | tr '[:lower:]' '[:upper:]')${word:1}"
+    done
+    echo "$result"
+}
+
 main() {
     print_header
     check_dependencies
 
-    # Run new modular test suites (lib/core/, lib/api/, etc.)
-    echo -e "${BLUE}=== New Modular Architecture Tests ===${RESET}"
+    # Discover and run core module tests (lib/core/, lib/api/, etc.)
+    echo -e "${BLUE}=== Core Module Tests ===${RESET}"
     echo
-    if [[ -f "$SCRIPT_DIR/core/test_platform.sh" ]]; then
-        run_test_suite "$SCRIPT_DIR/core/test_platform.sh" "Core: Platform Module"
-    fi
-    if [[ -f "$SCRIPT_DIR/core/test_json.sh" ]]; then
-        run_test_suite "$SCRIPT_DIR/core/test_json.sh" "Core: JSON Module"
-    fi
+    for test_file in "$SCRIPT_DIR"/core/test_*.sh; do
+        [[ -f "$test_file" ]] || continue
+        run_test_suite "$test_file" "Core: $(suite_name_for "$test_file") Module"
+    done
 
-    # Run legacy test suites (for backward compatibility)
-    echo -e "${BLUE}=== Legacy Module Tests ===${RESET}"
+    # Discover and run top-level module tests
+    echo -e "${BLUE}=== Module Tests ===${RESET}"
     echo
-    if [[ -f "$SCRIPT_DIR/test_colors.sh" ]]; then
-        run_test_suite "$SCRIPT_DIR/test_colors.sh" "Colors Module"
-    fi
-    if [[ -f "$SCRIPT_DIR/test_utils.sh" ]]; then
-        run_test_suite "$SCRIPT_DIR/test_utils.sh" "Utils Module"
-    fi
-    if [[ -f "$SCRIPT_DIR/test_git_info.sh" ]]; then
-        run_test_suite "$SCRIPT_DIR/test_git_info.sh" "Git Info Module"
-    fi
-    if [[ -f "$SCRIPT_DIR/test_usage_tracker.sh" ]]; then
-        run_test_suite "$SCRIPT_DIR/test_usage_tracker.sh" "Usage Tracker Module"
-    fi
-    if [[ -f "$SCRIPT_DIR/test_components.sh" ]]; then
-        run_test_suite "$SCRIPT_DIR/test_components.sh" "Components Module"
-    fi
-    if [[ -f "$SCRIPT_DIR/test_multi_account.sh" ]]; then
-        run_test_suite "$SCRIPT_DIR/test_multi_account.sh" "Multi-Account Module"
-    fi
-    if [[ -f "$SCRIPT_DIR/test_context_window.sh" ]]; then
-        run_test_suite "$SCRIPT_DIR/test_context_window.sh" "Context Window Module"
-    fi
+    for test_file in "$SCRIPT_DIR"/test_*.sh; do
+        [[ -f "$test_file" ]] || continue
+        run_test_suite "$test_file" "$(suite_name_for "$test_file") Module"
+    done
 
     # Run integration test
     if run_integration_test; then

@@ -16,6 +16,7 @@ STATUSLINE_DISPLAY_DIR="$(dirname "${BASH_SOURCE[0]}")"
 source "$STATUSLINE_DISPLAY_DIR/colors.sh"
 source "$STATUSLINE_DISPLAY_DIR/../api/git.sh"
 source "$STATUSLINE_DISPLAY_DIR/../core/platform.sh"
+source "$STATUSLINE_DISPLAY_DIR/../core/json.sh"
 source "$STATUSLINE_DISPLAY_DIR/../config.sh"
 
 # =============================================================================
@@ -384,12 +385,15 @@ get_usage_line() {
         five_hour_display=$(epoch_to_time_display "$native_5h_resets" "+%H:%M")
     fi
 
-    # Build usage line
+    # Build usage line - color the percentage by usage threshold (green/bright-green/yellow/red)
+    local five_hour_token
+    five_hour_token=$(colorize "$(get_usage_color "$five_hour_pct")" "${five_hour_pct}%")
+
     local usage_line
     if $use_emoji; then
-        usage_line="🔄 5h: ${five_hour_pct}%"
+        usage_line="🔄 5h: ${five_hour_token}"
     else
-        usage_line="5h: ${five_hour_pct}%"
+        usage_line="5h: ${five_hour_token}"
     fi
     [[ -n "$five_hour_display" ]] && usage_line="${usage_line} → ${five_hour_display}"
 
@@ -403,10 +407,13 @@ get_usage_line() {
             seven_day_display=$(epoch_to_time_display "$native_7d_resets" "+%b %d %H:%M")
         fi
 
+        local seven_day_token
+        seven_day_token=$(colorize "$(get_usage_color "$seven_day_pct")" "${seven_day_pct}%")
+
         if $use_emoji; then
-            usage_line="${usage_line} │ 📅 7d: ${seven_day_pct}%"
+            usage_line="${usage_line} │ 📅 7d: ${seven_day_token}"
         else
-            usage_line="${usage_line} │ 7d: ${seven_day_pct}%"
+            usage_line="${usage_line} │ 7d: ${seven_day_token}"
         fi
         [[ -n "$seven_day_display" ]] && usage_line="${usage_line} → ${seven_day_display}"
     fi

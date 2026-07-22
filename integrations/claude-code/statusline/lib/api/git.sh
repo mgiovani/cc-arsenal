@@ -154,7 +154,8 @@ get_git_info() {
 # Usage: get_git_info_cached [ttl_seconds]
 get_git_info_cached() {
     local ttl="${1:-30}"
-    local cache_key="git_info_$(hash_string "$PWD")"
+    local cache_key
+    cache_key="git_info_$(hash_string "$PWD")"
 
     cache_get_or_compute "$cache_key" "get_git_info" "$ttl"
 }

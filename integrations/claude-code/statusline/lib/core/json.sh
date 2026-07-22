@@ -158,7 +158,11 @@ extract_json() {
     fi
 
     # Fallback: use grep patterns when jq unavailable or fails
-    extract_json_grep "$json" "$key"
+    # (empty is a miss - callers rely on the exit code to chain fallback keys)
+    local grep_result
+    grep_result=$(extract_json_grep "$json" "$key") || return 1
+    [[ -n "$grep_result" ]] || return 1
+    echo "$grep_result"
 }
 
 # =============================================================================
@@ -193,7 +197,8 @@ json_array_length() {
         echo "$json" | jq -r 'length // 0' 2>/dev/null || echo "0"
     else
         # Basic count: count commas + 1 (rough approximation)
-        local count=$(echo "$json" | tr -cd ',' | wc -c)
+        local count
+        count=$(echo "$json" | tr -cd ',' | wc -c)
         echo $((count + 1))
     fi
 }
