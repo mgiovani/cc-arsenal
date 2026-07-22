@@ -135,8 +135,8 @@ test_cache_key_isolation() {
                   source "$LIB_DIR/api/oauth.sh"
                   echo "$OAUTH_USAGE_CACHE_FILE" ) 2>/dev/null )
     result_unset=$( ( unset OAUTH_USAGE_CACHE_FILE CLAUDE_CODE_OAUTH_TOKEN
-                       source "$LIB_DIR/api/oauth.sh"
-                       echo "$OAUTH_USAGE_CACHE_FILE" ) 2>/dev/null )
+                      source "$LIB_DIR/api/oauth.sh"
+                      echo "$OAUTH_USAGE_CACHE_FILE" ) 2>/dev/null )
 
     assert_not_equals "$result_a" "$result_b" "token A and B derive different cache paths"
     assert_not_equals "$result_a" "$result_unset" "token A differs from legacy unset path"
@@ -159,9 +159,9 @@ test_cache_key_isolation() {
     local expected_hash backoff_result
     expected_hash=$(hash_sha256 "$TOK_A")
     backoff_result=$( ( unset OAUTH_USAGE_CACHE_FILE
-                         export CLAUDE_CODE_OAUTH_TOKEN="$TOK_A"
-                         source "$LIB_DIR/oauth_fetcher.sh"
-                         echo "$BACKOFF_FILE" ) 2>/dev/null )
+                        export CLAUDE_CODE_OAUTH_TOKEN="$TOK_A"
+                        source "$LIB_DIR/oauth_fetcher.sh"
+                        echo "$BACKOFF_FILE" ) 2>/dev/null )
     assert_contains ".${expected_hash}" "$backoff_result" "oauth_fetcher BACKOFF_FILE carries the account hash suffix"
 }
 
