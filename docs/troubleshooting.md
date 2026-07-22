@@ -310,7 +310,7 @@ make clean
 # Enhanced statusline shows usage patterns
 
 # Use smart scheduling
-make -C scripts/claude-hi setup
+make -C integrations/claude-code/claude-hi setup
 
 # Monitor usage patterns
 tail ~/.claude/logs/usage.log
@@ -357,11 +357,11 @@ ping claude.ai
 # Solution: Verify and adjust schedule
 
 # Check current schedule
-make -C scripts/claude-hi status
+make -C integrations/claude-code/claude-hi status
 
 # Remove and recreate
-make -C scripts/claude-hi remove
-make -C scripts/claude-hi setup
+make -C integrations/claude-code/claude-hi remove
+make -C integrations/claude-code/claude-hi setup
 ```
 
 ### Enhanced Statusline
@@ -372,7 +372,7 @@ make -C scripts/claude-hi setup
 # Solution: Check installation and shell integration
 
 # Verify statusline installation
-ls ~/.claude/statusline/
+ls ~/.claude/scripts/claude/statusline/
 
 # Check shell integration
 grep claude ~/.bashrc ~/.zshrc
@@ -384,17 +384,18 @@ make install-statusline
 #### Incorrect Usage Data
 ```bash
 # Error: Statusline shows wrong information
-# Solution: Debug data sources
+# Solution: Debug with STATUSLINE_DEBUG and inspect the /tmp caches
 
-# Check data files
-ls ~/.claude/logs/
+# Test statusline script with debug logging
+STATUSLINE_DEBUG=1 bash -c 'echo "{\"model\":{\"id\":\"test\"}}" | ~/.claude/scripts/claude/statusline/statusline.sh'
+tail -20 /tmp/claude_statusline_debug.log
 
-# Test statusline script
-~/.claude/statusline/statusline.sh --debug
-
-# Reset usage tracking
-rm ~/.claude/logs/usage.json
+# Rate-limit/usage data is cached in /tmp, not ~/.claude/logs — clear it to force a refresh
+# (default account; append .<hash> for a CLAUDE_CODE_OAUTH_TOKEN-scoped account)
+rm -f /tmp/claude_rate_limits_cache.json /tmp/claude_oauth_usage_cache.json
 ```
+
+Full reference, including every `STATUSLINE_*`/`CLAUDE_*` env var and multi-account cache layout: [Statusline Guide](../integrations/claude-code/statusline/STATUSLINE.md).
 
 ## Development Environment Issues
 
@@ -550,7 +551,8 @@ export CC_ARSENAL_DEBUG_COMMANDS=1
 ~/.claude/logs/commands.log     # Command execution log
 
 # Component logs
-~/.claude/logs/statusline.log   # Statusline debug info
+/tmp/claude_statusline_debug.log        # Statusline debug info (STATUSLINE_DEBUG=1)
+/tmp/statusline_live_cache/oauth_errors.log  # Statusline OAuth usage fetch errors
 ~/.claude/logs/claude-hi.log    # Session scheduler log
 ~/.claude/logs/usage.log        # Token usage tracking
 ```
@@ -561,7 +563,7 @@ export CC_ARSENAL_DEBUG_COMMANDS=1
 # Component status
 make info                       # Overall status
 make validate-structure         # Structural validation
-make -C scripts/claude-hi status          # Session scheduler status
+make -C integrations/claude-code/claude-hi status          # Session scheduler status
 
 # Test components
 make test                      # Run test suite

@@ -45,7 +45,7 @@ wheels = [
 
 [[package]]
 name = "cc-arsenal"
-version = "0.1.0"
+version = "5.0.0"
 source = { editable = "." }
 dependencies = [
     { name = "click" },

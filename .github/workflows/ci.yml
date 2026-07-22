@@ -52,3 +52,17 @@ jobs:
 
     - name: Run code quality checks
       run: make check
+
+  statusline:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v7
+
+    - name: Shellcheck
+      run: |
+        find integrations/claude-code/statusline -name '*.sh' -not -path '*/tests/*' -print0 \
+          | xargs -0 shellcheck -S warning
+
+    - name: Statusline tests
+      run: bash integrations/claude-code/statusline/tests/run_tests.sh

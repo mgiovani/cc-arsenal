@@ -6,14 +6,12 @@ Professional Python utilities for managing Claude Code Arsenal installations and
 
 ```
 scripts/
-├── setup/           # Installation and configuration
-│   ├── install.py      # Safe installation with symlink management
-│   └── configure.py    # Interactive configuration wizard
-├── claude/          # Claude Code utilities
-│   └── statusline/     # Status line configuration tool
-└── claude-hi/       # Smart session scheduler
-    └── README.md       # Session window management
+└── setup/           # Installation and configuration
+    ├── install.py      # Safe installation with symlink management
+    └── configure.py    # Interactive configuration wizard
 ```
+
+The statusline and Claude Hi session scheduler now live under `integrations/claude-code/` (agent-CLI-specific tooling), not here.
 
 ## Installation
 

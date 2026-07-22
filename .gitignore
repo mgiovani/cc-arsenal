@@ -17,8 +17,9 @@ eggs/
 lib/
 lib64/
 
-# Allow statusline lib (source code, not build artifacts)
-!scripts/claude/statusline/lib/
+# Allow statusline lib dirs (source code, not build artifacts)
+!integrations/claude-code/statusline/lib/
+!integrations/claude-code/statusline/tests/lib/
 parts/
 sdist/
 var/

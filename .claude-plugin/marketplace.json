@@ -6,7 +6,7 @@
     "email": "e@giovani.dev"
   },
   "metadata": {
-    "description": "Claude Code Arsenal - Professional skills for development workflows",
+    "description": "cc-arsenal — 45 production-grade Agent Skills for development workflows; works with Claude Code and any Agent-Skills-compatible agent.",
     "version": "5.0.0"
   },
   "plugins": [
@@ -116,7 +116,7 @@
       "name": "cc-arsenal-git",
       "source": "./",
       "strict": false,
-      "description": "Git and GitHub workflow skills: conventional commits, PR creation, release management, gitflow branching, GitHub Issues daily planner, and branch syncing",
+      "description": "Git and GitHub workflow skills: conventional commits, PR creation, release management, gitflow branching, GitHub Issues daily planner, branch syncing, and code-done-to-merged shipping",
       "version": "5.0.0",
       "author": {
         "name": "Giovani Moutinho",
@@ -134,7 +134,8 @@
         "./skills/git-release/",
         "./skills/gitflow/",
         "./skills/gh-daily/",
-        "./skills/git-sync/"
+        "./skills/git-sync/",
+        "./skills/ship/"
       ]
     },
     {

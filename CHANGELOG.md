@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+- **Statusline: staff-level overhaul.** Removed ~3,900 lines of dead code (an entire abandoned cache subsystem, superseded flat modules, rotted dev tools) and retired the background daemon — its output had no consumers and the OAuth refresh now fires directly from the render path, non-blocking. The whole tree is shellcheck-clean, usage percentages are now threshold-colored (green/yellow/red), the test suite was rebuilt against the live modules with shared assert helpers, glob discovery, and full /tmp isolation (9/9 suites), docs were consolidated into STATUSLINE.md and verified against the code, and CI gained a Linux shellcheck+test job.
+
+### Fixed
+- **Plugin manifests:** `.claude-plugin/plugin.json` still carried the pre-v5 marketing description (it had also sat at version 2.0.0 from February through July while `marketplace.json` advanced — the snapshot stale Claude Desktop installs were showing). Descriptions are aligned, and `make validate-plugins` now fails on any version or description drift between the two manifests so a partial bump can't ship again.
+- **Statusline (post-review):** the background OAuth fetcher now holds a single-flight lock for the whole fetch, so overlapping renders can't stack concurrent calls against the rate-limited API; the tmux cache write reuses values the render already extracted instead of re-forking `cat`+`jq`; ISO timestamps with explicit UTC offsets parse to the correct epoch instead of being read as UTC; non-numeric values render as-is instead of `printf` garbage like `045%`; `hash_sha256` falls back to MD5 (then `default`) so per-account cache keys stay distinct on minimal systems; the error log is size-capped. The config surface was cut to the keys the code actually honors, `STATUSLINE_CONFIG_OVERRIDE` now really works, `configure_statusline.py` was rewritten to offer only working options (481→80 lines), and the dead `lib/tracking/` modules were removed (~550 lines).
+- **Statusline:** `extract_json` returned success with empty output on a grep-fallback miss, making every `||` fallback chain over it unreachable (e.g. session-id lookup never tried `session_id`/`conversation_id`); `lib/display/components.sh` didn't source its own `core/json.sh` dependency; `cache_clear` could expand `rm -rf` against `/*` if its directory variable was ever empty.
+
+### Changed
+- **New `integrations/` tier.** Agent-CLI-specific tooling now lives under `integrations/<agent-cli>/`, one subdirectory per agent CLI: the statusline moved from `scripts/claude/statusline` to `integrations/claude-code/statusline` and the claude-hi session scheduler from `scripts/claude-hi` to `integrations/claude-code/claude-hi`. The installed location (`~/.claude/scripts/claude/statusline`) is unchanged, so existing installs and `settings.json` entries keep working without migration.
+
+### Added
+- **Statusline: per-account usage reporting.** When Claude Code runs under `CLAUDE_CODE_OAUTH_TOKEN`, the statusline now fetches and displays that account's real 5h/7d rate limits instead of the stored login's stdin values, with per-account cache/backoff isolation (sha256-keyed filenames, tokens never written to disk), an opt-in account badge via `CLAUDE_STATUSLINE_ACCOUNT_LABEL`, and a per-account tmux rate-limits cache file. The default single-account case is unchanged. Works on macOS and Linux.
+
 ## [5.0.0] - 2026-07-18
 
 The authoring-standard overhaul. Every skill was rewritten to the Anthropic skill-authoring standard and gated by a full baseline-vs-new eval loop, four new skills were mined from usage history, and all 45 skills now ship eval coverage. The catalog grew from 41 to 45 skills.

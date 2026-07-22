@@ -32,8 +32,8 @@ help: ## Show this help message
 	@echo "  make install       # Install to ~/.claude"
 	@echo
 	@echo "$(YELLOW)Optional Features:$(RESET)"
-	@echo "  make -C scripts/claude/statusline help    # Statusline commands"
-	@echo "  make -C scripts/claude-hi help            # Session scheduler commands"
+	@echo "  make -C integrations/claude-code/statusline help    # Statusline commands"
+	@echo "  make -C integrations/claude-code/claude-hi help     # Session scheduler commands"
 
 # ============================================================================
 # Installation
@@ -108,11 +108,11 @@ coverage: dev ## Run tests with coverage report
 
 install-statusline: validate-structure ## Install statusline to ~/.claude
 	@echo "$(BLUE)Installing statusline...$(RESET)"
-	@make -C scripts/claude/statusline install
+	@make -C integrations/claude-code/statusline install
 
 uninstall-statusline: ## Remove statusline from ~/.claude
 	@echo "$(BLUE)Uninstalling statusline...$(RESET)"
-	@make -C scripts/claude/statusline uninstall
+	@make -C integrations/claude-code/statusline uninstall
 
 # ============================================================================
 # Utilities
@@ -172,13 +172,32 @@ validate-plugins: ## Validate both marketplace and plugin manifests
 		plugin_valid=0; \
 	fi; \
 	echo; \
-	if [ $$marketplace_valid -eq 1 ] && [ $$plugin_valid -eq 1 ]; then \
+	echo "$(BLUE)3. Checking manifest drift (marketplace.json vs plugin.json)...$(RESET)"; \
+	mp_ver=$$(jq -r '.metadata.version' .claude-plugin/marketplace.json); \
+	pl_ver=$$(jq -r '.version' .claude-plugin/plugin.json); \
+	mp_desc=$$(jq -r '.metadata.description' .claude-plugin/marketplace.json); \
+	pl_desc=$$(jq -r '.description' .claude-plugin/plugin.json); \
+	bad_entry_vers=$$(jq -r --arg v "$$mp_ver" '.plugins[] | select(.version != $$v) | "\(.name)=\(.version)"' .claude-plugin/marketplace.json); \
+	drift_valid=1; \
+	if [ "$$mp_ver" != "$$pl_ver" ]; then \
+		echo "$(RED)✘ Version drift: marketplace metadata=$$mp_ver, plugin.json=$$pl_ver$(RESET)"; drift_valid=0; \
+	fi; \
+	if [ -n "$$bad_entry_vers" ]; then \
+		echo "$(RED)✘ Plugin entries not at $$mp_ver: $$bad_entry_vers$(RESET)"; drift_valid=0; \
+	fi; \
+	if [ "$$mp_desc" != "$$pl_desc" ]; then \
+		echo "$(RED)✘ Description drift between marketplace metadata and plugin.json$(RESET)"; drift_valid=0; \
+	fi; \
+	[ $$drift_valid -eq 1 ] && echo "$(GREEN)✔ Manifests agree on version $$mp_ver and description$(RESET)"; \
+	echo; \
+	if [ $$marketplace_valid -eq 1 ] && [ $$plugin_valid -eq 1 ] && [ $$drift_valid -eq 1 ]; then \
 		echo "$(GREEN)✅ All plugin manifests are valid!$(RESET)"; \
 		exit 0; \
 	else \
 		echo "$(RED)❌ Plugin validation failed$(RESET)"; \
 		[ $$marketplace_valid -eq 0 ] && echo "  • Marketplace manifest has errors"; \
 		[ $$plugin_valid -eq 0 ] && echo "  • Plugin manifest has errors"; \
+		[ $$drift_valid -eq 0 ] && echo "  • Manifest drift between marketplace.json and plugin.json"; \
 		exit 1; \
 	fi
 

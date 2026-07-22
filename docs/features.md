@@ -278,7 +278,7 @@ Turn any task into a model-tiered multi-agent plan.
 
 ### Statusline
 
-Real-time cost and usage tracking in your Claude Code prompt.
+Real-time cost and usage tracking in your Claude Code prompt — computed fresh on each call, no background daemon.
 
 **Shows:**
 - Model name and version
@@ -287,13 +287,15 @@ Real-time cost and usage tracking in your Claude Code prompt.
 - Git worktree name
 - Context window usage percentage
 - Session costs
-- Lines changed (+added/-removed)
+- Lines changed (+added/-removed) — disabled by default, enable via `make configure`
 - Session duration
-- Time until 5-hour reset
+- 5-hour and 7-day usage windows (second line)
+- Optional multi-account badge when `CLAUDE_CODE_OAUTH_TOKEN`/`CLAUDE_STATUSLINE_ACCOUNT_LABEL` are set
 
 **Example:**
 ```
-🤖 Opus 4.5 │ 📁 ~/projects/cc-arsenal │ 🌿 main ● │ 📊 66% │ 💰 $3.169 │ 📝 +719/-545 │ ⏱️ 21m │ 🔄 4h 23m until reset at 13:00
+🤖 Opus 4.5 │ 📁 ~/projects/cc-arsenal │ 🌿 main ● │ 📊 66% │ 💰 $3.169 │ ⏱️ 21m
+🔄 5h: 16% → 21:00 │ 📅 7d: 39% → Dec 31 21:00
 ```
 
 **Installation:**
@@ -301,7 +303,7 @@ Real-time cost and usage tracking in your Claude Code prompt.
 make install-statusline
 ```
 
-**Documentation:** [Statusline Guide](../scripts/claude/statusline/STATUSLINE.md)
+**Documentation:** [Statusline Guide](../integrations/claude-code/statusline/STATUSLINE.md)
 
 ### Claude Hi Scheduler
 
@@ -315,11 +317,11 @@ Automatically start fresh 5-hour windows before your peak coding times.
 
 **Installation:**
 ```bash
-make -C scripts/claude-hi setup     # Interactive setup
-make -C scripts/claude-hi standard  # Quick 9am/2pm/7pm schedule
+make -C integrations/claude-code/claude-hi setup     # Interactive setup
+make -C integrations/claude-code/claude-hi standard  # Quick 9am/2pm/7pm schedule
 ```
 
-**Documentation:** [Claude Hi Guide](../scripts/claude-hi/README.md)
+**Documentation:** [Claude Hi Guide](../integrations/claude-code/claude-hi/README.md)
 
 ## Installation Options
 
