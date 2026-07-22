@@ -126,6 +126,10 @@ build_line_one() {
     comp=$(get_model_component "$MODEL")
     [[ -n "$comp" ]] && components+=("$comp")
 
+    # Context - kept right after the model so token usage stays glanceable
+    comp=$(get_context_component "$USED_PERCENTAGE")
+    [[ -n "$comp" ]] && components+=("$comp")
+
     # Directory
     comp=$(get_directory_component "$current_dir")
     [[ -n "$comp" ]] && components+=("$comp")
@@ -136,10 +140,6 @@ build_line_one() {
 
     # Worktree - prefer native JSON, fallback to git detection
     comp=$(get_worktree_component "$NATIVE_WORKTREE_NAME")
-    [[ -n "$comp" ]] && components+=("$comp")
-
-    # Context
-    comp=$(get_context_component "$USED_PERCENTAGE")
     [[ -n "$comp" ]] && components+=("$comp")
 
     # Cost

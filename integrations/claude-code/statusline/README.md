@@ -5,7 +5,7 @@ A bash+jq statusline for Claude Code showing model, git status, cost, context us
 ## Example
 
 ```
-🤖 Opus │ 📁 cc-arsenal │ 🌿 main ● │ 📊 22% │ 💰 $0.043 │ ⏱️ 21m
+🤖 Opus │ 📊 22% │ 📁 cc-arsenal │ 🌿 main ● │ 💰 $0.043 │ ⏱️ 21m
 🔄 5h: 16% → 21:00 │ 📅 7d: 39% → Dec 31 21:00
 ```
 

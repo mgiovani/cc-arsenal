@@ -357,7 +357,10 @@ get_session_component() {
 # Display the active account label when multi-account mode is configured
 # Usage: get_account_component
 get_account_component() {
-    if [[ -z "${CLAUDE_CODE_OAUTH_TOKEN:-}" || -z "${CLAUDE_STATUSLINE_ACCOUNT_LABEL:-}" ]]; then
+    # The label is user-set display text — show it whenever it's set, regardless
+    # of how the account was switched (CLAUDE_CODE_OAUTH_TOKEN env override, or a
+    # separate credential store via CLAUDE_SECURESTORAGE_CONFIG_DIR, etc.)
+    if [[ -z "${CLAUDE_STATUSLINE_ACCOUNT_LABEL:-}" ]]; then
         return 0
     fi
 

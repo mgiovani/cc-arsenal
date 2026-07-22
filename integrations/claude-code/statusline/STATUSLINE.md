@@ -16,9 +16,9 @@ Shows model, git, cost, context, and usage-window information in your Claude Cod
 
 The statusline renders two lines:
 
-**Line 1** — model, directory, git, context, cost, session duration:
+**Line 1** — model, context, directory, git, cost, session duration:
 ```
-🤖 Opus │ 📁 cc-arsenal │ 🌿 main ● │ 📊 22% │ 💰 $0.043 │ ⏱️ 21m
+🤖 Opus │ 📊 22% │ 📁 cc-arsenal │ 🌿 main ● │ 💰 $0.043 │ ⏱️ 21m
 ```
 
 **Line 2** — usage-window details (only when rate-limit data is available):
@@ -28,10 +28,10 @@ The statusline renders two lines:
 
 Line 1 components, in order:
 - 🤖 **Model** — name/version, from `model.display_name` or `model.id`
+- 📊 **Context** — `context_window.used_percentage`, rounded
 - 📁 **Directory** — current directory, `~`-shortened
 - 🌿 **Git** — branch, with `●` for uncommitted changes
 - 🌳 **Worktree** — worktree name, shown only when in a worktree
-- 📊 **Context** — `context_window.used_percentage`, rounded
 - 💰 **Cost** — `cost.total_cost_usd` for the session
 - 📝 **Lines changed** — `+added/-removed`; **disabled by default**, enable via config
 - ⏱️ **Session duration** — from `cost.total_duration_ms`; hidden until a session has run
@@ -146,7 +146,7 @@ To point the script at a different config file entirely (e.g. for previewing a c
 | `STATUSLINE_DEBUG` | `1` to log raw input JSON and context-window extraction to `/tmp/claude_statusline_debug.log` |
 | `STATUSLINE_PERF` | `1` to print `[perf] <ms>ms` to stderr after each run |
 | `CLAUDE_CODE_OAUTH_TOKEN` | Selects a specific account's OAuth token and enables the multi-account code path — see below |
-| `CLAUDE_STATUSLINE_ACCOUNT_LABEL` | Badge text shown on line 2 when `CLAUDE_CODE_OAUTH_TOKEN` is also set; unset means no badge |
+| `CLAUDE_STATUSLINE_ACCOUNT_LABEL` | Badge text shown on line 2 whenever it's set; unset means no badge. Independent of `CLAUDE_CODE_OAUTH_TOKEN` — works with any account-switch mechanism (env token, `CLAUDE_SECURESTORAGE_CONFIG_DIR`, etc.) |
 | `OAUTH_USAGE_CACHE_FILE` | Overrides the OAuth usage cache path (otherwise auto-derived, see below) |
 | `OAUTH_USAGE_CACHE_TTL` | OAuth usage cache TTL in seconds (default `300`) |
 
@@ -170,11 +170,11 @@ This means two accounts running statuslines concurrently (e.g. in separate tmux 
 
 ### Account badge
 
-Set `CLAUDE_STATUSLINE_ACCOUNT_LABEL` (e.g. `work`, `personal`) alongside `CLAUDE_CODE_OAUTH_TOKEN` to show a badge on line 2:
+Set `CLAUDE_STATUSLINE_ACCOUNT_LABEL` (e.g. `work`, `personal`) to show a badge on line 2:
 ```
 👤 work │ 🔄 5h: 16% → 21:00
 ```
-Both must be set — an account without a label shows no badge (it still uses that account's isolated caches, just silently).
+The label is independent of how you switched accounts — it renders whenever it's set, whether you select the account via `CLAUDE_CODE_OAUTH_TOKEN` or a separate credential store (`CLAUDE_SECURESTORAGE_CONFIG_DIR=~/.claude-alt`). Unset means no badge. Note the per-account usage-cache isolation and background OAuth refresh are still keyed on `CLAUDE_CODE_OAUTH_TOKEN`; with the securestorage path, line-2 usage comes from the `rate_limits` Claude Code sends on stdin for that account.
 
 ### Refresh behavior
 

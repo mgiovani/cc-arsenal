@@ -152,12 +152,13 @@ run_integration_test() {
         echo -e "${GREEN}✅ Integration test: Statusline executed successfully${RESET}"
         echo "Output: $output"
 
-        # Basic validation that output contains expected elements
-        if [[ "$output" == *"🤖"* && "$output" == *"📁"* && "$output" == *"📊"* ]]; then
-            echo -e "${GREEN}✅ Integration test: Output contains expected components${RESET}"
+        # Validate expected components AND their order: model → context → directory
+        # (context is kept right after the model on line 1)
+        if [[ "$output" == *"🤖"*"📊"*"📁"* ]]; then
+            echo -e "${GREEN}✅ Integration test: Output contains expected components in order${RESET}"
             return 0
         else
-            echo -e "${RED}❌ Integration test: Output missing expected components${RESET}"
+            echo -e "${RED}❌ Integration test: Output missing expected components or wrong order${RESET}"
             return 1
         fi
     else
