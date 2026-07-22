@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **New `integrations/` tier.** Agent-CLI-specific tooling now lives under `integrations/<agent-cli>/`, one subdirectory per agent CLI: the statusline moved from `scripts/claude/statusline` to `integrations/claude-code/statusline` and the claude-hi session scheduler from `scripts/claude-hi` to `integrations/claude-code/claude-hi`. The installed location (`~/.claude/scripts/claude/statusline`) is unchanged, so existing installs and `settings.json` entries keep working without migration.
+
 ### Added
 - **Statusline: per-account usage reporting.** When Claude Code runs under `CLAUDE_CODE_OAUTH_TOKEN`, the statusline now fetches and displays that account's real 5h/7d rate limits instead of the stored login's stdin values, with per-account cache/backoff isolation (sha256-keyed filenames, tokens never written to disk), an opt-in account badge via `CLAUDE_STATUSLINE_ACCOUNT_LABEL`, and a per-account tmux rate-limits cache file. The default single-account case is unchanged. Works on macOS and Linux.
 

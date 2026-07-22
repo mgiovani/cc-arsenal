@@ -65,7 +65,7 @@ This will:
 1. **Copy the statusline to your Claude directory**:
   ```bash
   mkdir -p ~/.claude/scripts/claude/statusline/
-  cp scripts/claude/statusline/statusline.sh ~/.claude/scripts/claude/statusline/
+  cp integrations/claude-code/statusline/statusline.sh ~/.claude/scripts/claude/statusline/
   chmod +x ~/.claude/scripts/claude/statusline/statusline.sh
   ```
 

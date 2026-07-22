@@ -105,9 +105,9 @@ Skills use progressive disclosure: Claude reads only the frontmatter until a ski
 Replace manual cron workarounds with intelligent scheduling:
 
 ```bash
-make -C scripts/claude-hi setup     # Interactive setup
-make -C scripts/claude-hi standard  # Quick 9am/2pm/7pm schedule
-make -C scripts/claude-hi status    # Check current schedule
+make -C integrations/claude-code/claude-hi setup     # Interactive setup
+make -C integrations/claude-code/claude-hi standard  # Quick 9am/2pm/7pm schedule
+make -C integrations/claude-code/claude-hi status    # Check current schedule
 ```
 
 ### Enhanced Statusline

@@ -10,6 +10,7 @@ cc-arsenal is a collection of **45 Agent Skills** ([agentskills.io](https://agen
 
 - **Skills** (`skills/`): 45 skills covering development, code review, documentation, git/GitHub, jira, teams, browser automation, project planning, multi-agent orchestration, open-source launch prep, and skill discovery/creation/improvement
 - **Scripts** (`scripts/`): Python utilities for installation, configuration, and code generation (Claude-Code-specific; see `CLAUDE.md`)
+- **Integrations** (`integrations/`): agent-CLI-specific tooling that doesn't fit the tool-agnostic `skills/` tier — one subdirectory per agent CLI. Today that's `integrations/claude-code/`, holding the statusline and the `claude-hi` session scheduler; future agent CLIs (Codex, Gemini CLI, ...) get sibling directories alongside it as their own tooling needs arise.
 
 ## Install in any agent
 
@@ -219,5 +220,7 @@ cc-arsenal/
 │   ├── orchestrate/         # Model-tiered multi-agent orchestration
 │   ├── find-skills/         # Third-party skill discovery
 │   └── agent-browser/       # Browser automation
-└── scripts/        # Installation and utilities (see CLAUDE.md for Claude-Code-specific ones)
+├── scripts/        # Installation and utilities (see CLAUDE.md for Claude-Code-specific ones)
+└── integrations/   # Agent-CLI-specific tooling, one subdirectory per agent CLI
+    └── claude-code/    # Statusline and the claude-hi session scheduler
 ```

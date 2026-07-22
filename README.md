@@ -21,7 +21,7 @@ npx skills add mgiovani/cc-arsenal
 
 ```bash
 make install-statusline           # Track usage and costs
-make -C scripts/claude-hi standard # Schedule 5-hour windows
+make -C integrations/claude-code/claude-hi standard # Schedule 5-hour windows
 ```
 
 ## What's Included
@@ -47,8 +47,8 @@ Every skill still works standalone in any Agent-Skills-compatible tool — the C
 
 - [Getting Started](docs/getting-started.md) - Installation and setup
 - [Features](docs/features.md) - Complete skill reference
-- [Statusline Guide](scripts/claude/statusline/STATUSLINE.md) - Usage tracking (Claude Code)
-- [Claude Hi Guide](scripts/claude-hi/README.md) - Session scheduling (Claude Code)
+- [Statusline Guide](integrations/claude-code/statusline/STATUSLINE.md) - Usage tracking (Claude Code)
+- [Claude Hi Guide](integrations/claude-code/claude-hi/README.md) - Session scheduling (Claude Code)
 - [Troubleshooting](docs/troubleshooting.md) - Common issues
 - [Changelog](CHANGELOG.md) - Version history
 - [AGENTS.md](AGENTS.md) - Canonical, tool-agnostic skill guidance

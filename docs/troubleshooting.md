@@ -310,7 +310,7 @@ make clean
 # Enhanced statusline shows usage patterns
 
 # Use smart scheduling
-make -C scripts/claude-hi setup
+make -C integrations/claude-code/claude-hi setup
 
 # Monitor usage patterns
 tail ~/.claude/logs/usage.log
@@ -357,11 +357,11 @@ ping claude.ai
 # Solution: Verify and adjust schedule
 
 # Check current schedule
-make -C scripts/claude-hi status
+make -C integrations/claude-code/claude-hi status
 
 # Remove and recreate
-make -C scripts/claude-hi remove
-make -C scripts/claude-hi setup
+make -C integrations/claude-code/claude-hi remove
+make -C integrations/claude-code/claude-hi setup
 ```
 
 ### Enhanced Statusline
@@ -372,7 +372,7 @@ make -C scripts/claude-hi setup
 # Solution: Check installation and shell integration
 
 # Verify statusline installation
-ls ~/.claude/statusline/
+ls ~/.claude/scripts/claude/statusline/
 
 # Check shell integration
 grep claude ~/.bashrc ~/.zshrc
@@ -390,7 +390,7 @@ make install-statusline
 ls ~/.claude/logs/
 
 # Test statusline script
-~/.claude/statusline/statusline.sh --debug
+~/.claude/scripts/claude/statusline/statusline.sh --debug
 
 # Reset usage tracking
 rm ~/.claude/logs/usage.json
@@ -561,7 +561,7 @@ export CC_ARSENAL_DEBUG_COMMANDS=1
 # Component status
 make info                       # Overall status
 make validate-structure         # Structural validation
-make -C scripts/claude-hi status          # Session scheduler status
+make -C integrations/claude-code/claude-hi status          # Session scheduler status
 
 # Test components
 make test                      # Run test suite

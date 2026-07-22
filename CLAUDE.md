@@ -89,17 +89,17 @@ When team members trust the repository folder, Claude Code automatically install
 # Statusline Management
 make install-statusline           # Install statusline (delegates to feature Makefile)
 make uninstall-statusline         # Uninstall statusline (delegates to feature Makefile)
-make -C scripts/claude/statusline help           # Show all statusline commands
-make -C scripts/claude/statusline status         # Show statusline configuration
-make -C scripts/claude/statusline test           # Test statusline
-make -C scripts/claude/statusline list-backups   # List backups
+make -C integrations/claude-code/statusline help           # Show all statusline commands
+make -C integrations/claude-code/statusline status         # Show statusline configuration
+make -C integrations/claude-code/statusline test           # Test statusline
+make -C integrations/claude-code/statusline list-backups   # List backups
 
 # Session Scheduler (Claude Hi)
-make -C scripts/claude-hi help      # Show all scheduler commands
-make -C scripts/claude-hi standard  # Set up 9am/2pm/7pm schedule
-make -C scripts/claude-hi status    # Check current schedule
-make -C scripts/claude-hi remove    # Remove schedule
-make -C scripts/claude-hi now       # Send 'hi' immediately
+make -C integrations/claude-code/claude-hi help      # Show all scheduler commands
+make -C integrations/claude-code/claude-hi standard  # Set up 9am/2pm/7pm schedule
+make -C integrations/claude-code/claude-hi status    # Check current schedule
+make -C integrations/claude-code/claude-hi remove    # Remove schedule
+make -C integrations/claude-code/claude-hi now       # Send 'hi' immediately
 ```
 
 ## Per-skill hooks

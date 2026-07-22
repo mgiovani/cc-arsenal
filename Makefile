@@ -32,8 +32,8 @@ help: ## Show this help message
 	@echo "  make install       # Install to ~/.claude"
 	@echo
 	@echo "$(YELLOW)Optional Features:$(RESET)"
-	@echo "  make -C scripts/claude/statusline help    # Statusline commands"
-	@echo "  make -C scripts/claude-hi help            # Session scheduler commands"
+	@echo "  make -C integrations/claude-code/statusline help    # Statusline commands"
+	@echo "  make -C integrations/claude-code/claude-hi help            # Session scheduler commands"
 
 # ============================================================================
 # Installation
@@ -108,11 +108,11 @@ coverage: dev ## Run tests with coverage report
 
 install-statusline: validate-structure ## Install statusline to ~/.claude
 	@echo "$(BLUE)Installing statusline...$(RESET)"
-	@make -C scripts/claude/statusline install
+	@make -C integrations/claude-code/statusline install
 
 uninstall-statusline: ## Remove statusline from ~/.claude
 	@echo "$(BLUE)Uninstalling statusline...$(RESET)"
-	@make -C scripts/claude/statusline uninstall
+	@make -C integrations/claude-code/statusline uninstall
 
 # ============================================================================
 # Utilities
