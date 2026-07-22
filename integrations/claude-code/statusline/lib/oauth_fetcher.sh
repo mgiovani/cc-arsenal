@@ -31,12 +31,18 @@ if [[ -n "${CLAUDE_CODE_OAUTH_TOKEN:-}" ]]; then
 fi
 
 CACHE_LOCK_FILE="$LOG_DIR/oauth_cache.lock${ACCOUNT_SUFFIX}"
-CACHE_LOCK_FD=201  # Use different FD than daemon lock (200)
+CACHE_LOCK_FD=201  # Dedicated FD for the cache flock
 BACKOFF_FILE="$LOG_DIR/oauth_backoff${ACCOUNT_SUFFIX}"
 BACKOFF_COUNT_FILE="$LOG_DIR/oauth_backoff_count${ACCOUNT_SUFFIX}"
 
 # Ensure log directory exists
 mkdir -p "$LOG_DIR" 2>/dev/null || true
+
+# Keep the shared error log bounded (it is appended by every account)
+if [[ -f "$LOG_FILE" ]] && [[ "$(wc -c < "$LOG_FILE" 2>/dev/null || echo 0)" -gt 65536 ]]; then
+    tail -c 32768 "$LOG_FILE" > "$LOG_FILE.tmp" 2>/dev/null && \
+        mv "$LOG_FILE.tmp" "$LOG_FILE" 2>/dev/null || true
+fi
 
 # =============================================================================
 # Logging Functions
@@ -64,9 +70,11 @@ log_oauth_success() {
 # =============================================================================
 
 # Acquire exclusive lock on cache file (blocking with timeout)
+# Usage: acquire_cache_lock [timeout] [quiet]
 # Returns: 0 if lock acquired, 1 if timeout
 acquire_cache_lock() {
     local timeout="${1:-10}"  # Default 10 second timeout
+    local quiet="${2:-}"
 
     # Ensure lock file exists
     touch "$CACHE_LOCK_FILE" 2>/dev/null || true
@@ -75,7 +83,7 @@ acquire_cache_lock() {
         # Use flock with timeout
         eval "exec ${CACHE_LOCK_FD}>\"$CACHE_LOCK_FILE\""
         if ! flock -w "$timeout" "$CACHE_LOCK_FD"; then
-            log_oauth_error "Failed to acquire cache lock after ${timeout}s timeout"
+            [[ -z "$quiet" ]] && log_oauth_error "Failed to acquire cache lock after ${timeout}s timeout"
             eval "exec ${CACHE_LOCK_FD}>&-" 2>/dev/null || true
             return 1
         fi
@@ -98,7 +106,7 @@ acquire_cache_lock() {
         done
 
         if [[ -f "$CACHE_LOCK_FILE.pid" ]]; then
-            log_oauth_error "Failed to acquire cache lock after ${timeout}s timeout (fallback method)"
+            [[ -z "$quiet" ]] && log_oauth_error "Failed to acquire cache lock after ${timeout}s timeout (fallback method)"
             return 1
         fi
 
@@ -128,7 +136,7 @@ check_backoff() {
     [[ -f "$BACKOFF_FILE" ]] || return 1
 
     local backoff_mtime current_time elapsed backoff_duration failure_count
-    backoff_mtime=$(stat -c %Y "$BACKOFF_FILE" 2>/dev/null || stat -f %m "$BACKOFF_FILE" 2>/dev/null || echo 0)
+    backoff_mtime=$(get_file_mtime "$BACKOFF_FILE")
     current_time=$(date +%s)
     elapsed=$((current_time - backoff_mtime))
 
@@ -143,8 +151,9 @@ check_backoff() {
         backoff_duration=600
     fi
 
+    # Silent skip: set_backoff already logged entering backoff, and this
+    # check runs on every render while the backoff window is open
     if [[ "$elapsed" -lt "$backoff_duration" ]]; then
-        log_oauth_error "Rate-limit backoff active (failure #${failure_count}, ${elapsed}/${backoff_duration}s elapsed) — skipping fetch"
         return 0
     fi
 
@@ -176,15 +185,23 @@ fetch_oauth_with_logging() {
     local start_time
     start_time=$(date +%s)
 
+    # Single-flight guard: hold the lock for the whole fetch so overlapping
+    # renders can't stack concurrent curl calls against the rate-limited API.
+    # If another fetcher already holds it, let that one finish.
+    if ! acquire_cache_lock 1 quiet; then
+        return 0
+    fi
+
     # Check rate-limit backoff before doing anything
     if check_backoff; then
         return 1
     fi
 
-    # Respect cache TTL — skip fetch if cache is still fresh
+    # Respect cache TTL — skip fetch if cache is still fresh (re-checked under
+    # the lock: a just-finished fetcher may have refreshed it while we waited)
     if [[ -f "$OAUTH_USAGE_CACHE_FILE" ]]; then
         local cache_mtime cache_age
-        cache_mtime=$(stat -c %Y "$OAUTH_USAGE_CACHE_FILE" 2>/dev/null || stat -f %m "$OAUTH_USAGE_CACHE_FILE" 2>/dev/null || echo 0)
+        cache_mtime=$(get_file_mtime "$OAUTH_USAGE_CACHE_FILE")
         cache_age=$(( start_time - cache_mtime ))
         if [[ "$cache_age" -lt "${OAUTH_USAGE_CACHE_TTL:-300}" ]]; then
             return 0  # Cache still fresh, skip network call
@@ -239,13 +256,8 @@ fetch_oauth_with_logging() {
         return 1
     fi
 
-    # Acquire lock before writing to cache
-    if ! acquire_cache_lock 10; then
-        log_oauth_error "Failed to acquire lock for cache write"
-        return 1
-    fi
-
-    # Write to cache (atomic operation)
+    # Write to cache (atomic operation; the single-flight lock is still held
+    # and is released by main()'s EXIT trap)
     local cache_write_success=0
     if echo "$response" > "$OAUTH_USAGE_CACHE_FILE.tmp" 2>/dev/null; then
         if mv "$OAUTH_USAGE_CACHE_FILE.tmp" "$OAUTH_USAGE_CACHE_FILE" 2>/dev/null; then
@@ -257,9 +269,6 @@ fetch_oauth_with_logging() {
     else
         log_oauth_error "Failed to write OAuth response to temporary cache file"
     fi
-
-    # Release lock
-    release_cache_lock
 
     if [[ $cache_write_success -eq 0 ]]; then
         return 1

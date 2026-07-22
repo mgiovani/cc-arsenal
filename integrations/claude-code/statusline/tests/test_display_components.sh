@@ -314,6 +314,35 @@ test_git_dirty_spacing() {
     unset STATUSLINE_DISPLAY_MODE
 }
 
+test_account_component() {
+    echo "Testing get_account_component gating and modes..."
+
+    local result
+
+    # Gating: badge requires BOTH the env token and the label - any other
+    # combination must produce no output at all
+    result=$( (unset CLAUDE_CODE_OAUTH_TOKEN CLAUDE_STATUSLINE_ACCOUNT_LABEL; get_account_component) )
+    assert_equals "" "$result" "no badge when neither token nor label is set"
+
+    result=$( (unset CLAUDE_STATUSLINE_ACCOUNT_LABEL; export CLAUDE_CODE_OAUTH_TOKEN="tok"; get_account_component) )
+    assert_equals "" "$result" "no badge with token but no label"
+
+    result=$( (unset CLAUDE_CODE_OAUTH_TOKEN; export CLAUDE_STATUSLINE_ACCOUNT_LABEL="work"; get_account_component) )
+    assert_equals "" "$result" "no badge with label but no token"
+
+    # Rendering: label only, never the token or a hash
+    result=$( (export CLAUDE_CODE_OAUTH_TOKEN="secret-tok" CLAUDE_STATUSLINE_ACCOUNT_LABEL="work" STATUSLINE_DISPLAY_MODE=emoji; get_account_component) )
+    result=$(strip_ansi "$result")
+    assert_contains "👤 work" "$result" "emoji mode renders person icon + label"
+    assert_not_contains "secret-tok" "$result" "badge never contains the token"
+
+    result=$( (export CLAUDE_CODE_OAUTH_TOKEN="secret-tok" CLAUDE_STATUSLINE_ACCOUNT_LABEL="work" STATUSLINE_DISPLAY_MODE=text; get_account_component) )
+    assert_contains "acct: work" "$(strip_ansi "$result")" "text mode renders acct: label"
+
+    result=$( (export CLAUDE_CODE_OAUTH_TOKEN="secret-tok" CLAUDE_STATUSLINE_ACCOUNT_LABEL="work" STATUSLINE_DISPLAY_MODE=ascii; get_account_component) )
+    assert_contains "[work]" "$(strip_ansi "$result")" "ascii mode renders bracketed label"
+}
+
 # Run all tests
 main() {
     echo "Running Display Components Module Tests..."
@@ -327,6 +356,7 @@ main() {
     test_get_prefix_helper
     test_session_component_text_mode
     test_git_dirty_spacing
+    test_account_component
 
     print_results "Display Components Tests"
 }

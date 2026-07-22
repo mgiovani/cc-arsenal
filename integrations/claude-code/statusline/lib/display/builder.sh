@@ -75,19 +75,29 @@ extract_statusline_data() {
     RATE_LIMIT_7D_PERCENT=$(extract_json "$json" "rate_limits.seven_day.used_percentage" 2>/dev/null || echo "")
     RATE_LIMIT_7D_RESETS=$(extract_json "$json" "rate_limits.seven_day.resets_at" 2>/dev/null || echo "")
 
-    # Fetched OAuth usage overrides stdin rate limits when a per-account fetch is available
+    # Fetched OAuth usage overrides stdin rate limits when a per-account fetch
+    # is available; the *_FETCHED flags let callers (e.g. the tmux cache write)
+    # distinguish fetched numbers from stdin fallback without re-reading the cache
+    RATE_LIMIT_5H_FETCHED=""
+    RATE_LIMIT_7D_FETCHED=""
     if [[ -n "${CLAUDE_CODE_OAUTH_TOKEN:-}" ]] && declare -f get_oauth_five_hour_usage >/dev/null 2>&1; then
         local fetched_5h fetched_7d
         fetched_5h=$(get_oauth_five_hour_usage 2>/dev/null)
         if [[ -n "$fetched_5h" && "$fetched_5h" == *"|"* ]]; then
             RATE_LIMIT_5H_PERCENT="${fetched_5h%%|*}"
             RATE_LIMIT_5H_RESETS="${fetched_5h#*|}"
+            # consumed by statusline.sh's tmux cache write
+            # shellcheck disable=SC2034
+            RATE_LIMIT_5H_FETCHED=1
         fi
 
         fetched_7d=$(get_oauth_seven_day_usage 2>/dev/null)
         if [[ -n "$fetched_7d" && "$fetched_7d" == *"|"* ]]; then
             RATE_LIMIT_7D_PERCENT="${fetched_7d%%|*}"
             RATE_LIMIT_7D_RESETS="${fetched_7d#*|}"
+            # consumed by statusline.sh's tmux cache write
+            # shellcheck disable=SC2034
+            RATE_LIMIT_7D_FETCHED=1
         fi
     fi
 

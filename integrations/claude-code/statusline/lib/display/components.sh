@@ -20,6 +20,25 @@ source "$STATUSLINE_DISPLAY_DIR/../core/json.sh"
 source "$STATUSLINE_DISPLAY_DIR/../config.sh"
 
 # =============================================================================
+# Formatting Helpers
+# =============================================================================
+
+# Format a numeric value, echoing the raw input on non-numeric values
+# (bash printf emits partial output AND fails on bad input, so "printf || echo"
+# fallbacks concatenate both - guard with a numeric check instead)
+# Usage: format_number "%.0f" "42.7"
+format_number() {
+    local fmt="$1" value="$2"
+    if [[ "$value" =~ ^-?[0-9]+([.][0-9]+)?$ ]]; then
+        # fmt is a caller-supplied printf format by design
+        # shellcheck disable=SC2059
+        printf "$fmt" "$value"
+    else
+        printf '%s' "$value"
+    fi
+}
+
+# =============================================================================
 # Text Mode Helpers
 # =============================================================================
 
@@ -239,7 +258,7 @@ get_cost_component() {
     fi
 
     local formatted
-    formatted=$(printf "%.3f" "$cost" 2>/dev/null || echo "$cost")
+    formatted=$(format_number "%.3f" "$cost")
     echo "${prefix}\$${formatted}"
 }
 
@@ -377,7 +396,7 @@ get_usage_line() {
 
     # Round percentage to integer
     local five_hour_pct
-    five_hour_pct=$(printf '%.0f' "$native_5h_percent" 2>/dev/null || echo "$native_5h_percent")
+    five_hour_pct=$(format_number '%.0f' "$native_5h_percent")
 
     # Format 5-hour reset time (use exact epoch; Claude may reset off the hour)
     local five_hour_display=""
@@ -400,7 +419,7 @@ get_usage_line() {
     # Add 7-day data if available
     if [[ -n "$native_7d_percent" && "$native_7d_percent" != "null" ]]; then
         local seven_day_pct
-        seven_day_pct=$(printf '%.0f' "$native_7d_percent" 2>/dev/null || echo "$native_7d_percent")
+        seven_day_pct=$(format_number '%.0f' "$native_7d_percent")
 
         local seven_day_display=""
         if [[ -n "$native_7d_resets" && "$native_7d_resets" != "null" && "$native_7d_resets" != "0" ]]; then

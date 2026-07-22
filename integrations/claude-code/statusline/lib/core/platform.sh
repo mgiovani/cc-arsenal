@@ -69,14 +69,26 @@ parse_iso_timestamp() {
     # Remove milliseconds and Z suffix: "2025-01-01T12:00:00.123Z" -> "2025-01-01T12:00:00"
     local clean_ts="${ts%.*}"
     clean_ts="${clean_ts%Z}"
-    # Also remove timezone offset if present
-    clean_ts="${clean_ts%+*}"
+
+    # Peel off a trailing UTC offset (+HH:MM, -HHMM, ...) and fold it into
+    # the result - BSD date would otherwise silently ignore it
+    local offset_sec=0
+    if [[ "$clean_ts" =~ ^(.+T[0-9]{2}:[0-9]{2}:[0-9]{2})([+-])([0-9]{2}):?([0-9]{2})$ ]]; then
+        clean_ts="${BASH_REMATCH[1]}"
+        offset_sec=$(( (10#${BASH_REMATCH[3]} * 3600) + (10#${BASH_REMATCH[4]} * 60) ))
+        [[ "${BASH_REMATCH[2]}" == "+" ]] && offset_sec=$(( -offset_sec ))
+    fi
 
     # macOS: date -j -f format
     # Linux: date -d string
-    TZ=UTC date -j -f "%Y-%m-%dT%H:%M:%S" "$clean_ts" +%s 2>/dev/null || \
-    TZ=UTC date -d "$clean_ts" +%s 2>/dev/null || \
-    echo "0"
+    local base
+    base=$(TZ=UTC date -j -f "%Y-%m-%dT%H:%M:%S" "$clean_ts" +%s 2>/dev/null) || \
+    base=$(TZ=UTC date -d "$clean_ts" +%s 2>/dev/null)
+    if [[ -n "$base" ]]; then
+        echo $(( base + offset_sec ))
+    else
+        echo "0"
+    fi
 }
 
 # Floor epoch timestamp to hour boundary
@@ -142,10 +154,15 @@ hash_sha256() {
     # Linux/Git-Bash: sha256sum
     hash=$(printf '%s' "$str" | shasum -a 256 2>/dev/null) || \
     hash=$(printf '%s' "$str" | sha256sum 2>/dev/null)
-    if [[ -n "$hash" ]]; then
-        echo "${hash:0:12}"
-    else
-        echo "default"
+    if [[ -z "$hash" ]]; then
+        # Last resort: MD5 via hash_string keeps per-account keys distinct
+        # even on systems with neither sha tool installed
+        hash=$(hash_string "$str")
+        if [[ "$hash" == "default" ]]; then
+            echo "default"
+            return 0
+        fi
     fi
+    echo "${hash:0:12}"
     return 0
 }

@@ -260,7 +260,19 @@ test_fetched_over_stdin() {
     assert_contains "77%" "$output" "fetched per-account usage renders"
     assert_not_contains "13%" "$output" "stdin usage is overridden, not rendered"
 
-    rm -f "$cache_file" 2>/dev/null || true
+    # The render must also persist the fetched numbers (never the stdin ones)
+    # to the per-account rate-limits file for external consumers (tmux)
+    local tmux_file="/tmp/claude_rate_limits_cache.${hash}.json"
+    assert_file_exists "$tmux_file" "per-account rate-limits file written for tmux"
+    local tmux_content
+    tmux_content=$(cat "$tmux_file" 2>/dev/null)
+    assert_contains '"used_percentage":77' "$tmux_content" "tmux file carries fetched 5h percentage"
+    assert_contains '"used_percentage":55' "$tmux_content" "tmux file carries fetched 7d percentage"
+    assert_not_contains '13' "$tmux_content" "tmux file never carries stdin numbers"
+    echo "$tmux_content" | jq -e '.five_hour.resets_at' >/dev/null 2>&1
+    assert_equals "0" "$?" "tmux file is valid JSON with the stdin-compatible shape"
+
+    rm -f "$cache_file" "$tmux_file" 2>/dev/null || true
 }
 
 # =============================================================================

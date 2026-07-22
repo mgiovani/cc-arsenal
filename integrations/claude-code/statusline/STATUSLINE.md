@@ -106,9 +106,9 @@ Both files contain `{"five_hour": {...}, "seven_day": {...}}`. Treat the default
 
 ## Configuration
 
-### Component layout
+### Config file
 
-Component order/visibility and formatting live in `~/.claude/cc-arsenal/statusline_config.json`. This file is **not** auto-created on first run — create or edit it with the interactive tool:
+Settings live in `~/.claude/cc-arsenal/statusline_config.json`. This file is **not** auto-created on first run — create or edit it with the interactive tool:
 
 ```bash
 make configure   # from integrations/claude-code/statusline/
@@ -116,34 +116,22 @@ make configure   # from integrations/claude-code/statusline/
 
 which drives `configure_statusline.py` (writes directly to `~/.claude/cc-arsenal/statusline_config.json`).
 
-Default shape:
+The config surface is intentionally small — every key here is actually honored by the code (`lib/config.sh`, `lib/display/builder.sh`):
+
 ```json
 {
   "components": {
-    "order": ["model", "directory", "git", "context", "session_cost", "daily_cost", "duration_info", "reset_countdown"],
     "enabled": {
-      "model": true, "directory": true, "git": true, "context": true,
-      "session_cost": true, "daily_cost": true, "reset_countdown": true,
-      "duration_info": false, "lines_changed": false
+      "lines_changed": false
     }
   },
   "display": {
-    "display_mode": "emoji",
-    "separator": " │ ",
-    "compact_separator": "│",
-    "max_width": 120,
-    "compact_threshold": 80
-  },
-  "formatting": {
-    "directory_max_length": 25,
-    "git_branch_max_length": 15,
-    "cost_decimal_places": 3,
-    "daily_cost_decimal_places": 2
+    "display_mode": "emoji"
   }
 }
 ```
 
-Only `display.display_mode` and `components.enabled.lines_changed` are currently read by `statusline.sh` itself (`lib/config.sh`, `lib/display/builder.sh`); the remaining keys are reserved for the config tool/future wiring.
+Unknown keys are ignored, so older config files with extra keys keep working.
 
 To point the script at a different config file entirely (e.g. for previewing a candidate config), set `STATUSLINE_CONFIG_OVERRIDE=/path/to/file.json`.
 

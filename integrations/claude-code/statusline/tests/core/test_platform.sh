@@ -137,6 +137,14 @@ test_parse_iso_timestamp() {
     result=$(parse_iso_timestamp "2025-01-01T12:30:45+00:00")
     assert_numeric "$result" "parse_iso_timestamp returns numeric with timezone"
 
+    # Offsets must be applied, not stripped: 12:00:00Z is the reference point
+    local utc_epoch
+    utc_epoch=$(parse_iso_timestamp "2025-06-01T12:00:00Z")
+    result=$(parse_iso_timestamp "2025-06-01T09:00:00-03:00")
+    assert_equals "$utc_epoch" "$result" "negative UTC offset is folded into the epoch"
+    result=$(parse_iso_timestamp "2025-06-01T14:00:00+02:00")
+    assert_equals "$utc_epoch" "$result" "positive UTC offset is folded into the epoch"
+
     # Test invalid format returns 0
     result=$(parse_iso_timestamp "invalid")
     assert_equals "0" "$result" "parse_iso_timestamp returns 0 for invalid format"
@@ -292,6 +300,13 @@ test_hash_sha256() {
         echo "❌ FAIL: hash_sha256 failed on special chars: '$result4'"
         TESTS_FAILED=$((TESTS_FAILED + 1))
     fi
+
+    # With no hashing tools on PATH at all, the fallback chain must end in
+    # the literal "default" rather than an empty string (functions are
+    # inherited by the subshell; only external tools disappear)
+    local result5
+    result5=$(PATH="/nonexistent" hash_sha256 "anything" 2>/dev/null)
+    assert_equals "default" "$result5" "hash_sha256 falls back to 'default' when no hash tool exists"
 }
 
 # =============================================================================

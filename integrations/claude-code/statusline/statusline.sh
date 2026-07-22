@@ -8,7 +8,6 @@
 # Architecture:
 #   lib/core/      - Foundation modules (platform, json, cache)
 #   lib/api/       - External integrations (oauth, git)
-#   lib/tracking/  - Session and usage tracking
 #   lib/display/   - UI components and builder
 #
 # Usage:
@@ -40,10 +39,6 @@ fi
 # API modules
 source "$SCRIPT_DIR/lib/api/git.sh"
 source "$SCRIPT_DIR/lib/api/oauth.sh"
-
-# Tracking modules
-source "$SCRIPT_DIR/lib/tracking/session.sh"
-source "$SCRIPT_DIR/lib/tracking/usage.sh"
 
 # Display modules
 source "$SCRIPT_DIR/lib/display/colors.sh"
@@ -97,24 +92,15 @@ main() {
         if check_jq && echo "$json" | jq -e '.rate_limits.five_hour' >/dev/null 2>&1; then
             echo "$json" | jq -c '.rate_limits // empty' > /tmp/claude_rate_limits_cache.json 2>/dev/null || true
         fi
-    else
+    elif [[ -n "${RATE_LIMIT_5H_FETCHED:-}" && -n "${RATE_LIMIT_7D_FETCHED:-}" ]]; then
+        # Reuse the fetched values build_statusline already extracted — only
+        # write when both windows really came from the per-account cache, so
+        # the stored login's stdin numbers never land in this account's file
         local acct
         acct=$(hash_sha256 "$CLAUDE_CODE_OAUTH_TOKEN")
-
-        local five_hour_usage seven_day_usage
-        if fetch_oauth_usage_cached_only >/dev/null 2>&1 && \
-           five_hour_usage=$(get_oauth_five_hour_usage 2>/dev/null) && [[ -n "$five_hour_usage" ]] && \
-           seven_day_usage=$(get_oauth_seven_day_usage 2>/dev/null) && [[ -n "$seven_day_usage" ]]; then
-            local five_hour_pct five_hour_resets seven_day_pct seven_day_resets
-            five_hour_pct="${five_hour_usage%%|*}"
-            five_hour_resets="${five_hour_usage##*|}"
-            seven_day_pct="${seven_day_usage%%|*}"
-            seven_day_resets="${seven_day_usage##*|}"
-
-            printf '{"five_hour":{"used_percentage":%s,"resets_at":%s},"seven_day":{"used_percentage":%s,"resets_at":%s}}' \
-                "$five_hour_pct" "$five_hour_resets" "$seven_day_pct" "$seven_day_resets" \
-                > "/tmp/claude_rate_limits_cache.${acct}.json" 2>/dev/null || true
-        fi
+        printf '{"five_hour":{"used_percentage":%s,"resets_at":%s},"seven_day":{"used_percentage":%s,"resets_at":%s}}' \
+            "$RATE_LIMIT_5H_PERCENT" "$RATE_LIMIT_5H_RESETS" "$RATE_LIMIT_7D_PERCENT" "$RATE_LIMIT_7D_RESETS" \
+            > "/tmp/claude_rate_limits_cache.${acct}.json" 2>/dev/null || true
     fi
 
     # Performance monitoring (optional)
