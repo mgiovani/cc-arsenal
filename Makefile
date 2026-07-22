@@ -33,7 +33,7 @@ help: ## Show this help message
 	@echo
 	@echo "$(YELLOW)Optional Features:$(RESET)"
 	@echo "  make -C integrations/claude-code/statusline help    # Statusline commands"
-	@echo "  make -C integrations/claude-code/claude-hi help            # Session scheduler commands"
+	@echo "  make -C integrations/claude-code/claude-hi help     # Session scheduler commands"
 
 # ============================================================================
 # Installation
