@@ -131,3 +131,21 @@ hash_string() {
     # Linux: md5sum | cut
     echo "$str" | md5 -q 2>/dev/null || echo "$str" | md5sum 2>/dev/null | cut -d' ' -f1 || echo "default"
 }
+
+# Generate SHA-256 hash prefix of a string - cross-platform
+# Usage: hash_sha256 "some string"
+# Returns: first 12 hex chars of the SHA-256 hash, or "default" if unavailable
+hash_sha256() {
+    local str="$1"
+    local hash
+    # macOS: shasum -a 256
+    # Linux/Git-Bash: sha256sum
+    hash=$(printf '%s' "$str" | shasum -a 256 2>/dev/null) || \
+    hash=$(printf '%s' "$str" | sha256sum 2>/dev/null)
+    if [[ -n "$hash" ]]; then
+        echo "${hash:0:12}"
+    else
+        echo "default"
+    fi
+    return 0
+}

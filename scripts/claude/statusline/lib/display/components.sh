@@ -331,6 +331,27 @@ get_session_component() {
 }
 
 # =============================================================================
+# Account Badge Component
+# =============================================================================
+
+# Display the active account label when multi-account mode is configured
+# Usage: get_account_component
+get_account_component() {
+    if [[ -z "${CLAUDE_CODE_OAUTH_TOKEN:-}" || -z "${CLAUDE_STATUSLINE_ACCOUNT_LABEL:-}" ]]; then
+        return 0
+    fi
+
+    if is_ascii_mode; then
+        colorize "$STATUSLINE_CYAN" "[${CLAUDE_STATUSLINE_ACCOUNT_LABEL}]"
+        return 0
+    fi
+
+    local prefix
+    prefix=$(get_prefix "👤" "acct:")
+    colorize "$STATUSLINE_CYAN" "${prefix}${CLAUDE_STATUSLINE_ACCOUNT_LABEL}"
+}
+
+# =============================================================================
 # Usage Line Component (Second Line)
 # =============================================================================
 

@@ -21,8 +21,14 @@ source "$STATUSLINE_API_DIR/../core/cache.sh"
 # Configuration
 # =============================================================================
 
-# Cache for OAuth usage data
-OAUTH_USAGE_CACHE_FILE="${OAUTH_USAGE_CACHE_FILE:-/tmp/claude_oauth_usage_cache.json}"
+# Cache for OAuth usage data - account-scoped when CLAUDE_CODE_OAUTH_TOKEN is set
+if [[ -n "${OAUTH_USAGE_CACHE_FILE:-}" ]]; then
+    :
+elif [[ -n "${CLAUDE_CODE_OAUTH_TOKEN:-}" ]]; then
+    OAUTH_USAGE_CACHE_FILE="/tmp/claude_oauth_usage_cache.$(hash_sha256 "$CLAUDE_CODE_OAUTH_TOKEN").json"
+else
+    OAUTH_USAGE_CACHE_FILE="/tmp/claude_oauth_usage_cache.json"
+fi
 OAUTH_USAGE_CACHE_TTL="${OAUTH_USAGE_CACHE_TTL:-300}"  # 300 seconds cache TTL (5 min — API is heavily rate-limited per token)
 
 # API endpoint
@@ -96,6 +102,19 @@ get_oauth_token() {
     echo "$token"
 }
 
+# Get the active OAuth token - env override or keychain/file credentials
+# Usage: get_active_oauth_token
+get_active_oauth_token() {
+    if [[ -n "${CLAUDE_CODE_OAUTH_TOKEN:-}" ]]; then
+        echo "$CLAUDE_CODE_OAUTH_TOKEN"
+        return 0
+    fi
+
+    local creds
+    creds=$(get_oauth_credentials) || return 1
+    get_oauth_token "$creds"
+}
+
 # =============================================================================
 # API Operations
 # =============================================================================
@@ -130,15 +149,9 @@ fetch_oauth_usage() {
         fi
     fi
 
-    # Get OAuth credentials (cross-platform)
-    local creds token
-    creds=$(get_oauth_credentials)
-    if [[ -z "$creds" ]]; then
-        return 1
-    fi
-
-    # Extract access token
-    token=$(get_oauth_token "$creds")
+    # Get the active OAuth token (env override or keychain/file credentials)
+    local token
+    token=$(get_active_oauth_token)
     if [[ -z "$token" ]]; then
         return 1
     fi
@@ -266,6 +279,10 @@ get_oauth_usage_parsed() {
 # Check if OAuth credentials are available
 # Returns: 0 if available, 1 otherwise
 has_oauth_credentials() {
+    if [[ -n "${CLAUDE_CODE_OAUTH_TOKEN:-}" ]]; then
+        return 0
+    fi
+
     local creds
     creds=$(get_oauth_credentials 2>/dev/null)
     [[ -n "$creds" ]]

@@ -22,10 +22,18 @@ source "$SCRIPT_DIR/api/oauth.sh"
 # Logging and locking configuration
 LOG_DIR="/tmp/statusline_live_cache"
 LOG_FILE="$LOG_DIR/oauth_errors.log"
-CACHE_LOCK_FILE="$LOG_DIR/oauth_cache.lock"
+
+# Account-scope per-account state files so multiple CLAUDE_CODE_OAUTH_TOKEN
+# accounts on the same machine don't clobber each other's backoff/lock state
+ACCOUNT_SUFFIX=""
+if [[ -n "${CLAUDE_CODE_OAUTH_TOKEN:-}" ]]; then
+    ACCOUNT_SUFFIX=".$(hash_sha256 "$CLAUDE_CODE_OAUTH_TOKEN")"
+fi
+
+CACHE_LOCK_FILE="$LOG_DIR/oauth_cache.lock${ACCOUNT_SUFFIX}"
 CACHE_LOCK_FD=201  # Use different FD than daemon lock (200)
-BACKOFF_FILE="$LOG_DIR/oauth_backoff"
-BACKOFF_COUNT_FILE="$LOG_DIR/oauth_backoff_count"
+BACKOFF_FILE="$LOG_DIR/oauth_backoff${ACCOUNT_SUFFIX}"
+BACKOFF_COUNT_FILE="$LOG_DIR/oauth_backoff_count${ACCOUNT_SUFFIX}"
 
 # Ensure log directory exists
 mkdir -p "$LOG_DIR" 2>/dev/null || true
@@ -183,21 +191,12 @@ fetch_oauth_with_logging() {
         fi
     fi
 
-    # Check for OAuth credentials
-    local creds
-    creds=$(get_oauth_credentials 2>/dev/null) || true
-
-    if [[ -z "$creds" ]]; then
-        log_oauth_error "OAuth credentials not found - user not logged in?"
-        return 1
-    fi
-
-    # Extract access token
+    # Get the active OAuth token (env override or stored credentials)
     local token
-    token=$(get_oauth_token "$creds" 2>/dev/null) || true
+    token=$(get_active_oauth_token 2>/dev/null) || true
 
     if [[ -z "$token" ]]; then
-        log_oauth_error "Failed to extract OAuth token from credentials"
+        log_oauth_error "OAuth credentials not found - user not logged in?"
         return 1
     fi
 

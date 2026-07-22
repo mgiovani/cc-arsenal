@@ -68,6 +68,16 @@ if [[ -f "$SCRIPT_DIR/statusline_daemon.sh" ]]; then
     "$SCRIPT_DIR/statusline_daemon.sh" autostart >/dev/null 2>&1 &
 fi
 
+# Trigger a background OAuth usage refresh when the account cache is stale
+# (fetcher handles its own locking/backoff; this just decides when to fire it)
+if [[ -n "${CLAUDE_CODE_OAUTH_TOKEN:-}" ]] && [[ -f "$SCRIPT_DIR/lib/oauth_fetcher.sh" ]]; then
+    OAUTH_CACHE_MTIME=$(get_file_mtime "$OAUTH_USAGE_CACHE_FILE")
+    OAUTH_CACHE_AGE=$(( $(get_current_epoch) - OAUTH_CACHE_MTIME ))
+    if [[ "$OAUTH_CACHE_AGE" -ge "$OAUTH_USAGE_CACHE_TTL" ]]; then
+        "$SCRIPT_DIR/lib/oauth_fetcher.sh" >/dev/null 2>&1 &
+    fi
+fi
+
 # =============================================================================
 # Main Function
 # =============================================================================
@@ -92,8 +102,28 @@ main() {
     build_statusline "$json" "$current_dir"
 
     # Persist rate_limits to cache file for external consumers (e.g., tmux statusbar)
-    if check_jq && echo "$json" | jq -e '.rate_limits.five_hour' >/dev/null 2>&1; then
-        echo "$json" | jq -c '.rate_limits // empty' > /tmp/claude_rate_limits_cache.json 2>/dev/null || true
+    if [[ -z "${CLAUDE_CODE_OAUTH_TOKEN:-}" ]]; then
+        if check_jq && echo "$json" | jq -e '.rate_limits.five_hour' >/dev/null 2>&1; then
+            echo "$json" | jq -c '.rate_limits // empty' > /tmp/claude_rate_limits_cache.json 2>/dev/null || true
+        fi
+    else
+        local acct
+        acct=$(hash_sha256 "$CLAUDE_CODE_OAUTH_TOKEN")
+
+        local five_hour_usage seven_day_usage
+        if fetch_oauth_usage_cached_only >/dev/null 2>&1 && \
+           five_hour_usage=$(get_oauth_five_hour_usage 2>/dev/null) && [[ -n "$five_hour_usage" ]] && \
+           seven_day_usage=$(get_oauth_seven_day_usage 2>/dev/null) && [[ -n "$seven_day_usage" ]]; then
+            local five_hour_pct five_hour_resets seven_day_pct seven_day_resets
+            five_hour_pct="${five_hour_usage%%|*}"
+            five_hour_resets="${five_hour_usage##*|}"
+            seven_day_pct="${seven_day_usage%%|*}"
+            seven_day_resets="${seven_day_usage##*|}"
+
+            printf '{"five_hour":{"used_percentage":%s,"resets_at":%s},"seven_day":{"used_percentage":%s,"resets_at":%s}}' \
+                "$five_hour_pct" "$five_hour_resets" "$seven_day_pct" "$seven_day_resets" \
+                > "/tmp/claude_rate_limits_cache.${acct}.json" 2>/dev/null || true
+        fi
     fi
 
     # Performance monitoring (optional)

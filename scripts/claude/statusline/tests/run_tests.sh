@@ -199,6 +199,9 @@ main() {
     if [[ -f "$SCRIPT_DIR/test_components.sh" ]]; then
         run_test_suite "$SCRIPT_DIR/test_components.sh" "Components Module"
     fi
+    if [[ -f "$SCRIPT_DIR/test_multi_account.sh" ]]; then
+        run_test_suite "$SCRIPT_DIR/test_multi_account.sh" "Multi-Account Module"
+    fi
     if [[ -f "$SCRIPT_DIR/test_context_window.sh" ]]; then
         run_test_suite "$SCRIPT_DIR/test_context_window.sh" "Context Window Module"
     fi

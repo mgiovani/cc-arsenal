@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- **Statusline: per-account usage reporting.** When Claude Code runs under `CLAUDE_CODE_OAUTH_TOKEN`, the statusline now fetches and displays that account's real 5h/7d rate limits instead of the stored login's stdin values, with per-account cache/backoff isolation (sha256-keyed filenames, tokens never written to disk), an opt-in account badge via `CLAUDE_STATUSLINE_ACCOUNT_LABEL`, and a per-account tmux rate-limits cache file. The default single-account case is unchanged. Works on macOS and Linux.
+
 ## [5.0.0] - 2026-07-18
 
 The authoring-standard overhaul. Every skill was rewritten to the Anthropic skill-authoring standard and gated by a full baseline-vs-new eval loop, four new skills were mined from usage history, and all 45 skills now ship eval coverage. The catalog grew from 41 to 45 skills.

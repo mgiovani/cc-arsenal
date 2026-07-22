@@ -267,6 +267,67 @@ test_hash_string() {
 }
 
 # =============================================================================
+# Test: hash_sha256
+# =============================================================================
+test_hash_sha256() {
+    echo "--- Testing hash_sha256 ---"
+
+    local result
+    result=$(hash_sha256 "test")
+
+    assert_not_empty "$result" "hash_sha256 returns non-empty"
+
+    # Same input should return same hash
+    local result2
+    result2=$(hash_sha256 "test")
+    assert_equals "$result" "$result2" "hash_sha256 is deterministic"
+
+    # Output is exactly 12 chars
+    TESTS_RUN=$((TESTS_RUN + 1))
+    if [[ ${#result} -eq 12 ]]; then
+        echo "✅ PASS: hash_sha256 returns 12 chars"
+        TESTS_PASSED=$((TESTS_PASSED + 1))
+    else
+        echo "❌ FAIL: hash_sha256 returned ${#result} chars: '$result'"
+        TESTS_FAILED=$((TESTS_FAILED + 1))
+    fi
+
+    # Output matches lowercase hex pattern (or "default" fallback)
+    TESTS_RUN=$((TESTS_RUN + 1))
+    if [[ "$result" =~ ^[a-f0-9]{12}$ ]]; then
+        echo "✅ PASS: hash_sha256 returns lowercase hex"
+        TESTS_PASSED=$((TESTS_PASSED + 1))
+    else
+        echo "❌ FAIL: hash_sha256 did not return lowercase hex: '$result'"
+        TESTS_FAILED=$((TESTS_FAILED + 1))
+    fi
+
+    # Different input should return different hash
+    local result3
+    result3=$(hash_sha256 "different")
+    TESTS_RUN=$((TESTS_RUN + 1))
+    if [[ "$result" != "$result3" ]]; then
+        echo "✅ PASS: hash_sha256 returns different hash for different input"
+        TESTS_PASSED=$((TESTS_PASSED + 1))
+    else
+        echo "❌ FAIL: hash_sha256 returned same hash for different input"
+        TESTS_FAILED=$((TESTS_FAILED + 1))
+    fi
+
+    # Input with spaces/special chars works
+    local result4
+    result4=$(hash_sha256 "sk-ant-oat01-abc 123!@#$%^&*()")
+    TESTS_RUN=$((TESTS_RUN + 1))
+    if [[ "$result4" =~ ^[a-f0-9]{12}$ ]]; then
+        echo "✅ PASS: hash_sha256 handles special chars"
+        TESTS_PASSED=$((TESTS_PASSED + 1))
+    else
+        echo "❌ FAIL: hash_sha256 failed on special chars: '$result4'"
+        TESTS_FAILED=$((TESTS_FAILED + 1))
+    fi
+}
+
+# =============================================================================
 # Run all tests
 # =============================================================================
 main() {
@@ -290,6 +351,8 @@ main() {
     test_get_current_epoch
     echo
     test_hash_string
+    echo
+    test_hash_sha256
 
     echo
     echo "========================================"
