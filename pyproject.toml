@@ -1,6 +1,6 @@
 [project]
 name = "cc-arsenal"
-version = "0.1.0"
+version = "5.0.0"
 description = "Professional utility scripts for Claude Code"
 authors = [
     { name = "Giovani Moutinho", email = "e@giovani.dev" }

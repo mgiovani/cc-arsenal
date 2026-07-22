@@ -1,7 +1,7 @@
 {
   "name": "cc-arsenal",
   "version": "5.0.0",
-  "description": "Claude Code Arsenal - Professional skills for development workflows",
+  "description": "cc-arsenal — 45 production-grade Agent Skills for development workflows; works with Claude Code and any Agent-Skills-compatible agent.",
   "author": {
     "name": "Giovani Moutinho",
     "email": "e@giovani.dev",

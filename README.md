@@ -1,10 +1,18 @@
 # cc-arsenal
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
+[![Agent Skills compatible](https://img.shields.io/badge/Agent%20Skills-compatible-blueviolet.svg)](https://agentskills.io)
 [![Code style: ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
-An [Agent Skills](https://agentskills.io) arsenal of **45 skills** for development workflow automation — feature implementation, bug fixing, code review, docs, git/GitHub, Jira, multi-agent orchestration, open-source launch prep, and more. Works with Claude Code, Codex, Cursor, Gemini CLI, OpenCode, and any other spec-compatible agent.
+45 production-grade [Agent Skills](https://agentskills.io) for real development workflows — code review, shipping, docs, git, testing, multi-agent orchestration, and more. Each is a battle-tested workflow you invoke in plain language. Works with Claude Code, Codex, Cursor, Gemini CLI, and any Agent-Skills-compatible agent.
+
+## See it work
+
+```
+You: ship it
+```
+
+`cc-arsenal` runs `review-code`, then your project's pre-merge checks, writes a conventional commit, opens the PR, watches CI, and merges on green.
 
 ## Quick Start
 
@@ -53,6 +61,11 @@ Every skill still works standalone in any Agent-Skills-compatible tool — the C
 - [Changelog](CHANGELOG.md) - Version history
 - [AGENTS.md](AGENTS.md) - Canonical, tool-agnostic skill guidance
 - [CLAUDE.md](CLAUDE.md) - Claude-Code-specific additions
+
+## Who builds this
+
+Built and maintained by [Giovani Moutinho](https://giovani.dev) — a senior engineer at a Bay Area big-tech company with 15+ years building scalable backend systems, now focused on AI tooling for developer productivity.
+[GitHub](https://github.com/mgiovani) · [giovani.dev](https://giovani.dev)
 
 ## Contributing
 
