@@ -229,6 +229,14 @@ test_failsoft_render() {
                 echo "$stdin_json" | bash "$STATUSLINE_SH" ) 2>/dev/null )
     assert_contains "testacct" "$output" "account badge renders when both token and label are set"
 
+    # Label set, NO token - securestorage/alt-account switch (CLAUDE_SECURESTORAGE_CONFIG_DIR):
+    # the badge is user-set display text and must render without CLAUDE_CODE_OAUTH_TOKEN
+    output=$( ( export PATH="$MOCK_BIN_DIR:$PATH"
+                unset OAUTH_USAGE_CACHE_FILE CLAUDE_CODE_OAUTH_TOKEN
+                export CLAUDE_STATUSLINE_ACCOUNT_LABEL="altacct"
+                echo "$stdin_json" | bash "$STATUSLINE_SH" ) 2>/dev/null )
+    assert_contains "altacct" "$output" "account badge renders with label set but no token (securestorage switch)"
+
     # Both unset - default single-account rendering, no label
     output=$( ( unset OAUTH_USAGE_CACHE_FILE CLAUDE_CODE_OAUTH_TOKEN CLAUDE_STATUSLINE_ACCOUNT_LABEL
                 echo "$stdin_json" | bash "$STATUSLINE_SH" ) 2>/dev/null )

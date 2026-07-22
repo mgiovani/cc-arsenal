@@ -319,16 +319,17 @@ test_account_component() {
 
     local result
 
-    # Gating: badge requires BOTH the env token and the label - any other
-    # combination must produce no output at all
+    # Gating: the badge is driven solely by the label - it renders whenever the
+    # label is set, independent of the OAuth token (so it works with any
+    # account-switch mechanism, e.g. CLAUDE_SECURESTORAGE_CONFIG_DIR)
     result=$( (unset CLAUDE_CODE_OAUTH_TOKEN CLAUDE_STATUSLINE_ACCOUNT_LABEL; get_account_component) )
     assert_equals "" "$result" "no badge when neither token nor label is set"
 
     result=$( (unset CLAUDE_STATUSLINE_ACCOUNT_LABEL; export CLAUDE_CODE_OAUTH_TOKEN="tok"; get_account_component) )
     assert_equals "" "$result" "no badge with token but no label"
 
-    result=$( (unset CLAUDE_CODE_OAUTH_TOKEN; export CLAUDE_STATUSLINE_ACCOUNT_LABEL="work"; get_account_component) )
-    assert_equals "" "$result" "no badge with label but no token"
+    result=$( (unset CLAUDE_CODE_OAUTH_TOKEN; export CLAUDE_STATUSLINE_ACCOUNT_LABEL="work" STATUSLINE_DISPLAY_MODE=emoji; get_account_component) )
+    assert_contains "👤 work" "$(strip_ansi "$result")" "badge renders with label but no token (securestorage switch)"
 
     # Rendering: label only, never the token or a hash
     result=$( (export CLAUDE_CODE_OAUTH_TOKEN="secret-tok" CLAUDE_STATUSLINE_ACCOUNT_LABEL="work" STATUSLINE_DISPLAY_MODE=emoji; get_account_component) )
