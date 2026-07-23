@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/social-preview.png" alt="cc-arsenal — 45 production-grade Agent Skills for real development workflows" width="760">
+</p>
+
 # cc-arsenal
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
