@@ -294,7 +294,7 @@ Real-time cost and usage tracking in your Claude Code prompt — computed fresh 
 
 **Example:**
 ```
-🤖 Opus 4.5 │ 📊 66% │ 📁 ~/projects/cc-arsenal │ 🌿 main ● │ 💰 $3.169 │ ⏱️ 21m
+🤖 Opus 5 │ 📊 66% │ 📁 ~/projects/cc-arsenal │ 🌿 main ● │ 💰 $3.169 │ ⏱️ 21m
 🔄 5h: 16% → 21:00 │ 📅 7d: 39% → Dec 31 21:00
 ```
 

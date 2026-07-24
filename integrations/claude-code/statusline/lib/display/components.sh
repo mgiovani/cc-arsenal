@@ -66,7 +66,7 @@ get_prefix() {
 # =============================================================================
 
 # Display model name with icon
-# Usage: get_model_component "opus" or "claude-opus-4-6"
+# Usage: get_model_component "opus" or "claude-opus-5"
 get_model_component() {
     local model="${1:-}"
     local prefix

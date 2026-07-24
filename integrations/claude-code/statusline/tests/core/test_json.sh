@@ -200,7 +200,7 @@ test_real_world_json() {
     echo "--- Testing with real-world Claude Code JSON ---"
 
     local json='{
-        "model": {"id": "claude-opus-4-6", "display_name": "Opus"},
+        "model": {"id": "claude-opus-5", "display_name": "Opus"},
         "workspace": {"current_dir": "/Users/test/project"},
         "cost": {"total_cost_usd": 1.234, "total_lines_added": 100, "total_lines_removed": 50},
         "context_window": {"total_input_tokens": 50000, "total_output_tokens": 10000, "context_window_size": 200000}

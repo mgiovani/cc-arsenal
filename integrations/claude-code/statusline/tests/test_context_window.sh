@@ -30,7 +30,7 @@ test_context_window_200k() {
     assert_contains "10%" "$output" "200K context: 20000 tokens = 10%"
 }
 
-# Test context window with 1M context (Opus 4.5)
+# Test context window with 1M context (Opus 5)
 test_context_window_1m() {
     echo "Testing context window with 1M context..."
 
@@ -78,7 +78,7 @@ test_model_display_name() {
     echo "Testing model display name..."
 
     local json='{
-        "model": {"id": "claude-opus-4-6", "display_name": "Opus"},
+        "model": {"id": "claude-opus-5", "display_name": "Opus"},
         "workspace": {"current_dir": "/test"},
         "context_window": {
             "used_percentage": 5.0

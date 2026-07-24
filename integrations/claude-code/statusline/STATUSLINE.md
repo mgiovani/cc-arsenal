@@ -79,7 +79,7 @@ Restart Claude Code to pick up the setting.
 ### Verification
 
 ```bash
-echo '{"model":{"id":"claude-opus-4-1","display_name":"Opus"},"workspace":{"current_dir":"'$PWD'"},"cost":{"total_cost_usd":0.043}}' \
+echo '{"model":{"id":"claude-opus-5","display_name":"Opus"},"workspace":{"current_dir":"'$PWD'"},"cost":{"total_cost_usd":0.043}}' \
   | bash ~/.claude/scripts/claude/statusline/statusline.sh
 ```
 
