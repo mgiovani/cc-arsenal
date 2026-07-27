@@ -251,7 +251,7 @@ You are the Testing Reviewer for this code review. Your responsibility is to ide
 **Review checklist:**
 
 1. **Coverage Gaps**
-   - Map each source file to its test file — flag missing test files
+   - Map each source file to its test file, flag missing test files
    - Identify public functions/methods without corresponding tests
    - Check that all conditional branches have test coverage
    - Verify error paths are tested, not just happy paths
@@ -479,7 +479,7 @@ You are the Adversary Reviewer for this code review. Your role is to challenge a
 **Output format:**
 
 Part 1 - Challenges to existing findings:
-- Finding [ID]: [Agree/Disagree/Adjust severity] — [Rationale]
+- Finding [ID]: [Agree/Disagree/Adjust severity]: [Rationale]
 
 Part 2 - New findings:
 - Finding ID: ADV-N

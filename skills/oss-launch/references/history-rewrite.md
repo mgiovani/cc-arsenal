@@ -1,6 +1,6 @@
-# History rewrite — procedure
+# History rewrite: procedure
 
-Load this only after all three gate conditions in Stage 6 of `SKILL.md` are satisfied (still private, no fork/star evidence of prior public exposure or explicit override, explicit confirmation this turn). Every command below runs against a repo that is confirmed private — this is not a general-purpose history-rewrite recipe for any repo.
+Load this only after all three gate conditions in Stage 6 of `SKILL.md` are satisfied (still private, no fork/star evidence of prior public exposure or explicit override, explicit confirmation this turn). Every command below runs against a repo that is confirmed private: this is not a general-purpose history-rewrite recipe for any repo.
 
 ## 1. Back up first, unconditionally
 
@@ -26,7 +26,7 @@ printf 'sk_live_XXXXXXXXXXXXXXXX==>REDACTED\n' > /tmp/replacements.txt
 git filter-repo --replace-text /tmp/replacements.txt
 ```
 
-If `git filter-repo` isn't installed, say so and ask before falling back to `filter-branch` — don't silently downgrade to the slower, riskier tool.
+If `git filter-repo` isn't installed, say so and ask before falling back to `filter-branch` (don't silently downgrade to the slower, riskier tool).
 
 ## 3. Verify before pushing
 
@@ -35,7 +35,7 @@ git log --all --oneline | head -20         # history looks sane, no missing comm
 git log --all -p | grep -iE "secret|password|api_key" # re-run the Stage 1 secrets scan against full history
 ```
 
-If the re-scan still finds something, stop and report it — don't push a rewrite that didn't actually fix the problem.
+If the re-scan still finds something, stop and report it: don't push a rewrite that didn't actually fix the problem.
 
 ## 4. The one narrow force-push exception
 
@@ -46,8 +46,8 @@ git push --force-with-lease origin --all
 git push --force-with-lease origin --tags
 ```
 
-`--force-with-lease`, never bare `--force` — it still refuses if the remote has commits you haven't seen (e.g. a collaborator pushed since your last fetch).
+`--force-with-lease`, never bare `--force`: it still refuses if the remote has commits you haven't seen (e.g. a collaborator pushed since your last fetch).
 
 ## 5. After pushing
 
-Tell every collaborator (if any exist even on a private repo) to re-clone rather than pull — their local history now diverges permanently from origin.
+Tell every collaborator (if any exist even on a private repo) to re-clone rather than pull. Their local history now diverges permanently from origin.

@@ -1,0 +1,15 @@
+[
+  {"query": "write a PRD for a habit-tracking mobile app", "should_trigger": true},
+  {"query": "draft product requirements for our new billing module", "should_trigger": true},
+  {"query": "spec out this product idea into a requirements doc", "should_trigger": true},
+  {"query": "create a product requirements document for the marketplace", "should_trigger": true},
+  {"query": "give me a PR/FAQ so we can decide whether to build this", "should_trigger": true},
+  {"query": "turn this feature idea into a PRD under docs/specs", "should_trigger": true},
+  {"query": "write a design spec with a screen inventory and the user flows", "should_trigger": false},
+  {"query": "define our design tokens and color palette with contrast checks", "should_trigger": false},
+  {"query": "record our decision to use PostgreSQL as an ADR", "should_trigger": false},
+  {"query": "write an RFC proposing a new caching layer", "should_trigger": false},
+  {"query": "implement the OAuth login feature and write the code", "should_trigger": false},
+  {"query": "break this project into a dependency-ordered task list", "should_trigger": false},
+  {"query": "audit our app's UI for accessibility issues", "should_trigger": false}
+]

@@ -3,7 +3,7 @@ name: docs-adr
 description: Create a numbered Architecture Decision Record (ADR) documenting a technical
   decision with context, alternatives, and consequences. Trigger on "create an ADR",
   "document this architectural decision", "record why we chose X", or "write an ADR
-  for [decision]". Not for a decision still open for discussion (use docs-rfc — RFCs
+  for [decision]". Not for a decision still open for discussion (use docs-rfc, RFCs
   propose, ADRs record) and not for bootstrapping a project's whole docs/ tree from
   scratch (use docs-init).
 metadata:
@@ -22,14 +22,14 @@ Create a new Architecture Decision Record (ADR) documenting an architectural dec
 
 ## Anti-Hallucination Guidelines
 
-ADRs document real decisions about real code — every claim in the ADR must be verifiable
+ADRs document real decisions about real code: every claim in the ADR must be verifiable
 in the repo, not assumed. Before writing:
 
-1. **Verify the technology exists** — if the ADR mentions "Redis", confirm Redis is
+1. **Verify the technology exists**: if the ADR mentions "Redis", confirm Redis is
    actually used somewhere in the codebase.
-2. **Reference actual files** — grep/glob to find real file paths; never invent one.
-3. **Quote real code** — if citing a pattern, find an actual example of it.
-4. **Check current state** — the Context section must reflect verified reality, not a
+2. **Reference actual files**: grep/glob to find real file paths; never invent one.
+3. **Quote real code**: if citing a pattern, find an actual example of it.
+4. **Check current state**: the Context section must reflect verified reality, not a
    plausible-sounding guess.
 
 ## Workflow
@@ -37,11 +37,11 @@ in the repo, not assumed. Before writing:
 ### Phase 1: Parse Arguments
 
 1. Extract the decision title from the command arguments. If no title was given, stop
-   here and ask the user for one (and optionally which variant) — don't invent a
+   here and ask the user for one (and optionally which variant): don't invent a
    placeholder title or proceed to the later phases.
 2. Check for a variant keyword as the leading token: `lightweight`, `full`, or `nygard`.
    A matching word inside the title itself (e.g. "Full-Text Search") is not a variant
-   keyword — only strip it when it's a standalone token preceding the title.
+   keyword, only strip it when it's a standalone token preceding the title.
 3. If a variant keyword is found, strip it from the title.
 4. Default variant: `nygard`.
 
@@ -63,7 +63,7 @@ the decision topic: current implementation (if any), related config files, depen
 involved, and existing documentation. Ask it to return verified file paths and relevant
 snippets, not summaries it can't back up.
 
-If the Task tool isn't available, run the equivalent searches directly instead —
+If the Task tool isn't available, run the equivalent searches directly instead:
 e.g. `grep -rn "<topic>"` across source files, `find . -name "*.config.*"` or
 `docker-compose.yml` for infra-flavored decisions, `find . -name "*schema*" -o -name
 "*models*"` for data-layer decisions. Either path, only include context you actually
@@ -74,14 +74,14 @@ plausible-sounding filler.
 
 - Templates live in `assets/templates/`: `nygard.md` (default), `lightweight.md`, `full.md`.
 - Load the selected template and grep it for every `{{TOKEN}}` placeholder it actually
-  contains — the three templates use different token sets (e.g. nygard has `{{CONTEXT}}`;
+  contains, the three templates use different token sets (e.g. nygard has `{{CONTEXT}}`;
   lightweight has `{{PROBLEM}}`, `{{DECISION}}`, `{{ALTERNATIVES}}`, `{{CONSEQUENCES}}`,
   `{{NOTES}}`; full has a longer set including `{{AUTHORS}}`, `{{STAKEHOLDERS}}`,
-  `{{OPTION_1_NAME}}`, etc.). Don't assume a fixed list — fill whatever the loaded
+  `{{OPTION_1_NAME}}`, etc.). Don't assume a fixed list: fill whatever the loaded
   template actually contains.
 - `{{ADR_NUMBER}}`, `{{ADR_TITLE}}`, and `{{DATE}}` (YYYY-MM-DD) appear in all three;
   fill those from Phases 1-3 regardless of variant.
-- After substitution, scan the rendered output for any leftover `{{...}}` — zero
+- After substitution, scan the rendered output for any leftover `{{...}}`: zero
   unresolved tokens before writing the file.
 
 ### Phase 6: Create ADR File
@@ -131,7 +131,7 @@ messaging/event code found during context gathering.
 
 ## Notes
 
-- One decision per ADR — split unrelated decisions into separate records.
+- One decision per ADR: split unrelated decisions into separate records.
 - Write in imperative language ("we will", not "we should").
 - Document the real reasons a decision was made, including trade-offs and downsides,
   not the idealized version.

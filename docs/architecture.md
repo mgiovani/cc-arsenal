@@ -40,7 +40,7 @@ Claude Code Arsenal is a professional collection of workflow automation skills b
 - See [features.md](./features.md) for the current, categorized skill count
 
 **Claude Code layer** (Tier 2, optional):
-- CC-only frontmatter keys (`allowed-tools`, `disable-model-invocation`, `hooks`, `context`, `agent`) live inline in the same `SKILL.md` — other tools ignore them safely
+- CC-only frontmatter keys (`allowed-tools`, `disable-model-invocation`, `hooks`, `context`, `agent`) live inline in the same `SKILL.md`: other tools ignore them safely
 - Subagents (Task tool) for parallel work, advanced context management, quality-gate hooks
 - Plugin variants declared in `.claude-plugin/marketplace.json`, installed via `/plugin marketplace add mgiovani/cc-arsenal`
 - Optional features: statusline, Claude Hi scheduler
@@ -250,7 +250,7 @@ Skills are the only component type today, and the count changes as skills are ad
 - **SKILL.md Format**: Markdown with YAML frontmatter (name, description, `disable-model-invocation`)
 - **Auto-Invocation**: Claude discovers skills via frontmatter metadata
 - **Resource Bundling**: `scripts/`, `references/`, `assets/` directories, loaded only as needed
-- **Eval Convention**: `evals/evals.json` (task assertions) + `evals/trigger-eval.json` (trigger/near-miss query set) — the same schema `create-skill`'s validation scripts consume, used to check both that a skill does what it claims and that it fires (or correctly doesn't fire) on the right prompts
+- **Eval Convention**: `evals/evals.json` (task assertions) + `evals/trigger-eval.json` (trigger/near-miss query set), the same schema `create-skill`'s validation scripts consume, used to check both that a skill does what it claims and that it fires (or correctly doesn't fire) on the right prompts
 
 **Dependencies:**
 - Claude Code Skill tool
@@ -258,7 +258,7 @@ Skills are the only component type today, and the count changes as skills are ad
 - Python scripts for skill utilities
 
 **Available Skills:**
-All skills live under `skills/<name>/`. See [features.md](./features.md) for the current, categorized list and count — this document does not duplicate it to avoid drift.
+All skills live under `skills/<name>/`. See [features.md](./features.md) for the current, categorized list and count: this document does not duplicate it to avoid drift.
 
 ### Data Flow
 

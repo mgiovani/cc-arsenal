@@ -17,13 +17,13 @@ allowed-tools:
 
 Create a GitHub Pull Request following conventional commits, pre-filled with the repo's PR template, and opened in the browser for final review.
 
-Every PR bullet must map to an actual commit or diff hunk — drop claims you can't back with evidence in `git log` or `git diff`.
+Every PR bullet must map to an actual commit or diff hunk: drop claims you can't back with evidence in `git log` or `git diff`.
 
-**Invariant: never mutate the user's files to satisfy a precondition.** If a check in step 1 fails, report it and stop. Do not run `git checkout`, `git restore`, `git reset`, `git stash`, or `git clean` against the user's tracked files to "fix" a dirty tree, and do not switch branches to route around a main/master check — those are the user's decisions, not this skill's. The only git commands this skill runs against the working tree are read-only until step 7's `git push`.
+**Invariant: never mutate the user's files to satisfy a precondition.** If a check in step 1 fails, report it and stop. Do not run `git checkout`, `git restore`, `git reset`, `git stash`, or `git clean` against the user's tracked files to "fix" a dirty tree, and do not switch branches to route around a main/master check, those are the user's decisions, not this skill's. The only git commands this skill runs against the working tree are read-only until step 7's `git push`.
 
 ## Workflow
 
-1. **Validate preconditions — run this before anything else, including branch analysis**
+1. **Validate preconditions (run this before anything else, including branch analysis)**
    - Check working tree is clean: `git status --porcelain`. Any output means it's dirty.
      - If dirty: **stop immediately**. Show the `git status --porcelain` output and tell the user to commit or stash their changes first, e.g. `Working tree has uncommitted changes: M README.md. Commit or stash before opening a PR.` Do not proceed to step 2, and do not touch the listed files.
    - Get current branch: `git branch --show-current`.
@@ -39,7 +39,7 @@ Every PR bullet must map to an actual commit or diff hunk — drop claims you ca
 3. **Analyze changes**
    - `git log origin/<base>..HEAD --format="%h %s"` for commits
    - `git diff origin/<base>...HEAD --stat` for file changes
-   - Synthesize these directly in the main thread — a subagent fan-out is overkill for what one `git log` + one `diff --stat` already summarizes. Only reach for a subagent if the diff is too large to fit in context.
+   - Synthesize these directly in the main thread: a subagent fan-out is overkill for what one `git log` + one `diff --stat` already summarizes. Only reach for a subagent if the diff is too large to fit in context.
 
 4. **Generate PR title** (conventional commit format, max 72 chars)
    - `type(scope): [TICKET-123] description` or `type(scope): description` if no ticket
@@ -65,8 +65,8 @@ Every PR bullet must map to an actual commit or diff hunk — drop claims you ca
 6. **Ask for confirmation**
    - Show a compact summary: ticket, commit count, authors (keep lines under 60 chars)
    - Preview the generated title and body
-   - If the repo has CI configured (`.github/workflows/*.yml`) and tests haven't been verified locally this session, suggest running the `cc-arsenal:ci-local` skill first (via the `Skill` tool where available, otherwise run the workflow's gating steps locally by hand) — cheaper to catch a failure now than after the PR is open
-   - Ask: `Create PR? (y/n/e to edit):` — accept `y`/`yes`/`n`/`no`/`e`/`edit`
+   - If the repo has CI configured (`.github/workflows/*.yml`) and tests haven't been verified locally this session, suggest running the `cc-arsenal:ci-local` skill first (via the `Skill` tool where available, otherwise run the workflow's gating steps locally by hand): cheaper to catch a failure now than after the PR is open
+   - Ask: `Create PR? (y/n/e to edit):` (accept `y`/`yes`/`n`/`no`/`e`/`edit`)
    - On `e`, ask for custom title/body
 
 7. **Push and create PR** (after confirmation)
@@ -81,12 +81,12 @@ Every PR bullet must map to an actual commit or diff hunk — drop claims you ca
      --base <determined-base-branch> \
      --web
    ```
-   - Do not combine `--reviewer`, `--assignee`, or `--label` with `--web` — they conflict. The user adds those in the web UI.
+   - Do not combine `--reviewer`, `--assignee`, or `--label` with `--web`: they conflict. The user adds those in the web UI.
 
 ## Argument Parsing
 
-- `--base branch` / `-b branch` — target branch, defaults to repo default
-- `--draft` / `-d` — adds `--draft` to `gh pr create`
+- `--base branch` / `-b branch`: target branch, defaults to repo default
+- `--draft` / `-d`: adds `--draft` to `gh pr create`
 
 ## Examples
 
@@ -99,10 +99,10 @@ git-create-pr -b develop -d      # both
 
 After pushing, the PR opens in the browser pre-filled with title and body. Add reviewers/labels there.
 
-**Precondition failure** — dirty tree, stop before any analysis:
+**Precondition failure** (dirty tree, stop before any analysis):
 ```
 Working tree has uncommitted changes:
  M README.md
 Commit or stash before opening a PR. Not proceeding.
 ```
-No `git checkout`, `git push`, or `gh pr create` runs after this — the turn ends here.
+No `git checkout`, `git push`, or `gh pr create` runs after this: the turn ends here.

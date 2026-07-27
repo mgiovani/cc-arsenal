@@ -71,13 +71,13 @@ gh api repos/{owner}/{repo}/dependabot/alerts --jq '.[] | {package: .security_ad
 | yarn | `yarn audit` | `--json` | Built-in |
 | pnpm | `pnpm audit` | `--json` | Built-in |
 | pip | `pip-audit` | `--format=json` | `pip install pip-audit` |
-| uv | `uv pip audit` | — | Built-in with uv |
+| uv | `uv pip audit` | N/A | Built-in with uv |
 | cargo | `cargo audit` | `--json` | `cargo install cargo-audit` |
 | go | `govulncheck ./...` | `--json` | `go install golang.org/x/vuln/cmd/govulncheck@latest` |
 | composer | `composer audit` | `--format=json` | Built-in (2.4+) |
-| bundler | `bundle audit check` | — | `gem install bundler-audit` |
-| .NET | `dotnet list package --vulnerable` | — | Built-in |
-| Maven | OWASP dependency-check plugin | — | Plugin config required |
+| bundler | `bundle audit check` | N/A | `gem install bundler-audit` |
+| .NET | `dotnet list package --vulnerable` | N/A | Built-in |
+| Maven | OWASP dependency-check plugin | N/A | Plugin config required |
 | Dependabot | `gh api repos/{owner}/{repo}/dependabot/alerts` | Native JSON | GitHub CLI |
 
-Save all raw output (including "tool not installed" errors) — Phase 3 needs to know what actually ran vs. what's unavailable, and the final report must state which tools didn't run rather than silently omitting that ecosystem.
+Save all raw output (including "tool not installed" errors): Phase 3 needs to know what actually ran vs. what's unavailable, and the final report must state which tools didn't run rather than silently omitting that ecosystem.

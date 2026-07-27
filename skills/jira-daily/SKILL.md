@@ -1,11 +1,11 @@
 ---
 name: jira-daily
-description: Generate a standup report from recent Jira activity and git history —
+description: Generate a standup report from recent Jira activity and git history,
   completed tickets, in-progress work, blockers, and commit correlation. Use when
   the user wants to prepare for a daily standup, asks "what did I do yesterday",
   or wants a Jira/git activity summary in brief, slack, or manager format. Use
   jira-todo instead for forward-looking "what should I work on" planning. Not for
-  GitHub-only standups (use gh-daily) — jira-daily is Jira-only and never queries
+  GitHub-only standups (use gh-daily), jira-daily is Jira-only and never queries
   GitHub issues or PRs.
 metadata:
   author: mgiovani
@@ -21,7 +21,7 @@ agent: general-purpose
 
 Generates a structured standup update from real Jira and git activity. Complements
 **jira-cli** (general Jira command reference) and **jira-todo** (forward-looking
-planning — this skill looks backward at what was actually done).
+planning, this skill looks backward at what was actually done).
 
 ## Anti-Hallucination Guidelines
 
@@ -33,7 +33,7 @@ A standup report is only useful if every line traces back to a real query result
 4. Only mention blockers explicitly labeled or discussed in Jira.
 5. Only include a report section if Phase 3 actually gathered data for it. Never
    fill a section with placeholder text like "[List any risks]" or invented
-   numbers (story points, lines changed, coverage %) — omit the section or field
+   numbers (story points, lines changed, coverage %): omit the section or field
    entirely instead. If a template field (Next steps, due date) isn't stated in
    the ticket's own description/comments/due-date field, leave it out rather than
    guessing.
@@ -70,7 +70,7 @@ echo "Reporting since: $SINCE_DATE"
 
 ### Phase 3: Gather Activity Data
 
-Every field that ends up in the report has to come from one of these commands —
+Every field that ends up in the report has to come from one of these commands:
 if a template field in Phase 5 isn't backed by output here, cut the field, not
 the discipline.
 
@@ -94,21 +94,21 @@ git rev-list --count --since="$SINCE_DATE" --author="$(git config user.email)" -
 
 ### Phase 4: Classify and Correlate
 
-Do this inline — a standup's ticket count is small enough that spinning up
+Do this inline: a standup's ticket count is small enough that spinning up
 subagents just adds latency for no benefit:
 1. Bucket each ticket into Completed / In Progress / Blocked / Started, based only
    on its actual status field.
 2. Match git commit messages against each ticket ID (e.g. `ABC-1234` appearing in
-   the subject line) to get a real commit count per ticket — this is the only
+   the subject line) to get a real commit count per ticket: this is the only
    code-activity signal available; jira-daily has no PR data, so never print a
    `PR: #1234 (merged)` line, there's nothing in Phase 3 that could back it.
 3. For completed tickets, note business/technical impact from the ticket
-   description — keep it factual, not speculative.
+   description: keep it factual, not speculative.
 
 ### Phase 5: Generate Report
 
 Track sections completed with TodoWrite, then render using the requested format.
-Every section is conditional on Phase 3/4 actually producing matching data — a
+Every section is conditional on Phase 3/4 actually producing matching data: a
 report with no blockers has no Blockers section.
 
 ## Output Formats
@@ -126,10 +126,10 @@ rendering the final report).
 
 ## Command Options
 
-- `--project <KEY>` / `-p <KEY>` — Jira project key
-- `--since <date>` — override the automatic date calculation, e.g. `jira-daily --since 2025-01-20`
-- `--format <format>` — `brief` | `detailed` (default) | `slack` | `manager`
-- `--include-planned` — include tickets planned for today, not just completed/in-progress
+- `--project <KEY>` / `-p <KEY>`: Jira project key
+- `--since <date>`: override the automatic date calculation, e.g. `jira-daily --since 2025-01-20`
+- `--format <format>`: `brief` | `detailed` (default) | `slack` | `manager`
+- `--include-planned`: include tickets planned for today, not just completed/in-progress
 
 ## Usage Examples
 

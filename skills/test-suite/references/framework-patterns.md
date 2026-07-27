@@ -364,7 +364,7 @@ cargo tarpaulin --out Html  # Coverage with tarpaulin
 ## Common Anti-Patterns to Avoid
 
 1. **Testing implementation details**: Test behavior, not internal state
-2. **Overly broad tests**: One test checking 10 things — split into focused tests
+2. **Overly broad tests**: One test checking 10 things, split into focused tests
 3. **Flaky tests**: Tests depending on timing, network, or random data
 4. **Test duplication**: Same scenario tested multiple ways without added value
 5. **Missing edge cases**: Only testing happy path

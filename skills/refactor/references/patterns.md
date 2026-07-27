@@ -8,11 +8,11 @@
 
 **Step sequence**:
 1. Identify the code to extract
-2. Create a new method with the extracted code — determine parameters from variables used in the fragment
+2. Create a new method with the extracted code: determine parameters from variables used in the fragment
 3. Run tests
 4. Replace the original code with a call to the new method
 5. Run tests
-6. Clean up — remove any intermediate variables no longer needed
+6. Clean up: remove any intermediate variables no longer needed
 7. Run tests
 
 **Risks**:
@@ -99,7 +99,7 @@ def process_order(order):
 
 ### Move Function/Class
 
-**When to use**: A function/class is in the wrong module — it belongs closer to its primary consumers or related code.
+**When to use**: A function/class is in the wrong module: it belongs closer to its primary consumers or related code.
 
 **Step sequence**:
 1. Copy the function/class to the target module
@@ -149,7 +149,7 @@ def process_order(order):
 
 **Risks**:
 - Apparent duplication may actually have subtle differences
-- Premature abstraction — ensure there are truly 3+ occurrences before abstracting
+- Premature abstraction: ensure there are truly 3+ occurrences before abstracting
 - The shared abstraction may need parameterization for slight variations
 
 ### Inline Method/Variable
@@ -202,9 +202,9 @@ def process_order(order):
 
 - [ ] Read and understand ALL the target code
 - [ ] Identify ALL callers and dependents
-- [ ] Run full test suite — record baseline results
-- [ ] Assess test coverage — add characterization tests for gaps
-- [ ] Plan incremental steps — each independently verifiable
+- [ ] Run full test suite (record baseline results)
+- [ ] Assess test coverage (add characterization tests for gaps)
+- [ ] Plan incremental steps (each independently verifiable)
 - [ ] Get approval if scope is large (>5 files, public API changes)
 
 ### When to Write Characterization Tests
@@ -240,8 +240,8 @@ Stop and reassess if:
 ### Red Flags During Refactoring
 
 - **Test needs changing to pass**: Likely a behavioral change, not a refactoring
-- **New test needed for new behavior**: Definitely not a refactoring — stop
-- **"While I'm here" changes**: Scope creep — resist fixing unrelated issues
+- **New test needed for new behavior**: Definitely not a refactoring, stop
+- **"While I'm here" changes**: Scope creep, resist fixing unrelated issues
 - **Performance assumptions changing**: Verify benchmarks if performance-critical
 
 ## Language-Specific Notes
@@ -254,17 +254,17 @@ Stop and reassess if:
 
 ### JavaScript/TypeScript
 - Use named exports to make rename refactoring safer
-- Watch for `default` exports — harder to track callers
+- Watch for `default` exports (harder to track callers)
 - Bundle tree-shaking may be affected by code reorganization
 - TypeScript interfaces provide safety during structural changes
 
 ### Go
 - Exported vs unexported (capitalization) makes API surface explicit
 - `go vet` and `staticcheck` catch many refactoring errors
-- Interface satisfaction is implicit — moving methods may break interface compliance
+- Interface satisfaction is implicit: moving methods may break interface compliance
 
 ### Java/Kotlin
-- IDE refactoring tools are mature — prefer them when available
+- IDE refactoring tools are mature, prefer them when available
 - Watch for reflection-based access (Spring annotations, serialization)
 - Sealed classes/interfaces limit the impact of hierarchy changes
 

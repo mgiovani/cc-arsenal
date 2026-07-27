@@ -2,7 +2,7 @@
 
 Complete role definitions for spec-driven team orchestration: 5 mandatory + 4 conditional roles in full mode, 3 combined roles in lite mode.
 
-**Tool-neutral note**: In full mode (Claude Code with `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`), each role below is spawned as a named teammate via `Task tool (team_name: ..., name: ...)` and coordinates through `SendMessage`. Without that flag or that tool, spawn the same prompt as a plain `Task` subagent (no team, no cross-agent messaging — the orchestrator relays everything). With no subagent tool at all, run the prompt's instructions yourself, inline, one role at a time. The prompts below don't change across these three modes — only how they're invoked does.
+**Tool-neutral note**: In full mode (Claude Code with `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`), each role below is spawned as a named teammate via `Task tool (team_name: ..., name: ...)` and coordinates through `SendMessage`. Without that flag or that tool, spawn the same prompt as a plain `Task` subagent (no team, no cross-agent messaging, the orchestrator relays everything). With no subagent tool at all, run the prompt's instructions yourself, inline, one role at a time. The prompts below don't change across these three modes, only how they're invoked does.
 
 ---
 
@@ -14,7 +14,7 @@ Complete role definitions for spec-driven team orchestration: 5 mandatory + 4 co
 
 Merges what used to be separate Product Manager and Scrum Master roles: one agent owns both writing the spec and turning it into tasks, since in practice the same person reviewing requirements is best placed to size them.
 
-#### Prompt Template — Phase 2 (Specification)
+#### Prompt Template: Phase 2 (Specification)
 ```
 You are the Product Lead for [PROJECT_NAME]. Translate the user's request into a
 complete, testable specification.
@@ -44,7 +44,7 @@ criteria cover happy + error paths, non-functional requirements address the ones
 that actually matter for this feature (not a forced checklist of every category).
 ```
 
-#### Prompt Template — Phase 5 (Task Decomposition, same agent re-activated)
+#### Prompt Template: Phase 5 (Task Decomposition, same agent re-activated)
 ```
 Break the approved spec + architecture into tasks.
 
@@ -121,9 +121,9 @@ indexes, non-functional requirements are addressed, diagrams render as valid Mer
 
 ### 3. Adversary Reviewer
 
-**Config**: subagent_type general-purpose · model sonnet · Phases 4 and 7 · **READ-ONLY** — writes only to `review/`, never touches source or other spec files
+**Config**: subagent_type general-purpose · model sonnet · Phases 4 and 7 · **READ-ONLY**: writes only to `review/`, never touches source or other spec files
 
-#### Prompt Template — Phase 4 (Architecture Review)
+#### Prompt Template: Phase 4 (Architecture Review)
 ```
 You are the Adversary Reviewer for [PROJECT_NAME]. Challenge every design decision
 with "what if..." scenarios before implementation begins.
@@ -145,7 +145,7 @@ concurrent registrations can both pass the check. Fix: UNIQUE constraint on emai
 catch the duplicate-key error, return 409. Rating: BLOCKER (data integrity).
 ```
 
-#### Prompt Template — Phase 7 (Implementation Review)
+#### Prompt Template: Phase 7 (Implementation Review)
 ```
 Read the implemented code and the QA report. Challenge: are all edge cases handled?
 Is error handling comprehensive? Any hidden race conditions? Is input validation
@@ -156,7 +156,7 @@ cap as Phase 4.
 
 #### Quality Criteria
 - [ ] Every major design assumption actually challenged, not rubber-stamped
-- [ ] Findings have specific, actionable mitigations — not vague advice
+- [ ] Findings have specific, actionable mitigations, not vague advice
 - [ ] Review completes within the 2-cycle cap
 
 ---
@@ -232,9 +232,9 @@ polish that isn't in the criteria.
 
 ---
 
-## Conditional Specialists (Phase 7/8) — spawn only when the spec signals the need
+## Conditional Specialists (Phase 7/8): spawn only when the spec signals the need
 
-### 6. Security Engineer — *if the feature is security-sensitive (auth, payments, PII)*
+### 6. Security Engineer: *if the feature is security-sensitive (auth, payments, PII)*
 
 **Config**: sonnet · **READ-ONLY**, findings only, no code edits
 
@@ -252,7 +252,7 @@ review/security-assessment.md. Recommend blocking deployment only for Critical
 findings.
 ```
 
-### 7. Performance Engineer — *if the spec has explicit performance/SLA requirements*
+### 7. Performance Engineer: *if the spec has explicit performance/SLA requirements*
 
 **Config**: sonnet · READ-ONLY, findings only
 
@@ -264,7 +264,7 @@ don't fabricate a benchmark number you didn't run), and the specific fix. Report
 High/Medium findings only — don't block on speculative Low-priority optimization.
 ```
 
-### 8. Infrastructure/DevOps Engineer — *if the change touches deployment/infra*
+### 8. Infrastructure/DevOps Engineer: *if the change touches deployment/infra*
 
 **Config**: sonnet
 
@@ -276,7 +276,7 @@ env vars (no hardcoded secrets, .env.example in sync), migration safety
 health check) separately from recommendations.
 ```
 
-### 9. Tech Writer — *if the feature is user-facing or changes an API* (Phase 8)
+### 9. Tech Writer: *if the feature is user-facing or changes an API* (Phase 8)
 
 **Config**: model haiku (light analysis is enough for doc updates)
 
@@ -293,7 +293,7 @@ changed. Match the existing documentation's tone and formatting. Update
 
 ## Lite Mode Combined Roles (3)
 
-Spawned via a plain `Task` subagent (no team, no cross-agent messaging) — the orchestrator relays anything that would otherwise be a `SendMessage`.
+Spawned via a plain `Task` subagent (no team, no cross-agent messaging), the orchestrator relays anything that would otherwise be a `SendMessage`.
 
 ### 10. Product Analyst (Product Lead, lite)
 
@@ -375,13 +375,13 @@ and the test suite is green.
 ## Quality Standards Across All Agents
 
 1. Read-only agents (Security, Performance, DevOps, Adversary) never modify source or spec files outside their own report
-2. Strict file-scope boundaries between Implementation Engineers — no cross-component edits without routing through the orchestrator
+2. Strict file-scope boundaries between Implementation Engineers: no cross-component edits without routing through the orchestrator
 3. Findings are evidence-based (verified with Read/Grep), never guessed
 4. Recommendations are specific and actionable, not generic advice
-5. Status reports are plain text + `TaskUpdate` — never a JSON status blob
+5. Status reports are plain text + `TaskUpdate`, never a JSON status blob
 6. Revision limits (2 cycles for adversarial review) are respected to avoid infinite loops
 7. Numbers reported (coverage %, test counts, latency estimates) come from a command actually run, never invented
 
 ---
 
-This catalog is the reference for spawning agents in the `team-implement` skill — load it when a phase calls for a role's full prompt.
+This catalog is the reference for spawning agents in the `team-implement` skill: load it when a phase calls for a role's full prompt.

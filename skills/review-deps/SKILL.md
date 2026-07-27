@@ -16,9 +16,9 @@ disable-model-invocation: true
 
 # Dependency Review
 
-Comprehensive dependency audit covering vulnerability scanning, license compliance, and staleness analysis. This skill performs **analysis only** — it never modifies code, lock files, or manifests, and never auto-installs upgrades or missing audit tools (it reports them as unavailable instead).
+Comprehensive dependency audit covering vulnerability scanning, license compliance, and staleness analysis. This skill performs **analysis only**: it never modifies code, lock files, or manifests, and never auto-installs upgrades or missing audit tools (it reports them as unavailable instead).
 
-Cite exact package names/versions/CVE IDs from actual tool output — never estimate or invent them.
+Cite exact package names/versions/CVE IDs from actual tool output, never estimate or invent them.
 
 ## Audit Workflow
 
@@ -45,13 +45,13 @@ Read each detected manifest to understand:
 
 ### Phase 2: Run Native Audit Commands
 
-Execute the audit command for each detected package manager, run independent commands in parallel, and save all raw output (including "tool not installed" errors) for Phase 3. Commands per ecosystem are in [references/audit-commands.md](references/audit-commands.md) — load it now.
+Execute the audit command for each detected package manager, run independent commands in parallel, and save all raw output (including "tool not installed" errors) for Phase 3. Commands per ecosystem are in [references/audit-commands.md](references/audit-commands.md), load it now.
 
 ### Phase 3: Analyze Vulnerabilities, Licenses, and Staleness
 
-Analyze the Phase 2 output across three dimensions — vulnerability triage, license compliance, staleness/upgrade complexity — scoped per the Scoping section below. Detailed per-dimension steps and risk-classification tables are in [references/agent-prompts.md](references/agent-prompts.md) — load it before starting this phase.
+Analyze the Phase 2 output across three dimensions (vulnerability triage, license compliance, staleness/upgrade complexity) scoped per the Scoping section below. Detailed per-dimension steps and risk-classification tables are in [references/agent-prompts.md](references/agent-prompts.md), load it before starting this phase.
 
-Default to doing all three passes yourself, sequentially, in the current context: this is classification over data already fetched in Phase 2, not independent research, so a 3-way agent fan-out mostly re-reads the same output three times. Only spawn parallel Explore agents (one per dimension) when the audit output is unusually large — a multi-ecosystem monorepo, or output that would blow the context budget for a single pass. If no subagent/task tool is available, always do the three passes inline sequentially — that is the correct behavior for most runs anyway, not a degraded fallback.
+Default to doing all three passes yourself, sequentially, in the current context: this is classification over data already fetched in Phase 2, not independent research, so a 3-way agent fan-out mostly re-reads the same output three times. Only spawn parallel Explore agents (one per dimension) when the audit output is unusually large: a multi-ecosystem monorepo, or output that would blow the context budget for a single pass. If no subagent/task tool is available, always do the three passes inline sequentially: that is the correct behavior for most runs anyway, not a degraded fallback.
 
 Whichever mode you use:
 1. Read lock files for transitive dependency details when needed
@@ -62,8 +62,8 @@ Whichever mode you use:
 ### Phase 4: Risk Assessment & Prioritization
 
 1. **Collect all findings** across the three dimensions
-2. **Deduplicate** — remove findings reported under more than one dimension
-3. **Cross-reference** — Combine vulnerability + license + staleness data per package
+2. **Deduplicate**: remove findings reported under more than one dimension
+3. **Cross-reference**: Combine vulnerability + license + staleness data per package
 4. **Prioritize by composite risk**:
  - **Critical**: Known exploited CVEs (CISA KEV), RCE vulnerabilities, packages with no maintained fork
  - **High**: High-severity CVEs with public exploits, copyleft license in proprietary project, packages 3+ major versions behind

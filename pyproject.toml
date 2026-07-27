@@ -1,6 +1,6 @@
 [project]
 name = "cc-arsenal"
-version = "5.0.0"
+version = "5.1.0"
 description = "Professional utility scripts for Claude Code"
 authors = [
     { name = "Giovani Moutinho", email = "e@giovani.dev" }
@@ -109,6 +109,7 @@ ignore = [
 "**/tests/*.py" = ["S101"]  # Allow asserts in test files
 "skills/create-skill/scripts/*.py" = ["E501", "S607"]  # CLI scripts with template strings
 "skills/nanobanana/scripts/*.py" = ["E501", "ANN401"]  # API scripts with dynamic SDK types
+"skills/product-*/scripts/*.py" = ["S101", "T201", "PLR2004", "E501", "RUF015"]  # CLI scaffolds + mandated assert-based --selftest (prints, numeric anchors, slice-indexed assertions)
 
 fixable = ["ALL"]
 unfixable = []

@@ -1,12 +1,12 @@
 # Task Chain Templates
 
 Load this when a refactoring actually needs the full Phase 0-6 task chain (see
-"When to Use the Full Task Chain" in SKILL.md) — for skip-eligible refactors,
+"When to Use the Full Task Chain" in SKILL.md): for skip-eligible refactors,
 ignore this file entirely.
 
 ## Creating the Task Chain
 
-`TaskCreate` returns the real ID of the task it just made — capture each one
+`TaskCreate` returns the real ID of the task it just made, capture each one
 and use the captured value in `addBlockedBy`. Never hardcode literal IDs like
 `"1"`..`"6"`: other tasks may already exist in the session, so the IDs
 TaskCreate hands back are not guaranteed to be sequential integers starting
@@ -54,7 +54,7 @@ TaskUpdate: { taskId: p0, status: "in_progress" }
 ```
 
 After finishing each phase, mark its task `completed` and run `TaskList` to
-confirm the next one unblocked — do this at the end of every phase.
+confirm the next one unblocked: do this at the end of every phase.
 
 ## Phase 0: Discovery Agent Prompt
 
@@ -74,13 +74,13 @@ Use Task tool with Explore agent:
 - model: "haiku"
 ```
 
-Store the discovered commands — every later phase's test/lint/type-check runs
+Store the discovered commands: every later phase's test/lint/type-check runs
 use them.
 
 ## Phase 1: Scope Analysis Agents
 
 Run in parallel only when the refactoring spans multiple files or the caller
-list isn't obvious from one grep — otherwise just grep it yourself.
+list isn't obvious from one grep, otherwise just grep it yourself.
 
 ```
 Agent 1 — Dependency & Caller Analysis (Explore, Haiku):

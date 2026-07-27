@@ -1,6 +1,6 @@
 ---
 name: i18n-check
-description: i18n completeness checker — detects the project's i18n framework (next-intl,
+description: i18n completeness checker, detects the project's i18n framework (next-intl,
   i18next, react-intl, vue-i18n, Django gettext, Rails I18n), diffs every locale file
   against the default locale for missing keys, untranslated values (identical to the
   source string), and orphan keys, then scans changed files (or the whole codebase)
@@ -27,7 +27,7 @@ Finds the three ways translations silently rot: a key added to the default local
 never copied to the others (missing), a key copied but never translated (still reads
 identical to the source), and a key left behind in one locale after being renamed or
 removed from the default (orphan). Also catches new UI copy that was hardcoded instead
-of routed through the i18n layer in the first place — the most common way a translation
+of routed through the i18n layer in the first place: the most common way a translation
 key never gets created.
 
 ## Step 1: Detect the framework
@@ -44,7 +44,7 @@ Look for these signals, in order, and stop at the first match:
 | `Gemfile` + `config/locales/*.yml` | Rails I18n | YAML keyed by locale at the top level |
 
 If two signals match (e.g. a monorepo with a Rails API and a Vue frontend), run this
-skill once per app, not once for the whole repo — their locale files don't overlap.
+skill once per app, not once for the whole repo: their locale files don't overlap.
 
 Read `references/frameworks.md` for the exact default-locale detection and the
 flatten/diff one-liner for whichever framework you found. Every framework's diff
@@ -65,21 +65,21 @@ value` pairs and compute:
 **Do not filter out short or single-word identical matches.** The bug class this skill
 exists for is exactly that: a one-word label like "Developer" left untranslated because
 it looked like it might legitimately be the same in both languages. Report every
-identical match and let a human judge which ones are real bugs — a "smart" filter that
+identical match and let a human judge which ones are real bugs: a "smart" filter that
 suppresses single words or short strings will suppress the real bugs along with the
 noise. If you want to make the noise easier to scan, put clearly-fine matches (numbers,
 URLs, brand names you can identify from context) in a separate "likely fine" bucket in
-the report — do not drop them.
+the report: do not drop them.
 
 ## Step 3: Scan for hardcoded strings
 
 Default scope is the diff against the base branch (`git diff --name-only <base>...HEAD`,
-or `git diff --name-only HEAD` for uncommitted work) — new UI copy is what actually
+or `git diff --name-only HEAD` for uncommitted work): new UI copy is what actually
 ships broken, and scanning the whole codebase on every check is slow and mostly re-finds
 the same pre-existing debt. If the user explicitly asks for a full-codebase sweep, do
 that instead. In an environment with subagent/Task support, spawn one per top-level
 directory to keep the main context clean on a large repo; otherwise run the same grep
-patterns directory-by-directory in a single sequential pass — the result is identical,
+patterns directory-by-directory in a single sequential pass: the result is identical,
 just slower on very large repos.
 
 Read `references/hardcoded-strings.md` for the per-ecosystem patterns (JSX text nodes,
@@ -107,28 +107,28 @@ Orphan — not in en (1):
 ```
 
 If a locale has zero findings across all three categories, say so in one line instead
-of printing an empty section — don't pad the report.
+of printing an empty section: don't pad the report.
 
 ## Step 5: Scaffold missing keys (only if asked)
 
 If the user wants the missing keys filled in rather than just reported, insert each
 missing key into the target locale file at the correct nested path with the value
-copied verbatim from the default locale — never invent a translation. This makes the
+copied verbatim from the default locale: never invent a translation. This makes the
 new key show up as "untranslated" the next time this skill runs, which is the correct
 and honest state until a human or translation service actually translates it. For
 gettext, add the `msgid`/`msgstr ""` pair (empty `msgstr` is the standard gettext
 convention for untranslated). Preserve the file's existing key ordering and formatting
-style — read a few existing entries first and match indentation/quote style before
+style: read a few existing entries first and match indentation/quote style before
 writing.
 
 ## Notes
 
 - A locale file that's missing entirely (e.g. `de.json` never created) is not a
-  key-level diff — flag it once as "locale file not found" and stop for that locale.
+  key-level diff: flag it once as "locale file not found" and stop for that locale.
 - Pluralized keys (`item_one` / `item_other`, ICU `{count, plural, ...}`) count as one
   logical key for the missing/orphan check; don't flag a plural form as orphan just
   because the default locale collapses plural forms differently.
 - react-intl and other setups that keep source strings inline in code (`defineMessages`,
   `<FormattedMessage defaultMessage="...">`) have no default-locale file to diff against
-  for missing/untranslated — for those, Step 3's hardcoded-string scan is the primary
+  for missing/untranslated: for those, Step 3's hardcoded-string scan is the primary
   check, and Step 2 only runs on the non-default locale files that do exist.

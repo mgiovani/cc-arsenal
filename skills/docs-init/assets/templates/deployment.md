@@ -34,7 +34,7 @@ Build steps, test gate, deploy trigger.]
 
 {{MONITORING_ALERTING}}
 
-[Only tools with evidence in the repo — a Sentry/Datadog config, a
+[Only tools with evidence in the repo: a Sentry/Datadog config, a
 prometheus.yml, health-check routes.]
 
 ## Rollback Procedure

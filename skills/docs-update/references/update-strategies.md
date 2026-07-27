@@ -2,7 +2,7 @@
 
 Parallel subagent pattern and per-document-type checklist for multi-document updates
 (SKILL.md Phase 3, "all" or "category" mode). For a single document, SKILL.md's inline
-one-pass approach is enough — this file is only for the concurrent case.
+one-pass approach is enough, this file is only for the concurrent case.
 
 ## Spawning One Agent Per Document
 
@@ -25,7 +25,7 @@ Agent 3 - Onboarding Update:
 ```
 
 If no Task/subagent tool is available, run each of these prompts as a sequential
-read-verify-write pass instead — same checklist, one document at a time.
+read-verify-write pass instead: same checklist, one document at a time.
 
 ## Per-Document-Type Checklist
 

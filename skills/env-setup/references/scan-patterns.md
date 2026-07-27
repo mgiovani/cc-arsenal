@@ -35,10 +35,10 @@ grep -rE 'System\.getenv\("([A-Z_][A-Z0-9_]*)"\)' --include="*.java" --include="
 ```
 
 **Framework-specific prefixes** (scan for these in config files):
-- `NEXT_PUBLIC_*` — Next.js client-exposed variables
-- `VITE_*` — Vite client-exposed variables
-- `REACT_APP_*` — Create React App client-exposed variables
-- `NUXT_PUBLIC_*` — Nuxt.js public variables
+- `NEXT_PUBLIC_*`: Next.js client-exposed variables
+- `VITE_*`: Vite client-exposed variables
+- `REACT_APP_*`: Create React App client-exposed variables
+- `NUXT_PUBLIC_*`: Nuxt.js public variables
 
 **Docker Compose**:
 ```bash

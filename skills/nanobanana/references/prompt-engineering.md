@@ -1,6 +1,6 @@
 # Prompt Engineering for Nano Banana
 
-> Best practices for crafting effective image generation prompts. The core principle is **narrative over keywords** — describe images as a scene or story, not a keyword list.
+> Best practices for crafting effective image generation prompts. The core principle is **narrative over keywords**: describe images as a scene or story, not a keyword list.
 
 ---
 
@@ -25,34 +25,34 @@ Narrative prompts give the model compositional context. Keywords leave too much 
 
 **Camera Angles:**
 - Bird's eye / aerial view
-- Low angle (looking up — adds power)
+- Low angle (looking up, adds power)
 - Eye level (natural, relatable)
-- Dutch angle (slight tilt — tension, unease)
+- Dutch angle (slight tilt, tension, unease)
 - Over-the-shoulder (narrative, POV)
 - Macro / extreme close-up
 
 **Lens Types:**
-- 24mm / wide-angle — expansive environments, architecture
-- 35mm — documentary, street photography feel
-- 50mm — natural human perspective
-- 85mm — portrait compression, flattering faces
-- 135mm / telephoto — background compression, isolation
-- Macro — extreme detail, insects, textures
+- 24mm / wide-angle: expansive environments, architecture
+- 35mm: documentary, street photography feel
+- 50mm: natural human perspective
+- 85mm: portrait compression, flattering faces
+- 135mm / telephoto: background compression, isolation
+- Macro: extreme detail, insects, textures
 
 **Lighting Setups:**
-- Golden hour — warm, elongated shadows, romantic
-- Blue hour — cool, atmospheric, twilight
-- Overcast — soft, even, no harsh shadows
-- Rembrandt lighting — dramatic triangle of light on cheek
-- Split lighting — face half in shadow
-- Rim / hair lighting — subject outlined against dark background
-- Softbox / diffused — commercial photography look
-- Hard light / midday sun — high contrast, stark shadows
+- Golden hour: warm, elongated shadows, romantic
+- Blue hour: cool, atmospheric, twilight
+- Overcast: soft, even, no harsh shadows
+- Rembrandt lighting: dramatic triangle of light on cheek
+- Split lighting: face half in shadow
+- Rim / hair lighting: subject outlined against dark background
+- Softbox / diffused: commercial photography look
+- Hard light / midday sun: high contrast, stark shadows
 
 **Depth of Field:**
-- Shallow DoF / bokeh — subject sharp, background blurred (portraits, product shots)
-- Deep DoF — everything sharp (landscapes, architecture)
-- Selective focus — one element sharp in an otherwise busy scene
+- Shallow DoF / bokeh: subject sharp, background blurred (portraits, product shots)
+- Deep DoF: everything sharp (landscapes, architecture)
+- Selective focus: one element sharp in an otherwise busy scene
 
 **Sparse → Rich Example:**
 ```
@@ -71,27 +71,27 @@ AFTER:  "A ceramic coffee cup with wisps of steam rising, photographed from a
 > [Subject and scene], [art style], [quality level], [shading approach], [color palette], [mood]
 
 **Art Styles:**
-- Watercolor — soft edges, visible brushwork, translucent layers
-- Oil painting — rich texture, impasto technique, classical depth
-- Gouache — opaque, matte, flat but detailed
-- Vector / flat design — clean lines, solid fills, scalable aesthetic
-- Pixel art — retro 8-bit or 16-bit, visible pixels
-- Line art — clean contours, minimal fill
-- Cel-shaded — sharp outline with flat color fills (anime/cartoon)
-- Concept art — painterly, dramatic lighting, often dark
-- Storybook illustration — whimsical, soft colors, accessible
-- Art Nouveau — organic lines, decorative borders, botanical motifs
+- Watercolor: soft edges, visible brushwork, translucent layers
+- Oil painting: rich texture, impasto technique, classical depth
+- Gouache: opaque, matte, flat but detailed
+- Vector / flat design: clean lines, solid fills, scalable aesthetic
+- Pixel art: retro 8-bit or 16-bit, visible pixels
+- Line art: clean contours, minimal fill
+- Cel-shaded: sharp outline with flat color fills (anime/cartoon)
+- Concept art: painterly, dramatic lighting, often dark
+- Storybook illustration: whimsical, soft colors, accessible
+- Art Nouveau: organic lines, decorative borders, botanical motifs
 
 **Quality Levels:**
-- Rough sketch / gestural — loose, exploratory
-- Detailed illustration — polished, ready for publication
-- Masterpiece / museum quality — exceptional detail and craft
+- Rough sketch / gestural: loose, exploratory
+- Detailed illustration: polished, ready for publication
+- Masterpiece / museum quality: exceptional detail and craft
 
 **Shading Approaches:**
-- Flat shading — no gradients, clean blocks of color
-- Soft gradient — smooth color transitions
-- Cross-hatching — parallel lines creating shadow
-- Stippling — dots creating texture and value
+- Flat shading: no gradients, clean blocks of color
+- Soft gradient: smooth color transitions
+- Cross-hatching: parallel lines creating shadow
+- Stippling: dots creating texture and value
 
 **Sparse → Rich Example:**
 ```
@@ -119,13 +119,13 @@ AFTER:  "A friendly young dragon with bright emerald scales, sitting on a mossy
 > [Background/context description], featuring the text "[exact text]" in [font style] typography, [font weight], [color], [placement], [size relative to image]
 
 **Font Styles to Reference:**
-- Serif — formal, traditional, editorial (like Times New Roman)
-- Sans-serif — modern, clean, tech-friendly (like Helvetica)
-- Display / decorative — stylized, expressive
-- Monospace — code, technical, retro computing
-- Script / handwritten — personal, organic
-- Bold slab serif — vintage, poster, impactful
-- Thin / light weight — elegant, minimal
+- Serif: formal, traditional, editorial (like Times New Roman)
+- Sans-serif: modern, clean, tech-friendly (like Helvetica)
+- Display / decorative: stylized, expressive
+- Monospace: code, technical, retro computing
+- Script / handwritten: personal, organic
+- Bold slab serif: vintage, poster, impactful
+- Thin / light weight: elegant, minimal
 
 **Placement Descriptors:**
 - Centered horizontally and vertically
@@ -153,11 +153,11 @@ AFTER:  "A vibrant retail poster with a bright red background and geometric
 > [Product name/type] on [surface/background], [studio lighting], [angle], [contextual props], [overall mood/purpose]
 
 **Lighting Terms:**
-- Key light — main light source, defines shadows
-- Fill light — softens shadows from key light
-- Rim/back light — separates subject from background
-- Three-point lighting — classic product setup
-- Light tent — diffused light from all sides, no shadows
+- Key light: main light source, defines shadows
+- Fill light: softens shadows from key light
+- Rim/back light: separates subject from background
+- Three-point lighting: classic product setup
+- Light tent: diffused light from all sides, no shadows
 - Gradient background sweep
 
 **Surface/Background Options:**
@@ -172,8 +172,8 @@ AFTER:  "A vibrant retail poster with a bright red background and geometric
 - Matte finish, no reflections
 - High-gloss surface with specular highlights
 - Frosted / satin texture
-- Transparent / glass — describe refraction
-- Metallic — brushed aluminum, chrome, gold
+- Transparent / glass: describe refraction
+- Metallic: brushed aluminum, chrome, gold
 
 **Sparse → Rich Example:**
 ```
@@ -194,19 +194,19 @@ AFTER:  "A sleek brushed aluminum water bottle standing upright on a dark slate
 > A [device type] displaying [app/interface description], featuring [UI elements], [color scheme], [design language], shown at [angle/perspective]
 
 **Device Frames:**
-- iPhone 16 / iPhone 15 Pro — modern iOS
+- iPhone 16 / iPhone 15 Pro: modern iOS
 - Android phone (generic or Pixel)
 - iPad / tablet
-- MacBook laptop — open at angle
-- iMac desktop — overhead or frontal
-- Desktop browser window — generic or browser chrome visible
+- MacBook laptop: open at angle
+- iMac desktop: overhead or frontal
+- Desktop browser window: generic or browser chrome visible
 - Apple Watch
 
 **Design Languages:**
-- Material Design 3 — Google's design system, colorful, rounded
-- Apple Human Interface Guidelines — clean, minimal, SF Pro font
-- Fluent Design (Windows) — depth, blur, acrylic effects
-- Custom / clean modern — describe explicitly
+- Material Design 3: Google's design system, colorful, rounded
+- Apple Human Interface Guidelines: clean, minimal, SF Pro font
+- Fluent Design (Windows): depth, blur, acrylic effects
+- Custom / clean modern: describe explicitly
 
 **When Project Colors Are Known:**
 > featuring the brand's primary color [hex or description] as the dominant accent
@@ -227,7 +227,7 @@ AFTER:  "An iPhone 16 showing a clean fitness tracking app dashboard, dark mode
 ### Minimalist / Abstract
 
 **Key Principles:**
-- Negative space is an active design element — describe it explicitly
+- Negative space is an active design element: describe it explicitly
 - Specify exact colors (hex codes or precise color names)
 - Describe composition geometry (rule of thirds, golden ratio, centered)
 - Be precise about what is NOT in the image

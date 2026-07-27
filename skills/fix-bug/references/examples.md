@@ -17,7 +17,7 @@ Parse optional arguments from the command invocation:
 /fix-bug User profile page throws 404 on refresh
 ```
 
-Single file, single root cause — no task chain needed:
+Single file, single root cause, no task chain needed:
 1. **Phase 0**: Discover project uses `npm test` and `npm run lint`
 2. **Phase 1**: Find failing test or create one, locate routing bug
 3. **Phase 2**: Plan fix (add route configuration)
@@ -32,7 +32,7 @@ Single file, single root cause — no task chain needed:
 ```
 
 Webhook signature validation touches the handler, the signing util, and two
-call sites — spans multiple files, so create the six-task chain first:
+call sites, spans multiple files, so create the six-task chain first:
 1. **Create task chain** for all 6 phases with strict sequential dependencies
 2. **Phase 0**: Fetch issue `gh issue view 789`, discover `make test` and `make lint`
 3. **Phase 1**: Reproduce failing webhook, root cause: missing signature validation
@@ -129,7 +129,7 @@ Use agent-browser skill to:
 
 ## Quality Checklist
 
-See "Phase 4: Quality Verification" in [SKILL.md](../SKILL.md) — that's the
+See "Phase 4: Quality Verification" in [SKILL.md](../SKILL.md): that's the
 authoritative checklist, not duplicated here.
 
 ## Commit Message Guidelines

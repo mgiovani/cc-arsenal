@@ -1,6 +1,6 @@
 @AGENTS.md
 
-This file adds Claude-Code-only guidance on top of the tool-agnostic `AGENTS.md` above (Claude Code doesn't read AGENTS.md natively, so this import is the bridge). Everything else — repo overview, skill catalog, skill anatomy, evals, Makefile commands, contributing — lives in `AGENTS.md`; don't duplicate it here.
+This file adds Claude-Code-only guidance on top of the tool-agnostic `AGENTS.md` above (Claude Code doesn't read AGENTS.md natively, so this import is the bridge). Everything else (repo overview, skill catalog, skill anatomy, evals, Makefile commands, contributing) lives in `AGENTS.md`; don't duplicate it here.
 
 ## Plugin System (Recommended for Claude Code)
 
@@ -25,14 +25,15 @@ For local development, add a local marketplace instead:
 /plugin marketplace add /path/to/cc-arsenal
 ```
 
-**Benefits over `npx skills add`:** managed installation, automatic updates, easy enable/disable, no system-wide symlinks — plus the extras below (subagent orchestration, hooks, plugin variants) that only work inside Claude Code.
+**Benefits over `npx skills add`:** managed installation, automatic updates, easy enable/disable, no system-wide symlinks, plus the extras below (subagent orchestration, hooks, plugin variants) that only work inside Claude Code.
 
-**Plugin variants** — install the whole toolkit or a focused subset:
+**Plugin variants**: install the whole toolkit or a focused subset:
 
 | Plugin | Use Case |
 |--------|----------|
-| `cc-arsenal` | Complete toolkit — every skill |
+| `cc-arsenal` | Complete toolkit: every skill |
 | `cc-arsenal-dev` | Development workflows |
+| `cc-arsenal-product` | Product specs: PRD, design spec, and design tokens |
 | `cc-arsenal-review` | Code review and quality audits |
 | `cc-arsenal-docs` | Documentation generation |
 | `cc-arsenal-git` | Git/GitHub workflow automation |
@@ -40,11 +41,11 @@ For local development, add a local marketplace instead:
 | `cc-arsenal-skills` | Specialty model-invoked capabilities |
 | `cc-arsenal-teams` | Team orchestration (experimental) |
 
-Each variant's exact skill set is defined in [`.claude-plugin/marketplace.json`](.claude-plugin/marketplace.json) — the single source of truth, so the list never drifts across docs. The `cc-arsenal` variant intentionally omits the `skills` field there: an unset `skills` means "auto-load every skill in the repo," so it never needs syncing with the others.
+Each variant's exact skill set is defined in [`.claude-plugin/marketplace.json`](.claude-plugin/marketplace.json), the single source of truth, so the list never drifts across docs. The `cc-arsenal` variant intentionally omits the `skills` field there: an unset `skills` means "auto-load every skill in the repo," so it never needs syncing with the others.
 
 **Troubleshooting plugin updates:**
 
-Local directory marketplaces (`"source": "directory"`) do NOT support auto-update or version detection — Claude Code caches `marketplace.json` on first install and local file changes don't invalidate that cache. After creating new skills or bumping versions:
+Local directory marketplaces (`"source": "directory"`) do NOT support auto-update or version detection: Claude Code caches `marketplace.json` on first install and local file changes don't invalidate that cache. After creating new skills or bumping versions:
 ```bash
 rm -rf ~/.claude/plugins/cache/cc-arsenal-marketplace/
 # Then in Claude Code: /plugin → Update now
@@ -66,7 +67,7 @@ make install
 make configure
 ```
 
-`make configure` never modifies `~/.claude/settings.json` — it only symlinks the files you select.
+`make configure` never modifies `~/.claude/settings.json`: it only symlinks the files you select.
 
 ### Team Configuration
 
@@ -104,8 +105,8 @@ make -C integrations/claude-code/claude-hi now       # Send 'hi' immediately
 
 ## Per-skill hooks
 
-A few skills declare a `hooks` key in their SKILL.md frontmatter (e.g. `agent-browser`'s `Stop` hook that closes its browser session). This key is Claude-Code-only — other tools ignore it per the Portability convention in `AGENTS.md` — so those skills must still work correctly with the hook absent.
+A few skills declare a `hooks` key in their SKILL.md frontmatter (e.g. `agent-browser`'s `Stop` hook that closes its browser session). This key is Claude-Code-only (other tools ignore it per the Portability convention in `AGENTS.md`), so those skills must still work correctly with the hook absent.
 
 ## Documentation Guidelines
 
-**No README files inside `skills/`** — Claude Code detects them as actual components. Put docs in `docs/` and let each skill's `SKILL.md` be its own native doc.
+**No README files inside `skills/`**: Claude Code detects them as actual components. Put docs in `docs/` and let each skill's `SKILL.md` be its own native doc.

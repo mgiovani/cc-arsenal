@@ -7,7 +7,7 @@ Every section below is conditional: include it only when Phase 3/4 actually
 produced matching data. A report with nothing blocked has no Blockers section; a
 ticket with no commits matched to it has no Commits line. Never fabricate a
 number (story points, lines changed, test coverage, PR counts) or leave a
-placeholder bracket in the final output — jira-daily has no source for those
+placeholder bracket in the final output: jira-daily has no source for those
 fields, so they don't appear in any template below.
 
 ## Default (Detailed) Format
@@ -51,7 +51,7 @@ specified or with `--format detailed`.
 
 Include a `**Commits**` line under a ticket only when at least one commit
 matched its ID; include `**Due**` only when the ticket's `duedate` field is set.
-Neither is a guess — both come straight out of Phase 3 output.
+Neither is a guess: both come straight out of Phase 3 output.
 
 ## Brief Format (`--format brief`)
 
@@ -89,8 +89,8 @@ Formatted for Slack/Teams posting with appropriate markdown.
 
 ## Manager Format (`--format manager`)
 
-Executive summary focusing on delivery and risks — no team-collaboration or
-peer-review metrics, since jira-daily gathers neither.
+Executive summary focusing on delivery and risks (no team-collaboration or
+peer-review metrics, since jira-daily gathers neither).
 
 ```
 ## Team Update - {DATE}

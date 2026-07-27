@@ -355,14 +355,14 @@ Report Addendum (Phase 4/5): add a sixth dimension, **Simplicity & Over-Engineer
 
 > **Estimated lines removable (static count, not a benchmark): ~N**
 
-`N` is the sum of lines-removed across all `OE-` findings, counted from code actually read. Never state or imply a percentage, runtime, token, or bundle-size saving next to this number — no leaner version was built or measured. If a real, previously-measured benchmark exists for the flagged code, cite it instead of inventing a figure.
+`N` is the sum of lines-removed across all `OE-` findings, counted from code actually read. Never state or imply a percentage, runtime, token, or bundle-size saving next to this number: no leaner version was built or measured. If a real, previously-measured benchmark exists for the flagged code, cite it instead of inventing a figure.
 
 ## Review Best Practices by Audience
 
 ### For Code Authors
 1. **Address Critical/Major first**: Fix issues that affect correctness and reliability
 2. **Understand the why**: Learn the reasoning behind each finding before fixing
-3. **Request re-review**: Run the skill again after fixes — it re-derives the current diff and re-scopes on its own
+3. **Request re-review**: Run the skill again after fixes, it re-derives the current diff and re-scopes on its own
 4. **Push back on Nits**: Not every suggestion needs to be accepted
 5. **Add tests for bugs found**: Each correctness finding should have a regression test
 

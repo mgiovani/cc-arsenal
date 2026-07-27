@@ -27,8 +27,10 @@ def load_config() -> dict:
     if CONFIG_PATH.exists():
         try:
             return json.loads(CONFIG_PATH.read_text())
-        except (json.JSONDecodeError, OSError):
-            print(f'Warning: could not parse {CONFIG_PATH}, starting fresh')
+        except (json.JSONDecodeError, OSError) as exc:
+            sys.stderr.write(
+                f'Warning: could not parse {CONFIG_PATH} ({exc}); starting fresh\n'
+            )
     return {}
 
 

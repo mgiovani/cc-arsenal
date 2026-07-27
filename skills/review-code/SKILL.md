@@ -19,7 +19,7 @@ metadata:
 
 Comprehensive multi-agent code review covering correctness, performance, code style, test coverage gaps, and error handling. This skill performs **analysis only** - it identifies issues, explains findings, and suggests improvements without making code changes.
 
-Every finding must cite a `file:line` you actually read — no hypothetical issues, no estimated counts. Only review files within the determined scope, and only flag style deviations from the project's own conventions, not personal preference.
+Every finding must cite a `file:line` you actually read: no hypothetical issues, no estimated counts. Only review files within the determined scope, and only flag style deviations from the project's own conventions, not personal preference.
 
 ## Review Workflow
 
@@ -55,20 +55,20 @@ Explore the codebase to understand the project's technology stack, conventions, 
 
 ### Phase 2: Initialize Progress Tracking (optional)
 
-If TodoWrite is available, use it to track review progress across the specialist dimensions and report generation. Skip it for a small scoped review or in an environment without it — it's a convenience, not a requirement.
+If TodoWrite is available, use it to track review progress across the specialist dimensions and report generation. Skip it for a small scoped review or in an environment without it (it's a convenience, not a requirement).
 
 ### Phase 3: Parallel Specialist Review
 
 Spawn 5 parallel Explore agents for comprehensive code review. Each agent specializes in a specific review dimension. For detailed agent prompts and patterns, see [references/agent-prompts.md](references/agent-prompts.md).
 
 **Agent assignments:**
-- **Agent 1**: Correctness & Logic — bugs, race conditions, off-by-one errors, null safety, type mismatches
-- **Agent 2**: Performance — algorithmic complexity, unnecessary allocations, N+1 queries, missing caching, memory leaks
-- **Agent 3**: Code Style & Patterns — naming, structure, DRY violations, SOLID adherence, framework idioms
-- **Agent 4**: Test Coverage Gaps — untested code paths, missing edge case tests, weak assertions, test quality
-- **Agent 5**: Error Handling & Edge Cases — unhandled exceptions, missing validation, boundary conditions, graceful degradation
+- **Agent 1**: Correctness & Logic: bugs, race conditions, off-by-one errors, null safety, type mismatches
+- **Agent 2**: Performance: algorithmic complexity, unnecessary allocations, N+1 queries, missing caching, memory leaks
+- **Agent 3**: Code Style & Patterns: naming, structure, DRY violations, SOLID adherence, framework idioms
+- **Agent 4**: Test Coverage Gaps: untested code paths, missing edge case tests, weak assertions, test quality
+- **Agent 5**: Error Handling & Edge Cases: unhandled exceptions, missing validation, boundary conditions, graceful degradation
 
-**No Task/Explore tool available**: run the same six specialist prompts (Agents 1-6, full text in [references/agent-prompts.md](references/agent-prompts.md)) as sequential Grep+Read passes instead of parallel subagents — one dimension at a time, in the same order, each following the same steps below, then merge all six dimensions' findings into one list before Phase 4.
+**No Task/Explore tool available**: run the same six specialist prompts (Agents 1-6, full text in [references/agent-prompts.md](references/agent-prompts.md)) as sequential Grep+Read passes instead of parallel subagents, one dimension at a time, in the same order, each following the same steps below, then merge all six dimensions' findings into one list before Phase 4.
 
 Each agent must:
 1. Grep for issue patterns across files in scope
@@ -110,7 +110,7 @@ Generate a comprehensive markdown report following the template in [references/r
 4. Prioritized action items (Critical first, then Major)
 5. Positive observations - highlight well-written code, good patterns, thorough tests
 
-To re-review after fixes, just run the skill again on the same PR/commit — Phase 0's scoping naturally re-derives the current diff, so it re-scopes to what's actually still there without a separate workflow.
+To re-review after fixes, just run the skill again on the same PR/commit: Phase 0's scoping naturally re-derives the current diff, so it re-scopes to what's actually still there without a separate workflow.
 
 ## Usage
 
@@ -157,7 +157,7 @@ If no focus specified, perform comprehensive review across all dimensions.
 
 ## Simplicity & Over-Engineering Lens (Claude Code enhancement)
 
-LLM-written code tends to over-engineer: interfaces built for one implementation, factories for one product, wrapper layers that just forward a call. None of that shows up as a bug, so the five specialists in Phase 3 don't catch it — it needs its own lens. This module adds a 6th parallel specialist and a matching report dimension.
+LLM-written code tends to over-engineer: interfaces built for one implementation, factories for one product, wrapper layers that just forward a call. None of that shows up as a bug, so the five specialists in Phase 3 don't catch it: it needs its own lens. This module adds a 6th parallel specialist and a matching report dimension.
 
 ### Agent 6: Simplicity & Over-Engineering
 
@@ -165,4 +165,4 @@ Spawn this agent alongside Agents 1-5 in Phase 3, in the same parallel batch. Fu
 
 **Routing out of scope**: when Agent 6 flags something that Phase 4 consolidation determines is actually a correctness, security, or performance issue, move it into the matching dimension (`CL-`, `PF-`, or `EH-` prefix) instead of reporting it as an OE finding. An over-engineered function that also happens to be buggy is a bug first.
 
-Add its dimension (`OE-` prefix, Minor/Nit by default) to Phase 4/5 output — full report-addendum spec in [references/agent-prompts.md](references/agent-prompts.md#agent-6---simplicity--over-engineering).
+Add its dimension (`OE-` prefix, Minor/Nit by default) to Phase 4/5 output: full report-addendum spec in [references/agent-prompts.md](references/agent-prompts.md#agent-6---simplicity--over-engineering).

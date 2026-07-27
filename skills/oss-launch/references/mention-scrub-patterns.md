@@ -1,6 +1,6 @@
-# Mention scrub — grep patterns
+# Mention scrub: grep patterns
 
-Load this when running Stage 5. Run every pattern group that's plausible for the repo's stack; report every hit as `file:line` (or commit SHA for the commit-message group) — never invent a hit that wasn't actually matched.
+Load this when running Stage 5. Run every pattern group that's plausible for the repo's stack; report every hit as `file:line` (or commit SHA for the commit-message group): never invent a hit that wasn't actually matched.
 
 ## AI-assistant / AI-tooling scaffolding
 
@@ -35,7 +35,7 @@ grep -rnE "/Users/[a-zA-Z0-9_.-]+/|/home/[a-zA-Z0-9_.-]+/" --exclude-dir={.git,n
 
 A hit in these patterns is not automatically "remove this." Two matches can look identical in a grep line and mean opposite things:
 
-- `// integrates Anthropic's Claude API for the chatbot feature` — this is the product's real, described functionality. Flag it for the user's awareness (it does mention "Anthropic"), but frame it separately from scaffolding.
-- `Co-Authored-By: Claude <noreply@anthropic.com>` in a commit trailer, or a README "Generated with Claude Code" footer — this is tooling scaffolding with no product relevance. Flag it as a clear scrub candidate.
+- `// integrates Anthropic's Claude API for the chatbot feature`: this is the product's real, described functionality. Flag it for the user's awareness (it does mention "Anthropic"), but frame it separately from scaffolding.
+- `Co-Authored-By: Claude <noreply@anthropic.com>` in a commit trailer, or a README "Generated with Claude Code" footer: this is tooling scaffolding with no product relevance. Flag it as a clear scrub candidate.
 
-Present both in the match list, but never merge them into one undifferentiated bullet — the user needs to see which is which to decide quickly.
+Present both in the match list, but never merge them into one undifferentiated bullet: the user needs to see which is which to decide quickly.

@@ -1,0 +1,94 @@
+{
+  "skill": "product-prd",
+  "description": "Gate-checked, size-and-intent-tiered PRD authoring under docs/specs/prd/: a gate-zero that can decline a doc, a Brief / one-pager / big (PR-FAQ for validation vs numbered full PRD for execution) stack, mandatory positive non-goals at medium+, one append-only decision log, single-file by default, ending in a hand-off and a self-grade. Writes no application code.",
+  "evals": [
+    {
+      "id": "gate-zero-declines-doc",
+      "prompt": "Write a PRD for changing our primary button label from 'Submit' to 'Save'.",
+      "assertions": [
+        "Runs a gate-zero and concludes a full PRD is not warranted for a one-line change",
+        "Offers a lighter alternative instead — a 3-line ticket (problem / change / acceptance) or a suggestion to just prototype it",
+        "Does not create docs/specs/prd/PRD.md or any prd/ document set for this trivial change",
+        "No application or source-code files are created",
+        "No mutating command (scripts/scaffold.py, git, mkdir, or file writes) is run"
+      ]
+    },
+    {
+      "id": "brief-tier-authoring",
+      "prompt": "Write a lightweight PRD for adding CSV export to our existing analytics dashboard. I approve authoring the PRD now — proceed without waiting for further approval.",
+      "assertions": [
+        "Selects the brief (small) tier for a single-feature addition before authoring",
+        "Creates exactly one PRD file at docs/specs/prd/PRD.md and does not create a prd/ subdirectory or multi-file tree",
+        "Requirements carry unique IDs of the form PRD-<CAT>-NNN drawn from the six categories FR/NFR/UX/SEC/DATA/DES",
+        "At least one requirement includes Given/When/Then acceptance criteria",
+        "Includes a Non-Goals section with 2-3 items, each stated positively (where the excluded work lives or when it is revisited) rather than a bare 'we won't do X'",
+        "No forbidden vague terms (fast, scalable, intuitive, robust, secure, seamless, user-friendly, performant) appear in requirement statements",
+        "No application or source-code files are created and no leftover {{placeholder}}/TODO/TBD remains"
+      ]
+    },
+    {
+      "id": "one-pager-single-file-and-log",
+      "prompt": "Draft a PRD for a new team-notifications module (in-app alerts plus daily email digests with per-user preferences) inside our existing app. I authorize you to author it now.",
+      "assertions": [
+        "Selects the one-pager (medium) tier and authors a single docs/specs/prd/PRD.md — it does NOT emit a 12- or 37-file prd/ document tree",
+        "Contains a mandatory Non-Goals section with every item stated positively",
+        "Every requirement carries a PRD-<CAT>-NNN ID and Given/When/Then acceptance criteria, with no vague terms",
+        "Any decision / assumption / open-question / research tracking is kept in ONE append-only log (a single typed table), not four separate ledgers",
+        "Keeps facts, assumptions, and recommendations visibly separate",
+        "Ends the run with a hand-off (reports the written file path and names the downstream consumer) and a brief self-grade of readiness"
+      ]
+    },
+    {
+      "id": "big-validation-prfaq",
+      "prompt": "We're weighing whether to build an AI meeting-notes assistant. Give me a PR/FAQ so we can decide if we should build it — you're authorized to write it now.",
+      "assertions": [
+        "Routes the big tier on intent to VALIDATION and produces a PR/FAQ: a press release plus an external and internal FAQ",
+        "Includes a mandatory 'top 3 reasons this will fail' section",
+        "Separates verifiable facts from recommendations and assumptions, and cites externally-derived claims",
+        "Authors a single docs/specs/prd/PRD.md by default rather than a large multi-file tree",
+        "No application or source-code files are created"
+      ]
+    },
+    {
+      "id": "big-execution-full-prd",
+      "prompt": "We've decided to build a multi-tenant billing service (usage metering, invoicing, and Stripe payment capture). Write the execution PRD now — I authorize it.",
+      "assertions": [
+        "Routes the big tier on intent to EXECUTION and produces a numbered PRD with requirements carrying PRD-<CAT>-NNN IDs",
+        "Success metrics are stated with a baseline, a target, and a measurement window",
+        "Includes a dated changelog section",
+        "Any unresolved gap is tagged inline with [NEEDS CLARIFICATION: ...] rather than silently guessed",
+        "A requirement that would combine two behaviours with 'and'/'or' is split into separate numbered requirements",
+        "Includes a mandatory Non-Goals section stated positively, and creates no application or source-code files"
+      ]
+    },
+    {
+      "id": "graduating-guard-escalates",
+      "prompt": "Write a one-pager PRD for what should be a quick sharing feature: public links, expiring links, password-protected links, per-link permissions, link analytics, link revocation, team-shared link folders, and audit logging. I authorize authoring now.",
+      "assertions": [
+        "Recognizes the scope exceeds a one-pager — more than ~5-7 requirements and/or more than one system — and trips the graduating guard",
+        "Restarts in the big/execution full-PRD template (numbered requirements) instead of bloating a one-pager in place",
+        "The final authored document is the escalated tier, not a padded one-pager",
+        "Non-goals are present and stated positively, and no application or source-code files are created"
+      ]
+    },
+    {
+      "id": "authorization-gate-withheld",
+      "prompt": "Draft product requirements for a peer-to-peer marketplace app. Show me your alignment summary first; do not create any files yet.",
+      "assertions": [
+        "Presents a roughly one-page alignment summary and asks for explicit approval before authoring",
+        "The run ends by asking whether to proceed and does not author the PRD",
+        "No files are created under docs/specs/ and no mutating command is run"
+      ]
+    },
+    {
+      "id": "no-code-boundary",
+      "prompt": "Add OAuth2 login to our web app and implement it. You may author the PRD now.",
+      "assertions": [
+        "Authors a PRD capturing the OAuth2 login requirements instead of writing the implementation",
+        "Does not create or edit application source-code files",
+        "States that implementation is out of scope and/or points to team-implement or implement-feature for the build",
+        "Login-flow requirements carry PRD-<CAT>-NNN IDs and Given/When/Then acceptance criteria"
+      ]
+    }
+  ]
+}

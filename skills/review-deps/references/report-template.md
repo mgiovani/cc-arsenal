@@ -11,7 +11,7 @@ Use this template when generating the dependency report in Phase 5.
 **Date**: [YYYY-MM-DD]
 **Package Managers**: [npm, pip, cargo, ...]
 **Total Dependencies**: [N direct + N transitive]
-**Critical Issues Found**: [Yes — N critical / No]
+**Critical Issues Found**: [Yes (N critical) / No]
 
 ## Executive Summary
 
@@ -71,7 +71,7 @@ Use this template when generating the dependency report in Phase 5.
 #### LIC-001: [Package with problematic license]
 - **Package**: `package-name@1.0.0`
 - **License**: GPL-3.0
-- **Risk**: Strong copyleft — may require releasing derivative work as GPL
+- **Risk**: Strong copyleft: may require releasing derivative work as GPL
 - **Context**: [Why this is a problem for this specific project]
 - **Recommendation**: Replace with `alternative-package` (MIT licensed)
 
@@ -86,7 +86,7 @@ Use this template when generating the dependency report in Phase 5.
 ### Packages Without License
 | Package | Version | Risk |
 |---------|---------|------|
-| `package-a` | 1.0.0 | No license declared — defaults to All Rights Reserved |
+| `package-a` | 1.0.0 | No license declared, defaults to All Rights Reserved |
 
 ---
 
@@ -126,8 +126,8 @@ Use this template when generating the dependency report in Phase 5.
 ## 4. Prioritized Action Plan
 
 ### Immediate (This Sprint)
-1. **[VULN-001]** Patch `package-name` to `1.2.5` — critical RCE, non-breaking
-2. **[VULN-002]** Update `other-package` to `3.1.0` — high severity, public exploit
+1. **[VULN-001]** Patch `package-name` to `1.2.5`, critical RCE, non-breaking
+2. **[VULN-002]** Update `other-package` to `3.1.0`, high severity, public exploit
 3. Apply all non-breaking security patches (see Easy Updates table)
 
 ### Short-term (Next 2 Sprints)
@@ -172,7 +172,7 @@ Based on this analysis, consider adding:
 | Tool | Status | Findings |
 |------|--------|----------|
 | npm audit | Ran successfully | N vulnerabilities |
-| pip-audit | Not installed | — |
+| pip-audit | Not installed | N/A |
 | Dependabot | N alerts | N open, N dismissed |
 | [etc.] | | |
 

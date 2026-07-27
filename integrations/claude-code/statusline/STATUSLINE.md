@@ -1,6 +1,6 @@
 # Claude Code Statusline
 
-Shows model, git, cost, context, and usage-window information in your Claude Code prompt — computed fresh on every call, no background daemon.
+Shows model, git, cost, context, and usage-window information in your Claude Code prompt, computed fresh on every call, no background daemon.
 
 ## Table of Contents
 
@@ -16,25 +16,25 @@ Shows model, git, cost, context, and usage-window information in your Claude Cod
 
 The statusline renders two lines:
 
-**Line 1** — model, context, directory, git, cost, session duration:
+**Line 1**: model, context, directory, git, cost, session duration:
 ```
 🤖 Opus │ 📊 22% │ 📁 cc-arsenal │ 🌿 main ● │ 💰 $0.043 │ ⏱️ 21m
 ```
 
-**Line 2** — usage-window details (only when rate-limit data is available):
+**Line 2**: usage-window details (only when rate-limit data is available):
 ```
 🔄 5h: 16% → 21:00 │ 📅 7d: 39% → Dec 31 21:00
 ```
 
 Line 1 components, in order:
-- 🤖 **Model** — name/version, from `model.display_name` or `model.id`
-- 📊 **Context** — `context_window.used_percentage`, rounded
-- 📁 **Directory** — current directory, `~`-shortened
-- 🌿 **Git** — branch, with `●` for uncommitted changes
-- 🌳 **Worktree** — worktree name, shown only when in a worktree
-- 💰 **Cost** — `cost.total_cost_usd` for the session
-- 📝 **Lines changed** — `+added/-removed`; **disabled by default**, enable via config
-- ⏱️ **Session duration** — from `cost.total_duration_ms`; hidden until a session has run
+- 🤖 **Model**: name/version, from `model.display_name` or `model.id`
+- 📊 **Context**: `context_window.used_percentage`, rounded
+- 📁 **Directory**: current directory, `~`-shortened
+- 🌿 **Git**: branch, with `●` for uncommitted changes
+- 🌳 **Worktree**: worktree name, shown only when in a worktree
+- 💰 **Cost**: `cost.total_cost_usd` for the session
+- 📝 **Lines changed**: `+added/-removed`; **disabled by default**, enable via config
+- ⏱️ **Session duration**: from `cost.total_duration_ms`; hidden until a session has run
 
 Line 2 is the usage line (see [Usage](#usage) for where its data comes from) plus, when multi-account is configured, an account badge (see [Multiple accounts](#multiple-accounts)).
 
@@ -85,11 +85,11 @@ echo '{"model":{"id":"claude-opus-5","display_name":"Opus"},"workspace":{"curren
 
 ## Usage
 
-The statusline runs automatically — Claude Code pipes a JSON status object to it on every interaction (max ~300ms refresh rate per Claude Code docs). No manual step is required.
+The statusline runs automatically: Claude Code pipes a JSON status object to it on every interaction (max ~300ms refresh rate per Claude Code docs). No manual step is required.
 
 ### The usage line (rate limits)
 
-Line 2 comes from the `rate_limits` object Claude Code includes on stdin (`rate_limits.five_hour` / `rate_limits.seven_day` — `used_percentage` and `resets_at`). This is the default source and needs no configuration.
+Line 2 comes from the `rate_limits` object Claude Code includes on stdin (`rate_limits.five_hour` / `rate_limits.seven_day`, `used_percentage` and `resets_at`). This is the default source and needs no configuration.
 
 If nothing is piped in with `rate_limits` (e.g. the interactive/no-stdin fallback), line 2 is simply omitted.
 
@@ -99,7 +99,7 @@ When `CLAUDE_CODE_OAUTH_TOKEN` is set (see [Multiple accounts](#multiple-account
 
 On every run, the statusline persists the current rate-limit snapshot to `/tmp` so other tools (a tmux statusbar, a separate script) can read it without re-parsing stdin JSON:
 
-- Default account (no `CLAUDE_CODE_OAUTH_TOKEN` set): `/tmp/claude_rate_limits_cache.json` — a stable, well-known path.
+- Default account (no `CLAUDE_CODE_OAUTH_TOKEN` set): `/tmp/claude_rate_limits_cache.json` (a stable, well-known path).
 - Per env-token account: `/tmp/claude_rate_limits_cache.<hash>.json`, where `<hash>` is the first 12 hex characters of the SHA-256 of the token value.
 
 Both files contain `{"five_hour": {...}, "seven_day": {...}}`. Treat the default path as stable for scripting; the hashed path is stable per-token but the hash itself is only reproducible if you compute it the same way (`shasum -a 256` truncated to 12 chars).
@@ -108,7 +108,7 @@ Both files contain `{"five_hour": {...}, "seven_day": {...}}`. Treat the default
 
 ### Config file
 
-Settings live in `~/.claude/cc-arsenal/statusline_config.json`. This file is **not** auto-created on first run — create or edit it with the interactive tool:
+Settings live in `~/.claude/cc-arsenal/statusline_config.json`. This file is **not** auto-created on first run: create or edit it with the interactive tool:
 
 ```bash
 make configure   # from integrations/claude-code/statusline/
@@ -116,7 +116,7 @@ make configure   # from integrations/claude-code/statusline/
 
 which drives `configure_statusline.py` (writes directly to `~/.claude/cc-arsenal/statusline_config.json`).
 
-The config surface is intentionally small — every key here is actually honored by the code (`lib/config.sh`, `lib/display/builder.sh`):
+The config surface is intentionally small: every key here is actually honored by the code (`lib/config.sh`, `lib/display/builder.sh`):
 
 ```json
 {
@@ -139,14 +139,14 @@ To point the script at a different config file entirely (e.g. for previewing a c
 
 | Variable | Effect |
 |---|---|
-| `STATUSLINE_DISPLAY_MODE` | `emoji` (default), `text`, or `ascii` — overrides the config file's `display.display_mode` |
+| `STATUSLINE_DISPLAY_MODE` | `emoji` (default), `text`, or `ascii`: overrides the config file's `display.display_mode` |
 | `STATUSLINE_TEXT_MODE` | Legacy boolean (`true`/`1`) forcing text mode; superseded by `STATUSLINE_DISPLAY_MODE` |
 | `STATUSLINE_CONFIG_OVERRIDE` | Path to an alternate config JSON file, used instead of `~/.claude/cc-arsenal/statusline_config.json` |
 | `STATUSLINE_SEPARATOR` | Component separator on line 1 (default `│`) |
 | `STATUSLINE_DEBUG` | `1` to log raw input JSON and context-window extraction to `/tmp/claude_statusline_debug.log` |
 | `STATUSLINE_PERF` | `1` to print `[perf] <ms>ms` to stderr after each run |
-| `CLAUDE_CODE_OAUTH_TOKEN` | Selects a specific account's OAuth token and enables the multi-account code path — see below |
-| `CLAUDE_STATUSLINE_ACCOUNT_LABEL` | Badge text shown on line 2 whenever it's set; unset means no badge. Independent of `CLAUDE_CODE_OAUTH_TOKEN` — works with any account-switch mechanism (env token, `CLAUDE_SECURESTORAGE_CONFIG_DIR`, etc.) |
+| `CLAUDE_CODE_OAUTH_TOKEN` | Selects a specific account's OAuth token and enables the multi-account code path (see below) |
+| `CLAUDE_STATUSLINE_ACCOUNT_LABEL` | Badge text shown on line 2 whenever it's set; unset means no badge. Independent of `CLAUDE_CODE_OAUTH_TOKEN`: works with any account-switch mechanism (env token, `CLAUDE_SECURESTORAGE_CONFIG_DIR`, etc.) |
 | `OAUTH_USAGE_CACHE_FILE` | Overrides the OAuth usage cache path (otherwise auto-derived, see below) |
 | `OAUTH_USAGE_CACHE_TTL` | OAuth usage cache TTL in seconds (default `300`) |
 
@@ -160,7 +160,7 @@ The statusline supports more than one Claude account on the same machine. Per-ac
 
 ### Per-account isolation
 
-Everything scoped to an account is keyed by the first 12 hex characters of `sha256(token)` — **tokens themselves are never written to disk**, only this hash:
+Everything scoped to an account is keyed by the first 12 hex characters of `sha256(token)` (**tokens themselves are never written to disk**), only this hash:
 
 - OAuth usage cache: `/tmp/claude_oauth_usage_cache.<hash>.json` (vs. `/tmp/claude_oauth_usage_cache.json` for the default account)
 - Rate-limit backoff/lock state (used by the background fetcher): `/tmp/statusline_live_cache/oauth_backoff.<hash>`, `oauth_backoff_count.<hash>`, `oauth_cache.lock.<hash>`
@@ -174,21 +174,21 @@ Set `CLAUDE_STATUSLINE_ACCOUNT_LABEL` (e.g. `work`, `personal`) to show a badge 
 ```
 👤 work │ 🔄 5h: 16% → 21:00
 ```
-The label is independent of how you switched accounts — it renders whenever it's set, whether you select the account via `CLAUDE_CODE_OAUTH_TOKEN` or a separate credential store (`CLAUDE_SECURESTORAGE_CONFIG_DIR=~/.claude-alt`). Unset means no badge. Note the per-account usage-cache isolation and background OAuth refresh are still keyed on `CLAUDE_CODE_OAUTH_TOKEN`; with the securestorage path, line-2 usage comes from the `rate_limits` Claude Code sends on stdin for that account.
+The label is independent of how you switched accounts: it renders whenever it's set, whether you select the account via `CLAUDE_CODE_OAUTH_TOKEN` or a separate credential store (`CLAUDE_SECURESTORAGE_CONFIG_DIR=~/.claude-alt`). Unset means no badge. Note the per-account usage-cache isolation and background OAuth refresh are still keyed on `CLAUDE_CODE_OAUTH_TOKEN`; with the securestorage path, line-2 usage comes from the `rate_limits` Claude Code sends on stdin for that account.
 
 ### Refresh behavior
 
-`statusline.sh` kicks off a background, non-blocking refresh (`lib/oauth_fetcher.sh`) whenever the account's usage cache is older than `OAUTH_USAGE_CACHE_TTL` (default 300s). The statusline itself only ever reads the cache (`fetch_oauth_usage_cached_only`) — it never blocks on network I/O. The fetcher applies its own file locking (`flock`, with a PID-file fallback on systems without it) and exponential backoff on repeated rate-limit responses from the OAuth API (120s → 300s → 600s).
+`statusline.sh` kicks off a background, non-blocking refresh (`lib/oauth_fetcher.sh`) whenever the account's usage cache is older than `OAUTH_USAGE_CACHE_TTL` (default 300s). The statusline itself only ever reads the cache (`fetch_oauth_usage_cached_only`): it never blocks on network I/O. The fetcher applies its own file locking (`flock`, with a PID-file fallback on systems without it) and exponential backoff on repeated rate-limit responses from the OAuth API (120s → 300s → 600s).
 
 ### Fail-soft behavior
 
-If the OAuth token is invalid, the network call fails, or the cache is simply empty/stale, the statusline falls straight back to whatever `rate_limits` data (if any) arrived on stdin for that call — it never blocks or errors the whole statusline over a failed usage fetch.
+If the OAuth token is invalid, the network call fails, or the cache is simply empty/stale, the statusline falls straight back to whatever `rate_limits` data (if any) arrived on stdin for that call: it never blocks or errors the whole statusline over a failed usage fetch.
 
 ## Platform support
 
 - **macOS and Linux**: first-class, actively used code paths (`lib/core/platform.sh` branches on `uname -s` for `stat`, hashing, and date parsing).
 - **WSL**: behaves as Linux (uses the Linux branches of `platform.sh`, and the file-based credentials fallback since there's no macOS Keychain).
-- **Native Git Bash on Windows**: best-effort, untested — the script sources `sha256sum`/`date -d` style Linux commands as a fallback, which Git Bash generally provides, but this path has no test coverage.
+- **Native Git Bash on Windows**: best-effort, untested (the script sources `sha256sum`/`date -d` style Linux commands as a fallback, which Git Bash generally provides, but this path has no test coverage).
 
 ## Troubleshooting
 
@@ -215,7 +215,7 @@ echo '{"model":{"id":"test"}}' | STATUSLINE_PERF=1 ~/.claude/scripts/claude/stat
 
 ### Rate-limit / usage line missing or stale
 
-- No line 2 at all: Claude Code isn't sending `rate_limits` on stdin for this call (normal on very first invocation) — it will appear once available.
+- No line 2 at all: Claude Code isn't sending `rate_limits` on stdin for this call (normal on very first invocation). It will appear once available.
 - Using `CLAUDE_CODE_OAUTH_TOKEN` and it's stale: check the fetcher's error log and force a fresh fetch:
   ```bash
   tail -20 /tmp/statusline_live_cache/oauth_errors.log
@@ -233,7 +233,7 @@ echo '{"model":{"id":"test"}}' | STATUSLINE_PERF=1 ~/.claude/scripts/claude/stat
 git rev-parse --git-dir
 git rev-parse --git-common-dir
 ```
-Different output for the two means you're in a worktree — the statusline detects this from git directly whenever `worktree.name`/`worktree.branch` aren't present on stdin.
+Different output for the two means you're in a worktree: the statusline detects this from git directly whenever `worktree.name`/`worktree.branch` aren't present on stdin.
 
 ### Getting help
 

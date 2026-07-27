@@ -46,7 +46,7 @@ EOF
 - **Format**: usually flat JSON already (`id -> message`), extracted via
   `babel-plugin-formatjs`/`formatjs extract` into `lang/<locale>.json`. If the project
   keeps messages inline (`defineMessages`, `<FormattedMessage defaultMessage="...">`)
-  there is no default-locale file — skip Step 2 and rely on the hardcoded-string scan.
+  there is no default-locale file: skip Step 2 and rely on the hardcoded-string scan.
 - Diff flat JSON with the same script above; flattening is a no-op since it's already
   flat.
 
@@ -57,13 +57,13 @@ EOF
   locale="en">{...}</i18n>` custom blocks inside `.vue` SFCs.
 - JSON: same flatten script as next-intl above.
 - YAML: use `js-yaml` if it's already a project dependency (`node -e "..."`), otherwise
-  fall back to `ruby -ryaml` (ships with Ruby, present on macOS and most CI images) —
+  fall back to `ruby -ryaml` (ships with Ruby, present on macOS and most CI images):
   don't add a new dependency just to parse YAML for this check.
 
 ## Django gettext
 
 - **Default locale**: source strings live directly in code (`_("...")`, `{% trans %}`,
-  `{% blocktrans %}`) — there is no default-locale catalog file to diff against.
+  `{% blocktrans %}`): there is no default-locale catalog file to diff against.
   `LANGUAGE_CODE` in `settings.py` only picks which translation to serve, not where the
   source text lives.
 - **Format**: `locale/<lang>/LC_MESSAGES/django.po`, entries are `msgid` / `msgstr`

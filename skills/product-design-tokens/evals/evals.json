@@ -1,0 +1,72 @@
+{
+  "skill": "product-design-tokens",
+  "description": "Authors a durable design-token contract under docs/specs/design/tokens/: a canonical W3C DTCG 2025.10 JSON file ($value/$type, {group.token.path} aliases pinned to /tr/2025.10/, never /tr/drafts/), reusing an existing design system before inventing a brand, enforcing WCAG 2.2 AA contrast (never meaning by colour alone), with an optional version-pinned/runtime-probed alpha DESIGN.md always paired with the DTCG JSON. Single-file by default. Writes no application code.",
+  "evals": [
+    {
+      "id": "dtcg-canonical-greenfield",
+      "prompt": "We're greenfield with no design system yet. Define our core design tokens (colours, spacing, radius, type) and check contrast. I approve writing the token file now — proceed.",
+      "assertions": [
+        "Creates a single canonical DTCG file at docs/specs/design/tokens/tokens.dtcg.json — not a multi-file token tree",
+        "The JSON is DTCG 2025.10 shape: tokens use $value and $type, groups carry an inheritable $type, and references use {group.token.path} aliases that resolve with no cycles",
+        "The token format is pinned to https://www.designtokens.org/tr/2025.10/ and never references /tr/drafts/",
+        "A contrast report is produced and every declared foreground/background pair meets WCAG 2.2 AA (>=4.5:1 normal text); no palette that fails contrast is approved",
+        "No status/semantic meaning is carried by colour alone (WCAG 1.4.1 is respected)",
+        "No application or source-code files are created and no leftover {{placeholder}} remains"
+      ]
+    },
+    {
+      "id": "reuse-existing-tailwind",
+      "prompt": "Our repo already uses Tailwind and shadcn/ui. Set up our design tokens. You're approved to write the file now.",
+      "assertions": [
+        "Detects the existing Tailwind/shadcn design system before proposing any tokens (scans tailwind.config / components.json / CSS custom properties)",
+        "Adopts or extends the existing token values rather than replacing them with a freshly invented brand palette",
+        "Emits the tokens as canonical DTCG 2025.10 JSON at docs/specs/design/tokens/tokens.dtcg.json as the single source of truth",
+        "States explicitly that it reused the existing system rather than inventing a new one",
+        "No application or source-code files are created"
+      ]
+    },
+    {
+      "id": "contrast-and-color-alone-flagged",
+      "prompt": "Approve this palette for us: body text #999999 on a white #ffffff background, and show error state using red text only. I approve writing it now.",
+      "assertions": [
+        "Runs a contrast check and flags #999999 on #ffffff as failing WCAG 2.2 AA for normal text (ratio below 4.5:1)",
+        "Does NOT approve the palette as-is; recommends a darker text token that passes AA and re-checks",
+        "Flags that conveying the error state by red colour alone violates WCAG 1.4.1 and requires a second channel (icon, text label, or pattern)",
+        "Targets WCAG 2.2 AA explicitly and does not introduce WCAG 3.0 or APCA contrast",
+        "No application or source-code files are created"
+      ]
+    },
+    {
+      "id": "design-md-alpha-paired",
+      "prompt": "Define our tokens and also give me a Google Labs design.md file for them. I approve writing the files now.",
+      "assertions": [
+        "Produces the canonical DTCG 2025.10 tokens.dtcg.json as the source of truth",
+        "Any DESIGN.md produced carries an ALPHA / 'the format will change' banner and a pinned spec/CLI version in its frontmatter",
+        "The DESIGN.md is emitted alongside (never instead of) the DTCG JSON export, and points to it as canonical",
+        "The @google/design.md CLI is treated as probed-at-runtime, not assumed installed with hardcoded stable subcommands",
+        "No application or source-code files are created"
+      ]
+    },
+    {
+      "id": "platform-currency-m3-liquidglass",
+      "prompt": "Add motion and surface tokens targeting Material 3 and Apple. I approve writing the token file now.",
+      "assertions": [
+        "Motion tokens use Material 3 Expressive spring semantics (stiffness / damping), not fixed duration+easing only, and reference Jetpack Compose as the implementation",
+        "Any Apple translucent-surface recommendation uses the Liquid Glass material language and is paired with a mandatory WCAG 2.2 AA contrast check against the content behind it",
+        "Tokens are emitted as canonical DTCG 2025.10 JSON pinned to /tr/2025.10/",
+        "Does not cite plain 'Material Design 3' with duration/easing-only motion or pre-2025 flat HIG translucency as current",
+        "No application or source-code files are created"
+      ]
+    },
+    {
+      "id": "cost-stop-guard",
+      "prompt": "Generate our complete token system: three brands, each in light / dark / high-contrast themes, with per-component tokens for all 40 of our components. Split it into a file per brand-theme-component.",
+      "assertions": [
+        "Recognizes this would balloon into a large multi-file token tree and trips the cost stop-condition",
+        "Stops and asks the user to confirm or scope down before emitting anything, rather than auto-generating a ~30+ file tree",
+        "Does not create docs/specs/design/tokens files and runs no mutating command",
+        "No application or source-code files are created"
+      ]
+    }
+  ]
+}

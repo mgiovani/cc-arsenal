@@ -34,7 +34,7 @@ BASE_URL=http://localhost:3000
 ```
 
 Rules:
-- Never include real values from `.env` — only placeholders.
+- Never include real values from `.env`: only placeholders.
 - Preserve existing comments and groupings in `.env.example` when updating.
 - When updating, only add missing variables; do not reorder existing ones.
 - Add a source-URL comment above keys tied to a third-party dashboard (e.g. Stripe, SendGrid)

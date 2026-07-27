@@ -1,0 +1,8 @@
+# stopslop config. Run: `stopslop .`
+#
+# Only false-positive classes are suppressed here. Everything else stays on, so a
+# real finding shows up in an otherwise-empty run instead of being buried in noise.
+
+# Skill templates are meant to ship placeholders (`[DESCRIBE]`, `<!-- fill in -->`).
+# That is the deliverable, not unfinished work. SLOP013 flags every one of them.
+exclude = ["**/assets/templates/**"]

@@ -1,0 +1,84 @@
+{
+  "skill": "product-design-spec",
+  "description": "Authors the design spec (IA, flows, screen inventory, per-screen state/interaction specs) for an approved PRD under docs/specs/design/: reuses the project's existing component library first, traces every screen to a PRD requirement id, specs only the 2-3 most critical screens in full, delegates the WCAG 2.2 AA audit to review-design, and thin-slices one journey before going wide. Writes no UI code.",
+  "evals": [
+    {
+      "id": "reuse-component-library",
+      "prompt": "We have an approved PRD at docs/specs/prd/PRD.md and the repo uses shadcn/ui (there's a components.json) with Tailwind. Write the design spec for the new invoices module. I authorize you to author it now — proceed without waiting for further approval.",
+      "assertions": [
+        "Detects and names the existing component library (shadcn/ui via components.json, Tailwind) as the reuse baseline",
+        "Specifies screens by reusing named library components rather than inventing bespoke ones, and only proposes a bespoke component with an explicit reason no primitive fits",
+        "Authors a single docs/specs/design/design-spec.md rather than a multi-file screen tree",
+        "No application or UI source-code files are created"
+      ]
+    },
+    {
+      "id": "critical-screens-cover-states",
+      "prompt": "Here's the approved PRD (docs/specs/prd/PRD.md) for a document-sharing feature. Write the design spec. I authorize authoring now — go ahead.",
+      "assertions": [
+        "Full per-screen specs are authored for only the 2-3 most critical screens; every other screen is a one-line inventory entry rather than a full spec",
+        "Each critical screen enumerates the applicable subset of the state shortlist including the empty, error, and permission-denied states — not just the happy path",
+        "Each critical screen spec carries an accessibility/keyboard field, a responsive field, and acceptance criteria",
+        "No UI source-code files are created and no leftover {{placeholder}} remains"
+      ]
+    },
+    {
+      "id": "thin-slice-and-traceability",
+      "prompt": "Approved PRD is at docs/specs/prd/PRD.md for a small checkout flow. Draft the design spec. You are authorized to write it now.",
+      "assertions": [
+        "Sketches the information architecture and specs one critical journey end-to-end before going wide (thin-slice, not a full waterfall)",
+        "Includes a screen inventory where every screen row traces to at least one PRD requirement id (PRD-<CAT>-NNN)",
+        "Includes a lightweight requirement-id to screen-id traceability table",
+        "Ends with a hand-off that reports the written path and names product-design-tokens and implement-feature/team-implement as downstream consumers"
+      ]
+    },
+    {
+      "id": "wcag-delegated-not-hand-rolled",
+      "prompt": "Approved PRD at docs/specs/prd/PRD.md for a settings dashboard. Write the design spec and make sure accessibility is covered. You may author it now.",
+      "assertions": [
+        "Names WCAG 2.2 AA as the accessibility target and delegates the actual audit to the review-design skill rather than hand-rolling a full accessibility pass",
+        "References the criteria new since WCAG 2.1 (such as 24px target size, focus appearance, dragging alternatives, accessible authentication) as the checklist handed to review-design",
+        "Does not introduce WCAG 3.0 or APCA guidance",
+        "No UI source-code files are created"
+      ]
+    },
+    {
+      "id": "personas-evidence-labeled",
+      "prompt": "The approved PRD (docs/specs/prd/PRD.md) has no personas but the design needs one for the primary user. Add a persona to the design spec and write it. Authoring is authorized.",
+      "assertions": [
+        "Any persona is kept to roughly 6 fields and carries an evidence level (research-validated / evidence-informed / proto-persona)",
+        "Does not invent demographics such as age, gender, income, disability, or geography without cited research evidence",
+        "The persona traces to a PRD requirement id and/or a research finding",
+        "No UI source-code files are created"
+      ]
+    },
+    {
+      "id": "plan-gate-withheld",
+      "prompt": "Approved PRD is at docs/specs/prd/PRD.md for a notifications center. Show me the IA and screen inventory plan first — do not create any files yet.",
+      "assertions": [
+        "Presents the information architecture and screen inventory plan and asks for explicit approval before authoring",
+        "The run ends by asking whether to proceed and does not author the design spec",
+        "No files are created under docs/specs/ and no mutating command is run"
+      ]
+    },
+    {
+      "id": "no-approved-prd-guard",
+      "prompt": "Write a design spec with screens and states for a brand-new social recipe-sharing app. There's no PRD yet, just this idea.",
+      "assertions": [
+        "Recognizes there is no approved PRD to trace the design to and stops rather than fabricating requirements",
+        "Asks the user to point at a PRD or offers to run product-prd first before spec'ing the design",
+        "No files are created under docs/specs/ and no mutating command is run"
+      ]
+    },
+    {
+      "id": "no-code-boundary",
+      "prompt": "Approved PRD at docs/specs/prd/PRD.md describes a login screen. Design the login screen spec and then build it in React. Authoring the design spec is authorized.",
+      "assertions": [
+        "Authors the design spec (screen structure, states, acceptance criteria) instead of writing the React implementation",
+        "Does not create or edit application/UI source-code files",
+        "States that building the UI is out of scope and points to implement-feature or team-implement for the build",
+        "The login screen traces to a PRD requirement id and covers its error/empty/permission states"
+      ]
+    }
+  ]
+}

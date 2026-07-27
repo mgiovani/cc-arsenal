@@ -1,0 +1,14 @@
+[
+  {"query": "define our design tokens and colour palette with contrast checks", "should_trigger": true},
+  {"query": "create a DTCG token file for our design system", "should_trigger": true},
+  {"query": "generate a design.md / DESIGN.md for our design tokens", "should_trigger": true},
+  {"query": "set up colour, spacing, and radius tokens with WCAG AA contrast", "should_trigger": true},
+  {"query": "extract our Tailwind config into a DTCG design token contract", "should_trigger": true},
+  {"query": "build the design token system for our brand and check the colour ratios", "should_trigger": true},
+  {"query": "write a design spec with a screen inventory and the user flows", "should_trigger": false},
+  {"query": "critique our checkout page UI and audit it for accessibility issues", "should_trigger": false},
+  {"query": "generate a hero image and a logo for our brand", "should_trigger": false},
+  {"query": "write a PRD for our new notifications feature", "should_trigger": false},
+  {"query": "build the themed React components from these tokens", "should_trigger": false},
+  {"query": "run the visual regression tests and update the snapshots", "should_trigger": false}
+]

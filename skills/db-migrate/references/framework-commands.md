@@ -38,15 +38,15 @@ This reference is loaded when `db-migrate` needs framework-specific commands.
 
 ### Alembic (Python)
 - Use `--autogenerate` to detect schema changes from SQLAlchemy models
-- Always review auto-generated migrations — autogenerate may miss some changes (e.g., custom types)
+- Always review auto-generated migrations: autogenerate may miss some changes (e.g., custom types)
 - Use `alembic revision` (without autogenerate) for data migrations
 - Keep `env.py` updated with all model imports for accurate autogenerate
 - File naming: `<timestamp>_<slug>.py` (auto-generated)
 
 ### Prisma (Node.js)
-- `prisma migrate dev` uses a shadow database to detect drift — never point to production
+- `prisma migrate dev` uses a shadow database to detect drift: never point to production
 - `prisma migrate deploy` is for production (no shadow DB needed)
-- Do not edit generated SQL files after running dev migration — use `prisma migrate resolve` instead
+- Do not edit generated SQL files after running dev migration: use `prisma migrate resolve` instead
 - For data migrations, use a separate migration with raw SQL via `$executeRaw`
 - Reset caution: `prisma migrate reset` drops and re-creates the database
 
@@ -63,14 +63,14 @@ This reference is loaded when `db-migrate` needs framework-specific commands.
 - Use placeholders `${placeholder}` for environment-specific values
 
 ### Rails ActiveRecord
-- Never edit existing migrations — create new ones to correct mistakes
+- Never edit existing migrations: create new ones to correct mistakes
 - `db/schema.rb` is the source of truth; keep it committed
 - Use `change` method when possible (Rails infers rollback); use `up`/`down` for complex migrations
 - Data migrations should be separate from schema migrations; consider `data_migrate` gem
 
 ### Django
 - Run `makemigrations` locally, commit migration files to version control
-- Never delete migration files — use `squashmigrations` to consolidate if needed
+- Never delete migration files: use `squashmigrations` to consolidate if needed
 - Use `RunPython` for data migrations with a `reverse_code` argument for rollback
 - Use `--check` flag in CI: `python manage.py migrate --check` to verify no unapplied migrations
 
@@ -81,7 +81,7 @@ This reference is loaded when `db-migrate` needs framework-specific commands.
 - Integrates with Terraform for infrastructure-as-code workflows
 
 ### TypeORM
-- Use `synchronize: false` in production — never auto-sync schema
+- Use `synchronize: false` in production: never auto-sync schema
 - Keep entity files and migrations in sync
 - Use `MigrationInterface` with `up` and `down` methods
 - `migration:generate` compares current entities to database, creates diff

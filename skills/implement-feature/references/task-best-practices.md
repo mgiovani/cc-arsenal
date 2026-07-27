@@ -90,7 +90,7 @@ TaskUpdate: { taskId: "5", addBlockedBy: ["api-task", "ui-task", "test-task"] }
 ## Subagent Instructions Template
 
 Use this for each Phase 3 subagent (`Task` tool, `subagent_type: "general-purpose"`,
-`model: "sonnet"` — required, never leave unset):
+`model: "sonnet"` (required, never leave unset):
 
 ```
 Implement [specific task description].
@@ -169,6 +169,6 @@ Use when a shared setup phase feeds multiple parallel implementations that need 
 |---|---|---|
 | Creating tasks below the size threshold | Overhead exceeds benefit for a 2-3 file change | Skip task creation entirely; run phases sequentially |
 | Too many tasks (one per file read, per command lookup) | Overhead exceeds benefit | One task per phase (e.g. "Project Discovery" covers reading CLAUDE.md + finding commands) |
-| No dependencies between tasks | Nothing enforces workflow order — implementation can start before planning | Chain phases with `addBlockedBy` |
+| No dependencies between tasks | Nothing enforces workflow order: implementation can start before planning | Chain phases with `addBlockedBy` |
 | Marking a task completed while its tests still fail | Misleading progress, breaks trust in the task system | Keep `in_progress` until all quality gates pass |
 | Forgetting to run `TaskList` after completing a phase | User loses visibility into progress | Run `TaskList` after every `TaskUpdate` to `completed` |

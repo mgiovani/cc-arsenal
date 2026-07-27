@@ -6,7 +6,7 @@ description: Performs a comprehensive UX/UI/design quality audit of a live URL o
   to review design quality, audit UX/UI, or check visual hierarchy, typography, color,
   dark mode, shadows/elevation, buttons/icons, feedback states, motion, or accessibility
   contrast. Triggers on "design review", "UX audit", "accessibility audit", "check
-  contrast", "review this against WCAG". Analysis only — cites evidence and a criterion
+  contrast", "review this against WCAG". Analysis only, cites evidence and a criterion
   for every finding, never modifies code. Not for correctness, security, dependency, or
   performance review (use review-code, review-security, review-deps, or review-perf),
   nor the full multi-agent PR review team (use team-review). Not for pixel-diff visual
@@ -30,8 +30,8 @@ making code changes.
 
 It supports two input modes:
 
-- **Live mode** — audits a running URL via the `agent-browser` CLI (screenshots + DOM/accessibility snapshot).
-- **Static mode** — audits a codebase (CSS/components/design tokens) via Grep.
+- **Live mode**: audits a running URL via the `agent-browser` CLI (screenshots + DOM/accessibility snapshot).
+- **Static mode**: audits a codebase (CSS/components/design tokens) via Grep.
 
 When both a URL and a codebase target are supplied, it runs both and emits **two separate reports**.
 
@@ -58,7 +58,7 @@ dimensions 5–8 are in [references/criteria-interaction.md](references/criteria
 1. **Observe before claiming** - Never report an issue without reading the code (static) or viewing the screenshot/snapshot (live)
 2. **Evidence-based findings** - Every finding cites a file path + line number (static) OR a screenshot region + DOM ref (live)
 3. **Cite a criterion** - Every finding maps to a criterion ID and an authoritative citation (WCAG SC, MD3 spec, etc.)
-4. **Measure, don't estimate** - Report actual values (contrast ratio, px size, ms duration), not guesses. In static mode there is no rendered page to sample from — compute the WCAG relative-luminance contrast ratio directly from the two hex/rgb values found in the CSS/tokens (formula in [references/agent-prompts.md](references/agent-prompts.md#computing-contrast-ratio-from-hexrgb-no-browser-needed)); never eyeball a ratio
+4. **Measure, don't estimate** - Report actual values (contrast ratio, px size, ms duration), not guesses. In static mode there is no rendered page to sample from: compute the WCAG relative-luminance contrast ratio directly from the two hex/rgb values found in the CSS/tokens (formula in [references/agent-prompts.md](references/agent-prompts.md#computing-contrast-ratio-from-hexrgb-no-browser-needed)); never eyeball a ratio
 5. **Applicable-only scoring** - Only score dimensions that apply to the target; never penalize what cannot be observed
 6. **State what was NOT checked** - Every report ends with an explicit coverage gap section
 7. **No invented standards** - Only reference real WCAG SCs, MD3 specs, and HIG guidance
@@ -123,7 +123,7 @@ Use TodoWrite to track progress across the 8 dimensions plus capture, consolidat
 
 ### Phase 3: Capture, then Spawn Parallel Audit Agents
 
-**Live mode — capture first** (the agents analyze these artifacts):
+**Live mode, capture first** (the agents analyze these artifacts):
 ```bash
 mkdir -p /tmp/review-design
 agent-browser open <url>
@@ -143,7 +143,7 @@ Capture additional viewports/pages if the user names them. Always `agent-browser
 - **Agent 3**: Color + Dark Mode (Dimension 3)
 - **Agent 4**: Depth/Shadows + Components/Affordance (Dimensions 4, 5)
 - **Agent 5**: Feedback & States + Motion/Microinteractions (Dimensions 6, 7)
-- **Agent 6**: Accessibility — WCAG 2.2 AA (Dimension 8, cross-cutting)
+- **Agent 6**: Accessibility, WCAG 2.2 AA (Dimension 8, cross-cutting)
 
 Each agent must:
 1. Read the relevant criteria reference for its dimensions (criteria-foundations.md or criteria-interaction.md)
@@ -164,7 +164,7 @@ After all agents complete:
    - **Critical**: WCAG AA failure blocking use (contrast < 3:1 on text, no keyboard focus, missing form labels), unusable touch targets
    - **High**: WCAG AA contrast failures (< 4.5:1 body text), missing focus-visible, no reduced-motion support, broken hierarchy
    - **Medium**: Off-grid spacing, un-tinted shadows, weak typographic scale, missing hover/active states
-   - **Low**: Polish — minor inconsistency, sub-optimal line length, icon-label spacing
+   - **Low**: Polish: minor inconsistency, sub-optimal line length, icon-label spacing
 4. **Map to dimension**: Group findings under the 8 dimensions
 5. **Applicable-only score**: For each dimension that applies, score = passed criteria / applicable criteria. Skip dimensions that cannot be observed and say so.
 6. **Statistics**: total findings, by severity, by dimension; elements/files reviewed vs. those with issues
@@ -180,7 +180,7 @@ Generate a markdown report per the template in [references/report-template.md](r
 ### Phase 6: Verification & Quality Gate
 
 Before presenting, verify every finding has:
-1. Evidence — `file:line` (static) or screenshot region + DOM ref (live)
+1. Evidence: `file:line` (static) or screenshot region + DOM ref (live)
 2. A measured value where one applies (ratio / px / ms / dp)
 3. A criterion ID + authoritative citation
 4. A concrete fix with the target value
@@ -217,10 +217,10 @@ If omitted, all 8 dimensions are audited.
 
 ## Additional Resources
 
-- [references/criteria-foundations.md](references/criteria-foundations.md) — measurable criteria for dimensions 1–4 (hierarchy, layout, typography, color, depth)
-- [references/criteria-interaction.md](references/criteria-interaction.md) — measurable criteria for dimensions 5–8 (components, feedback, motion, accessibility)
-- [references/agent-prompts.md](references/agent-prompts.md) — per-agent prompts (live + static) and grep patterns
-- [references/report-template.md](references/report-template.md) — live and static report templates
+- [references/criteria-foundations.md](references/criteria-foundations.md): measurable criteria for dimensions 1-4 (hierarchy, layout, typography, color, depth)
+- [references/criteria-interaction.md](references/criteria-interaction.md): measurable criteria for dimensions 5-8 (components, feedback, motion, accessibility)
+- [references/agent-prompts.md](references/agent-prompts.md): per-agent prompts (live + static) and grep patterns
+- [references/report-template.md](references/report-template.md): live and static report templates
 
 ## What This Skill Does
 
@@ -234,7 +234,7 @@ If omitted, all 8 dimensions are audited.
 
 - Does not modify any code or design files
 - Does not auto-fix issues or commit changes
-- Does not run a full automated a11y scanner (axe/pa11y) — it reasons from evidence
+- Does not run a full automated a11y scanner (axe/pa11y), it reasons from evidence
 - Does not evaluate native mobile (SwiftUI/Compose/Flutter) static patterns (web-first; future extension)
 - Does not guarantee 100% issue detection
 

@@ -1,6 +1,6 @@
 ---
 name: agent-browser
-description: "Headless browser automation CLI optimized for AI agents — drives a real browser via accessibility-tree snapshots and @e1-style refs for ~93% less context than raw DOM tools. Use whenever a task needs to interact with a live web page: click, fill forms, log in, extract text or data, take screenshots, test a running web app, or scrape a site. Triggers on 'automate the browser', 'fill this form', 'click the button', 'take a screenshot of the page', 'log into', 'scrape this site', 'test my web app', 'headless browser'. Not for Playwright test-suite authoring or CDP/service-worker work needing the full JS API — use Playwright directly. Not for driving the user's own already-open, logged-in Chrome tab — use claude-in-chrome for that."
+description: "Headless browser automation CLI optimized for AI agents: drives a real browser via accessibility-tree snapshots and @e1-style refs for ~93% less context than raw DOM tools. Use whenever a task needs to interact with a live web page: click, fill forms, log in, extract text or data, take screenshots, test a running web app, or scrape a site. Triggers on 'automate the browser', 'fill this form', 'click the button', 'take a screenshot of the page', 'log into', 'scrape this site', 'test my web app', 'headless browser'. Not for Playwright test-suite authoring or CDP/service-worker work needing the full JS API: use Playwright directly. Not for driving the user's own already-open, logged-in Chrome tab: use claude-in-chrome for that."
 hooks:
   Stop:
     - hooks:
@@ -14,7 +14,7 @@ hooks:
 
 ## Overview
 
-**agent-browser** is an open-source browser automation CLI from Vercel Labs, built for LLM interaction with a **snapshot + refs** system: instead of a full DOM, `snapshot` returns an accessibility tree of just the interactive elements (buttons, inputs, links) with semantic labels, each tagged with a stable `@e1`-style ref. Full DOM dumps run 5000+ nodes / 200KB of context; an accessibility-tree snapshot is 50-100 elements / ~10KB — roughly a 93% reduction. Refs also survive re-renders, so they don't need re-deriving after every DOM tweak the way CSS selectors do.
+**agent-browser** is an open-source browser automation CLI from Vercel Labs, built for LLM interaction with a **snapshot + refs** system: instead of a full DOM, `snapshot` returns an accessibility tree of just the interactive elements (buttons, inputs, links) with semantic labels, each tagged with a stable `@e1`-style ref. Full DOM dumps run 5000+ nodes / 200KB of context; an accessibility-tree snapshot is 50-100 elements / ~10KB, roughly a 93% reduction. Refs also survive re-renders, so they don't need re-deriving after every DOM tweak the way CSS selectors do.
 
 See [When to Use vs Playwright](#when-to-use-vs-playwright) for when this CLI beats DOM-based tools.
 
@@ -65,12 +65,12 @@ agent-browser snapshot -i
 
 Refs are invalidated whenever the page changes (navigation, dropdown opening,
 DOM re-render). Re-run `snapshot -i` after any action that could change the
-page before reusing a ref — an ref from before the action may now point at a
+page before reusing a ref: an ref from before the action may now point at a
 different element or nothing at all.
 
 ### Session Management
 
-Always pass `--session` — one named session per project prevents stale
+Always pass `--session`: one named session per project prevents stale
 daemons from accumulating across parallel agent sessions.
 
 ```bash
@@ -119,9 +119,9 @@ agent-browser screenshot page.png                            # capture
 agent-browser close --session "$(basename "$PWD")"          # cleanup
 ```
 
-Full command surface — navigation, all interactions, `find` semantic
+Full command surface (navigation, all interactions, `find` semantic
 locators, waits, screenshots/video, tabs, network, cookies, auth, MCP server,
-global flags — lives in [references/commands.md](references/commands.md).
+global flags) lives in [references/commands.md](references/commands.md).
 
 ## Verify Before You Claim
 
@@ -129,20 +129,20 @@ Browser automation's core failure mode is confidently reporting page state
 nobody actually read. Before writing any claim into your final report:
 
 - **Every claimed value traces to a command.** A total, a heading, a success
-  banner — read it with `get text` / `get value` (or a `snapshot` that
+  banner: read it with `get text` / `get value` (or a `snapshot` that
   covers it) and quote the exact string returned. Never restate a value from
   the test plan or a product label as if it were observed on the page.
 - **`snapshot -i` hides non-interactive content.** Totals, prices, and
   confirmation banners often live in a `<span>`/`<div>`, not a button or
-  input — `-i` won't surface them. Use plain `snapshot` or
+  input: `-i` won't surface them. Use plain `snapshot` or
   `get text <selector>` to reach them.
 - **A screenshot filename is a claim.** Confirm you're on the expected page
   (`get url` or a snapshot heading) immediately before calling `screenshot`,
-  and name the file after what you just confirmed — not what you set out to
+  and name the file after what you just confirmed, not what you set out to
   capture.
 - **Own every process you start.** If the task needs a local server to test
   against, announce it when you start it (command, port, PID) and stop it
-  before finishing — state the kill explicitly. "Closed the browser session"
+  before finishing: state the kill explicitly. "Closed the browser session"
   is not the same claim as "shut down the app."
 
 ## Worked Examples
@@ -182,7 +182,7 @@ agent-browser get text @e2          # read the confirmation heading
 agent-browser close --session checkout
 ```
 
-Report only the strings those two `get text` calls actually returned — not
+Report only the strings those two `get text` calls actually returned, not
 a number copied from the test plan.
 
 ### Test an app you started locally
@@ -216,9 +216,9 @@ regenerated from the CLI's own `agent-browser skills get core --full` so it
 stays in sync with the installed version. Load each only when the task
 needs it:
 
-- **[references/commands.md](references/commands.md)** — load when you need a command signature, flag, or alias not covered by the cheat sheet above (navigation, interaction, `find`, wait, screenshot/video, settings, tabs, frames, network/console, MCP server, global flags).
-- **[references/advanced.md](references/advanced.md)** — load for session-state persistence, authentication (login flows, OAuth, 2FA, cookie import), trust-boundary safety rules, proxy configuration, or Chrome DevTools profiling.
-- **[references/workflows.md](references/workflows.md)** — load for the snapshot + ref model in depth, or video-recording patterns.
+- **[references/commands.md](references/commands.md)**: load when you need a command signature, flag, or alias not covered by the cheat sheet above (navigation, interaction, `find`, wait, screenshot/video, settings, tabs, frames, network/console, MCP server, global flags).
+- **[references/advanced.md](references/advanced.md)**: load for session-state persistence, authentication (login flows, OAuth, 2FA, cookie import), trust-boundary safety rules, proxy configuration, or Chrome DevTools profiling.
+- **[references/workflows.md](references/workflows.md)**: load for the snapshot + ref model in depth, or video-recording patterns.
 
 If these ever drift from the installed CLI, regenerate with
 `agent-browser skills get core --full` and re-split (see git history of this
@@ -230,7 +230,7 @@ file for the split points).
 
 - **GitHub**: https://github.com/vercel-labs/agent-browser
 - **AGENTS.md**: AI agent integration guide, bundled with the CLI
-- **CLI source**: `npx opensrc vercel-labs/agent-browser` (fetches the actual source for reference — there is no vendored copy in this skill)
+- **CLI source**: `npx opensrc vercel-labs/agent-browser` (fetches the actual source for reference: there is no vendored copy in this skill)
 
 ### Environment Variables
 
@@ -248,10 +248,10 @@ AGENT_BROWSER_HOME              # Installation directory
 
 ### Operational Rules
 
-- **Always pass `--session <project-name>`** — prevents stale-socket accumulation across parallel sessions (can cause daemon OOM)
-- **Never run `agent-browser close --all`** or kill the browser process globally — breaks other projects' parallel sessions
-- **Persistent profile directories (e.g. `.claude/browser-profile/`) must be in `.gitignore`** — they contain plaintext cookies and login tokens
-- **Omit `--profile` for stateless work** — persistent profiles accumulate browser cache; idle-timeout only reclaims RAM, not disk cache
-- **Run `agent-browser doctor --fix`** when sessions feel stuck — cleans stale sockets without killing active sessions
-- **A test-target server you started is your process to stop** — `agent-browser close` only tears down the browser session, not an app server; kill it explicitly and say so (see [Verify Before You Claim](#verify-before-you-claim))
+- **Always pass `--session <project-name>`**: prevents stale-socket accumulation across parallel sessions (can cause daemon OOM)
+- **Never run `agent-browser close --all`** or kill the browser process globally: breaks other projects' parallel sessions
+- **Persistent profile directories (e.g. `.claude/browser-profile/`) must be in `.gitignore`**: they contain plaintext cookies and login tokens
+- **Omit `--profile` for stateless work**: persistent profiles accumulate browser cache; idle-timeout only reclaims RAM, not disk cache
+- **Run `agent-browser doctor --fix`** when sessions feel stuck: cleans stale sockets without killing active sessions
+- **A test-target server you started is your process to stop**: `agent-browser close` only tears down the browser session, not an app server; kill it explicitly and say so (see [Verify Before You Claim](#verify-before-you-claim))
 - **For the authoritative, version-matched command reference**: `agent-browser skills get core --full`

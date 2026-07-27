@@ -4,7 +4,7 @@ A comprehensive guide to setting up and using the Claude Code Arsenal for automa
 
 ## Overview
 
-Claude Code Arsenal is a professional collection of 45 skills designed to enhance your Claude Code development experience — covering development, documentation, git/GitHub, Jira, teams, and specialty capabilities. See [Features](features.md) for the full skill list.
+Claude Code Arsenal is a professional collection of 45 skills designed to enhance your Claude Code development experience, covering development, documentation, git/GitHub, Jira, teams, and specialty capabilities. See [Features](features.md) for the full skill list.
 
 ## Prerequisites
 
@@ -16,7 +16,7 @@ Before you begin, ensure you have:
 Everything below only applies if you plan to contribute to cc-arsenal itself:
 
 - **Python 3.12+**
-- **UV** (fast Python package management) — `curl -LsSf https://astral.sh/uv/install.sh | sh`
+- **UV** (fast Python package management): `curl -LsSf https://astral.sh/uv/install.sh | sh`
 
 ## Installation
 
@@ -29,7 +29,7 @@ This is the primary installation method for all users. Register the repository a
 /plugin install cc-arsenal@cc-arsenal-marketplace
 ```
 
-Or pick a focused variant instead of the full toolkit — see [Features](features.md) for what each plugin includes:
+Or pick a focused variant instead of the full toolkit, see [Features](features.md) for what each plugin includes:
 
 ```bash
 /plugin install cc-arsenal-dev@cc-arsenal-marketplace     # Development skills only
@@ -55,7 +55,7 @@ Or pick a focused variant instead of the full toolkit — see [Features](feature
 
 ### Symlink Install (Contributors Only)
 
-Only use this if you're developing cc-arsenal itself — it creates symlinks into `~/.claude/` so file edits are reflected immediately, without a plugin reinstall:
+Only use this if you're developing cc-arsenal itself: it creates symlinks into `~/.claude/` so file edits are reflected immediately, without a plugin reinstall:
 
 ```bash
 git clone https://github.com/mgiovani/cc-arsenal.git
@@ -93,8 +93,8 @@ make validate-structure
 
 Claude Code Arsenal ships 45 skills, split between:
 
-- **User-invoked** skills — explicit slash commands (e.g. `/docs-adr`, `/git-commit`)
-- **Model-invoked** skills — Claude loads them automatically when the request matches (e.g. `agent-browser`, `create-skill`, `test-suite`)
+- **User-invoked** skills: explicit slash commands (e.g. `/docs-adr`, `/git-commit`)
+- **Model-invoked** skills: Claude loads them automatically when the request matches (e.g. `agent-browser`, `create-skill`, `test-suite`)
 
 Skills use progressive disclosure: Claude reads only the frontmatter until a skill is relevant, then loads its full body and bundled resources (`scripts/`, `references/`, `assets/`, `evals/`) as needed. See [Features](features.md) for the complete, categorized list.
 

@@ -1,0 +1,15 @@
+[
+  {"query": "write a design spec for the approved PRD", "should_trigger": true},
+  {"query": "map the user flows and create a screen inventory", "should_trigger": true},
+  {"query": "spec the screens and their interaction states for this feature", "should_trigger": true},
+  {"query": "define the information architecture and screen states for the checkout flow", "should_trigger": true},
+  {"query": "turn this PRD into a design specification with per-screen states", "should_trigger": true},
+  {"query": "document the empty, error, and loading states for each screen", "should_trigger": true},
+  {"query": "critique this UI screenshot for accessibility issues", "should_trigger": false},
+  {"query": "define our design tokens and color palette with contrast checks", "should_trigger": false},
+  {"query": "generate a hero image for the landing page", "should_trigger": false},
+  {"query": "write a PRD for a habit-tracking mobile app", "should_trigger": false},
+  {"query": "break this project into a dependency-ordered task list", "should_trigger": false},
+  {"query": "implement the login screen in React", "should_trigger": false},
+  {"query": "record our decision to use a wizard flow as an ADR", "should_trigger": false}
+]

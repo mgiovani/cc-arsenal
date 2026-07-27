@@ -32,7 +32,7 @@ Canonical URLs for skill specifications, best practices, and examples. These sho
   - Extract: workflow phases, frontmatter patterns, anti-hallucination techniques
 
 - **cc-arsenal Skills**: Local `skills/` directory
-  - See the current listing for the live count — good source for tool usage and verification patterns
+  - See the current listing for the live count, good source for tool usage and verification patterns
 
 - **mgiovani/skills**: https://github.com/mgiovani/skills
   - Cross-platform skills following Agent Skills standard
@@ -51,7 +51,7 @@ If WebFetch fails for any URL, use bundled fallback documentation:
 ## Fetch Strategy
 
 **Phase 0 of create-skill should:**
-1. WebFetch agentskills.io specification directly (no subagent — it's one small fetch)
+1. WebFetch agentskills.io specification directly (no subagent, it's one small fetch)
 2. WebFetch platform.claude.com best practices, falling back to bundled references above if it fails
 3. Hold results in context for Phases 1-5
 4. Never proceed without fresh specifications

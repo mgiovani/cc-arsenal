@@ -57,7 +57,7 @@ print('Setup OK')
 uv add google-genai
 ```
 
-For standalone scripts, use PEP 723 inline metadata instead — `uv run` handles installation automatically with no separate install step:
+For standalone scripts, use PEP 723 inline metadata instead: `uv run` handles installation automatically with no separate install step:
 ```python
 # /// script
 # requires-python = ">=3.11"
@@ -333,11 +333,11 @@ def generate_with_retry(client, prompt: str, max_retries: int = 3):
 
 ### Cost Optimization
 - Generate at low resolution (512/1K) for iteration, upscale with Pro only for finals
-- Cache images by prompt hash — avoid regenerating identical prompts
+- Cache images by prompt hash, avoid regenerating identical prompts
 - Use Nano Banana (flash) for automated/bulk tasks, Pro only for client-facing finals
 
 ### Security
-- Never expose your API key in frontend JavaScript — always route through a backend API
+- Never expose your API key in frontend JavaScript, always route through a backend API
 - Validate and sanitize user prompts before sending to the API
 - Implement your own content moderation layer for user-generated prompts
 - Rate limit per user, not just globally

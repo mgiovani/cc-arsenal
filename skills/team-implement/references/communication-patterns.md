@@ -2,14 +2,14 @@
 
 Coordination templates for full-mode team-implement. Full mode requires `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` (see SKILL.md Prerequisites).
 
-**Tool-neutral note**: everything below assumes a `SendMessage`-equivalent tool for direct agent-to-agent coordination — that's specific to environments with real agent-team support. In **lite mode** (or anywhere `SendMessage` doesn't exist), there is no cross-agent messaging: the orchestrator spawns each role as a sequential `Task` subagent, reads its return value, and manually relays whatever the templates below would have sent as a message into the next subagent's prompt. The message *content* below (what to say, what file paths to include) is still the right content to relay — only the transport changes.
+**Tool-neutral note**: everything below assumes a `SendMessage`-equivalent tool for direct agent-to-agent coordination: that's specific to environments with real agent-team support. In **lite mode** (or anywhere `SendMessage` doesn't exist), there is no cross-agent messaging: the orchestrator spawns each role as a sequential `Task` subagent, reads its return value, and manually relays whatever the templates below would have sent as a message into the next subagent's prompt. The message *content* below (what to say, what file paths to include) is still the right content to relay, only the transport changes.
 
 ## 1. Message Types Overview
 
 | Type | When Used |
 |------|-----------|
 | Direct message | Phase handoffs, targeted instructions, file delivery |
-| Broadcast | Critical, team-wide issues only (expensive — N messages) |
+| Broadcast | Critical, team-wide issues only (expensive: N messages) |
 | Shutdown/stop | End of an agent's phase, or session teardown |
 
 **Default to direct messaging.** Only broadcast for critical team-wide issues.
@@ -113,7 +113,7 @@ summary.""",
 
 ### Phase 6 → Implementation Engineer (Parallel Implementation)
 
-Same message shape for every component — this example is for `frontend-engineer`; swap the file-scope block for `backend-engineer`, `infra-engineer`, etc.
+Same message shape for every component: this example is for `frontend-engineer`; swap the file-scope block for `backend-engineer`, `infra-engineer`, etc.
 
 ```
 SendMessage({
@@ -246,7 +246,7 @@ My recommendation: [approach]""",
 
 ### Orchestrator → User
 
-Plain text, not a tool call — this goes through whatever the orchestrator uses to talk to the user (e.g. `AskUserQuestion`):
+Plain text, not a tool call: this goes through whatever the orchestrator uses to talk to the user (e.g. `AskUserQuestion`):
 
 ```
 BLOCKER: user input required.
@@ -304,7 +304,7 @@ in-progress [task ID, % done], blocked [task ID + reason]. [N] tasks remaining."
 
 ## 6. Teardown
 
-There is no confirmed universal "shutdown_request/shutdown_response" message pair — treat this as the pattern, not a fixed API. Send a plain completion message, then stop the teammate with whatever this environment's real stop primitive is (`TaskStop` in Claude Code):
+There is no confirmed universal "shutdown_request/shutdown_response" message pair: treat this as the pattern, not a fixed API. Send a plain completion message, then stop the teammate with whatever this environment's real stop primitive is (`TaskStop` in Claude Code):
 
 ```
 SendMessage({
@@ -321,17 +321,17 @@ At session end, do this for every still-active teammate rather than assuming the
 
 ## 7. Anti-Patterns
 
-**Broadcasting for routine updates** — broadcast is N messages; use a direct message to the one agent who needs it.
+**Broadcasting for routine updates**: broadcast is N messages; use a direct message to the one agent who needs it.
 
-**Messaging an agent that hasn't been spawned yet** — spawn first (`Task` with `team_name`), confirm the spawn, then message.
+**Messaging an agent that hasn't been spawned yet**: spawn first (`Task` with `team_name`), confirm the spawn, then message.
 
-**Vague handoffs without file paths** — "read the spec and design something" forces the recipient to guess; always give exact paths to read and exact paths to write.
+**Vague handoffs without file paths**: "read the spec and design something" forces the recipient to guess; always give exact paths to read and exact paths to write.
 
-**Telling an agent HOW instead of WHAT** — "design the architecture" + constraints (existing stack, NFRs) beats prescribing "use Express with 3 endpoints called X/Y/Z" — that's the Architect's call to make.
+**Telling an agent HOW instead of WHAT**: "design the architecture" + constraints (existing stack, NFRs) beats prescribing "use Express with 3 endpoints called X/Y/Z", that's the Architect's call to make.
 
-**Letting an engineer touch files outside its declared scope** — state YOU OWN / READ-ONLY / DO NOT TOUCH explicitly in every Phase-6 handoff; this is the actual mechanism that prevents merge conflicts between parallel engineers.
+**Letting an engineer touch files outside its declared scope**: state YOU OWN / READ-ONLY / DO NOT TOUCH explicitly in every Phase-6 handoff; this is the actual mechanism that prevents merge conflicts between parallel engineers.
 
-**JSON status blobs instead of plain text + TaskUpdate** — `SendMessage` content is for a human-readable handoff, not a structured payload; use `TaskUpdate` for machine-readable status.
+**JSON status blobs instead of plain text + TaskUpdate**: `SendMessage` content is for a human-readable handoff, not a structured payload; use `TaskUpdate` for machine-readable status.
 
 ## Template Checklist
 
@@ -342,4 +342,4 @@ Every phase handoff should include:
 - [ ] Codebase context (stack, patterns, conventions)
 - [ ] What to do when complete (TaskUpdate + message back)
 - [ ] File scope (implementation phases only)
-- [ ] Coordination notes (parallel phases only — how to avoid conflicts)
+- [ ] Coordination notes (parallel phases only: how to avoid conflicts)

@@ -154,7 +154,7 @@ Use Grep to search for:
 *Missing encryption:*
 - http:// (non-localhost), ftp://, telnet://
 
-**A03 - Software Supply Chain** (integrity surface only — dependency CVEs, outdated
+**A03 - Software Supply Chain** (integrity surface only: dependency CVEs, outdated
 versions, and license risk are review-deps' job; don't duplicate them here):
 Use Read to check:
 - Missing SRI: <script src=CDN without integrity=

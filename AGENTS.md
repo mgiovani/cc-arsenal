@@ -1,16 +1,16 @@
 # AGENTS.md
 
-This is the canonical, tool-agnostic guidance file for **cc-arsenal** — read natively by Codex, Cursor, Copilot, Gemini CLI, OpenCode, and any other AGENTS.md-aware tool. Claude Code does not read this file directly; `CLAUDE.md` imports it via `@AGENTS.md` and adds Claude-Code-only content on top.
+This is the canonical, tool-agnostic guidance file for **cc-arsenal**, read natively by Codex, Cursor, Copilot, Gemini CLI, OpenCode, and any other AGENTS.md-aware tool. Claude Code does not read this file directly; `CLAUDE.md` imports it via `@AGENTS.md` and adds Claude-Code-only content on top.
 
 ## Repository Architecture
 
-cc-arsenal is a collection of **45 Agent Skills** ([agentskills.io](https://agentskills.io) open standard) for development workflow automation. `skills/` is the single canonical tier — every skill lives there once, written tool-neutral, and any tool that speaks the Agent Skills format can load it directly.
+cc-arsenal is a collection of **48 Agent Skills** ([agentskills.io](https://agentskills.io) open standard) for development workflow automation. `skills/` is the single canonical tier: every skill lives there once, written tool-neutral, and any tool that speaks the Agent Skills format can load it directly.
 
 ### Core Components
 
-- **Skills** (`skills/`): 45 skills covering development, code review, documentation, git/GitHub, jira, teams, browser automation, project planning, multi-agent orchestration, open-source launch prep, and skill discovery/creation/improvement
+- **Skills** (`skills/`): 48 skills covering development, code review, documentation, git/GitHub, jira, teams, browser automation, project planning, product specs, multi-agent orchestration, open-source launch prep, and skill discovery/creation/improvement
 - **Scripts** (`scripts/`): Python utilities for installation, configuration, and code generation (Claude-Code-specific; see `CLAUDE.md`)
-- **Integrations** (`integrations/`): agent-CLI-specific tooling that doesn't fit the tool-agnostic `skills/` tier — one subdirectory per agent CLI. Today that's `integrations/claude-code/`, holding the statusline and the `claude-hi` session scheduler; future agent CLIs (Codex, Gemini CLI, ...) get sibling directories alongside it as their own tooling needs arise.
+- **Integrations** (`integrations/`): agent-CLI-specific tooling that doesn't fit the tool-agnostic `skills/` tier, one subdirectory per agent CLI. Today that's `integrations/claude-code/`, holding the statusline and the `claude-hi` session scheduler; future agent CLIs (Codex, Gemini CLI, ...) get sibling directories alongside it as their own tooling needs arise.
 
 ## Install in any agent
 
@@ -19,7 +19,7 @@ cc-arsenal is a collection of **45 Agent Skills** ([agentskills.io](https://agen
 npx skills add mgiovani/cc-arsenal
 ```
 
-`npx skills` is the [skills.sh](https://skills.sh) CLI — it copies each skill into the target tool's own skills directory, no plugin system required.
+`npx skills` is the [skills.sh](https://skills.sh) CLI: it copies each skill into the target tool's own skills directory, no plugin system required.
 
 Using Claude Code? See `CLAUDE.md` for the plugin marketplace install, plugin variants, and other Claude-Code-only extras.
 
@@ -28,20 +28,20 @@ Using Claude Code? See `CLAUDE.md` for the plugin marketplace install, plugin va
 Skills in this repo are written **tool-neutral first**:
 
 - Only `name` and `description` frontmatter are required for a skill to work anywhere.
-- Claude-Code-only frontmatter keys (`allowed-tools`, `disable-model-invocation`, `hooks`, `context`, `agent`) are enhancement layers. Other tools ignore unknown frontmatter keys safely — a skill's correctness must never depend on them being honored.
+- Claude-Code-only frontmatter keys (`allowed-tools`, `disable-model-invocation`, `hooks`, `context`, `agent`) are enhancement layers. Other tools ignore unknown frontmatter keys safely: a skill's correctness must never depend on them being honored.
 - Orchestration skills (those that spawn subagents/parallel tasks in Claude Code) degrade gracefully to sequential inline execution when no subagent/task tool exists. The instructions describe the sequential fallback explicitly rather than assuming Task/Agent tools are always present.
-- Paths and shell commands referenced inside a skill must be real, tool-independent commands (e.g. `git`, `gh`, `make`) — never a Claude-Code-only tool name used as if it were a shell command.
+- Paths and shell commands referenced inside a skill must be real, tool-independent commands (e.g. `git`, `gh`, `make`): never a Claude-Code-only tool name used as if it were a shell command.
 
 ## Skill composition
 
-Skills may build on each other along two distinct axes — keep them separate:
+Skills may build on each other along two distinct axes, keep them separate:
 
-- **Sibling invocation (borrow a *procedure*)**: a skill may invoke another skill by name to reuse its steps, via the Claude Code `Skill` tool where available. Because `Skill` is Claude-Code-only and other CLIs can only read a sibling's `SKILL.md` as text, **every such call must state the tool-neutral fallback in the same sentence** — apply the sibling's documented rules/steps inline. Announce it with a `Using <skill> to <purpose>` line. For example: "use the `git-commit` skill to write the message (via the `Skill` tool where available, otherwise apply its conventional-commit rules inline)".
+- **Sibling invocation (borrow a *procedure*)**: a skill may invoke another skill by name to reuse its steps, via the Claude Code `Skill` tool where available. Because `Skill` is Claude-Code-only and other CLIs can only read a sibling's `SKILL.md` as text, **every such call must state the tool-neutral fallback in the same sentence**: apply the sibling's documented rules/steps inline. Announce it with a `Using <skill> to <purpose>` line. For example: "use the `git-commit` skill to write the message (via the `Skill` tool where available, otherwise apply its conventional-commit rules inline)".
 - **Subagent delegation (spawn a *role*)**: a skill may fan work out to a subagent via the Claude Code `Task`/`Agent` tools. This is the orchestration path the Portability convention already covers, and it degrades to sequential inline execution when no subagent tool exists.
 
-Do not add `uses:`/`composes:` frontmatter and do not route composition through a mandatory dispatcher skill — plain prose naming the sibling, with its in-sentence fallback, is the whole mechanism.
+Do not add `uses:`/`composes:` frontmatter and do not route composition through a mandatory dispatcher skill: plain prose naming the sibling, with its in-sentence fallback, is the whole mechanism.
 
-## Available Skills (45 total)
+## Available Skills (48 total)
 
 All skills use progressive disclosure (SKILL.md + optional references/scripts/assets directories).
 
@@ -53,7 +53,7 @@ All skills use progressive disclosure (SKILL.md + optional references/scripts/as
 - **ci-generate**: Generate a production-ready CI/CD pipeline config (GitHub Actions, GitLab CI, CircleCI, Jenkins)
 - **ci-local**: Run the checks a GitHub Actions workflow would run, locally, when Actions is unavailable
 - **vrt-check**: Runs the project's visual regression testing workflow, whatever tooling the repo actually uses
-- **i18n-check**: i18n completeness checker — detects the project's i18n framework and diffs locale files
+- **i18n-check**: i18n completeness checker, detects the project's i18n framework and diffs locale files
 - **inject-docs**: Inject compressed framework-specific best practices and docs into CLAUDE.md/AGENTS.md
 - **db-migrate**: Create, validate, and manage database migrations across any framework
 - **docker-init**: Generate Dockerfiles and docker-compose.yml with auto-detected services and security hardening
@@ -61,7 +61,12 @@ All skills use progressive disclosure (SKILL.md + optional references/scripts/as
 - **project-planner**: Break down large projects into dependency-aware tasks with Mermaid visualization
 - **nanobanana**: Generate and edit images using Nano Banana (Gemini image generation)
 - **codex-imagegen**: Generate polished raster art (logos, mascots, heroes, sprites, mockups) via Codex CLI's `$imagegen`, with chroma-key transparency handling and QC
-- **oss-launch**: Take a private project to a public GitHub launch — secrets/license pre-flight, review fixes, branding, README/description rewrite, mention scrub, gated history rewrite, then flip public
+- **oss-launch**: Take a private project to a public GitHub launch: secrets/license pre-flight, review fixes, branding, README/description rewrite, mention scrub, gated history rewrite, then flip public
+
+### Product & Design (3 skills)
+- **product-prd**: Author the right-sized product requirements doc from an idea, with a gate-zero (does this even need a doc?), then a brief, one-pager, or big-tier PR/FAQ or full PRD, mandatory non-goals, and testable, traceable requirements
+- **product-design-spec**: Author a design specification (information architecture, user flows, screen inventory, and per-screen state specs) for an approved PRD, reusing the existing component library and tracing every screen to a requirement ID
+- **product-design-tokens**: Author a durable design-token contract (W3C DTCG 2025.10 JSON plus an optional DESIGN.md), reusing the project's design system and enforcing WCAG 2.2 AA contrast
 
 ### Code Review & Quality (5 skills)
 - **review-code**: Multi-agent code review across correctness, performance, style, tests, and error handling
@@ -84,7 +89,7 @@ All skills use progressive disclosure (SKILL.md + optional references/scripts/as
 - **git-release**: Semantic version releases with automated changelog generation
 - **gitflow**: Manage a gitflow branching workflow (feature/release/hotfix branches)
 - **git-sync**: Sync the current feature branch with its base/upstream via merge or rebase
-- **ship**: Orchestrates a branch from "code done" to "merged" — runs review-code plus project-specific pre-merge checks
+- **ship**: Orchestrates a branch from "code done" to "merged" (runs review-code plus project-specific pre-merge checks)
 - **gh-daily**: GitHub-based standup report from assigned issues, PRs, and commit history
 
 ### Jira (2 skills)
@@ -92,14 +97,14 @@ All skills use progressive disclosure (SKILL.md + optional references/scripts/as
 - **jira-todo**: Smart daily work planner with intelligent prioritization
 
 ### Teams (2 skills)
-- **team-implement**: Spec-driven team orchestration — adaptive development team scaling from 3 to 11 agents based on complexity. Accepts plain text, Jira tickets, GitHub issues, PRs, files, or URLs. Requires `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` for full mode in Claude Code; degrades to a single-agent sequential run elsewhere.
+- **team-implement**: Spec-driven team orchestration, adaptive development team scaling from 3 to 11 agents based on complexity. Accepts plain text, Jira tickets, GitHub issues, PRs, files, or URLs. Requires `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` for full mode in Claude Code; degrades to a single-agent sequential run elsewhere.
 - **team-review**: Multi-agent PR review team (architecture, security, performance, testing, style, docs/UX, plus an adversary) for security-sensitive or large PRs
 
 ### Utilities (7 skills)
 - **create-skill**: Specification-driven skill creation with eval system and description optimization
 - **create-rule**: Create CLAUDE.md/AGENTS.md rules and memory guidelines
-- **improve-skill**: Improve an existing skill to the authoring standard with measured before/after evidence — snapshots the baseline, rewrites to the rubric, and benchmarks new-vs-old
-- **orchestrate**: Turn any task into a model-tiered multi-agent plan — decompose, map each subtask to the right model, run independent tracks in parallel under strict file ownership, then synthesize
+- **improve-skill**: Improve an existing skill to the authoring standard with measured before/after evidence: snapshots the baseline, rewrites to the rubric, and benchmarks new-vs-old
+- **orchestrate**: Turn any task into a model-tiered multi-agent plan: decompose, map each subtask to the right model, run independent tracks in parallel under strict file ownership, then synthesize
 - **find-skills**: Discover and install third-party agent skills from skills.sh
 - **agent-browser**: AI-optimized browser automation with far less context overhead than raw Playwright/DOM tools
 - **jira-cli**: Interactive command-line tool for Atlassian Jira
@@ -125,13 +130,13 @@ skill-name/
 ### Progressive Disclosure
 
 Skills use a three-level loading system:
-1. **Metadata** (name + description) — always in context (~100 words)
-2. **SKILL.md body** — loaded when the skill activates (<5k words)
-3. **Bundled resources** — loaded only when the agent needs them
+1. **Metadata** (name + description): always in context (~100 words)
+2. **SKILL.md body**: loaded when the skill activates (<5k words)
+3. **Bundled resources**: loaded only when the agent needs them
 
 ### Eval Convention
 
-Each skill's `evals/evals.json` lists concrete scenarios (`id`, `prompt`, `assertions`) that a run of the skill must satisfy — used to catch regressions when a SKILL.md is edited. `evals/trigger-eval.json` instead tests description-triggering: given a set of realistic user prompts, does the skill's frontmatter `description` cause it to fire (or correctly not fire)? Use the `create-skill` skill's eval tooling to run either against a live agent.
+Each skill's `evals/evals.json` lists concrete scenarios (`id`, `prompt`, `assertions`) that a run of the skill must satisfy, used to catch regressions when a SKILL.md is edited. `evals/trigger-eval.json` instead tests description-triggering: given a set of realistic user prompts, does the skill's frontmatter `description` cause it to fire (or correctly not fire)? Use the `create-skill` skill's eval tooling to run either against a live agent.
 
 ## Development Commands
 
@@ -163,8 +168,8 @@ Claude-Code-specific install/config commands (`make install`, `make dry-run`, `m
 ## Contributing
 
 1. **Fork** the repository and create a feature branch
-2. **Develop** your skill or change — new skills go under `skills/<name>/SKILL.md`; keep frontmatter to `name` + `description` unless the skill genuinely needs a Claude-Code-only key (see Portability convention above)
-3. **Add evals** — new or changed skills should ship an `evals/evals.json` (and `trigger-eval.json` if the description changed)
+2. **Develop** your skill or change: new skills go under `skills/<name>/SKILL.md`; keep frontmatter to `name` + `description` unless the skill genuinely needs a Claude-Code-only key (see Portability convention above)
+3. **Add evals**: new or changed skills should ship an `evals/evals.json` (and `trigger-eval.json` if the description changed)
 4. **Validate** with `make check` and `make validate-structure` / `make validate-plugins`
 5. **Update CHANGELOG.md** for user-facing changes
 6. **Submit** a pull request with a clear description
@@ -174,7 +179,7 @@ See `CONTRIBUTING.md` for the full development setup.
 ## File Organization
 ```
 cc-arsenal/
-├── skills/          # All 45 skills (canonical, tool-agnostic)
+├── skills/          # All 48 skills (canonical, tool-agnostic)
 │   ├── implement-feature/   # Feature implementation with subagents
 │   ├── fix-bug/             # Test-driven debugging
 │   ├── test-suite/          # Test suite generation
@@ -192,6 +197,9 @@ cc-arsenal/
 │   ├── nanobanana/          # Image generation (Nano Banana/Gemini)
 │   ├── codex-imagegen/      # Raster art via Codex $imagegen
 │   ├── oss-launch/          # Private-to-public GitHub launch prep
+│   ├── product-prd/         # Right-sized PRD authoring, gate-zero to full PRD
+│   ├── product-design-spec/ # Design spec: IA, flows, screen inventory, state specs
+│   ├── product-design-tokens/ # W3C DTCG design-token contract authoring
 │   ├── review-code/         # Multi-agent code review
 │   ├── review-security/     # OWASP security analysis
 │   ├── review-deps/         # Dependency vulnerability/license audit

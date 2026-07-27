@@ -12,7 +12,7 @@ Use this only when the fix genuinely cannot wait for a release. If it can wait, 
 ## 2. Make the fix, with tests
 
 - Implement the smallest correct fix. Add or update tests that would have caught the bug; a hotfix without a regression test invites the same incident again.
-- Bump the version in your project manifest to the patch version. No manifest? Skip this — the tag alone carries the version (see Versioning in `SKILL.md`).
+- Bump the version in your project manifest to the patch version. No manifest? Skip this: the tag alone carries the version (see Versioning in `SKILL.md`).
 - Update `CHANGELOG.md` with a new `## [<x.y.z>] - <date>` entry for the fix (see `references/changelog.md`).
 - Follow Conventional Commits throughout.
 

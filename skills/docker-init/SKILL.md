@@ -23,10 +23,10 @@ Generate production-ready `docker-compose.yml` and `Dockerfile` with auto-detect
 ## Guardrails
 
 Only generate configs based on what the codebase actually uses:
-1. **Scan before generating** — read `package.json`, `pyproject.toml`, `requirements.txt`, etc. before proposing services.
-2. **Read existing files first** — if `docker-compose.yml` or `Dockerfile` already exist, read them fully before proposing any change, and ask the user whether to update in place or regenerate. Never overwrite an existing service definition you haven't read.
-3. **Only well-known official images** — do not invent image names or tags.
-4. **No secrets in files** — never put secrets, passwords, or API keys in compose files; use `${VAR}` references pointing at `.env`.
+1. **Scan before generating**: read `package.json`, `pyproject.toml`, `requirements.txt`, etc. before proposing services.
+2. **Read existing files first**: if `docker-compose.yml` or `Dockerfile` already exist, read them fully before proposing any change, and ask the user whether to update in place or regenerate. Never overwrite an existing service definition you haven't read.
+3. **Only well-known official images**: do not invent image names or tags.
+4. **No secrets in files**: never put secrets, passwords, or API keys in compose files; use `${VAR}` references pointing at `.env`.
 5. **Read `.dockerignore` before changing it**, if it exists.
 
 ## Workflow
@@ -64,11 +64,11 @@ ls docker-compose.yml docker-compose.yaml Dockerfile .dockerignore 2>/dev/null
 
 ### Phase 2: Propose Services
 
-Map detected dependencies to Docker services and show the proposal for the user to confirm/modify. See `references/service-catalog.md` for the full dependency-to-image mapping — load it whenever the scan surfaces a dependency not already covered by the examples in this file.
+Map detected dependencies to Docker services and show the proposal for the user to confirm/modify. See `references/service-catalog.md` for the full dependency-to-image mapping, load it whenever the scan surfaces a dependency not already covered by the examples in this file.
 
 Only ask about services the scan didn't already resolve:
 - If no Dockerfile exists and the scan found no app service in an existing compose file, ask whether to include one (requires `--with-dockerfile`).
-- If the mapping surfaced a mail-related dependency (`mailhog`, `smtp`, `mailer`), ask whether to add Mailhog — don't ask otherwise.
+- If the mapping surfaced a mail-related dependency (`mailhog`, `smtp`, `mailer`), ask whether to add Mailhog, don't ask otherwise.
 
 ### Phase 3: Generate docker-compose.yml
 
@@ -121,7 +121,7 @@ volumes:
   redis_data:
 ```
 
-**Kafka defaults to KRaft mode, not Zookeeper.** A Zookeeper-backed Kafka is legacy topology and adds a second container for no benefit in a dev/prod compose file — use the single-node KRaft form unless the user explicitly asks for a Zookeeper-based cluster:
+**Kafka defaults to KRaft mode, not Zookeeper.** A Zookeeper-backed Kafka is legacy topology and adds a second container for no benefit in a dev/prod compose file. Use the single-node KRaft form unless the user explicitly asks for a Zookeeper-based cluster:
 
 ```yaml
 services:
@@ -199,7 +199,7 @@ build/
 
 ### Phase 5: Generate Production Overlay (if `--prod`)
 
-Create `docker-compose.prod.yml` with production hardening — no direct port exposure, `restart: always`, tighter resource limits, bounded log files:
+Create `docker-compose.prod.yml` with production hardening: no direct port exposure, `restart: always`, tighter resource limits, bounded log files:
 
 ```yaml
 services:
@@ -224,7 +224,7 @@ services:
 docker compose config --quiet 2>&1 && echo "Valid" || echo "Errors found"
 ```
 
-If `docker` isn't installed or the command isn't found, skip this step and tell the user to run it themselves once Docker is available — don't claim the config was validated when it wasn't.
+If `docker` isn't installed or the command isn't found, skip this step and tell the user to run it themselves once Docker is available: don't claim the config was validated when it wasn't.
 
 Check that `.dockerignore` exists (create a minimal one if missing). Remind the user to add real secrets to `.env` and verify `.env` is in `.gitignore`.
 
@@ -236,10 +236,10 @@ Check that `.dockerignore` exists (create a minimal one if missing). Remind the 
 
 ## Important Notes
 
-- No `version:` field in compose files — deprecated in modern Docker Compose.
-- No hardcoded secrets — always use `${VAR}` references pointing to `.env`.
+- No `version:` field in compose files: deprecated in modern Docker Compose.
+- No hardcoded secrets: always use `${VAR}` references pointing to `.env`.
 - Every service needs a health check; without one, startup ordering between dependent services is unreliable.
-- App containers run as non-root — create the user in the Dockerfile and switch with `USER`.
+- App containers run as non-root: create the user in the Dockerfile and switch with `USER`.
 - Set `deploy.resources.limits` on every service to prevent a runaway container from starving the host.
 - Production Dockerfiles use multi-stage builds to keep the final image small.
 

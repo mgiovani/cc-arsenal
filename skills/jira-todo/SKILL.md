@@ -1,11 +1,11 @@
 ---
 name: jira-todo
 description: Generates a prioritized daily work plan from a user's assigned Jira
-  tickets — scoring by priority, due date, blockers, and recent activity, then
+  tickets, scoring by priority, due date, blockers, and recent activity, then
   recommending what to work on next. Use when the user asks "what should I work
   on today", wants to plan their workday, prioritize assigned tickets, or triage
   their Jira backlog. Not for yesterday's standup recap (use jira-daily) or raw
-  command reference (use jira-cli) — this skill is specifically for
+  command reference (use jira-cli), this skill is specifically for
   forward-looking prioritization, not status reporting.
 metadata:
   author: mgiovani
@@ -17,7 +17,7 @@ allowed-tools: Bash(jira *), Bash(git *), Read, Task, TodoWrite
 
 # Jira Todo - Daily Work Prioritization
 
-Analyzes assigned tickets and recommends what to work on next, based on actual Jira data. Complements the **jira-cli** skill (general command reference) and **jira-daily** (yesterday's standup recap) — this skill is for forward-looking prioritization.
+Analyzes assigned tickets and recommends what to work on next, based on actual Jira data. Complements the **jira-cli** skill (general command reference) and **jira-daily** (yesterday's standup recap): this skill is for forward-looking prioritization.
 
 ## Phase 1: Verify Jira CLI Works
 
@@ -27,11 +27,11 @@ Before anything else, confirm the CLI is installed and authenticated:
 jira me
 ```
 
-If that fails — command not found, not authenticated, any error — STOP here. Do not proceed to Phase 2 or any later phase, and do not simulate, infer, or fabricate ticket data to produce a plan anyway. Tell the user:
+If that fails (command not found, not authenticated, any error), STOP here. Do not proceed to Phase 2 or any later phase, and do not simulate, infer, or fabricate ticket data to produce a plan anyway. Tell the user:
 
 > The `jira` CLI isn't available or isn't authenticated in this environment. Install and configure it from https://github.com/ankitpokhrel/jira-cli, then re-run this skill.
 
-This gate exists because an agent that can't reach real Jira data will otherwise write a plausible-looking report from imagined tickets and present it as a real daily plan. Every ticket ID, priority, status, and story point anywhere in this skill's output must come from a `jira` command actually run this session — never a hardcoded fixture, a "simulated" placeholder, never mention a blocker that wasn't explicitly marked (label or blocking-link field) in that output, and never a helper script that was written but not executed. If a command returns no results, say so plainly rather than inventing tickets to fill out the report sections.
+This gate exists because an agent that can't reach real Jira data will otherwise write a plausible-looking report from imagined tickets and present it as a real daily plan. Every ticket ID, priority, status, and story point anywhere in this skill's output must come from a `jira` command actually run this session: never a hardcoded fixture, a "simulated" placeholder, never mention a blocker that wasn't explicitly marked (label or blocking-link field) in that output, and never a helper script that was written but not executed. If a command returns no results, say so plainly rather than inventing tickets to fill out the report sections.
 
 ## Phase 2: Determine Project Key
 
@@ -43,7 +43,7 @@ If no project key is found, ask the user to specify with `--project <KEY>`.
 
 ## Phase 3: Gather Current Workload
 
-Run these directly via Bash before recommending anything — every ticket in the output must trace back to one of these commands' actual stdout, not to a script that reproduces expected output without executing them:
+Run these directly via Bash before recommending anything: every ticket in the output must trace back to one of these commands' actual stdout, not to a script that reproduces expected output without executing them:
 
 ```bash
 # Get all assigned tickets in active statuses
@@ -60,7 +60,7 @@ If `--include-blocked` is not set, drop blocked tickets from the main sections (
 
 ## Phase 4: Apply Prioritization Algorithm
 
-Apply this directly in the main agent — it's a short scoring pass over a daily ticket list, not worth fanning out to subagents. Only spawn parallel Explore subagents if the workload is unusually large (>30 active tickets), and only where a `Task`/subagent tool is available; otherwise do the same scoring pass sequentially inline regardless of ticket count.
+Apply this directly in the main agent: it's a short scoring pass over a daily ticket list, not worth fanning out to subagents. Only spawn parallel Explore subagents if the workload is unusually large (>30 active tickets), and only where a `Task`/subagent tool is available; otherwise do the same scoring pass sequentially inline regardless of ticket count.
 
 **Priority Scoring:**
 - **Critical/Urgent Priority**: Weight x 10

@@ -1,6 +1,6 @@
 ---
 name: nanobanana
-description: "Generates and edits images by calling Google's Nano Banana / Gemini image generation API (requires a GEMINI_API_KEY) — a real, billed API call. This skill is explicit-invocation only: use it only when the user names it or the Gemini path directly — \"nanobanana\", \"nano banana\", \"gemini image generation\", \"GEMINI_API_KEY\", \"use nanobanana to …\" — or wants to integrate the Nano Banana / Gemini image API into their own codebase. For any implicit or general image-generation request (\"generate an image\", \"create a logo/hero/mascot\"), the default generator is codex-imagegen, not this skill. Not a design/mockup critique tool (use review-design) and not a browser-driven screenshot flow (use agent-browser)."
+description: "Generates and edits images by calling Google's Nano Banana / Gemini image generation API (requires a GEMINI_API_KEY), a real, billed API call. This skill is explicit-invocation only: use it only when the user names it or the Gemini path directly (\"nanobanana\", \"nano banana\", \"gemini image generation\", \"GEMINI_API_KEY\", \"use nanobanana to …\") or wants to integrate the Nano Banana / Gemini image API into their own codebase. For any implicit or general image-generation request (\"generate an image\", \"create a logo/hero/mascot\"), the default generator is codex-imagegen, not this skill. Not a design/mockup critique tool (use review-design) and not a browser-driven screenshot flow (use agent-browser)."
 metadata:
   author: mgiovani
   version: 1.1.0
@@ -11,13 +11,13 @@ allowed-tools:
   - Grep
 ---
 
-# Nanobanana — Nano Banana Image Generation
+# Nanobanana: Nano Banana Image Generation
 
 Generate and edit images using Google's Nano Banana (Gemini image generation API). This skill handles direct image generation, iterative editing, and expert guidance for integrating the API into codebases.
 
 **Core differentiator**: A prompt enhancement system that analyzes user intent and project context to craft optimized prompts before calling the API.
 
-This is the explicit Gemini/Nano Banana path (named directly by the user) — for a generic "generate an image" request with no engine named, codex-imagegen is the default generator instead.
+This is the explicit Gemini/Nano Banana path (named directly by the user): for a generic "generate an image" request with no engine named, codex-imagegen is the default generator instead.
 
 ---
 
@@ -40,7 +40,7 @@ If `GEMINI_API_KEY` is empty or unset:
 uv --version 2>&1
 ```
 
-If `uv` is not installed, direct the user to https://docs.astral.sh/uv/getting-started/installation/ and stop. `uv` handles dependency installation automatically via PEP 723 inline metadata — no manual `pip install` needed.
+If `uv` is not installed, direct the user to https://docs.astral.sh/uv/getting-started/installation/ and stop. `uv` handles dependency installation automatically via PEP 723 inline metadata: no manual `pip install` needed.
 
 ---
 
@@ -55,12 +55,12 @@ If `uv` is not installed, direct the user to https://docs.astral.sh/uv/getting-s
 
 ### Detect Mode
 
-**Expert Integration Mode** — if the user wants to integrate Nano Banana into their codebase (e.g., "how do I add image generation to my app", "show me the API", "I'm building a feature that generates images"):
+**Expert Integration Mode**: if the user wants to integrate Nano Banana into their codebase (e.g., "how do I add image generation to my app", "show me the API", "I'm building a feature that generates images"):
 - Read `references/integration-guide.md`
 - Provide SDK examples, authentication patterns, and production best practices
-- **Skip to guidance — do not call the API**
+- **Skip to guidance, do not call the API**
 
-**Generation Mode** — if the user wants an image generated now:
+**Generation Mode**: if the user wants an image generated now:
 - Continue to Phase 2
 
 ### Analyze Project Context (Generation Mode Only)
@@ -92,13 +92,13 @@ Use this context to make the generated image fit the project's visual language.
 ### Classify Request Type
 
 Choose the most fitting category:
-- `photorealistic` — scenes, portraits, product photos, landscapes
-- `stylized` — illustrations, art, cartoon, concept art
-- `text-heavy` — posters, banners, infographics with text
-- `product-marketing` — commercial product shots
-- `ui-mockup` — app screens, website designs, wireframes
-- `diagram` — technical illustrations, flowcharts, architecture
-- `minimalist` — abstract, logos, icon concepts
+- `photorealistic`: scenes, portraits, product photos, landscapes
+- `stylized`: illustrations, art, cartoon, concept art
+- `text-heavy`: posters, banners, infographics with text
+- `product-marketing`: commercial product shots
+- `ui-mockup`: app screens, website designs, wireframes
+- `diagram`: technical illustrations, flowcharts, architecture
+- `minimalist`: abstract, logos, icon concepts
 
 ### Ask Only for Missing Info
 
@@ -126,11 +126,11 @@ Apply category-specific enhancements:
 
 Incorporate any project context found in Phase 1 (brand colors, design system, domain).
 
-### Present Enhanced Prompt for Approval — Scale to Intent
+### Present Enhanced Prompt for Approval: Scale to Intent
 
 Two paths, chosen by what the user actually asked for:
 
-**Full review block** — use for final/production assets: explicit "final", "production-ready", "for the website/app", hero images, logos, or anything incorporating brand/project context from Phase 1. Getting these wrong costs real API spend and rework, so confirm before spending it:
+**Full review block**: use for final/production assets: explicit "final", "production-ready", "for the website/app", hero images, logos, or anything incorporating brand/project context from Phase 1. Getting these wrong costs real API spend and rework, so confirm before spending it:
 
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -154,7 +154,7 @@ Proceed with enhanced prompt? (yes / modify / use original)
 
 If the user wants modifications, update the enhanced prompt and show the review block again before proceeding.
 
-**One-line summary** — use for drafts/exploration: "quick draft", "just try something", "rough concept", "let's iterate", or any low-stakes/throwaway request. State the enhanced prompt, model, and aspect ratio in one line and proceed straight to Phase 4 — don't make the user click through ceremony for a $0.02 draft image.
+**One-line summary**: use for drafts/exploration: "quick draft", "just try something", "rough concept", "let's iterate", or any low-stakes/throwaway request. State the enhanced prompt, model, and aspect ratio in one line and proceed straight to Phase 4, don't make the user click through ceremony for a $0.02 draft image.
 
 When intent is ambiguous, default to the full review block on the *first* generation in a session; once the user has approved the pattern once, later iterations in the same session can use the one-line summary.
 
@@ -164,7 +164,7 @@ When intent is ambiguous, default to the full review block on the *first* genera
 
 **Default**: Nano Banana 2 (`gemini-3.1-flash-image-preview`) at 2K resolution.
 
-> Model IDs and prices below are point-in-time. If the script returns `INVALID_MODEL`, don't guess a replacement — check https://ai.google.dev/pricing for current model IDs first.
+> Model IDs and prices below are point-in-time. If the script returns `INVALID_MODEL`, don't guess a replacement: check https://ai.google.dev/pricing for current model IDs first.
 
 See `references/model-guide.md` for full details. Quick reference:
 
@@ -231,7 +231,7 @@ The script outputs a JSON object. Parse and handle each case:
 | `NO_IMAGE_GENERATED` | Model returned no image | Try rephrasing prompt; try different model |
 | `DEPENDENCY_ERROR` | `google-genai` not installed | Ensure `uv` is available; `uv run` handles deps automatically via PEP 723 metadata |
 | `FILE_NOT_FOUND` | Input image path invalid | Verify the path and re-run |
-| `INVALID_MODEL` | `--model` value not recognized | Check https://ai.google.dev/pricing for current model IDs — don't fabricate one |
+| `INVALID_MODEL` | `--model` value not recognized | Check https://ai.google.dev/pricing for current model IDs, don't fabricate one |
 | `TIMEOUT` | Request took too long | Retry, or drop to a lower resolution |
 | `API_ERROR` | Unclassified API failure | Report the raw error message to the user; don't retry silently more than the script already does |
 
@@ -242,7 +242,7 @@ The script outputs a JSON object. Parse and handle each case:
 After a successful generation, offer iteration options based on user feedback:
 
 **Minor tweaks** (color, brightness, small compositional changes):
-→ Use **image editing mode** — pass the previous output as `--input-image`
+→ Use **image editing mode**: pass the previous output as `--input-image`
 
 **Major changes** (completely different subject, style change):
 → Modify the enhanced prompt and **regenerate** from scratch
@@ -277,8 +277,8 @@ When the user wants to add image generation to their codebase:
 
 ## Reference Files
 
-- `references/prompt-engineering.md` — Photography terms, style guides, sparse→rich examples by category
-- `references/model-guide.md` — Model comparison, pricing, rate limits, resolution options
-- `references/integration-guide.md` — SDK examples (Python/JS/REST), setup, production best practices
-- `scripts/generate.py` — Core API caller with retry logic and JSON output
-- `scripts/requirements.txt` — `google-genai>=1.0.0`
+- `references/prompt-engineering.md`: Photography terms, style guides, sparse→rich examples by category
+- `references/model-guide.md`: Model comparison, pricing, rate limits, resolution options
+- `references/integration-guide.md`: SDK examples (Python/JS/REST), setup, production best practices
+- `scripts/generate.py`: Core API caller with retry logic and JSON output
+- `scripts/requirements.txt`: `google-genai>=1.0.0`

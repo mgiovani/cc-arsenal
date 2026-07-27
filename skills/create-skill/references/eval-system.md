@@ -13,16 +13,16 @@ The eval system measures skill quality by comparing outputs with and without the
 
 ## When to Use Evals
 
-**High value** — model-invoked skills that auto-trigger based on description:
+**High value**: model-invoked skills that auto-trigger based on description:
 - If the description is wrong, the skill fires when it shouldn't (false positives)
 - If the description is too narrow, it misses when it should fire (false negatives)
 - Evals catch both problems before users do
 
-**Medium value** — user-invoked skills with complex outputs:
+**Medium value**: user-invoked skills with complex outputs:
 - When you need to verify that the skill produces meaningfully better output than no skill
 - When multiple people will use the skill and quality consistency matters
 
-**Low value** — simple utility skills:
+**Low value**: simple utility skills:
 - Skills that just run a command or format data
 - When success/failure is obvious without measurement
 
@@ -49,9 +49,9 @@ claude -p "[PROMPT]" --model claude-haiku-4-5-20251001
 ```
 
 Results are saved to `evals/results/{eval_id}/`:
-- `with_skill.txt` — output when skill is active
-- `baseline.txt` — output without skill
-- `timing.json` — duration and approximate token counts
+- `with_skill.txt`: output when skill is active
+- `baseline.txt`: output without skill
+- `timing.json`: duration and approximate token counts
 
 ### Step 3: Grade with Blind Comparison
 

@@ -5,8 +5,8 @@ description: Generate a production-ready CI/CD pipeline config (GitHub Actions,
   test/build commands, and dependencies. Use when setting up CI for a new
   project, adding a missing workflow file, or asked to create/generate a
   pipeline, workflow, or `.gitlab-ci.yml`/`Jenkinsfile`. Not for writing a
-  Dockerfile itself (see docker-init) — this only wires CI stages around one.
-  Not for running existing CI checks locally (use ci-local) — this skill only
+  Dockerfile itself (see docker-init), this only wires CI stages around one.
+  Not for running existing CI checks locally (use ci-local), this skill only
   authors the pipeline file itself.
 metadata:
   author: mgiovani
@@ -20,7 +20,7 @@ Generate production-ready CI/CD pipeline configurations with auto-detected proje
 
 ## Pipeline to Generate
 
-Parse the arguments passed to this skill invocation (platform, `--deploy`, `--monorepo`) — see Phase 0 below.
+Parse the arguments passed to this skill invocation (platform, `--deploy`, `--monorepo`): see Phase 0 below.
 
 ## Anti-Hallucination Guidelines
 
@@ -63,7 +63,7 @@ Explore the codebase to discover the complete project technology stack.
 
 ### Phase 2: Research Best Practices (only if needed)
 
-`references/platform-patterns.md` already ships current, comprehensive patterns for Node/Python/matrix/Docker/deploy across all four platforms — check it first. Only reach for WebSearch when the detected stack/platform combo isn't covered there (e.g. an unusual language or a deploy target not in the reference):
+`references/platform-patterns.md` already ships current, comprehensive patterns for Node/Python/matrix/Docker/deploy across all four platforms: check it first. Only reach for WebSearch when the detected stack/platform combo isn't covered there (e.g. an unusual language or a deploy target not in the reference):
 
 ```
 Use WebSearch:
@@ -112,7 +112,7 @@ Based on discovery and research, design the pipeline with these stages. For plat
  - Environment-specific deployment steps
  - Staging/production separation
  - Post-deployment health checks
- - **Thread the built artifact reference into the deploy step.** The Build stage must expose the image tag/digest it just produced (job `outputs`, `GITHUB_OUTPUT`, an artifact file, etc.), and the deploy step must consume that same reference — rendering it into a task definition, `helm upgrade --set image.tag=<ref>`, `kubectl set image deployment/<name> <container>=<ref>`, or equivalent. Never emit a blind restart (`aws ecs update-service --force-new-deployment`, `kubectl rollout restart` with no image change) as the whole deploy step: if the target pins an image tag/digest, a blind restart just re-pulls the OLD image and ships nothing new.
+ - **Thread the built artifact reference into the deploy step.** The Build stage must expose the image tag/digest it just produced (job `outputs`, `GITHUB_OUTPUT`, an artifact file, etc.), and the deploy step must consume that same reference: rendering it into a task definition, `helm upgrade --set image.tag=<ref>`, `kubectl set image deployment/<name> <container>=<ref>`, or equivalent. Never emit a blind restart (`aws ecs update-service --force-new-deployment`, `kubectl rollout restart` with no image change) as the whole deploy step: if the target pins an image tag/digest, a blind restart just re-pulls the OLD image and ships nothing new.
 
 **Design Decisions:**
 
@@ -181,7 +181,7 @@ Verify all referenced commands and paths exist:
 2. Every referenced file path is valid
 3. Service versions match project requirements
 4. Environment variable names are consistent
-5. If a deploy stage exists, its deploy step references the image tag/digest (or equivalent build artifact) produced by the Build stage — not a blind restart with no reference to what was just built
+5. If a deploy stage exists, its deploy step references the image tag/digest (or equivalent build artifact) produced by the Build stage, not a blind restart with no reference to what was just built
 
 **Step 5.3: Present Summary**
 
@@ -193,7 +193,7 @@ Output a summary including:
 - Cache strategy explanation
 - Any manual steps needed (e.g., setting up deployment secrets)
 
-Do not estimate run time per stage — it hasn't run yet and any number would be a guess.
+Do not estimate run time per stage: it hasn't run yet and any number would be a guess.
 
 ## Handling Ambiguity
 

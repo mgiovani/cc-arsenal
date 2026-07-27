@@ -1,4 +1,4 @@
-# Design Review — Report Templates
+# Design Review: Report Templates
 
 Two templates: a **live** report (`design-report-live.md`) and a **static** report
 (`design-report-static.md`). They share structure; the difference is the evidence type
@@ -12,7 +12,7 @@ citation, severity, and a concrete fix. No placeholder text.
 ## Live Report Template
 
 ```markdown
-# Design Review Report — Live
+# Design Review Report: Live
 
 **Target URL**: <url>
 **Viewport(s)**: <e.g., 1440×900 desktop, 390×844 mobile>
@@ -47,14 +47,14 @@ citation, severity, and a concrete fix. No placeholder text.
 
 ## Findings by Dimension
 
-### Dimension 3 — Color & Theming (N findings)
+### Dimension 3: Color & Theming (N findings)
 
 #### Finding: Body text fails AA contrast
 - **Criterion**: CO-06 (also AC-05)
 - **Severity**: High
-- **Evidence**: Hero subheading, "top-center" region — DOM ref `@e7` (snapshot.txt)
+- **Evidence**: Hero subheading, "top-center" region, DOM ref `@e7` (snapshot.txt)
 - **Measured value**: contrast 3.1:1 (text #8A8A8A on #FFFFFF)
-- **Citation**: WCAG 2.2 SC 1.4.3 (AA) — normal text requires ≥ 4.5:1
+- **Citation**: WCAG 2.2 SC 1.4.3 (AA): normal text requires ≥ 4.5:1
 - **Description**: The subheading grey on white reads at 3.1:1, below the 4.5:1 AA threshold.
 - **Fix**:
   1. Darken text to ≥ #595959 (≥ 4.5:1 on white).
@@ -71,19 +71,19 @@ citation, severity, and a concrete fix. No placeholder text.
 
 ## Prioritized Recommendations
 ### Immediate (Critical/High)
-1. [Finding ref] — [action]
+1. [Finding ref]: [action]
 ### Short-term (Medium)
-1. [Finding ref] — [action]
+1. [Finding ref]: [action]
 ### Polish (Low)
-1. [Finding ref] — [action]
+1. [Finding ref]: [action]
 
 ## References
-- WCAG 2.2 — https://www.w3.org/TR/WCAG22/
-- Material Design 3 — https://m3.material.io/
-- Apple HIG — https://developer.apple.com/design/human-interface-guidelines
-- Nielsen Norman Group — https://www.nngroup.com/articles/
-- Refactoring UI — https://www.refactoringui.com/
-- Laws of UX — https://lawsofux.com/
+- WCAG 2.2: https://www.w3.org/TR/WCAG22/
+- Material Design 3: https://m3.material.io/
+- Apple HIG: https://developer.apple.com/design/human-interface-guidelines
+- Nielsen Norman Group: https://www.nngroup.com/articles/
+- Refactoring UI: https://www.refactoringui.com/
+- Laws of UX: https://lawsofux.com/
 ```
 
 ---
@@ -93,7 +93,7 @@ citation, severity, and a concrete fix. No placeholder text.
 Identical to the live report with these header/evidence differences:
 
 ```markdown
-# Design Review Report — Static
+# Design Review Report: Static
 
 **Scope**: [PR #123 | Commit abc123 | Entire Codebase | <path>]
 **Date**: YYYY-MM-DD
@@ -109,7 +109,7 @@ Identical to the live report with these header/evidence differences:
 
 ## Findings by Dimension
 
-### Dimension 8 — Accessibility (N findings)
+### Dimension 8: Accessibility (N findings)
 
 #### Finding: Focus outline suppressed without replacement
 - **Criterion**: AC-02

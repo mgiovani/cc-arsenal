@@ -6,7 +6,7 @@ Each section below is written as a self-contained prompt. Use it two ways:
 - **Default (single pass)**: work through all three sections yourself, in order, against the Phase 2 output already in context.
 - **Large-output fan-out**: when the audit output is too large to reason about in one pass (e.g. a multi-ecosystem monorepo), spawn one `Explore` agent per section, pasting that section's prompt verbatim plus the relevant Phase 2 output.
 
-## Dimension 1 — Vulnerability Analysis (CVE/GHSA Triage)
+## Dimension 1: Vulnerability Analysis (CVE/GHSA Triage)
 
 ```
 Agent 1 - Vulnerability Analysis:
@@ -49,7 +49,7 @@ Return findings sorted by severity (Critical first), then by exploitability."
 - subagent_type: "Explore" (only used when fanning out; skip this line when running inline)
 ```
 
-## Dimension 2 — License Compliance Analysis
+## Dimension 2: License Compliance Analysis
 
 ```
 Agent 2 - License Compliance Analysis:
@@ -111,7 +111,7 @@ Return findings sorted by risk level, grouped by license category."
 - subagent_type: "Explore" (only used when fanning out; skip this line when running inline)
 ```
 
-## Dimension 3 — Staleness & Upgrade Complexity Analysis
+## Dimension 3: Staleness & Upgrade Complexity Analysis
 
 ```
 Agent 3 - Staleness & Upgrade Complexity Analysis:

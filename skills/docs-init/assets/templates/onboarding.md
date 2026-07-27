@@ -99,4 +99,4 @@ cp .env.example .env
 
 ---
 
-*Found something outdated here? Open a PR — this doc is meant to be kept current.*
+*Found something outdated here? Open a PR: this doc is meant to be kept current.*

@@ -1,6 +1,6 @@
 ---
 name: gitflow
-description: Manage a gitflow branching workflow — starting and finishing feature,
+description: Manage a gitflow branching workflow, starting and finishing feature,
   release, and hotfix branches; cutting versioned releases with changelog generation;
   coordinating emergency hotfixes directly to production; and keeping long-lived
   branches in sync. Activates when users mention gitflow, feature/release/hotfix
@@ -52,7 +52,7 @@ These apply to every flow. They exist because `main` is live production and a mi
 
 ## Versioning
 
-Semantic versioning. The current version lives in your project manifest (`package.json`, `pyproject.toml`, `Cargo.toml`, etc.) on both long-lived branches — kept in sync; both are at the last released version. No version manifest in the repo? Version via the latest `git tag` alone and skip the bump-file step.
+Semantic versioning. The current version lives in your project manifest (`package.json`, `pyproject.toml`, `Cargo.toml`, etc.) on both long-lived branches (kept in sync; both are at the last released version). No version manifest in the repo? Version via the latest `git tag` alone and skip the bump-file step.
 
 - **Release**: bump minor for new features (e.g. `1.1.0` to `1.2.0`), major for breaking changes.
 - **Hotfix**: bump patch (e.g. `1.1.0` to `1.1.1`).

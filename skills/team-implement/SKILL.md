@@ -1,6 +1,6 @@
 ---
 name: team-implement
-description: "Spec-driven team orchestration for large, multi-component features or new epics: writes a full spec/design/review artifact trail under .specs/, gates code changes behind an explicit user approval, then scales a team from 3 (lite) to roughly 9 (full) agents based on complexity. Use for sizable features spanning frontend+backend+DB, unfamiliar domains, or anything you want a reviewable spec for before code is touched. Not for small/single-component changes (use implement-feature — no spec overhead) and not for reviewing already-written code (use team-review)."
+description: "Spec-driven team orchestration for large, multi-component features or new epics: writes a full spec/design/review artifact trail under .specs/, gates code changes behind an explicit user approval, then scales a team from 3 (lite) to roughly 9 (full) agents based on complexity. Use for sizable features spanning frontend+backend+DB, unfamiliar domains, or anything you want a reviewable spec for before code is touched. Not for small/single-component changes (use implement-feature, no spec overhead) and not for reviewing already-written code (use team-review)."
 disable-model-invocation: true
 argument-hint: "<description|PROJ-123|#issue|!pr|file|url>"
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, Task, SendMessage, TaskStop, TaskCreate, TaskUpdate, TaskList, TaskGet, WebFetch, AskUserQuestion
@@ -12,17 +12,17 @@ agent: general-purpose
 
 Adaptive spec-driven development team that scales from 3 agents (lite) to ~9 (full) based on project complexity. All planning completes before any code changes, with explicit user approval between planning and implementation.
 
-## Prerequisites & fallback chain — read this first
+## Prerequisites & fallback chain: read this first
 
 **Full mode** needs multi-agent teams. In Claude Code that requires:
 ```
 CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
 ```
-With the flag set, full mode spawns named teammates via the `Task` tool with a `team_name` (the team itself is created implicitly by the first such call — there's no separate "create team" step), coordinates via `SendMessage`, and stops a teammate with `TaskStop`. The exact tool signatures depend on the environment you're running in — treat any call shown below as illustrative and use whatever the local Task/SendMessage/TaskStop equivalents actually are. Do not invent a `Teammate` tool or similar if nothing like it exists here.
+With the flag set, full mode spawns named teammates via the `Task` tool with a `team_name` (the team itself is created implicitly by the first such call, there's no separate "create team" step), coordinates via `SendMessage`, and stops a teammate with `TaskStop`. The exact tool signatures depend on the environment you're running in: treat any call shown below as illustrative and use whatever the local Task/SendMessage/TaskStop equivalents actually are. Do not invent a `Teammate` tool or similar if nothing like it exists here.
 
 **No flag, or a `Task ... team_name` call fails?** Fall back to **Lite mode**: identical phase structure, but roles run as sequential `Task` subagents (no `team_name`, no cross-agent messaging) instead of a coordinated team.
 
-**No `Task`/subagent tool at all?** Fall back further still: run every phase's steps yourself, inline, sequentially. The phase → gate → phase structure below *is* the workflow — teams and subagents are just two ways to parallelize it.
+**No `Task`/subagent tool at all?** Fall back further still: run every phase's steps yourself, inline, sequentially. The phase → gate → phase structure below *is* the workflow: teams and subagents are just two ways to parallelize it.
 
 **Delegate mode** (Claude Code, full mode): `Shift+Tab` restricts the lead to coordination-only tools. Without it, wait for teammates to finish before touching their files yourself.
 
@@ -32,9 +32,9 @@ $ARGUMENTS
 
 ## Known Limitations
 
-- No session resumption — an interrupted session loses spawned teammates (full mode)
+- No session resumption: an interrupted session loses spawned teammates (full mode)
 - One team per session; teammates cannot spawn their own sub-teams
-- Teammates sometimes forget to mark tasks complete — poll `TaskList` rather than trusting silence
+- Teammates sometimes forget to mark tasks complete: poll `TaskList` rather than trusting silence
 - Teammates load project CLAUDE.md/AGENTS.md automatically (a benefit, not a limitation)
 
 ## Workflow Overview
@@ -61,7 +61,7 @@ MACRO PHASE B: IMPLEMENTATION (code changes)
 
 ### Step 0.1: Detect Input Source
 
-Parse `$ARGUMENTS`. Detection order (first match wins) — full patterns and ingestion commands in [references/spec-workflow.md](references/spec-workflow.md) Section 1:
+Parse `$ARGUMENTS`. Detection order (first match wins): full patterns and ingestion commands in [references/spec-workflow.md](references/spec-workflow.md) Section 1:
 
 | Pattern | Source | Ingestion |
 |---------|--------|-----------|
@@ -96,7 +96,7 @@ Score against the signals below (full algorithm in [references/spec-workflow.md]
 | Estimated file changes | 15+ | 10–14 | <10 |
 | Domain familiarity | Unfamiliar tech | Partially familiar | Well-understood |
 
-- **Score 0–1**: lite mode, automatic — for a <10-file single-component change, suggest `implement-feature` instead (no spec overhead needed)
+- **Score 0–1**: lite mode, automatic, for a <10-file single-component change, suggest `implement-feature` instead (no spec overhead needed)
 - **Score 2–3**: ask the user, default recommendation lite
 - **Score 4+**: full mode, automatic
 
@@ -104,8 +104,8 @@ Score against the signals below (full algorithm in [references/spec-workflow.md]
 
 1. Generate `.specs/<short-id>/` (`<slugified-title>-<YYYYMMDD>`; algorithm in [references/spec-workflow.md](references/spec-workflow.md) Section 3)
 2. Write `input-digest.md` and a session `README.md` dashboard from [references/spec-templates.md](references/spec-templates.md)
-3. Update `.specs/README.md` (global index — create it if this is the first session)
-4. If `.specs/` isn't already tracked or gitignored, ask via `AskUserQuestion` whether to commit it or ignore it — first time only
+3. Update `.specs/README.md` (global index, create it if this is the first session)
+4. If `.specs/` isn't already tracked or gitignored, ask via `AskUserQuestion` whether to commit it or ignore it, first time only
 
 ### Step 0.7: Propose Team Composition
 
@@ -118,13 +118,13 @@ AskUserQuestion:
     - "Customize team composition"
 ```
 
-Full-mode team creation is implicit — the first `Task` call in Phase 2 that uses `team_name: "team-<short-id>"` creates the team. There is no separate spawn step.
+Full-mode team creation is implicit: the first `Task` call in Phase 2 that uses `team_name: "team-<short-id>"` creates the team. There is no separate spawn step.
 
 ---
 
 ## Phase 1: Clarifying Questions
 
-Scan the input digest for ambiguity — vague requirements, missing acceptance criteria, unclear scope, technology decisions, conflicting asks. Resolve with `AskUserQuestion`, multiple rounds if needed. Skip or shorten this phase for a well-defined source (e.g. a detailed Jira ticket with acceptance criteria already attached).
+Scan the input digest for ambiguity: vague requirements, missing acceptance criteria, unclear scope, technology decisions, conflicting asks. Resolve with `AskUserQuestion`, multiple rounds if needed. Skip or shorten this phase for a well-defined source (e.g. a detailed Jira ticket with acceptance criteria already attached).
 
 ---
 
@@ -140,11 +140,11 @@ Task tool (team_name: "team-<short-id>", name: "product-lead"):
 ```
 Writes `.specs/<short-id>/proposal/{brief,requirements,acceptance-criteria}.md`.
 
-**Gate: Spec Review** — orchestrator checks coherence, asks the user about remaining gaps.
+**Gate: Spec Review**, orchestrator checks coherence, asks the user about remaining gaps.
 
 ### Lite Mode
 
-Spawn **Product Analyst** via `Task` (no team) — see agent-catalog.md. Writes combined `brief.md` + task breakdown.
+Spawn **Product Analyst** via `Task` (no team), see agent-catalog.md. Writes combined `brief.md` + task breakdown.
 
 ---
 
@@ -152,7 +152,7 @@ Spawn **Product Analyst** via `Task` (no team) — see agent-catalog.md. Writes 
 
 ### Full Mode
 
-Spawn **Architect** (opus — complex system design benefits from the stronger model):
+Spawn **Architect** (opus, complex system design benefits from the stronger model):
 ```
 Task tool (team_name: "team-<short-id>", name: "architect"):
   subagent_type: general-purpose, model: opus
@@ -172,7 +172,7 @@ Combined **Architect/Developer** subagent writes `design.md`.
 
 Spawn **Adversary Reviewer**. Reviews all spec + design artifacts, writes `review/adversary-report.md`, rates findings **BLOCKER | WARNING | SUGGESTION**.
 
-If BLOCKERs: route findings to Architect (see [references/communication-patterns.md](references/communication-patterns.md) Section 3) → Architect revises → Adversary re-reviews. **Max 2 revision cycles** — proceed even if warnings remain after that, to avoid an infinite loop.
+If BLOCKERs: route findings to Architect (see [references/communication-patterns.md](references/communication-patterns.md) Section 3) → Architect revises → Adversary re-reviews. **Max 2 revision cycles**, proceed even if warnings remain after that, to avoid an infinite loop.
 
 ### Lite Mode
 
@@ -184,7 +184,7 @@ If BLOCKERs: route findings to Architect (see [references/communication-patterns
 
 ### Full Mode
 
-**Product Lead** (still active) writes `tasks/task-breakdown.md` and a Mermaid `tasks/task-graph.md`. Orchestrator creates `TaskCreate` entries with dependencies. Target 5–6 tasks per teammate — smaller wastes coordination overhead, larger risks wasted effort between check-ins.
+**Product Lead** (still active) writes `tasks/task-breakdown.md` and a Mermaid `tasks/task-graph.md`. Orchestrator creates `TaskCreate` entries with dependencies. Target 5–6 tasks per teammate: smaller wastes coordination overhead, larger risks wasted effort between check-ins.
 
 For decomposition technique beyond what's here (estimation, dependency-graph patterns), defer to the `cc-arsenal:project-planner` skill (via the `Skill` tool where available, otherwise apply its documented decomposition steps) instead of reinventing it.
 
@@ -216,7 +216,7 @@ No code changes happen before this gate passes. "Save spec only" skips straight 
 
 ### Full Mode
 
-Spawn one **Implementation Engineer** per affected component, in parallel (e.g. `frontend-engineer`, `backend-engineer` — same prompt template, scoped by component; see agent-catalog.md):
+Spawn one **Implementation Engineer** per affected component, in parallel (e.g. `frontend-engineer`, `backend-engineer`, same prompt template, scoped by component; see agent-catalog.md):
 ```
 Task tool (team_name: "team-<short-id>", name: "frontend-engineer"):
   subagent_type: general-purpose, model: sonnet
@@ -224,7 +224,7 @@ Task tool (team_name: "team-<short-id>", name: "frontend-engineer"):
 ```
 Each engineer claims tasks from the board (`TaskList` → `TaskUpdate`), reads spec files (API contracts, data model), implements per the architecture, writes tests, marks tasks completed, reports to the orchestrator.
 
-**File scope enforcement**: each engineer's handoff message states its file scope explicitly (see [references/communication-patterns.md](references/communication-patterns.md) Section 5) — this is what prevents two engineers editing the same files. Orchestrator commits incrementally after each engineer completes.
+**File scope enforcement**: each engineer's handoff message states its file scope explicitly (see [references/communication-patterns.md](references/communication-patterns.md) Section 5): this is what prevents two engineers editing the same files. Orchestrator commits incrementally after each engineer completes.
 
 ### Lite Mode
 
@@ -238,14 +238,14 @@ Each engineer claims tasks from the board (`TaskList` → `TaskUpdate`), reads s
 
 Spawn **QA Engineer**: validates each acceptance criterion, runs the test suite, checks coverage against a number it actually measured (target >80%, not an assumed figure), writes `review/qa-plan.md`.
 
-Conditional specialists — spawn only if the spec flags the need:
-- **Security Engineer** — security-sensitive features (auth, payments, PII)
-- **Performance Engineer** — explicit performance/SLA requirements
-- **Infrastructure/DevOps Engineer** — deployment or infra changes
+Conditional specialists, spawn only if the spec flags the need:
+- **Security Engineer**: security-sensitive features (auth, payments, PII)
+- **Performance Engineer**: explicit performance/SLA requirements
+- **Infrastructure/DevOps Engineer**: deployment or infra changes
 
 **Adversary Reviewer** does a second pass on the implementation.
 
-**Gate: Quality Verification** — all tests pass, no BLOCKER findings. On failure: loop to Phase 6, max 3 retries (see [references/spec-workflow.md](references/spec-workflow.md) Section 6).
+**Gate: Quality Verification**, all tests pass, no BLOCKER findings. On failure: loop to Phase 6, max 3 retries (see [references/spec-workflow.md](references/spec-workflow.md) Section 6).
 
 ### Lite Mode
 
@@ -255,7 +255,7 @@ Conditional specialists — spawn only if the spec flags the need:
 
 ## Phase 8: Documentation & Delivery
 
-Spawn **Tech Writer** (haiku) only if the feature is user-facing or changes an API — otherwise the orchestrator handles the minimal doc updates itself. Updates README.md, CHANGELOG.md, and API docs as applicable, plus `.specs/<short-id>/README.md` with final status.
+Spawn **Tech Writer** (haiku) only if the feature is user-facing or changes an API, otherwise the orchestrator handles the minimal doc updates itself. Updates README.md, CHANGELOG.md, and API docs as applicable, plus `.specs/<short-id>/README.md` with final status.
 
 ---
 
@@ -298,9 +298,9 @@ Full prompts and activation criteria: [references/agent-catalog.md](references/a
 | QA Engineer | sonnet | 7 | Dedicated | Combined as QA/Reviewer |
 | Adversary Reviewer | sonnet | 4, 7 | Dedicated | Combined as QA/Reviewer |
 | Security Engineer | sonnet | 7 | Conditional | Combined as QA/Reviewer |
-| Performance Engineer | sonnet | 7 | Conditional | — |
-| Infrastructure/DevOps Engineer | sonnet | 7 | Conditional | — |
-| Tech Writer | haiku | 8 | Conditional | — |
+| Performance Engineer | sonnet | 7 | Conditional | - |
+| Infrastructure/DevOps Engineer | sonnet | 7 | Conditional | - |
+| Tech Writer | haiku | 8 | Conditional | - |
 
 ## Wave-Based Agent Lifecycle (Full Mode)
 
@@ -322,7 +322,7 @@ All inter-agent coordination goes through `SendMessage` (or its local equivalent
 - Default to a direct message; broadcast only for critical team-wide issues
 - Always include exact file paths in handoff messages
 - State each engineer's file scope explicitly to prevent write conflicts
-- Report status in plain text + `TaskUpdate` — never a JSON status blob
+- Report status in plain text + `TaskUpdate`, never a JSON status blob
 
 ## Spec Artifacts
 
@@ -371,9 +371,9 @@ Recovery strategies for unresponsive teammates, repeated test failures, post-imp
 
 ## References
 
-- [references/agent-catalog.md](references/agent-catalog.md) — role definitions and prompt templates
-- [references/spec-workflow.md](references/spec-workflow.md) — input detection, complexity matrix, phase transitions, quality gates, error recovery
-- [references/communication-patterns.md](references/communication-patterns.md) — coordination templates
-- [references/spec-templates.md](references/spec-templates.md) — representative `.specs/` artifact templates
-- `cc-arsenal:docs-adr` — ADR format for `decisions/`
-- `cc-arsenal:project-planner` — deeper task-decomposition technique for Phase 5
+- [references/agent-catalog.md](references/agent-catalog.md): role definitions and prompt templates
+- [references/spec-workflow.md](references/spec-workflow.md): input detection, complexity matrix, phase transitions, quality gates, error recovery
+- [references/communication-patterns.md](references/communication-patterns.md): coordination templates
+- [references/spec-templates.md](references/spec-templates.md): representative `.specs/` artifact templates
+- `cc-arsenal:docs-adr`: ADR format for `decisions/`
+- `cc-arsenal:project-planner`: deeper task-decomposition technique for Phase 5

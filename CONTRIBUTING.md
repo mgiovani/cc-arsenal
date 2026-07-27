@@ -68,7 +68,7 @@ All contributions must meet these standards:
 
 ## Contributing Different Types of Components
 
-CC-Arsenal's only component type is the **skill** (45 currently — see [docs/features.md](docs/features.md) for the full, categorized list). Every workflow, whether user-invoked (a slash command like `/git-commit`) or model-invoked (auto-loaded like `review-code`), is a skill under `skills/<name>/SKILL.md`.
+CC-Arsenal's only component type is the **skill** (45 currently, see [docs/features.md](docs/features.md) for the full, categorized list). Every workflow, whether user-invoked (a slash command like `/git-commit`) or model-invoked (auto-loaded like `review-code`), is a skill under `skills/<name>/SKILL.md`.
 
 ### Creating New Skills
 
@@ -91,7 +91,7 @@ disable-model-invocation: true  # false/omit for a model-invoked (auto-loading) 
 # Skill implementation with progressive disclosure...
 ```
 
-Skills can bundle `scripts/`, `references/`, and `assets/` in subdirectories. Add `evals/evals.json` (task assertions) and `evals/trigger-eval.json` (trigger/near-miss queries) so the skill's behavior and triggering are testable — see any existing skill's `evals/` directory for the schema.
+Skills can bundle `scripts/`, `references/`, and `assets/` in subdirectories. Add `evals/evals.json` (task assertions) and `evals/trigger-eval.json` (trigger/near-miss queries) so the skill's behavior and triggering are testable: see any existing skill's `evals/` directory for the schema.
 
 After creating a skill, add its path to the relevant plugin(s) in `.claude-plugin/marketplace.json` and add its entry to `docs/features.md`.
 

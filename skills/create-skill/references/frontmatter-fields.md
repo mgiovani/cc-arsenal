@@ -25,11 +25,11 @@ hooks:                             # lifecycle hooks scoped to this skill
 ---
 ```
 
-Validate against `scripts/quick_validate.py` — it enforces this exact key set and rejects anything else, since unknown keys silently break skill loading.
+Validate against `scripts/quick_validate.py`: it enforces this exact key set and rejects anything else, since unknown keys silently break skill loading.
 
-## `context: fork` — Isolated Subagent Pattern
+## `context: fork` (Isolated Subagent Pattern)
 
-Used by `docs-adr`, `review-security`, `team-implement`, and others in this repo for skills that should run without the calling conversation's history — the SKILL.md content becomes the *entire* prompt for the subagent, not an addition to context.
+Used by `docs-adr`, `review-security`, `team-implement`, and others in this repo for skills that should run without the calling conversation's history: the SKILL.md content becomes the *entire* prompt for the subagent, not an addition to context.
 
 ```yaml
 ---
@@ -47,7 +47,7 @@ agent: general-purpose
 Summarize this pull request...
 ```
 
-Use this when the skill's job is self-contained (e.g., "analyze this PR and report back") rather than conversational. Don't use it for skills that need to reference what the user already said earlier in the session — that context won't be there.
+Use this when the skill's job is self-contained (e.g., "analyze this PR and report back") rather than conversational. Don't use it for skills that need to reference what the user already said earlier in the session: that context won't be there.
 
 ## Argument Substitution
 

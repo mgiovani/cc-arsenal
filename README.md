@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/social-preview.png" alt="cc-arsenal — 45 production-grade Agent Skills for real development workflows" width="760">
+  <img src="assets/social-preview.png" alt="cc-arsenal: 48 production-grade Agent Skills for real development workflows" width="760">
 </p>
 
 # cc-arsenal
@@ -8,7 +8,7 @@
 [![Agent Skills compatible](https://img.shields.io/badge/Agent%20Skills-compatible-blueviolet.svg)](https://agentskills.io)
 [![Code style: ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
-45 production-grade [Agent Skills](https://agentskills.io) for real development workflows — code review, shipping, docs, git, testing, multi-agent orchestration, and more. Each is a battle-tested workflow you invoke in plain language. Works with Claude Code, Codex, Cursor, Gemini CLI, and any Agent-Skills-compatible agent.
+48 production-grade [Agent Skills](https://agentskills.io) for real development workflows: code review, shipping, docs, git, testing, multi-agent orchestration, and more. Each is a battle-tested workflow you invoke in plain language. Works with Claude Code, Codex, Cursor, Gemini CLI, and any Agent-Skills-compatible agent.
 
 ## See it work
 
@@ -24,7 +24,7 @@ You: ship it
 # Any Agent-Skills-compatible tool (Codex, Cursor, Gemini CLI, OpenCode, ...)
 npx skills add mgiovani/cc-arsenal
 
-# Claude Code — unlocks plugin variants, hooks, and subagent orchestration
+# Claude Code: unlocks plugin variants, hooks, and subagent orchestration
 /plugin marketplace add mgiovani/cc-arsenal
 /plugin install cc-arsenal@cc-arsenal-marketplace
 ```
@@ -38,8 +38,9 @@ make -C integrations/claude-code/claude-hi standard # Schedule 5-hour windows
 
 ## What's Included
 
-**45 Skills** organized by category:
+**48 Skills** organized by category:
 - **Development** (16): Feature implementation, bug fixing, testing, refactoring, CI/CD generation and local runs, visual regression and i18n checks, framework docs injection, DB migrations, Docker/env setup, project planning, image generation (Gemini and Codex), open-source launch prep
+- **Product & Design** (3): PRD authoring, design specs, design tokens
 - **Code Review & Quality** (5): Code review, security review, dependency audit, performance analysis, design/UX audit
 - **Documentation** (6): ADR, RFC, diagrams, init, check, update
 - **Git & GitHub** (7): Conventional commits, PR creation, releases, gitflow, branch sync, shipping, daily planning
@@ -48,12 +49,12 @@ make -C integrations/claude-code/claude-hi standard # Schedule 5-hour windows
 - **Utilities** (7): Skill creation, memory rules, skill improvement, multi-agent orchestration, browser automation, skill discovery, Jira CLI
 
 **Claude Code unlocks extras:**
-- 8 plugin variants (install just the category you need — see `CLAUDE.md`)
+- 9 plugin variants (install just the category you need, see `CLAUDE.md`)
 - Per-skill hooks (e.g. auto-closing a browser session on stop)
 - Parallel subagent orchestration for review/team skills
 - Statusline (usage/cost tracking) and Claude Hi (5-hour window scheduling)
 
-Every skill still works standalone in any Agent-Skills-compatible tool — the Claude Code layer is additive, never required.
+Every skill still works standalone in any Agent-Skills-compatible tool: the Claude Code layer is additive, never required.
 
 ## Documentation
 
@@ -68,12 +69,12 @@ Every skill still works standalone in any Agent-Skills-compatible tool — the C
 
 ## Who builds this
 
-Built and maintained by [Giovani Moutinho](https://giovani.dev) — a senior engineer at a Bay Area big-tech company with 15+ years building scalable backend systems, now focused on AI tooling for developer productivity.
+Built and maintained by [Giovani Moutinho](https://giovani.dev), a senior engineer at a Bay Area big-tech company with 15+ years building scalable backend systems, now focused on AI tooling for developer productivity.
 [GitHub](https://github.com/mgiovani) · [giovani.dev](https://giovani.dev)
 
 ## Contributing
 
-Contributions welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines. New skills go under `skills/<name>/SKILL.md` — see `AGENTS.md` for the skill anatomy and portability convention.
+Contributions welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines. New skills go under `skills/<name>/SKILL.md`, see `AGENTS.md` for the skill anatomy and portability convention.
 
 ## Support
 

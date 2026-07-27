@@ -16,10 +16,10 @@
 
 ## Controls
 
-- **Authentication** — {{AUTH_APPROACH}}
-- **Authorization** — {{AUTHZ_APPROACH}}
-- **Encryption in transit** — {{ENCRYPTION_TRANSIT}}
-- **Encryption at rest** — {{ENCRYPTION_REST}}
+- **Authentication**: {{AUTH_APPROACH}}
+- **Authorization**: {{AUTHZ_APPROACH}}
+- **Encryption in transit**: {{ENCRYPTION_TRANSIT}}
+- **Encryption at rest**: {{ENCRYPTION_REST}}
 
 ## Trust Boundaries
 
@@ -28,7 +28,7 @@
 
 ## Related
 
-- [Data Model](data-model.md) — entity relationships (generate with `docs-diagram er`)
+- [Data Model](data-model.md): entity relationships (generate with `docs-diagram er`)
 
 ---
 

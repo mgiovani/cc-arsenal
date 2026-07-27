@@ -11,7 +11,7 @@ A release promotes everything on `dev` to `main` (production) as a versioned, ta
 ## 1. Cut the release branch
 
 - Branch from the tip of `dev`: `git fetch origin && git switch -c release/<x.y.z> origin/dev`.
-- Bump the version in your project manifest (e.g. `package.json`, `pyproject.toml`, `Cargo.toml`) to `<x.y.z>`. No manifest? Skip this — the tag alone carries the version (see Versioning in `SKILL.md`).
+- Bump the version in your project manifest (e.g. `package.json`, `pyproject.toml`, `Cargo.toml`) to `<x.y.z>`. No manifest? Skip this: the tag alone carries the version (see Versioning in `SKILL.md`).
 - Update `CHANGELOG.md` (see `references/changelog.md`). This is mandatory and is the moment the changelog is assembled from the PRs in scope.
 - Commit: `chore(release): v<x.y.z>` (changelog and version bump can be one commit or two).
 

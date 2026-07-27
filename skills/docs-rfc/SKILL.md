@@ -4,7 +4,7 @@ description: Create a numbered RFC (Request For Comments) document proposing a
   change and opening it for team discussion, using minimal/standard/detailed
   templates. Trigger on "write an RFC", "draft a proposal for X", "document this
   change before we build it", or "get feedback on this design". Not for recording
-  a decision that's already made (use docs-adr) — RFCs propose and stay open for
+  a decision that's already made (use docs-adr), RFCs propose and stay open for
   discussion, ADRs record a choice that happened.
 metadata:
   author: mgiovani
@@ -22,10 +22,10 @@ Create a new RFC document proposing and discussing a change.
 
 RFCs propose changes to real systems, so ground every claim before writing:
 
-1. **Verify current state** — explore the codebase to understand what exists today
-2. **Reference actual code** — don't invent APIs or patterns; find real examples
-3. **Check dependencies** — confirm libraries/tools mentioned actually exist in the project
-4. **Validate assumptions** — each claim about current state must be verified
+1. **Verify current state**: explore the codebase to understand what exists today
+2. **Reference actual code**: don't invent APIs or patterns; find real examples
+3. **Check dependencies**: confirm libraries/tools mentioned actually exist in the project
+4. **Validate assumptions**: each claim about current state must be verified
 
 ## Workflow
 
@@ -40,7 +40,7 @@ Use Task tool with Explore agent:
 - subagent_type: "Explore"
 ```
 
-No Task tool available — explore directly with `grep`/`glob`/`read` before writing,
+No Task tool available: explore directly with `grep`/`glob`/`read` before writing,
 covering the same four questions (current patterns, related components, existing
 similar features, technical constraints). Either way, keep what you find: it feeds
 the Background and Detailed Design sections in Phase 6.
@@ -69,13 +69,13 @@ Run `git config user.name`, falling back to `"Development Team"` if empty.
 
 ### Phase 6: Load and Populate Template
 
-Template location: `assets/templates/` — select based on variant:
+Template location: `assets/templates/`, select based on variant:
 
-- `minimal` -> `minimal.md` — Summary, Motivation, Proposal, Open Questions. Use for small changes.
-- `standard` -> `standard.md` (default) — adds Rationale and Alternatives, Implementation Plan, Testing Plan, Migration Strategy, Timeline. Use for most feature proposals.
-- `detailed` -> `detailed.md` — full set including Goals/Non-Goals, Security Considerations, Performance Implications, Monitoring and Metrics. Use for major/architectural changes.
+- `minimal` -> `minimal.md`: Summary, Motivation, Proposal, Open Questions. Use for small changes.
+- `standard` -> `standard.md` (default): adds Rationale and Alternatives, Implementation Plan, Testing Plan, Migration Strategy, Timeline. Use for most feature proposals.
+- `detailed` -> `detailed.md`: full set including Goals/Non-Goals, Security Considerations, Performance Implications, Monitoring and Metrics. Use for major/architectural changes.
 
-Draft real content for every `{{PLACEHOLDER}}` present in the selected template —
+Draft real content for every `{{PLACEHOLDER}}` present in the selected template:
 each variant has its own set (metadata fields, body sections, risk tables,
 alternatives, review history, and so on). Base each one on the Phase 1 findings
 or on explicit reasoning about the proposal; never leave a placeholder token

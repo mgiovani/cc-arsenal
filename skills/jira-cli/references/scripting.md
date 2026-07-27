@@ -2,7 +2,7 @@
 
 This file contains examples for automating Jira operations with scripts and integrating with CI/CD pipelines.
 
-For a formatted daily standup report or sprint status readout, use the `jira-daily` skill instead — it correlates Jira activity with git commits and produces a reviewed summary, not just raw command output. This file is for automation that isn't already a curated skill: bulk mutations, CI hooks, and metrics extraction.
+For a formatted daily standup report or sprint status readout, use the `jira-daily` skill instead: it correlates Jira activity with git commits and produces a reviewed summary, not just raw command output. This file is for automation that isn't already a curated skill: bulk mutations, CI hooks, and metrics extraction.
 
 ## Bash Scripting Examples
 

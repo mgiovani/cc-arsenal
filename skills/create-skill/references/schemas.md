@@ -39,12 +39,12 @@ The evaluation definition file. Created during Phase 4 of skill creation.
 ### Writing Good Evals
 
 **Prompts:**
-- Write exactly what a real user would type — not an idealized machine-readable query
+- Write exactly what a real user would type, not an idealized machine-readable query
 - Cover the range of trigger phrasings from the skill description
 - Include at least one "easy" case and one case with ambiguity
 
 **Assertions:**
-- Be specific but not brittle — check structure and content, not exact wording
+- Be specific but not brittle: check structure and content, not exact wording
 - Each assertion should fail for a clearly bad output and pass for a good one
 - Avoid assertions that would pass even if the skill produced garbage
 
@@ -78,9 +78,9 @@ The evaluation definition file. Created during Phase 4 of skill creation.
 
 ## evals/trigger-eval.json
 
-Description-triggering evals. Tests whether the skill's `description` fires (or correctly doesn't) on realistic prompts — a separate concern from evals.json, which tests task completion once the skill is active.
+Description-triggering evals. Tests whether the skill's `description` fires (or correctly doesn't) on realistic prompts, a separate concern from evals.json, which tests task completion once the skill is active.
 
-**Top-level JSON array — no wrapper object.** The schema test enforces this shape:
+**Top-level JSON array, no wrapper object.** The schema test enforces this shape:
 
 ```json
 [
@@ -94,7 +94,7 @@ Description-triggering evals. Tests whether the skill's `description` fires (or 
 | `query` | string | A realistic prompt a user might type |
 | `should_trigger` | bool | Whether the skill's description should cause it to fire on this query |
 
-~20 entries, roughly half `should_trigger: false`. Make the negatives near-misses — phrasings from sibling skills' territory that a loose description would wrongly catch — not obviously unrelated queries; those don't discriminate anything.
+~20 entries, roughly half `should_trigger: false`. Make the negatives near-misses (phrasings from sibling skills' territory that a loose description would wrongly catch), not obviously unrelated queries; those don't discriminate anything.
 
 ## evals/results/{eval_id}/grading.json
 

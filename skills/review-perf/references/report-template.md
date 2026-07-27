@@ -19,10 +19,10 @@ Use this template when generating the performance report in Phase 5.
 
 ## Severity Breakdown
 
-- **Critical**: N findings — Significant performance degradation, likely user-facing impact
-- **High**: N findings — Notable inefficiency, should be addressed before scaling
-- **Medium**: N findings — Optimization opportunity with measurable improvement potential
-- **Low**: N findings — Minor optimization, marginal impact
+- **Critical**: N findings, significant performance degradation, likely user-facing impact
+- **High**: N findings, notable inefficiency, should be addressed before scaling
+- **Medium**: N findings, optimization opportunity with measurable improvement potential
+- **Low**: N findings, minor optimization, marginal impact
 
 ## Findings by Performance Category
 
@@ -144,7 +144,7 @@ Use this template when generating the performance report in Phase 5.
 
 [List 3-5 changes that are easy to implement and have high impact]
 
-1. **[Title]**: [1-2 sentence description] — Expected improvement: [estimate]
+1. **[Title]**: [1-2 sentence description], expected improvement: [estimate]
 2. [...]
 
 ## Profiling Recommendations
@@ -203,12 +203,12 @@ Top Critical Finding:
 N+1 Query in user_service.py:45
   Loading user profiles in a loop triggers 1 query per user.
   For 100 users: 101 queries (1 list + 100 individual).
-  Fix: Use prefetch_related('profile') — reduces to 2 queries.
+  Fix: Use prefetch_related('profile'), reduces to 2 queries.
 
 Quick Wins:
-1. Add select_related to user list endpoint — saves ~100 queries/request
-2. Replace lodash with lodash-es — saves ~68KB bundle size
-3. Add React.memo to UserCard component — eliminates ~50 unnecessary re-renders
+1. Add select_related to user list endpoint, saves ~100 queries/request
+2. Replace lodash with lodash-es, saves ~68KB bundle size
+3. Add React.memo to UserCard component, eliminates ~50 unnecessary re-renders
 
 [Full detailed report follows...]
 ```

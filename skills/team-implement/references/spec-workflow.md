@@ -2,7 +2,7 @@
 
 This document provides detailed technical specifications for the `team-implement` skill's workflow engine, including input detection, complexity assessment, phase transitions, and quality gates.
 
-**Read this as pseudocode, not literal code.** The Python classes/functions below describe the *conceptual* rules an orchestrating agent follows — there is no actual Python engine executing them. The real "implementation" is the orchestrator LLM reading `.specs/` files and making real tool calls (`Task`, `SendMessage`, `TaskCreate`, `TaskUpdate`, `TaskStop`, or whatever this environment's equivalents are). Don't treat a class/function name here as a tool that exists.
+**Read this as pseudocode, not literal code.** The Python classes/functions below describe the *conceptual* rules an orchestrating agent follows: there is no actual Python engine executing them. The real "implementation" is the orchestrator LLM reading `.specs/` files and making real tool calls (`Task`, `SendMessage`, `TaskCreate`, `TaskUpdate`, `TaskStop`, or whatever this environment's equivalents are). Don't treat a class/function name here as a tool that exists.
 
 ## 1. Input Source Detection
 
@@ -766,7 +766,7 @@ None (gate only)
 
 **Actions (Both Modes):**
 1. Shut down all active teammates (if full mode)
-2. Stop each one with this environment's real stop primitive (`TaskStop` in Claude Code) — don't assume a dedicated "cleanup" call exists
+2. Stop each one with this environment's real stop primitive (`TaskStop` in Claude Code), don't assume a dedicated "cleanup" call exists
 3. Archive spec directory
 4. Update global Task Management System
 5. Log session metrics (optional)

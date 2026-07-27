@@ -1,4 +1,4 @@
-# Design Review — Agent Prompts (Live + Static)
+# Design Review: Agent Prompts (Live + Static)
 
 Per-agent prompts for Phase 3. Each agent gets a **live** branch (analyze the
 screenshot + DOM/a11y snapshot captured in Phase 3) and a **static** branch
@@ -49,7 +49,7 @@ contrast ratio directly from the two color values found in the CSS/tokens:
 
 Report the ratio to two decimal places as the measured value. If a color comes from a
 CSS variable/token, resolve it to its concrete hex value first (grep the token definition)
-before computing — don't guess the resolved value. When text sits over a gradient or an
+before computing, don't guess the resolved value. When text sits over a gradient or an
 image, say contrast can't be reliably computed statically and note it as a coverage gap
 instead of estimating.
 
@@ -60,7 +60,7 @@ that clears the size-appropriate threshold is a pass, even if it would fail the 
 
 ---
 
-## Agent 1 — Visual Hierarchy + Layout & Spacing (Dimension 1)
+## Agent 1: Visual Hierarchy + Layout & Spacing (Dimension 1)
 
 Criteria: VH-01..04, LY-01..06 (criteria-foundations.md).
 
@@ -87,7 +87,7 @@ STATIC (grep CSS/components/tokens):
 
 ---
 
-## Agent 2 — Typography (Dimension 2)
+## Agent 2: Typography (Dimension 2)
 
 Criteria: TY-01..08 (criteria-foundations.md).
 
@@ -110,7 +110,7 @@ STATIC (grep):
 
 ---
 
-## Agent 3 — Color + Dark Mode (Dimension 3)
+## Agent 3: Color + Dark Mode (Dimension 3)
 
 Criteria: CO-01..08, DM-01..05 (criteria-foundations.md). Compute contrast ratios.
 
@@ -136,7 +136,7 @@ STATIC (grep):
 
 ---
 
-## Agent 4 — Depth/Shadows + Components & Affordance (Dimensions 4, 5)
+## Agent 4: Depth/Shadows + Components & Affordance (Dimensions 4, 5)
 
 Criteria: DE-01..06, CP-01..06, IC-01..04 (foundations + interaction).
 
@@ -162,7 +162,7 @@ STATIC (grep):
 
 ---
 
-## Agent 5 — Feedback & States + Motion/Microinteractions (Dimensions 6, 7)
+## Agent 5: Feedback & States + Motion/Microinteractions (Dimensions 6, 7)
 
 Criteria: FB-01..09, MO-01..07 (criteria-interaction.md).
 
@@ -189,7 +189,7 @@ STATIC (grep):
 
 ---
 
-## Agent 6 — Accessibility (Dimension 8, WCAG 2.2 AA, cross-cutting)
+## Agent 6: Accessibility (Dimension 8, WCAG 2.2 AA, cross-cutting)
 
 Criteria: AC-01..12 (criteria-interaction.md).
 
@@ -223,7 +223,7 @@ STATIC (grep):
 
 - Patterns are written for ripgrep (`rg`); they also work with `Grep`. PCRE look-arounds
   (`(?!…)`) require `rg -P` / Grep's default PCRE2.
-- Always **Read** each match to confirm context before reporting — grep finds candidates,
+- Always **Read** each match to confirm context before reporting: grep finds candidates,
   not confirmed findings.
 - Prefer the project's token source of truth (discovered in Phase 1) when judging "hardcoded
   vs tokenized" criteria (CO-02, DE-03, LY-02).

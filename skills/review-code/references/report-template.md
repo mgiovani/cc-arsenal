@@ -177,5 +177,5 @@ Highlight well-written code, good patterns, and strengths found during review:
 
 ---
 
-**Next Steps**: Address Critical and Major findings first. Run `/review-code` again after fixes — it re-derives the current diff and reports what changed.
+**Next Steps**: Address Critical and Major findings first. Run `/review-code` again after fixes, it re-derives the current diff and reports what changed.
 ```

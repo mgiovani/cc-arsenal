@@ -22,27 +22,27 @@ $ARGUMENTS
 
 ## Anti-Hallucination Guidelines
 
-Test generation must be grounded in code you actually read and patterns you actually verified — a test for a method that doesn't exist, or a coverage number you didn't measure, is worse than no test at all:
+Test generation must be grounded in code you actually read and patterns you actually verified: a test for a method that doesn't exist, or a coverage number you didn't measure, is worse than no test at all:
 
 1. Read the source file before writing any test for it.
 2. Discover the test framework from the project itself (Step 0.2) rather than assuming pytest/vitest/jest.
 3. Match the project's existing test style, fixtures, and conventions exactly.
-4. Run every generated test — a test that has never executed is unverified.
+4. Run every generated test: a test that has never executed is unverified.
 5. Only reference methods, functions, and interfaces that exist in the code you read.
 6. Every test needs a meaningful assertion, not just "does not throw."
 7. Target untested code paths; don't duplicate coverage that already exists.
-8. Any coverage percentage, baseline, or file path you report must come from a command you actually ran — never estimate or invent one, even under time pressure.
+8. Any coverage percentage, baseline, or file path you report must come from a command you actually ran, never estimate or invent one, even under time pressure.
 
 A Stop hook re-runs the discovered test/coverage/lint commands automatically before letting the session end (see frontmatter). Phase 4 below exists only to catch failures before that automatic gate fires, not to duplicate it.
 
 ## Scope: pick a track before starting
 
-- **Small** (1-2 tests, a single file, a quick fix) — skip task creation and the approval gate. Discover the test command (Step 0.2), write the tests, run them, done. Don't spin up Task Management ceremony for a two-test add.
-- **Large** (multiple files/modules, a coverage push, anything needing parallel subagents) — use the full Phase 0-5 workflow with Task Management below.
+- **Small** (1-2 tests, a single file, a quick fix): skip task creation and the approval gate. Discover the test command (Step 0.2), write the tests, run them, done. Don't spin up Task Management ceremony for a two-test add.
+- **Large** (multiple files/modules, a coverage push, anything needing parallel subagents): use the full Phase 0-5 workflow with Task Management below.
 
 If unsure, default to Small and escalate only if the target turns out to span several modules.
 
-**Portability:** No `Task`/`TaskCreate` tools in this environment? Skip task tracking and the parallel subagent fan-out in Phase 3 — write the tests for each module group yourself, one group at a time. The phase structure is the contract; parallelism is just a speedup.
+**Portability:** No `Task`/`TaskCreate` tools in this environment? Skip task tracking and the parallel subagent fan-out in Phase 3: write the tests for each module group yourself, one group at a time. The phase structure is the contract; parallelism is just a speedup.
 
 ## Implementation Workflow (Large track)
 
@@ -50,7 +50,7 @@ If unsure, default to Small and escalate only if the target turns out to span se
 
 **Step 0.1: Create Task Structure**
 
-Create one task per phase, in order. `TaskCreate` returns the task's real ID — capture it and reuse that captured value everywhere below. Never assume IDs are literally `"1"`, `"2"`, etc.
+Create one task per phase, in order. `TaskCreate` returns the task's real ID: capture it and reuse that captured value everywhere below. Never assume IDs are literally `"1"`, `"2"`, etc.
 
 ```
 discoverId = TaskCreate({ subject: "Phase 0: Discover project test workflow", description: "Identify test framework, coverage tools, and conventions", activeForm: "Discovering test workflow" })
@@ -321,9 +321,9 @@ npm test
 bun test
 ```
 
-If a test fails, figure out whether it's a new test (fix the test — it made a wrong assumption about behavior) or an existing test (the new code introduced a side effect — investigate and fix). Re-run until everything passes.
+If a test fails, figure out whether it's a new test (fix the test, it made a wrong assumption about behavior) or an existing test (the new code introduced a side effect, investigate and fix). Re-run until everything passes.
 
-That's it — the Stop hook already re-runs tests, coverage, and lint automatically before the session ends, so don't duplicate a full separate coverage-and-lint pass here. This step exists only so failures surface while you're still working, not at the very last gate.
+That's it: the Stop hook already re-runs tests, coverage, and lint automatically before the session ends, so don't duplicate a full separate coverage-and-lint pass here. This step exists only so failures surface while you're still working, not at the very last gate.
 
 ```
 TaskUpdate: { taskId: verifyId, status: "completed" }
@@ -340,7 +340,7 @@ TaskUpdate: { taskId: commitId, status: "in_progress" }
 
 **Step 5.2: Create Commit**
 
-Use the `cc-arsenal:git-commit` skill to create the commit where available; otherwise create a conventional commit manually, using the actual coverage numbers from the command you ran in Phase 4/Phase 1 — never an estimate:
+Use the `cc-arsenal:git-commit` skill to create the commit where available; otherwise create a conventional commit manually, using the actual coverage numbers from the command you ran in Phase 4/Phase 1, never an estimate:
 
 ```bash
 git add [test files created/modified]
@@ -381,7 +381,7 @@ Generated tests must follow these principles:
 6. **Fast**: Unit tests run quickly; minimize I/O and external calls
 7. **Readable**: Tests serve as documentation for the code under test
 8. **Maintainable**: Avoid testing implementation details; test behavior and contracts
-9. **Lean coverage**: Over-testing is the failure mode in the other direction — skip trivial getters, pure pass-throughs, and framework-guaranteed behavior. Don't add a snapshot test or an assert-nothing test just to move a coverage number. The one exception: never skip a test for a security, validation, or data-loss path just because it's tedious to set up — that risk is always worth the test.
+9. **Lean coverage**: Over-testing is the failure mode in the other direction: skip trivial getters, pure pass-throughs, and framework-guaranteed behavior. Don't add a snapshot test or an assert-nothing test just to move a coverage number. The one exception: never skip a test for a security, validation, or data-loss path just because it's tedious to set up, that risk is always worth the test.
 
 ## Additional Resources
 
@@ -389,9 +389,9 @@ Generated tests must follow these principles:
 
 ## Important Notes
 
-- Run Phase 0 first, every time — never assume which test framework a project uses.
+- Run Phase 0 first, every time, never assume which test framework a project uses.
 - Match the project's existing test style exactly; don't introduce a new convention alongside the old one.
-- Coverage is a guide, not a goal — a meaningful test beats a percentage bump.
+- Coverage is a guide, not a goal: a meaningful test beats a percentage bump.
 - All existing tests must keep passing; a new test that breaks an old one is a regression, not progress.
 - When scope or approach is genuinely unclear, ask via `AskUserQuestion` (or its text fallback) rather than guessing.
 - Prefer one clean commit with all tests over many small commits.

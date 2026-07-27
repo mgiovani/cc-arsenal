@@ -58,7 +58,7 @@ The full standup report with all sections. Used when no `--format` flag is speci
 - **Issues Closed**: X | **PRs Merged**: Y
 ```
 
-Omit the Metrics Summary line for any metric that Phase 3 didn't gather (e.g. no lines-changed or reviews-given command runs by default — leave those out rather than guessing).
+Omit the Metrics Summary line for any metric that Phase 3 didn't gather (e.g. no lines-changed or reviews-given command runs by default, leave those out rather than guessing).
 
 ## Brief Format (`--format brief`)
 

@@ -1,6 +1,6 @@
 # Claude Code Enhanced Statusline
 
-A bash+jq statusline for Claude Code showing model, git status, cost, context usage, and 5-hour/7-day usage windows — with optional multi-account support.
+A bash+jq statusline for Claude Code showing model, git status, cost, context usage, and 5-hour/7-day usage windows, with optional multi-account support.
 
 ## Example
 
@@ -15,4 +15,4 @@ A bash+jq statusline for Claude Code showing model, git status, cost, context us
 make install-statusline   # from the cc-arsenal project root
 ```
 
-👉 **[Complete guide →](STATUSLINE.md)** — installation, configuration, every `STATUSLINE_*`/`CLAUDE_*` env var, multi-account setup, and troubleshooting.
+👉 **[Complete guide →](STATUSLINE.md)**: installation, configuration, every `STATUSLINE_*`/`CLAUDE_*` env var, multi-account setup, and troubleshooting.

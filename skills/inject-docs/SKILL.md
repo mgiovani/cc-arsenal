@@ -7,7 +7,7 @@ description: Inject compressed framework-specific best practices and docs into
   a user wants to add Next.js or FastAPI docs to CLAUDE.md/AGENTS.md, run the
   Vercel agents-md codemod, inject framework best practices for AI agents, or
   improve AI agent performance on a Next.js or FastAPI project. This is the
-  only framework-doc-injection skill in this toolkit — don't look for a
+  only framework-doc-injection skill in this toolkit, don't look for a
   Next.js-specific variant.
 metadata:
   author: mgiovani
@@ -87,7 +87,7 @@ Where `<TARGET_FILE>` is the file detected in Phase 0 (e.g., `CLAUDE.md` or `AGE
 
 #### Option B: FastAPI Projects
 
-Run the bundled injection script using this skill's own absolute directory path — not `$(dirname "$0")`. That trick resolves against the *shell's* path when run through the Bash tool, not this SKILL.md's location, so it silently points at the wrong (or a nonexistent) script. Use the directory this SKILL.md was loaded from instead:
+Run the bundled injection script using this skill's own absolute directory path, not `$(dirname "$0")`. That trick resolves against the *shell's* path when run through the Bash tool, not this SKILL.md's location, so it silently points at the wrong (or a nonexistent) script. Use the directory this SKILL.md was loaded from instead:
 
 ```bash
 uv run <absolute-path-to-this-skill-dir>/scripts/inject_fastapi_docs.py
@@ -106,7 +106,7 @@ After Phase 1 completes:
 
 1. **Confirm the target file was updated** - read it back and check it contains the injected framework content (pipe-delimited Next.js index, or the `## FastAPI Best Practices` section)
 2. **Check size** - note the approximate size before/after (Next.js codemod prints this; for FastAPI, compare file sizes yourself)
-3. Do not report success on command exit code alone — verify the content actually landed.
+3. Do not report success on command exit code alone: verify the content actually landed.
 
 ### Phase 3: Report
 

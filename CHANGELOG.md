@@ -5,15 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [5.1.0] - 2026-07-27
+
+### Added
+- **3 new Product & Design skills**, plus a new `cc-arsenal-product` plugin variant bundling all three:
+  - **product-prd**: authors a right-sized product requirements doc from an idea. A gate-zero check asks whether the idea needs a doc at all, then sizes the output by scope and audience (brief, one-pager, big-tier PR/FAQ, or full PRD), with mandatory non-goals and testable, traceable requirements instead of a one-size-fits-all template.
+  - **product-design-spec**: authors a design specification (information architecture, user flows, screen inventory, per-screen state specs) for an approved PRD, reusing the existing component library and tracing every screen back to a requirement ID.
+  - **product-design-tokens**: authors a durable design-token contract (W3C DTCG 2025.10 JSON, plus an optional DESIGN.md), reusing the project's design system and enforcing WCAG 2.2 AA contrast.
+  - The repo grew from 45 to 48 skills; AGENTS.md, README.md, CLAUDE.md, and the plugin manifests were updated to match.
 
 ### Changed
-- **Statusline: staff-level overhaul.** Removed ~3,900 lines of dead code (an entire abandoned cache subsystem, superseded flat modules, rotted dev tools) and retired the background daemon — its output had no consumers and the OAuth refresh now fires directly from the render path, non-blocking. The whole tree is shellcheck-clean, usage percentages are now threshold-colored (green/yellow/red), the test suite was rebuilt against the live modules with shared assert helpers, glob discovery, and full /tmp isolation (9/9 suites), docs were consolidated into STATUSLINE.md and verified against the code, and CI gained a Linux shellcheck+test job.
+- **Repo-wide slop cleanup**: em-dashes replaced with commas, colons, or parentheses across AGENTS.md, README.md, CLAUDE.md, and CHANGELOG.md.
+- **Statusline: staff-level overhaul.** Removed ~3,900 lines of dead code (an entire abandoned cache subsystem, superseded flat modules, rotted dev tools) and retired the background daemon: its output had no consumers and the OAuth refresh now fires directly from the render path, non-blocking. The whole tree is shellcheck-clean, usage percentages are now threshold-colored (green/yellow/red), the test suite was rebuilt against the live modules with shared assert helpers, glob discovery, and full /tmp isolation (9/9 suites), docs were consolidated into STATUSLINE.md and verified against the code, and CI gained a Linux shellcheck+test job.
 - **Statusline: context moved next to the model.** Line 1 now renders the context-window percentage (`📊`) immediately after the model instead of after the git/worktree components, so token usage stays glanceable next to what's consuming it. Order is now model → context → directory → git → worktree → cost → session.
 
 ### Fixed
 - **Statusline: account badge now shows without `CLAUDE_CODE_OAUTH_TOKEN`.** The `CLAUDE_STATUSLINE_ACCOUNT_LABEL` badge was gated on the OAuth-token env var also being set, so accounts switched via a separate credential store (`CLAUDE_SECURESTORAGE_CONFIG_DIR`) got no badge. The label is user-set display text and now renders whenever it's set, independent of how the account was selected. Per-account usage-cache isolation and background OAuth refresh remain keyed on `CLAUDE_CODE_OAUTH_TOKEN`.
-- **Plugin manifests:** `.claude-plugin/plugin.json` still carried the pre-v5 marketing description (it had also sat at version 2.0.0 from February through July while `marketplace.json` advanced — the snapshot stale Claude Desktop installs were showing). Descriptions are aligned, and `make validate-plugins` now fails on any version or description drift between the two manifests so a partial bump can't ship again.
+- **Plugin manifests:** `.claude-plugin/plugin.json` still carried the pre-v5 marketing description (it had also sat at version 2.0.0 from February through July while `marketplace.json` advanced: the snapshot stale Claude Desktop installs were showing). Descriptions are aligned, and `make validate-plugins` now fails on any version or description drift between the two manifests so a partial bump can't ship again.
 - **Statusline (post-review):** the background OAuth fetcher now holds a single-flight lock for the whole fetch, so overlapping renders can't stack concurrent calls against the rate-limited API; the tmux cache write reuses values the render already extracted instead of re-forking `cat`+`jq`; ISO timestamps with explicit UTC offsets parse to the correct epoch instead of being read as UTC; non-numeric values render as-is instead of `printf` garbage like `045%`; `hash_sha256` falls back to MD5 (then `default`) so per-account cache keys stay distinct on minimal systems; the error log is size-capped. The config surface was cut to the keys the code actually honors, `STATUSLINE_CONFIG_OVERRIDE` now really works, `configure_statusline.py` was rewritten to offer only working options (481→80 lines), and the dead `lib/tracking/` modules were removed (~550 lines).
 - **Statusline:** `extract_json` returned success with empty output on a grep-fallback miss, making every `||` fallback chain over it unreachable (e.g. session-id lookup never tried `session_id`/`conversation_id`); `lib/display/components.sh` didn't source its own `core/json.sh` dependency; `cache_clear` could expand `rm -rf` against `/*` if its directory variable was ever empty.
 
@@ -29,21 +37,21 @@ The authoring-standard overhaul. Every skill was rewritten to the Anthropic skil
 
 ### Added
 - **4 new skills** mined from real usage history, each eval-gated new_skill-vs-baseline (all four beat a no-skill baseline):
-  - **orchestrate** (15/15 vs 7/15): turn any task into a model-tiered multi-agent plan — decompose, classify each subtask, map it to the right model (haiku research, opus planning, sonnet implementation), run independent tracks in parallel under strict one-owner-per-file discipline, then synthesize yourself. Declines to orchestrate trivial single-file tasks.
-  - **oss-launch** (18/22 vs 13/22): private-to-public GitHub launch pipeline — secrets/license pre-flight, review-code fixes, branding, README/description rewrite, mention scrub (presents matches, never auto-edits), a gated history rewrite (private-only, explicit confirmation, refuses on already-public repos), then flips public with a stage table of real commands.
+  - **orchestrate** (15/15 vs 7/15): turn any task into a model-tiered multi-agent plan: decompose, classify each subtask, map it to the right model (haiku research, opus planning, sonnet implementation), run independent tracks in parallel under strict one-owner-per-file discipline, then synthesize yourself. Declines to orchestrate trivial single-file tasks.
+  - **oss-launch** (18/22 vs 13/22): private-to-public GitHub launch pipeline: secrets/license pre-flight, review-code fixes, branding, README/description rewrite, mention scrub (presents matches, never auto-edits), a gated history rewrite (private-only, explicit confirmation, refuses on already-public repos), then flips public with a stage table of real commands.
   - **codex-imagegen** (17/18 vs 10/18): polished raster art (logos, mascots, heroes, sprites, mockups) via Codex CLI's `$imagegen`, with chroma-key transparency handling and pixel-level QC; the default image generator for illustrated assets.
-  - **improve-skill** (16/17 vs 7/17): evidence-based improvement of an existing skill — snapshot the baseline, rewrite to the rubric, author evals, benchmark new-vs-old, with a per-dimension restraint gate so an already-compliant skill gets a small diff.
+  - **improve-skill** (16/17 vs 7/17): evidence-based improvement of an existing skill: snapshot the baseline, rewrite to the rubric, author evals, benchmark new-vs-old, with a per-dimension restraint gate so an already-compliant skill gets a small diff.
 - **Full eval coverage**: all 45 skills now ship both `evals/evals.json` (task-completion) and `evals/trigger-eval.json` (description-triggering), up from 24 of 41.
 - **cc-arsenal-dev** gains codex-imagegen and oss-launch; **cc-arsenal-skills** gains improve-skill and orchestrate.
 
 ### Changed
 - **All 41 existing skills rewritten to the Anthropic authoring standard**, each gated by a per-skill baseline-vs-new eval loop (sandboxed executors, deterministic grading, human-reviewed): use-case-first descriptions with explicit "Not for X (use sibling)" disambiguation across every overlapping cluster, sub-500-line imperative bodies with WHY reserved for hard boundaries, heavy detail moved to `references/<topic>.md` with load-when links, anti-hallucination floors (reported numbers must come from a command actually run), and tool-neutral portability with explicit sequential fallbacks for the orchestration skills.
-- **Descriptions validated** against their trigger-eval sets — the optimizer kept the rewritten description in every case measured, confirming they already trigger reliably.
+- **Descriptions validated** against their trigger-eval sets: the optimizer kept the rewritten description in every case measured, confirming they already trigger reliably.
 - **ship** owns "ship it" for the default feature-branch case; **gitflow** cedes that trigger and keeps release/hotfix-topology cases. ship's description folded to valid YAML and trimmed under the 1024-char cap.
 - All plugin versions bumped to 5.0.0; skill counts and variant tables regenerated across AGENTS.md, CLAUDE.md, README.md, and docs (41 → 45).
-- **Image-generation routing**: **codex-imagegen** is now the default image generator for any implicit "generate an image / logo / hero / mascot" request (covered by the Codex subscription, no marginal cost), and **nanobanana** is narrowed to explicit-invocation only since it makes a real, billed Gemini API call — triggering only on "nanobanana"/"nano banana"/"gemini image generation"/`GEMINI_API_KEY`. codex-imagegen no longer references nanobanana, and oss-launch's brand stage no longer auto-falls-back to it.
-- **features.md labeling convention**: every skill is documented as `#### /<name>` with a single `— auto` (also model-triggered) or `— manual` (`disable-model-invocation: true`, slash-only) marker matched to frontmatter, plus a one-line legend — replacing the inconsistent `(model-invoked)`/`(user-invoked)` suffixes (13 of which disagreed with frontmatter).
-- **Skill composition convention** added to `AGENTS.md`: a skill may invoke a sibling via the Claude Code `Skill` tool, but must state the tool-neutral fallback in the same sentence (other CLIs read the sibling's `SKILL.md` as text) — distinct from Task-tool subagent delegation. `ship`, `oss-launch`, `test-suite`, `git-create-pr`, and `team-implement` follow it.
+- **Image-generation routing**: **codex-imagegen** is now the default image generator for any implicit "generate an image / logo / hero / mascot" request (covered by the Codex subscription, no marginal cost), and **nanobanana** is narrowed to explicit-invocation only since it makes a real, billed Gemini API call, triggering only on "nanobanana"/"nano banana"/"gemini image generation"/`GEMINI_API_KEY`. codex-imagegen no longer references nanobanana, and oss-launch's brand stage no longer auto-falls-back to it.
+- **features.md labeling convention**: every skill is documented as `#### /<name>` with a single `(auto)` (also model-triggered) or `(manual)` (`disable-model-invocation: true`, slash-only) marker matched to frontmatter, plus a one-line legend, replacing the inconsistent `(model-invoked)`/`(user-invoked)` suffixes (13 of which disagreed with frontmatter).
+- **Skill composition convention** added to `AGENTS.md`: a skill may invoke a sibling via the Claude Code `Skill` tool, but must state the tool-neutral fallback in the same sentence (other CLIs read the sibling's `SKILL.md` as text), distinct from Task-tool subagent delegation. `ship`, `oss-launch`, `test-suite`, `git-create-pr`, and `team-implement` follow it.
 
 ## [4.0.0] - 2026-07-06
 
@@ -51,15 +59,15 @@ One repo, any agent. cc-arsenal is now a single agent-agnostic skills repository
 
 ### Added
 - **4 new skills** mined from real usage history:
-  - **ship**: "Ship train" orchestrator — review → project pre-merge checks → conventional commit → PR → CI-green, reusing the sibling git/review skills.
-  - **vrt-check**: Visual regression workflow — detects the project's VRT tooling (justfile targets, Storybook test-runner, Playwright, Chromatic, Loki), triages diffs as regression vs intended change before updating snapshots.
+  - **ship**: "Ship train" orchestrator: review → project pre-merge checks → conventional commit → PR → CI-green, reusing the sibling git/review skills.
+  - **vrt-check**: Visual regression workflow, detects the project's VRT tooling (justfile targets, Storybook test-runner, Playwright, Chromatic, Loki), triages diffs as regression vs intended change before updating snapshots.
   - **ci-local**: Replicates GitHub Actions jobs locally when Actions is unavailable or out of quota, with a parity report for steps it can't reproduce.
-  - **i18n-check**: Locale completeness checker — missing/untranslated/orphan keys across locales plus hardcoded-string detection, per-framework references bundled.
-- **Eval coverage**: 17 new eval packs (`evals/evals.json` + `evals/trigger-eval.json`) — every new skill plus agent-browser, ci-generate, docs-adr, docs-check, env-setup, git-commit, git-create-pr, git-release, review-deps, review-perf, review-security, team-implement, team-review; completed gitflow's missing assertions and review-design's missing trigger evals. 24 of 41 skills now have evals.
+  - **i18n-check**: Locale completeness checker: missing/untranslated/orphan keys across locales plus hardcoded-string detection, per-framework references bundled.
+- **Eval coverage**: 17 new eval packs (`evals/evals.json` + `evals/trigger-eval.json`): every new skill plus agent-browser, ci-generate, docs-adr, docs-check, env-setup, git-commit, git-create-pr, git-release, review-deps, review-perf, review-security, team-implement, team-review; completed gitflow's missing assertions and review-design's missing trigger evals. 24 of 41 skills now have evals.
 - **cc-arsenal-jira** plugin variant (jira-cli, jira-daily, jira-todo).
 - **Portability convention**: skill bodies are tool-neutral; Claude Code-only frontmatter (`allowed-tools`, `disable-model-invocation`, `hooks`, `context`, `agent`) is enhancement other tools safely ignore. The 8 orchestration-heavy skills now document sequential-inline fallback when no subagent/task tools exist.
 - **Version tooling**: `.version-bump.json` + `scripts/bump_version.py` + `make bump-version VERSION=x.y.z` keep all manifest version fields in lockstep.
-- **Reusable audit workflow**: `.claude/workflows/arsenal-audit.js` — re-runnable multi-agent repo audit (per-skill grading, manifest drift, usage-gap mining, ranked action plan).
+- **Reusable audit workflow**: `.claude/workflows/arsenal-audit.js`, re-runnable multi-agent repo audit (per-skill grading, manifest drift, usage-gap mining, ranked action plan).
 
 ### Changed
 - **All 41 skills audited; 32 improved**: corrupted SKILL.md bodies repaired (duplicated sections, unclosed code fences introduced by the retired sync pipeline), descriptions rewritten for reliable triggering with sibling-skill disambiguation, phantom subagent references removed, over-engineered fan-outs collapsed to inline steps, oversized bodies cut (e.g. project-planner 557→248 lines, git-commit 271→75).
@@ -81,13 +89,13 @@ One repo, any agent. cc-arsenal is now a single agent-agnostic skills repository
 ## [3.3.0] - 2026-07-02
 
 ### Added
-- **Lean Code discipline**: Added a shared "lean, never negligent" checklist to the 5 dev skills (`implement-feature`, `fix-bug`, `refactor`, `test-suite`, `review-code`) — write the smallest change that fully does the job without ever cutting validation, error/data-loss handling, security, or accessibility. Deliberate shortcuts are marked inline with `LEAN-DEBT:` instead of left as a silent gap.
+- **Lean Code discipline**: Added a shared "lean, never negligent" checklist to the 5 dev skills (`implement-feature`, `fix-bug`, `refactor`, `test-suite`, `review-code`): write the smallest change that fully does the job without ever cutting validation, error/data-loss handling, security, or accessibility. Deliberate shortcuts are marked inline with `LEAN-DEBT:` instead of left as a silent gap.
   - **implement-feature**: Full `## Lean Code` section, a Phase 2 planning hook, and propagation into the Step 3.3 parallel-subagent prompt template so implementation subagents apply the discipline directly. Also deduplicated the two conflicting `## Quality Gates` headers into `## Verification Gates` and `## Subagent Quality Checklist`.
   - **review-code**: New `enhancements/review-code/ENHANCEMENT.md` adds a 6th parallel "Simplicity & Over-Engineering" specialist (`OE-` findings, tags `[delete]/[reuse]/[stdlib]/[builtin]/[unneeded]/[simplify]`) with a static, non-benchmark lines-removable count and an explicit ban on fabricated performance/token/percentage savings claims.
-  - **fix-bug**, **refactor**, **test-suite**: Light-touch deltas — never-negligent floor callouts, deletion-over-addition and root-cause-once-in-the-shared-function guidance, and lean test-coverage guidance (test behavior and boundaries, not trivial getters or coverage-only snapshots).
+  - **fix-bug**, **refactor**, **test-suite**: Light-touch deltas: never-negligent floor callouts, deletion-over-addition and root-cause-once-in-the-shared-function guidance, and lean test-coverage guidance (test behavior and boundaries, not trivial getters or coverage-only snapshots).
 - **Skill evals**: Added `evals/evals.json` (task assertions) and `evals/trigger-eval.json` (~20 queries each, with realistic near-miss negatives) for the 5 dev skills, converging on the schema `create-skill`'s `quick_validate.py`/`run_eval.py` already support. Tightened each skill's `description` frontmatter to be active, concrete, and explicit about "use when" contexts, since Claude tends to undertrigger vague descriptions.
 - **review-design**: New UX/UI design quality audit skill, added to the `cc-arsenal-review` plugin variant.
-- **gitflow**: New skill covering the full gitflow branching model — starting/finishing feature branches, cutting versioned releases with changelog generation, coordinating emergency hotfixes, and keeping `main`/`dev` in sync. Added to the `cc-arsenal-git` plugin variant.
+- **gitflow**: New skill covering the full gitflow branching model: starting/finishing feature branches, cutting versioned releases with changelog generation, coordinating emergency hotfixes, and keeping `main`/`dev` in sync. Added to the `cc-arsenal-git` plugin variant.
 - **AGENTS.md**: Root-level mirror of CLAUDE.md's repository guidance for Codex and other AGENTS.md-aware coding assistants.
 
 ### Changed
@@ -308,7 +316,7 @@ Target audience: Teams focused on code quality and compliance
 
 ### Added
 
-- **team-implement**: Spec-driven team orchestration skill — adaptive development team that scales from 3 agents (lite) to 11 agents (full) based on project complexity
+- **team-implement**: Spec-driven team orchestration skill: adaptive development team that scales from 3 agents (lite) to 11 agents (full) based on project complexity
   - **Multi-source input**: Accepts plain text, Jira tickets (`PROJ-123`), GitHub issues (`#42`), PRs (`!123`), files, directories, or URLs
   - **Adaptive complexity**: Automatic scoring matrix evaluates 6 signals to recommend lite (Task subagents) or full (Teammate API) mode
   - **Namespaced specs**: Each invocation creates `.specs/<short-id>/` with proposal, design, review, tasks, and decisions artifacts

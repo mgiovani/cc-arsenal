@@ -4,7 +4,7 @@ File templates for `.specs/` artifacts created during spec-driven design in the 
 
 ## Overview
 
-Full mode uses separate files per artifact (proposal, design, review, tasks, decisions). Lite mode combines them into fewer files. Every template below shows 2-3 representative entries (a requirement, an endpoint, a task, an OWASP category, ...) — generate the rest of the list following the same shape rather than expecting an exhaustive template for every case. Fill TODO markers with real content; never invent numbers (coverage %, task counts, response times) that no command or agent actually produced.
+Full mode uses separate files per artifact (proposal, design, review, tasks, decisions). Lite mode combines them into fewer files. Every template below shows 2-3 representative entries (a requirement, an endpoint, a task, an OWASP category, ...), generate the rest of the list following the same shape rather than expecting an exhaustive template for every case. Fill TODO markers with real content; never invent numbers (coverage %, task counts, response times) that no command or agent actually produced.
 
 ---
 
@@ -205,7 +205,7 @@ graph TB
 - **Dependencies**: [other components]
 - **Interfaces**: [REST/gRPC/queue]
 
-_(one entry per major component — don't pad with components that don't exist)_
+_(one entry per major component, don't pad with components that don't exist)_
 
 ## Data Flow
 1. [Step: request arrives at X]
@@ -213,7 +213,7 @@ _(one entry per major component — don't pad with components that don't exist)_
 3. [Step: Y persists, responds]
 
 ## Technology Stack
-Reuse what the codebase already uses — don't introduce a new framework/library without an ADR (see Decision Record Template below) justifying it.
+Reuse what the codebase already uses, don't introduce a new framework/library without an ADR (see Decision Record Template below) justifying it.
 
 ## Key Design Decisions
 
@@ -221,7 +221,7 @@ Reuse what the codebase already uses — don't introduce a new framework/library
 - **Choice**: [what] · **Alternatives considered**: [what else, why rejected] · **Tradeoffs**: [what we give up]
 
 ## Security & Scalability Notes
-TODO: auth/authz approach, encryption, known bottlenecks and mitigations — only what's actually relevant to this feature
+TODO: auth/authz approach, encryption, known bottlenecks and mitigations, only what's actually relevant to this feature
 ```
 
 ---
@@ -255,7 +255,7 @@ Errors: `401` invalid/missing token, `429` rate limited.
 ```
 Response `201` with the created resource. Errors: `400` invalid body, `401`, `422` validation.
 
-_(GET-by-id, PUT, DELETE follow the same request/response/error shape — document them the same way, don't skip the error-response list)_
+_(GET-by-id, PUT, DELETE follow the same request/response/error shape, document them the same way, don't skip the error-response list)_
 
 ## Shared Data Models
 ```typescript
@@ -263,7 +263,7 @@ interface ErrorResponse { error: { code: string; message: string; details?: obje
 ```
 
 ## Rate Limiting
-State the actual limit and the `429` response shape — don't invent a number the architect didn't decide.
+State the actual limit and the `429` response shape, don't invent a number the architect didn't decide.
 ```
 
 ---
@@ -294,13 +294,13 @@ erDiagram
 
 **Indexes**: PRIMARY KEY on `id`, UNIQUE on `email`. **Relationships**: one-to-many with `orders`.
 
-_(one entity block per table — same Field/Indexes/Relationships shape)_
+_(one entity block per table, same Field/Indexes/Relationships shape)_
 
 ## Migrations
 Name migrations sequentially (`NNN_description.sql`), make every one reversible, and note any that aren't zero-downtime safe.
 
 ## Performance Notes
-Index every foreign key and every field used in a WHERE/ORDER BY the architecture actually requires — don't index speculatively.
+Index every foreign key and every field used in a WHERE/ORDER BY the architecture actually requires, don't index speculatively.
 ```
 
 ---
@@ -342,7 +342,7 @@ sequenceDiagram
     Service-->>Client: Response
 ```
 
-_(add a deployment or state-machine diagram only if the feature actually has non-trivial deployment topology or entity state transitions — same Mermaid pattern, don't add empty diagrams for completeness)_
+_(add a deployment or state-machine diagram only if the feature actually has non-trivial deployment topology or entity state transitions, same Mermaid pattern, don't add empty diagrams for completeness)_
 ```
 
 ---
@@ -436,16 +436,16 @@ def test_create_order_end_to_end(client, db_session):
     assert response.status_code == 201
 ```
 
-_(E2E, performance, and security-scan tests follow the same TODO-driven pattern — one representative case each, not a full suite outline; only add a section for a test type the feature actually needs)_
+_(E2E, performance, and security-scan tests follow the same TODO-driven pattern, one representative case each, not a full suite outline; only add a section for a test type the feature actually needs)_
 
 ## Test Suite Results
-Fill this in from an actual test run — never state a pass/fail count or coverage % that wasn't produced by running the suite.
+Fill this in from an actual test run, never state a pass/fail count or coverage % that wasn't produced by running the suite.
 
 ## Bugs Found
-**BUG-001**: [severity] — [steps to reproduce] — [expected vs actual] — [root cause if known]
+**BUG-001**: [severity], [steps to reproduce], [expected vs actual], [root cause if known]
 
 ## Verdict
-PASS | FAIL — [what's blocking, if FAIL]
+PASS | FAIL, [what's blocking, if FAIL]
 ```
 
 ---
@@ -531,23 +531,23 @@ We will [chosen solution].
 
 Lite mode collapses the full-mode artifacts above into four files. Same content expectations, less file-splitting ceremony.
 
-### Combined Brief Template — `.specs/<short-id>/brief.md`
+### Combined Brief Template: `.specs/<short-id>/brief.md`
 Sections: Overview, Goals/Non-Goals, Requirements (FR-NNN/NFR-NNN, same shape as full mode but inline), Acceptance Criteria (2-3 Given/When/Then stories), Success Metrics.
 
-### Combined Design Template — `.specs/<short-id>/design.md`
+### Combined Design Template: `.specs/<short-id>/design.md`
 Sections: Architecture (pattern + one Mermaid component diagram), Technology Stack, key API endpoints (2-3, same request/response shape as the full-mode API Contracts Template), key entities (1-2, same Field/Constraints table), Key Design Decisions.
 
-### Combined Review Template — `.specs/<short-id>/review.md`
+### Combined Review Template: `.specs/<short-id>/review.md`
 Sections: QA Plan summary (test strategy + 3-4 critical test cases as a checklist, no fabricated pass counts), Adversary Findings (BLOCKER-001 / WARNING-001 in the same shape as the full-mode Adversary Report Template), a short Security Assessment (3-4 OWASP categories that actually matter for this feature, PASS/FAIL only).
 
-### Combined Tasks Template — `.specs/<short-id>/tasks.md`
+### Combined Tasks Template: `.specs/<short-id>/tasks.md`
 2-3 representative TASK-NNN entries (same shape as full mode) + a small Mermaid dependency graph + critical path.
 
 ---
 
 ## Usage Guidelines
 
-**Full mode** — complex/multi-subsystem projects, security-critical work, external stakeholders who need detailed specs.
-**Lite mode** — small-to-medium features, proof-of-concepts, time-sensitive work.
+**Full mode**: complex/multi-subsystem projects, security-critical work, external stakeholders who need detailed specs.
+**Lite mode**: small-to-medium features, proof-of-concepts, time-sensitive work.
 
 These are guides, not rigid forms: skip sections that don't apply, add project-specific sections, and prefer clarity over completeness. If lite-mode scope grows mid-session (new stakeholders, new components discovered), it's fine to expand into full-mode artifacts rather than restarting.

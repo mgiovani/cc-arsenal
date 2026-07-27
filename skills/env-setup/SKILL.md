@@ -22,17 +22,17 @@ Scan the codebase for environment variable usage, generate or update `.env.examp
 ## Anti-Hallucination Guidelines
 
 Only report variables that are actually found in the code:
-1. **Grep before reporting** — Never invent variable names; only list what grep actually returns
-2. **Read .env.example before writing** — Preserve existing entries; only add/update what changed
-3. **No actual secrets** — `.env.example` must only contain placeholder values (e.g., `your_api_key_here`)
-4. **Verify .gitignore** — Actually read the file before claiming `.env` is ignored
-5. **Never echo a found secret value** — when Phase 6 flags a leaked secret, report the variable name and `file:line` only. Never print, quote, or write the actual value into chat output, a report file, or anywhere else — the scan's job is to locate leaks, not to create a second one.
+1. **Grep before reporting**: Never invent variable names; only list what grep actually returns
+2. **Read .env.example before writing**: Preserve existing entries; only add/update what changed
+3. **No actual secrets**: `.env.example` must only contain placeholder values (e.g., `your_api_key_here`)
+4. **Verify .gitignore**: Actually read the file before claiming `.env` is ignored
+5. **Never echo a found secret value**: when Phase 6 flags a leaked secret, report the variable name and `file:line` only. Never print, quote, or write the actual value into chat output, a report file, or anywhere else: the scan's job is to locate leaks, not to create a second one.
 
 ## Workflow
 
 ### Phase 1: Scan Codebase
 
-Grep for environment variable usage matching the project's actual language/framework — see `references/scan-patterns.md` for the ready-to-run pattern per language (Node/TS, Python, Ruby, Rust, Java/Kotlin, Docker Compose, client-exposed prefixes). Only run the pattern(s) for stacks present in the repo.
+Grep for environment variable usage matching the project's actual language/framework: see `references/scan-patterns.md` for the ready-to-run pattern per language (Node/TS, Python, Ruby, Rust, Java/Kotlin, Docker Compose, client-exposed prefixes). Only run the pattern(s) for stacks present in the repo.
 
 Also scan:
 - `.env.example` (existing entries to preserve)
@@ -41,14 +41,14 @@ Also scan:
 
 ### Phase 2: Categorize Variables
 
-Group discovered variables by prefix/service — see the service prefix table in
+Group discovered variables by prefix/service: see the service prefix table in
 `references/scan-patterns.md` for the standard groupings (Database, Cache, Auth, OAuth,
 Stripe, AWS, Email, App config, Client vars).
 
 Classify each variable:
 - **Required vs Optional** (required if no default/fallback in code)
 - **Secret vs Config** (secret if it contains key/secret/password/token in name)
-- **Client-exposed** (`NEXT_PUBLIC_*`, `VITE_*` — flag if contains secrets)
+- **Client-exposed** (`NEXT_PUBLIC_*`, `VITE_*`: flag if contains secrets)
 
 ### Phase 3: Compare with .env.example
 
@@ -84,7 +84,7 @@ JWT_SECRET=your_jwt_secret_here  # openssl rand -hex 32
 ```
 
 Full section-header style and rules (preserve existing entries, only add what's missing,
-never a real value) — see `references/env-example-template.md`, load it when writing the
+never a real value), see `references/env-example-template.md`, load it when writing the
 actual file.
 
 ### Phase 5: Validate .env (if `validate` subcommand or `.env` exists)
@@ -111,7 +111,7 @@ Warn clearly if `.env` is NOT in `.gitignore`.
 grep -iE "(password|secret|api_key|private_key|token|auth_key)\s*=\s*['\"]?[A-Za-z0-9+/_.=-]{16,}" .env 2>/dev/null
 ```
 
-The character class includes `_`, `-`, `.` alongside base64's `+/=` — most real key formats
+The character class includes `_`, `-`, `.` alongside base64's `+/=`: most real key formats
 (`sk_live_...`, `xoxb-...`, `AKIA...`) contain underscores or hyphens, and a base64-only class
 silently misses them.
 
@@ -121,11 +121,11 @@ git log --all --full-history --diff-filter=A -p -- .env 2>/dev/null | grep -iE "
 ```
 
 Report each hit as a commit + `file:line` reference (e.g. `git log` output line, or
-`.env:12`) — never paste the matched value itself into the report.
+`.env:12`), never paste the matched value itself into the report.
 
 **Flag client-exposed secrets**:
 - Check `NEXT_PUBLIC_*`, `VITE_*`, `REACT_APP_*` variables
-- If any contain "secret", "key", "password", "token" in the name — warn loudly, by variable name only
+- If any contain "secret", "key", "password", "token" in the name, warn loudly, by variable name only
 
 **Recommend pre-commit tools**:
 - `detect-secrets` (Python): `pip install detect-secrets && detect-secrets scan > .secrets.baseline`
@@ -140,9 +140,9 @@ Report each hit as a commit + `file:line` reference (e.g. `git log` output line,
 
 ## Important Notes
 
-- **Never include real secrets** in `.env.example` — only placeholder values
-- **Never echo a found secret's value** — report variable name + `file:line` only, whether the finding goes to chat or a report file
-- **Client-exposed vars** (`NEXT_PUBLIC_*`, `VITE_*`) are bundled into the frontend — flag if their name suggests a secret
-- **`.env` must be gitignored** — verify and warn if not
-- **Historical leaks matter** — even if `.env` is gitignored now, it may have been committed in the past
-- **Stale variables** in `.env` can be security risks — document and remove unused ones
+- **Never include real secrets** in `.env.example`: only placeholder values
+- **Never echo a found secret's value**: report variable name + `file:line` only, whether the finding goes to chat or a report file
+- **Client-exposed vars** (`NEXT_PUBLIC_*`, `VITE_*`) are bundled into the frontend: flag if their name suggests a secret
+- **`.env` must be gitignored**: verify and warn if not
+- **Historical leaks matter**: even if `.env` is gitignored now, it may have been committed in the past
+- **Stale variables** in `.env` can be security risks: document and remove unused ones

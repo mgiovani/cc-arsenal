@@ -148,8 +148,8 @@ Use this template when generating the consolidated review report in Phase 5.
 
 Findings that span multiple review dimensions:
 
-- **[File:line]** — Flagged by [Security + Architecture]: [Description of cross-cutting issue]
-- **[File:line]** — Flagged by [Performance + Testing]: [Description]
+- **[File:line]**: Flagged by [Security + Architecture]: [Description of cross-cutting issue]
+- **[File:line]**: Flagged by [Performance + Testing]: [Description]
 
 ## Positive Observations
 
@@ -160,17 +160,17 @@ Highlight well-written code and good patterns:
 
 ## Action Items by Priority
 
-### Immediate (Critical) — Must fix before merge
-1. **[FINDING_ID]** — [Brief action item with file reference]
+### Immediate (Critical): Must fix before merge
+1. **[FINDING_ID]**: [Brief action item with file reference]
 
-### High Priority (Major) — Should fix before merge
-1. **[FINDING_ID]** — [Brief action item]
+### High Priority (Major): Should fix before merge
+1. **[FINDING_ID]**: [Brief action item]
 
-### When Convenient (Minor) — Can fix in follow-up
-1. **[FINDING_ID]** — [Brief action item]
+### When Convenient (Minor): Can fix in follow-up
+1. **[FINDING_ID]**: [Brief action item]
 
-### Optional (Nit) — Author's discretion
-1. **[FINDING_ID]** — [Brief action item]
+### Optional (Nit): Author's discretion
+1. **[FINDING_ID]**: [Brief action item]
 
 ## Statistics
 
@@ -223,11 +223,11 @@ Use this format for iterative re-reviews after fixes:
 | New issues from fixes | N |
 
 ## Resolved Findings
-- ~~**[SEC-1]** [Issue title]~~ — Fixed in `file.py:45` ✅
-- ~~**[PERF-2]** [Issue title]~~ — Fixed in `file.ts:30` ✅
+- ~~**[SEC-1]** [Issue title]~~: Fixed in `file.py:45` ✅
+- ~~**[PERF-2]** [Issue title]~~: Fixed in `file.ts:30` ✅
 
 ## Remaining Findings
-- **[ARCH-1]** [Issue title] — Still present in `file.js:67`
+- **[ARCH-1]** [Issue title]: Still present in `file.js:67`
 
 ## New Findings
 ### [NEW-1]: [Issue Title]

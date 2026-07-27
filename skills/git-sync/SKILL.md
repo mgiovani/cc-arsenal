@@ -1,6 +1,6 @@
 ---
 name: git-sync
-description: Syncs the current feature branch with its base or upstream branch via merge (default) or rebase, with conflict detection and stash handling. Use for ad-hoc requests like "sync my branch with main", "rebase onto main", "rebase on latest dev", "pull upstream into my fork", or "update my branch". Not for release/hotfix branch promotion or cutting versioned releases — use gitflow or git-release for those.
+description: Syncs the current feature branch with its base or upstream branch via merge (default) or rebase, with conflict detection and stash handling. Use for ad-hoc requests like "sync my branch with main", "rebase onto main", "rebase on latest dev", "pull upstream into my fork", or "update my branch". Not for release/hotfix branch promotion or cutting versioned releases, use gitflow or git-release for those.
 metadata:
   author: mgiovani
   version: 1.1.0
@@ -14,7 +14,7 @@ allowed-tools:
 
 # Git Sync
 
-Sync the current branch with its base or upstream branch. Defaults to merge to preserve history; rebase is opt-in only. Only ever act on what `git status` and `git log` actually show — never guess branch state or conflicts.
+Sync the current branch with its base or upstream branch. Defaults to merge to preserve history; rebase is opt-in only. Only ever act on what `git status` and `git log` actually show: never guess branch state or conflicts.
 
 ## Workflow
 
@@ -30,21 +30,21 @@ git log --oneline HEAD..origin/main 2>/dev/null | head -20
 git log --oneline origin/main..HEAD 2>/dev/null | head -20
 ```
 
-Also check whether the branch is pushed to remote (`git log origin/<branch>..HEAD` — an error means local-only).
+Also check whether the branch is pushed to remote (`git log origin/<branch>..HEAD`: an error means local-only).
 
 **Determine the base branch** (once, reuse the result for the rest of the run):
-1. User passed `--base <branch>` — use it.
+1. User passed `--base <branch>`: use it.
 2. Otherwise `gh pr view --json baseRefName -q .baseRefName 2>/dev/null` (if an open PR exists).
 3. Otherwise `git config branch.<name>.merge`.
 4. Otherwise ask the user which base branch to use.
 
 Determine sync strategy:
 
-**Merge (default)** — use when the branch has been pushed to remote, the user did not pass `--rebase`, or you are unsure.
+**Merge (default)**: use when the branch has been pushed to remote, the user did not pass `--rebase`, or you are unsure.
 
-**Rebase (opt-in)** — use only when the user explicitly passed `--rebase`.
+**Rebase (opt-in)**: use only when the user explicitly passed `--rebase`.
 
-**Fork sync** (`--upstream`) — sync from the `upstream` remote instead of `origin`: `git fetch upstream && git merge upstream/<base>`.
+**Fork sync** (`--upstream`), sync from the `upstream` remote instead of `origin`: `git fetch upstream && git merge upstream/<base>`.
 
 Display the detected state and proposed strategy before proceeding:
 
@@ -69,7 +69,7 @@ Dirty tree:     no
 
 **Rebase, local-only branch**: `git rebase origin/<base>`
 
-**Rebase, pushed branch** — warn before rewriting shared history:
+**Rebase, pushed branch**: warn before rewriting shared history:
 
 ```
 WARNING: This branch has been pushed to remote.
@@ -84,7 +84,7 @@ git rebase origin/<base>
 git push --force-with-lease origin <branch>
 ```
 
-**On merge/rebase conflict** — do not guess how to resolve them:
+**On merge/rebase conflict**: do not guess how to resolve them:
 1. `git diff --name-only --diff-filter=U` to list conflicting files.
 2. Report the exact file list, e.g.:
    ```
@@ -94,7 +94,7 @@ git push --force-with-lease origin <branch>
    Resolve manually, then run `git merge --continue` (or `git rebase --continue`).
    Or run `git merge --abort` (or `git rebase --abort`) to back out.
    ```
-3. Stop and wait — do not attempt automatic resolution.
+3. Stop and wait. Do not attempt automatic resolution.
 
 **After a successful sync**:
 1. If a stash was auto-created in Phase 2, pop it now: `git stash pop`. If the pop itself conflicts, report those conflicting files the same way as a merge conflict.

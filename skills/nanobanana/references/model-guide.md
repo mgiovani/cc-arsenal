@@ -15,7 +15,7 @@
 - **Best for**: Quick concept validation, bulk generation, thumbnails, icons
 - **Limitations**: Lower quality ceiling, weaker text rendering, basic detail
 
-### Nano Banana 2 (`gemini-3.1-flash-image-preview`) — DEFAULT
+### Nano Banana 2 (`gemini-3.1-flash-image-preview`): DEFAULT
 - **Strengths**: Best balance of quality and cost, supports extended aspect ratios
 - **Best for**: Web hero images, social media posts, blog graphics, app screenshots
 - **Limitations**: Not as fast as NB, not as detailed as NB Pro for complex scenes
@@ -23,7 +23,7 @@
 ### Nano Banana Pro (`gemini-3-pro-image-preview`)
 - **Strengths**: Highest quality, superior text rendering, finest detail, best for print
 - **Best for**: Text-heavy images (posters, banners, infographics), branding, print materials, high-DPI
-- **Limitations**: Slowest, most expensive — reserve for final production assets
+- **Limitations**: Slowest, most expensive: reserve for final production assets
 
 ## Resolution Options
 

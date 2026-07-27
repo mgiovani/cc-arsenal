@@ -100,7 +100,7 @@ Verification commands used:
 
 ## Inferring Categories from What's Present
 
-Don't check against a fixed list of doc names — group by what the repo actually has, then verify each group against what the codebase implies it should contain.
+Don't check against a fixed list of doc names: group by what the repo actually has, then verify each group against what the codebase implies it should contain.
 
 ```
 For each file found in docs/ (and docs/adr/, docs/rfc/):
@@ -120,6 +120,6 @@ For each file found in docs/ (and docs/adr/, docs/rfc/):
 ```
 
 This lets a repo with unconventional doc names (e.g. `SCHEMA.md` instead of
-`data-model.md`) still get checked, and never invents a category — like
-"infrastructure" — for a repo that has no Docker/deploy config to check
+`data-model.md`) still get checked, and never invents a category (like
+"infrastructure") for a repo that has no Docker/deploy config to check
 against.
