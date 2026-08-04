@@ -1,0 +1,18 @@
+[
+  { "query": "review this plan before I build it", "should_trigger": true },
+  { "query": "poke holes in this implementation plan", "should_trigger": true },
+  { "query": "what's wrong with this approach?", "should_trigger": true },
+  { "query": "adversarially review the plan in runs/abc/plan.json", "should_trigger": true },
+  { "query": "find the gaps in this plan before we start coding", "should_trigger": true },
+  { "query": "is this plan going to work?", "should_trigger": true },
+  { "query": "critique these implementation steps", "should_trigger": true },
+  { "query": "check this plan against the actual codebase", "should_trigger": true },
+  { "query": "review my code changes", "should_trigger": false },
+  { "query": "review this pull request", "should_trigger": false },
+  { "query": "write me an implementation plan for adding auth", "should_trigger": false },
+  { "query": "break this project into dependency-ordered tasks", "should_trigger": false },
+  { "query": "audit our dependencies for CVEs", "should_trigger": false },
+  { "query": "write an RFC proposing we move to gRPC", "should_trigger": false },
+  { "query": "fix the failing test in test_auth.py", "should_trigger": false },
+  { "query": "run a security scan on this repo", "should_trigger": false }
+]

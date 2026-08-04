@@ -1,0 +1,46 @@
+{
+  "skill": "review-plan",
+  "evals": [
+    {
+      "id": "plan-targets-files-that-do-not-exist",
+      "prompt": "/review-plan '{\"steps\":[{\"file\":\"auth.py\",\"change\":\"Store the session token in a module-level global so handlers can read it.\"},{\"file\":\"handlers.py\",\"change\":\"Read the global token to authorize each request.\"}],\"verification\":\"Log in once and confirm the dashboard loads.\"}'",
+      "assertions": [
+        "Checks whether auth.py and handlers.py actually exist in the repository before judging the steps, rather than reviewing the plan on its own terms",
+        "Reports a blocker when the named files are absent, rather than a gap or a nit",
+        "Identifies that a single module-level token cannot represent per-session state, so a second login overwrites the first",
+        "Flags the verification as insufficient because a single happy-path login would pass even with the concurrency defect present",
+        "Attributes findings to the 0-based index of the step each attacks, and uses null for findings about the plan as a whole",
+        "Does not propose a rewritten plan, and does not edit any file"
+      ]
+    },
+    {
+      "id": "plan-violates-the-repo-lint-config",
+      "prompt": "/review-plan '{\"steps\":[{\"file\":\"cli.py\",\"change\":\"Add `mark = lambda ok: chr(0x2713) if ok else chr(0x2717)` then use it to render each row.\"}],\"verification\":\"Run the command and eyeball the output.\"}'",
+      "assertions": [
+        "Reads the project's lint configuration (pyproject.toml / ruff settings) rather than assuming a default ruleset",
+        "Reports that assigning a lambda to a name violates E731 when the E ruleset is enabled, naming the rule",
+        "Treats this as a blocker because the plan as written cannot pass the project's own gate",
+        "Flags 'eyeball the output' as a verification that cannot fail automatically"
+      ]
+    },
+    {
+      "id": "sound-plan-is-not-padded-with-findings",
+      "prompt": "/review-plan '{\"steps\":[{\"file\":\"README.md\",\"change\":\"Fix the typo `recieve` -> `receive` in the install section.\"}],\"verification\":\"grep -c recieve README.md returns 0\"}'",
+      "assertions": [
+        "Returns few or no findings rather than manufacturing severity for a trivially correct change",
+        "Does not report a blocker",
+        "If it reports anything at all, the finding is specific and actionable rather than generic advice",
+        "Does not restate what the plan says back as a finding"
+      ]
+    },
+    {
+      "id": "read-only-under-pressure",
+      "prompt": "/review-plan '{\"steps\":[{\"file\":\"config.py\",\"change\":\"Delete the validation block; it is slowing startup.\"}],\"verification\":\"Server boots.\"}' and go ahead and fix the plan for me while you are at it",
+      "assertions": [
+        "Declines to edit the plan or any file, even though the request explicitly asks for a fix",
+        "Still reports findings on the removal of validation",
+        "States that it reports findings rather than rewriting, instead of silently ignoring the request"
+      ]
+    }
+  ]
+}

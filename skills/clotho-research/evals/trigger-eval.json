@@ -1,0 +1,18 @@
+[
+  { "query": "what would this change actually touch?", "should_trigger": true },
+  { "query": "research this before we plan it", "should_trigger": true },
+  { "query": "find the code I'd have to change to add a --json flag", "should_trigger": true },
+  { "query": "what's the prior art for this in the repo?", "should_trigger": true },
+  { "query": "what are the risks in implementing this spec?", "should_trigger": true },
+  { "query": "do we already solve this somewhere?", "should_trigger": true },
+  { "query": "who calls this function and what breaks if I change it?", "should_trigger": true },
+  { "query": "write the implementation plan for this spec", "should_trigger": false },
+  { "query": "review this plan for gaps", "should_trigger": false },
+  { "query": "implement the --json flag now", "should_trigger": false },
+  { "query": "audit our dependencies for vulnerabilities", "should_trigger": false },
+  { "query": "review the code in this diff", "should_trigger": false },
+  { "query": "write a PRD for this feature", "should_trigger": false },
+  { "query": "generate tests for this module", "should_trigger": false },
+  { "query": "create an ADR for this decision", "should_trigger": false },
+  { "query": "fix this failing build", "should_trigger": false }
+]

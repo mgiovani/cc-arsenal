@@ -1,0 +1,53 @@
+{
+  "skill": "clotho-research",
+  "evals": [
+    {
+      "id": "repo-before-web",
+      "prompt": "/clotho-research 'Add retry-with-backoff to the HTTP calls this project makes.'",
+      "assertions": [
+        "Searches the repository for existing retry or backoff handling before searching the web",
+        "If the repo already implements retry anywhere, reports it in prior_art and says the change is a refactor rather than new work",
+        "Cites in-repo findings with a file path, and external findings with a URL",
+        "Does not propose an implementation, a design, or a plan"
+      ]
+    },
+    {
+      "id": "every-caller-of-a-shared-function",
+      "prompt": "/clotho-research 'Change the signature of the shared subprocess helper so it takes an env dict.'",
+      "assertions": [
+        "Enumerates every call site of the helper rather than only the one the request implies",
+        "Lists those call sites in touched_files with concrete paths",
+        "Names the risk that a change fixing one caller breaks the others",
+        "Distinguishes files that must change from files that merely constrain the design"
+      ]
+    },
+    {
+      "id": "absence-is-a-finding",
+      "prompt": "/clotho-research 'Add a plugin system so third parties can register new pipeline phases.'",
+      "assertions": [
+        "States plainly when no existing pattern for this exists in the repository, rather than inventing a plausible one",
+        "Does not fabricate file paths, functions, or prior art that cannot be verified",
+        "Frames the absence as information the planner needs: it is designing rather than following a convention"
+      ]
+    },
+    {
+      "id": "risks-are-concrete-not-vague",
+      "prompt": "/clotho-research 'Make the ticket list command emit JSON instead of a table when asked.'",
+      "assertions": [
+        "Risks name a specific mechanism and consequence, not a general caution like 'might be tricky'",
+        "Identifies control-flow ordering hazards if any exist, such as an early return firing before the new branch",
+        "Notes any schema field that is optional or absent rather than empty, if the data shape has one",
+        "Does not recommend a fix for the risks it identifies"
+      ]
+    },
+    {
+      "id": "code-wins-over-a-contradicting-source",
+      "prompt": "/clotho-research 'Use the library's documented `auto_retry=True` option instead of our hand-rolled loop.' The web docs say that option exists.",
+      "assertions": [
+        "Checks the installed library rather than trusting the documentation claim",
+        "If the code and the external source disagree, treats the code as authoritative",
+        "Reports the discrepancy as a risk rather than silently picking one side"
+      ]
+    }
+  ]
+}
