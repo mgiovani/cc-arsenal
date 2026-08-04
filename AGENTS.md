@@ -8,7 +8,7 @@ cc-arsenal is a collection of **48 Agent Skills** ([agentskills.io](https://agen
 
 ### Core Components
 
-- **Skills** (`skills/`): 48 skills covering development, code review, documentation, git/GitHub, jira, teams, browser automation, project planning, product specs, multi-agent orchestration, open-source launch prep, and skill discovery/creation/improvement
+- **Skills** (`skills/`): 51 skills covering development, code review, documentation, git/GitHub, jira, teams, browser automation, project planning, product specs, multi-agent orchestration, open-source launch prep, and skill discovery/creation/improvement
 - **Scripts** (`scripts/`): Python utilities for installation, configuration, and code generation (Claude-Code-specific; see `CLAUDE.md`)
 - **Integrations** (`integrations/`): agent-CLI-specific tooling that doesn't fit the tool-agnostic `skills/` tier, one subdirectory per agent CLI. Today that's `integrations/claude-code/`, holding the statusline and the `claude-hi` session scheduler; future agent CLIs (Codex, Gemini CLI, ...) get sibling directories alongside it as their own tooling needs arise.
 
@@ -41,11 +41,11 @@ Skills may build on each other along two distinct axes, keep them separate:
 
 Do not add `uses:`/`composes:` frontmatter and do not route composition through a mandatory dispatcher skill: plain prose naming the sibling, with its in-sentence fallback, is the whole mechanism.
 
-## Available Skills (48 total)
+## Available Skills (51 total)
 
 All skills use progressive disclosure (SKILL.md + optional references/scripts/assets directories).
 
-### Development (16 skills)
+### Development (17 skills)
 - **implement-feature**: Feature implementation with senior staff engineer best practices and parallel subagent orchestration where available
 - **fix-bug**: Test-driven debugging with strict sequential task chain and dependency enforcement
 - **test-suite**: Generate test suites by analyzing coverage gaps and writing tests that match project conventions
@@ -59,17 +59,20 @@ All skills use progressive disclosure (SKILL.md + optional references/scripts/as
 - **docker-init**: Generate Dockerfiles and docker-compose.yml with auto-detected services and security hardening
 - **env-setup**: Scan a codebase for env var usage, sync .env.example, and detect leaked secrets
 - **project-planner**: Break down large projects into dependency-aware tasks with Mermaid visualization
+- **clotho-research**: Find what a change will actually touch before planning it: the code that must change, the prior art worth copying, and the risks that will bite
 - **nanobanana**: Generate and edit images using Nano Banana (Gemini image generation)
 - **codex-imagegen**: Generate polished raster art (logos, mascots, heroes, sprites, mockups) via Codex CLI's `$imagegen`, with chroma-key transparency handling and QC
 - **oss-launch**: Take a private project to a public GitHub launch: secrets/license pre-flight, review fixes, branding, README/description rewrite, mention scrub, gated history rewrite, then flip public
 
-### Product & Design (3 skills)
+### Product & Design (4 skills)
 - **product-prd**: Author the right-sized product requirements doc from an idea, with a gate-zero (does this even need a doc?), then a brief, one-pager, or big-tier PR/FAQ or full PRD, mandatory non-goals, and testable, traceable requirements
 - **product-design-spec**: Author a design specification (information architecture, user flows, screen inventory, and per-screen state specs) for an approved PRD, reusing the existing component library and tracing every screen to a requirement ID
+- **prd-to-issues**: Turn an approved PRD into tracked issues, one per requirement ID, with the dependencies between them recorded and re-runs staying idempotent
 - **product-design-tokens**: Author a durable design-token contract (W3C DTCG 2025.10 JSON plus an optional DESIGN.md), reusing the project's design system and enforcing WCAG 2.2 AA contrast
 
-### Code Review & Quality (5 skills)
+### Code Review & Quality (6 skills)
 - **review-code**: Multi-agent code review across correctness, performance, style, tests, and error handling
+- **review-plan**: Adversarially review an implementation plan against the actual repository before any code is written
 - **review-security**: OWASP Top 10 2025 security analysis with parallel scanning agents where available
 - **review-deps**: Audit dependencies for vulnerabilities, license risk, and staleness
 - **review-perf**: Deep-dive performance audit of queries, algorithmic complexity, and resource leaks

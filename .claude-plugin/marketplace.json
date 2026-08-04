@@ -6,7 +6,7 @@
     "email": "e@giovani.dev"
   },
   "metadata": {
-    "description": "cc-arsenal — 48 production-grade Agent Skills for development workflows; works with Claude Code and any Agent-Skills-compatible agent.",
+    "description": "cc-arsenal \u2014 48 production-grade Agent Skills for development workflows; works with Claude Code and any Agent-Skills-compatible agent.",
     "version": "5.1.0"
   },
   "plugins": [
@@ -24,7 +24,21 @@
       "homepage": "https://github.com/mgiovani/cc-arsenal",
       "repository": "https://github.com/mgiovani/cc-arsenal",
       "license": "MIT",
-      "keywords": ["productivity", "git", "documentation", "jira", "workflow", "automation", "browser-automation", "skills", "teams", "code-review", "testing", "refactoring", "ci-cd"],
+      "keywords": [
+        "productivity",
+        "git",
+        "documentation",
+        "jira",
+        "workflow",
+        "automation",
+        "browser-automation",
+        "skills",
+        "teams",
+        "code-review",
+        "testing",
+        "refactoring",
+        "ci-cd"
+      ],
       "category": "productivity"
     },
     {
@@ -41,26 +55,35 @@
       "homepage": "https://github.com/mgiovani/cc-arsenal",
       "repository": "https://github.com/mgiovani/cc-arsenal",
       "license": "MIT",
-      "keywords": ["development", "feature", "implementation", "subagents", "testing", "refactoring", "ci-cd"],
+      "keywords": [
+        "development",
+        "feature",
+        "implementation",
+        "subagents",
+        "testing",
+        "refactoring",
+        "ci-cd"
+      ],
       "category": "development",
       "skills": [
-        "./skills/implement-feature/",
-        "./skills/fix-bug/",
-        "./skills/test-suite/",
-        "./skills/refactor/",
         "./skills/ci-generate/",
         "./skills/ci-local/",
-        "./skills/inject-docs/",
-        "./skills/project-planner/",
-        "./skills/nanobanana/",
+        "./skills/clotho-research/",
+        "./skills/codex-imagegen/",
         "./skills/db-migrate/",
         "./skills/docker-init/",
         "./skills/env-setup/",
-        "./skills/vrt-check/",
+        "./skills/fix-bug/",
         "./skills/i18n-check/",
+        "./skills/implement-feature/",
+        "./skills/inject-docs/",
+        "./skills/nanobanana/",
+        "./skills/oss-launch/",
+        "./skills/project-planner/",
+        "./skills/refactor/",
         "./skills/ship/",
-        "./skills/codex-imagegen/",
-        "./skills/oss-launch/"
+        "./skills/test-suite/",
+        "./skills/vrt-check/"
       ]
     },
     {
@@ -77,12 +100,20 @@
       "homepage": "https://github.com/mgiovani/cc-arsenal",
       "repository": "https://github.com/mgiovani/cc-arsenal",
       "license": "MIT",
-      "keywords": ["product", "prd", "design-spec", "design-tokens", "requirements", "specification"],
+      "keywords": [
+        "product",
+        "prd",
+        "design-spec",
+        "design-tokens",
+        "requirements",
+        "specification"
+      ],
       "category": "productivity",
       "skills": [
-        "./skills/product-prd/",
+        "./skills/prd-to-issues/",
         "./skills/product-design-spec/",
-        "./skills/product-design-tokens/"
+        "./skills/product-design-tokens/",
+        "./skills/product-prd/"
       ]
     },
     {
@@ -99,14 +130,22 @@
       "homepage": "https://github.com/mgiovani/cc-arsenal",
       "repository": "https://github.com/mgiovani/cc-arsenal",
       "license": "MIT",
-      "keywords": ["code-review", "security", "performance", "dependencies", "quality", "audit"],
+      "keywords": [
+        "code-review",
+        "security",
+        "performance",
+        "dependencies",
+        "quality",
+        "audit"
+      ],
       "category": "development",
       "skills": [
         "./skills/review-code/",
-        "./skills/review-security/",
         "./skills/review-deps/",
+        "./skills/review-design/",
         "./skills/review-perf/",
-        "./skills/review-design/"
+        "./skills/review-plan/",
+        "./skills/review-security/"
       ]
     },
     {
@@ -123,7 +162,13 @@
       "homepage": "https://github.com/mgiovani/cc-arsenal",
       "repository": "https://github.com/mgiovani/cc-arsenal",
       "license": "MIT",
-      "keywords": ["documentation", "adr", "rfc", "diagrams", "architecture"],
+      "keywords": [
+        "documentation",
+        "adr",
+        "rfc",
+        "diagrams",
+        "architecture"
+      ],
       "category": "documentation",
       "skills": [
         "./skills/docs-adr/",
@@ -148,7 +193,15 @@
       "homepage": "https://github.com/mgiovani/cc-arsenal",
       "repository": "https://github.com/mgiovani/cc-arsenal",
       "license": "MIT",
-      "keywords": ["git", "github", "commits", "pull-requests", "conventional-commits", "releases", "issues"],
+      "keywords": [
+        "git",
+        "github",
+        "commits",
+        "pull-requests",
+        "conventional-commits",
+        "releases",
+        "issues"
+      ],
       "category": "development",
       "skills": [
         "./skills/git-commit/",
@@ -174,7 +227,13 @@
       "homepage": "https://github.com/mgiovani/cc-arsenal",
       "repository": "https://github.com/mgiovani/cc-arsenal",
       "license": "MIT",
-      "keywords": ["jira", "standup", "planning", "cli", "productivity"],
+      "keywords": [
+        "jira",
+        "standup",
+        "planning",
+        "cli",
+        "productivity"
+      ],
       "category": "productivity",
       "skills": [
         "./skills/jira-cli/",
@@ -196,7 +255,13 @@
       "homepage": "https://github.com/mgiovani/cc-arsenal",
       "repository": "https://github.com/mgiovani/cc-arsenal",
       "license": "MIT",
-      "keywords": ["skills", "skill-creator", "browser-automation", "agent-browser", "productivity"],
+      "keywords": [
+        "skills",
+        "skill-creator",
+        "browser-automation",
+        "agent-browser",
+        "productivity"
+      ],
       "category": "productivity",
       "skills": [
         "./skills/agent-browser/",
@@ -221,7 +286,13 @@
       "homepage": "https://github.com/mgiovani/cc-arsenal",
       "repository": "https://github.com/mgiovani/cc-arsenal",
       "license": "MIT",
-      "keywords": ["teams", "spec-driven", "agents", "orchestration", "development"],
+      "keywords": [
+        "teams",
+        "spec-driven",
+        "agents",
+        "orchestration",
+        "development"
+      ],
       "category": "development",
       "skills": [
         "./skills/team-implement/",

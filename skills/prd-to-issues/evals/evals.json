@@ -1,0 +1,54 @@
+{
+  "skill": "prd-to-issues",
+  "evals": [
+    {
+      "id": "one-issue-per-requirement-id",
+      "prompt": "/prd-to-issues 'docs/specs/prd/PRD.md' — it contains PRD-FR-001, PRD-FR-002 and PRD-NFR-001, all fully specified.",
+      "assertions": [
+        "Creates exactly three issues, one per requirement ID",
+        "Puts the requirement ID in each issue title so a later run can find it",
+        "Copies the Given/When/Then acceptance criteria into the body unchanged rather than rewording them",
+        "Names the source PRD file in each issue body"
+      ]
+    },
+    {
+      "id": "blocks-on-unresolved-clarification",
+      "prompt": "/prd-to-issues 'docs/specs/prd/PRD.md' — PRD-FR-002 carries [NEEDS CLARIFICATION: which auth provider?].",
+      "assertions": [
+        "Does not create an issue for PRD-FR-002",
+        "Reports PRD-FR-002 as blocked on an unresolved clarification, quoting the tag",
+        "Still files the requirements that are fully specified",
+        "Does not guess the missing detail or file a placeholder"
+      ]
+    },
+    {
+      "id": "idempotent-on-a-second-run",
+      "prompt": "/prd-to-issues 'docs/specs/prd/PRD.md' — this PRD was already filed last week and one new requirement PRD-FR-004 was added since.",
+      "assertions": [
+        "Searches the tracker for each requirement ID before creating anything",
+        "Creates only PRD-FR-004",
+        "Reports the already-existing requirements as skipped rather than creating duplicates",
+        "Does not edit, close, or reopen the issues that already exist"
+      ]
+    },
+    {
+      "id": "records-dependencies-without-inventing-them",
+      "prompt": "/prd-to-issues 'docs/specs/prd/PRD.md' — PRD-FR-003 states it requires PRD-FR-001 to be in place first.",
+      "assertions": [
+        "Records a dependency from PRD-FR-003 on PRD-FR-001",
+        "Adds dependencies only after every issue exists and has an id",
+        "Does not invent dependencies the PRD does not state",
+        "Reports, rather than silently dropping, any dependency pointing at a requirement that was skipped"
+      ]
+    },
+    {
+      "id": "non-goals-do-not-become-issues",
+      "prompt": "/prd-to-issues 'docs/specs/prd/PRD.md' — the Non-goals section says SSO is out of scope until Q3.",
+      "assertions": [
+        "Files no issue for SSO",
+        "Treats the non-goals section as a boundary rather than as work",
+        "Does not file speculative issues for work the PRD does not specify"
+      ]
+    }
+  ]
+}

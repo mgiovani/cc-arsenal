@@ -1,0 +1,18 @@
+[
+  { "query": "file issues for this PRD", "should_trigger": true },
+  { "query": "turn this spec into tickets", "should_trigger": true },
+  { "query": "break this PRD into work items", "should_trigger": true },
+  { "query": "create backlog issues from docs/specs/prd/PRD.md", "should_trigger": true },
+  { "query": "the PRD is approved, get it into the tracker", "should_trigger": true },
+  { "query": "turn these requirements into GitHub issues", "should_trigger": true },
+  { "query": "file a bead per requirement in this spec", "should_trigger": true },
+  { "query": "write a PRD for the new billing flow", "should_trigger": false },
+  { "query": "break this feature into dependency-ordered implementation steps", "should_trigger": false },
+  { "query": "open an issue about the flaky login test", "should_trigger": false },
+  { "query": "close the issues that were fixed in this release", "should_trigger": false },
+  { "query": "review this plan before I build it", "should_trigger": false },
+  { "query": "estimate how long these tickets will take", "should_trigger": false },
+  { "query": "sync my beads issues to GitHub", "should_trigger": false },
+  { "query": "summarise what is in our backlog", "should_trigger": false },
+  { "query": "implement the requirements in this spec", "should_trigger": false }
+]

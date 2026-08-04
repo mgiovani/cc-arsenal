@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- **3 new skills** (48 to 51), all supporting an external agent-orchestration workflow:
+  - **prd-to-issues**: the seam between an approved PRD and a tracked backlog. Files one issue per requirement ID, records the dependencies the PRD states, and stays idempotent across re-runs by matching on that ID in the title. Refuses to file a requirement carrying an unresolved `[NEEDS CLARIFICATION]` tag rather than guessing, and never closes or edits an existing issue.
+  - **clotho-research**: pre-planning codebase research. Reports the files a change must touch, the prior art worth copying, and the concrete risks, without proposing an implementation.
+  - **review-plan**: adversarial review of an implementation plan against the actual repository, before any code exists. Assumes the plan is wrong and reports findings by severity; it never rewrites the plan.
+
+### Fixed
+- **clotho-research declared tools it could not reach.** Its frontmatter listed `WebSearch` and `WebFetch` while the skill runs read-only (`Read, Grep, Find, Ls`), so the instructions told the model to search a web it had no tool for. Declared tools now match what it actually gets, and any externally recalled source must be marked `(unverified, recalled not fetched)`.
+- **AGENTS.md skill counts** were stale at 48 while the tree held 51; per-category counts now sum to the real total.
+
 ## [5.1.0] - 2026-07-27
 
 ### Added
