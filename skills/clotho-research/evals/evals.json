@@ -2,12 +2,12 @@
   "skill": "clotho-research",
   "evals": [
     {
-      "id": "repo-before-web",
+      "id": "repo-over-recall",
       "prompt": "/clotho-research 'Add retry-with-backoff to the HTTP calls this project makes.'",
       "assertions": [
-        "Searches the repository for existing retry or backoff handling before searching the web",
+        "Searches the repository for existing retry or backoff handling rather than reaching for recalled prior art",
         "If the repo already implements retry anywhere, reports it in prior_art and says the change is a refactor rather than new work",
-        "Cites in-repo findings with a file path, and external findings with a URL",
+        "Cites in-repo findings with a file path, and marks every external reference (unverified \u2014 recalled, not fetched)",
         "Does not propose an implementation, a design, or a plan"
       ]
     },
@@ -42,7 +42,7 @@
     },
     {
       "id": "code-wins-over-a-contradicting-source",
-      "prompt": "/clotho-research 'Use the library's documented `auto_retry=True` option instead of our hand-rolled loop.' The web docs say that option exists.",
+      "prompt": "/clotho-research 'Use the library's documented `auto_retry=True` option instead of our hand-rolled loop.' I recall that option exists.",
       "assertions": [
         "Checks the installed library rather than trusting the documentation claim",
         "If the code and the external source disagree, treats the code as authoritative",
