@@ -145,7 +145,8 @@ def scaffold(
 def _selftest() -> bool:
     # Default path is always ONE file.
     assert target_files(enterprise=False, tier=None) == ['PRD.md']
-    assert target_files(enterprise=False, tier='big') == ['PRD.md']  # tier ignored without --enterprise
+    # tier ignored without --enterprise
+    assert target_files(enterprise=False, tier='big') == ['PRD.md']
     with tempfile.TemporaryDirectory() as tmp:
         target = Path(tmp) / 'prd'
         created, skipped = scaffold(target)
