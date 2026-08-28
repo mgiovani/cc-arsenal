@@ -9,7 +9,8 @@ trim_trailing_whitespace = true
 insert_final_newline = true
 
 [*.py]
-indent_size = 4
+# ruff owns Python indentation; ec would otherwise flag docstring prose bullets
+indent_size = unset
 
 [*.md]
 indent_size = 2
