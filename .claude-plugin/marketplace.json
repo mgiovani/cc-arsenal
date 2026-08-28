@@ -269,7 +269,8 @@
         "./skills/create-skill/",
         "./skills/create-rule/",
         "./skills/improve-skill/",
-        "./skills/orchestrate/"
+        "./skills/orchestrate/",
+        "./skills/wtf/"
       ]
     },
     {
