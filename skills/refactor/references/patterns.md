@@ -1,8 +1,8 @@
-# Refactoring Patterns & Safety Practices
+# Refactoring patterns & safety practices
 
-## Refactoring Catalog
+## Refactoring catalog
 
-### Extract Method
+### Extract method
 
 **When to use**: A code fragment can be grouped together and given a meaningful name, or a method is doing too many things.
 
@@ -58,7 +58,7 @@ def process_order(order):
     db.save(order)
 ```
 
-### Extract Class
+### Extract class
 
 **When to use**: A class has responsibilities that could be split into separate concerns.
 
@@ -79,7 +79,7 @@ def process_order(order):
 - Serialization/deserialization may break
 - Inheritance hierarchies may be affected
 
-### Rename (Variable, Method, Class)
+### Rename (Variable, method, class)
 
 **When to use**: A name does not clearly communicate purpose.
 
@@ -115,7 +115,7 @@ def process_order(order):
 - Path-dependent code (logging, error messages with module names)
 - Build system or bundler configuration may need updates
 
-### Simplify Conditional
+### Simplify conditional
 
 **When to use**: Complex conditional logic is hard to understand.
 
@@ -132,7 +132,7 @@ def process_order(order):
 - Replace conditional with polymorphism (when appropriate)
 - Consolidate duplicate conditional fragments
 
-### Remove Duplication
+### Remove duplication
 
 **When to use**: The same or very similar code exists in multiple places.
 
@@ -165,7 +165,7 @@ def process_order(order):
 6. Remove the method/variable declaration
 7. Run tests
 
-### Replace Magic Numbers/Strings with Constants
+### Replace magic Numbers/Strings with constants
 
 **When to use**: Literal values appear in code without explanation.
 
@@ -177,7 +177,7 @@ def process_order(order):
 5. Repeat for remaining occurrences
 6. Run tests
 
-### Decompose Large Function
+### Decompose large function
 
 **When to use**: A function exceeds ~50 lines or has multiple levels of abstraction.
 
@@ -190,15 +190,15 @@ def process_order(order):
 6. Repeat until the original function reads as a high-level summary
 7. Run tests
 
-## Safety Practices
+## Safety practices
 
-### The Golden Rule
+### The golden rule
 
 **Every refactoring step must end with passing tests.** If tests fail after a change, that change introduced a behavioral difference. Either:
 1. Revert the change and find a smaller step
 2. Fix the test ONLY if it was testing implementation details (not behavior)
 
-### Pre-Refactoring Checklist
+### Pre-Refactoring checklist
 
 - [ ] Read and understand ALL the target code
 - [ ] Identify ALL callers and dependents
@@ -207,7 +207,7 @@ def process_order(order):
 - [ ] Plan incremental steps (each independently verifiable)
 - [ ] Get approval if scope is large (>5 files, public API changes)
 
-### When to Write Characterization Tests
+### When to write characterization tests
 
 Write characterization tests when:
 - The target code has no existing tests
@@ -221,14 +221,14 @@ Skip characterization tests when:
 - The refactoring is trivially safe (rename with search-and-replace)
 - The change is confined to a single, well-tested function
 
-### Characterization Test Naming
+### Characterization test naming
 
 Use a consistent prefix to distinguish characterization tests:
 - Python: `test_char_<behavior_description>`
 - JavaScript: `describe('characterization: <module>')` or `it('char: <behavior>')`
 - Go: `TestChar_<BehaviorDescription>`
 
-### When to Abort a Refactoring
+### When to abort a refactoring
 
 Stop and reassess if:
 - Tests keep failing and the cause is unclear
@@ -237,14 +237,14 @@ Stop and reassess if:
 - The "refactoring" is actually a redesign (changes behavior)
 - External consumers would be affected in unknown ways
 
-### Red Flags During Refactoring
+### Red flags during refactoring
 
 - **Test needs changing to pass**: Likely a behavioral change, not a refactoring
 - **New test needed for new behavior**: Definitely not a refactoring, stop
 - **"While I'm here" changes**: Scope creep, resist fixing unrelated issues
 - **Performance assumptions changing**: Verify benchmarks if performance-critical
 
-## Language-Specific Notes
+## Language-Specific notes
 
 ### Python
 - Use `pytest --tb=short` for quick feedback during incremental changes
@@ -268,7 +268,7 @@ Stop and reassess if:
 - Watch for reflection-based access (Spring annotations, serialization)
 - Sealed classes/interfaces limit the impact of hierarchy changes
 
-## Commit Message Examples
+## Commit message examples
 
 ```
 refactor: extract validation logic from OrderProcessor

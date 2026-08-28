@@ -1,8 +1,8 @@
-# Security Review - Report Template
+# Security review - report template
 
 Use this template when generating the security report in Phase 5.
 
-## Report Format
+## Report format
 
 ```markdown
 # Security Review Report
@@ -117,7 +117,7 @@ Based on this analysis, consider adding:
 **Next Steps**: Review findings, prioritize fixes, and implement recommended security controls.
 ```
 
-## Example Output
+## Example output
 
 ```
 Security Review Report

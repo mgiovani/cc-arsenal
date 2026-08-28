@@ -1,4 +1,4 @@
-# Design Review: Report Templates
+# Design review: report templates
 
 Two templates: a **live** report (`design-report-live.md`) and a **static** report
 (`design-report-static.md`). They share structure; the difference is the evidence type
@@ -9,7 +9,7 @@ citation, severity, and a concrete fix. No placeholder text.
 
 ---
 
-## Live Report Template
+## Live report template
 
 ```markdown
 # Design Review Report: Live
@@ -88,7 +88,7 @@ citation, severity, and a concrete fix. No placeholder text.
 
 ---
 
-## Static Report Template
+## Static report template
 
 Identical to the live report with these header/evidence differences:
 

@@ -1,8 +1,8 @@
-# Rule Examples
+# Rule examples
 
 Concrete examples of well-structured memory rules for different tools and scopes.
 
-## Example 1: Claude Code, Simple Code Style Rule
+## Example 1: Claude Code, simple code style rule
 
 **Command**: `/create-rule formatting "Use 2-space indentation and single quotes"`
 
@@ -39,7 +39,7 @@ const config = {
 ```
 ```
 
-## Example 2: Claude Code, Path-Specific Rule
+## Example 2: Claude Code, path-Specific rule
 
 **Command**: `/create-rule api-errors "Standard error handling for API routes"`
 
@@ -86,7 +86,7 @@ throw new Error(err.stack); // Exposes internal details
 ```
 ```
 
-## Example 3: Claude Code, User-Level Rule
+## Example 3: Claude Code, user-Level rule
 
 **Command**: `/create-rule --user preferences "Personal coding preferences"`
 
@@ -105,7 +105,7 @@ My personal coding preferences applied to all projects.
 - Prefer async/await over raw promises
 ```
 
-## Example 4: AGENTS.md, Cross-Cutting Entry
+## Example 4: AGENTS.md, cross-Cutting entry
 
 **Command**: `/create-rule testing "Table-driven tests, no test interdependence"` in a repo
 whose only convention file is `AGENTS.md` (no `CLAUDE.md`, no `.claude/rules/`).
@@ -122,7 +122,7 @@ the format doesn't support either):
 - Name test cases by the behavior under test, not by input value.
 ```
 
-## Example 5: Cursor, Path-Scoped `.mdc` Rule
+## Example 5: Cursor, path-Scoped `.mdc` rule
 
 **Command**: `/create-rule react-components "Function components only, typed props"` in a
 Cursor repo (has `.cursor/rules/`).
@@ -143,7 +143,7 @@ alwaysApply: false
 - One component per file, named export matching the filename.
 ```
 
-## Writing Effective Rules Checklist
+## Writing effective rules checklist
 
 1. **BE SPECIFIC**: State exact expectations, not vague guidance.
 2. **USE IMPERATIVE LANGUAGE**: "Use X" not "You should use X".

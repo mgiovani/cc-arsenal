@@ -35,8 +35,8 @@ repos:
         require_serial: true
       - id: stopslop
         name: stopslop
-        # stopslop 0.5.1 exits 0 even when it reports findings if a baseline is
-        # configured, so gate on whether it printed anything instead.
+        # stopslop exits 0 for tier-B findings (every prose rule) and only
+        # nonzero for tier A, so gate on whether it printed anything.
         entry: sh -c 'out=$(stopslop "$@") || true; [ -z "$out" ] || { printf "%s\n" "$out"; exit 1; }' --
         language: rust
         additional_dependencies: ['cli:stopslop:0.5.1']

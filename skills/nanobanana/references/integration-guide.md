@@ -1,15 +1,15 @@
-# Nano Banana Integration Guide
+# Nano Banana integration guide
 
 > SDK examples, API setup, authentication patterns, and best practices for integrating Nano Banana into codebases.
 
-## API Key Setup
+## API key setup
 
-### Get Your Key
+### Get your key
 1. Go to [Google AI Studio](https://aistudio.google.com/apikey)
 2. Click **Create API key** (or use an existing Gemini key)
 3. The same key works for all Nano Banana models
 
-### Set Environment Variable
+### Set environment variable
 
 **Linux/macOS:**
 ```bash
@@ -38,7 +38,7 @@ docker run -e GEMINI_API_KEY=your-key-here myapp
 **Vercel/Netlify:**
 Add `GEMINI_API_KEY` in the project's environment variables settings in the dashboard.
 
-### Verify Setup
+### Verify setup
 ```bash
 python -c "
 from google import genai
@@ -50,7 +50,7 @@ print('Setup OK')
 
 ---
 
-## Python SDK Examples
+## Python SDK examples
 
 ### Install
 ```bash
@@ -68,7 +68,7 @@ For standalone scripts, use PEP 723 inline metadata instead: `uv run` handles in
 uv run my_script.py  # deps installed automatically in isolated env
 ```
 
-### Basic Text-to-Image
+### Basic text-to-Image
 ```python
 import os
 from google import genai
@@ -98,7 +98,7 @@ for part in response.candidates[0].content.parts:
         print("Model says:", part.text)
 ```
 
-### Image Editing Mode
+### Image editing mode
 ```python
 import os
 from pathlib import Path
@@ -128,7 +128,7 @@ for part in response.candidates[0].content.parts:
         Path("edited-image.png").write_bytes(part.inline_data.data)
 ```
 
-### Multi-Turn Conversation (Iterative Editing)
+### Multi-Turn conversation (Iterative editing)
 ```python
 import os
 from google import genai
@@ -153,7 +153,7 @@ response = chat.send_message("Make it more bold and add a blue color scheme")
 # Extract updated image...
 ```
 
-### With Reference Images (Style Transfer)
+### With reference images (Style transfer)
 ```python
 import os
 from pathlib import Path
@@ -184,7 +184,7 @@ response = client.models.generate_content(
 
 ---
 
-## JavaScript/TypeScript SDK Examples
+## JavaScript/TypeScript SDK examples
 
 ### Install
 ```bash
@@ -193,7 +193,7 @@ npm install @google/genai
 bun add @google/genai
 ```
 
-### Basic Text-to-Image
+### Basic text-to-Image
 ```typescript
 import { GoogleGenAI } from "@google/genai";
 import fs from "fs";
@@ -223,7 +223,7 @@ for (const part of response.candidates?.[0]?.content?.parts ?? []) {
 }
 ```
 
-### Next.js API Route
+### Next.js API route
 ```typescript
 // app/api/generate-image/route.ts
 import { GoogleGenAI } from "@google/genai";
@@ -269,7 +269,7 @@ export async function POST(request: NextRequest) {
 
 ---
 
-## REST/cURL Examples
+## REST/cURL examples
 
 ```bash
 # Text-to-image via REST API
@@ -292,7 +292,7 @@ curl -X POST \
 
 ---
 
-## Error Handling Patterns
+## Error handling patterns
 
 ```python
 import time
@@ -324,14 +324,14 @@ def generate_with_retry(client, prompt: str, max_retries: int = 3):
 
 ---
 
-## Production Best Practices
+## Production best practices
 
-### Rate Limiting
+### Rate limiting
 - Implement token bucket or sliding window rate limiting in your application
 - Cache generated images aggressively (same prompt + params = same image)
 - Use a queue for bulk generation to avoid burst 429s
 
-### Cost Optimization
+### Cost optimization
 - Generate at low resolution (512/1K) for iteration, upscale with Pro only for finals
 - Cache images by prompt hash, avoid regenerating identical prompts
 - Use Nano Banana (flash) for automated/bulk tasks, Pro only for client-facing finals
@@ -347,13 +347,13 @@ def generate_with_retry(client, prompt: str, max_retries: int = 3):
 - Use a CDN for serving generated images to end users
 - Consider storing the prompt + parameters alongside the image for reproducibility
 
-### Error Handling
+### Error handling
 - Always handle 429 (rate limit) with exponential backoff
 - Surface content policy blocks clearly to users with actionable guidance
 - Log failed generations with prompt (sanitized) for debugging
 - Implement a fallback strategy (e.g., stock images) for API outages
 
-### Environment Variables
+### Environment variables
 ```bash
 # .env.example
 GEMINI_API_KEY=           # Required: Your Google AI Studio API key

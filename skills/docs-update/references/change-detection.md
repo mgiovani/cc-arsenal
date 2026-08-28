@@ -1,11 +1,11 @@
-# Change Detection
+# Change detection
 
 Fallback commands for detecting codebase changes when the primary freshness check
 (SKILL.md Phase 2) can't run: no `.git`, the doc is untracked, or it's a first commit.
 Replace `<doc-path>` with the actual resolved path from Phase 1 (e.g. `docs/architecture.md`),
 never hardcode a specific document here, this file backs every doc type.
 
-## General Change Detection
+## General change detection
 
 ```bash
 # Find modified source files in the last 7 days
@@ -15,7 +15,7 @@ git diff --name-only HEAD@{7.days.ago}..HEAD 2>/dev/null | grep -E "\.(py|ts|js|
 git log --since="7 days ago" --diff-filter=A --name-only --pretty=format: | sort -u | head -20
 ```
 
-## Per-Document Freshness Check
+## Per-Document freshness check
 
 ```bash
 # When was this specific doc last modified? (empty output = untracked or doesn't exist yet)
@@ -25,7 +25,7 @@ git log -1 --format="%ai" -- <doc-path> 2>/dev/null
 git log --since="7 days ago" --oneline --name-only | head -50
 ```
 
-## Technology Stack Detection
+## Technology stack detection
 
 ```bash
 # Check for language/framework
@@ -38,7 +38,7 @@ find . -name "*models.py" -o -name "*schema.prisma" -o -name "*entity.ts" | head
 find . -name "Dockerfile" -o -name "docker-compose.yml" -o -name "*.k8s.yaml" | head -5
 ```
 
-## Load Templates
+## Load templates
 
 Template location: `../docs-init/assets/templates/` (shared with docs-init, see SKILL.md
 Phase 4 for the standalone-install fallback). Load the template matching the doc being

@@ -15,11 +15,11 @@ argument-hint: '[--project <KEY>] [--urgent-only] [--include-blocked] [--time-bo
 allowed-tools: Bash(jira *), Bash(git *), Read, Task, TodoWrite
 ---
 
-# Jira Todo - Daily Work Prioritization
+# Jira todo - daily work prioritization
 
 Analyzes assigned tickets and recommends what to work on next, based on actual Jira data. Complements the **jira-cli** skill (general command reference) and **jira-daily** (yesterday's standup recap): this skill is for forward-looking prioritization.
 
-## Phase 1: Verify Jira CLI Works
+## Phase 1: verify Jira CLI works
 
 Before anything else, confirm the CLI is installed and authenticated:
 
@@ -33,7 +33,7 @@ If that fails (command not found, not authenticated, any error), STOP here. Do n
 
 This gate exists because an agent that can't reach real Jira data will otherwise write a plausible-looking report from imagined tickets and present it as a real daily plan. Every ticket ID, priority, status, and story point anywhere in this skill's output must come from a `jira` command actually run this session. Never use a hardcoded fixture, a "simulated" placeholder, or a helper script that was written but not executed, and never mention a blocker that wasn't explicitly marked (label or blocking-link field) in that output. If a command returns no results, say so plainly rather than inventing tickets to fill out the report sections.
 
-## Phase 2: Determine Project Key
+## Phase 2: determine project key
 
 Get the project key from (in order of priority):
 1. **Command argument**: `--project ABC` or `-p ABC`
@@ -41,7 +41,7 @@ Get the project key from (in order of priority):
 
 If no project key is found, ask the user to specify with `--project <KEY>`.
 
-## Phase 3: Gather Current Workload
+## Phase 3: gather current workload
 
 Run these directly via Bash before recommending anything: every ticket in the output must trace back to one of these commands' actual stdout, not to a script that reproduces expected output without executing them:
 
@@ -58,7 +58,7 @@ jira issue list --assignee $(jira me) --updated -2d --status "Code Review" "In R
 
 If `--include-blocked` is not set, drop blocked tickets from the main sections (still surface them under On Hold).
 
-## Phase 4: Apply Prioritization Algorithm
+## Phase 4: apply prioritization algorithm
 
 Apply this directly in the main agent: it's a short scoring pass over a daily ticket list, not worth fanning out to subagents. Only spawn parallel Explore subagents if the workload is unusually large (>30 active tickets), and only where a `Task`/subagent tool is available; otherwise do the same scoring pass sequentially inline regardless of ticket count.
 
@@ -90,7 +90,7 @@ If `--urgent-only` is set, skip straight to just the Immediate Actions section (
 
 If `--time-box <hours>` is set, cap the Recommended Schedule at that many hours and drop lower-priority items that wouldn't fit rather than padding the schedule to fill it.
 
-## Phase 5: Generate Output
+## Phase 5: generate output
 
 Track the identified items in a todo list (use TodoWrite if available; otherwise just list them in the report). For the detailed output template, see [references/output-formats.md](references/output-formats.md).
 
@@ -103,7 +103,7 @@ Track the identified items in a todo list (use TodoWrite if available; otherwise
 - **Smart Suggestions**: Time-blocking and energy management recommendations
 - **Recommended Schedule**: Hour-by-hour daily plan
 
-## Command Options
+## Command options
 
 ### `--project <KEY>` or `-p <KEY>`
 Specify the Jira project key explicitly.
@@ -130,13 +130,13 @@ Optimize recommendations for specific time availability.
 jira-todo --time-box 3
 ```
 
-## Integration Points
+## Integration points
 
 - **jira-daily**: previous day's work influences today's recommendations
 - **jira-cli**: use for detailed command syntax and sprint/epic management patterns
 - **git**: check current branch and recent commits for context on active work
 
-## Usage Examples
+## Usage examples
 
 ```bash
 jira-todo                        # auto-detects project from config
@@ -146,7 +146,7 @@ jira-todo --time-box 4           # plan for limited time
 jira-todo --include-blocked      # include blocked tickets in analysis
 ```
 
-## Important Notes
+## Important notes
 
 - **Requires jira-cli**: install from https://github.com/ankitpokhrel/jira-cli
 - **Config location**: `~/.config/.jira/.config.yml`

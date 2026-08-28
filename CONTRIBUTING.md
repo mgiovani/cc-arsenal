@@ -2,7 +2,7 @@
 
 We welcome contributions! Please follow these guidelines to ensure a smooth contribution process.
 
-## Quick Start for Contributors
+## Quick Start for contributors
 
 1. **Fork** the repository
 2. **Create** a feature branch: `git checkout -b feature/amazing-feature`
@@ -10,7 +10,7 @@ We welcome contributions! Please follow these guidelines to ensure a smooth cont
 4. **Validate** with our quality checks: `make check`
 5. **Submit** a pull request with detailed description
 
-## Development Setup
+## Development setup
 
 ### Prerequisites
 
@@ -20,7 +20,7 @@ We welcome contributions! Please follow these guidelines to ensure a smooth cont
   - Docs: https://docs.astral.sh/uv/getting-started/installation/
 - **Claude Code** (Anthropic's official Claude CLI)
 
-### Setting Up Your Development Environment
+### Setting up your development environment
 
 ```bash
 # Clone your fork
@@ -34,9 +34,9 @@ make dev
 make pre-commit-install
 ```
 
-## Development Workflow
+## Development workflow
 
-### Code Quality Checks
+### Code quality checks
 
 Before submitting any changes, ensure your code passes all quality checks:
 
@@ -55,7 +55,7 @@ make coverage       # Tests with coverage report
 make validate-structure
 ```
 
-### Quality Standards
+### Quality standards
 
 All contributions must meet these standards:
 
@@ -66,11 +66,11 @@ All contributions must meet these standards:
 - **Detailed documentation** with examples and troubleshooting
 - **Security-first** approach with input validation and error handling
 
-## Contributing Different Types of Components
+## Contributing different types of components
 
 CC-Arsenal's only component type is the **skill** (45 currently, see [docs/features.md](docs/features.md) for the full, categorized list). Every workflow, whether user-invoked (a slash command like `/git-commit`) or model-invoked (auto-loaded like `review-code`), is a skill under `skills/<name>/SKILL.md`.
 
-### Creating New Skills
+### Creating new skills
 
 Skills are modular capabilities Claude loads via progressive disclosure. To create a new skill, use the create-skill skill for guidance:
 
@@ -95,9 +95,9 @@ Skills can bundle `scripts/`, `references/`, and `assets/` in subdirectories. Ad
 
 After creating a skill, add its path to the relevant plugin(s) in `.claude-plugin/marketplace.json` and add its entry to `docs/features.md`.
 
-## Code Style Guidelines
+## Code style guidelines
 
-### Python Code Style
+### Python code style
 
 - Follow PEP 8 with 90-character line length
 - Use type hints for all functions and parameters
@@ -105,16 +105,16 @@ After creating a skill, add its path to the relevant plugin(s) in `.claude-plugi
 - Follow Google-style docstrings
 - Use meaningful variable and function names
 
-### Markdown Documentation
+### Markdown documentation
 
 - Use clear, descriptive headings
 - Include code examples with proper syntax highlighting
 - Provide both basic and advanced usage examples
 - Include troubleshooting sections where appropriate
 
-## Testing Guidelines
+## Testing guidelines
 
-### Writing Tests
+### Writing tests
 
 - Write tests for all new functionality
 - Aim for >90% code coverage
@@ -122,7 +122,7 @@ After creating a skill, add its path to the relevant plugin(s) in `.claude-plugi
 - Test both success and failure scenarios
 - Include integration tests for complex workflows
 
-### Running Tests
+### Running tests
 
 ```bash
 # Run all tests
@@ -138,24 +138,24 @@ uv run pytest scripts/tests/test_install.py
 uv run pytest -v
 ```
 
-## Documentation Standards
+## Documentation standards
 
-### README Updates
+### README updates
 
 When adding new features:
 - Update the main README.md with usage examples
 - Add appropriate sections to the feature overview
 - Include installation notes if required
 
-### Inline Documentation
+### Inline documentation
 
 - Add docstrings to all public functions and classes
 - Include parameter types and return value descriptions
 - Provide usage examples in docstrings for complex functions
 
-## Security Considerations
+## Security considerations
 
-### Security-First Development
+### Security-First development
 
 All code must follow security best practices:
 
@@ -164,7 +164,7 @@ All code must follow security best practices:
 - **Dependency Security**: Keep dependencies updated and scan for vulnerabilities
 - **Error Handling**: Don't expose sensitive information in error messages
 
-### Security Review Process
+### Security review process
 
 Security-related changes require additional review:
 - Security hooks and authentication components
@@ -172,9 +172,9 @@ Security-related changes require additional review:
 - External API integrations
 - Dependency updates
 
-## Pull Request Guidelines
+## Pull request guidelines
 
-### PR Description Template
+### PR description template
 
 ```markdown
 ## Summary
@@ -198,14 +198,14 @@ Brief description of the changes
 - [ ] No breaking changes (or properly documented)
 ```
 
-### Review Process
+### Review process
 
 1. **Automated Checks**: All CI checks must pass
 2. **Code Review**: At least one maintainer review required
 3. **Testing**: Verify tests cover new functionality
 4. **Documentation**: Ensure documentation is updated
 
-## Release Process
+## Release process
 
 ### Versioning
 
@@ -214,7 +214,7 @@ We follow [Semantic Versioning](https://semver.org/):
 - **MINOR**: New features (backward compatible)
 - **PATCH**: Bug fixes (backward compatible)
 
-### Release Checklist
+### Release checklist
 
 - [ ] Version number updated in `pyproject.toml`
 - [ ] CHANGELOG.md updated with release notes
@@ -222,15 +222,15 @@ We follow [Semantic Versioning](https://semver.org/):
 - [ ] Documentation updated
 - [ ] Security review completed (if applicable)
 
-## Getting Help
+## Getting help
 
-### Communication Channels
+### Communication channels
 
 - **Issues**: [GitHub Issues](https://github.com/mgiovani/cc-arsenal/issues) for bugs and feature requests
 - **Discussions**: [GitHub Discussions](https://github.com/mgiovani/cc-arsenal/discussions) for questions and ideas
 - **Email**: For security issues, contact e@giovani.dev
 
-### Common Issues
+### Common issues
 
 - **Installation Problems**: Check UV installation and Python version
 - **Test Failures**: Ensure all dependencies are installed with `make dev`
@@ -238,7 +238,7 @@ We follow [Semantic Versioning](https://semver.org/):
 
 ## Code of Conduct
 
-### Our Standards
+### Our standards
 
 - Use welcoming and inclusive language
 - Be respectful of differing viewpoints and experiences

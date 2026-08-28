@@ -112,7 +112,7 @@ No Task tool available? Work through each owned category inline and sequentially
 spawning its agent, same grep patterns from the reference file, same read-and-verify step,
 one category at a time.
 
-**A03 note**: dependency staleness and known-CVE checks (outdated package versions, `npm
+**A03 note**: dependency staleness and known-CVE scans (outdated package versions, `npm
 audit`-style findings) are review-deps' job, not this skill's: don't duplicate them here.
 Agent 4 only checks the supply-chain surface review-deps doesn't: missing SRI on CDN
 `<script>` tags, absent lockfiles, and CI/CD steps that weaken package integrity (e.g.

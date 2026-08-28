@@ -1,6 +1,6 @@
-# Scan Patterns and Variable Categories
+# Scan patterns and variable categories
 
-## Per-Language Scan Patterns
+## Per-Language scan patterns
 
 Run only the pattern(s) matching the project's detected stack (check for `package.json`, `requirements.txt`/`pyproject.toml`, `Gemfile`, `Cargo.toml`, `pom.xml`/`build.gradle`).
 
@@ -46,7 +46,7 @@ grep -rE "^\s+- [A-Z_][A-Z0-9_]*=" docker-compose.yml docker-compose.*.yml 2>/de
   | grep -oE "[A-Z_][A-Z0-9_]*=" | tr -d "=" | sort -u
 ```
 
-## Service Prefix Groups
+## Service prefix groups
 
 Group discovered variables by prefix/service for reporting and for `.env.example` section headers:
 

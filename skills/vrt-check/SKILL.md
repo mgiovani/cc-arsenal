@@ -59,7 +59,7 @@ Classify each row:
 
 **Real regression**: the diff shows something nobody meant to change: wrong color, shifted layout, overlapping text, a broken icon, on a component whose files are NOT the ones the branch's intended change targets. Root cause is usually a shared style/layout/theme file the branch also touched.
 
-**Intended change**: the diff matches a change the branch is actually making, AND the component's files show up in the branch's changed-file list. Confirm both: the visual diff looks like the described change, and git confirms this component's source was actually edited.
+**Intended change**: the diff matches a change the branch is actually making, AND the component's files show up in the branch's changed-file list. Both must hold: the visual diff looks like the described change, and git shows this component's source was edited.
 
 **Flaky/non-deterministic**: a few pixels of anti-aliasing, a font-rendering difference, or a mid-frame animation capture, with no corresponding file in the branch's changed-file list. Note it as flaky; don't silently update over it, a flaky baseline hides real regressions later.
 

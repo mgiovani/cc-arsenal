@@ -1,4 +1,4 @@
-# FastAPI Best Practices Reference
+# FastAPI best practices reference
 
 This document contains the complete FastAPI best practices content to be injected into CLAUDE.md files. Based on [zhanymkanov/fastapi-best-practices](https://github.com/zhanymkanov/fastapi-best-practices).
 
@@ -10,7 +10,7 @@ Use this template when injecting FastAPI documentation:
 
 ## FastAPI Best Practices
 
-### Project Structure
+### Project structure
 
 **Use domain-driven organization** (by feature), not file-type organization.
 
@@ -47,7 +47,7 @@ src/
 - Scales better than monolithic file-type organization
 - Clear boundaries reduce coupling between domains
 
-### Async Patterns
+### Async patterns
 
 **Critical async rules**:
 - Do: Use `async def` for non-blocking I/O (database queries, HTTP calls, file operations)
@@ -78,7 +78,7 @@ async def bad_endpoint():
     return {"status": "done"}
 ```
 
-### Import Discipline
+### Import discipline
 
 **Use explicit imports with module names** to avoid hidden coupling:
 
@@ -99,7 +99,7 @@ from src.auth.service import authenticate_user
 - Prevents naming conflicts
 - Critical when importing services or dependencies from other packages
 
-### Validation & Dependencies
+### Validation & dependencies
 
 **Leverage Pydantic's rich built-in validation**:
 
@@ -166,7 +166,7 @@ async def endpoint2(authorization: str = Header(...), db: AsyncSession = Depends
     ...
 ```
 
-### Response Serialization
+### Response serialization
 
 **Always use `response_model` parameter** for type safety and OpenAPI documentation:
 
@@ -197,7 +197,7 @@ class CustomModel(BaseModel):
         }
 ```
 
-### Error Handling
+### Error handling
 
 **Define module-specific exception classes**:
 
@@ -244,7 +244,7 @@ async def invalid_credentials_handler(request: Request, exc: InvalidCredentials)
 - 422 Unprocessable Entity - Validation error (FastAPI default for Pydantic validation)
 - 500 Internal Server Error - Server error (unexpected)
 
-### Database Integration
+### Database integration
 
 **SQL-first design approach**:
 
@@ -367,7 +367,7 @@ async def test_create_user(async_client: AsyncClient):
 - **Integration tests**: Test router + service + database
 - **End-to-end tests**: Test full request/response cycle with real dependencies
 
-### Code Quality
+### Code quality
 
 **Use Ruff** for linting and formatting (Python-focused, extremely fast):
 
@@ -446,7 +446,7 @@ repos:
         additional_dependencies: [pydantic, sqlalchemy]
 ```
 
-### REST Conventions
+### REST conventions
 
 **Use correct HTTP methods**:
 
@@ -496,7 +496,7 @@ async def create_user(
 
 **Leverage FastAPI's auto-generated `/docs`** as primary API documentation (OpenAPI/Swagger UI).
 
-### Configuration Management
+### Configuration management
 
 **Decouple BaseSettings by domain** (not monolithic):
 
@@ -532,7 +532,7 @@ class Settings(BaseSettings):
     # ... 50 more fields
 ```
 
-### Summary Checklist
+### Summary checklist
 
 When building FastAPI applications:
 

@@ -101,7 +101,7 @@ diagrammed subsystem changes.
 
 **Scoped ER request** (`docs-diagram er for the user and order tables`): Grep for
 `class User` / `class Order` in the ORM models directory, read both files, extract
-columns and FKs, confirm the `Order.user_id` FK by checking it's actually declared
+columns and FKs, check the `Order.user_id` FK is actually declared
 in the model, then write `docs/data-model.md` with an `erDiagram` block containing
 only `USER` and `ORDER`.
 

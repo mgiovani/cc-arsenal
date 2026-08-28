@@ -1,8 +1,8 @@
-# Frontmatter Field Reference
+# Frontmatter field reference
 
 Full reference for SKILL.md YAML frontmatter fields beyond the basics covered in Phase 3. Consult this when a skill needs argument substitution or an isolated execution context.
 
-## All Fields
+## All fields
 
 ```yaml
 ---
@@ -27,7 +27,7 @@ hooks:                             # lifecycle hooks scoped to this skill
 
 Validate against `scripts/quick_validate.py`: it enforces this exact key set and rejects anything else, since unknown keys silently break skill loading.
 
-## `context: fork` (Isolated Subagent Pattern)
+## `context: fork` (Isolated subagent pattern)
 
 Used by `docs-adr`, `review-security`, `team-implement`, and others in this repo for skills that should run without the calling conversation's history: the SKILL.md content becomes the *entire* prompt for the subagent, not an addition to context.
 
@@ -49,7 +49,7 @@ Summarize this pull request...
 
 Use this when the skill's job is self-contained (e.g., "analyze this PR and report back") rather than conversational. Don't use it for skills that need to reference what the user already said earlier in the session: that context won't be there.
 
-## Argument Substitution
+## Argument substitution
 
 | Variable | Description |
 |----------|-------------|
@@ -58,7 +58,7 @@ Use this when the skill's job is self-contained (e.g., "analyze this PR and repo
 
 If the skill body never references `$ARGUMENTS`, any arguments passed are appended automatically as `ARGUMENTS: <value>` at the end.
 
-## Dynamic Context Injection
+## Dynamic context injection
 
 The `` !`command` `` syntax runs a shell command before the skill content reaches Claude; the command's output replaces the placeholder inline. Used in `docs-init`, `docs-update`, `git-commit`, `git-release` for injecting live repo state (diffs, current file contents) without a separate tool call.
 

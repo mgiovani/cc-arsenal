@@ -1,10 +1,10 @@
-# Security Policy
+# Security policy
 
-## Our Commitment
+## Our commitment
 
 We take the security of cc-arsenal seriously. If you discover a security vulnerability, we appreciate your help in disclosing it to us responsibly.
 
-## Supported Versions
+## Supported versions
 
 We release patches for security vulnerabilities in the following versions:
 
@@ -13,7 +13,7 @@ We release patches for security vulnerabilities in the following versions:
 | 1.x     | ✅ Yes             |
 | < 1.0   | ❌ No              |
 
-## Reporting a Vulnerability
+## Reporting a vulnerability
 
 **Please do not report security vulnerabilities through public GitHub issues.**
 
@@ -29,29 +29,29 @@ Include the following information in your report:
 - Impact of the vulnerability
 - Suggested fix (if you have one)
 
-### What to Expect
+### What to expect
 
 1. **Acknowledgment** - We'll respond within 48 hours to acknowledge receipt of your report
 2. **Investigation** - We'll investigate the issue and keep you updated on our progress
 3. **Resolution** - We'll work on a fix and coordinate a release timeline with you
 4. **Credit** - We'll credit you in our security advisory (unless you prefer to remain anonymous)
 
-### Disclosure Policy
+### Disclosure policy
 
 - Please give us reasonable time to fix the vulnerability before any public disclosure
 - We'll coordinate the disclosure timeline with you
 - We aim to release security patches as quickly as possible
 
-## Security Best Practices
+## Security best practices
 
 When using cc-arsenal:
 
-### For Users
+### For users
 
 - **Keep Updated** - Always use the latest version to get security patches
 - **Environment Variables** - Never commit `.env` files or credentials
 
-### For Contributors
+### For contributors
 
 - **No Credentials in Code** - Never commit API keys, passwords, or tokens
 - **Pre-commit Checks** - Run pre-commit checks before pushing code
@@ -59,20 +59,20 @@ When using cc-arsenal:
 - **Code Review** - Security-sensitive changes require thorough review
 - **Tests** - Include security test cases for new features
 
-## Known Security Considerations
+## Known security considerations
 
 ### Automation
 
 - Custom agents have access to your codebase - review agent configurations
 - Claude Hi scheduler creates cron jobs - review scheduling before setup
 
-### Data Handling
+### Data handling
 
 - Statusline displays usage data locally - no data is sent to external services
 - Git history is analyzed locally - no repository data leaves your machine
 - All processing happens on your local system
 
-## Security Updates
+## Security updates
 
 We'll announce security updates through:
 
