@@ -139,11 +139,11 @@ Generate a markdown report following [references/report-template.md](references/
 
 ### Phase 6: Verification & Quality Check
 
-Before presenting the report, verify: every finding has a file path + line numbers + an
-actual code snippet (not a placeholder) + a clear explanation + 2-3 fix approaches;
-statistics are counted, not estimated; no duplicate findings; severity ratings are
-justified; only scanned files within the specified scope; no invented vulnerabilities; any
-CWE/CVE references are accurate.
+Before presenting the report, verify that every finding has a file path + line numbers + an
+actual code snippet (not a placeholder) + a clear explanation + 2-3 fix approaches. Then confirm
+the report as a whole: statistics are counted rather than estimated; no duplicate findings;
+severity ratings are justified; only files within the specified scope were scanned; no invented
+vulnerabilities; any CWE/CVE references are accurate.
 
 ## Usage
 

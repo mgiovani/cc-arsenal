@@ -6,24 +6,24 @@ disable-model-invocation: true
 
 # Find Skills
 
-Discover and install third-party agent skills from the open Agent Skills ecosystem powered by skills.sh.
+Discover and install agent skills from the open Agent Skills ecosystem powered by skills.sh.
 
 ## Overview
 
-The **Agent Skills** format is an open standard for packaging procedural knowledge, workflows, and tools that AI agents load on demand. The `npx skills` CLI (maintained by Vercel Labs) serves as "npm for AI agents" -- enabling discovery and installation of community skills from any Git repository.
+The **Agent Skills** format is an open standard for packaging procedural knowledge, workflows, and tools that AI agents load on demand. The `npx skills` CLI (maintained by Vercel Labs) serves as "npm for AI agents", enabling discovery and installation of community skills from any Git repository.
 
 **skills.sh** is the public directory and leaderboard for the ecosystem, hosting thousands of skills across categories like frontend, backend, DevOps, and more.
 
-Before installing a third-party skill, check `ls skills/` in this repo (or run `/find-skills` again after browsing) -- cc-arsenal may already cover the same ground, and a hardcoded list here would just go stale.
+Before installing an external skill, check `ls skills/` in this repo (or run `/find-skills` again after browsing). cc-arsenal may already cover the same ground, and a hardcoded list here would just go stale.
 
 ## Ask First, Never Mutate to "Show" Something
 
-`add`, `remove`/`rm`, and `update` all touch the user's real filesystem (project `.claude/skills/` or global `~/.claude/skills/`) -- a wrong guess costs the user real state, not a free re-run. Two hard stops, both end the turn on a question rather than acting and reporting after:
+`add`, `remove`/`rm`, and `update` all touch the user's real filesystem (project `.claude/skills/` or global `~/.claude/skills/`). A wrong guess costs the user real state, not a free re-run. Two hard stops, both end the turn on a question rather than acting and reporting after:
 
-- **Scope or target is ambiguous.** If it isn't clear which skill/repo to install, or whether it belongs at project vs. global scope, end your response with the clarifying question. Don't run `npx skills add` first and confirm after, and don't install to a throwaway/local mock "just to show the flow" -- that still runs a real command against the user's real directories. Ask, stop, and install only in a later turn once the user answers.
-- **Any removal, one skill or all of them.** Removal is destructive and not undoable via the CLI. Run `npx skills list` (and `-g` if scope is unclear) to show what's actually installed, then end your response asking the user to confirm exactly what gets removed. Run `remove`/`rm`/`--all` only in a later turn, after the user replies with an explicit yes. The request is never the confirmation: "remove the foo skill, I don't use it anymore" names the action but does not green-light it -- if you catch yourself reasoning "the user already confirmed by naming it", that reasoning is exactly the failure this rule exists to stop.
+- **Scope or target is ambiguous.** If it isn't clear which skill/repo to install, or whether it belongs at project vs. global scope, end your response with the clarifying question. Don't run `npx skills add` first and confirm after, and don't install to a throwaway/local mock "just to show the flow", which still runs a real command against the user's real directories. Ask, stop, and install only in a later turn once the user answers.
+- **Any removal, one skill or all of them.** Removal is destructive and not undoable via the CLI. Run `npx skills list` (and `-g` if scope is unclear) to show what's actually installed, then end your response asking the user to confirm exactly what gets removed. Run `remove`/`rm`/`--all` only in a later turn, after the user replies with an explicit yes. The request is never the confirmation: "remove the foo skill, I don't use it anymore" names the action but does not green-light it. If you catch yourself reasoning "the user already confirmed by naming it", that reasoning is exactly the failure this rule exists to stop.
 
-If a source can't be verified (repo doesn't exist, network/auth error), report the failure and stop -- never substitute a synthetic local repo and install it to demonstrate what would have happened.
+If a source can't be verified (repo doesn't exist, network/auth error), report the failure and stop. Never substitute a synthetic local repo and install it to demonstrate what would have happened.
 
 ## Quick Start
 
@@ -78,7 +78,7 @@ Map the user's request to the right subcommand and scope before running anything
 | "install the frontend-design skill from vercel-labs/agent-skills for this project" | `npx skills add vercel-labs/agent-skills --skill frontend-design -a claude-code` |
 | "install code-review globally so I have it everywhere" | `npx skills add owner/repo --skill code-review -a claude-code -g` |
 | "what skills do I have installed?" | `npx skills list` |
-| "remove the web-design-guidelines skill" | `npx skills list` to confirm it's installed, then ask "remove web-design-guidelines -- confirm?" and run `npx skills remove web-design-guidelines` only after a yes |
+| "remove the web-design-guidelines skill" | `npx skills list` to confirm it's installed, then ask "remove web-design-guidelines, confirm?" and run `npx skills remove web-design-guidelines` only after a yes |
 
 See "Ask First, Never Mutate to 'Show' Something" above for exactly when to end the turn on a question instead of running the command.
 
@@ -129,7 +129,7 @@ npx skills add ./my-local-skills
 |------------|-------------|
 | `vercel-labs/agent-skills` | Vercel's official skill collection (React, Next.js, design) |
 | `anthropics/skills` | Anthropic's example skills |
-| `mgiovani/cc-arsenal` | This repository -- see AGENTS.md or `ls skills/` for the current catalog |
+| `mgiovani/cc-arsenal` | This repository; see AGENTS.md or `ls skills/` for the current catalog |
 
 ## Reference Files
 

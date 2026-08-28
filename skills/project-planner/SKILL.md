@@ -20,7 +20,7 @@ agent: general-purpose
 
 # Project Planner
 
-Break a large, complex project into manageable tasks with clear dependencies, progress tracking, and a visual diagram.
+Break a large project into tasks with explicit dependencies, progress tracking, and a Mermaid diagram.
 
 ## Project to Plan
 

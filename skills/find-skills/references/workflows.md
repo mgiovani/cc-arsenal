@@ -1,6 +1,6 @@
 # Workflows and Best Practices
 
-Patterns for discovering, evaluating, installing, and managing third-party agent skills.
+Patterns for finding, evaluating, installing, and managing skills from outside this repo.
 
 ---
 
@@ -122,7 +122,7 @@ npx skills add owner/repo --all
 
 ## Security Review
 
-### Before Installing Third-Party Skills
+### Before Installing an External Skill
 
 **Always review skill contents before installation.** Skills contain instructions that AI agents follow, which could include:
 - Running arbitrary commands
@@ -159,15 +159,15 @@ npx skills add owner/repo --skill verified-skill -a claude-code
 
 ---
 
-## Combining Third-Party Skills with cc-arsenal
+## Combining External Skills with cc-arsenal
 
 ### Avoiding Redundancy
 
-Run `ls skills/` in this repo before installing an external equivalent -- cc-arsenal already has 20+ skills (browser automation, Jira, docs, git, review, testing, and more) and a hardcoded list here would only go stale as skills are added.
+Run `ls skills/` in this repo before installing an external equivalent. cc-arsenal already has 20+ skills (browser automation, Jira, docs, git, review, testing, and more) and a hardcoded list here would only go stale as skills are added.
 
 ### Complementary Skills
 
-Good candidates for third-party installation alongside cc-arsenal:
+Good candidates to install alongside cc-arsenal:
 - Framework-specific skills (React, Next.js, Django, Rails patterns)
 - Language-specific skills (Rust, Go, Python best practices)
 - Design system skills (Tailwind, Material UI)
@@ -176,9 +176,9 @@ Good candidates for third-party installation alongside cc-arsenal:
 
 ### Conflict Resolution
 
-If a third-party skill overlaps with cc-arsenal:
+If an installed skill overlaps with cc-arsenal:
 1. Prefer cc-arsenal's built-in skill (better integration, maintained by the same team)
-2. Remove the third-party duplicate: `npx skills remove <name>`
+2. Remove the duplicate: `npx skills remove <name>`
 3. If the third-party skill is superior, consider contributing improvements to cc-arsenal instead
 
 ---
@@ -233,7 +233,7 @@ To make skills discoverable on skills.sh:
 3. **Skills appear on skills.sh** when users install them via `npx skills add`
 4. **Install counts** are tracked automatically on the skills.sh leaderboard
 
-The skills.sh directory indexes skills from Git repositories. There is no separate publishing step -- any public repository with properly structured skills is installable.
+The skills.sh directory indexes skills from Git repositories. There is no separate publishing step: any public repository with properly structured skills is installable.
 
 ```bash
 # Verify your repo's skills are discoverable

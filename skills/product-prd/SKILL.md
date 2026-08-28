@@ -165,8 +165,8 @@ Fix every CRITICAL/MAJOR (missing/duplicate IDs, ACs without Given/When/Then, mi
 ## AI-agent-consumer mode (optional)
 
 When the PRD's downstream reader is an AI implementation agent (this repo's own `implement-feature`/`fix-bug`)
-rather than a human, switch modes: **headings + lists over prose; every non-goal stated positively; every
-requirement carries an independently-testable acceptance criterion.** Optionally emit the companion
+rather than a human, switch modes. **Use headings + lists over prose; state every non-goal positively; give every
+requirement an independently-testable acceptance criterion.** Optionally emit the companion
 `assets/templates/agent-contract.md`: exact commands with flags, an Always / Ask-First / Never boundary
 list, and project conventions.
 

@@ -16,7 +16,7 @@ disable-model-invocation: true
 
 # Dependency Review
 
-Comprehensive dependency audit covering vulnerability scanning, license compliance, and staleness analysis. This skill performs **analysis only**: it never modifies code, lock files, or manifests, and never auto-installs upgrades or missing audit tools (it reports them as unavailable instead).
+Dependency audit across vulnerability scanning, license compliance, and staleness. This skill performs **analysis only**: it never modifies code, lock files, or manifests, and never auto-installs upgrades or missing audit tools (it reports them as unavailable instead).
 
 Cite exact package names/versions/CVE IDs from actual tool output, never estimate or invent them.
 

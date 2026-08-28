@@ -23,7 +23,7 @@ A release promotes everything on `dev` to `main` (production) as a versioned, ta
 
 ## 3. Wait for green, root-fix anything red
 
-- Poll the checks every few minutes. Do not merge until every check is green. No CI pipeline on the repo? Skip this step and say so.
+- Poll the checks every few minutes. Do not merge until every check is green. If the repo has no CI pipeline, skip this step and say so.
 - A red check is a real defect to root-fix. If CI exposes a latent test regression introduced by an earlier PR, fix the test to match the intended behavior and push to the release branch.
 
 ## 4. Merge to main (this deploys production)

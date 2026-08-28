@@ -53,9 +53,9 @@ corresponding `decision` row in the log: a recommendation you made is not an
 approved requirement until the user decides.
 
 All reasoning behind the requirements lives in **one append-only** log
-(`assets/templates/decision-log.md`), replacing the old four separate ledgers. Its
-`type` column carries what used to be four tables: `decision | assumption |
-question | finding`, each with its own status vocabulary and, for findings and
+(`assets/templates/decision-log.md`). Its `type` column separates the four kinds
+of entry: `decision | assumption | question | finding`, each with its own status
+vocabulary and, for findings and
 assumptions, a confidence level (**HIGH** multiple sources · **MEDIUM** single
 source/inference · **LOW** unconfirmed). Rows are never edited; supersede instead.
 Triangulate any legal/security/compliance finding to HIGH before it drives a MUST.

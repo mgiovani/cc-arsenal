@@ -14,7 +14,7 @@ hooks:
 
 # Refactor
 
-Refactor code safely using characterization tests, incremental changes, and continuous verification. Every change preserves existing behavior while improving code structure, readability, and maintainability.
+Refactor code safely using characterization tests, incremental changes, and continuous verification. Every step preserves existing behavior, verified against the full test suite before the next one starts.
 
 ## Refactoring Goal
 

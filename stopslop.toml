@@ -6,3 +6,34 @@
 # Skill templates are meant to ship placeholders (`[DESCRIBE]`, `<!-- fill in -->`).
 # That is the deliverable, not unfinished work. SLOP013 flags every one of them.
 exclude = ["**/assets/templates/**"]
+
+ignore = [
+  # Fires on the "## Step 1: <name>" procedural headings that most SKILL.md files
+  # are built around. All 8 hits were that pattern, none were actual residue.
+  "SLOP011",
+  # Fires on the Overview one-liner at the top of a SKILL.md, which enumerates the
+  # dimensions that skill actually covers ("correctness, performance, code style,
+  # test coverage, error handling"). That list is the contract, not a tricolon for
+  # effect. The genuinely empty adjectives it also caught ("comprehensive",
+  # "production-ready", "manageable") have been cut.
+  "SLOP017",
+  # Bold is load-bearing in a SKILL.md: it marks the term an agent must act on
+  # while skimming. 150 hits is the house style, not overuse.
+  "SLOP019",
+  # Title-case headings and short sections are deliberate. A skill body is a
+  # lookup table for an agent, not an essay.
+  "SLOP021",
+  # "check", "validate" and "verify" name different operations in these skills
+  # (run a lint / assert a schema / confirm an outcome). Collapsing them to one
+  # word loses the distinction.
+  "SLOP034",
+  # Whole-file statistical signal (burstiness, type-token ratio). Reference docs
+  # that catalogue N parallel options are uniform on purpose.
+  "SLOP041",
+]
+
+[per-file-ignores]
+# Historical record. Entries are not rewritten after release.
+"CHANGELOG.md" = ["ALL"]
+# Verbatim Contributor Covenant. Upstream text, not ours to reword.
+"docs/CODE_OF_CONDUCT.md" = ["ALL"]

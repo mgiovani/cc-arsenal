@@ -1,10 +1,10 @@
 # CLI Command Reference
 
-Reference for the `npx skills` CLI tool (npm package: `skills`, maintained by Vercel Labs). This is a third-party tool this repo doesn't control -- if a flag below doesn't behave as documented, run `npx skills <command> --help` and trust that output over this file.
+Reference for the `npx skills` CLI tool (npm package: `skills`, maintained by Vercel Labs). This is a third-party tool this repo doesn't control. If a flag below doesn't behave as documented, run `npx skills <command> --help` and trust that output over this file.
 
 ## Installation
 
-The CLI requires no installation -- run directly via `npx`:
+The CLI requires no installation. Run it directly via `npx`:
 
 ```bash
 npx skills <command> [options]
@@ -21,7 +21,7 @@ skills <command> [options]
 
 ## Commands
 
-### `find` -- Search the skills.sh Directory
+### `find`: Search the skills.sh Directory
 
 Search for skills across the skills.sh ecosystem.
 
@@ -40,7 +40,7 @@ npx skills find testing
 
 ---
 
-### `add` -- Install Skills from Repositories
+### `add`: Install Skills from Repositories
 
 Install skills from Git repositories into agent skill directories.
 
@@ -101,7 +101,7 @@ npx skills add ./my-skills-repo
 
 ---
 
-### `list` (alias: `ls`) -- View Installed Skills
+### `list` (alias: `ls`): View Installed Skills
 
 Display all installed skills across agents.
 
@@ -133,11 +133,11 @@ npx skills ls -a claude-code -a cursor
 
 ---
 
-### `remove` (alias: `rm`) -- Uninstall Skills
+### `remove` (alias: `rm`): Uninstall Skills
 
 Remove installed skills.
 
-`-y`/`--all` exist so the CLI itself skips its own prompts -- that's for scripted/CI use, not a license for the agent to skip *its* confirmation. List what's installed and get the user's explicit yes before running any `remove`/`rm` command; see SKILL.md's "Ask First" section.
+`-y`/`--all` exist so the CLI itself skips its own prompts. That's for scripted/CI use, not a license for the agent to skip *its* confirmation. List what's installed and get the user's explicit yes before running any `remove`/`rm` command; see SKILL.md's "Ask First" section.
 
 ```bash
 npx skills remove [name] [options]
@@ -178,7 +178,7 @@ npx skills rm --skill '*' -a cursor
 
 ---
 
-### `check` -- Check for Updates
+### `check`: Check for Updates
 
 Check whether installed skills have newer versions available.
 
@@ -188,7 +188,7 @@ npx skills check
 
 ---
 
-### `update` -- Update Installed Skills
+### `update`: Update Installed Skills
 
 Update all installed skills to their latest versions.
 
@@ -198,7 +198,7 @@ npx skills update
 
 ---
 
-### `init` -- Create a New Skill
+### `init`: Create a New Skill
 
 Generate a new skill template with proper SKILL.md structure.
 
@@ -216,7 +216,7 @@ npx skills init my-skill     # Create in a named subdirectory
 | Project | `.claude/skills/<skill-name>/SKILL.md` |
 | Global | `~/.claude/skills/<skill-name>/SKILL.md` |
 
-The CLI also supports Cursor, Codex, Gemini CLI, GitHub Copilot, and other agents -- it auto-detects installed agents and prompts for target selection. Run `npx skills add <source> --help` or check `npx skills --help` for the full, current agent list rather than relying on a list here, which will drift out of sync with the CLI.
+The CLI also supports Cursor, Codex, Gemini CLI, GitHub Copilot, and other agents. It auto-detects installed agents and prompts for target selection. Run `npx skills add <source> --help` or check `npx skills --help` for the full, current agent list rather than relying on a list here, which will drift out of sync with the CLI.
 
 ---
 

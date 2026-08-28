@@ -31,7 +31,7 @@ If that fails (command not found, not authenticated, any error), STOP here. Do n
 
 > The `jira` CLI isn't available or isn't authenticated in this environment. Install and configure it from https://github.com/ankitpokhrel/jira-cli, then re-run this skill.
 
-This gate exists because an agent that can't reach real Jira data will otherwise write a plausible-looking report from imagined tickets and present it as a real daily plan. Every ticket ID, priority, status, and story point anywhere in this skill's output must come from a `jira` command actually run this session: never a hardcoded fixture, a "simulated" placeholder, never mention a blocker that wasn't explicitly marked (label or blocking-link field) in that output, and never a helper script that was written but not executed. If a command returns no results, say so plainly rather than inventing tickets to fill out the report sections.
+This gate exists because an agent that can't reach real Jira data will otherwise write a plausible-looking report from imagined tickets and present it as a real daily plan. Every ticket ID, priority, status, and story point anywhere in this skill's output must come from a `jira` command actually run this session. Never use a hardcoded fixture, a "simulated" placeholder, or a helper script that was written but not executed, and never mention a blocker that wasn't explicitly marked (label or blocking-link field) in that output. If a command returns no results, say so plainly rather than inventing tickets to fill out the report sections.
 
 ## Phase 2: Determine Project Key
 

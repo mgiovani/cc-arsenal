@@ -172,7 +172,7 @@ See `references/model-guide.md` for full details. Quick reference:
 |---|---|---|
 | Quick drafts / iteration | `gemini-2.5-flash-image` | 512 or 1K |
 | **Most production assets (DEFAULT)** | `gemini-3.1-flash-image-preview` | 2K |
-| Text-heavy images | `gemini-3-pro-image-preview` | 2K–4K |
+| Text-heavy images | `gemini-3-pro-image-preview` | 2K to 4K |
 | Print / high-DPI | `gemini-3-pro-image-preview` | 4K |
 
 **Aspect ratio defaults by use case:**

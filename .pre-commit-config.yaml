@@ -33,3 +33,12 @@ repos:
         types: [python]
         exclude: ^examples/
         require_serial: true
+      - id: stopslop
+        name: stopslop
+        entry: stopslop
+        language: rust
+        additional_dependencies: ['cli:stopslop:0.5.1']
+        types_or: [markdown, python]
+        # Mirrors `exclude` in stopslop.toml: that key only applies when stopslop
+        # walks a directory itself, and pre-commit hands it explicit paths.
+        exclude: ^skills/[^/]+/assets/templates/

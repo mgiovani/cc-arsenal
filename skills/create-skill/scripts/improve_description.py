@@ -413,7 +413,6 @@ def main(
     console.print(Panel(current_description, border_style='dim'))
     console.print()
 
-    # Step 1: Generate queries
     console.print('[bold]Step 1:[/bold] Generating trigger queries...')
     try:
         should_trigger, should_not_trigger = generate_queries(

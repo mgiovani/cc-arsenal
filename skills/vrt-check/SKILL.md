@@ -75,7 +75,7 @@ Update snapshots one component/story at a time (or by the tool's targeted-update
 just visual-update --story=Button   # targeted, not the whole suite
 ```
 
-If the invocation used this skill's `--update` / `--component name` shorthand, map them to whatever the discovered tool actually calls its own flags: `--update` → the tool's write-mode flag (`--update-snapshots` for Playwright, `-u` for Jest/Storybook test-runner, or the task runner's `visual-update` target); `--component name` → its targeted-story filter (`--grep name` for Playwright, `--story=name` for a Storybook-runner wrapper, or the task runner's argument for the same). If Step 1 found no targeted-update flag at all, fall back to updating everything and re-diffing, per below.
+If the invocation used this skill's `--update` / `--component name` shorthand, map them to whatever the discovered tool actually calls its own flags. `--update` becomes the tool's write-mode flag (`--update-snapshots` for Playwright, `-u` for Jest/Storybook test-runner, or the task runner's `visual-update` target). `--component name` becomes its targeted-story filter (`--grep name` for Playwright, `--story=name` for a Storybook-runner wrapper, or the task runner's argument for the same). If Step 1 found no targeted-update flag at all, fall back to updating everything and re-diffing, per below.
 
 If the tool only supports updating everything at once, re-run the diff afterward and confirm the only changes are the ones you approved: a blanket update can silently accept a regression sitting next to the real change.
 
