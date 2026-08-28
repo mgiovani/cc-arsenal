@@ -1,8 +1,8 @@
-# 🚀 Claude Hi Cron - Smart Session Scheduler
+# Claude Hi Cron - Smart Session Scheduler
 
 Replace your manual cron workarounds with intelligent Claude Code session scheduling that automatically triggers 5-hour usage windows at optimal times.
 
-## 🎯 What It Does
+## What It Does
 
 The Claude Hi system strategically sends "hi" messages to Claude at specific times to trigger fresh 5-hour usage windows, ensuring you have maximum tokens available during your intensive work periods.
 
@@ -12,7 +12,7 @@ The Claude Hi system strategically sends "hi" messages to Claude at specific tim
 - **Hours 4-5**: **Heavy intensive work** (complex coding, problem-solving)
 - **Reset**: Fresh window starts with new token limits
 
-## 🔧 Quick Start
+## Quick Start
 
 ### Option 1: Interactive Setup
 ```bash
@@ -32,7 +32,7 @@ make claude-hi-extended    # 4am/9am/2pm/7pm triggers → 9am/2pm/7pm/12am reset
 make claude-hi-custom      # Guided custom setup for different work styles
 ```
 
-## 📅 Schedule Options
+## Schedule Options
 
 ### Built-in Presets
 
@@ -50,32 +50,32 @@ make claude-hi-custom      # Guided custom setup for different work styles
 
 The system includes guided setup for different work styles:
 
-#### 🌅 Early Bird Schedule
+#### Early Bird Schedule
 - **Triggers**: `6,11,16` (6am, 11am, 4pm)
 - **Heavy work**: 9am-1pm, 2pm-6pm, 7pm-11pm
 - **Perfect for**: Those who start early and finish by 11pm
 
-#### 🦉 Night Owl Schedule
+#### Night Owl Schedule
 - **Triggers**: `10,15,20` (10am, 3pm, 8pm)
 - **Heavy work**: 1pm-5pm, 6pm-10pm, 11pm-3am
 - **Perfect for**: Late risers who work into the night
 
-#### 💼 Traditional with Breaks
+#### Traditional with Breaks
 - **Triggers**: `9,14` (9am, 2pm)
 - **Heavy work**: 12pm-2pm, 5pm-7pm
 - **Perfect for**: Focused work in short, intense bursts
 
-#### 🎯 Freelancer Flexible
+#### Freelancer Flexible
 - **Triggers**: `8,13,18` (8am, 1pm, 6pm)
 - **Heavy work**: 11am-3pm, 4pm-8pm, 9pm-1am
 - **Perfect for**: Flexible schedules with client work
 
-#### ⚡ Heavy User (Maximum Coverage)
+#### Heavy User (Maximum Coverage)
 - **Triggers**: `6,9,12,15,18` (6am, 9am, 12pm, 3pm, 6pm)
 - **5 windows per day**: Maximum possible usage
 - **Perfect for**: Power users who need constant access
 
-## 📋 Management Commands
+## Management Commands
 
 ```bash
 # Check what's scheduled
@@ -91,7 +91,7 @@ make claude-hi-remove
 make claude-hi-custom    # Interactive custom helper
 ```
 
-## 🔍 How It Works
+## How It Works
 
 ### Cron Integration
 The system creates clean cron jobs that run daily:
@@ -128,7 +128,7 @@ If direct "hi" sending fails, the system:
 
 **Your pattern maximizes coding time when tokens are most available!**
 
-## 🛠️ Advanced Usage
+## Advanced Usage
 
 ### Custom Schedule Creation
 ```bash
@@ -157,7 +157,7 @@ make claude-hi-now
 make claude-hi-status
 ```
 
-## 📊 Status and Monitoring
+## Status and Monitoring
 
 ### Check Current Setup
 ```bash
@@ -183,7 +183,7 @@ Recent Activity:
 [2024-01-15 19:00:01] hi sent to trigger Claude window
 ```
 
-## 🔄 Migration from Manual Cron
+## Migration from Manual Cron
 
 If you currently have manual cron jobs, the system will:
 1. Backup your existing crontab
@@ -200,7 +200,7 @@ make claude-hi-standard
 make claude-hi-custom
 ```
 
-## 💡 Pro Tips
+## Pro Tips
 
 ### Maximizing Usage
 - **Schedule intensive work** for the last 2 hours of each window
@@ -220,7 +220,7 @@ make claude-hi-custom
 - Verify cron: `crontab -l | grep claude`
 - Remove and recreate: `make claude-hi-remove` then `make claude-hi-setup`
 
-## 🚀 Integration with Claude Code Arsenal
+## Integration with Claude Code Arsenal
 
 This system is part of the Claude Code Arsenal and integrates with:
 - **Statusline**: Shows current usage and reset times

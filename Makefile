@@ -1,4 +1,4 @@
-.PHONY: help install configure dev test lint format type-check check coverage clean pre-commit-install pre-commit-run dry-run info validate-structure validate-plugins install-statusline uninstall-statusline bump-version
+.PHONY: help install configure dev test lint format type-check check coverage clean pre-commit-install pre-commit-run slop slop-baseline dry-run info validate-structure validate-plugins install-statusline uninstall-statusline bump-version
 
 # Default commands
 UV := uv
@@ -73,6 +73,13 @@ pre-commit-install: dev ## Install pre-commit hooks
 pre-commit-run: dev ## Run pre-commit hooks on all files
 	@echo "$(BLUE)Running pre-commit hooks on all files...$(RESET)"
 	$(UV) run pre-commit run --all-files
+
+slop: ## Run stopslop the same way the pre-commit hook does
+	@out=$$(stopslop $$(git ls-files '*.md' '*.py' | grep -v '^skills/[^/]*/assets/templates/')) || true; \
+	if [ -n "$$out" ]; then printf '%s\n' "$$out"; exit 1; else echo "$(GREEN)No slop$(RESET)"; fi
+
+slop-baseline: ## Re-record the stopslop baseline (only after paying debt down)
+	stopslop --write-baseline $$(git ls-files '*.md' '*.py' | grep -v '^skills/[^/]*/assets/templates/')
 
 lint: dev ## Run linting checks
 	@echo "$(BLUE)Running linting checks...$(RESET)"

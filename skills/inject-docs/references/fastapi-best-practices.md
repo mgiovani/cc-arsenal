@@ -50,12 +50,12 @@ src/
 ### Async Patterns
 
 **Critical async rules**:
-- ✅ Use `async def` for non-blocking I/O (database queries, HTTP calls, file operations)
-- ✅ Use `def` for blocking operations (FastAPI automatically runs in threadpool)
-- ✅ Use `await asyncio.sleep()` for delays
-- ✅ Prefer async database drivers (SQLAlchemy 2.0+ with asyncio support)
-- ❌ **NEVER** use `time.sleep()` in async functions (blocks entire event loop)
-- ❌ CPU-intensive work requires multiprocessing or Celery (not threads due to GIL)
+- Do: Use `async def` for non-blocking I/O (database queries, HTTP calls, file operations)
+- Do: Use `def` for blocking operations (FastAPI automatically runs in threadpool)
+- Do: Use `await asyncio.sleep()` for delays
+- Do: Prefer async database drivers (SQLAlchemy 2.0+ with asyncio support)
+- Don't: use `time.sleep()` in an async function, ever (it blocks the entire event loop)
+- Don't: run CPU-intensive work inline; it needs multiprocessing or Celery (threads don't help, because of the GIL)
 
 **Example**:
 ```python

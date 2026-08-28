@@ -1,4 +1,4 @@
-# stopslop config. Run: `stopslop .`
+# stopslop config. Run: `make slop` (see the baseline note below).
 #
 # Only false-positive classes are suppressed here. Everything else stays on, so a
 # real finding shows up in an otherwise-empty run instead of being buried in noise.
@@ -7,6 +7,20 @@
 # That is the deliverable, not unfinished work. SLOP013 flags every one of them.
 exclude = ["**/assets/templates/**"]
 
+# Pre-existing SLOP019/SLOP021 debt (boldface density, title-case headings, thin
+# sections) is recorded rather than ignored, so those rules stay armed for new
+# prose. Re-record with `make slop-baseline` only when the debt is paid down,
+# never to silence a fresh finding.
+#
+# Baseline keys embed the path as it was passed in, and stopslop 0.5.1 matches
+# them literally, so `stopslop .` (which yields `./foo.md`) will NOT match a
+# baseline written from `git ls-files` (`foo.md`) and re-reports everything.
+# Run `make slop` instead: it passes the same paths the pre-commit hook does.
+baseline = ".stopslop-baseline.json"
+
+# SLOP019 (boldface) and SLOP021 (heading affectations) are NOT ignored. Their
+# existing hits are recorded in .stopslop-baseline.json instead, so the debt is
+# visible and any NEW bold-spam or emoji heading fails the hook.
 ignore = [
   # Fires on the "## Step 1: <name>" procedural headings that most SKILL.md files
   # are built around. All 8 hits were that pattern, none were actual residue.
@@ -17,12 +31,6 @@ ignore = [
   # effect. The genuinely empty adjectives it also caught ("comprehensive",
   # "production-ready", "manageable") have been cut.
   "SLOP017",
-  # Bold is load-bearing in a SKILL.md: it marks the term an agent must act on
-  # while skimming. 150 hits is the house style, not overuse.
-  "SLOP019",
-  # Title-case headings and short sections are deliberate. A skill body is a
-  # lookup table for an agent, not an essay.
-  "SLOP021",
   # "check", "validate" and "verify" name different operations in these skills
   # (run a lint / assert a schema / confirm an outcome). Collapsing them to one
   # word loses the distinction.
