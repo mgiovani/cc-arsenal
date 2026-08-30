@@ -9,7 +9,11 @@ Default: `.cc-arsenal/renders/<mode>-<slug>-<YYYY-MM-DD>.html`, relative to the
 project root. `<slug>` comes from the subject, lowercased and hyphenated.
 
 `--out <path>` overrides it. Re-running with the same path updates that page in
-place, which is how a revision keeps its link and its comments.
+place, which is how a revision keeps its link and its marks. That preservation
+is not automatic: read the existing page's state block first and embed it in the
+new one, per the re-render rules in
+[feedback-loop.md](feedback-loop.md). A rebuild that emits an empty state
+destroys everything the reader has done.
 
 Where the file lives after that, and whether it is committed, is the user's
 call. Do not add it to `.gitignore`, do not warn about committing it, and do not
@@ -20,7 +24,15 @@ move it.
 **Published.** Where an `Artifact` tool exists, write the file, then publish it
 and return the link. Declare `capabilities: {artifact: {}}` so the page can save
 new versions of itself. Load the `artifact-capabilities` skill before writing any
-`claude.use` code; it carries the current contract.
+`claude.use` code (or, where no skill-loading tool exists, follow the runtime
+contract that tool documents); it carries the current call shapes.
+
+A first publish also needs a `favicon`, one or two emoji, and takes a
+one-sentence `description` for the gallery card. Pick a favicon that suits the
+mode and the subject, then never change it: readers find the tab by its icon, so
+omit the parameter on every redeploy and the page keeps the icon it has. This is
+the one place emoji are correct; the ban further down concerns icons drawn
+inside the page.
 
 The publish is by file path, so **keep the local file**. It is the source for
 every later update to that URL. If it drifts from what is published, the next
@@ -29,9 +41,26 @@ was published earlier, read the live version first and build the update from
 that.
 
 **Local file.** Where no `Artifact` tool exists, the same self-contained HTML on
-disk is the deliverable. Print the path. The loop degrades to: open it, mark it,
-save it in place, say so, and the skill re-reads the file. Say this in one line
-when reporting, so the user knows the round trip still works.
+disk is the deliverable. Print the path.
+
+The round trip still works, but not by the reader pressing the browser's own
+save: a `file://` page cannot overwrite itself, and a Save-Page-As serializes
+the original markup, whose state block is still empty. Instead the page's save
+control regenerates the document exactly as it would for a publish, then hands
+it to the reader as a download through an object URL:
+
+```js
+const blob = new Blob([doc], { type: "text/html" });
+const a = document.createElement("a");
+a.href = URL.createObjectURL(blob);
+a.download = "review-auth-2026-08-30.html";   // the page's own filename
+a.click();
+URL.revokeObjectURL(a.href);
+```
+
+The downloaded copy carries the marks. Tell the reader, in one line, to replace
+the file at the printed path with it and say when they have, since the skill
+reads that path and not their downloads folder.
 
 Resolve which path applies at build time. Do not ask the user which environment
 they are in.
@@ -124,5 +153,6 @@ load, and real `alt` text.
 - No modal for a task that needs neither interruption nor protected focus.
 - No spinner in the middle of content where a skeleton belongs.
 - No animation that does not convey state. Transitions stay at 120 to 250 ms.
-- No emoji standing in for an icon. Draw the SVG or use none.
+- No emoji standing in for an icon inside the page. Draw the SVG or use none.
+  The published artifact's favicon is a separate thing and is emoji by contract.
 - No card grid as the page's structure when the content is a list.

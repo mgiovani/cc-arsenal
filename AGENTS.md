@@ -8,7 +8,7 @@ cc-arsenal is a collection of **48 Agent Skills** ([agentskills.io](https://agen
 
 ### Core Components
 
-- **Skills** (`skills/`): 51 skills covering development, code review, documentation, git/GitHub, jira, teams, browser automation, project planning, product specs, multi-agent orchestration, open-source launch prep, and skill discovery/creation/improvement
+- **Skills** (`skills/`): 52 skills covering development, code review, documentation, git/GitHub, jira, teams, browser automation, project planning, product specs, multi-agent orchestration, open-source launch prep, and skill discovery/creation/improvement
 - **Scripts** (`scripts/`): Python utilities for installation, configuration, and code generation (Claude-Code-specific; see `CLAUDE.md`)
 - **Integrations** (`integrations/`): agent-CLI-specific tooling that doesn't fit the tool-agnostic `skills/` tier, one subdirectory per agent CLI. Today that's `integrations/claude-code/`, holding the statusline and the `claude-hi` session scheduler; future agent CLIs (Codex, Gemini CLI, ...) get sibling directories alongside it as their own tooling needs arise.
 
@@ -41,7 +41,7 @@ Skills may build on each other along two distinct axes, keep them separate:
 
 Do not add `uses:`/`composes:` frontmatter and do not route composition through a mandatory dispatcher skill: plain prose naming the sibling, with its in-sentence fallback, is the whole mechanism.
 
-## Available Skills (51 total)
+## Available Skills (52 total)
 
 All skills use progressive disclosure (SKILL.md + optional references/scripts/assets directories).
 
@@ -103,7 +103,8 @@ All skills use progressive disclosure (SKILL.md + optional references/scripts/as
 - **team-implement**: Spec-driven team orchestration, adaptive development team scaling from 3 to 11 agents based on complexity. Accepts plain text, Jira tickets, GitHub issues, PRs, files, or URLs. Requires `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` for full mode in Claude Code; degrades to a single-agent sequential run elsewhere.
 - **team-review**: Multi-agent PR review team (architecture, security, performance, testing, style, docs/UX, plus an adversary) for security-sensitive or large PRs
 
-### Utilities (7 skills)
+### Utilities (8 skills)
+- **render**: Turn a plan, PRD, review, audit, comparison, brainstorm, explanation or architecture map into an interactive HTML page the user marks up in place, then read those marks back; wraps any other skill's output
 - **create-skill**: Specification-driven skill creation with eval system and description optimization
 - **create-rule**: Create CLAUDE.md/AGENTS.md rules and memory guidelines
 - **improve-skill**: Improve an existing skill to the authoring standard with measured before/after evidence: snapshots the baseline, rewrites to the rubric, and benchmarks new-vs-old
@@ -182,7 +183,7 @@ See `CONTRIBUTING.md` for the full development setup.
 ## File Organization
 ```
 cc-arsenal/
-├── skills/          # All 48 skills (canonical, tool-agnostic)
+├── skills/          # All 52 skills (canonical, tool-agnostic)
 │   ├── implement-feature/   # Feature implementation with subagents
 │   ├── fix-bug/             # Test-driven debugging
 │   ├── test-suite/          # Test suite generation

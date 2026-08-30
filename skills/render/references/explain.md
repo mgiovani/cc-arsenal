@@ -6,9 +6,10 @@ Understanding, built in layers. No verdicts, comments everywhere.
 
 - **The answer in one line**, first, before any context. A reader who stops here
   should still have what they asked for.
-- **The mechanism**, usually one diagram, showing how the thing actually works.
-  This is the layer that justifies a page over a paragraph, so if there is no
-  shape worth drawing, say so and write prose instead of building a page.
+- **The mechanism**, showing how the thing actually works. A diagram carries
+  this best where the subject has a shape; where it does not, a worked example or
+  a walked-through trace does the same job. The page is still the deliverable
+  either way, because the reader's questions have to land somewhere.
 - **The detail**, in sections the reader opens as needed. Each section answers
   one question and says which question in its heading.
 - **What this does not cover**, at the end. The boundary of an explanation is

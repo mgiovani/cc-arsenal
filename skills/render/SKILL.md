@@ -76,10 +76,16 @@ diff runs the review first.
 
 ### 3. Load the design guidance
 
-Load the `artifact-design` skill before writing any HTML. If the page will
-declare a runtime capability, load `artifact-capabilities` too. These calibrate
-the treatment and carry the current call contract; skipping them produces the
-generic page this skill exists to avoid.
+Announce `Using artifact-design to calibrate this page's treatment` and load the
+`artifact-design` skill before writing any HTML, via the `Skill` tool where one
+exists. If the page will declare a runtime capability, load
+`artifact-capabilities` the same way.
+
+Both are host skills rather than siblings in this repository, so they are absent
+on some agents. Where neither can be loaded, say so in one line and apply
+[references/page-kit.md](references/page-kit.md) directly: it carries the
+theming rules, the type and layout floor, and the state contract this skill
+depends on. The page is still built; it just loses the calibration pass.
 
 ### 4. Build the page
 
@@ -145,7 +151,9 @@ nothing until that is answered.
 - The wrapped skill never needs to know this skill exists. `render /<skill>`
   runs it unchanged and renders what comes out.
 - Re-running `render` on the same subject updates the same page when the output
-  path matches. This is the intended way to revise, and it preserves comments
-  whose anchors still resolve.
+  path matches. This is the intended way to revise, and preserving the reader's
+  marks across it is a required step, not a side effect: read the existing state
+  block and embed it in the new page, per the re-render rules in
+  [references/feedback-loop.md](references/feedback-loop.md).
 - Two modes carry no verdict controls, `explain` and `map`. They still carry
   anchored comments, which is usually the only feedback those pages need.

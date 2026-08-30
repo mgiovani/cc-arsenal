@@ -14,7 +14,10 @@ A findings triage board. The reader decides what gets fixed.
 - **Filters**: by severity, by dimension where the source skill has them
   (correctness, performance, security, style), and undecided.
 
-Anchor per finding: `finding-<path-slug>-<line>`. Label: the claim.
+Anchor per finding: `finding-<path-slug>-<line>-<claim-slug>`. The claim slug is
+not optional: `review-code` reviews several dimensions at once and `team-review`
+runs several agents, so two findings on one line are routine, and two blocks
+sharing an anchor share a verdict and every comment. Label: the claim.
 
 ## Verdicts
 

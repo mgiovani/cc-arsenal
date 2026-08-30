@@ -8,7 +8,7 @@
 [![Agent Skills compatible](https://img.shields.io/badge/Agent%20Skills-compatible-blueviolet.svg)](https://agentskills.io)
 [![Code style: ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
-48 production-grade [Agent Skills](https://agentskills.io) for real development workflows: code review, shipping, docs, git, testing, multi-agent orchestration, and more. Each is a battle-tested workflow you invoke in plain language. Works with Claude Code, Codex, Cursor, Gemini CLI, and any Agent-Skills-compatible agent.
+49 production-grade [Agent Skills](https://agentskills.io) for real development workflows: code review, shipping, docs, git, testing, multi-agent orchestration, and more. Each is a battle-tested workflow you invoke in plain language. Works with Claude Code, Codex, Cursor, Gemini CLI, and any Agent-Skills-compatible agent.
 
 ## See it work
 
@@ -46,7 +46,7 @@ make -C integrations/claude-code/claude-hi standard # Schedule 5-hour windows
 - **Git & GitHub** (7): Conventional commits, PR creation, releases, gitflow, branch sync, shipping, daily planning
 - **Jira** (2): Standup reports, work prioritization
 - **Teams** (2): Spec-driven orchestration, multi-agent PR review
-- **Utilities** (7): Skill creation, memory rules, skill improvement, multi-agent orchestration, browser automation, skill discovery, Jira CLI
+- **Utilities** (8): Skill creation, memory rules, skill improvement, multi-agent orchestration, browser automation, skill discovery, Jira CLI, rich HTML renders
 
 **Claude Code unlocks extras:**
 - 9 plugin variants (install just the category you need, see `CLAUDE.md`)

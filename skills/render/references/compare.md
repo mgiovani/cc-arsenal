@@ -21,7 +21,9 @@ row, and `cell-<option>-<criterion>` on each intersection.
 
 ## Verdicts
 
-One choice across the whole page: pick a winner. Plus a per-criterion override,
+One choice across the whole page: pick a winner. It is a page-level decision
+rather than a block-level one, so it is stored under `page.winner` in the state
+object and not in the anchor-keyed `verdicts` map. Plus a per-criterion override,
 for the reader who accepts the matrix but rejects one row's weight.
 
 ## Data

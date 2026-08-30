@@ -333,7 +333,7 @@ make -C integrations/claude-code/claude-hi standard  # Quick 9am/2pm/7pm schedul
 
 ### Plugin Marketplace (Claude Code)
 - **Installation**: `/plugin install cc-arsenal@cc-arsenal-marketplace`
-- **Skills**: All 45 skills, or a focused variant (`cc-arsenal-dev`, `cc-arsenal-docs`, `cc-arsenal-git`, `cc-arsenal-skills`, `cc-arsenal-teams`, `cc-arsenal-review`)
+- **Skills**: All 46 skills, or a focused variant (`cc-arsenal-dev`, `cc-arsenal-docs`, `cc-arsenal-git`, `cc-arsenal-skills`, `cc-arsenal-teams`, `cc-arsenal-review`)
 - See [Getting Started](getting-started.md) for the full variant list
 
 ### Symlink Install (Contributors)

@@ -268,11 +268,12 @@
       "category": "productivity",
       "skills": [
         "./skills/agent-browser/",
-        "./skills/find-skills/",
-        "./skills/create-skill/",
         "./skills/create-rule/",
+        "./skills/create-skill/",
+        "./skills/find-skills/",
         "./skills/improve-skill/",
         "./skills/orchestrate/",
+        "./skills/render/",
         "./skills/wtf/"
       ]
     },

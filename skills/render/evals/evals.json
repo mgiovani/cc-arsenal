@@ -8,12 +8,13 @@
         "an HTML file is written under .cc-arsenal/renders/ with a name starting 'review-'",
         "all 12 findings appear on the page, none invented and none dropped",
         "the severity ranking from the source report is preserved, critical before high before low",
-        "each finding is inside an element carrying a data-anchor attribute derived from its file and line, not from its position in the list",
+        "each finding is inside an element carrying a data-anchor derived from its file, line and a slug of its claim, so two findings on the same line do not collide, and never from its position in the list",
         "each finding carries fix / won't fix / discuss verdict controls",
         "the page contains a <script id=\"state\" type=\"application/json\"> block holding the verdict and comment state",
         "the page's CSS defines its palette as custom properties on a bare :root selector, redefines them under a prefers-color-scheme dark media query guarded against [data-theme=\"light\"], and redefines them again under :root[data-theme=\"dark\"]",
         "body has an explicit background drawn from a token, not left transparent",
-        "the response reports the output path and the finding counts, and does not claim to have fixed anything"
+        "the response reports the output path and the finding counts, and does not claim to have fixed anything",
+        "the publish call supplies a favicon, which the Artifact contract requires on a first publish"
       ]
     },
     {
@@ -60,7 +61,8 @@
         "results are grouped by what the user decided rather than by page order",
         "the comment on req-PRD-FR-099 is reported using its stored label and section and explicitly flagged as attached to something no longer present",
         "the orphaned comment is not silently dropped from the report",
-        "the response acts on the returned marks rather than asking the user to restate them"
+        "the response acts on the returned marks rather than asking the user to restate them",
+        "the report covers page-level decisions, per-anchor verdicts and comments, not verdicts alone"
       ]
     },
     {
@@ -81,6 +83,28 @@
         "the response explains that git-commit produces an action rather than a set of findings or decisions, so a page adds nothing",
         "the response offers running git-commit directly instead",
         "no commit is created as a side effect of the explanation"
+      ]
+    },
+    {
+      "id": "judgment-rerender-preserves-marks",
+      "prompt": "The page at .cc-arsenal/renders/review-auth-2026-08-30.html already carries 40 verdicts and 6 comments saved by the user. Re-run render review on the same subject after two of the findings were fixed, writing to that same path.",
+      "assertions": [
+        "the existing page's state block is read and parsed before the new page is written",
+        "the regenerated page embeds the carried state rather than an empty {\"verdicts\":{},\"comments\":[]} block",
+        "verdicts whose anchors no longer exist are dropped, since the findings they judged are gone",
+        "comments whose anchors no longer exist are retained in state and reported as orphaned rather than discarded",
+        "verdicts and comments on the findings that still exist are still present and still attached to them after the rebuild"
+      ]
+    },
+    {
+      "id": "judgment-no-artifact-tool-available",
+      "prompt": "Run render plan on a 6-step migration plan in an environment with no Artifact tool available.",
+      "assertions": [
+        "a self-contained HTML file is written and its path is reported",
+        "the response does not claim to have published anything or return an artifact link",
+        "the page's save control regenerates the document and offers it as a download rather than relying on the browser's own Save Page As",
+        "the response tells the user to replace the file at the reported path with the downloaded copy and say when done",
+        "the response does not tell the user their browser can save the marks into the original file in place"
       ]
     }
   ]

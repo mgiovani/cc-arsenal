@@ -17,7 +17,9 @@ concentrated".
   the filters are the interface; without them the page is a longer wall of text
   than the one it replaced.
 
-Anchor per finding: `finding-<area-slug>-<n>`. Label: the claim.
+Anchor per finding: `finding-<area-slug>-<claim-slug>`, never an ordinal. Audits
+are re-run as the codebase changes, and a numbered anchor moves a comment onto a
+different finding every time the count shifts. Label: the claim.
 
 ## Verdicts
 

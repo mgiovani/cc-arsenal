@@ -17,7 +17,10 @@ built.
 - **Open questions**: anything the plan could not settle, each anchored, each
   stating what changes depending on the answer.
 
-Anchor per step: `step-<n>`. Label: the step's own title.
+Anchor per step: `step-<slug-of-its-title>`, never `step-<n>`. Steps get
+inserted and reordered between revisions, and a numbered anchor silently
+reattaches an old comment to whatever now sits in that position. Label: the
+step's own title.
 
 ## Verdicts
 
