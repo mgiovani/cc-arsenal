@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **render**: turns a plan, PRD, review, audit, comparison, brainstorm, explanation or architecture map into an interactive HTML page the user marks up in place, then reads those marks back and acts on them. Eight modes, each specified in its own reference file. Every anchored block carries a comment affordance, and a comment is stored with the label and section of what it was left on, so feedback returns bound to its subject and a comment whose target has since moved is reported as orphaned rather than silently dropped. Wraps any other skill (`render /review-code`) with no change to that skill. Publishes as an Artifact where one is available and writes a self-contained file otherwise. The first skill in this repository that produces HTML rather than markdown.
 - **3 new skills** (48 to 51), all supporting an external agent-orchestration workflow:
   - **prd-to-issues**: the seam between an approved PRD and a tracked backlog. Files one issue per requirement ID, records the dependencies the PRD states, and stays idempotent across re-runs by matching on that ID in the title. Refuses to file a requirement carrying an unresolved `[NEEDS CLARIFICATION]` tag rather than guessing, and never closes or edits an existing issue.
   - **clotho-research**: pre-planning codebase research. Reports the files a change must touch, the prior art worth copying, and the concrete risks, without proposing an implementation.

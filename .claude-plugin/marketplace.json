@@ -81,6 +81,7 @@
         "./skills/oss-launch/",
         "./skills/project-planner/",
         "./skills/refactor/",
+        "./skills/render/",
         "./skills/ship/",
         "./skills/test-suite/",
         "./skills/vrt-check/"
@@ -113,7 +114,8 @@
         "./skills/prd-to-issues/",
         "./skills/product-design-spec/",
         "./skills/product-design-tokens/",
-        "./skills/product-prd/"
+        "./skills/product-prd/",
+        "./skills/render/"
       ]
     },
     {
@@ -140,6 +142,7 @@
       ],
       "category": "development",
       "skills": [
+        "./skills/render/",
         "./skills/review-code/",
         "./skills/review-deps/",
         "./skills/review-design/",

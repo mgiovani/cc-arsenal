@@ -1,0 +1,87 @@
+{
+  "skill": "render",
+  "evals": [
+    {
+      "id": "happy-path-review-mode",
+      "prompt": "This repo has a review report listing 12 findings across src/auth.py (3 critical), src/query.py (2 high), and src/views.py (7 low), each with a file:line reference and a described failure. Run render review on it.",
+      "assertions": [
+        "an HTML file is written under .cc-arsenal/renders/ with a name starting 'review-'",
+        "all 12 findings appear on the page, none invented and none dropped",
+        "the severity ranking from the source report is preserved, critical before high before low",
+        "each finding is inside an element carrying a data-anchor attribute derived from its file and line, not from its position in the list",
+        "each finding carries fix / won't fix / discuss verdict controls",
+        "the page contains a <script id=\"state\" type=\"application/json\"> block holding the verdict and comment state",
+        "the page's CSS defines its palette as custom properties on a bare :root selector, redefines them under a prefers-color-scheme dark media query guarded against [data-theme=\"light\"], and redefines them again under :root[data-theme=\"dark\"]",
+        "body has an explicit background drawn from a token, not left transparent",
+        "the response reports the output path and the finding counts, and does not claim to have fixed anything"
+      ]
+    },
+    {
+      "id": "happy-path-anchored-comments",
+      "prompt": "Run render plan on a 5-step implementation plan for adding rate limiting, where steps 3 and 4 both depend on step 2.",
+      "assertions": [
+        "every anchored block carries both data-anchor and data-label attributes",
+        "each anchored block contains a comment affordance control that is reachable without a mouse, revealed on :focus-within or :focus-visible and not on :hover alone",
+        "on viewports under roughly 760px the comment affordance is statically visible rather than hover-dependent",
+        "the comment composer opens inline beneath the block rather than as a modal dialog",
+        "a saved comment records anchor, label, section and text, not the anchor alone",
+        "step dependencies shown on the page come from the plan itself, and step 3 and step 4 are both shown depending on step 2",
+        "the page does not fabricate a dependency between consecutive steps that the plan did not state"
+      ]
+    },
+    {
+      "id": "judgment-wrapping-a-skill",
+      "prompt": "Run render /review-security on the current branch.",
+      "assertions": [
+        "review-security is run to completion first, and the page renders the findings it actually produced",
+        "no file under skills/review-security/ is created or modified",
+        "the finding claims are carried over in the source skill's wording rather than paraphrased",
+        "the severity ranking produced by review-security is preserved on the page",
+        "file:line evidence from each finding appears on its anchored block",
+        "the response does not add findings that review-security did not report"
+      ]
+    },
+    {
+      "id": "judgment-convert-existing-file",
+      "prompt": "Run render docs/plans/auth-rework.md. The file is a markdown document containing an ordered list of implementation steps with a dependencies section.",
+      "assertions": [
+        "the file is read before any mode is chosen",
+        "the response states which mode it selected and why, in one line, before building the page",
+        "plan mode is selected, matching the file's ordered-steps-with-dependencies shape",
+        "the plan's own step wording and ordering are preserved rather than rewritten during conversion",
+        "the original markdown file is not modified"
+      ]
+    },
+    {
+      "id": "judgment-read-marks-back-with-orphan",
+      "prompt": "The page at .cc-arsenal/renders/prd-lachesis-2026-08-30.html was marked by the user and saved. It carries a comment anchored to req-PRD-FR-099, which no longer exists in the current requirement set. Read the marks back.",
+      "assertions": [
+        "the page's state block is parsed rather than the rendered DOM being scraped",
+        "results are grouped by what the user decided rather than by page order",
+        "the comment on req-PRD-FR-099 is reported using its stored label and section and explicitly flagged as attached to something no longer present",
+        "the orphaned comment is not silently dropped from the report",
+        "the response acts on the returned marks rather than asking the user to restate them"
+      ]
+    },
+    {
+      "id": "refusal-no-mode-given",
+      "prompt": "render",
+      "assertions": [
+        "the response lists the available modes with what each one produces",
+        "the response asks which mode the user wants",
+        "no mode is guessed and no page is built",
+        "no file is written under .cc-arsenal/renders/ or anywhere else"
+      ]
+    },
+    {
+      "id": "refusal-wrapping-an-action-skill",
+      "prompt": "Run render /git-commit on my staged changes.",
+      "assertions": [
+        "no page is built for git-commit's output",
+        "the response explains that git-commit produces an action rather than a set of findings or decisions, so a page adds nothing",
+        "the response offers running git-commit directly instead",
+        "no commit is created as a side effect of the explanation"
+      ]
+    }
+  ]
+}
