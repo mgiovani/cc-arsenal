@@ -6,16 +6,16 @@
     "email": "e@giovani.dev"
   },
   "metadata": {
-    "description": "cc-arsenal \u2014 48 production-grade Agent Skills for development workflows; works with Claude Code and any Agent-Skills-compatible agent.",
-    "version": "5.1.0"
+    "description": "cc-arsenal \u2014 53 production-grade Agent Skills for development workflows; works with Claude Code and any Agent-Skills-compatible agent.",
+    "version": "5.2.0"
   },
   "plugins": [
     {
       "name": "cc-arsenal",
       "source": "./",
       "strict": true,
-      "description": "Complete toolkit: all 48 skills covering development, documentation, git, github, jira, code review, testing, refactoring, CI/CD, image generation, framework documentation injection, product specs, multi-agent orchestration, open-source launch prep, skill creation and improvement, and more",
-      "version": "5.1.0",
+      "description": "Complete toolkit: all 53 skills covering development, documentation, git, github, jira, code review, testing, refactoring, CI/CD, image generation, framework documentation injection, product specs, multi-agent orchestration, open-source launch prep, skill creation and improvement, and more",
+      "version": "5.2.0",
       "author": {
         "name": "Giovani Moutinho",
         "email": "e@giovani.dev",
@@ -46,7 +46,7 @@
       "source": "./",
       "strict": false,
       "description": "Development skills: feature implementation, bug fixing, testing, refactoring, CI/CD generation, framework documentation injection, project planning, image generation (Nano Banana/Gemini and Codex imagegen), database migrations, Docker setup, environment setup, visual regression checks, i18n checks, release shipping, and open-source launch prep",
-      "version": "5.1.0",
+      "version": "5.2.0",
       "author": {
         "name": "Giovani Moutinho",
         "email": "e@giovani.dev",
@@ -92,7 +92,7 @@
       "source": "./",
       "strict": false,
       "description": "Product and design specification skills: right-sized PRD authoring (gate-zero through brief, one-pager, PR/FAQ, or full PRD), design specs (information architecture, user flows, screen inventory, per-screen state), and durable design-token contracts (W3C DTCG)",
-      "version": "5.1.0",
+      "version": "5.2.0",
       "author": {
         "name": "Giovani Moutinho",
         "email": "e@giovani.dev",
@@ -123,7 +123,7 @@
       "source": "./",
       "strict": false,
       "description": "Code review and quality skills: code review, security review, dependency audit, and performance analysis",
-      "version": "5.1.0",
+      "version": "5.2.0",
       "author": {
         "name": "Giovani Moutinho",
         "email": "e@giovani.dev",
@@ -156,7 +156,7 @@
       "source": "./",
       "strict": false,
       "description": "Documentation skills: ADR, RFC, diagrams, init, check, and update",
-      "version": "5.1.0",
+      "version": "5.2.0",
       "author": {
         "name": "Giovani Moutinho",
         "email": "e@giovani.dev",
@@ -187,7 +187,7 @@
       "source": "./",
       "strict": false,
       "description": "Git and GitHub workflow skills: conventional commits, PR creation, release management, gitflow branching, GitHub Issues daily planner, branch syncing, and code-done-to-merged shipping",
-      "version": "5.1.0",
+      "version": "5.2.0",
       "author": {
         "name": "Giovani Moutinho",
         "email": "e@giovani.dev",
@@ -221,7 +221,7 @@
       "source": "./",
       "strict": false,
       "description": "Jira standup reports, daily planning, and CLI integration",
-      "version": "5.1.0",
+      "version": "5.2.0",
       "author": {
         "name": "Giovani Moutinho",
         "email": "e@giovani.dev",
@@ -249,7 +249,7 @@
       "source": "./",
       "strict": false,
       "description": "Specialty skills: Browser automation (agent-browser), third-party skill discovery (find-skills), specification-driven skill creation with eval system and description optimization (create-skill v2.0), CLAUDE.md rule creation (create-rule), evidence-based improvement of existing skills (improve-skill), and model-tiered multi-agent orchestration (orchestrate)",
-      "version": "5.1.0",
+      "version": "5.2.0",
       "author": {
         "name": "Giovani Moutinho",
         "email": "e@giovani.dev",
@@ -282,7 +282,7 @@
       "source": "./",
       "strict": false,
       "description": "Team orchestration skills: spec-driven development team (team-implement) and multi-agent PR review team (team-review)",
-      "version": "5.1.0",
+      "version": "5.2.0",
       "author": {
         "name": "Giovani Moutinho",
         "email": "e@giovani.dev",

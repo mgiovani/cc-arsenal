@@ -164,7 +164,7 @@ git commit -m "chore(deps): update pydantic to 2.5.1"
 cc-arsenal/
 ├── .claude-plugin/     # Plugin configuration
 │   └── marketplace.json   # Marketplace + plugin variant descriptors
-├── skills/            # All 45 skills (the only component type)
+├── skills/            # All 53 skills (the only component type)
 │   ├── create-skill/      # Specification-driven skill creation
 │   ├── jira-cli/          # Jira CLI integration
 │   └── .../                # SKILL.md + optional references/, scripts/, assets/, evals/

@@ -7,16 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.2.0] - 2026-08-30
+
+Five new skills, taking the catalog from 48 to 53. Four of them (prd-to-issues, clotho-research, review-plan, render) chain into one another: research a change, review the plan for it, file the issues, and put any of those outputs in front of a human as a page they can mark up.
+
 ### Added
 - **render**: turns a plan, PRD, review, audit, comparison, brainstorm, explanation or architecture map into an interactive HTML page the user marks up in place, then reads those marks back and acts on them. Eight modes, each specified in its own reference file. Every anchored block carries a comment affordance, and a comment is stored with the label and section of what it was left on, so feedback returns bound to its subject and a comment whose target has since moved is reported as orphaned rather than silently dropped. Wraps any other skill (`render /review-code`) with no change to that skill. Publishes as an Artifact where one is available and writes a self-contained file otherwise. The first skill in this repository that produces HTML rather than markdown.
-- **3 new skills** (48 to 51), all supporting an external agent-orchestration workflow:
-  - **prd-to-issues**: the seam between an approved PRD and a tracked backlog. Files one issue per requirement ID, records the dependencies the PRD states, and stays idempotent across re-runs by matching on that ID in the title. Refuses to file a requirement carrying an unresolved `[NEEDS CLARIFICATION]` tag rather than guessing, and never closes or edits an existing issue.
-  - **clotho-research**: pre-planning codebase research. Reports the files a change must touch, the prior art worth copying, and the concrete risks, without proposing an implementation.
-  - **review-plan**: adversarial review of an implementation plan against the actual repository, before any code exists. Assumes the plan is wrong and reports findings by severity; it never rewrites the plan.
+- **prd-to-issues**: the seam between an approved PRD and a tracked backlog. Files one issue per requirement ID, records the dependencies the PRD states, and stays idempotent across re-runs by matching on that ID in the title. Refuses to file a requirement carrying an unresolved `[NEEDS CLARIFICATION]` tag rather than guessing, and never closes or edits an existing issue.
+- **clotho-research**: pre-planning codebase research. Reports the files a change must touch, the prior art worth copying, and the concrete risks, without proposing an implementation.
+- **review-plan**: adversarial review of an implementation plan against the actual repository, before any code exists. Assumes the plan is wrong and reports findings by severity; it never rewrites the plan.
+- **wtf**: re-explains the previous message in plain, simplified English (ASD-STE100 style) when the user did not follow it. Rewrites what was already said, and deliberately does no new work, research, or code.
 
 ### Fixed
 - **clotho-research declared tools it could not reach.** Its frontmatter listed `WebSearch` and `WebFetch` while the skill runs read-only (`Read, Grep, Find, Ls`), so the instructions told the model to search a web it had no tool for. Declared tools now match what it actually gets, and any externally recalled source must be marked `(unverified, recalled not fetched)`.
-- **AGENTS.md skill counts** were stale at 48 while the tree held 51; per-category counts now sum to the real total.
+- **Pre-commit was red on the product-* skill scripts.** editorconfig-checker read 14 docstring prose bullets as bad indentation; `indent_size` is now unset for `*.py`, leaving Python indentation to ruff instead of reflowing prose to multiples of four.
+- **Skill counts across the docs** were stale in five files at four different numbers (45, 46, 49, 52) while the tree held 53; every count and per-category subtotal now sums to the real total, and `wtf` is registered in the catalogs it was missing from.
 
 ## [5.1.0] - 2026-07-27
 

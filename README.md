@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/social-preview.png" alt="cc-arsenal: 48 production-grade Agent Skills for real development workflows" width="760">
+  <img src="assets/social-preview.png" alt="cc-arsenal: 53 production-grade Agent Skills for real development workflows" width="760">
 </p>
 
 # cc-arsenal
@@ -8,7 +8,7 @@
 [![Agent Skills compatible](https://img.shields.io/badge/Agent%20Skills-compatible-blueviolet.svg)](https://agentskills.io)
 [![Code style: ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
-49 production-grade [Agent Skills](https://agentskills.io) for real development workflows: code review, shipping, docs, git, testing, multi-agent orchestration, and more. Each is a battle-tested workflow you invoke in plain language. Works with Claude Code, Codex, Cursor, Gemini CLI, and any Agent-Skills-compatible agent.
+53 production-grade [Agent Skills](https://agentskills.io) for real development workflows: code review, shipping, docs, git, testing, multi-agent orchestration, and more. Each is a battle-tested workflow you invoke in plain language. Works with Claude Code, Codex, Cursor, Gemini CLI, and any Agent-Skills-compatible agent.
 
 ## See it work
 
@@ -38,15 +38,15 @@ make -C integrations/claude-code/claude-hi standard # Schedule 5-hour windows
 
 ## What's Included
 
-**48 Skills** organized by category:
-- **Development** (16): Feature implementation, bug fixing, testing, refactoring, CI/CD generation and local runs, visual regression and i18n checks, framework docs injection, DB migrations, Docker/env setup, project planning, image generation (Gemini and Codex), open-source launch prep
-- **Product & Design** (3): PRD authoring, design specs, design tokens
-- **Code Review & Quality** (5): Code review, security review, dependency audit, performance analysis, design/UX audit
+**53 Skills** organized by category:
+- **Development** (17): Feature implementation, bug fixing, testing, refactoring, CI/CD generation and local runs, visual regression and i18n checks, framework docs injection, DB migrations, Docker/env setup, project planning, image generation (Gemini and Codex), open-source launch prep
+- **Product & Design** (4): PRD authoring, design specs, design tokens
+- **Code Review & Quality** (6): Code review, security review, dependency audit, performance analysis, design/UX audit
 - **Documentation** (6): ADR, RFC, diagrams, init, check, update
 - **Git & GitHub** (7): Conventional commits, PR creation, releases, gitflow, branch sync, shipping, daily planning
 - **Jira** (2): Standup reports, work prioritization
 - **Teams** (2): Spec-driven orchestration, multi-agent PR review
-- **Utilities** (8): Skill creation, memory rules, skill improvement, multi-agent orchestration, browser automation, skill discovery, Jira CLI, rich HTML renders
+- **Utilities** (9): Skill creation, memory rules, skill improvement, multi-agent orchestration, browser automation, skill discovery, Jira CLI, rich HTML renders, plain-English re-explains
 
 **Claude Code unlocks extras:**
 - 9 plugin variants (install just the category you need, see `CLAUDE.md`)

@@ -4,11 +4,11 @@ Complete reference for all cc-arsenal skills and optional features.
 
 Skills are the single component type in this repository. Each skill lives in `skills/<name>/SKILL.md`; many bundle `references/`, `scripts/`, `assets/`, and `evals/` alongside it (see [Architecture](architecture.md) for the anatomy).
 
-## Skills (46 total)
+## Skills (53 total)
 
 Every skill is callable as `/<name>` in Claude Code. **(auto)** marks skills that *also* trigger automatically when Claude detects a relevant task; **(manual)** marks slash-only skills (`disable-model-invocation: true`).
 
-### Development (21 skills)
+### Development (24 skills)
 
 #### `/implement-feature` (auto)
 Feature implementation with parallel subagents and automated test verification.
@@ -63,6 +63,11 @@ UX/UI design quality audit.
 - Accessibility basics
 - Consistency checks
 
+#### `/review-plan` (manual)
+Adversarially review an implementation plan before any code is written.
+- Checks the plan against the actual repository, not on its own terms
+- Assumes the plan is wrong and reports findings by severity
+
 #### `/ci-generate` (manual)
 CI/CD workflow generator.
 - GitHub Actions, GitLab CI, CircleCI, Jenkins
@@ -80,11 +85,21 @@ Framework documentation injector.
 - FastAPI via best practices
 - Framework-specific patterns
 
+#### `/clotho-research` (manual)
+Find what a change will actually touch before planning it.
+- Surfaces the existing code that must change and prior art worth copying
+- Reports files, sources, and risks; never proposes an implementation or edits anything
+
 #### `/project-planner` (auto)
 Break down large projects into dependency-aware tasks.
 - Dependency graph generation
 - Task breakdown with estimates
 - Mermaid visualization
+
+#### `/prd-to-issues` (manual)
+Turn an approved PRD into tracked issues, one per requirement.
+- Records the dependencies between issues
+- Creates issues in beads or GitHub and reports what it created
 
 #### `/nanobanana` (auto)
 Generate and edit images via the Nano Banana / Gemini API (a real, billed call).
@@ -122,6 +137,26 @@ Generate Dockerfiles and docker-compose.yml.
 #### `/env-setup` (manual)
 Scan a codebase for environment variable usage.
 - Generates/syncs `.env.example`, validates completeness, detects leaked secrets
+
+### Product & Design (3 skills)
+
+#### `/product-prd` (manual)
+Right-sized product requirements doc, from a gate-zero check to a full PRD.
+- Gate-zero: does this idea even need a doc?
+- Brief, one-pager, PR/FAQ, or full PRD by scope
+- Mandatory non-goals and testable, traceable requirements
+
+#### `/product-design-spec` (manual)
+Design specification for an approved PRD.
+- Information architecture, user flows, screen inventory
+- Per-screen state specs
+- Reuses the existing component library; every screen traces to a requirement ID
+
+#### `/product-design-tokens` (manual)
+Durable design-token contract for a project.
+- W3C DTCG 2025.10 JSON, plus an optional DESIGN.md
+- Reuses the project's design system
+- Enforces WCAG 2.2 AA contrast
 
 ### Documentation (6 skills)
 
@@ -229,7 +264,12 @@ Multi-agent PR review team.
 - Adversary reviewer
 - Comprehensive analysis
 
-### Utilities (8 skills)
+### Utilities (9 skills)
+
+#### `/wtf` (auto)
+Re-explains the previous message in plain, simplified English (ASD-STE100 style).
+- Rewrites what was already said
+- No new work, research, or code
 
 #### `/agent-browser` (auto)
 AI-optimized browser automation.
@@ -333,7 +373,7 @@ make -C integrations/claude-code/claude-hi standard  # Quick 9am/2pm/7pm schedul
 
 ### Plugin Marketplace (Claude Code)
 - **Installation**: `/plugin install cc-arsenal@cc-arsenal-marketplace`
-- **Skills**: All 46 skills, or a focused variant (`cc-arsenal-dev`, `cc-arsenal-docs`, `cc-arsenal-git`, `cc-arsenal-skills`, `cc-arsenal-teams`, `cc-arsenal-review`)
+- **Skills**: All 53 skills, or a focused variant (`cc-arsenal-dev`, `cc-arsenal-product`, `cc-arsenal-review`, `cc-arsenal-docs`, `cc-arsenal-git`, `cc-arsenal-jira`, `cc-arsenal-skills`, `cc-arsenal-teams`)
 - See [Getting Started](getting-started.md) for the full variant list
 
 ### Symlink Install (Contributors)
