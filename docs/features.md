@@ -4,7 +4,7 @@ Complete reference for all cc-arsenal skills and optional features.
 
 Skills are the single component type in this repository. Each skill lives in `skills/<name>/SKILL.md`; many bundle `references/`, `scripts/`, `assets/`, and `evals/` alongside it (see [Architecture](architecture.md) for the anatomy).
 
-## Skills (45 total)
+## Skills (46 total)
 
 Every skill is callable as `/<name>` in Claude Code. **(auto)** marks skills that *also* trigger automatically when Claude detects a relevant task; **(manual)** marks slash-only skills (`disable-model-invocation: true`).
 
@@ -229,7 +229,7 @@ Multi-agent PR review team.
 - Adversary reviewer
 - Comprehensive analysis
 
-### Utilities (7 skills)
+### Utilities (8 skills)
 
 #### `/agent-browser` (auto)
 AI-optimized browser automation.
@@ -273,6 +273,12 @@ Turn any task into a model-tiered multi-agent plan.
 - Decompose, classify, map each subtask to the right model (haiku research, opus planning, sonnet impl)
 - Parallel tracks under strict one-owner-per-file discipline; orchestrator does synthesis and git
 - Declines to orchestrate trivial single-file tasks
+
+#### `/render` (manual)
+Turn a plan, PRD, review, audit, comparison, brainstorm, explanation or map into an interactive HTML page the user marks up in place.
+- Eight modes; every section carries an anchored comment affordance, so feedback returns bound to what it was left on
+- Wraps any other skill (`/render /review-code`) without that skill needing to change
+- Publishes as an Artifact where available, otherwise writes a self-contained file
 
 ## Optional Features
 
@@ -327,7 +333,7 @@ make -C integrations/claude-code/claude-hi standard  # Quick 9am/2pm/7pm schedul
 
 ### Plugin Marketplace (Claude Code)
 - **Installation**: `/plugin install cc-arsenal@cc-arsenal-marketplace`
-- **Skills**: All 45 skills, or a focused variant (`cc-arsenal-dev`, `cc-arsenal-docs`, `cc-arsenal-git`, `cc-arsenal-skills`, `cc-arsenal-teams`, `cc-arsenal-review`)
+- **Skills**: All 46 skills, or a focused variant (`cc-arsenal-dev`, `cc-arsenal-docs`, `cc-arsenal-git`, `cc-arsenal-skills`, `cc-arsenal-teams`, `cc-arsenal-review`)
 - See [Getting Started](getting-started.md) for the full variant list
 
 ### Symlink Install (Contributors)
