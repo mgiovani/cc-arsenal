@@ -27,7 +27,9 @@ states driven by CSS custom properties, and a Mermaid block will not follow them
 the usual outcome is a diagram that is legible in one theme and washed out or
 invisible in the other, then deleted by whoever polishes the page next.
 
-Author the SVG inline and paint it from the page's own tokens:
+Author the SVG inline and paint it from the page's own neutral tokens. Diagrams
+carry no hue: nodes are surface and hairline, edges are the muted foreground,
+and emphasis comes from stroke weight and fill value rather than color.
 
 ```html
 <svg viewBox="0 0 480 200" role="img" aria-labelledby="fanout-t">

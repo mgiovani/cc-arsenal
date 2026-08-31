@@ -88,7 +88,10 @@ belonging to the page rather than to one block goes in `page`, which is where
 ## The affordance
 
 A single control in the gutter of every anchored block. It shows a `+` when the
-block has no comments and a count when it does. It must be reachable by keyboard,
+block has no comments and a count when it does. Both states are drawn in the
+page's neutrals, dim by default and ink once the block carries a comment: the
+count itself is the signal, and a hue here competes with the verdict colors that
+have earned one. It must be reachable by keyboard,
 so reveal it on `:focus-within` as well as `:hover`, and give it a real
 `aria-label`.
 
@@ -111,7 +114,7 @@ matrices whose cells this skill says must be commentable.
 .anchored:focus-within > .mark,
 .anchored > .mark:focus-visible,
 .anchored > .mark.has { opacity: 1; }
-.anchored > .mark.has { color: var(--accent); }
+.anchored > .mark.has { color: var(--ink); }
 @media (max-width: 760px) {
   .anchored { grid-template-columns: 1fr; }
   .anchored > .mark { opacity: 1; justify-self: start; margin-bottom: .35rem; }

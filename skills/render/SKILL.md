@@ -96,7 +96,7 @@ comment affordance are specified in
 carries them. Reach for [references/diagrams.md](references/diagrams.md) only
 once the content turns out to have a shape worth drawing.
 
-Five rules hold across every mode:
+Six rules hold across every mode:
 
 1. **Every page is annotatable.** Anchors and the comment affordance are not a
    per-mode feature. A page without them cannot return feedback, which is the
@@ -108,9 +108,14 @@ Five rules hold across every mode:
    and redefine them again under `:root[data-theme="dark"]`. Give `body` an
    explicit token background. A color whose only definition sits inside a media
    block renders one theme's text on the other theme's background.
-4. **Diagrams are inline SVG built from the page's own tokens.** Mermaid brings
+4. **The page is greyscale.** Color is spent only on the verdict vocabulary,
+   where it distinguishes marked items at a glance. Selected and pressed states
+   are an ink fill, not a hue; there is no brand accent, no colored heading or
+   filter, and no colored diagram. See the Color section of
+   [references/page-kit.md](references/page-kit.md).
+5. **Diagrams are inline SVG built from the page's own tokens.** Mermaid brings
    its own theme and fights the three-state setup above.
-5. **State drives the DOM, never the reverse.** The page renders from its
+6. **State drives the DOM, never the reverse.** The page renders from its
    embedded state object. Saving serializes that object, never the live DOM.
 
 ### 5. Deliver and report

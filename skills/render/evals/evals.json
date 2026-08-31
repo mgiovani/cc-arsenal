@@ -14,7 +14,8 @@
         "the page's CSS defines its palette as custom properties on a bare :root selector, redefines them under a prefers-color-scheme dark media query guarded against [data-theme=\"light\"], and redefines them again under :root[data-theme=\"dark\"]",
         "body has an explicit background drawn from a token, not left transparent",
         "the response reports the output path and the finding counts, and does not claim to have fixed anything",
-        "the publish call supplies a favicon, which the Artifact contract requires on a first publish"
+        "the publish call supplies a favicon, which the Artifact contract requires on a first publish",
+        "the palette is greyscale apart from the three verdict states: no brand accent, no colored headings, filters or counts, and selected or pressed controls use an ink fill rather than a hue"
       ]
     },
     {
