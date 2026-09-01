@@ -1,10 +1,10 @@
-# Jira CLI - Comprehensive Command Reference
+# Jira CLI - comprehensive command reference
 
 This file contains detailed command syntax, options, and examples for all jira-cli operations.
 
-## Issue Management
+## Issue management
 
-### Listing Issues
+### Listing issues
 
 Use powerful filters to find exactly what you need:
 
@@ -69,7 +69,7 @@ jira issue list --plain --no-headers     # No headers (for parsing)
 jira issue list -q "summary ~ cli"       # Execute JQL in project context
 ```
 
-### Creating Issues
+### Creating issues
 
 ```bash
 # Interactive mode
@@ -97,7 +97,7 @@ echo "Description from pipeline" | jira issue create -s"Summary" -tTask
 jira issue create --custom field1=value1 --custom field2=value2
 ```
 
-### Editing Issues
+### Editing issues
 
 ```bash
 # Interactive edit
@@ -121,7 +121,7 @@ jira issue edit ISSUE-1 --fix-version v2.0
 jira issue edit ISSUE-1 --fix-version -v1.0 --fix-version v2.0
 ```
 
-### Assigning Issues
+### Assigning issues
 
 ```bash
 # Interactive assign
@@ -143,7 +143,7 @@ jira issue assign ISSUE-1 default
 jira issue assign ISSUE-1 x
 ```
 
-### Moving/Transitioning Issues
+### Moving/Transitioning issues
 
 ```bash
 # Interactive transition
@@ -161,7 +161,7 @@ jira issue move ISSUE-1 Done -RFixed
 jira issue move ISSUE-1 Done -RFixed -a$(jira me)
 ```
 
-### Viewing Issues
+### Viewing issues
 
 ```bash
 # View issue in terminal
@@ -172,7 +172,7 @@ jira issue view ISSUE-1 --comments 5
 jira issue view ISSUE-1 --comments 10
 ```
 
-### Linking Issues
+### Linking issues
 
 ```bash
 # Interactive linking
@@ -192,7 +192,7 @@ jira issue link remote ISSUE-1 https://github.com/org/repo/pull/123 "PR #123"
 jira issue unlink ISSUE-1 ISSUE-2
 ```
 
-### Cloning Issues
+### Cloning issues
 
 ```bash
 # Clone an issue
@@ -207,7 +207,7 @@ jira issue clone ISSUE-1 -H"old text:new text"
 jira issue clone ISSUE-1 -H"2024:2025"
 ```
 
-### Deleting Issues
+### Deleting issues
 
 ```bash
 # Interactive delete
@@ -240,7 +240,7 @@ jira issue comment add ISSUE-1 --template -
 echo "Comment from pipeline" | jira issue comment add ISSUE-1
 ```
 
-### Worklog (Time Tracking)
+### Worklog (Time tracking)
 
 ```bash
 # Add worklog interactively
@@ -256,9 +256,9 @@ jira issue worklog add ISSUE-1 "2h" --comment "Implementation work" --no-input
 jira issue worklog add ISSUE-1 "1h 15m" --comment "Code review" --no-input
 ```
 
-## Epic Management
+## Epic management
 
-### Listing Epics
+### Listing epics
 
 ```bash
 # List all epics (explorer view)
@@ -285,7 +285,7 @@ jira epic list EPIC-1 -a$(jira me)      # My issues in epic
 jira epic list EPIC-1 --order-by rank --reverse
 ```
 
-### Creating Epics
+### Creating epics
 
 ```bash
 # Interactive
@@ -296,7 +296,7 @@ jira epic create -n"Epic name" -s"Epic summary"
 jira epic create -n"Q1 Features" -s"Q1 Feature Development" -yHigh -lfeature -b"Epic description"
 ```
 
-### Managing Epic Issues
+### Managing epic issues
 
 ```bash
 # Add issues to epic (interactive)
@@ -312,9 +312,9 @@ jira epic remove
 jira epic remove ISSUE-1 ISSUE-2 ISSUE-3
 ```
 
-## Sprint Management
+## Sprint management
 
-### Listing Sprints
+### Listing sprints
 
 ```bash
 # List all sprints (explorer view)
@@ -353,7 +353,7 @@ jira sprint list SPRINT_ID -yHigh -a$(jira me) -s"In Progress"
 jira sprint list SPRINT_ID --order-by rank --reverse
 ```
 
-### Adding Issues to Sprint
+### Adding issues to sprint
 
 ```bash
 # Add issues interactively
@@ -363,7 +363,7 @@ jira sprint add
 jira sprint add SPRINT_ID ISSUE-1 ISSUE-2 ISSUE-3
 ```
 
-## Release Management
+## Release management
 
 Interact with releases (project versions). Ensure the [feature is enabled](https://support.atlassian.com/jira-software-cloud/docs/enable-releases-and-versions/) on your instance.
 
@@ -378,9 +378,9 @@ jira release list --project 1000
 jira release list --project MYPROJ
 ```
 
-## Other Commands
+## Other commands
 
-### Project and Board Navigation
+### Project and board navigation
 
 ```bash
 # Open project in browser
@@ -396,14 +396,14 @@ jira project list
 jira board list
 ```
 
-### User Information
+### User information
 
 ```bash
 # Get your own username (useful in scripts)
 jira me
 ```
 
-## Navigation and Interaction
+## Navigation and interaction
 
 When in interactive UI:
 
@@ -425,9 +425,9 @@ When in interactive UI:
 - **q** / **ESC** / **CTRL+c** - Quit
 - **?** - Show help window
 
-## Output Formats and Options
+## Output formats and options
 
-### Format Options
+### Format options
 
 ```bash
 # Interactive table (default)
@@ -443,7 +443,7 @@ jira issue list --csv
 jira issue list --raw
 ```
 
-### Column Selection
+### Column selection
 
 ```bash
 # Default columns

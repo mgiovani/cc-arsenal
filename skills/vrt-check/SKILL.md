@@ -59,7 +59,7 @@ Classify each row:
 
 **Real regression**: the diff shows something nobody meant to change: wrong color, shifted layout, overlapping text, a broken icon, on a component whose files are NOT the ones the branch's intended change targets. Root cause is usually a shared style/layout/theme file the branch also touched.
 
-**Intended change**: the diff matches a change the branch is actually making, AND the component's files show up in the branch's changed-file list. Confirm both: the visual diff looks like the described change, and git confirms this component's source was actually edited.
+**Intended change**: the diff matches a change the branch is actually making, AND the component's files show up in the branch's changed-file list. Both must hold: the visual diff looks like the described change, and git shows this component's source was edited.
 
 **Flaky/non-deterministic**: a few pixels of anti-aliasing, a font-rendering difference, or a mid-frame animation capture, with no corresponding file in the branch's changed-file list. Note it as flaky; don't silently update over it, a flaky baseline hides real regressions later.
 
@@ -75,7 +75,7 @@ Update snapshots one component/story at a time (or by the tool's targeted-update
 just visual-update --story=Button   # targeted, not the whole suite
 ```
 
-If the invocation used this skill's `--update` / `--component name` shorthand, map them to whatever the discovered tool actually calls its own flags: `--update` → the tool's write-mode flag (`--update-snapshots` for Playwright, `-u` for Jest/Storybook test-runner, or the task runner's `visual-update` target); `--component name` → its targeted-story filter (`--grep name` for Playwright, `--story=name` for a Storybook-runner wrapper, or the task runner's argument for the same). If Step 1 found no targeted-update flag at all, fall back to updating everything and re-diffing, per below.
+If the invocation used this skill's `--update` / `--component name` shorthand, map them to whatever the discovered tool actually calls its own flags. `--update` becomes the tool's write-mode flag (`--update-snapshots` for Playwright, `-u` for Jest/Storybook test-runner, or the task runner's `visual-update` target). `--component name` becomes its targeted-story filter (`--grep name` for Playwright, `--story=name` for a Storybook-runner wrapper, or the task runner's argument for the same). If Step 1 found no targeted-update flag at all, fall back to updating everything and re-diffing, per below.
 
 If the tool only supports updating everything at once, re-run the diff afterward and confirm the only changes are the ones you approved: a blanket update can silently accept a regression sitting next to the real change.
 

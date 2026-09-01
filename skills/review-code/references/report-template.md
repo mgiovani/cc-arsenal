@@ -1,8 +1,8 @@
-# Code Review - Report Template
+# Code review - report template
 
 Use this template when generating the review report in Phase 5.
 
-## Report Format
+## Report format
 
 ```markdown
 # Code Review Report

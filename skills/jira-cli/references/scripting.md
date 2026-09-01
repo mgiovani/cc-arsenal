@@ -1,12 +1,12 @@
-# Jira CLI - Scripting and Automation
+# Jira CLI - scripting and automation
 
 This file contains examples for automating Jira operations with scripts and integrating with CI/CD pipelines.
 
 For a formatted daily standup report or sprint status readout, use the `jira-daily` skill instead: it correlates Jira activity with git commits and produces a reviewed summary, not just raw command output. This file is for automation that isn't already a curated skill: bulk mutations, CI hooks, and metrics extraction.
 
-## Bash Scripting Examples
+## Bash scripting examples
 
-### Tickets Created Per Day This Month
+### Tickets created per day this month
 
 ```bash
 #!/usr/bin/env bash
@@ -22,7 +22,7 @@ echo "${tickets}" | while IFS=$'\t' read -r line; do
 done
 ```
 
-### Number of Tickets Per Sprint
+### Number of tickets per sprint
 
 ```bash
 #!/usr/bin/env bash
@@ -36,7 +36,7 @@ echo "${sprints}" | while IFS=$'\t' read -r id name; do
 done
 ```
 
-### Number of Unique Assignees Per Sprint
+### Number of unique assignees per sprint
 
 ```bash
 #!/usr/bin/env bash
@@ -51,7 +51,7 @@ echo "${sprints}" | while IFS=$'\t' read -r id name; do
 done
 ```
 
-### Bulk Issue Assignment
+### Bulk issue assignment
 
 ```bash
 #!/usr/bin/env bash
@@ -74,7 +74,7 @@ for issue in $issues; do
 done
 ```
 
-### Auto-Label Based on Summary
+### Auto-Label based on summary
 
 ```bash
 #!/usr/bin/env bash
@@ -102,7 +102,7 @@ echo "$issues" | while IFS=$'\t' read -r key summary; do
 done
 ```
 
-### Export Issues to CSV
+### Export issues to CSV
 
 ```bash
 #!/usr/bin/env bash
@@ -120,7 +120,7 @@ jira issue list \
 echo "Exported to $OUTPUT_FILE"
 ```
 
-### Monitor High Priority Issues
+### Monitor high priority issues
 
 ```bash
 #!/usr/bin/env bash
@@ -141,9 +141,9 @@ else
 fi
 ```
 
-## CI/CD Integration
+## CI/CD integration
 
-### GitHub Actions - Create Jira Issue on PR
+### GitHub Actions - create Jira issue on PR
 
 ```yaml
 name: Create Jira Issue
@@ -174,7 +174,7 @@ jobs:
             --no-input
 ```
 
-### GitLab CI - Update Jira on Deploy
+### GitLab CI - update Jira on deploy
 
 ```yaml
 update_jira:
@@ -192,7 +192,7 @@ update_jira:
     - main
 ```
 
-### Jenkins Pipeline - Sprint Metrics
+### Jenkins pipeline - sprint metrics
 
 ```groovy
 pipeline {
@@ -228,9 +228,9 @@ pipeline {
 }
 ```
 
-## Data Analysis
+## Data analysis
 
-### Export Data for Analysis
+### Export data for analysis
 
 ```bash
 #!/usr/bin/env bash
@@ -255,7 +255,7 @@ done
 echo "Export complete in $DIR/"
 ```
 
-### Calculate Team Velocity
+### Calculate team velocity
 
 ```bash
 #!/usr/bin/env bash
@@ -288,9 +288,9 @@ if [ $sprint_count -gt 0 ]; then
 fi
 ```
 
-## Automation Helpers
+## Automation helpers
 
-### Auto-Transition Based on PR Status
+### Auto-Transition based on PR status
 
 ```bash
 #!/usr/bin/env bash
@@ -318,7 +318,7 @@ echo "$prs" | while IFS='|' read -r number title; do
 done
 ```
 
-### Stale Issue Cleanup
+### Stale issue cleanup
 
 ```bash
 #!/usr/bin/env bash
@@ -341,9 +341,9 @@ echo "$stale" | while IFS=$'\t' read -r key summary; do
 done
 ```
 
-## Best Practices for Scripts
+## Best practices for scripts
 
-### Error Handling
+### Error handling
 
 ```bash
 #!/usr/bin/env bash
@@ -368,7 +368,7 @@ if ! jira issue list -a$(jira me) 2>&1; then
 fi
 ```
 
-### Logging and Debugging
+### Logging and debugging
 
 ```bash
 #!/usr/bin/env bash
@@ -389,7 +389,7 @@ issues=$(jira issue list -a$(jira me) --plain --columns key --no-headers)
 debug "Found $(echo "$issues" | wc -l) issues"
 ```
 
-### Rate Limiting
+### Rate limiting
 
 ```bash
 #!/usr/bin/env bash

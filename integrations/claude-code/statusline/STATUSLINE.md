@@ -27,14 +27,17 @@ The statusline renders two lines:
 ```
 
 Line 1 components, in order:
-- 🤖 **Model**: name/version, from `model.display_name` or `model.id`
-- 📊 **Context**: `context_window.used_percentage`, rounded
-- 📁 **Directory**: current directory, `~`-shortened
-- 🌿 **Git**: branch, with `●` for uncommitted changes
-- 🌳 **Worktree**: worktree name, shown only when in a worktree
-- 💰 **Cost**: `cost.total_cost_usd` for the session
-- 📝 **Lines changed**: `+added/-removed`; **disabled by default**, enable via config
-- ⏱️ **Session duration**: from `cost.total_duration_ms`; hidden until a session has run
+
+| Icon | Component | Source |
+| --- | --- | --- |
+| 🤖 | Model | name/version, from `model.display_name` or `model.id` |
+| 📊 | Context | `context_window.used_percentage`, rounded |
+| 📁 | Directory | current directory, `~`-shortened |
+| 🌿 | Git | branch, with `●` for uncommitted changes |
+| 🌳 | Worktree | worktree name, shown only when in a worktree |
+| 💰 | Cost | `cost.total_cost_usd` for the session |
+| 📝 | Lines changed | `+added/-removed`; disabled by default, enable via config |
+| ⏱️ | Session duration | from `cost.total_duration_ms`; hidden until a session has run |
 
 Line 2 is the usage line (see [Usage](#usage) for where its data comes from) plus, when multi-account is configured, an account badge (see [Multiple accounts](#multiple-accounts)).
 

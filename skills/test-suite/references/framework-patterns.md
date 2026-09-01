@@ -1,10 +1,10 @@
-# Test Framework Patterns
+# Test framework patterns
 
 Framework-specific patterns for test generation. Use these as reference when writing tests to match idiomatic patterns for each framework.
 
 ## Python: pytest
 
-### File Structure
+### File structure
 ```
 project/
 ├── src/module/
@@ -17,7 +17,7 @@ project/
     └── test_models.py       # Tests for models.py
 ```
 
-### Naming Convention
+### Naming convention
 - Test files: `test_<module>.py`
 - Test functions: `test_<function>_<scenario>_<expected>`
 - Fixture files: `conftest.py` (auto-discovered by pytest)
@@ -86,7 +86,7 @@ async def test_fetch_user_returns_user_data():
     assert result["name"] == "Alice"
 ```
 
-### Coverage Command
+### Coverage command
 ```bash
 pytest --cov=src --cov-report=term-missing --cov-report=html
 ```
@@ -95,7 +95,7 @@ pytest --cov=src --cov-report=term-missing --cov-report=html
 
 ## JavaScript/TypeScript: Vitest
 
-### File Structure
+### File structure
 ```
 project/
 ├── src/
@@ -110,7 +110,7 @@ project/
         └── format.test.ts
 ```
 
-### Naming Convention
+### Naming convention
 - Test files: `<module>.test.ts` or `<module>.spec.ts`
 - Describe blocks: Module/class name
 - It blocks: `should <expected behavior> when <condition>`
@@ -190,7 +190,7 @@ describe('UserService', () => {
 });
 ```
 
-### Coverage Command
+### Coverage command
 ```bash
 vitest --coverage
 # or
@@ -201,10 +201,10 @@ vitest run --coverage
 
 ## JavaScript: Jest
 
-### File Structure
+### File structure
 Same as Vitest. Jest and Vitest share nearly identical API.
 
-### Key Differences from Vitest
+### Key differences from Vitest
 - Import from `@jest/globals` or use globals
 - Mock with `jest.mock()` instead of `vi.mock()`
 - Use `jest.fn()` instead of `vi.fn()`
@@ -232,7 +232,7 @@ it('should render user profile correctly', () => {
 });
 ```
 
-### Coverage Command
+### Coverage command
 ```bash
 jest --coverage
 # or
@@ -243,7 +243,7 @@ npx jest --coverage
 
 ## Go: testing
 
-### File Structure
+### File structure
 ```
 project/
 ├── service/
@@ -254,7 +254,7 @@ project/
     └── auth_test.go
 ```
 
-### Naming Convention
+### Naming convention
 - Test files: `<source>_test.go` (co-located)
 - Test functions: `Test<FunctionName>_<Scenario>`
 - Table-driven: Standard Go pattern
@@ -308,7 +308,7 @@ func TestCreateUser_EmptyName_ReturnsError(t *testing.T) {
 }
 ```
 
-### Coverage Command
+### Coverage command
 ```bash
 go test ./... -cover
 go test ./... -coverprofile=coverage.out
@@ -319,7 +319,7 @@ go tool cover -html=coverage.out
 
 ## Rust: cargo test
 
-### File Structure
+### File structure
 ```
 project/
 ├── src/
@@ -353,7 +353,7 @@ mod tests {
 }
 ```
 
-### Coverage Command
+### Coverage command
 ```bash
 cargo test
 cargo tarpaulin --out Html  # Coverage with tarpaulin
@@ -361,7 +361,7 @@ cargo tarpaulin --out Html  # Coverage with tarpaulin
 
 ---
 
-## Common Anti-Patterns to Avoid
+## Common anti-Patterns to avoid
 
 1. **Testing implementation details**: Test behavior, not internal state
 2. **Overly broad tests**: One test checking 10 things, split into focused tests
@@ -372,7 +372,7 @@ cargo tarpaulin --out Html  # Coverage with tarpaulin
 7. **No assertion**: Tests that only check "does not throw"
 8. **Shared mutable state**: Tests that depend on execution order
 
-## Edge Cases to Always Test
+## Edge cases to always test
 
 - **Empty inputs**: Empty strings, empty arrays, null/undefined/None
 - **Boundary values**: 0, -1, MAX_INT, empty collections, single-element collections

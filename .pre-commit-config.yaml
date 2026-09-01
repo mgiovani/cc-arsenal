@@ -33,3 +33,14 @@ repos:
         types: [python]
         exclude: ^examples/
         require_serial: true
+      - id: stopslop
+        name: stopslop
+        # stopslop exits 0 for tier-B findings (every prose rule) and only
+        # nonzero for tier A, so gate on whether it printed anything.
+        entry: sh -c 'out=$(stopslop "$@") || true; [ -z "$out" ] || { printf "%s\n" "$out"; exit 1; }' --
+        language: rust
+        additional_dependencies: ['cli:stopslop:0.5.1']
+        types_or: [markdown, python]
+        # Mirrors `exclude` in stopslop.toml: that key only applies when stopslop
+        # walks a directory itself, and pre-commit hands it explicit paths.
+        exclude: ^skills/[^/]+/assets/templates/

@@ -1,8 +1,8 @@
-# Verification Patterns
+# Verification patterns
 
 Detailed bash verification commands and patterns for documentation quality checking.
 
-## Section-Level Verification (Single Document)
+## Section-Level verification (Single document)
 
 When checking ONE document, spawn subagents for each logical section:
 
@@ -30,7 +30,7 @@ Agent 4 - Verify File References:
 Merge results into comprehensive verification report.
 ```
 
-## Missing Documentation Detection
+## Missing documentation detection
 
 ```bash
 # Check for expected docs
@@ -43,7 +43,7 @@ Merge results into comprehensive verification report.
 !`ls -1 docs/rfc/*.md 2>/dev/null | wc -l`
 ```
 
-## Stale Documentation Detection
+## Stale documentation detection
 
 ```bash
 # Get last modification date of docs
@@ -53,7 +53,7 @@ Merge results into comprehensive verification report.
 !`git log --since="30 days ago" --name-only --pretty=format: | sort -u | grep -v "^$" | head -30`
 ```
 
-## Freshness Check Commands
+## Freshness check commands
 
 ```bash
 # Check when files were last modified
@@ -63,21 +63,21 @@ Merge results into comprehensive verification report.
 !`git log --since="7 days ago" --oneline --name-only | head -50`
 ```
 
-## Placeholder Check
+## Placeholder check
 
 ```bash
 # Find unreplaced placeholders
 !`grep -r "{{.*}}" docs/ --include="*.md" 2>/dev/null`
 ```
 
-## Broken Links Check
+## Broken links check
 
 ```bash
 # Find markdown links
 !`grep -r "\[.*\](" docs/ --include="*.md" -h | grep -o "\[.*\](.*)" | head -20`
 ```
 
-## Hallucination Report Format
+## Hallucination report format
 
 Include a dedicated section for detected hallucinations:
 ```
@@ -98,7 +98,7 @@ Verification commands used:
   - find . -name "*redis*" -o -name "*.redis.*" -> no results
 ```
 
-## Inferring Categories from What's Present
+## Inferring categories from what's present
 
 Don't check against a fixed list of doc names: group by what the repo actually has, then verify each group against what the codebase implies it should contain.
 

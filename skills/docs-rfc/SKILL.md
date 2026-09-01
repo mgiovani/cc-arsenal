@@ -14,11 +14,11 @@ argument-hint: <title> [variant]
 allowed-tools: Read, Write, Grep, Glob, Bash(git *), Task
 ---
 
-# Create Request For Comments
+# Create request for comments
 
 Create a new RFC document proposing and discussing a change.
 
-## Anti-Hallucination Guidelines
+## Anti-Hallucination guidelines
 
 RFCs propose changes to real systems, so ground every claim before writing:
 
@@ -29,7 +29,7 @@ RFCs propose changes to real systems, so ground every claim before writing:
 
 ## Workflow
 
-### Phase 1: Explore and Gather Context
+### Phase 1: explore and gather context
 
 Understand the codebase before writing anything. If the Task tool is available,
 use the Explore agent:
@@ -45,29 +45,29 @@ covering the same four questions (current patterns, related components, existing
 similar features, technical constraints). Either way, keep what you find: it feeds
 the Background and Detailed Design sections in Phase 6.
 
-### Phase 2: Parse Arguments
+### Phase 2: parse arguments
 
 1. Extract proposal title from `$ARGUMENTS`
 2. Check for a variant keyword: `minimal`, `standard`, or `detailed`
 3. If a variant is found, remove it from the title
 4. Default variant: `standard`
 
-### Phase 3: Determine RFC Number
+### Phase 3: determine RFC number
 
 - Scan `docs/rfc/` for existing files matching `RFC-XXXX-*`
 - Increment the highest number by 1 (start at `0001` if none exist)
 - Format as a 4-digit padded number (e.g. `0001`, `0023`)
 
-### Phase 4: Sanitize Title for Filename
+### Phase 4: sanitize title for filename
 
 Convert the title to kebab-case, lowercase, special characters stripped.
 Example: "Add GraphQL API Support" -> `add-graphql-api-support`
 
-### Phase 5: Get Author Information
+### Phase 5: get author information
 
 Run `git config user.name`, falling back to `"Development Team"` if empty.
 
-### Phase 6: Load and Populate Template
+### Phase 6: load and populate template
 
 Template location: `assets/templates/`, select based on variant:
 
@@ -82,17 +82,17 @@ or on explicit reasoning about the proposal; never leave a placeholder token
 literally in the output. The written RFC must contain zero unresolved
 `{{...}}` tokens.
 
-### Phase 7: Create RFC File
+### Phase 7: create RFC file
 
 - Filename: `docs/rfc/RFC-XXXX-kebab-case-title.md`
 - Ensure `docs/rfc/` exists, write populated content, set status to "Draft"
 
-### Phase 8: Report Creation
+### Phase 8: report creation
 
 Show the RFC number, title, file path, and next-step guidance (share for feedback,
 update status as it progresses).
 
-## Usage Examples
+## Usage examples
 
 ```
 docs-rfc "Add GraphQL API Support"
@@ -100,13 +100,13 @@ docs-rfc minimal "Update Logging Format"
 docs-rfc detailed "Migration to Microservices Architecture"
 ```
 
-## RFC Status Lifecycle
+## RFC status lifecycle
 
 `Draft` -> `In Review` -> `Accepted` / `Rejected` (or `Withdrawn` at any point,
 `Implemented` after accepted work ships). Update the status field as the RFC moves
 through review.
 
-## Good Practices
+## Good practices
 
 - Write the RFC before starting implementation, not after
 - Include concrete examples and real code references, not hypotheticals

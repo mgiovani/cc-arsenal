@@ -17,7 +17,7 @@ metadata:
 
 # Code Review
 
-Comprehensive multi-agent code review covering correctness, performance, code style, test coverage gaps, and error handling. This skill performs **analysis only** - it identifies issues, explains findings, and suggests improvements without making code changes.
+Multi-agent code review across correctness, performance, code style, test coverage gaps, and error handling. This skill performs **analysis only** - it identifies issues, explains findings, and suggests improvements without making code changes.
 
 Every finding must cite a `file:line` you actually read: no hypothetical issues, no estimated counts. Only review files within the determined scope, and only flag style deviations from the project's own conventions, not personal preference.
 
@@ -68,7 +68,7 @@ Spawn 5 parallel Explore agents for comprehensive code review. Each agent specia
 - **Agent 4**: Test Coverage Gaps: untested code paths, missing edge case tests, weak assertions, test quality
 - **Agent 5**: Error Handling & Edge Cases: unhandled exceptions, missing validation, boundary conditions, graceful degradation
 
-**No Task/Explore tool available**: run the same six specialist prompts (Agents 1-6, full text in [references/agent-prompts.md](references/agent-prompts.md)) as sequential Grep+Read passes instead of parallel subagents, one dimension at a time, in the same order, each following the same steps below, then merge all six dimensions' findings into one list before Phase 4.
+**No Task/Explore tool available**: run the same six specialist prompts (Agents 1-6, full text in [references/agent-prompts.md](references/agent-prompts.md)) as sequential Grep+Read passes instead of parallel subagents. Take one dimension at a time, in the same order, each following the same steps below, then merge all six dimensions' findings into one list before Phase 4.
 
 Each agent must:
 1. Grep for issue patterns across files in scope

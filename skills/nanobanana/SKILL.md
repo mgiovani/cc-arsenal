@@ -172,7 +172,7 @@ See `references/model-guide.md` for full details. Quick reference:
 |---|---|---|
 | Quick drafts / iteration | `gemini-2.5-flash-image` | 512 or 1K |
 | **Most production assets (DEFAULT)** | `gemini-3.1-flash-image-preview` | 2K |
-| Text-heavy images | `gemini-3-pro-image-preview` | 2K–4K |
+| Text-heavy images | `gemini-3-pro-image-preview` | 2K to 4K |
 | Print / high-DPI | `gemini-3-pro-image-preview` | 4K |
 
 **Aspect ratio defaults by use case:**
@@ -219,7 +219,7 @@ The script outputs a JSON object. Parse and handle each case:
 ```json
 {"status": "success", "output_path": "/abs/path/image.png", "model_used": "...", "text_response": "...", "size_bytes": 245760}
 ```
-→ Report the file path. Use `Read` on image files if the platform supports inline display.
+Report the file path. Use `Read` on image files if the platform supports inline display.
 
 **Error cases:**
 
@@ -242,14 +242,14 @@ The script outputs a JSON object. Parse and handle each case:
 After a successful generation, offer iteration options based on user feedback:
 
 **Minor tweaks** (color, brightness, small compositional changes):
-→ Use **image editing mode**: pass the previous output as `--input-image`
+Use **image editing mode**: pass the previous output as `--input-image`
 
 **Major changes** (completely different subject, style change):
-→ Modify the enhanced prompt and **regenerate** from scratch
+Modify the enhanced prompt and **regenerate** from scratch
 
 **Rapid exploration** (testing multiple concepts):
-→ Use `gemini-2.5-flash-image` at `512` resolution for all iterations
-→ Identify the winning concept, then regenerate with `gemini-3.1-flash-image-preview` at `2K`
+- Use `gemini-2.5-flash-image` at `512` resolution for all iterations
+- Identify the winning concept, then regenerate with `gemini-3.1-flash-image-preview` at `2K`
 
 **For iterative editing sessions**, keep track of the prompt evolution so the user can revert to a previous version if needed.
 

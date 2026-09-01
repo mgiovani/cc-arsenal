@@ -1,4 +1,4 @@
-# Eval System
+# Eval system
 
 How the create-skill eval system works, when to use it, and platform-specific notes.
 
@@ -11,7 +11,7 @@ The eval system measures skill quality by comparing outputs with and without the
 3. **Train/test split**: Description optimizer prevents overfitting to test cases
 4. **Iteration tracking**: `evals/benchmark.json` tracks improvement over time
 
-## When to Use Evals
+## When to use evals
 
 **High value**: model-invoked skills that auto-trigger based on description:
 - If the description is wrong, the skill fires when it shouldn't (false positives)
@@ -26,16 +26,16 @@ The eval system measures skill quality by comparing outputs with and without the
 - Skills that just run a command or format data
 - When success/failure is obvious without measurement
 
-## How Eval Execution Works
+## How eval execution works
 
-### Step 1: Load Eval Cases
+### Step 1: load eval cases
 
 Read `evals/evals.json` from the skill directory. Each eval has:
 - `id`: unique identifier
 - `prompt`: exact user message to send
 - `assertions`: natural-language checks on expected output
 
-### Step 2: Run With-Skill and Baseline
+### Step 2: run with-Skill and baseline
 
 For each eval, run two parallel sessions via `claude -p`:
 
@@ -53,7 +53,7 @@ Results are saved to `evals/results/{eval_id}/`:
 - `baseline.txt`: output without skill
 - `timing.json`: duration and approximate token counts
 
-### Step 3: Grade with Blind Comparison
+### Step 3: grade with blind comparison
 
 The grader agent receives both outputs without knowing which is which. It:
 1. Checks each assertion against both outputs
@@ -65,7 +65,7 @@ See `references/agent-prompts.md` for the exact grader prompt.
 
 Results saved to `evals/results/{eval_id}/grading.json`.
 
-### Step 4: Generate Report
+### Step 4: generate report
 
 `generate_report.py` reads all grading results and produces:
 - Per-eval pass/fail table
@@ -74,11 +74,11 @@ Results saved to `evals/results/{eval_id}/grading.json`.
 
 Use `--html` for a simple HTML export.
 
-## Description Optimization
+## Description optimization
 
 The `improve_description.py` script optimizes the skill description for model-invoked skills.
 
-### How It Works
+### How it works
 
 1. **Generate 20 queries**: 10 that should trigger the skill, 10 that should not
    - Should-trigger: natural phrasings of the skill's use case
@@ -95,7 +95,7 @@ The `improve_description.py` script optimizes the skill description for model-in
 
 6. **Auto-shorten**: If the improved description exceeds 1024 chars, trim and re-validate
 
-### What Makes a Good Description
+### What makes a good description
 
 Based on Anthropic's skill creator patterns:
 
@@ -105,7 +105,7 @@ Based on Anthropic's skill creator patterns:
 - **Not too narrow**: Overly specific descriptions cause undertriggering
 - **Not too broad**: Overly broad descriptions cause false positives on unrelated queries
 
-## Platform-Specific Notes
+## Platform-Specific notes
 
 **Requirements**:
 - `claude` CLI must be installed and authenticated (`claude --version`)
@@ -122,7 +122,7 @@ Based on Anthropic's skill creator patterns:
 - A 3-eval suite = ~9 claude calls total
 - Description optimization = ~20 calls per iteration × up to 5 iterations = ~100 calls
 
-## File Structure After Running Evals
+## File structure after running evals
 
 ```
 skill-name/

@@ -7,8 +7,8 @@
 | Model | ID | Speed | Quality | Price/Image | Best For |
 |---|---|---|---|---|---|
 | Nano Banana | `gemini-2.5-flash-image` | Fast | Good | ~$0.039 | Quick drafts, iteration |
-| Nano Banana 2 | `gemini-3.1-flash-image-preview` | Medium | Great | ~$0.045–$0.151 | Most production assets |
-| Nano Banana Pro | `gemini-3-pro-image-preview` | Slow | Excellent | ~$0.134–$0.240 | Text-heavy, print, final assets |
+| Nano Banana 2 | `gemini-3.1-flash-image-preview` | Medium | Great | ~$0.045 to $0.151 | Most production assets |
+| Nano Banana Pro | `gemini-3-pro-image-preview` | Slow | Excellent | ~$0.134 to $0.240 | Text-heavy, print, final assets |
 
 ### Nano Banana (`gemini-2.5-flash-image`)
 - **Strengths**: Lowest latency, cheapest, good for rapid iteration

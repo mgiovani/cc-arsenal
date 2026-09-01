@@ -1,4 +1,4 @@
-# Spec Templates Reference
+# Spec templates reference
 
 File templates for `.specs/` artifacts created during spec-driven design in the `team-implement` skill.
 
@@ -8,7 +8,7 @@ Full mode uses separate files per artifact (proposal, design, review, tasks, dec
 
 ---
 
-## Input Digest Template
+## Input digest template
 
 **Path**: `.specs/<short-id>/input-digest.md`
 
@@ -34,7 +34,7 @@ TODO: original issue/ticket URL, related PRs, docs
 
 ---
 
-## Global Specs Index Template
+## Global specs index template
 
 **Path**: `.specs/README.md`
 
@@ -57,7 +57,7 @@ TODO: original issue/ticket URL, related PRs, docs
 
 ---
 
-## Session Dashboard Template
+## Session dashboard template
 
 **Path**: `.specs/<short-id>/README.md`
 
@@ -85,9 +85,9 @@ TODO: original issue/ticket URL, related PRs, docs
 
 ---
 
-## Full Mode Templates
+## Full mode templates
 
-### Project Brief Template
+### Project brief template
 
 **Path**: `.specs/<short-id>/proposal/brief.md`
 
@@ -113,7 +113,7 @@ TODO: 2-3 sentence summary
 
 ---
 
-### Requirements Template
+### Requirements template
 
 **Path**: `.specs/<short-id>/proposal/requirements.md`
 
@@ -144,7 +144,7 @@ _(add NFR-003+ for maintainability, scalability, accessibility as relevant — d
 
 ---
 
-### Acceptance Criteria Template
+### Acceptance criteria template
 
 **Path**: `.specs/<short-id>/proposal/acceptance-criteria.md`
 
@@ -178,7 +178,7 @@ _(add edge cases for boundary conditions and failure modes actually relevant to 
 
 ---
 
-### Architecture Template
+### Architecture template
 
 **Path**: `.specs/<short-id>/design/architecture.md`
 
@@ -226,7 +226,7 @@ TODO: auth/authz approach, encryption, known bottlenecks and mitigations, only w
 
 ---
 
-### API Contracts Template
+### API contracts template
 
 **Path**: `.specs/<short-id>/design/api-contracts.md`
 
@@ -268,7 +268,7 @@ State the actual limit and the `429` response shape, don't invent a number the a
 
 ---
 
-### Data Model Template
+### Data model template
 
 **Path**: `.specs/<short-id>/design/data-model.md`
 
@@ -305,7 +305,7 @@ Index every foreign key and every field used in a WHERE/ORDER BY the architectur
 
 ---
 
-### System Overview Diagrams Template
+### System overview diagrams template
 
 **Path**: `.specs/<short-id>/design/diagrams/system-overview.md`
 
@@ -347,7 +347,7 @@ _(add a deployment or state-machine diagram only if the feature actually has non
 
 ---
 
-### Adversary Report Template
+### Adversary report template
 
 **Path**: `.specs/<short-id>/review/adversary-report.md`
 
@@ -378,7 +378,7 @@ _(SUGGESTION-level findings follow the same shape; list them in the table withou
 
 ---
 
-### Security Assessment Template
+### Security assessment template
 
 **Path**: `.specs/<short-id>/review/security-assessment.md`
 
@@ -406,7 +406,7 @@ _(walk the remaining categories — A02, A04-A10 — with the same Status/Findin
 
 ---
 
-### QA Plan Template
+### QA plan template
 
 **Path**: `.specs/<short-id>/review/qa-plan.md`
 
@@ -450,7 +450,7 @@ PASS | FAIL, [what's blocking, if FAIL]
 
 ---
 
-### Task Breakdown Template
+### Task breakdown template
 
 **Path**: `.specs/<short-id>/tasks/task-breakdown.md`
 
@@ -477,7 +477,7 @@ _(continue TASK-003+ following the same shape — one per logical unit of work, 
 
 ---
 
-### Task Graph Template
+### Task graph template
 
 **Path**: `.specs/<short-id>/tasks/task-graph.md`
 
@@ -501,7 +501,7 @@ TASK-001 → TASK-002 → TASK-004 (the longest dependency chain)
 
 ---
 
-### Decision Record Template
+### Decision record template
 
 **Path**: `.specs/<short-id>/decisions/NNNN-decision-title.md`
 
@@ -527,25 +527,25 @@ We will [chosen solution].
 
 ---
 
-## Lite Mode Templates
+## Lite mode templates
 
 Lite mode collapses the full-mode artifacts above into four files. Same content expectations, less file-splitting ceremony.
 
-### Combined Brief Template: `.specs/<short-id>/brief.md`
+### Combined brief template: `.specs/<short-id>/brief.md`
 Sections: Overview, Goals/Non-Goals, Requirements (FR-NNN/NFR-NNN, same shape as full mode but inline), Acceptance Criteria (2-3 Given/When/Then stories), Success Metrics.
 
-### Combined Design Template: `.specs/<short-id>/design.md`
+### Combined design template: `.specs/<short-id>/design.md`
 Sections: Architecture (pattern + one Mermaid component diagram), Technology Stack, key API endpoints (2-3, same request/response shape as the full-mode API Contracts Template), key entities (1-2, same Field/Constraints table), Key Design Decisions.
 
-### Combined Review Template: `.specs/<short-id>/review.md`
+### Combined review template: `.specs/<short-id>/review.md`
 Sections: QA Plan summary (test strategy + 3-4 critical test cases as a checklist, no fabricated pass counts), Adversary Findings (BLOCKER-001 / WARNING-001 in the same shape as the full-mode Adversary Report Template), a short Security Assessment (3-4 OWASP categories that actually matter for this feature, PASS/FAIL only).
 
-### Combined Tasks Template: `.specs/<short-id>/tasks.md`
+### Combined tasks template: `.specs/<short-id>/tasks.md`
 2-3 representative TASK-NNN entries (same shape as full mode) + a small Mermaid dependency graph + critical path.
 
 ---
 
-## Usage Guidelines
+## Usage guidelines
 
 **Full mode**: complex/multi-subsystem projects, security-critical work, external stakeholders who need detailed specs.
 **Lite mode**: small-to-medium features, proof-of-concepts, time-sensitive work.

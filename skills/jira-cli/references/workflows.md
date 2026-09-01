@@ -1,8 +1,8 @@
-# Jira CLI - Common Workflows
+# Jira CLI - common workflows
 
 This file contains practical workflow examples for common Jira use cases and team collaboration scenarios.
 
-## Daily Standup Preparation
+## Daily standup preparation
 
 Get quick answers for your daily standup:
 
@@ -20,7 +20,7 @@ jira issue list -a$(jira me) -sDone --updated week
 jira issue list -a$(jira me) -yHigh -s~Done
 ```
 
-## Sprint Planning
+## Sprint planning
 
 Prepare for and manage sprint planning:
 
@@ -44,7 +44,7 @@ jira sprint list --next
 jira sprint list SPRINT_ID --plain --no-headers | wc -l
 ```
 
-## Code Review Workflow
+## Code review workflow
 
 Integrate Jira with your code review process:
 
@@ -65,7 +65,7 @@ jira issue comment add ISSUE-1 "LGTM! Approved changes."
 jira issue move ISSUE-1 Done -RFixed
 ```
 
-## Bug Triage
+## Bug triage
 
 Efficient bug triage workflow:
 
@@ -89,7 +89,7 @@ jira issue edit BUG-123 -yHigh -lproduction -lurgent
 jira issue link BUG-123 BUG-100 "is caused by"
 ```
 
-## Epic Management Workflow
+## Epic management workflow
 
 Working with epics effectively:
 
@@ -115,7 +115,7 @@ jira epic list EPIC-42 --plain --no-headers | wc -l
 jira epic remove STORY-98 STORY-99
 ```
 
-## Release Management
+## Release management
 
 Managing releases and versions:
 
@@ -136,7 +136,7 @@ jira issue list --fix-version v2.0
 jira issue list --fix-version v2.0 -s~Done
 ```
 
-## Team Collaboration
+## Team collaboration
 
 Collaborate effectively with your team:
 
@@ -157,7 +157,7 @@ jira issue list -ax -yHigh -s"To Do"
 jira sprint list --current --plain --columns assignee,key,summary
 ```
 
-## Incident Response
+## Incident response
 
 Handle production incidents:
 
@@ -178,7 +178,7 @@ jira issue worklog add INC-1 "2h" --comment "Incident response" --no-input
 jira issue move INC-1 Done -RFixed --comment "Service restored. Post-mortem scheduled."
 ```
 
-## Backlog Grooming
+## Backlog grooming
 
 Keep your backlog organized:
 
@@ -198,7 +198,7 @@ for issue in $(jira issue list -ax --created-before -12w --plain --columns key -
 done
 ```
 
-## Cross-Team Coordination
+## Cross-Team coordination
 
 Working across teams:
 
@@ -216,7 +216,7 @@ jira issue list -r~$(jira me) -a$(jira me) --plain --columns key,reporter,summar
 jira issue create -tTask -s"Handoff: Database migration" -CInfra -a"Infrastructure Lead"
 ```
 
-## Personal Productivity
+## Personal productivity
 
 Personal task management:
 
@@ -237,9 +237,9 @@ alias jira-task='jira issue create -tTask -a$(jira me)'
 alias jira-week='jira issue list -a$(jira me) --updated week'
 ```
 
-## Best Practices
+## Best practices
 
-### Efficient Filtering
+### Efficient filtering
 
 ```bash
 # Combine multiple filters for precision
@@ -253,7 +253,7 @@ jira issue list --updated -2h  # Last 2 hours
 jira issue list --created today  # Created today
 ```
 
-### Bulk Operations
+### Bulk operations
 
 ```bash
 # Add multiple issues to sprint
@@ -265,7 +265,7 @@ for issue in ISSUE-1 ISSUE-2 ISSUE-3; do
 done
 ```
 
-### Keyboard Shortcuts in Interactive Mode
+### Keyboard shortcuts in interactive mode
 
 Master the interactive UI for speed:
 - Use **j/k** instead of arrows for Vim-like navigation
@@ -273,7 +273,7 @@ Master the interactive UI for speed:
 - Press **m** to transition without navigating to browser
 - Use **c** and **CTRL+k** to quickly copy links/keys for sharing
 
-### Output Formatting for Different Needs
+### Output formatting for different needs
 
 ```bash
 # For spreadsheets

@@ -223,17 +223,17 @@ Skills should include verification steps to prevent Claude from assuming things 
 ## Writing Style Guidelines
 
 **Imperative/infinitive form:**
-- ✅ "To accomplish X, do Y"
-- ✅ "Create the file structure"
-- ✅ "Fetch the latest specification"
-- ❌ "You should create the file structure"
-- ❌ "If you need to fetch..."
+- Do: "To accomplish X, do Y"
+- Do: "Create the file structure"
+- Do: "Fetch the latest specification"
+- Don't: "You should create the file structure"
+- Don't: "If you need to fetch..."
 
 **Third-person descriptions:**
-- ✅ "This skill should be used when users want to..."
-- ✅ "The skill generates documentation..."
-- ❌ "Use this skill when you want to..."
-- ❌ "You can generate documentation..."
+- Do: "This skill should be used when users want to..."
+- Do: "The skill generates documentation..."
+- Don't: "Use this skill when you want to..."
+- Don't: "You can generate documentation..."
 
 **Objective tone:**
 - Focus on what to do, not how Claude might feel about it

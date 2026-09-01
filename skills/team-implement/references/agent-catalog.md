@@ -12,7 +12,7 @@ Complete role definitions for spec-driven team orchestration: 5 mandatory + 4 co
 
 **Config**: subagent_type general-purpose · model sonnet · Phases 2 and 5
 
-Merges what used to be separate Product Manager and Scrum Master roles: one agent owns both writing the spec and turning it into tasks, since in practice the same person reviewing requirements is best placed to size them.
+One agent covers both the Product Manager and Scrum Master roles: it owns writing the spec and turning it into tasks, since in practice whoever reviews the requirements is best placed to size them.
 
 #### Prompt Template: Phase 2 (Specification)
 ```

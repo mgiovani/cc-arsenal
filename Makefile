@@ -1,4 +1,4 @@
-.PHONY: help install configure dev test lint format type-check check coverage clean pre-commit-install pre-commit-run dry-run info validate-structure validate-plugins install-statusline uninstall-statusline bump-version
+.PHONY: help install configure dev test lint format type-check check coverage clean pre-commit-install pre-commit-run slop dry-run info validate-structure validate-plugins install-statusline uninstall-statusline bump-version
 
 # Default commands
 UV := uv
@@ -73,6 +73,10 @@ pre-commit-install: dev ## Install pre-commit hooks
 pre-commit-run: dev ## Run pre-commit hooks on all files
 	@echo "$(BLUE)Running pre-commit hooks on all files...$(RESET)"
 	$(UV) run pre-commit run --all-files
+
+slop: ## Run stopslop over the repo (tier-B findings do not set an exit code)
+	@out=$$(stopslop .) || true; \
+	if [ -n "$$out" ]; then printf '%s\n' "$$out"; exit 1; else echo "$(GREEN)No slop$(RESET)"; fi
 
 lint: dev ## Run linting checks
 	@echo "$(BLUE)Running linting checks...$(RESET)"

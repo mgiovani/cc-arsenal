@@ -112,7 +112,7 @@ No Task tool available? Work through each owned category inline and sequentially
 spawning its agent, same grep patterns from the reference file, same read-and-verify step,
 one category at a time.
 
-**A03 note**: dependency staleness and known-CVE checks (outdated package versions, `npm
+**A03 note**: dependency staleness and known-CVE scans (outdated package versions, `npm
 audit`-style findings) are review-deps' job, not this skill's: don't duplicate them here.
 Agent 4 only checks the supply-chain surface review-deps doesn't: missing SRI on CDN
 `<script>` tags, absent lockfiles, and CI/CD steps that weaken package integrity (e.g.
@@ -139,11 +139,11 @@ Generate a markdown report following [references/report-template.md](references/
 
 ### Phase 6: Verification & Quality Check
 
-Before presenting the report, verify: every finding has a file path + line numbers + an
-actual code snippet (not a placeholder) + a clear explanation + 2-3 fix approaches;
-statistics are counted, not estimated; no duplicate findings; severity ratings are
-justified; only scanned files within the specified scope; no invented vulnerabilities; any
-CWE/CVE references are accurate.
+Before presenting the report, verify that every finding has a file path + line numbers + an
+actual code snippet (not a placeholder) + a clear explanation + 2-3 fix approaches. Then confirm
+the report as a whole: statistics are counted rather than estimated; no duplicate findings;
+severity ratings are justified; only files within the specified scope were scanned; no invented
+vulnerabilities; any CWE/CVE references are accurate.
 
 ## Usage
 

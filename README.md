@@ -78,9 +78,9 @@ Contributions welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines. Ne
 
 ## Support
 
-- 🐛 [Report bugs](https://github.com/mgiovani/cc-arsenal/issues)
-- 🔒 [Security vulnerabilities](docs/SECURITY.md)
-- 💬 [Discussions](https://github.com/mgiovani/cc-arsenal/discussions)
+- [Report bugs](https://github.com/mgiovani/cc-arsenal/issues)
+- [Security vulnerabilities](docs/SECURITY.md)
+- [Discussions](https://github.com/mgiovani/cc-arsenal/discussions)
 
 ## License
 

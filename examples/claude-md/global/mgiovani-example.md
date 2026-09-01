@@ -1,16 +1,16 @@
-# CLAUDE.md - Personal Development Environment
+# CLAUDE.md - personal development environment
 
 This file provides guidance to Claude Code (claude.ai/code) for my personal development workflow and preferences.
 
-## Development Preferences
+## Development preferences
 
-### Code Style
+### Code style
 - **Language**: Prefer TypeScript over JavaScript, Python 3.12+ with type hints
 - **Formatting**: Use Prettier for JS/TS, Black for Python, with 100 character line length
 - **Architecture**: Favor functional programming patterns, clean architecture, and SOLID principles
 - **Testing**: Write comprehensive tests with >90% coverage using Jest/Vitest for JS/TS, pytest for Python
 
-### Technology Stack Preferences
+### Technology stack preferences
 
 #### Frontend
 - **Framework**: React 18+ with TypeScript, Next.js for full-stack apps
@@ -24,15 +24,15 @@ This file provides guidance to Claude Code (claude.ai/code) for my personal deve
 - **Databases**: PostgreSQL with Prisma/SQLAlchemy, Redis for caching
 - **API Design**: RESTful APIs with OpenAPI documentation, GraphQL for complex queries
 
-#### DevOps & Infrastructure
+#### DevOps & infrastructure
 - **Containerization**: Docker with multi-stage builds
 - **Deployment**: Vercel for frontend, Railway/Fly.io for backend services
 - **CI/CD**: GitHub Actions with automated testing and deployment
 - **Monitoring**: Sentry for error tracking, Vercel Analytics for performance
 
-## Common Commands
+## Common commands
 
-### Project Initialization
+### Project initialization
 ```bash
 # Node.js/TypeScript project
 npm create vite@latest . -- --template react-ts
@@ -48,7 +48,7 @@ npx create-next-app@latest . --typescript --tailwind --app --src-dir
 npm run dev
 ```
 
-### Development Workflow
+### Development workflow
 ```bash
 # Install dependencies
 npm install  # or: uv sync
@@ -67,7 +67,7 @@ npm run format  # or: uv run black .
 npm run build  # or: uv run python -m build
 ```
 
-### Database Operations
+### Database operations
 ```bash
 # Prisma (Node.js)
 npx prisma generate
@@ -79,7 +79,7 @@ uv run alembic revision --autogenerate -m "description"
 uv run alembic upgrade head
 ```
 
-## Project Structure Patterns
+## Project structure patterns
 
 ### Frontend (React/Next.js)
 ```
@@ -110,9 +110,9 @@ src/
 └── tests/             # Test suite
 ```
 
-## Development Principles
+## Development principles
 
-### Code Quality
+### Code quality
 - Always use TypeScript for new JavaScript projects
 - Write self-documenting code with clear variable names
 - Prefer composition over inheritance

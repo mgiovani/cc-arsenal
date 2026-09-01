@@ -1,4 +1,4 @@
-# Task Dependency Patterns & Call Templates
+# Task dependency patterns & call templates
 
 Load this when SKILL.md's size threshold is crossed (4+ files, or 3+ phases tracked as
 separately-blocked work). Covers the literal `TaskCreate`/`TaskUpdate` calls for the
@@ -6,7 +6,7 @@ separately-blocked work). Covers the literal `TaskCreate`/`TaskUpdate` calls for
 antipatterns. For breaking down large, multi-track projects from scratch (not this
 skill's per-feature chain), use the `project-planner` skill instead.
 
-## The 6-Task Chain: Literal Calls
+## The 6-Task chain: literal calls
 
 Create all six phase tasks up front, wire the sequential dependency chain, then mark
 the first `in_progress`:
@@ -55,7 +55,7 @@ TaskUpdate: { taskId: "1", status: "in_progress" }
 After finishing a phase: `TaskUpdate: { taskId: "N", status: "completed" }` then
 `TaskList` to confirm the next task unblocked.
 
-## Parallel Child Tasks (Phase 3)
+## Parallel child tasks (Phase 3)
 
 When Phase 3 has independent components (e.g. API + UI + tests), create child tasks
 blocked only by the planning phase, and block Phase 4 on all of them:
@@ -87,7 +87,7 @@ TaskUpdate: { taskId: "test-task", addBlockedBy: ["3"] }
 TaskUpdate: { taskId: "5", addBlockedBy: ["api-task", "ui-task", "test-task"] }
 ```
 
-## Subagent Instructions Template
+## Subagent instructions template
 
 Use this for each Phase 3 subagent (`Task` tool, `subagent_type: "general-purpose"`,
 `model: "sonnet"` (required, never leave unset):
@@ -124,9 +124,9 @@ If tests fail, fix them before reporting completion. If requirements are
 ambiguous, report back and ask for clarification instead of guessing.
 ```
 
-## Dependency Pattern Diagrams
+## Dependency pattern diagrams
 
-### Sequential Chain (Most Common)
+### Sequential chain (Most common)
 
 Every phase depends on the previous one:
 ```
@@ -139,7 +139,7 @@ Task 6: Commit (blockedBy: [5])
 ```
 Use for the standard feature workflow, where each phase needs the previous phase's output.
 
-### Parallel with Convergence
+### Parallel with convergence
 
 Multiple independent tasks converging at verification:
 ```
@@ -152,7 +152,7 @@ Task 6: Commit (blockedBy: [5])
 ```
 Use when independent components can be built simultaneously by separate subagents.
 
-### Diamond Pattern
+### Diamond pattern
 
 Parallel middle phases with shared prerequisites and convergence:
 ```
@@ -163,7 +163,7 @@ Task 3: Integration (blockedBy: [2a, 2b])
 ```
 Use when a shared setup phase feeds multiple parallel implementations that need a final integration step.
 
-## Common Antipatterns
+## Common antipatterns
 
 | Antipattern | Why it's bad | Do instead |
 |---|---|---|

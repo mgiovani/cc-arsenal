@@ -40,14 +40,14 @@ Five new skills, taking the catalog from 48 to 53. Four of them (prd-to-issues, 
 ### Fixed
 - **Statusline: account badge now shows without `CLAUDE_CODE_OAUTH_TOKEN`.** The `CLAUDE_STATUSLINE_ACCOUNT_LABEL` badge was gated on the OAuth-token env var also being set, so accounts switched via a separate credential store (`CLAUDE_SECURESTORAGE_CONFIG_DIR`) got no badge. The label is user-set display text and now renders whenever it's set, independent of how the account was selected. Per-account usage-cache isolation and background OAuth refresh remain keyed on `CLAUDE_CODE_OAUTH_TOKEN`.
 - **Plugin manifests:** `.claude-plugin/plugin.json` still carried the pre-v5 marketing description (it had also sat at version 2.0.0 from February through July while `marketplace.json` advanced: the snapshot stale Claude Desktop installs were showing). Descriptions are aligned, and `make validate-plugins` now fails on any version or description drift between the two manifests so a partial bump can't ship again.
-- **Statusline (post-review):** the background OAuth fetcher now holds a single-flight lock for the whole fetch, so overlapping renders can't stack concurrent calls against the rate-limited API; the tmux cache write reuses values the render already extracted instead of re-forking `cat`+`jq`; ISO timestamps with explicit UTC offsets parse to the correct epoch instead of being read as UTC; non-numeric values render as-is instead of `printf` garbage like `045%`; `hash_sha256` falls back to MD5 (then `default`) so per-account cache keys stay distinct on minimal systems; the error log is size-capped. The config surface was cut to the keys the code actually honors, `STATUSLINE_CONFIG_OVERRIDE` now really works, `configure_statusline.py` was rewritten to offer only working options (481→80 lines), and the dead `lib/tracking/` modules were removed (~550 lines).
+- **Statusline (post-review):** the background OAuth fetcher now holds a single-flight lock for the whole fetch, so overlapping renders can't stack concurrent calls against the rate-limited API. The tmux cache write reuses values the render already extracted instead of re-forking `cat`+`jq`. ISO timestamps with explicit UTC offsets parse to the correct epoch instead of being read as UTC, and non-numeric values render as-is instead of `printf` garbage like `045%`. `hash_sha256` falls back to MD5 (then `default`) so per-account cache keys stay distinct on minimal systems, and the error log is size-capped. The config surface was cut to the keys the code actually honors, `STATUSLINE_CONFIG_OVERRIDE` now really works, `configure_statusline.py` was rewritten to offer only working options (481→80 lines), and the dead `lib/tracking/` modules were removed (~550 lines).
 - **Statusline:** `extract_json` returned success with empty output on a grep-fallback miss, making every `||` fallback chain over it unreachable (e.g. session-id lookup never tried `session_id`/`conversation_id`); `lib/display/components.sh` didn't source its own `core/json.sh` dependency; `cache_clear` could expand `rm -rf` against `/*` if its directory variable was ever empty.
 
 ### Changed
 - **New `integrations/` tier.** Agent-CLI-specific tooling now lives under `integrations/<agent-cli>/`, one subdirectory per agent CLI: the statusline moved from `scripts/claude/statusline` to `integrations/claude-code/statusline` and the claude-hi session scheduler from `scripts/claude-hi` to `integrations/claude-code/claude-hi`. The installed location (`~/.claude/scripts/claude/statusline`) is unchanged, so existing installs and `settings.json` entries keep working without migration.
 
 ### Added
-- **Statusline: per-account usage reporting.** When Claude Code runs under `CLAUDE_CODE_OAUTH_TOKEN`, the statusline now fetches and displays that account's real 5h/7d rate limits instead of the stored login's stdin values, with per-account cache/backoff isolation (sha256-keyed filenames, tokens never written to disk), an opt-in account badge via `CLAUDE_STATUSLINE_ACCOUNT_LABEL`, and a per-account tmux rate-limits cache file. The default single-account case is unchanged. Works on macOS and Linux.
+- **Statusline: per-account usage reporting.** When Claude Code runs under `CLAUDE_CODE_OAUTH_TOKEN`, the statusline now fetches and displays that account's real 5h/7d rate limits instead of the stored login's stdin values. Each account gets its own cache/backoff isolation (sha256-keyed filenames, tokens never written to disk), an opt-in badge via `CLAUDE_STATUSLINE_ACCOUNT_LABEL`, and its own tmux rate-limits cache file. The default single-account case is unchanged. Works on macOS and Linux.
 
 ## [5.0.0] - 2026-07-18
 
@@ -63,11 +63,11 @@ The authoring-standard overhaul. Every skill was rewritten to the Anthropic skil
 - **cc-arsenal-dev** gains codex-imagegen and oss-launch; **cc-arsenal-skills** gains improve-skill and orchestrate.
 
 ### Changed
-- **All 41 existing skills rewritten to the Anthropic authoring standard**, each gated by a per-skill baseline-vs-new eval loop (sandboxed executors, deterministic grading, human-reviewed): use-case-first descriptions with explicit "Not for X (use sibling)" disambiguation across every overlapping cluster, sub-500-line imperative bodies with WHY reserved for hard boundaries, heavy detail moved to `references/<topic>.md` with load-when links, anti-hallucination floors (reported numbers must come from a command actually run), and tool-neutral portability with explicit sequential fallbacks for the orchestration skills.
+- **All 41 existing skills rewritten to the Anthropic authoring standard**, each gated by a per-skill baseline-vs-new eval loop (sandboxed executors, deterministic grading, human-reviewed): descriptions lead with the use case and carry explicit "Not for X (use sibling)" disambiguation across every overlapping cluster. Bodies are sub-500-line and imperative, with WHY reserved for hard boundaries and heavy detail moved to `references/<topic>.md` behind load-when links. Every skill got an anti-hallucination floor (reported numbers must come from a command actually run) and a tool-neutral core, with explicit sequential fallbacks for the orchestration skills.
 - **Descriptions validated** against their trigger-eval sets: the optimizer kept the rewritten description in every case measured, confirming they already trigger reliably.
 - **ship** owns "ship it" for the default feature-branch case; **gitflow** cedes that trigger and keeps release/hotfix-topology cases. ship's description folded to valid YAML and trimmed under the 1024-char cap.
 - All plugin versions bumped to 5.0.0; skill counts and variant tables regenerated across AGENTS.md, CLAUDE.md, README.md, and docs (41 → 45).
-- **Image-generation routing**: **codex-imagegen** is now the default image generator for any implicit "generate an image / logo / hero / mascot" request (covered by the Codex subscription, no marginal cost), and **nanobanana** is narrowed to explicit-invocation only since it makes a real, billed Gemini API call, triggering only on "nanobanana"/"nano banana"/"gemini image generation"/`GEMINI_API_KEY`. codex-imagegen no longer references nanobanana, and oss-launch's brand stage no longer auto-falls-back to it.
+- **Image-generation routing**: **codex-imagegen** is now the default image generator for any implicit "generate an image / logo / hero / mascot" request (covered by the Codex subscription, no marginal cost). **nanobanana** is narrowed to explicit-invocation only, since it makes a real, billed Gemini API call; it now triggers only on "nanobanana"/"nano banana"/"gemini image generation"/`GEMINI_API_KEY`. codex-imagegen no longer references nanobanana, and oss-launch's brand stage no longer auto-falls-back to it.
 - **features.md labeling convention**: every skill is documented as `#### /<name>` with a single `(auto)` (also model-triggered) or `(manual)` (`disable-model-invocation: true`, slash-only) marker matched to frontmatter, plus a one-line legend, replacing the inconsistent `(model-invoked)`/`(user-invoked)` suffixes (13 of which disagreed with frontmatter).
 - **Skill composition convention** added to `AGENTS.md`: a skill may invoke a sibling via the Claude Code `Skill` tool, but must state the tool-neutral fallback in the same sentence (other CLIs read the sibling's `SKILL.md` as text), distinct from Task-tool subagent delegation. `ship`, `oss-launch`, `test-suite`, `git-create-pr`, and `team-implement` follow it.
 
@@ -380,17 +380,17 @@ Target audience: Teams focused on code quality and compliance
     - Runs `agent-browser close` on completion, ignores errors
 
 - **Context Optimization with Fork**: Isolated execution for verbose operations
-  - **10 skills now use `context: fork`** for clean main conversation:
-    - `review-security`: Security scans isolated, only findings summary returned
-    - `docs-check`: Documentation validation isolated, only health report returned
-    - `docs-diagram`: Diagram generation isolated, only final diagram returned
-    - `docs-adr`: ADR creation isolated, only completed ADR returned
-    - `docs-rfc`: RFC creation isolated, only completed RFC returned
-    - `docs-init`: Documentation setup isolated, only summary returned
-    - `docs-update`: Documentation sync isolated, only update summary returned
-    - `jira-daily`: Jira CLI output isolated, only standup report returned
-    - `jira-todo`: Jira CLI output isolated, only task list returned
-    - `project-planner`: Project analysis isolated, only plan/diagram returned
+  - **10 skills now use `context: fork`** for a clean main conversation.
+    - `review-security`: Security scans isolated, only findings summary returned.
+    - `docs-check`: Documentation validation isolated, only health report returned.
+    - `docs-diagram`: Diagram generation isolated, only final diagram returned.
+    - `docs-adr`: ADR creation isolated, only completed ADR returned.
+    - `docs-rfc`: RFC creation isolated, only completed RFC returned.
+    - `docs-init`: Documentation setup isolated, only summary returned.
+    - `docs-update`: Documentation sync isolated, only update summary returned.
+    - `jira-daily`: Jira CLI output isolated, only standup report returned.
+    - `jira-todo`: Jira CLI output isolated, only task list returned.
+    - `project-planner`: Project analysis isolated, only plan/diagram returned.
   - **All forked skills use `agent: general-purpose`** for complex reasoning
     - Changed from `agent: Explore` (Haiku 4.5) to `general-purpose` (Sonnet)
     - Necessary for security analysis, documentation writing, and complex planning
@@ -576,13 +576,13 @@ Target audience: Teams focused on code quality and compliance
   - Phase 0: Scan Scope Determination - Supports PR numbers, commit SHAs, or entire codebase scanning
   - Phase 1: Technology Discovery - Auto-discovers tech stack to prioritize relevant vulnerabilities
   - Phase 2: Progress Tracking - TodoWrite-based tracking for all OWASP categories and bytecode analysis
-  - Phase 3: Parallel Vulnerability Scanning - 6 parallel agents for comprehensive coverage:
-    - Agent 1: Access Control & Authentication (A01, A07)
-    - Agent 2: Configuration & Insecure Design (A02, A06)
-    - Agent 3: Injection & Data Integrity (A05, A08)
-    - Agent 4: Cryptography & Supply Chain (A04, A03)
-    - Agent 5: Bytecode Security (Python .pyc, JS/TS compilation, Java bytecode)
-    - Agent 6: Logging & Exception Handling (A09, A10)
+  - Phase 3: Parallel Vulnerability Scanning - 6 parallel agents.
+    - Agent 1: Access Control & Authentication (A01, A07).
+    - Agent 2: Configuration & Insecure Design (A02, A06).
+    - Agent 3: Injection & Data Integrity (A05, A08).
+    - Agent 4: Cryptography & Supply Chain (A04, A03).
+    - Agent 5: Bytecode Security (Python .pyc, JS/TS compilation, Java bytecode).
+    - Agent 6: Logging & Exception Handling (A09, A10).
   - Phase 4: Findings Consolidation - Deduplication, severity prioritization, OWASP categorization
   - Phase 5: Security Report Generation - Comprehensive markdown report with statistics, fixes, and references
   - Phase 6: Verification & Quality Check - 10-point quality checklist before report delivery

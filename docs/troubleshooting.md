@@ -1,10 +1,10 @@
-# Troubleshooting Guide
+# Troubleshooting guide
 
 Comprehensive solutions for common issues with Claude Code Arsenal installation, configuration, and usage.
 
-## Quick Diagnostics
+## Quick diagnostics
 
-### System Check
+### System check
 
 ```bash
 # Run comprehensive system check
@@ -19,7 +19,7 @@ python3 --version
 claude --version
 ```
 
-### Installation Verification
+### Installation verification
 
 ```bash
 # Check what's installed
@@ -30,11 +30,11 @@ make dry-run
 make test
 ```
 
-## Installation Issues
+## Installation issues
 
-### UV Package Manager Problems
+### UV package manager problems
 
-#### UV Not Found
+#### UV not found
 ```bash
 # Error: command not found: uv
 # Solution: Install UV
@@ -44,7 +44,7 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 source ~/.bashrc  # or ~/.zshrc for zsh
 ```
 
-#### UV Installation Fails
+#### UV installation fails
 ```bash
 # Error: Installation script fails
 # Solution: Manual installation
@@ -55,7 +55,7 @@ pip install uv
 # Ubuntu: sudo apt install uv
 ```
 
-#### Permission Denied During UV Install
+#### Permission denied during UV install
 ```bash
 # Error: Permission denied writing to /usr/local/bin
 # Solution: Install to user directory
@@ -65,9 +65,9 @@ curl -LsSf https://astral.sh/uv/install.sh | sh -s -- --user
 curl -LsSf https://astral.sh/uv/install.sh | sudo sh
 ```
 
-### Python Version Issues
+### Python version issues
 
-#### Python 3.12+ Not Available
+#### Python 3.12+ not available
 ```bash
 # Error: Python 3.12 not found
 # Solution: Install Python 3.12+
@@ -86,7 +86,7 @@ sudo dnf install python3.12
 # Download from python.org or use pyenv
 ```
 
-#### Multiple Python Versions Conflict
+#### Multiple Python versions conflict
 ```bash
 # Error: Wrong Python version used
 # Solution: Specify Python version explicitly
@@ -98,9 +98,9 @@ uv sync --python python3.12
 export UV_PYTHON=python3.12
 ```
 
-### Claude Code Issues
+### Claude Code issues
 
-#### Claude Code Not Installed
+#### Claude Code not installed
 ```bash
 # Error: claude command not found
 # Solution: Install Claude Code
@@ -111,7 +111,7 @@ which claude
 claude --version
 ```
 
-#### Claude Code Not in PATH
+#### Claude Code not in PATH
 ```bash
 # Error: Command not found after installation
 # Solution: Add to PATH
@@ -121,9 +121,9 @@ echo 'export PATH="$PATH:/path/to/claude"' >> ~/.bashrc
 source ~/.bashrc
 ```
 
-### Repository Clone Issues
+### Repository clone issues
 
-#### Git Clone Fails
+#### Git clone fails
 ```bash
 # Error: Repository not found or access denied
 # Solution: Check repository URL and access
@@ -138,7 +138,7 @@ ping github.com
 git clone --verbose https://github.com/mgiovani/cc-arsenal.git
 ```
 
-#### Slow Clone Due to Large Repository
+#### Slow clone due to large repository
 ```bash
 # Error: Clone takes too long
 # Solution: Shallow clone
@@ -150,11 +150,11 @@ git clone --depth 1 https://github.com/mgiovani/cc-arsenal.git
 git clone -b main --single-branch https://github.com/mgiovani/cc-arsenal.git
 ```
 
-## Configuration Issues
+## Configuration issues
 
-### Permission Problems
+### Permission problems
 
-#### Cannot Write to ~/.claude Directory
+#### Cannot write to ~/.claude directory
 ```bash
 # Error: Permission denied writing to ~/.claude
 # Solution: Fix directory permissions
@@ -167,9 +167,9 @@ chmod 755 ~/.claude
 sudo chown -R $USER:$USER ~/.claude
 ```
 
-### Configuration File Issues
+### Configuration file issues
 
-#### Invalid YAML Syntax
+#### Invalid YAML syntax
 ```bash
 # Error: YAML parsing error in configuration
 # Solution: Validate and fix YAML
@@ -182,7 +182,7 @@ pip install yamllint
 yamllint ~/.claude/hook-config.yaml
 ```
 
-#### Missing Configuration Files
+#### Missing configuration files
 ```bash
 # Error: Configuration file not found
 # Solution: Generate default configuration
@@ -194,9 +194,9 @@ make configure
 make install  # Creates default configs
 ```
 
-### Skill Issues
+### Skill issues
 
-#### Skills Not Available in Claude Code
+#### Skills not available in Claude Code
 ```bash
 # Error: Skills not showing up
 # Solution: Verify installation and restart
@@ -211,7 +211,7 @@ head -20 ~/.claude/skills/create-skill/SKILL.md
 # Close all Claude Code windows and restart
 ```
 
-#### Skill File Format Errors
+#### Skill file format errors
 ```bash
 # Error: Invalid skill file format
 # Solution: Validate skill YAML frontmatter
@@ -228,7 +228,7 @@ with open('SKILL.md') as f:
 "
 ```
 
-#### Skill Permissions
+#### Skill permissions
 ```bash
 # Error: Cannot read skill files
 # Solution: Fix file permissions
@@ -240,11 +240,11 @@ find ~/.claude/skills -name "*.md" -exec chmod 644 {} \;
 find ~/.claude/skills -type d -exec chmod 755 {} \;
 ```
 
-## Runtime Issues
+## Runtime issues
 
-### Skill Execution Problems
+### Skill execution problems
 
-#### Skills Not Found
+#### Skills not found
 ```bash
 # Error: Claude skills not available
 # Solution: Verify skill installation
@@ -259,7 +259,7 @@ ls ~/.claude/skills/
 head -10 ~/.claude/skills/git-commit/SKILL.md
 ```
 
-#### Permission Denied Running a Skill's Scripts
+#### Permission denied running a skill's scripts
 ```bash
 # Error: Cannot execute a skill's bundled script
 # Solution: Check permissions and dependencies
@@ -272,9 +272,9 @@ which git npm pytest ruff
 ```
 
 
-### Performance Issues
+### Performance issues
 
-#### Slow Skill Response
+#### Slow skill response
 ```bash
 # Error: Skills take too long to load
 # Solution: Optimize usage and check resources
@@ -290,7 +290,7 @@ ps aux | grep claude
 ping claude.ai
 ```
 
-#### High Memory Usage
+#### High memory usage
 ```bash
 # Error: High memory consumption
 # Solution: Optimize configuration
@@ -301,7 +301,7 @@ make clean
 # Restart Claude Code
 ```
 
-#### Token Limit Issues
+#### Token limit issues
 ```bash
 # Error: Running out of tokens quickly
 # Solution: Optimize token usage
@@ -316,11 +316,11 @@ make -C integrations/claude-code/claude-hi setup
 tail ~/.claude/logs/usage.log
 ```
 
-## Component-Specific Issues
+## Component-Specific issues
 
-### Smart Session Scheduler (Claude Hi)
+### Smart session scheduler (Claude Hi)
 
-#### Cron Jobs Not Working
+#### Cron jobs not working
 ```bash
 # Error: Hi messages not sent automatically
 # Solution: Debug cron configuration
@@ -336,7 +336,7 @@ sudo systemctl status cron  # Linux
 ~/.claude/send_hi.sh
 ```
 
-#### Hi Messages Not Triggering Sessions
+#### Hi messages not triggering sessions
 ```bash
 # Error: Hi sent but session doesn't start
 # Solution: Check Claude Code connectivity
@@ -351,7 +351,7 @@ claude auth status
 ping claude.ai
 ```
 
-#### Schedule Not Matching Expectations
+#### Schedule not matching expectations
 ```bash
 # Error: Wrong timing for hi messages
 # Solution: Verify and adjust schedule
@@ -364,9 +364,9 @@ make -C integrations/claude-code/claude-hi remove
 make -C integrations/claude-code/claude-hi setup
 ```
 
-### Enhanced Statusline
+### Enhanced statusline
 
-#### Statusline Not Showing
+#### Statusline not showing
 ```bash
 # Error: Statusline not visible
 # Solution: Check installation and shell integration
@@ -381,7 +381,7 @@ grep claude ~/.bashrc ~/.zshrc
 make install-statusline
 ```
 
-#### Incorrect Usage Data
+#### Incorrect usage data
 ```bash
 # Error: Statusline shows wrong information
 # Solution: Debug with STATUSLINE_DEBUG and inspect the /tmp caches
@@ -397,11 +397,11 @@ rm -f /tmp/claude_rate_limits_cache.json /tmp/claude_oauth_usage_cache.json
 
 Full reference, including every `STATUSLINE_*`/`CLAUDE_*` env var and multi-account cache layout: [Statusline Guide](../integrations/claude-code/statusline/STATUSLINE.md).
 
-## Development Environment Issues
+## Development environment issues
 
-### Testing Problems
+### Testing problems
 
-#### Tests Fail
+#### Tests fail
 ```bash
 # Error: Test suite failures
 # Solution: Debug test environment
@@ -416,7 +416,7 @@ uv sync --group dev
 uv run pytest tests/test_specific.py -v
 ```
 
-#### Coverage Issues
+#### Coverage issues
 ```bash
 # Error: Low test coverage
 # Solution: Identify missing tests
@@ -431,9 +431,9 @@ open htmlcov/index.html
 uv run pytest --cov-report=term-missing
 ```
 
-### Linting and Formatting Issues
+### Linting and formatting issues
 
-#### Ruff Errors
+#### Ruff errors
 ```bash
 # Error: Linting failures
 # Solution: Fix code style issues
@@ -448,7 +448,7 @@ make format
 uv run ruff check --explain E501
 ```
 
-#### Type Checking Failures
+#### Type checking failures
 ```bash
 # Error: MyPy type errors
 # Solution: Fix type annotations
@@ -463,11 +463,11 @@ uv run mypy --show-error-codes src/
 # Add # type: ignore comment
 ```
 
-## Network and Connectivity Issues
+## Network and connectivity issues
 
-### Claude API Problems
+### Claude API problems
 
-#### Authentication Errors
+#### Authentication errors
 ```bash
 # Error: API authentication failed
 # Solution: Check Claude Code authentication
@@ -482,7 +482,7 @@ claude auth login
 cat ~/.claude/credentials  # Be careful with sensitive data
 ```
 
-#### Network Timeouts
+#### Network timeouts
 ```bash
 # Error: Request timeouts
 # Solution: Check network and proxy settings
@@ -497,9 +497,9 @@ echo $HTTP_PROXY $HTTPS_PROXY
 export HTTPS_PROXY=http://proxy.company.com:8080
 ```
 
-### Update Issues
+### Update issues
 
-#### Update Failures
+#### Update failures
 ```bash
 # Error: Cannot update repository
 # Solution: Clean update process
@@ -514,7 +514,7 @@ make clean
 make install
 ```
 
-#### Version Conflicts
+#### Version conflicts
 ```bash
 # Error: Version compatibility issues
 # Solution: Check version requirements
@@ -528,9 +528,9 @@ python3 --version
 git checkout v1.0.0  # or latest stable tag
 ```
 
-## Logging and Debugging
+## Logging and debugging
 
-### Enable Debug Logging
+### Enable debug logging
 
 ```bash
 # Enable verbose logging
@@ -542,7 +542,7 @@ export CC_ARSENAL_DEBUG_HOOKS=1
 export CC_ARSENAL_DEBUG_COMMANDS=1
 ```
 
-### Log Locations
+### Log locations
 
 ```bash
 # Main logs
@@ -557,7 +557,7 @@ export CC_ARSENAL_DEBUG_COMMANDS=1
 ~/.claude/logs/usage.log        # Token usage tracking
 ```
 
-### Debug Commands
+### Debug commands
 
 ```bash
 # Component status
@@ -570,22 +570,22 @@ make test                      # Run test suite
 make dry-run                   # Preview installation
 ```
 
-## Getting Help
+## Getting help
 
-### Self-Service Resources
+### Self-Service resources
 
 1. **Documentation**: Check docs/ directory for detailed guides
 2. **Examples**: Review examples/ directory for working configurations
 3. **Test Suite**: Run tests to verify installation
 4. **Logs**: Check log files for error details
 
-### Community Support
+### Community support
 
 1. **GitHub Issues**: https://github.com/mgiovani/cc-arsenal/issues
 2. **GitHub Discussions**: https://github.com/mgiovani/cc-arsenal/discussions
 3. **Documentation**: Browse all documentation in docs/
 
-### Reporting Issues
+### Reporting issues
 
 When reporting issues, include:
 
@@ -605,9 +605,9 @@ ls -la ~/.claude/
 # Complete error messages
 ```
 
-### Emergency Recovery
+### Emergency recovery
 
-#### Complete Reset
+#### Complete reset
 ```bash
 # Backup current configuration
 cp -r ~/.claude ~/.claude.backup.$(date +%Y%m%d)
@@ -619,7 +619,7 @@ rm -rf ~/.claude/skills ~/.claude/commands
 make install
 ```
 
-#### Restore from Backup
+#### Restore from backup
 ```bash
 # Restore previous configuration
 mv ~/.claude ~/.claude.broken
@@ -630,7 +630,7 @@ mv ~/.claude.backup.YYYYMMDD ~/.claude
 
 ## Prevention
 
-### Regular Maintenance
+### Regular maintenance
 
 ```bash
 # Weekly maintenance routine
@@ -652,7 +652,7 @@ git fetch origin
 git status
 ```
 
-### Best Practices
+### Best practices
 
 1. **Regular Updates**: Keep the arsenal updated to latest stable version
 2. **Backup Configuration**: Backup ~/.claude before major changes

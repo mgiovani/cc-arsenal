@@ -16,7 +16,7 @@ disable-model-invocation: true
 
 # CI/CD Pipeline Generator
 
-Generate production-ready CI/CD pipeline configurations with auto-detected project stack, current best practices, and comprehensive stages (lint, test, build, security scan, deploy).
+Generate a CI/CD pipeline config for the detected project stack, with stages for lint, test, build, security scan, and deploy.
 
 ## Pipeline to Generate
 

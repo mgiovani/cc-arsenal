@@ -1,4 +1,4 @@
-# stopslop config. Run: `stopslop .`
+# stopslop config. Run: `make slop`.
 #
 # Only false-positive classes are suppressed here. Everything else stays on, so a
 # real finding shows up in an otherwise-empty run instead of being buried in noise.
@@ -6,3 +6,37 @@
 # Skill templates are meant to ship placeholders (`[DESCRIBE]`, `<!-- fill in -->`).
 # That is the deliverable, not unfinished work. SLOP013 flags every one of them.
 exclude = ["**/assets/templates/**"]
+
+ignore = [
+  # --- Pending a stopslop release -------------------------------------------
+  # Both are already fixed in stopslop main but not in the published 0.5.1 that
+  # the pre-commit hook installs from crates.io, and the repo has zero hits for
+  # either under the fixed build. Delete both entries once a release ships.
+  #
+  # 0.5.1 flags the "## Step 1: <name>" procedural headings most SKILL.md files
+  # are built around as assistant-response residue.
+  "SLOP011",
+  # 0.5.1 computes synonym rotation file-wide, so a catalog gets flagged for the
+  # proper names of the things it lists: AGENTS.md describing `db-migrate` as
+  # "Create, validate, ..." trips `generate, create` because a *different* skill
+  # is named `ci-generate`.
+  "SLOP034",
+  # --- Genuine convention clashes -------------------------------------------
+  # Fires on the tail of any comma series of 3+, whatever the items are. It flags
+  # the Contributor Covenant's protected-characteristics list and "(a plain
+  # description, an issue ID, or a failing test)". The empty adjectives it also
+  # caught ("comprehensive", "production-ready", "manageable") have been cut.
+  "SLOP017",
+  # A file-level bold-density count. What it actually measures here is definition
+  # lists (`- **skill-name**: description`, 51 consecutive in AGENTS.md) and field
+  # labels (`**Version:**`). Bold marks the defined term, not emphasis.
+  "SLOP019",
+  # Down to two classes, both structural rather than stylistic: short sections in
+  # reference docs that are lookup tables (one heading per command), and headings
+  # inside a ```markdown fence showing a skill's sample output. Title-case
+  # headings, emoji markers and arrow markers are all fixed.
+  "SLOP021",
+  # Whole-file statistical signal (burstiness, type-token ratio). Reference docs
+  # that catalogue N parallel options are uniform on purpose.
+  "SLOP041",
+]

@@ -1,12 +1,12 @@
-# Workflows and Best Practices
+# Workflows and best practices
 
-Patterns for discovering, evaluating, installing, and managing third-party agent skills.
+Patterns for finding, evaluating, installing, and managing skills from outside this repo.
 
 ---
 
-## Discovery Patterns
+## Discovery patterns
 
-### By Domain
+### By domain
 
 ```bash
 # Frontend development
@@ -31,7 +31,7 @@ npx skills find playwright
 npx skills find unit-test
 ```
 
-### By Task Type
+### By task type
 
 ```bash
 # Code quality
@@ -48,7 +48,7 @@ npx skills find security
 npx skills find vulnerability
 ```
 
-### Browse Known Repositories
+### Browse known repositories
 
 ```bash
 # Vercel's official collection (React, Next.js, design patterns)
@@ -63,9 +63,9 @@ npx skills add <username>/<repo> --list
 
 ---
 
-## Installation Strategies
+## Installation strategies
 
-### Global vs Project Scope
+### Global vs project scope
 
 **Install globally** (`-g`) when the skill is:
 - General-purpose (code review, testing patterns, git workflows)
@@ -85,7 +85,7 @@ npx skills add owner/repo --skill code-review -a claude-code -g
 npx skills add owner/repo --skill nextjs-patterns -a claude-code
 ```
 
-### Single Agent vs Multi-Agent
+### Single agent vs multi-Agent
 
 Install to a single agent when only using one AI coding tool:
 
@@ -106,7 +106,7 @@ npx skills add owner/repo --skill my-skill
 # The CLI auto-detects installed agents and prompts for selection
 ```
 
-### Non-Interactive Installation (CI/CD)
+### Non-Interactive installation (CI/CD)
 
 For automated setups or scripts:
 
@@ -120,9 +120,9 @@ npx skills add owner/repo --all
 
 ---
 
-## Security Review
+## Security review
 
-### Before Installing Third-Party Skills
+### Before installing an external skill
 
 **Always review skill contents before installation.** Skills contain instructions that AI agents follow, which could include:
 - Running arbitrary commands
@@ -130,7 +130,7 @@ npx skills add owner/repo --all
 - Making network requests
 - Installing dependencies
 
-### Review Checklist
+### Review checklist
 
 1. **Check the source repository**: Verify the repository is from a trusted author or organization
 2. **List skills first**: Use `--list` to see what will be installed
@@ -149,7 +149,7 @@ npx skills add owner/repo --list
 npx skills add owner/repo --skill verified-skill -a claude-code
 ```
 
-### Trust Indicators
+### Trust indicators
 
 - Repository from a recognized organization (Vercel, Anthropic, etc.)
 - High install count on skills.sh
@@ -159,33 +159,33 @@ npx skills add owner/repo --skill verified-skill -a claude-code
 
 ---
 
-## Combining Third-Party Skills with cc-arsenal
+## Combining external skills with cc-arsenal
 
-### Avoiding Redundancy
+### Avoiding redundancy
 
-Run `ls skills/` in this repo before installing an external equivalent -- cc-arsenal already has 20+ skills (browser automation, Jira, docs, git, review, testing, and more) and a hardcoded list here would only go stale as skills are added.
+Run `ls skills/` in this repo before installing an external equivalent. cc-arsenal already has 20+ skills (browser automation, Jira, docs, git, review, testing, and more) and a hardcoded list here would only go stale as skills are added.
 
-### Complementary Skills
+### Complementary skills
 
-Good candidates for third-party installation alongside cc-arsenal:
+Good candidates to install alongside cc-arsenal:
 - Framework-specific skills (React, Next.js, Django, Rails patterns)
 - Language-specific skills (Rust, Go, Python best practices)
 - Design system skills (Tailwind, Material UI)
 - Cloud provider skills (AWS, GCP, Azure)
 - Database skills (PostgreSQL, MongoDB, Redis)
 
-### Conflict Resolution
+### Conflict resolution
 
-If a third-party skill overlaps with cc-arsenal:
+If an installed skill overlaps with cc-arsenal:
 1. Prefer cc-arsenal's built-in skill (better integration, maintained by the same team)
-2. Remove the third-party duplicate: `npx skills remove <name>`
+2. Remove the duplicate: `npx skills remove <name>`
 3. If the third-party skill is superior, consider contributing improvements to cc-arsenal instead
 
 ---
 
-## Managing Updates and Versions
+## Managing updates and versions
 
-### Regular Maintenance
+### Regular maintenance
 
 ```bash
 # Check for available updates
@@ -198,7 +198,7 @@ npx skills update
 npx skills list
 ```
 
-### Cleaning Up Unused Skills
+### Cleaning up unused skills
 
 ```bash
 # Interactive removal (shows installed skills)
@@ -214,7 +214,7 @@ npx skills rm --skill '*' -a cursor
 npx skills remove --all
 ```
 
-### Version Pinning
+### Version pinning
 
 The skills CLI does not support version pinning. Skills always install from the latest commit on the default branch. To pin a version:
 
@@ -224,7 +224,7 @@ The skills CLI does not support version pinning. Skills always install from the 
 
 ---
 
-## Publishing Skills to skills.sh
+## Publishing skills to skills.sh
 
 To make skills discoverable on skills.sh:
 
@@ -233,7 +233,7 @@ To make skills discoverable on skills.sh:
 3. **Skills appear on skills.sh** when users install them via `npx skills add`
 4. **Install counts** are tracked automatically on the skills.sh leaderboard
 
-The skills.sh directory indexes skills from Git repositories. There is no separate publishing step -- any public repository with properly structured skills is installable.
+The skills.sh directory indexes skills from Git repositories. There is no separate publishing step: any public repository with properly structured skills is installable.
 
 ```bash
 # Verify your repo's skills are discoverable

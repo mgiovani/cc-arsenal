@@ -1,10 +1,10 @@
-# CI/CD Platform Patterns
+# CI/CD platform patterns
 
 Detailed YAML structure and patterns for each supported CI/CD platform. Use these as reference templates, adapting commands and versions to match the actual project stack discovered in Phase 1.
 
 ## GitHub Actions
 
-### Standard Node.js Pipeline
+### Standard Node.js pipeline
 
 ```yaml
 name: CI
@@ -98,7 +98,7 @@ jobs:
       #     scan-ref: "."
 ```
 
-### Standard Python Pipeline
+### Standard Python pipeline
 
 ```yaml
 name: CI
@@ -154,7 +154,7 @@ jobs:
       - run: uv run pip-audit  # or safety check
 ```
 
-### Matrix Testing Pattern
+### Matrix testing pattern
 
 ```yaml
   test:
@@ -173,7 +173,7 @@ jobs:
       - run: pytest
 ```
 
-### Docker Build & Push Pattern
+### Docker build & push pattern
 
 ```yaml
   docker:
@@ -206,7 +206,7 @@ jobs:
           cache-to: type=gha,mode=max
 ```
 
-### Vercel Deployment Pattern
+### Vercel deployment pattern
 
 ```yaml
   deploy:
@@ -232,7 +232,7 @@ jobs:
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 ```
 
-### AWS Deployment Pattern (ECS)
+### AWS deployment pattern (ECS)
 
 ```yaml
   deploy:
@@ -262,7 +262,7 @@ jobs:
           wait-for-service-stability: true
 ```
 
-### Monorepo Path Filter Pattern
+### Monorepo path filter pattern
 
 ```yaml
 on:
@@ -311,7 +311,7 @@ jobs:
 
 ## GitLab CI
 
-### Standard Node.js Pipeline
+### Standard Node.js pipeline
 
 ```yaml
 stages:
@@ -381,7 +381,7 @@ security:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 ```
 
-### Standard Python Pipeline
+### Standard Python pipeline
 
 ```yaml
 stages:
@@ -439,7 +439,7 @@ security:
   allow_failure: true
 ```
 
-### GitLab Docker Build Pattern
+### GitLab Docker build pattern
 
 ```yaml
 docker:
@@ -462,7 +462,7 @@ docker:
 
 ## CircleCI
 
-### Standard Node.js Pipeline
+### Standard Node.js pipeline
 
 ```yaml
 version: 2.1
@@ -535,7 +535,7 @@ workflows:
             - test
 ```
 
-### Standard Python Pipeline
+### Standard Python pipeline
 
 ```yaml
 version: 2.1
@@ -598,7 +598,7 @@ workflows:
 
 ## Jenkins
 
-### Declarative Pipeline (Node.js)
+### Declarative pipeline (Node.js)
 
 ```groovy
 pipeline {
@@ -691,7 +691,7 @@ pipeline {
 }
 ```
 
-### Declarative Pipeline (Python)
+### Declarative pipeline (Python)
 
 ```groovy
 pipeline {
@@ -762,9 +762,9 @@ pipeline {
 
 ---
 
-## Common Patterns (Cross-Platform)
+## Common patterns (Cross-Platform)
 
-### Caching Strategies
+### Caching strategies
 
 | Package Manager | Cache Key | Cache Path |
 |----------------|-----------|------------|
@@ -778,7 +778,7 @@ pipeline {
 | cargo | `Cargo.lock` hash | `~/.cargo/registry` |
 | go | `go.sum` hash | `~/go/pkg/mod` |
 
-### Security Scanning Tools
+### Security scanning tools
 
 | Language | Dependency Scan | SAST | Container Scan |
 |----------|----------------|------|----------------|
@@ -789,7 +789,7 @@ pipeline {
 | Java | OWASP Dependency-Check | SpotBugs, Semgrep | Trivy |
 | Ruby | `bundle-audit` | Brakeman | Trivy |
 
-### Branch Protection Patterns
+### Branch protection patterns
 
 ```
 main/master branch:
@@ -810,7 +810,7 @@ release/* branches:
   - Full pipeline including deploy to staging
 ```
 
-### Environment-Based Deployment
+### Environment-Based deployment
 
 ```
 PR → lint + test + build (no deploy)

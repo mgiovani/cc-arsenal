@@ -39,7 +39,7 @@ Apply these when drafting the generated skill's description and body in Phase 4:
 
 **Mine conversations first**: Users rarely articulate needs perfectly upfront. Extract information they've already provided before asking more questions.
 
-**Refusal and precondition paths end at the question.** When the generated skill needs the user to resolve an ambiguity or confirm before a destructive step, its instruction should stop at asking: never "ask, then proceed anyway if there's no reply." A non-interactive eval run can't pause mid-task; a skill written to assume it can either hangs or silently guesses.
+**Refusal and precondition paths end at the question.** When the generated skill needs the user to resolve an ambiguity or confirm before a destructive step, its instruction should stop at asking. Never write "ask, then proceed anyway if there's no reply." A non-interactive eval run can't pause mid-task, so a skill written to assume it can either hangs or silently guesses.
 
 ## Workflow
 
@@ -239,7 +239,7 @@ uv run skills/create-skill/scripts/package_skill.py [SKILL_PATH]
 
 When iterating on an existing skill after seeing it in use:
 
-**Read transcripts, not just outputs.** Find where the skill caused unproductive patterns. Did it ask for information the user already gave? Did it produce outputs that needed heavy editing? Did it trigger when it shouldn't have?
+**Read transcripts, not just outputs.** Find where the skill caused unproductive patterns: questions it asked about information the user had already given, outputs that needed heavy editing, invocations on prompts it should have ignored.
 
 **Generalize solutions.** If a fix only works for the specific failure case you saw, it's not a real fix. Generalize to the class of problem. If the skill failed because it asked "what language?" when the repo obviously uses Python, the fix is "mine context before asking questions", not just adding a Python-specific check.
 

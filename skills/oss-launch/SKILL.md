@@ -11,7 +11,7 @@ allowed-tools: Read, Write, Edit, Grep, Glob, Bash(git *), Bash(gh *), Task, Ski
 
 # OSS Launch
 
-Take a private side project from "done" to a public GitHub launch in seven staged gates: pre-flight, review, brand, README, mention scrub, history rewrite (optional, hard-gated), public flip. Like `ship`, every stage reports the real command it ran and the run stops at the first gate that isn't met: never estimate a result, never skip a gate silently.
+Take a private side project from "done" to a public GitHub launch in seven staged gates: pre-flight, review, brand, README, mention scrub, history rewrite (optional, hard-gated), public flip. Like `ship`, every stage reports the real command it ran and stops at the first gate that isn't met: never estimate a result, never skip a gate silently.
 
 Track progress with `TodoWrite` (one line per stage) so the user sees where the launch train is if a gate stops it.
 

@@ -1,19 +1,19 @@
-# CLAUDE.md - Claude Template Repository
+# CLAUDE.md - Claude template repository
 
 This file provides guidance to Claude Code (claude.ai/code) when working with this Claude template repository.
 
-## Repository Architecture
+## Repository architecture
 
 This is a **Claude Code template repository** that provides a professional collection of specialized AI agents, workflow automation commands, and safety hooks. The codebase is organized using a **symlink architecture** for clean installation and modular configuration.
 
-### Core Components
+### Core components
 
 - **Agents** (`agents/`): Specialized AI assistants organized by domain (development, architecture, product, UX, orchestration)
 - **Commands** (`commands/`): Security and quality workflow automation
 - **Hooks** (`hooks/`): Safety and validation scripts that run automatically on Claude Code events
 - **Scripts** (`scripts/`): Professional Python utilities for installation, configuration, and code generation
 
-### Security-First Integration
+### Security-First integration
 
 This repository implements **Security-First Development** through coordinated security and quality agents:
 
@@ -23,9 +23,9 @@ This repository implements **Security-First Development** through coordinated se
 security-validator  code-reviewer      compliance-checker   test-orchestrator  deploy-safe
 ```
 
-## Development Commands
+## Development commands
 
-### Installation and Setup
+### Installation and setup
 ```bash
 # Install Python dependencies
 cd scripts && uv sync
@@ -42,7 +42,7 @@ make install
 make configure
 ```
 
-### Development Environment
+### Development environment
 ```bash
 # Set up development environment
 make dev
@@ -58,7 +58,7 @@ make test                 # Unit tests
 make coverage             # Tests with coverage report
 ```
 
-### Project Management
+### Project management
 ```bash
 # Generate new agent
 make generate-agent NAME=my-agent CATEGORY=development
@@ -72,23 +72,23 @@ make info
 make show-structure
 ```
 
-## Available Specialized Agents
+## Available specialized agents
 
-### Development Agents
+### Development agents
 - **security-validator**: Authentication validation, access control, and security pattern analysis
 - **code-reviewer**: Security-focused code review, vulnerability detection, and quality analysis
 - **test-orchestrator**: Automated testing coordination with security and compliance focus
 
-### Compliance Agents
+### Compliance agents
 - **compliance-checker**: Regulatory compliance validation (HIPAA, SOX, GDPR)
 - **audit-enforcer**: Audit trail generation and compliance reporting
 - **data-protector**: PII/PHI detection and data protection validation
 
 *Additional specialized agents available for enterprise users*
 
-## Available Commands
+## Available commands
 
-### Security Workflow Commands
+### Security workflow commands
 - **security-scan**: Comprehensive security vulnerability scanning
 - **quality-check**: Code quality validation and standards enforcement
 - **compliance-audit**: Regulatory compliance checking and reporting
@@ -98,9 +98,9 @@ Usage: `/security:scan "src/auth/"`
 
 *Advanced workflow commands available for enterprise users*
 
-## Development Patterns
+## Development patterns
 
-### Agent Usage
+### Agent usage
 ```bash
 # Direct agent invocation
 claude task "Use security-validator to review authentication implementation"
@@ -114,7 +114,7 @@ claude task "
 "
 ```
 
-### Command Workflows
+### Command workflows
 ```bash
 # Start new feature development
 claude /security:scan "User authentication system with JWT tokens"
@@ -126,7 +126,7 @@ claude /quality:check "E-commerce platform"
 claude /compliance:audit "src/auth/"
 ```
 
-### Technology Stack
+### Technology stack
 - **Python 3.12+** with UV package management
 - **Rich CLI interfaces** with progress indicators
 - **Pydantic** for data validation and settings
