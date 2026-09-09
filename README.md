@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/social-preview.png" alt="cc-arsenal: 53 production-grade Agent Skills for real development workflows" width="760">
+  <img src="assets/social-preview.png" alt="AI Arsenal octopus mascot with developer tools" width="760">
 </p>
 
 # cc-arsenal
@@ -8,7 +8,7 @@
 [![Agent Skills compatible](https://img.shields.io/badge/Agent%20Skills-compatible-blueviolet.svg)](https://agentskills.io)
 [![Code style: ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
-53 production-grade [Agent Skills](https://agentskills.io) for real development workflows: code review, shipping, docs, git, testing, multi-agent orchestration, and more. Each is a battle-tested workflow you invoke in plain language. Works with Claude Code, Codex, Cursor, Gemini CLI, and any Agent-Skills-compatible agent.
+54 production-grade [Agent Skills](https://agentskills.io) for real development workflows: code review, shipping, docs, git, testing, multi-agent orchestration, and more. Each is a battle-tested workflow you invoke in plain language. Works with Claude Code, Codex, Cursor, Gemini CLI, and any Agent-Skills-compatible agent.
 
 ## See it work
 
@@ -38,9 +38,9 @@ make -C integrations/claude-code/claude-hi standard # Schedule 5-hour windows
 
 ## What's Included
 
-**53 Skills** organized by category:
+**54 Skills** organized by category:
 - **Development** (17): Feature implementation, bug fixing, testing, refactoring, CI/CD generation and local runs, visual regression and i18n checks, framework docs injection, DB migrations, Docker/env setup, project planning, image generation (Gemini and Codex), open-source launch prep
-- **Product & Design** (4): PRD authoring, design specs, design tokens
+- **Product & Design** (5): PRD authoring and issue filing, design specs, design tokens, cohesive project mascots and hero art
 - **Code Review & Quality** (6): Code review, security review, dependency audit, performance analysis, design/UX audit
 - **Documentation** (6): ADR, RFC, diagrams, init, check, update
 - **Git & GitHub** (7): Conventional commits, PR creation, releases, gitflow, branch sync, shipping, daily planning

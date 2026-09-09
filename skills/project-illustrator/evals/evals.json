@@ -1,0 +1,36 @@
+{
+  "skill": "project-illustrator",
+  "evals": [
+    {
+      "id": "reuse-existing-mascot",
+      "prompt": "Refresh this project's README hero and circular project-page thumbnail. The repository already has a mascot in assets/mascot.png, and I want the hero to stay useful without updating it every release.",
+      "assertions": [
+        "The agent inspects existing repository artwork and treats assets/mascot.png as the identity source instead of inventing a replacement mascot",
+        "The hero plan uses a spacious 3:1 layout and omits version numbers, item counts, and other facts that become stale",
+        "The circular thumbnail is derived from a high-resolution square mascot master rather than cropped from the wide hero",
+        "The agent plans to inspect both the full-size outputs and the actual thumbnail display size"
+      ]
+    },
+    {
+      "id": "new-project-identity-options",
+      "prompt": "My new developer tool has no visual identity yet. Create a mascot for it, let me choose, and then make a matching hero and social image.",
+      "assertions": [
+        "The agent learns the tool's real mechanism from the repository before selecting metaphors",
+        "The agent creates three meaningfully different high-resolution mascot concepts rather than three color swaps",
+        "The agent waits for the user's mascot selection before generating the dependent hero and social card",
+        "All concepts preserve a circular safe area and are reviewed at 64px",
+        "The selected image becomes the canonical reference for later assets"
+      ]
+    },
+    {
+      "id": "local-repair-preserves-composition",
+      "prompt": "I like this mascot and composition. The white texture is too strong and should only appear subtly on the left side. Fix that and keep everything else.",
+      "assertions": [
+        "The agent edits the selected image instead of replacing it with a new composition",
+        "The repair request explicitly preserves pose, anatomy, palette, props, crop, and typography while changing only texture placement and intensity",
+        "The repaired image is opened and visually inspected before it replaces the integrated asset",
+        "The earlier approved version remains available"
+      ]
+    }
+  ]
+}

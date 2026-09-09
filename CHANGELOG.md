@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **project-illustrator**: creates a cohesive project art system from brand discovery through three-option mascot review, selected-character heroes, social cards, circular thumbnails, high-resolution masters, and pixel-level visual QA. It reuses existing project identities, avoids stale facts in baked artwork, and preserves approved compositions during focused repairs.
+
 ## [5.2.0] - 2026-08-30
 
 Five new skills, taking the catalog from 48 to 53. Four of them (prd-to-issues, clotho-research, review-plan, render) chain into one another: research a change, review the plan for it, file the issues, and put any of those outputs in front of a human as a page they can mark up.

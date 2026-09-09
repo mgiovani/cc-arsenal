@@ -4,11 +4,11 @@ This is the canonical, tool-agnostic guidance file for **cc-arsenal**, read nati
 
 ## Repository Architecture
 
-cc-arsenal is a collection of **53 Agent Skills** ([agentskills.io](https://agentskills.io) open standard) for development workflow automation. `skills/` is the single canonical tier: every skill lives there once, written tool-neutral, and any tool that speaks the Agent Skills format can load it directly.
+cc-arsenal is a collection of **54 Agent Skills** ([agentskills.io](https://agentskills.io) open standard) for development workflow automation. `skills/` is the single canonical tier: every skill lives there once, written tool-neutral, and any tool that speaks the Agent Skills format can load it directly.
 
 ### Core Components
 
-- **Skills** (`skills/`): 53 skills covering development, code review, documentation, git/GitHub, jira, teams, browser automation, project planning, product specs, multi-agent orchestration, open-source launch prep, and skill discovery/creation/improvement
+- **Skills** (`skills/`): 54 skills covering development, code review, documentation, git/GitHub, jira, teams, browser automation, project planning, product specs, multi-agent orchestration, open-source launch prep, and skill discovery/creation/improvement
 - **Scripts** (`scripts/`): Python utilities for installation, configuration, and code generation (Claude-Code-specific; see `CLAUDE.md`)
 - **Integrations** (`integrations/`): agent-CLI-specific tooling that doesn't fit the tool-agnostic `skills/` tier, one subdirectory per agent CLI. Today that's `integrations/claude-code/`, holding the statusline and the `claude-hi` session scheduler; future agent CLIs (Codex, Gemini CLI, ...) get sibling directories alongside it as their own tooling needs arise.
 
@@ -41,7 +41,7 @@ Skills may build on each other along two distinct axes, keep them separate:
 
 Do not add `uses:`/`composes:` frontmatter and do not route composition through a mandatory dispatcher skill: plain prose naming the sibling, with its in-sentence fallback, is the whole mechanism.
 
-## Available Skills (53 total)
+## Available Skills (54 total)
 
 All skills use progressive disclosure (SKILL.md + optional references/scripts/assets directories).
 
@@ -64,11 +64,12 @@ All skills use progressive disclosure (SKILL.md + optional references/scripts/as
 - **codex-imagegen**: Generate polished raster art (logos, mascots, heroes, sprites, mockups) via Codex CLI's `$imagegen`, with chroma-key transparency handling and QC
 - **oss-launch**: Take a private project to a public GitHub launch: secrets/license pre-flight, review fixes, branding, README/description rewrite, mention scrub, gated history rewrite, then flip public
 
-### Product & Design (4 skills)
+### Product & Design (5 skills)
 - **product-prd**: Author the right-sized product requirements doc from an idea, with a gate-zero (does this even need a doc?), then a brief, one-pager, or big-tier PR/FAQ or full PRD, mandatory non-goals, and testable, traceable requirements
 - **product-design-spec**: Author a design specification (information architecture, user flows, screen inventory, and per-screen state specs) for an approved PRD, reusing the existing component library and tracing every screen to a requirement ID
 - **prd-to-issues**: Turn an approved PRD into tracked issues, one per requirement ID, with the dependencies between them recorded and re-runs staying idempotent
 - **product-design-tokens**: Author a durable design-token contract (W3C DTCG 2025.10 JSON plus an optional DESIGN.md), reusing the project's design system and enforcing WCAG 2.2 AA contrast
+- **project-illustrator**: Create cohesive project mascots, heroes, social cards, circular thumbnails, and supporting illustrations through brand discovery, option review, character continuity, and visual QA
 
 ### Code Review & Quality (6 skills)
 - **review-code**: Multi-agent code review across correctness, performance, style, tests, and error handling
@@ -184,7 +185,7 @@ See `CONTRIBUTING.md` for the full development setup.
 ## File Organization
 ```
 cc-arsenal/
-├── skills/          # All 53 skills (canonical, tool-agnostic)
+├── skills/          # All 54 skills (canonical, tool-agnostic)
 │   ├── implement-feature/   # Feature implementation with subagents
 │   ├── fix-bug/             # Test-driven debugging
 │   ├── test-suite/          # Test suite generation
@@ -205,6 +206,7 @@ cc-arsenal/
 │   ├── product-prd/         # Right-sized PRD authoring, gate-zero to full PRD
 │   ├── product-design-spec/ # Design spec: IA, flows, screen inventory, state specs
 │   ├── product-design-tokens/ # W3C DTCG design-token contract authoring
+│   ├── project-illustrator/  # Cohesive mascot and project art systems
 │   ├── review-code/         # Multi-agent code review
 │   ├── review-security/     # OWASP security analysis
 │   ├── review-deps/         # Dependency vulnerability/license audit

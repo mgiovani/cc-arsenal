@@ -4,7 +4,7 @@ Complete reference for all cc-arsenal skills and optional features.
 
 Skills are the single component type in this repository. Each skill lives in `skills/<name>/SKILL.md`; many bundle `references/`, `scripts/`, `assets/`, and `evals/` alongside it (see [Architecture](architecture.md) for the anatomy).
 
-## Skills (53 total)
+## Skills (54 total)
 
 Every skill is callable as `/<name>` in Claude Code. **(auto)** marks skills that *also* trigger automatically when Claude detects a relevant task; **(manual)** marks slash-only skills (`disable-model-invocation: true`).
 
@@ -138,7 +138,7 @@ Generate Dockerfiles and docker-compose.yml.
 Scan a codebase for environment variable usage.
 - Generates/syncs `.env.example`, validates completeness, detects leaked secrets
 
-### Product & Design (3 skills)
+### Product & Design (4 skills)
 
 #### `/product-prd` (manual)
 Right-sized product requirements doc, from a gate-zero check to a full PRD.
@@ -157,6 +157,13 @@ Durable design-token contract for a project.
 - W3C DTCG 2025.10 JSON, plus an optional DESIGN.md
 - Reuses the project's design system
 - Enforces WCAG 2.2 AA contrast
+
+#### `/project-illustrator` (auto)
+Cohesive visual identity for a software project across mascots, heroes, social cards, thumbnails, and supporting illustrations.
+- Inspects the product and existing artwork before choosing a visual metaphor
+- Presents three meaningful mascot directions when no identity is approved
+- Extends the selected character through high-resolution masters and verified derivatives
+- Preserves approved compositions during local repairs and checks final art at real display sizes
 
 ### Documentation (6 skills)
 
@@ -373,7 +380,7 @@ make -C integrations/claude-code/claude-hi standard  # Quick 9am/2pm/7pm schedul
 
 ### Plugin Marketplace (Claude Code)
 - **Installation**: `/plugin install cc-arsenal@cc-arsenal-marketplace`
-- **Skills**: All 53 skills, or a focused variant (`cc-arsenal-dev`, `cc-arsenal-product`, `cc-arsenal-review`, `cc-arsenal-docs`, `cc-arsenal-git`, `cc-arsenal-jira`, `cc-arsenal-skills`, `cc-arsenal-teams`)
+- **Skills**: All 54 skills, or a focused variant (`cc-arsenal-dev`, `cc-arsenal-product`, `cc-arsenal-review`, `cc-arsenal-docs`, `cc-arsenal-git`, `cc-arsenal-jira`, `cc-arsenal-skills`, `cc-arsenal-teams`)
 - See [Getting Started](getting-started.md) for the full variant list
 
 ### Symlink Install (Contributors)

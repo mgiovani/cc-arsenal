@@ -1,0 +1,14 @@
+[
+  {"query": "create three mascot directions for my developer tool and then make a matching README hero", "should_trigger": true},
+  {"query": "refresh this repo's mascot, social card, and circular project thumbnail as one visual system", "should_trigger": true},
+  {"query": "use our existing logo character to create consistent illustrations for the product", "should_trigger": true},
+  {"query": "polish the mascot and hero without losing the identity we already have", "should_trigger": true},
+  {"query": "make the README heroes for my projects feel like the same designed series", "should_trigger": true},
+  {"query": "create a brand mascot pack with a hero and avatars for this repository", "should_trigger": true},
+  {"query": "generate a single generic coffee photo for my slide", "should_trigger": false},
+  {"query": "draw an architecture diagram for these services", "should_trigger": false},
+  {"query": "take a screenshot of the current app", "should_trigger": false},
+  {"query": "review the accessibility of my project page", "should_trigger": false},
+  {"query": "resize this existing photo to 1200 by 630", "should_trigger": false},
+  {"query": "create a bar chart from these monthly metrics", "should_trigger": false}
+]

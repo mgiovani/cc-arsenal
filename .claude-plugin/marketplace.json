@@ -6,7 +6,7 @@
     "email": "e@giovani.dev"
   },
   "metadata": {
-    "description": "cc-arsenal \u2014 53 production-grade Agent Skills for development workflows; works with Claude Code and any Agent-Skills-compatible agent.",
+    "description": "cc-arsenal \u2014 54 production-grade Agent Skills for development workflows; works with Claude Code and any Agent-Skills-compatible agent.",
     "version": "5.2.0"
   },
   "plugins": [
@@ -14,7 +14,7 @@
       "name": "cc-arsenal",
       "source": "./",
       "strict": true,
-      "description": "Complete toolkit: all 53 skills covering development, documentation, git, github, jira, code review, testing, refactoring, CI/CD, image generation, framework documentation injection, product specs, multi-agent orchestration, open-source launch prep, skill creation and improvement, and more",
+      "description": "Complete toolkit: all 54 skills covering development, documentation, git, github, jira, code review, testing, refactoring, CI/CD, image generation, framework documentation injection, product specs, multi-agent orchestration, open-source launch prep, skill creation and improvement, and more",
       "version": "5.2.0",
       "author": {
         "name": "Giovani Moutinho",
@@ -91,7 +91,7 @@
       "name": "cc-arsenal-product",
       "source": "./",
       "strict": false,
-      "description": "Product and design specification skills: right-sized PRD authoring (gate-zero through brief, one-pager, PR/FAQ, or full PRD), design specs (information architecture, user flows, screen inventory, per-screen state), and durable design-token contracts (W3C DTCG)",
+      "description": "Product and design skills: right-sized PRDs, design specs, durable design-token contracts, and cohesive project mascots, heroes, social cards, thumbnails, and illustrations",
       "version": "5.2.0",
       "author": {
         "name": "Giovani Moutinho",
@@ -106,6 +106,8 @@
         "prd",
         "design-spec",
         "design-tokens",
+        "illustration",
+        "mascot",
         "requirements",
         "specification"
       ],
@@ -115,6 +117,7 @@
         "./skills/product-design-spec/",
         "./skills/product-design-tokens/",
         "./skills/product-prd/",
+        "./skills/project-illustrator/",
         "./skills/render/"
       ]
     },
