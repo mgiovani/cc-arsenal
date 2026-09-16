@@ -148,7 +148,7 @@ make -C integrations/claude-code/claude-hi standard # Schedule 5-hour windows
 | Skill | What it does |
 |---|---|
 | [`orchestrate`](skills/orchestrate/) | Decompose a task, map each part to the right model, run independent tracks in parallel, then synthesize |
-| [`team-implement`](skills/team-implement/) | Adaptive agent team, 3 to 11 agents scaled to complexity, driven from a spec, ticket, issue, PR or URL |
+| [`team-implement`](skills/team-implement/) | Adaptive agent team, 3 to ~9 agents scaled to complexity, driven from a spec, ticket, issue, PR or URL |
 
 </details>
 
@@ -188,7 +188,7 @@ make -C integrations/claude-code/claude-hi standard # Schedule 5-hour windows
 | [`review-perf`](skills/review-perf/) | Deep-dive performance audit of queries, algorithmic complexity, and resource leaks |
 | [`review-plan`](skills/review-plan/) | Adversarially review an implementation plan against the actual repository before any code is written |
 | [`review-security`](skills/review-security/) | OWASP Top 10 2025 security analysis with parallel scanning agents where available |
-| [`team-review`](skills/team-review/) | A multi-agent PR review team, seven reviewers plus an adversary, for large or security-sensitive PRs |
+| [`team-review`](skills/team-review/) | A multi-agent PR review team, six reviewers plus an adversary, for large or security-sensitive PRs |
 | [`vrt-check`](skills/vrt-check/) | Runs the project's visual regression testing workflow, whatever tooling the repo actually uses |
 
 </details>

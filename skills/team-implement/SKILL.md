@@ -7,7 +7,7 @@ allowed-tools: Read, Write, Edit, Bash, Grep, Glob, Task, SendMessage, TaskStop,
 context: fork
 agent: general-purpose
 metadata:
-  summary: "Adaptive agent team, 3 to 11 agents scaled to complexity, driven from a spec, ticket, issue, PR or URL"
+  summary: "Adaptive agent team, 3 to ~9 agents scaled to complexity, driven from a spec, ticket, issue, PR or URL"
 ---
 
 # Team Implement

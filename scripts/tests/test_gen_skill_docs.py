@@ -70,6 +70,7 @@ def _setup(
         )
     (tmp_path / 'docs' / 'getting-started.md').write_text('Ships 12 skills.\n')
     (tmp_path / 'docs' / 'onboarding.md').write_text('All 12 skills.\n')
+    (tmp_path / 'CONTRIBUTING.md').write_text('Has 12 skills today.\n')
 
     monkeypatch.setattr(gen_skill_docs, 'ROOT', tmp_path)
     monkeypatch.setattr(gen_skill_docs, 'GROUPS_PATH', tmp_path / 'skills.sh.json')
@@ -105,18 +106,18 @@ def test_shuffled_groups_and_skills_come_back_sorted(
     _setup(
         tmp_path,
         monkeypatch,
-        [
-            {'title': 'Zulu', 'description': '', 'skills': ['beta']},
-            {'title': 'Alpha', 'description': '', 'skills': ['alpha']},
-        ],
+        [{'title': 'Zulu', 'description': '', 'skills': ['beta', 'alpha']}],
     )
 
     gen_skill_docs.main()
 
     config = json.loads((tmp_path / 'skills.sh.json').read_text())
-    assert [g['title'] for g in config['groupings']] == ['Alpha', 'Filler', 'Zulu']
+    assert [g['title'] for g in config['groupings']] == ['Filler', 'Zulu']
+    zulu = next(g for g in config['groupings'] if g['title'] == 'Zulu')
+    assert zulu['skills'] == ['alpha', 'beta']
     agents = (tmp_path / 'AGENTS.md').read_text()
-    assert agents.index('### Alpha') < agents.index('### Zulu')
+    assert agents.index('### Filler') < agents.index('### Zulu')
+    assert agents.index('**alpha**') < agents.index('**beta**')
 
 
 def test_missing_marker_raises(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -207,3 +208,97 @@ def test_check_mode_exits_nonzero_when_stale(
         gen_skill_docs.main()
 
     assert excinfo.value.code == 1
+
+
+def test_a_count_inside_a_preserved_body_is_left_alone(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _setup(tmp_path, monkeypatch, _one_group(['alpha', 'beta']))
+    gen_skill_docs.main()
+
+    features = tmp_path / 'docs' / 'features.md'
+    features.write_text(
+        features.read_text().replace(
+            '#### `/alpha` (auto)\nDoes alpha things',
+            '#### `/alpha` (auto)\nSupports 27 skill toolchains.',
+        )
+    )
+    gen_skill_docs.main()
+
+    assert 'Supports 27 skill toolchains.' in features.read_text()
+
+
+def test_a_subheading_inside_a_body_survives(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _setup(tmp_path, monkeypatch, _one_group(['alpha', 'beta']))
+    gen_skill_docs.main()
+
+    features = tmp_path / 'docs' / 'features.md'
+    body = '#### `/alpha` (auto)\nDoes alpha things.\n\n### Usage\n\nRun it like this.'
+    features.write_text(
+        features.read_text().replace('#### `/alpha` (auto)\nDoes alpha things', body)
+    )
+    gen_skill_docs.main()
+
+    assert '### Usage\n\nRun it like this.' in features.read_text()
+
+
+def test_empty_description_raises(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _setup(tmp_path, monkeypatch, _one_group(['alpha', 'beta']))
+    (tmp_path / 'skills' / 'alpha' / 'SKILL.md').write_text(
+        '---\nname: alpha\ndescription:\nmetadata:\n  summary: "x"\n---\n\nBody.\n'
+    )
+
+    with pytest.raises(SystemExit, match='non-empty description'):
+        gen_skill_docs.main()
+
+
+def test_summary_falls_back_to_a_truncated_first_sentence(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _setup(tmp_path, monkeypatch, _one_group(['alpha', 'beta']))
+    sentence = 'Alpha ' * 40
+    (tmp_path / 'skills' / 'alpha' / 'SKILL.md').write_text(
+        f'---\nname: alpha\ndescription: {sentence.strip()}. Second sentence.\n'
+        f'---\n\nB.\n'
+    )
+
+    gen_skill_docs.main()
+
+    readme = (tmp_path / 'README.md').read_text()
+    assert 'Second sentence' not in readme
+    summary = next(line for line in readme.splitlines() if line.startswith('| [`alpha`]'))
+    assert '…' in summary
+    assert len(summary.split('|')[2].strip()) <= gen_skill_docs.SUMMARY_FALLBACK_LEN + 1
+
+
+def test_unknown_skill_name_in_a_group_raises(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _setup(tmp_path, monkeypatch, _one_group(['alpha', 'beta', 'nope']))
+
+    with pytest.raises(SystemExit, match="unknown skill 'nope'"):
+        gen_skill_docs.main()
+
+
+def test_file_without_a_count_phrase_raises(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _setup(tmp_path, monkeypatch, _one_group(['alpha', 'beta']))
+    (tmp_path / 'docs' / 'onboarding.md').write_text('Nothing countable here.\n')
+
+    with pytest.raises(SystemExit, match='no skill count matched'):
+        gen_skill_docs.main()
+
+
+def test_check_mode_passes_once_generated(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _setup(tmp_path, monkeypatch, _one_group(['alpha', 'beta']))
+    gen_skill_docs.main()
+
+    monkeypatch.setattr('sys.argv', ['gen_skill_docs.py', '--check'])
+    gen_skill_docs.main()

@@ -32,12 +32,15 @@ MARKETPLACE_PATH = ROOT / '.claude-plugin' / 'marketplace.json'
 # The gap excludes / and " so a digit inside a JSON path like "./skills/x-10/"
 # is never mistaken for a count of skills.
 SKILL_COUNT_RE = re.compile(r'\b\d{2,3}\b(?=[^\n\"/]{0,30}?\bskills?\b)', re.I)
+# A group heading, not just any heading -- see split_feature_bodies.
+GROUP_HEADING_RE = re.compile(r'^#{2,3} .+\(\d+ skills?\)\s*$', re.M)
 COUNT_FILES = (
     'README.md',
     'AGENTS.md',
     'docs/features.md',
     'docs/getting-started.md',
     'docs/onboarding.md',
+    'CONTRIBUTING.md',
     '.claude-plugin/plugin.json',
     '.claude-plugin/marketplace.json',
 )
@@ -115,13 +118,16 @@ def load_skills() -> dict[str, Skill]:
                 f'error: {path}: frontmatter name {data.get("name")!r} '
                 f'does not match directory {dir_name!r}'
             )
+        description = data.get('description')
+        if not isinstance(description, str) or not description.strip():
+            raise SystemExit(f'error: {path}: frontmatter needs a non-empty description')
         metadata = data.get('metadata') or {}
         override = metadata.get('summary') if isinstance(metadata, dict) else None
         if not override:
             missing.append(dir_name)
         skills[dir_name] = Skill(
             name=dir_name,
-            summary=summarize(str(data.get('description', '')), override),
+            summary=summarize(description, override),
             manual=bool(data.get('disable-model-invocation')),
         )
     if missing:
@@ -266,7 +272,10 @@ def split_feature_bodies(block: str) -> dict[str, str]:
         body = block[match.end() : end]
         # A group heading sitting between two skills belongs to the next group, not to
         # the body above it -- without this the heading is re-emitted twice per group.
-        heading = re.search(r'^#{2,3} ', body, re.M)
+        # Matched by group-heading shape, not by "is a heading": a skill body may
+        # legitimately contain its own ### subheading, and truncating there would
+        # delete hand-written prose permanently on the next run.
+        heading = GROUP_HEADING_RE.search(body)
         if heading is not None:
             body = body[: heading.start()]
         bodies[match.group(1)] = body.strip('\n')
@@ -310,23 +319,42 @@ def _require_markers(text: str, block_id: str, path: Path) -> re.Match[str]:
     return match
 
 
-def read_block(text: str, block_id: str, path: Path) -> str:
-    return _require_markers(text, block_id, path).group(1)
-
-
 def replace_block(text: str, block_id: str, body: str, path: Path) -> str:
     match = _require_markers(text, block_id, path)
     return text[: match.start(1)] + body + text[match.end(1) :]
 
 
-def apply_counts(text: str, total: int, path: Path) -> str:
-    new_text, count = SKILL_COUNT_RE.subn(str(total), text)
+def apply_counts(text: str, total: int, path: Path, block_id: str | None = None) -> str:
+    """Rewrite every skill-count phrase outside the generated block.
+
+    Content inside the block is skipped: it is rendered fresh anyway, and it holds
+    hand-written bodies this generator preserves verbatim -- a sentence like
+    "one of 12 supported skill toolchains" there would otherwise be silently
+    rewritten to the skill total, and then read back as the next run's baseline.
+    """
+    if block_id is None:
+        spans = [(0, len(text))]
+    else:
+        match = _require_markers(text, block_id, path)
+        spans = [(0, match.start(1)), (match.end(1), len(text))]
+
+    pieces: list[str] = []
+    cursor = 0
+    count = 0
+    for start, end in spans:
+        pieces.append(text[cursor:start])
+        chunk, found = SKILL_COUNT_RE.subn(str(total), text[start:end])
+        pieces.append(chunk)
+        count += found
+        cursor = end
+    pieces.append(text[cursor:])
+
     if count == 0:
         raise SystemExit(
             f'error: {path.name}: no skill count matched -- remove it from '
             f'COUNT_FILES or restore a "<N> skills" phrase'
         )
-    return new_text
+    return ''.join(pieces)
 
 
 def build_targets(groups: Sequence[Group], total: int) -> dict[Path, str]:
@@ -341,13 +369,15 @@ def build_targets(groups: Sequence[Group], total: int) -> dict[Path, str]:
     targets: dict[Path, str] = {GROUPS_PATH: render_groups_json(groups)}
     for rel in COUNT_FILES:
         path = ROOT / rel
-        text = apply_counts(path.read_text(), total, path)
-        if path in blocks:
-            block_id, render = blocks[path]
-            text = replace_block(
-                text, block_id, render(read_block(text, block_id, path)), path
-            )
-        targets[path] = text
+        text = path.read_text()
+        entry = blocks.get(path)
+        if entry is None:
+            targets[path] = apply_counts(text, total, path)
+            continue
+        block_id, render = entry
+        old = _require_markers(text, block_id, path).group(1)
+        text = replace_block(text, block_id, render(old), path)
+        targets[path] = apply_counts(text, total, path, block_id)
     return targets
 
 

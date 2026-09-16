@@ -7,7 +7,7 @@ allowed-tools: Read, Write, Edit, Bash, Grep, Glob, Task, SendMessage, TaskCreat
 context: fork
 agent: general-purpose
 metadata:
-  summary: "A multi-agent PR review team, seven reviewers plus an adversary, for large or security-sensitive PRs"
+  summary: "A multi-agent PR review team, six reviewers plus an adversary, for large or security-sensitive PRs"
 ---
 
 # Team Review

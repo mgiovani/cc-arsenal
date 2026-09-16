@@ -38,4 +38,4 @@ repos:
         entry: uv run python -m scripts.gen_skill_docs --check
         language: system
         pass_filenames: false
-        files: ^(skills/.*/SKILL\.md|skills\.sh\.json|README\.md|AGENTS\.md|docs/(features|getting-started|onboarding)\.md|\.claude-plugin/.*\.json)$
+        files: ^(skills/.*/SKILL\.md|skills\.sh\.json|README\.md|AGENTS\.md|CONTRIBUTING\.md|docs/(features|getting-started|onboarding)\.md|\.claude-plugin/.*\.json)$
