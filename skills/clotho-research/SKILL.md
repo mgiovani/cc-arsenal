@@ -8,6 +8,7 @@ description: Find what a change will actually touch before planning it — the e
   review-deps), not for writing the plan itself (use project-planner), and not for
   reviewing code that already exists (use review-code).
 metadata:
+  summary: "Find what a change will actually touch before planning it: the code, the prior art, and the risks"
   author: mgiovani
   version: 1.0.0
 disable-model-invocation: true

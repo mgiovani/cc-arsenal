@@ -11,6 +11,7 @@ description: Turn a plan, PRD, review, audit, comparison, brainstorm, explanatio
   (use product-design-spec), and not for simplifying prose the user did not
   understand (use wtf).
 metadata:
+  summary: "Turn any output into an interactive HTML page you mark up in place, then read the marks back"
   author: mgiovani
   version: 1.0.0
 disable-model-invocation: true

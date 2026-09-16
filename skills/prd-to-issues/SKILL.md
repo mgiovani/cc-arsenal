@@ -8,6 +8,7 @@ description: Turn an approved PRD into tracked issues, one per requirement, with
   the PRD itself (use product-prd), not for sequencing work inside one ticket (use
   project-planner), and not for filing a single ad-hoc issue you could type yourself.
 metadata:
+  summary: "Turn an approved PRD into tracked issues, one per requirement ID, with dependencies recorded"
   author: mgiovani
   version: 1.0.0
 disable-model-invocation: true

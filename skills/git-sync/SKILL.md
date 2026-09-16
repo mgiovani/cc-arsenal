@@ -2,6 +2,7 @@
 name: git-sync
 description: Syncs the current feature branch with its base or upstream branch via merge (default) or rebase, with conflict detection and stash handling. Use for ad-hoc requests like "sync my branch with main", "rebase onto main", "rebase on latest dev", "pull upstream into my fork", or "update my branch". Not for release/hotfix branch promotion or cutting versioned releases, use gitflow or git-release for those.
 metadata:
+  summary: "Sync the current feature branch with its base/upstream via merge or rebase"
   author: mgiovani
   version: 1.1.0
 argument-hint: '[--rebase] [--base main] [--upstream] [--stash]'

@@ -10,6 +10,7 @@ description: Create semantic version releases with automated changelog generatio
   conventional commit messages (use git-commit, this skill only creates the
   single release commit itself).
 metadata:
+  summary: "Semantic version releases with automated changelog generation"
   author: mgiovani
   version: 1.2.0
 ---

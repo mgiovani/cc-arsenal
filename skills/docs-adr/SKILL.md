@@ -7,6 +7,7 @@ description: Create a numbered Architecture Decision Record (ADR) documenting a 
   propose, ADRs record) and not for bootstrapping a project's whole docs/ tree from
   scratch (use docs-init).
 metadata:
+  summary: "Architecture Decision Records creation and management"
   author: mgiovani
   version: 1.1.0
 disable-model-invocation: true

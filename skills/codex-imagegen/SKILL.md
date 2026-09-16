@@ -2,6 +2,7 @@
 name: codex-imagegen
 description: Generates images and polished raster art (logos, mascots, hero images, icons, characters, sprite sheets, illustrations, product mockups) by driving Codex CLI's $imagegen skill. This is the default image generator, use it for any request to generate or create an image or visual asset, including "generate an image", "create a hero image", "make a mascot", "design a logo", "draw an icon", "generate a sprite sheet", or "make an illustration". Requires the `codex` CLI installed and authenticated (ChatGPT or API-key auth). Not for architecture, flow, or sequence diagrams (use docs-diagram).
 metadata:
+  summary: "Polished raster art (logos, mascots, heroes, sprites, mockups) via Codex CLI's $imagegen"
   author: mgiovani
   version: 1.0.0
 allowed-tools:

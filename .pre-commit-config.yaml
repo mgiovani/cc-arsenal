@@ -33,3 +33,9 @@ repos:
         types: [python]
         exclude: ^examples/
         require_serial: true
+      - id: gen-skill-docs
+        name: gen-skill-docs
+        entry: uv run python -m scripts.gen_skill_docs --check
+        language: system
+        pass_filenames: false
+        files: ^(skills/.*/SKILL\.md|skills\.sh\.json|README\.md|AGENTS\.md|docs/(features|getting-started|onboarding)\.md|\.claude-plugin/.*\.json)$

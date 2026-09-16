@@ -14,6 +14,7 @@ description: i18n completeness checker, detects the project's i18n framework (ne
   and not for scaffolding a brand-new locale from zero (that's a bigger one-time setup,
   not a completeness check).
 metadata:
+  summary: "i18n completeness checker, detects the project's i18n framework and diffs locale files"
   author: mgiovani
   version: 1.0.1
 disable-model-invocation: false

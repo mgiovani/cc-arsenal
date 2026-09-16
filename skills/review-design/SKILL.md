@@ -12,6 +12,7 @@ description: Performs a comprehensive UX/UI/design quality audit of a live URL o
   nor the full multi-agent PR review team (use team-review). Not for pixel-diff visual
   regression testing against a baseline (use vrt-check).
 metadata:
+  summary: "UX/UI/design quality audit mapped to WCAG 2.2 AA, Material Design 3, and Apple HIG"
   author: mgiovani
   version: 1.1.1
 disable-model-invocation: true

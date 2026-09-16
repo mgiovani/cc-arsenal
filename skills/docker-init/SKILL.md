@@ -2,6 +2,7 @@
 name: docker-init
 description: Generates production-ready docker-compose.yml and Dockerfile(s) for a project by scanning its manifest files (package.json, pyproject.toml, Gemfile, go.mod, Cargo.toml) and source code for service dependencies (Postgres, MySQL, Redis, MongoDB, RabbitMQ, Kafka, Elasticsearch, MinIO, Mailhog, etc.), then emitting compose services with health checks, security hardening, resource limits, and non-root Dockerfiles. Use when the user asks to dockerize or containerize a project, add docker-compose, generate a Dockerfile, or set up local dev services in containers. Not for CI/CD pipeline configs (use ci-generate), database schema migrations (use db-migrate), or scanning/syncing environment variables and secrets (use env-setup).
 metadata:
+  summary: "Generate Dockerfiles and docker-compose.yml with auto-detected services and security hardening"
   author: mgiovani
   version: 1.1.0
 disable-model-invocation: true

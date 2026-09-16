@@ -2,6 +2,7 @@
 name: project-illustrator
 description: Create or refine a cohesive visual identity for a software project through mascots, logos, README heroes, social cards, circular thumbnails, and supporting illustrations. Use when project artwork must share one recognizable character, palette, composition language, and production-quality finish. Not for architecture or flow diagrams.
 metadata:
+  summary: "A cohesive art system for a project: mascot, heroes, social cards and thumbnails with one character"
   author: mgiovani
   version: 1.0.0
 ---

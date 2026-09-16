@@ -2,6 +2,8 @@
 name: jira-cli
 description: Run raw ankitpokhrel/jira-cli commands directly against Jira Cloud or on-prem, issue/epic/sprint CRUD, JQL-style filtering, and scripting/CI automation (bulk assign, auto-label, sprint add). Invoke explicitly via /jira-cli, or when the user wants literal `jira` CLI syntax, a filter the curated skills don't expose, or a bash/CI script that drives jira-cli. Manual-invocation skill, does not auto-fire on general mentions of "jira" or "ticket". Not for a ready-made standup summary correlated with git commits (use jira-daily). Not for a prioritized "what should I work on" plan (use jira-todo).
 disable-model-invocation: true
+metadata:
+  summary: "Interactive command-line tool for Atlassian Jira"
 ---
 
 # Jira CLI

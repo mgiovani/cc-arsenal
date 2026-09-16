@@ -9,6 +9,7 @@ description: Adversarially review an implementation plan before any code is writ
   still open for discussion (use docs-rfc), and not for producing a plan in the first
   place (use project-planner).
 metadata:
+  summary: "Adversarially review an implementation plan against the actual repository before any code is written"
   author: mgiovani
   version: 1.0.0
 disable-model-invocation: true

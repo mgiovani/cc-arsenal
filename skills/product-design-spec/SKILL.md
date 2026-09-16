@@ -12,6 +12,7 @@ description: >-
   review-design), the visual token system (use product-design-tokens), or
   rendering mockups and hero images (use codex-imagegen).
 metadata:
+  summary: "Information architecture, user flows, screen inventory and per-screen states for an approved PRD"
   author: mgiovani
   version: 1.0.0
 disable-model-invocation: true

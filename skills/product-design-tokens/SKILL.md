@@ -11,6 +11,7 @@ description: >-
   product-design-spec), a UX/accessibility critique (use review-design), or
   generating logo/hero art (use codex-imagegen). Writes no application code.
 metadata:
+  summary: "A durable W3C DTCG design-token contract, reusing your design system and enforcing WCAG 2.2 AA contrast"
   author: mgiovani
   version: 1.0.0
 disable-model-invocation: true

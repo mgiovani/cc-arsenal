@@ -11,6 +11,7 @@ description: Runs a comprehensive multi-agent code review of a PR, commit, or th
   profiling and query-level analysis (use review-perf), or a heavier multi-agent PR
   review team with adversarial/security passes (use team-review).
 metadata:
+  summary: "Multi-agent code review across correctness, performance, style, tests, and error handling"
   author: mgiovani
   version: 1.1.0
 ---

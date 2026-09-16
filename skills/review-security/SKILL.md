@@ -10,6 +10,7 @@ description: Perform an OWASP Top 10-focused static security review of a PR, com
   code quality review (use review-code), dependency CVE/license/staleness auditing (use
   review-deps), or a multi-agent PR review team (use team-review).
 metadata:
+  summary: "OWASP Top 10 2025 security analysis with parallel scanning agents where available"
   author: mgiovani
   version: 1.1.0
 disable-model-invocation: true

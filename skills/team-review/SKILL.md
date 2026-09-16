@@ -6,6 +6,8 @@ argument-hint: "<pr_number|commit_sha|--all> [--focus area] [--lite]"
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, Task, SendMessage, TaskCreate, TaskUpdate, TaskList, TaskGet, TaskStop, WebFetch, AskUserQuestion
 context: fork
 agent: general-purpose
+metadata:
+  summary: "A multi-agent PR review team, seven reviewers plus an adversary, for large or security-sensitive PRs"
 ---
 
 # Team Review

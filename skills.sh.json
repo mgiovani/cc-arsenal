@@ -1,0 +1,131 @@
+{
+  "$schema": "https://skills.sh/schemas/skills.sh.schema.json",
+  "groupings": [
+    {
+      "title": "AI Workflow Tools",
+      "description": "Tools that work on your AI agent itself, not on your codebase.",
+      "skills": [
+        "agent-browser",
+        "create-rule",
+        "create-skill",
+        "find-skills",
+        "improve-skill",
+        "render",
+        "wtf"
+      ]
+    },
+    {
+      "title": "Art & Images",
+      "description": "Mascots, logos, hero images, and social cards for a project.",
+      "skills": [
+        "codex-imagegen",
+        "nanobanana",
+        "project-illustrator"
+      ]
+    },
+    {
+      "title": "Build",
+      "description": "Write the feature, fix the bug, restructure the code, cover it with tests.",
+      "skills": [
+        "clotho-research",
+        "fix-bug",
+        "implement-feature",
+        "refactor",
+        "test-suite"
+      ]
+    },
+    {
+      "title": "Design",
+      "description": "Screens, flows, and design tokens, plus an accessibility-grade UX audit.",
+      "skills": [
+        "product-design-spec",
+        "product-design-tokens",
+        "review-design"
+      ]
+    },
+    {
+      "title": "Docs",
+      "description": "Architecture records, RFCs, diagrams, and keeping docs honest about the code.",
+      "skills": [
+        "docs-adr",
+        "docs-check",
+        "docs-diagram",
+        "docs-init",
+        "docs-rfc",
+        "docs-update"
+      ]
+    },
+    {
+      "title": "Git",
+      "description": "Branch, commit, merge, and tag versions in your own repository.",
+      "skills": [
+        "git-commit",
+        "git-release",
+        "git-sync",
+        "gitflow"
+      ]
+    },
+    {
+      "title": "GitHub",
+      "description": "Open pull requests, drive a branch to merged, and take a project public.",
+      "skills": [
+        "gh-daily",
+        "git-create-pr",
+        "oss-launch",
+        "ship"
+      ]
+    },
+    {
+      "title": "Jira",
+      "description": "Standups, daily planning, and Jira from the command line.",
+      "skills": [
+        "jira-cli",
+        "jira-daily",
+        "jira-todo"
+      ]
+    },
+    {
+      "title": "Multi-agent",
+      "description": "Fan a large task out across parallel agents.",
+      "skills": [
+        "orchestrate",
+        "team-implement"
+      ]
+    },
+    {
+      "title": "Product",
+      "description": "Decide what to build and turn it into tracked, dependency-ordered work.",
+      "skills": [
+        "prd-to-issues",
+        "product-prd",
+        "project-planner"
+      ]
+    },
+    {
+      "title": "Project setup",
+      "description": "Containers, environment variables, database migrations, CI pipelines, framework docs.",
+      "skills": [
+        "ci-generate",
+        "ci-local",
+        "db-migrate",
+        "docker-init",
+        "env-setup",
+        "inject-docs"
+      ]
+    },
+    {
+      "title": "Review",
+      "description": "Catch problems before they ship: code, plans, security, dependencies, performance, visual regressions, translations.",
+      "skills": [
+        "i18n-check",
+        "review-code",
+        "review-deps",
+        "review-perf",
+        "review-plan",
+        "review-security",
+        "team-review",
+        "vrt-check"
+      ]
+    }
+  ]
+}

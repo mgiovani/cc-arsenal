@@ -11,6 +11,7 @@ description: >-
   for the design spec (use product-design-spec), the visual token system (use
   product-design-tokens), or a single decision record (use docs-adr or docs-rfc).
 metadata:
+  summary: "Right-sized PRD from an idea: brief, one-pager, PR/FAQ or full doc, with non-goals and testable requirements"
   author: mgiovani
   version: 2.0.0
 disable-model-invocation: true

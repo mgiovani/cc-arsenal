@@ -2,6 +2,7 @@
 name: gh-daily
 description: Generate a GitHub-based standup report from assigned issues, open/merged PRs, review requests, and git commit history. Use when the user asks for a standup, daily update, or status report and works with GitHub Issues/PRs. Trigger phrases include "standup report", "daily update", "what did I do yesterday", "GitHub status report". Not for Jira-based standups (use jira-daily), gh-daily is GitHub-only and never queries Jira.
 metadata:
+  summary: "GitHub-based standup report from assigned issues, PRs, and commit history"
   author: mgiovani
   version: 1.1.0
 disable-model-invocation: true

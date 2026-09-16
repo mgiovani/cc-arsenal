@@ -10,6 +10,7 @@ description: Deep-dive performance audit of database queries, algorithmic comple
   review where performance is just one concern among several (use review-code), and
   not for a full multi-agent PR review team (use team-review).
 metadata:
+  summary: "Deep-dive performance audit of queries, algorithmic complexity, and resource leaks"
   author: mgiovani
   version: 1.2.0
 disable-model-invocation: true

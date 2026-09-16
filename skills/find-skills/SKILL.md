@@ -2,6 +2,8 @@
 name: find-skills
 description: Search, install, update, and remove third-party Agent Skills from skills.sh or any GitHub/GitLab repo via the `npx skills` CLI. Use when the user wants to "find a skill", "install a skill from github", "search skills.sh", or add third-party capabilities to Claude Code/Cursor/other agents. Not for authoring new skills (see create-skill).
 disable-model-invocation: true
+metadata:
+  summary: "Discover and install third-party agent skills from skills.sh"
 ---
 
 # Find Skills

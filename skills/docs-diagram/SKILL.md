@@ -9,6 +9,7 @@ description: Generate a Mermaid diagram (ER, architecture, deployment, or securi
   design decision's rationale (use docs-adr), this skill only produces diagrams
   generated from code.
 metadata:
+  summary: "Architecture diagrams generation (Mermaid)"
   author: mgiovani
   version: 1.1.1
 disable-model-invocation: true

@@ -5,6 +5,7 @@ description: Generate a conventional commit message (conventionalcommits.org) fr
   changes, or needs a commit message written. Not for release commits or changelogs (use
   git-release) or branch-finish workflows (use gitflow).
 metadata:
+  summary: "Conventional commit message generation"
   author: mgiovani
   version: 1.0.0
 disable-model-invocation: false

@@ -8,6 +8,8 @@ hooks:
         command: "agent-browser close --session \"$(basename \"$(pwd)\" 2>/dev/null)\" 2>/dev/null || agent-browser close 2>/dev/null || true"
         once: true
         timeout: 10
+metadata:
+  summary: "AI-optimized browser automation with far less context overhead than raw Playwright/DOM tools"
 ---
 
 # agent-browser

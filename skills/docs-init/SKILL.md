@@ -9,6 +9,7 @@ description: Bootstraps a documentation structure (architecture, onboarding, dat
   already exist (use docs-update). Not for generating a standalone architecture or
   ER diagram without the surrounding document (use docs-diagram).
 metadata:
+  summary: "Documentation structure initialization"
   author: mgiovani
   version: 2.0.0
 disable-model-invocation: true

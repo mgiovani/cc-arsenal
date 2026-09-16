@@ -7,6 +7,7 @@ description: Create a numbered RFC (Request For Comments) document proposing a
   a decision that's already made (use docs-adr), RFCs propose and stay open for
   discussion, ADRs record a choice that happened.
 metadata:
+  summary: "Request for Comments documentation"
   author: mgiovani
   version: 1.1.0
 disable-model-invocation: true

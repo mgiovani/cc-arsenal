@@ -2,6 +2,7 @@
 name: create-skill
 description: "Create a new agent skill (or Claude Code slash command) from a plain-language description, using live spec fetching, pattern research, and an approval-gated blueprint before any files are written. Use whenever the user wants to build, scaffold, or author a new skill, subagent capability, or slash command, including phrasings like 'make a command for X', 'create a slash command', 'turn this into a reusable skill', or 'package this workflow as a skill'. Not for editing CLAUDE.md/AGENTS.md memory rules (use create-rule) or discovering/installing existing third-party skills (use find-skills)."
 metadata:
+  summary: "Specification-driven skill creation with eval system and description optimization"
   author: mgiovani
   version: 3.0.0
 argument-hint: "[skill-description]"

@@ -9,6 +9,7 @@ description: Generate a production-ready CI/CD pipeline config (GitHub Actions,
   Not for running existing CI checks locally (use ci-local), this skill only
   authors the pipeline file itself.
 metadata:
+  summary: "Generate a production-ready CI/CD pipeline config (GitHub Actions, GitLab CI, CircleCI, Jenkins)"
   author: mgiovani
   version: 1.0.0
 disable-model-invocation: true

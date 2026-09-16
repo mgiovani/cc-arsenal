@@ -2,6 +2,7 @@
 name: nanobanana
 description: "Generates and edits images by calling Google's Nano Banana / Gemini image generation API (requires a GEMINI_API_KEY), a real, billed API call. This skill is explicit-invocation only: use it only when the user names it or the Gemini path directly (\"nanobanana\", \"nano banana\", \"gemini image generation\", \"GEMINI_API_KEY\", \"use nanobanana to …\") or wants to integrate the Nano Banana / Gemini image API into their own codebase. For any implicit or general image-generation request (\"generate an image\", \"create a logo/hero/mascot\"), the default generator is codex-imagegen, not this skill. Not a design/mockup critique tool (use review-design) and not a browser-driven screenshot flow (use agent-browser)."
 metadata:
+  summary: "Generate and edit images using Nano Banana (Gemini image generation)"
   author: mgiovani
   version: 1.1.0
 allowed-tools:

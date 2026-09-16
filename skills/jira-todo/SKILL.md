@@ -8,6 +8,7 @@ description: Generates a prioritized daily work plan from a user's assigned Jira
   command reference (use jira-cli), this skill is specifically for
   forward-looking prioritization, not status reporting.
 metadata:
+  summary: "Smart daily work planner with intelligent prioritization"
   author: mgiovani
   version: 1.2.0
 disable-model-invocation: true

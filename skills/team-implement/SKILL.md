@@ -6,6 +6,8 @@ argument-hint: "<description|PROJ-123|#issue|!pr|file|url>"
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, Task, SendMessage, TaskStop, TaskCreate, TaskUpdate, TaskList, TaskGet, WebFetch, AskUserQuestion
 context: fork
 agent: general-purpose
+metadata:
+  summary: "Adaptive agent team, 3 to 11 agents scaled to complexity, driven from a spec, ticket, issue, PR or URL"
 ---
 
 # Team Implement

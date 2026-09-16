@@ -38,15 +38,161 @@ make -C integrations/claude-code/claude-hi standard # Schedule 5-hour windows
 
 ## What's Included
 
+<!-- gen:skills-readme start -->
+<!-- generated: edit skills.sh.json or SKILL.md frontmatter, then run `make docs` -->
+
 **54 Skills** organized by category:
-- **Development** (17): Feature implementation, bug fixing, testing, refactoring, CI/CD generation and local runs, visual regression and i18n checks, framework docs injection, DB migrations, Docker/env setup, project planning, image generation (Gemini and Codex), open-source launch prep
-- **Product & Design** (5): PRD authoring and issue filing, design specs, design tokens, cohesive project mascots and hero art
-- **Code Review & Quality** (6): Code review, security review, dependency audit, performance analysis, design/UX audit
-- **Documentation** (6): ADR, RFC, diagrams, init, check, update
-- **Git & GitHub** (7): Conventional commits, PR creation, releases, gitflow, branch sync, shipping, daily planning
-- **Jira** (2): Standup reports, work prioritization
-- **Teams** (2): Spec-driven orchestration, multi-agent PR review
-- **Utilities** (9): Skill creation, memory rules, skill improvement, multi-agent orchestration, browser automation, skill discovery, Jira CLI, rich HTML renders, plain-English re-explains
+
+<details>
+<summary><b>AI Workflow Tools</b> (7) — Tools that work on your AI agent itself, not on your codebase.</summary>
+
+| Skill | What it does |
+|---|---|
+| [`agent-browser`](skills/agent-browser/) | AI-optimized browser automation with far less context overhead than raw Playwright/DOM tools |
+| [`create-rule`](skills/create-rule/) | Create CLAUDE.md/AGENTS.md rules and memory guidelines |
+| [`create-skill`](skills/create-skill/) | Specification-driven skill creation with eval system and description optimization |
+| [`find-skills`](skills/find-skills/) | Discover and install third-party agent skills from skills.sh |
+| [`improve-skill`](skills/improve-skill/) | Rewrite an existing skill to the authoring standard, with baseline-vs-new eval evidence |
+| [`render`](skills/render/) | Turn any output into an interactive HTML page you mark up in place, then read the marks back |
+| [`wtf`](skills/wtf/) | Re-explain your own previous message in plain, simplified English (ASD-STE100 style) when the user didn't understand it |
+
+</details>
+
+<details>
+<summary><b>Art & Images</b> (3) — Mascots, logos, hero images, and social cards for a project.</summary>
+
+| Skill | What it does |
+|---|---|
+| [`codex-imagegen`](skills/codex-imagegen/) | Polished raster art (logos, mascots, heroes, sprites, mockups) via Codex CLI's $imagegen |
+| [`nanobanana`](skills/nanobanana/) | Generate and edit images using Nano Banana (Gemini image generation) |
+| [`project-illustrator`](skills/project-illustrator/) | A cohesive art system for a project: mascot, heroes, social cards and thumbnails with one character |
+
+</details>
+
+<details>
+<summary><b>Build</b> (5) — Write the feature, fix the bug, restructure the code, cover it with tests.</summary>
+
+| Skill | What it does |
+|---|---|
+| [`clotho-research`](skills/clotho-research/) | Find what a change will actually touch before planning it: the code, the prior art, and the risks |
+| [`fix-bug`](skills/fix-bug/) | Test-driven debugging with strict sequential task chain and dependency enforcement |
+| [`implement-feature`](skills/implement-feature/) | Feature implementation with senior staff engineer best practices and parallel subagent orchestration where available |
+| [`refactor`](skills/refactor/) | Restructure existing code without changing behavior, verified against the full test suite at each step |
+| [`test-suite`](skills/test-suite/) | Generate test suites by analyzing coverage gaps and writing tests that match project conventions |
+
+</details>
+
+<details>
+<summary><b>Design</b> (3) — Screens, flows, and design tokens, plus an accessibility-grade UX audit.</summary>
+
+| Skill | What it does |
+|---|---|
+| [`product-design-spec`](skills/product-design-spec/) | Information architecture, user flows, screen inventory and per-screen states for an approved PRD |
+| [`product-design-tokens`](skills/product-design-tokens/) | A durable W3C DTCG design-token contract, reusing your design system and enforcing WCAG 2.2 AA contrast |
+| [`review-design`](skills/review-design/) | UX/UI/design quality audit mapped to WCAG 2.2 AA, Material Design 3, and Apple HIG |
+
+</details>
+
+<details>
+<summary><b>Docs</b> (6) — Architecture records, RFCs, diagrams, and keeping docs honest about the code.</summary>
+
+| Skill | What it does |
+|---|---|
+| [`docs-adr`](skills/docs-adr/) | Architecture Decision Records creation and management |
+| [`docs-check`](skills/docs-check/) | Documentation validation and health scoring |
+| [`docs-diagram`](skills/docs-diagram/) | Architecture diagrams generation (Mermaid) |
+| [`docs-init`](skills/docs-init/) | Documentation structure initialization |
+| [`docs-rfc`](skills/docs-rfc/) | Request for Comments documentation |
+| [`docs-update`](skills/docs-update/) | Documentation sync with codebase state |
+
+</details>
+
+<details>
+<summary><b>Git</b> (4) — Branch, commit, merge, and tag versions in your own repository.</summary>
+
+| Skill | What it does |
+|---|---|
+| [`git-commit`](skills/git-commit/) | Conventional commit message generation |
+| [`git-release`](skills/git-release/) | Semantic version releases with automated changelog generation |
+| [`git-sync`](skills/git-sync/) | Sync the current feature branch with its base/upstream via merge or rebase |
+| [`gitflow`](skills/gitflow/) | Manage a gitflow branching workflow (feature/release/hotfix branches) |
+
+</details>
+
+<details>
+<summary><b>GitHub</b> (4) — Open pull requests, drive a branch to merged, and take a project public.</summary>
+
+| Skill | What it does |
+|---|---|
+| [`gh-daily`](skills/gh-daily/) | GitHub-based standup report from assigned issues, PRs, and commit history |
+| [`git-create-pr`](skills/git-create-pr/) | Pull request creation with standardized formats |
+| [`oss-launch`](skills/oss-launch/) | Take a private project public: secrets and license pre-flight, branding, README rewrite, then flip it |
+| [`ship`](skills/ship/) | Orchestrates a branch from "code done" to "merged" (runs review-code plus project-specific pre-merge checks) |
+
+</details>
+
+<details>
+<summary><b>Jira</b> (3) — Standups, daily planning, and Jira from the command line.</summary>
+
+| Skill | What it does |
+|---|---|
+| [`jira-cli`](skills/jira-cli/) | Interactive command-line tool for Atlassian Jira |
+| [`jira-daily`](skills/jira-daily/) | Smart standup report generator with activity analysis |
+| [`jira-todo`](skills/jira-todo/) | Smart daily work planner with intelligent prioritization |
+
+</details>
+
+<details>
+<summary><b>Multi-agent</b> (2) — Fan a large task out across parallel agents.</summary>
+
+| Skill | What it does |
+|---|---|
+| [`orchestrate`](skills/orchestrate/) | Decompose a task, map each part to the right model, run independent tracks in parallel, then synthesize |
+| [`team-implement`](skills/team-implement/) | Adaptive agent team, 3 to 11 agents scaled to complexity, driven from a spec, ticket, issue, PR or URL |
+
+</details>
+
+<details>
+<summary><b>Product</b> (3) — Decide what to build and turn it into tracked, dependency-ordered work.</summary>
+
+| Skill | What it does |
+|---|---|
+| [`prd-to-issues`](skills/prd-to-issues/) | Turn an approved PRD into tracked issues, one per requirement ID, with dependencies recorded |
+| [`product-prd`](skills/product-prd/) | Right-sized PRD from an idea: brief, one-pager, PR/FAQ or full doc, with non-goals and testable requirements |
+| [`project-planner`](skills/project-planner/) | Break down large projects into dependency-aware tasks with Mermaid visualization |
+
+</details>
+
+<details>
+<summary><b>Project setup</b> (6) — Containers, environment variables, database migrations, CI pipelines, framework docs.</summary>
+
+| Skill | What it does |
+|---|---|
+| [`ci-generate`](skills/ci-generate/) | Generate a production-ready CI/CD pipeline config (GitHub Actions, GitLab CI, CircleCI, Jenkins) |
+| [`ci-local`](skills/ci-local/) | Run the checks a GitHub Actions workflow would run, locally, when Actions is unavailable |
+| [`db-migrate`](skills/db-migrate/) | Create, validate, and manage database migrations across any framework |
+| [`docker-init`](skills/docker-init/) | Generate Dockerfiles and docker-compose.yml with auto-detected services and security hardening |
+| [`env-setup`](skills/env-setup/) | Scan a codebase for env var usage, sync .env.example, and detect leaked secrets |
+| [`inject-docs`](skills/inject-docs/) | Inject compressed framework-specific best practices and docs into CLAUDE.md/AGENTS.md |
+
+</details>
+
+<details>
+<summary><b>Review</b> (8) — Catch problems before they ship: code, plans, security, dependencies, performance, visual regressions, translations.</summary>
+
+| Skill | What it does |
+|---|---|
+| [`i18n-check`](skills/i18n-check/) | i18n completeness checker, detects the project's i18n framework and diffs locale files |
+| [`review-code`](skills/review-code/) | Multi-agent code review across correctness, performance, style, tests, and error handling |
+| [`review-deps`](skills/review-deps/) | Audit dependencies for vulnerabilities, license risk, and staleness |
+| [`review-perf`](skills/review-perf/) | Deep-dive performance audit of queries, algorithmic complexity, and resource leaks |
+| [`review-plan`](skills/review-plan/) | Adversarially review an implementation plan against the actual repository before any code is written |
+| [`review-security`](skills/review-security/) | OWASP Top 10 2025 security analysis with parallel scanning agents where available |
+| [`team-review`](skills/team-review/) | A multi-agent PR review team, seven reviewers plus an adversary, for large or security-sensitive PRs |
+| [`vrt-check`](skills/vrt-check/) | Runs the project's visual regression testing workflow, whatever tooling the repo actually uses |
+
+</details>
+<!-- gen:skills-readme end -->
 
 **Claude Code unlocks extras:**
 - 9 plugin variants (install just the category you need, see `CLAUDE.md`)

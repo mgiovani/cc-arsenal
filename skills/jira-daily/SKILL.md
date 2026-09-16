@@ -8,6 +8,7 @@ description: Generate a standup report from recent Jira activity and git history
   GitHub-only standups (use gh-daily), jira-daily is Jira-only and never queries
   GitHub issues or PRs.
 metadata:
+  summary: "Smart standup report generator with activity analysis"
   author: mgiovani
   version: 1.1.0
 disable-model-invocation: true

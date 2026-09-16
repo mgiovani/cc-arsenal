@@ -14,6 +14,7 @@ description: Manage a gitflow branching workflow, starting and finishing feature
   git mechanics (merge conflicts, interactive rebase, git education) or CI-failure
   debugging unrelated to a release.
 metadata:
+  summary: "Manage a gitflow branching workflow (feature/release/hotfix branches)"
   author: mgiovani
   version: 1.0.0
 ---
