@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - **project-illustrator**: creates a cohesive project art system from brand discovery through three-option mascot review, selected-character heroes, social cards, circular thumbnails, high-resolution masters, and pixel-level visual QA. It reuses existing project identities, avoids stale facts in baked artwork, and preserves approved compositions during focused repairs.
 
+### Changed
+- **codex-imagegen**: runs Codex on `gpt-6-sol` and opens every prompt with `$imagegen using gpt-image-2.5-sunburst via the built-in image tool` (GPT Image 2.5 Sunburst), since Codex has no image-model flag. `--full-auto`, removed in Codex 0.156, is now `--approve-for-me`, and the minimum Codex version is 0.156. **project-illustrator** and **oss-launch** name the same models when they call it.
+
 ## [5.2.0] - 2026-08-30
 
 Five new skills, taking the catalog from 48 to 53. Four of them (prd-to-issues, clotho-research, review-plan, render) chain into one another: research a change, review the plan for it, file the issues, and put any of those outputs in front of a human as a page they can mark up.

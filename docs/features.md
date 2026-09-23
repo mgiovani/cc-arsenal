@@ -63,6 +63,7 @@ Mascots, logos, hero images, and social cards for a project.
 
 #### `/codex-imagegen` (auto)
 The default image generator: polished raster art (logos, mascots, heroes, icons, sprites, mockups) via Codex CLI's `$imagegen`.
+- Codex `gpt-6-sol` + GPT Image 2.5 Sunburst `gpt-image-2.5-sunburst`
 - Single-quoted invocation, effort budgeting, explicit save paths
 - Chroma-key transparency handling (no-despill on pink), pixel-level QC
 
@@ -385,7 +386,7 @@ Real-time cost and usage tracking in your Claude Code prompt, computed fresh on 
 
 **Example:**
 ```
-🤖 Opus 5 │ 📊 66% │ 📁 ~/projects/cc-arsenal │ 🌿 main ● │ 💰 $3.169 │ ⏱️ 21m
+🤖 Opus 5.5 │ 📊 66% │ 📁 ~/projects/cc-arsenal │ 🌿 main ● │ 💰 $3.169 │ ⏱️ 21m
 🔄 5h: 16% → 21:00 │ 📅 7d: 39% → Dec 31 21:00
 ```
 

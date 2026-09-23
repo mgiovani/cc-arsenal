@@ -61,7 +61,7 @@ For supporting illustrations, keep the same character model and show one product
 
 ## 4. Generate at master size
 
-Use the available raster image generator. Use the `codex-imagegen` skill via a skill tool where available, otherwise apply its generation and pixel-inspection procedure inline. The user's request to generate artwork authorizes the initial concept batch; ask only when a real provider cost or unavailable credential remains unresolved.
+Use the available raster image generator. Use the `codex-imagegen` skill (Codex `gpt-6-sol` + GPT Image 2.5 Sunburst `gpt-image-2.5-sunburst`) via a skill tool where available, otherwise apply its generation and pixel-inspection procedure inline. The user's request to generate artwork authorizes the initial concept batch; ask only when a real provider cost or unavailable credential remains unresolved.
 
 Generate and retain large masters before deriving smaller files:
 

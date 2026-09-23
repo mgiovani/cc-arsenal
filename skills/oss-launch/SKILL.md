@@ -40,7 +40,7 @@ Invoke the `review-code` skill (via `Skill`, or a `Task`/`Explore`→`sonnet` su
 
 ## Stage 3: Brand
 
-Check first whether the repo already has a logo/hero asset (`ls` common paths: `assets/`, `docs/`, `.github/`, README image references), reuse before generating. If none exists and the user wants one, use the `codex-imagegen` skill to generate a logo/hero (via the `Skill` tool where available, otherwise apply its SKILL.md steps inline), then wire the resulting path into the README. Skip this stage entirely (report `SKIPPED: not requested`) if the user didn't ask for art and none is needed for the README rewrite.
+Check first whether the repo already has a logo/hero asset (`ls` common paths: `assets/`, `docs/`, `.github/`, README image references), reuse before generating. If none exists and the user wants one, use the `codex-imagegen` skill (Codex `gpt-6-sol` + GPT Image 2.5 Sunburst `gpt-image-2.5-sunburst`) to generate a logo/hero (via the `Skill` tool where available, otherwise apply its SKILL.md steps inline), then wire the resulting path into the README. Skip this stage entirely (report `SKIPPED: not requested`) if the user didn't ask for art and none is needed for the README rewrite.
 
 ## Stage 4: README + description
 
