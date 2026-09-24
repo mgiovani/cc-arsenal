@@ -7,16 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [6.0.0] - 2026-09-24
+
+One skill added and six unused ones removed, taking the catalog from 53 to 48; the removals, and the `cc-arsenal-teams` plugin variant that goes with them, are the breaking change. The catalog is now grouped on skills.sh and generated from a single source, and render ships as a real asset kit with 18 diagram types.
+
 ### Added
 - **project-illustrator**: creates a cohesive project art system from brand discovery through three-option mascot review, selected-character heroes, social cards, circular thumbnails, high-resolution masters, and pixel-level visual QA. It reuses existing project identities, avoids stale facts in baked artwork, and preserves approved compositions during focused repairs.
+- **Skill groups and generated catalogs.** `skills.sh.json` puts every skill in exactly one job-to-be-done group, so skills.sh shows grouped sections instead of a flat wall, and each `SKILL.md` carries a one-line `metadata.summary` for the catalogs to render. `make docs` (`scripts/gen_skill_docs.py`) regenerates the skill lists and every hardcoded count in `README.md`, `AGENTS.md`, `docs/features.md` and `CONTRIBUTING.md`; `make check` and pre-commit fail on drift, on a skill in no group, and on a skill no marketplace variant covers.
 
 ### Changed
 - **render 1.2.0: 18 data-driven diagram types.** `assets/diagrams.js` and `assets/diagrams.css` add `Render.diagram.<type>(spec)` for sequence, state, flowchart, swimlane, cycle, architecture, dependency, er, containment, gantt, kanban, storymap, quadrant, fishbone, waterfall, treemap, funnel and line (a slope chart at two ticks). Each builder lays out plain data on a CSS grid and routes connectors by measuring the DOM, with generous spacing between entities. Over budget or dishonest data (a waterfall that doesn't sum, a funnel that grows) is refused with an `.empty` block and a console warning instead of drawn. `dependency` replaces the hand-drawn `graph` block in the map and plan templates. `page.css` now takes every length from a token, and `scripts/assemble.py` enforces it with a `raw-length` rule and a `style-attr` rule (inline styles may only set unitless custom properties).
-- **codex-imagegen**: runs Codex on `gpt-6-sol` and opens every prompt with `$imagegen using gpt-image-2.5-sunburst via the built-in image tool` (GPT Image 2.5 Sunburst), since Codex has no image-model flag. `--full-auto`, removed in Codex 0.156, is now `--approve-for-me`, and the minimum Codex version is 0.156. **project-illustrator** and **oss-launch** name the same models when they call it.
+- **codex-imagegen**: runs Codex on `gpt-6-sol` and opens every prompt with `$imagegen using gpt-image-2.5-sunburst via the built-in image tool` (GPT Image 2.5 Sunburst), since Codex has no image-model flag. `--full-auto` is now `--approve-for-me`. **project-illustrator** and **oss-launch** name the same models when they call it.
 - **render: redesigned as a monochrome, square-corner, Geist-set kit**, shipped as real assets instead of prose alone: `assets/page.css` (zero-hue tokens, every block's styles), `assets/page.js` (the runtime, `window.Render`), `assets/gallery.html` (every block rendered once, the visual catalog), and one `assets/templates/<mode>.html` per mode. `scripts/assemble.py` inlines the CSS and JS into a page and gates it (hex/color-function/named-color/radius/shadow/font-size/sample rules; no leftover `/*SAMPLE*/` for a real page). Verdicts are now colorless, read from the pressed segment's ink-fill position rather than a hue. 15px is now the smallest font size anywhere on the page, on a fixed 15/17/20/30 type scale with hierarchy by weight and color instead of shrinking text further. Grows from 8 to 12 modes: `tour` (guided code walkthrough), `timeline` (dated incident or history events), `diff` (before/after hunks, accept/revise/reject) and `report` (status and metrics summary) join the existing eight.
 
 ### Removed
-- **gh-daily, jira-daily, jira-todo, nanobanana, team-implement, team-review**: removed (unused). The `cc-arsenal-teams` plugin variant is gone with them, and `cc-arsenal-jira` now ships only `jira-cli`.
+- **BREAKING: gh-daily, jira-daily, jira-todo, nanobanana, team-implement, team-review**: removed (unused). The `cc-arsenal-teams` plugin variant is gone with them, and `cc-arsenal-jira` now ships only `jira-cli`. If you installed `cc-arsenal-teams`, uninstall it; `orchestrate` covers multi-agent fan-out.
+
+### Fixed
+- **The skill docs generator could silently destroy hand-written prose.** Count rewriting ran over the preserved `docs/features.md` bodies, turning a sentence like "one of 12 supported toolchains" into the skill total, and a skill body with its own `###` heading was truncated at it. Both now have regression tests, and an empty `description:` fails loudly instead of rendering the string "None" into every catalog.
+- **CONTRIBUTING.md told contributors to hand-edit `docs/features.md`**, which is now generated, and never mentioned `skills.sh.json`, so a new skill would fail the group check. It now matches the Contributing steps in `AGENTS.md`.
 
 ## [5.2.0] - 2026-08-30
 
