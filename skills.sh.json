@@ -19,7 +19,6 @@
       "description": "Mascots, logos, hero images, and social cards for a project.",
       "skills": [
         "codex-imagegen",
-        "nanobanana",
         "project-illustrator"
       ]
     },
@@ -69,7 +68,6 @@
       "title": "GitHub",
       "description": "Open pull requests, drive a branch to merged, and take a project public.",
       "skills": [
-        "gh-daily",
         "git-create-pr",
         "oss-launch",
         "ship"
@@ -77,19 +75,16 @@
     },
     {
       "title": "Jira",
-      "description": "Standups, daily planning, and Jira from the command line.",
+      "description": "Jira from the command line.",
       "skills": [
-        "jira-cli",
-        "jira-daily",
-        "jira-todo"
+        "jira-cli"
       ]
     },
     {
       "title": "Multi-agent",
       "description": "Fan a large task out across parallel agents.",
       "skills": [
-        "orchestrate",
-        "team-implement"
+        "orchestrate"
       ]
     },
     {
@@ -123,7 +118,6 @@
         "review-perf",
         "review-plan",
         "review-security",
-        "team-review",
         "vrt-check"
       ]
     }

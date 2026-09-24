@@ -26,7 +26,7 @@ allowed-tools: Read, Write, Edit, Grep, Glob, Bash(git *), Bash(gh *), Bash(pyth
 
 Turn an **approved PRD** into the design half of the spec (IA, flows, a screen inventory, and per-screen
 state/interaction specs), spec'ing only as much as the work warrants. This skill **writes no UI code**; it
-produces the design the build (`implement-feature`, `team-implement`) then works from. Output lands under
+produces the design the build (`implement-feature`) then works from. Output lands under
 `docs/specs/design/`.
 
 ## Input
@@ -163,7 +163,7 @@ a11y-keyboard / responsive / acceptance-criteria field, or a screen that traces 
   screens cover their error/empty/permission states? Is anything over-specced? State the readiness verdict in a
   sentence or two.
 - **Hand off:** report the written path. Name the downstream consumers: `product-design-tokens` (consumes the
-  screen inventory) and `implement-feature` / `team-implement` (builds the UI). Offer `project-planner` for a
+  screen inventory) and `implement-feature` (builds the UI). Offer `project-planner` for a
   screen-build breakdown.
 
 ## Anti-hallucination
@@ -189,6 +189,6 @@ a11y-keyboard / responsive / acceptance-criteria field, or a screen that traces 
 - The requirements themselves → `product-prd`.
 - The visual token system (DTCG / DESIGN.md) → `product-design-tokens`.
 - A UX / accessibility critique of an existing or rendered UI → `review-design`.
-- Rendering illustrative assets, mockups, heroes, or icons → `codex-imagegen` / `nanobanana`.
-- Building the UI → `implement-feature` / `team-implement`.
+- Rendering illustrative assets, mockups, heroes, or icons → `codex-imagegen`.
+- Building the UI → `implement-feature`.
 - Enforces the source-of-truth hierarchy (approved requirement > design spec > mockup). Writes no application code.

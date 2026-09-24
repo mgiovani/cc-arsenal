@@ -15,9 +15,9 @@ A findings triage board. The reader decides what gets fixed.
   (correctness, performance, security, style), and undecided.
 
 Anchor per finding: `finding-<path-slug>-<line>-<claim-slug>`. The claim slug is
-not optional: `review-code` reviews several dimensions at once and `team-review`
-runs several agents, so two findings on one line are routine, and two blocks
-sharing an anchor share a verdict and every comment. Label: the claim.
+not optional: `review-code` reviews several dimensions at once, so two findings
+on one line are routine, and two blocks sharing an anchor share a verdict and
+every comment. Label: the claim.
 
 ## Verdicts
 
@@ -26,15 +26,11 @@ sharing an anchor share a verdict and every comment. Label: the claim.
 ## Data
 
 From `review-code`, `review-security`, `review-perf`, `review-design`,
-`team-review`, `review-plan`, or `vrt-check`.
+`review-plan`, or `vrt-check`.
 
 Preserve the source skill's severity ranking exactly. Preserve its claim wording.
 The reader is deciding whether the finding is real, and a rewritten claim is a
 different finding.
-
-For `team-review`, keep the raising agent visible on each finding and keep the
-adversary's cross-examination attached to the finding it disputes, not in a
-separate section. A disputed finding that looks unanimous misleads the reader.
 
 For `vrt-check`, each anchored block carries a before, after and diff image in
 one row, sized to a fixed aspect ratio. See page-kit.md for how images are

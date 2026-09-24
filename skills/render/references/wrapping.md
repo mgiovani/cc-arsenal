@@ -9,7 +9,6 @@ exists.
 | Wrapped skill | Mode | What becomes an anchored item |
 |---|---|---|
 | `review-code`, `review-security`, `review-perf`, `review-design` | `review` | one finding |
-| `team-review` | `review` | one finding, grouped by the agent that raised it |
 | `review-plan` | `review` | one objection to the plan |
 | `docs-check`, `i18n-check`, `env-setup` | `audit` | one gap |
 | `review-deps` | `audit` | one package |
@@ -23,7 +22,6 @@ exists.
 | `prd-to-issues` | `prd` | one requirement, with the issue it became |
 | `product-design-spec` | `prd` | one screen, traced to its requirement |
 | `docs-diagram` | `map` | one component |
-| `gh-daily`, `jira-daily`, `jira-todo` | `report` | one status line or metric |
 | `refactor`, `db-migrate` | `diff` | one hunk |
 | `fix-bug` | `timeline` | one step of the investigation narrative (symptom, hypothesis, root cause, fix) |
 

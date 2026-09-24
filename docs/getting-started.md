@@ -4,7 +4,7 @@ A comprehensive guide to setting up and using the Claude Code Arsenal for automa
 
 ## Overview
 
-Claude Code Arsenal is a professional collection of 54 skills designed to enhance your Claude Code development experience, covering development, documentation, git/GitHub, Jira, teams, and specialty capabilities. See [Features](features.md) for the full skill list.
+Claude Code Arsenal is a professional collection of 48 skills designed to enhance your Claude Code development experience, covering development, documentation, git/GitHub, Jira, and specialty capabilities. See [Features](features.md) for the full skill list.
 
 ## Prerequisites
 
@@ -36,9 +36,8 @@ Or pick a focused variant instead of the full toolkit, see [Features](features.m
 /plugin install cc-arsenal-product@cc-arsenal-marketplace # Product and design skills only
 /plugin install cc-arsenal-docs@cc-arsenal-marketplace    # Documentation skills only
 /plugin install cc-arsenal-git@cc-arsenal-marketplace     # Git/GitHub workflow skills only
-/plugin install cc-arsenal-jira@cc-arsenal-marketplace    # Jira workflow skills only
+/plugin install cc-arsenal-jira@cc-arsenal-marketplace    # Jira CLI only
 /plugin install cc-arsenal-skills@cc-arsenal-marketplace  # Specialty skills only
-/plugin install cc-arsenal-teams@cc-arsenal-marketplace   # Team orchestration skills
 /plugin install cc-arsenal-review@cc-arsenal-marketplace  # Code review and quality skills
 ```
 
@@ -93,7 +92,7 @@ make validate-structure
 
 ### Skills
 
-Claude Code Arsenal ships 54 skills, split between:
+Claude Code Arsenal ships 48 skills, split between:
 
 - **User-invoked** skills: explicit slash commands (e.g. `/docs-adr`, `/git-commit`)
 - **Model-invoked** skills: Claude loads them automatically when the request matches (e.g. `agent-browser`, `create-skill`, `test-suite`)

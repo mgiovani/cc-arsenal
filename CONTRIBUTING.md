@@ -68,7 +68,7 @@ All contributions must meet these standards:
 
 ## Contributing Different Types of Components
 
-CC-Arsenal's only component type is the **skill** (54 skills today, see [docs/features.md](docs/features.md) for the full, categorized list). Every workflow, whether user-invoked (a slash command like `/git-commit`) or model-invoked (auto-loaded like `review-code`), is a skill under `skills/<name>/SKILL.md`.
+CC-Arsenal's only component type is the **skill** (48 skills today, see [docs/features.md](docs/features.md) for the full, categorized list). Every workflow, whether user-invoked (a slash command like `/git-commit`) or model-invoked (auto-loaded like `review-code`), is a skill under `skills/<name>/SKILL.md`.
 
 ### Creating New Skills
 

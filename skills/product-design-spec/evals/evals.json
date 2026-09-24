@@ -29,7 +29,7 @@
         "Sketches the information architecture and specs one critical journey end-to-end before going wide (thin-slice, not a full waterfall)",
         "Includes a screen inventory where every screen row traces to at least one PRD requirement id (PRD-<CAT>-NNN)",
         "Includes a lightweight requirement-id to screen-id traceability table",
-        "Ends with a hand-off that reports the written path and names product-design-tokens and implement-feature/team-implement as downstream consumers"
+        "Ends with a hand-off that reports the written path and names product-design-tokens and implement-feature as downstream consumers"
       ]
     },
     {
@@ -76,7 +76,7 @@
       "assertions": [
         "Authors the design spec (screen structure, states, acceptance criteria) instead of writing the React implementation",
         "Does not create or edit application/UI source-code files",
-        "States that building the UI is out of scope and points to implement-feature or team-implement for the build",
+        "States that building the UI is out of scope and points to implement-feature for the build",
         "The login screen traces to a PRD requirement id and covers its error/empty/permission states"
       ]
     }

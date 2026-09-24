@@ -154,6 +154,6 @@ python skills/product-design-tokens/scripts/contrast.py       --tokens docs/spec
 - Screen structure, flows, and states → `product-design-spec`.
 - The requirements themselves → `product-prd`.
 - Auditing an existing/rendered design's UX or accessibility → `review-design`.
-- Rendering the actual logo / hero / mascot art → `codex-imagegen` (or `nanobanana`).
+- Rendering the actual logo / hero / mascot art → `codex-imagegen`.
 - Building the themed UI → `implement-feature`.
 - This skill only authors and validates the token contract. Writes no application code.

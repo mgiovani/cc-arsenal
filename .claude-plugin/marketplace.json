@@ -6,7 +6,7 @@
     "email": "e@giovani.dev"
   },
   "metadata": {
-    "description": "cc-arsenal \u2014 54 production-grade Agent Skills for development workflows; works with Claude Code and any Agent-Skills-compatible agent.",
+    "description": "cc-arsenal \u2014 48 production-grade Agent Skills for development workflows; works with Claude Code and any Agent-Skills-compatible agent.",
     "version": "5.2.0"
   },
   "plugins": [
@@ -14,7 +14,7 @@
       "name": "cc-arsenal",
       "source": "./",
       "strict": true,
-      "description": "Complete toolkit: all 54 skills covering development, documentation, git, github, jira, code review, testing, refactoring, CI/CD, image generation, framework documentation injection, product specs, multi-agent orchestration, open-source launch prep, skill creation and improvement, and more",
+      "description": "Complete toolkit: all 48 skills covering development, documentation, git, github, jira, code review, testing, refactoring, CI/CD, image generation, framework documentation injection, product specs, multi-agent orchestration, open-source launch prep, skill creation and improvement, and more",
       "version": "5.2.0",
       "author": {
         "name": "Giovani Moutinho",
@@ -45,7 +45,7 @@
       "name": "cc-arsenal-dev",
       "source": "./",
       "strict": false,
-      "description": "Development skills: feature implementation, bug fixing, testing, refactoring, CI/CD generation, framework documentation injection, project planning, image generation (Nano Banana/Gemini and Codex imagegen), database migrations, Docker setup, environment setup, visual regression checks, i18n checks, release shipping, and open-source launch prep",
+      "description": "Development skills: feature implementation, bug fixing, testing, refactoring, CI/CD generation, framework documentation injection, project planning, image generation (Codex imagegen), database migrations, Docker setup, environment setup, visual regression checks, i18n checks, release shipping, and open-source launch prep",
       "version": "5.2.0",
       "author": {
         "name": "Giovani Moutinho",
@@ -77,7 +77,6 @@
         "./skills/i18n-check/",
         "./skills/implement-feature/",
         "./skills/inject-docs/",
-        "./skills/nanobanana/",
         "./skills/oss-launch/",
         "./skills/project-planner/",
         "./skills/refactor/",
@@ -189,7 +188,7 @@
       "name": "cc-arsenal-git",
       "source": "./",
       "strict": false,
-      "description": "Git and GitHub workflow skills: conventional commits, PR creation, release management, gitflow branching, GitHub Issues daily planner, branch syncing, and code-done-to-merged shipping",
+      "description": "Git and GitHub workflow skills: conventional commits, PR creation, release management, gitflow branching, branch syncing, and code-done-to-merged shipping",
       "version": "5.2.0",
       "author": {
         "name": "Giovani Moutinho",
@@ -214,7 +213,6 @@
         "./skills/git-create-pr/",
         "./skills/git-release/",
         "./skills/gitflow/",
-        "./skills/gh-daily/",
         "./skills/git-sync/",
         "./skills/ship/"
       ]
@@ -223,7 +221,7 @@
       "name": "cc-arsenal-jira",
       "source": "./",
       "strict": false,
-      "description": "Jira standup reports, daily planning, and CLI integration",
+      "description": "Jira CLI integration: raw jira-cli commands, JQL filtering, and scripting",
       "version": "5.2.0",
       "author": {
         "name": "Giovani Moutinho",
@@ -235,16 +233,12 @@
       "license": "MIT",
       "keywords": [
         "jira",
-        "standup",
-        "planning",
         "cli",
         "productivity"
       ],
       "category": "productivity",
       "skills": [
-        "./skills/jira-cli/",
-        "./skills/jira-daily/",
-        "./skills/jira-todo/"
+        "./skills/jira-cli/"
       ]
     },
     {
@@ -278,33 +272,6 @@
         "./skills/orchestrate/",
         "./skills/render/",
         "./skills/wtf/"
-      ]
-    },
-    {
-      "name": "cc-arsenal-teams",
-      "source": "./",
-      "strict": false,
-      "description": "Team orchestration skills: spec-driven development team (team-implement) and multi-agent PR review team (team-review)",
-      "version": "5.2.0",
-      "author": {
-        "name": "Giovani Moutinho",
-        "email": "e@giovani.dev",
-        "url": "https://github.com/mgiovani/cc-arsenal"
-      },
-      "homepage": "https://github.com/mgiovani/cc-arsenal",
-      "repository": "https://github.com/mgiovani/cc-arsenal",
-      "license": "MIT",
-      "keywords": [
-        "teams",
-        "spec-driven",
-        "agents",
-        "orchestration",
-        "development"
-      ],
-      "category": "development",
-      "skills": [
-        "./skills/team-implement/",
-        "./skills/team-review/"
       ]
     }
   ]

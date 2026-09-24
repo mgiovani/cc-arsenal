@@ -7,8 +7,7 @@ description: Deep-dive performance audit of database queries, algorithmic comple
   memory leaks", or "review query efficiency" - especially when review-code's single
   performance dimension isn't thorough enough. Analysis only - identifies issues
   without modifying, fixing, or committing code. Not for a general six-dimension
-  review where performance is just one concern among several (use review-code), and
-  not for a full multi-agent PR review team (use team-review).
+  review where performance is just one concern among several (use review-code).
 metadata:
   summary: "Deep-dive performance audit of queries, algorithmic complexity, and resource leaks"
   author: mgiovani

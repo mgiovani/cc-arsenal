@@ -25,7 +25,7 @@ allowed-tools: Read, Write, Edit, Grep, Glob, Bash(git *), Bash(gh *), Bash(pyth
 
 Author the *right* product doc for the work (sometimes a 3-line ticket, sometimes a full PRD), never more
 than the work warrants. This skill **writes no application code**; it produces the requirements a build
-(`implement-feature`, `team-implement`) then works from. Output lands under `docs/specs/prd/`.
+(`implement-feature`) then works from. Output lands under `docs/specs/prd/`.
 
 ## Input
 
@@ -161,7 +161,7 @@ Fix every CRITICAL/MAJOR (missing/duplicate IDs, ACs without Given/When/Then, mi
   terms, missing sections, or compound requirements left? State the readiness verdict in a sentence or two.
 - **Hand off:** write the file to its repo path (report the path), or, if the user works in a tracker, offer
   to open the ticket/issue. Name the downstream consumer: `product-design-spec` (design) and
-  `implement-feature`/`team-implement` (build).
+  `implement-feature` (build).
 
 ## AI-agent-consumer mode (optional)
 
@@ -194,6 +194,6 @@ list, and project conventions.
 - The design half (IA, flows, screens, states) → `product-design-spec`.
 - The visual token system (DTCG / DESIGN.md) → `product-design-tokens`.
 - A single architecture/decision record → `docs-adr` (records a made decision) or `docs-rfc` (proposes one).
-- A lightweight spec that immediately precedes coding → `team-implement` / `implement-feature`.
+- A lightweight spec that immediately precedes coding → `implement-feature`.
 - Auditing an existing design's UX → `review-design`. Rendering visual assets → `codex-imagegen`.
 - WHAT/WHY only, never HOW. Writes no application code.

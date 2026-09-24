@@ -8,9 +8,8 @@ description: Performs a comprehensive UX/UI/design quality audit of a live URL o
   contrast. Triggers on "design review", "UX audit", "accessibility audit", "check
   contrast", "review this against WCAG". Analysis only, cites evidence and a criterion
   for every finding, never modifies code. Not for correctness, security, dependency, or
-  performance review (use review-code, review-security, review-deps, or review-perf),
-  nor the full multi-agent PR review team (use team-review). Not for pixel-diff visual
-  regression testing against a baseline (use vrt-check).
+  performance review (use review-code, review-security, review-deps, or review-perf).
+  Not for pixel-diff visual regression testing against a baseline (use vrt-check).
 metadata:
   summary: "UX/UI/design quality audit mapped to WCAG 2.2 AA, Material Design 3, and Apple HIG"
   author: mgiovani

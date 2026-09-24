@@ -4,11 +4,11 @@ This is the canonical, tool-agnostic guidance file for **cc-arsenal**, read nati
 
 ## Repository Architecture
 
-cc-arsenal is a collection of **54 Agent Skills** ([agentskills.io](https://agentskills.io) open standard) for development workflow automation. `skills/` is the single canonical tier: every skill lives there once, written tool-neutral, and any tool that speaks the Agent Skills format can load it directly.
+cc-arsenal is a collection of **48 Agent Skills** ([agentskills.io](https://agentskills.io) open standard) for development workflow automation. `skills/` is the single canonical tier: every skill lives there once, written tool-neutral, and any tool that speaks the Agent Skills format can load it directly.
 
 ### Core Components
 
-- **Skills** (`skills/`): 54 skills covering development, code review, documentation, git/GitHub, jira, teams, browser automation, project planning, product specs, multi-agent orchestration, open-source launch prep, and skill discovery/creation/improvement
+- **Skills** (`skills/`): 48 skills covering development, code review, documentation, git/GitHub, jira, browser automation, project planning, product specs, multi-agent orchestration, open-source launch prep, and skill discovery/creation/improvement
 - **Scripts** (`scripts/`): Python utilities for installation, configuration, and code generation (Claude-Code-specific; see `CLAUDE.md`)
 - **Integrations** (`integrations/`): agent-CLI-specific tooling that doesn't fit the tool-agnostic `skills/` tier, one subdirectory per agent CLI. Today that's `integrations/claude-code/`, holding the statusline and the `claude-hi` session scheduler; future agent CLIs (Codex, Gemini CLI, ...) get sibling directories alongside it as their own tooling needs arise.
 
@@ -44,7 +44,7 @@ Do not add `uses:`/`composes:` frontmatter and do not route composition through 
 <!-- gen:skills-agents start -->
 <!-- generated: edit skills.sh.json or SKILL.md frontmatter, then run `make docs` -->
 
-## Available Skills (54 total)
+## Available Skills (48 total)
 
 All skills use progressive disclosure (SKILL.md + optional references/scripts/assets directories).
 
@@ -60,12 +60,11 @@ Tools that work on your AI agent itself, not on your codebase.
 - **render**: Turn any output into an interactive HTML page you mark up in place, then read the marks back
 - **wtf**: Re-explain your own previous message in plain, simplified English (ASD-STE100 style) when the user didn't understand it
 
-### Art & Images (3 skills)
+### Art & Images (2 skills)
 
 Mascots, logos, hero images, and social cards for a project.
 
 - **codex-imagegen**: Polished raster art (logos, mascots, heroes, sprites, mockups) via Codex CLI's $imagegen
-- **nanobanana**: Generate and edit images using Nano Banana (Gemini image generation)
 - **project-illustrator**: A cohesive art system for a project: mascot, heroes, social cards and thumbnails with one character
 
 ### Build (5 skills)
@@ -106,29 +105,25 @@ Branch, commit, merge, and tag versions in your own repository.
 - **git-sync**: Sync the current feature branch with its base/upstream via merge or rebase
 - **gitflow**: Manage a gitflow branching workflow (feature/release/hotfix branches)
 
-### GitHub (4 skills)
+### GitHub (3 skills)
 
 Open pull requests, drive a branch to merged, and take a project public.
 
-- **gh-daily**: GitHub-based standup report from assigned issues, PRs, and commit history
 - **git-create-pr**: Pull request creation with standardized formats
 - **oss-launch**: Take a private project public: secrets and license pre-flight, branding, README rewrite, then flip it
 - **ship**: Orchestrates a branch from "code done" to "merged" (runs review-code plus project-specific pre-merge checks)
 
-### Jira (3 skills)
+### Jira (1 skill)
 
-Standups, daily planning, and Jira from the command line.
+Jira from the command line.
 
 - **jira-cli**: Interactive command-line tool for Atlassian Jira
-- **jira-daily**: Smart standup report generator with activity analysis
-- **jira-todo**: Smart daily work planner with intelligent prioritization
 
-### Multi-agent (2 skills)
+### Multi-agent (1 skill)
 
 Fan a large task out across parallel agents.
 
 - **orchestrate**: Decompose a task, map each part to the right model, run independent tracks in parallel, then synthesize
-- **team-implement**: Adaptive agent team, 3 to ~9 agents scaled to complexity, driven from a spec, ticket, issue, PR or URL
 
 ### Product (3 skills)
 
@@ -149,7 +144,7 @@ Containers, environment variables, database migrations, CI pipelines, framework 
 - **env-setup**: Scan a codebase for env var usage, sync .env.example, and detect leaked secrets
 - **inject-docs**: Inject compressed framework-specific best practices and docs into CLAUDE.md/AGENTS.md
 
-### Review (8 skills)
+### Review (7 skills)
 
 Catch problems before they ship: code, plans, security, dependencies, performance, visual regressions, translations.
 
@@ -159,7 +154,6 @@ Catch problems before they ship: code, plans, security, dependencies, performanc
 - **review-perf**: Deep-dive performance audit of queries, algorithmic complexity, and resource leaks
 - **review-plan**: Adversarially review an implementation plan against the actual repository before any code is written
 - **review-security**: OWASP Top 10 2025 security analysis with parallel scanning agents where available
-- **team-review**: A multi-agent PR review team, six reviewers plus an adversary, for large or security-sensitive PRs
 - **vrt-check**: Runs the project's visual regression testing workflow, whatever tooling the repo actually uses
 <!-- gen:skills-agents end -->
 
@@ -234,7 +228,7 @@ See `CONTRIBUTING.md` for the full development setup.
 ## File Organization
 ```
 cc-arsenal/
-├── skills/          # All 54 skills (canonical, tool-agnostic)
+├── skills/          # All 48 skills (canonical, tool-agnostic)
 │   └── <name>/          # SKILL.md + optional references/, scripts/, assets/, evals/
 ├── scripts/         # Installation and utilities (see CLAUDE.md for Claude-Code-specific ones)
 └── integrations/    # Agent-CLI-specific tooling, one subdirectory per agent CLI

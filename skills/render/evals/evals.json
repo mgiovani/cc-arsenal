@@ -152,13 +152,13 @@
     },
     {
       "id": "happy-path-report-mode",
-      "prompt": "Run render report on this week's gh-daily output for the cc-arsenal repo: 3 PRs merged, 2 open review requests, 1 stale branch older than 14 days.",
+      "prompt": "Run render report on this week's GitHub activity for the cc-arsenal repo: 3 PRs merged, 2 open review requests, 1 stale branch older than 14 days.",
       "assertions": [
         "an HTML file is written under .cc-arsenal/renders/ with a name starting 'report-'",
         "the page is built by copying assets/templates/report.html and replacing its /*SAMPLE*/ DATA object, then assembled with scripts/assemble.py",
         "report mode carries no verdict controls; metrics and status lines carry only the anchored comment affordance",
         "the tldr and facts or tally blocks are used for the counts (3 merged, 2 open reviews, 1 stale branch) rather than a hero metric or a wall of prose",
-        "every number on the page traces to a value gh-daily actually reported, none invented to fill out the layout",
+        "every number on the page traces to a value in the prompt, none invented to fill out the layout",
         "the assembled output passes scripts/assemble.py with zero violations and no leftover /*SAMPLE*/ marker"
       ]
     },

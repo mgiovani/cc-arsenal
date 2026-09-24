@@ -45,8 +45,8 @@ line. Comments are the whole feedback surface, same as `explain`.
 
 ## Data
 
-From `gh-daily`, `jira-daily`, or `jira-todo`, or from a manual pull of commits,
-issues and PRs over a stated period. State the period once, in the header, and
+From a manual pull of commits, issues and PRs over a stated period. State the
+period once, in the header, and
 never let a number in `facts`, `tally` or `bars` silently mix periods.
 
 Counts come from the source, not from rounding for a cleaner headline. Where a

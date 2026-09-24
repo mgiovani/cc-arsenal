@@ -86,7 +86,7 @@
       "assertions": [
         "Authors a PRD capturing the OAuth2 login requirements instead of writing the implementation",
         "Does not create or edit application source-code files",
-        "States that implementation is out of scope and/or points to team-implement or implement-feature for the build",
+        "States that implementation is out of scope and/or points to implement-feature for the build",
         "Login-flow requirements carry PRD-<CAT>-NNN IDs and Given/When/Then acceptance criteria"
       ]
     }

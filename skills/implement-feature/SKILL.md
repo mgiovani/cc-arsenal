@@ -7,8 +7,8 @@ description: Implements a new feature end-to-end as a senior staff engineer woul
   Use when the user wants to implement, build, add, or ship new functionality (a
   feature, endpoint, component, module, or integration). Not for fixing an existing bug
   (use fix-bug), restructuring code that already works with no new behavior (use
-  refactor), or a large multi-service build that explicitly needs a full adaptive team
-  of 3-11 agents (use team-implement).
+  refactor), or a large build that needs fan-out across many independent workstreams
+  (use orchestrate).
 disable-model-invocation: false
 argument-hint: "<feature_description>"
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, Task, TaskCreate, TaskUpdate, TaskList, TaskGet, WebFetch, EnterPlanMode, AskUserQuestion, ExitPlanMode
@@ -168,7 +168,7 @@ Above threshold: mark this phase `in_progress`.
 For up to ~3 parallel workstreams (e.g. API + UI + tests), spawn and track subagents
 yourself using the call template in `references/task-best-practices.md`. If the plan
 needs more fan-out than that (large multi-service features, many independent
-components), delegate to the `team-implement` skill instead of re-deriving spawn/track/
+components), delegate to the `orchestrate` skill instead of re-deriving spawn/track/
 merge logic here.
 
 Give each subagent: the specific task, an instruction to read CLAUDE.md first and trace

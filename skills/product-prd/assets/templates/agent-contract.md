@@ -1,5 +1,5 @@
 <!-- template: agent-contract: OPTIONAL companion for when the PRD's downstream
-     reader is an AI implementation agent (implement-feature / fix-bug / team-implement)
+     reader is an AI implementation agent (implement-feature / fix-bug)
      rather than a human. Emit only in AI-agent-consumer mode. Keep it factual and
      command-level. -->
 

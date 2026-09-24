@@ -8,7 +8,7 @@
 [![Agent Skills compatible](https://img.shields.io/badge/Agent%20Skills-compatible-blueviolet.svg)](https://agentskills.io)
 [![Code style: ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
-54 production-grade [Agent Skills](https://agentskills.io) for real development workflows: code review, shipping, docs, git, testing, multi-agent orchestration, and more. Each is a battle-tested workflow you invoke in plain language. Works with Claude Code, Codex, Cursor, Gemini CLI, and any Agent-Skills-compatible agent.
+48 production-grade [Agent Skills](https://agentskills.io) for real development workflows: code review, shipping, docs, git, testing, multi-agent orchestration, and more. Each is a battle-tested workflow you invoke in plain language. Works with Claude Code, Codex, Cursor, Gemini CLI, and any Agent-Skills-compatible agent.
 
 ## See it work
 
@@ -41,7 +41,7 @@ make -C integrations/claude-code/claude-hi standard # Schedule 5-hour windows
 <!-- gen:skills-readme start -->
 <!-- generated: edit skills.sh.json or SKILL.md frontmatter, then run `make docs` -->
 
-**54 Skills** organized by category:
+**48 Skills** organized by category:
 
 <details>
 <summary><b>AI Workflow Tools</b> (7) — Tools that work on your AI agent itself, not on your codebase.</summary>
@@ -59,12 +59,11 @@ make -C integrations/claude-code/claude-hi standard # Schedule 5-hour windows
 </details>
 
 <details>
-<summary><b>Art & Images</b> (3) — Mascots, logos, hero images, and social cards for a project.</summary>
+<summary><b>Art & Images</b> (2) — Mascots, logos, hero images, and social cards for a project.</summary>
 
 | Skill | What it does |
 |---|---|
 | [`codex-imagegen`](skills/codex-imagegen/) | Polished raster art (logos, mascots, heroes, sprites, mockups) via Codex CLI's $imagegen |
-| [`nanobanana`](skills/nanobanana/) | Generate and edit images using Nano Banana (Gemini image generation) |
 | [`project-illustrator`](skills/project-illustrator/) | A cohesive art system for a project: mascot, heroes, social cards and thumbnails with one character |
 
 </details>
@@ -120,11 +119,10 @@ make -C integrations/claude-code/claude-hi standard # Schedule 5-hour windows
 </details>
 
 <details>
-<summary><b>GitHub</b> (4) — Open pull requests, drive a branch to merged, and take a project public.</summary>
+<summary><b>GitHub</b> (3) — Open pull requests, drive a branch to merged, and take a project public.</summary>
 
 | Skill | What it does |
 |---|---|
-| [`gh-daily`](skills/gh-daily/) | GitHub-based standup report from assigned issues, PRs, and commit history |
 | [`git-create-pr`](skills/git-create-pr/) | Pull request creation with standardized formats |
 | [`oss-launch`](skills/oss-launch/) | Take a private project public: secrets and license pre-flight, branding, README rewrite, then flip it |
 | [`ship`](skills/ship/) | Orchestrates a branch from "code done" to "merged" (runs review-code plus project-specific pre-merge checks) |
@@ -132,23 +130,20 @@ make -C integrations/claude-code/claude-hi standard # Schedule 5-hour windows
 </details>
 
 <details>
-<summary><b>Jira</b> (3) — Standups, daily planning, and Jira from the command line.</summary>
+<summary><b>Jira</b> (1) — Jira from the command line.</summary>
 
 | Skill | What it does |
 |---|---|
 | [`jira-cli`](skills/jira-cli/) | Interactive command-line tool for Atlassian Jira |
-| [`jira-daily`](skills/jira-daily/) | Smart standup report generator with activity analysis |
-| [`jira-todo`](skills/jira-todo/) | Smart daily work planner with intelligent prioritization |
 
 </details>
 
 <details>
-<summary><b>Multi-agent</b> (2) — Fan a large task out across parallel agents.</summary>
+<summary><b>Multi-agent</b> (1) — Fan a large task out across parallel agents.</summary>
 
 | Skill | What it does |
 |---|---|
 | [`orchestrate`](skills/orchestrate/) | Decompose a task, map each part to the right model, run independent tracks in parallel, then synthesize |
-| [`team-implement`](skills/team-implement/) | Adaptive agent team, 3 to ~9 agents scaled to complexity, driven from a spec, ticket, issue, PR or URL |
 
 </details>
 
@@ -178,7 +173,7 @@ make -C integrations/claude-code/claude-hi standard # Schedule 5-hour windows
 </details>
 
 <details>
-<summary><b>Review</b> (8) — Catch problems before they ship: code, plans, security, dependencies, performance, visual regressions, translations.</summary>
+<summary><b>Review</b> (7) — Catch problems before they ship: code, plans, security, dependencies, performance, visual regressions, translations.</summary>
 
 | Skill | What it does |
 |---|---|
@@ -188,7 +183,6 @@ make -C integrations/claude-code/claude-hi standard # Schedule 5-hour windows
 | [`review-perf`](skills/review-perf/) | Deep-dive performance audit of queries, algorithmic complexity, and resource leaks |
 | [`review-plan`](skills/review-plan/) | Adversarially review an implementation plan against the actual repository before any code is written |
 | [`review-security`](skills/review-security/) | OWASP Top 10 2025 security analysis with parallel scanning agents where available |
-| [`team-review`](skills/team-review/) | A multi-agent PR review team, six reviewers plus an adversary, for large or security-sensitive PRs |
 | [`vrt-check`](skills/vrt-check/) | Runs the project's visual regression testing workflow, whatever tooling the repo actually uses |
 
 </details>

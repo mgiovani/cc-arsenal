@@ -7,7 +7,7 @@ Skills are the single component type in this repository. Each skill lives in `sk
 <!-- gen:skills-features start -->
 <!-- generated: edit skills.sh.json or SKILL.md frontmatter, then run `make docs` -->
 
-## Skills (54 total)
+## Skills (48 total)
 
 Every skill is callable as `/<name>` in Claude Code. **(auto)** marks skills that *also* trigger automatically when Claude detects a relevant task; **(manual)** marks slash-only skills (`disable-model-invocation: true`).
 
@@ -57,7 +57,7 @@ Re-explains the previous message in plain, simplified English (ASD-STE100 style)
 - Rewrites what was already said
 - No new work, research, or code
 
-### Art & Images (3 skills)
+### Art & Images (2 skills)
 
 Mascots, logos, hero images, and social cards for a project.
 
@@ -66,10 +66,6 @@ The default image generator: polished raster art (logos, mascots, heroes, icons,
 - Codex `gpt-6-sol` + GPT Image 2.5 Sunburst `gpt-image-2.5-sunburst`
 - Single-quoted invocation, effort budgeting, explicit save paths
 - Chroma-key transparency handling (no-despill on pink), pixel-level QC
-
-#### `/nanobanana` (auto)
-Generate and edit images via the Nano Banana / Gemini API (a real, billed call).
-- Fires only on explicit mentions (nano banana, GEMINI_API_KEY); `codex-imagegen` is the default for generic image requests
 
 #### `/project-illustrator` (auto)
 Cohesive visual identity for a software project across mascots, heroes, social cards, thumbnails, and supporting illustrations.
@@ -197,15 +193,9 @@ Manage a full gitflow branching workflow.
 - Cut versioned releases with changelog generation
 - Emergency hotfix coordination
 
-### GitHub (4 skills)
+### GitHub (3 skills)
 
 Open pull requests, drive a branch to merged, and take a project public.
-
-#### `/gh-daily` (manual)
-GitHub Issues daily planner with priority scoring.
-- Priority scoring algorithm
-- Daily task planning
-- Issue organization
 
 #### `/git-create-pr` (auto)
 PR creation with templates and test verification.
@@ -224,9 +214,9 @@ Orchestrates the current branch from "code done" to "merged".
 - Runs review-code, project pre-merge checks, git-commit, then git-create-pr
 - Optionally watches CI and reports or merges on green
 
-### Jira (3 skills)
+### Jira (1 skill)
 
-Standups, daily planning, and Jira from the command line.
+Jira from the command line.
 
 #### `/jira-cli` (manual)
 Interactive command-line tool for Jira.
@@ -234,19 +224,7 @@ Interactive command-line tool for Jira.
 - Sprint planning
 - Epic tracking
 
-#### `/jira-daily` (manual)
-Standup report generator with activity analysis.
-- Activity analysis
-- Report generation
-- Status tracking
-
-#### `/jira-todo` (manual)
-Work prioritization planner with intelligent prioritization.
-- Intelligent prioritization
-- Task recommendations
-- Workload balancing
-
-### Multi-agent (2 skills)
+### Multi-agent (1 skill)
 
 Fan a large task out across parallel agents.
 
@@ -255,12 +233,6 @@ Turn any task into a model-tiered multi-agent plan.
 - Decompose, classify, map each subtask to the right model (haiku research, opus planning, sonnet impl)
 - Parallel tracks under strict one-owner-per-file discipline; orchestrator does synthesis and git
 - Declines to orchestrate trivial single-file tasks
-
-#### `/team-implement` (manual)
-Spec-driven team orchestration (3-11 agents).
-- Adaptive team scaling
-- Spec-driven development
-- Multi-phase workflow
 
 ### Product (3 skills)
 
@@ -316,7 +288,7 @@ Framework documentation injector.
 - FastAPI via best practices
 - Framework-specific patterns
 
-### Review (8 skills)
+### Review (7 skills)
 
 Catch problems before they ship: code, plans, security, dependencies, performance, visual regressions, translations.
 
@@ -353,12 +325,6 @@ OWASP Top 10 2025 security analysis.
 - Automated vulnerability scanning
 - OWASP compliance checking
 - Security best practices
-
-#### `/team-review` (manual)
-Multi-agent PR review team.
-- Specialized reviewers
-- Adversary reviewer
-- Comprehensive analysis
 
 #### `/vrt-check` (auto)
 Runs the project's visual regression testing workflow.
@@ -419,7 +385,7 @@ make -C integrations/claude-code/claude-hi standard  # Quick 9am/2pm/7pm schedul
 
 ### Plugin Marketplace (Claude Code)
 - **Installation**: `/plugin install cc-arsenal@cc-arsenal-marketplace`
-- **Skills**: All 54 skills, or a focused variant (`cc-arsenal-dev`, `cc-arsenal-product`, `cc-arsenal-review`, `cc-arsenal-docs`, `cc-arsenal-git`, `cc-arsenal-jira`, `cc-arsenal-skills`, `cc-arsenal-teams`)
+- **Skills**: All 48 skills, or a focused variant (`cc-arsenal-dev`, `cc-arsenal-product`, `cc-arsenal-review`, `cc-arsenal-docs`, `cc-arsenal-git`, `cc-arsenal-jira`, `cc-arsenal-skills`)
 - See [Getting Started](getting-started.md) for the full variant list
 
 ### Symlink Install (Contributors)
