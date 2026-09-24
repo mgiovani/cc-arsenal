@@ -36,3 +36,15 @@ are what make the shortlist look deliberate.
   reads to the bottom, so split by theme into sections instead of pruning.
 - Where two ideas are the same idea, merge them and note it. Duplicate cards make
   a theme look better supported than it is.
+
+## Blocks
+
+Template: [assets/templates/brainstorm.html](../assets/templates/brainstorm.html).
+
+- `tldr`: the tension, the one question every idea below answers.
+- `idea`, grouped into one `.ideas` grid per theme section: the idea in one
+  line, the tension it resolves, its theme, and cost and effort as tags, with
+  the `shortlist` / `park` / `drop` verdict control.
+- `tally`: idea counts by verdict, shortlist through drop through undecided.
+- `callout` (`data-kind="note"`): the hard constraint every idea has to fit,
+  such as an existing gate or convention the repo already runs.

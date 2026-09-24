@@ -29,25 +29,29 @@ invisible in the other, then deleted by whoever polishes the page next.
 
 Author the SVG inline and paint it from the page's own neutral tokens. Diagrams
 carry no hue: nodes are surface and hairline, edges are the muted foreground,
-and emphasis comes from stroke weight and fill value rather than color.
+and emphasis comes from stroke weight and fill value rather than color. Corners
+are square, so a node's `rect` never sets `rx`/`ry`.
 
 ```html
-<svg viewBox="0 0 480 200" role="img" aria-labelledby="fanout-t">
-  <title id="fanout-t">AI-1 and AI-5 each block several requirements</title>
-  <g class="edge"><path d="M96 40 H180" /></g>
-  <g class="node"><rect x="8" y="24" width="88" height="32" rx="6" />
-    <text x="52" y="44">AI-1</text></g>
-</svg>
+<div class="graph">
+  <svg viewBox="0 0 480 200" role="img" aria-labelledby="fanout-t">
+    <title id="fanout-t">AI-1 and AI-5 each block several requirements</title>
+    <g class="edge"><path d="M96 40 H180" /></g>
+    <g class="node"><rect x="8" y="24" width="88" height="32" />
+      <text x="52" y="44">AI-1</text></g>
+  </svg>
+</div>
 ```
 
-```css
-svg .node rect { fill: var(--sunk); stroke: var(--line-strong); }
-svg .node text { fill: var(--ink); font-size: 12px; text-anchor: middle; }
-svg .edge path { stroke: var(--mute); fill: none; stroke-width: 1.5; }
-svg .edge path[marker-end] { marker-end: url(#arrow); }
-```
-
-Both themes then work for free, because the tokens already switch.
+The styling is already in `assets/page.css`, under `.graph`: `.graph .node
+rect` fills from `--panel` with a `--line-strong` stroke, `.graph .node text`
+sits in `--ink`, `.graph .edge path` strokes `--mute` at weight 1 with square
+caps and miter joins. `.node.key` and `.edge.key` push the stroke to `--ink`
+and heavier for the path the diagram is actually about; `.node.sunk` fills
+from `--sunk` for a node that is context rather than subject; `.edge.soft`
+dashes a weak or inferred relationship. Reuse those classes rather than
+re-deriving fills, strokes or weights per diagram. Both themes then work for
+free, because the tokens already switch.
 
 Set `viewBox` and let the SVG scale; do not fix `width` and `height` in pixels.
 Put it in a container with `overflow-x: auto` if it has a minimum readable width.

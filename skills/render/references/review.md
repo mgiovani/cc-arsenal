@@ -47,3 +47,22 @@ embedded on each delivery path.
   reader.
 - Do not add findings the source skill did not produce. If something obvious was
   missed, say so in the report, not on the page.
+
+## Blocks
+
+Template: `assets/templates/review.html`.
+
+- `page-head`: what was reviewed, in one line, plus the file count.
+- `tldr`: the review's overall read, one or two sentences.
+- `facts`: scope, files reviewed, finding count, suggestion count, dimensions.
+- `tally`: finding count by severity, plus the stacked bar.
+- `callout`: a risk the reader must not miss and the decision that follows from
+  it, at most one of each.
+- `filterbar`: the verdict segment plus a `severity` facet segment.
+- `finding`: one per finding, grouped by severity (`h3` per group) then by file
+  (`h4` before the first finding in a new file); severity tag, claim, `file:line`
+  in `.meta`, the code excerpt with the offending lines marked `.hl`, and an
+  optional diff hunk. Diff figures inside a finding carry both `diff` and `code`
+  classes so they pick up the same 12px inset as the code excerpt above them.
+- `row`: suggestions, in their own group below the findings, no severity tag.
+- `empty`: shown in place of the findings groups when a review produced none.

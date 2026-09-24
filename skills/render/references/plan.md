@@ -43,3 +43,20 @@ field.
   critical path diagram claims.
 - When a step is cut, note which later steps depended on it. That consequence is
   the reader's next decision and they should not have to trace it themselves.
+
+## Blocks
+
+Template: `assets/templates/plan.html`. Composition, in reading order:
+
+- `tldr` and `facts` (page-head plus At a glance): the plan's goal in one
+  sentence and a handful of labelled values about the plan itself.
+- `callout` (`data-kind="risk"`): the one risk the plan cannot absorb quietly.
+- `graph`, anchored: the step dependency fan-out and fan-in, shown only when a
+  step depends on more than one other step; an `.empty` state explains why the
+  diagram is skipped on a flat sequence.
+- `steps`, each `<li class="anchored">` holding what the step does, the files
+  it touches (`tree`, or a note when a step touches none), what it depends on,
+  a verdict control, and either its verification or a visible `tag` saying the
+  plan names none.
+- `row` (Open questions), anchored: each question, what it is missing, and
+  what changes once it is answered.

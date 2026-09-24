@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - **codex-imagegen**: runs Codex on `gpt-6-sol` and opens every prompt with `$imagegen using gpt-image-2.5-sunburst via the built-in image tool` (GPT Image 2.5 Sunburst), since Codex has no image-model flag. `--full-auto`, removed in Codex 0.156, is now `--approve-for-me`, and the minimum Codex version is 0.156. **project-illustrator** and **oss-launch** name the same models when they call it.
+- **render: redesigned as a monochrome, square-corner, Geist-set kit**, shipped as real assets instead of prose alone: `assets/page.css` (zero-hue tokens, every block's styles), `assets/page.js` (the runtime, `window.Render`), `assets/gallery.html` (every block rendered once, the visual catalog), and one `assets/templates/<mode>.html` per mode. `scripts/assemble.py` inlines the CSS and JS into a page and gates it (hex/color-function/named-color/radius/shadow/font-size/sample rules; no leftover `/*SAMPLE*/` for a real page). Verdicts are now colorless, read from the pressed segment's ink-fill position rather than a hue. 15px is now the smallest font size anywhere on the page, on a fixed 15/17/20/30 type scale with hierarchy by weight and color instead of shrinking text further. Grows from 8 to 12 modes: `tour` (guided code walkthrough), `timeline` (dated incident or history events), `diff` (before/after hunks, accept/revise/reject) and `report` (status and metrics summary) join the existing eight.
 
 ## [5.2.0] - 2026-08-30
 

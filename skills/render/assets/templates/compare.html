@@ -1,0 +1,279 @@
+<title>Install cc-arsenal skills</title>
+<!-- impeccable-disable overused-font -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../page.css">
+
+<script id="state" type="application/json">{"v":1,"page":{},"verdicts":{},"comments":[]}</script>
+
+<header class="toolbar">
+  <div class="toolbar-row">
+    <span class="toolbar-title">Install cc-arsenal skills</span>
+    <div class="counts" aria-label="Counts"></div>
+    <span class="spacer"></span>
+    <div class="seg" role="group" aria-label="Theme" data-theme-toggle>
+      <button type="button" data-value="auto" aria-pressed="true">Auto</button>
+      <button type="button" data-value="light" aria-pressed="false">Light</button>
+      <button type="button" data-value="dark" aria-pressed="false">Dark</button>
+    </div>
+    <div class="toolbar-group">
+      <button type="button" class="btn" data-action="digest">Copy digest</button>
+      <button type="button" class="btn btn-icon" data-action="shortcuts" aria-label="Keyboard shortcuts" aria-expanded="false" aria-controls="shortcuts">?</button>
+      <button type="button" class="btn btn-primary" data-action="save">Save</button>
+    </div>
+  </div>
+</header>
+
+<div id="shortcuts" class="shortcuts" hidden>
+  <div class="shortcuts-inner">
+    <h2>Keyboard</h2>
+    <div class="shortcut"><span class="keys"><kbd>j</kbd><kbd>k</kbd></span>Next or previous option</div>
+    <div class="shortcut"><span class="keys"><kbd>c</kbd></span>Comment on the current option</div>
+    <div class="shortcut"><span class="keys"><kbd>Esc</kbd></span>Close composer or panel</div>
+    <div class="shortcut"><span class="keys"><kbd>?</kbd></span>Show or hide this panel</div>
+  </div>
+</div>
+
+<main class="wrap" id="root"></main>
+
+<script src="../page.js"></script>
+<script>
+/*
+ * DATA shape (replace wholesale):
+ * {
+ *   title:    string, the page's own name, shown in the page head
+ *   byline:   string, one meta line under the h1
+ *   question: string, the tldr sentence naming the decision and its stakes
+ *   criteria: [{ slug, label, weight: number }],
+ *             one row per matrix criterion, 3 to 6 rows
+ *   options:  [{
+ *     slug, label,
+ *     win: boolean,           marks this option's column/cells as the pick
+ *     cells: { [criterionSlug]: { score: 1-5, max: 5, text: string } },
+ *     strengths: [string], costs: [string]   pros/cons prose, 2 to 4 lines each
+ *   }], 3 to 5 columns
+ *   decision: string, the plain-language call and its reasoning
+ *   sources:  [{ label, href, claim }], one citation per load-bearing fact
+ * }
+ */
+const DATA = /*SAMPLE*/{
+  title: "Install cc-arsenal skills",
+  byline: "Four ways to get the skill set into an agent, read against what this repo's own CLAUDE.md and AGENTS.md say about each.",
+  question: "How should someone install cc-arsenal's skills: the Claude Code plugin marketplace, the cross-tool npx skills CLI, a repo symlink install, or a manual copy. The answer decides who gets auto-updates, whether the setup works outside Claude Code, and how much it leaves behind on disk.",
+  criteria: [
+    { slug: "auto-update", label: "Auto-update support", weight: 3 },
+    { slug: "outside-claude-code", label: "Works outside Claude Code", weight: 3 },
+    { slug: "setup-steps", label: "Setup steps", weight: 2 },
+    { slug: "selective-install", label: "Selective skill install", weight: 2 },
+    { slug: "footprint", label: "Footprint left on disk", weight: 1 },
+  ],
+  options: [
+    {
+      slug: "plugin-marketplace", label: "Plugin marketplace", win: true,
+      cells: {
+        "auto-update": { score: 4, max: 5, text: "A GitHub remote marketplace source auto-updates; a local directory source caches marketplace.json on first install and does not." },
+        "outside-claude-code": { score: 1, max: 5, text: "/plugin marketplace add and /plugin install are Claude Code commands with no equivalent in another agent CLI." },
+        "setup-steps": { score: 4, max: 5, text: "One command, /plugin marketplace add mgiovani/cc-arsenal, then Browse and install plugins, or the single-line /plugin install cc-arsenal@cc-arsenal-marketplace." },
+        "selective-install": { score: 4, max: 5, text: "Nine plugin variants scope which skills load, from the full cc-arsenal set down to cc-arsenal-review alone; granularity is per variant, not per skill." },
+        "footprint": { score: 5, max: 5, text: "Managed install, no symlinks placed in the home directory; CLAUDE.md names this directly as the benefit over npx skills add." },
+      },
+      strengths: [
+        "Managed install and enable/disable through /plugin, with no symlinks to track by hand.",
+        "Auto-updates when the marketplace source is a GitHub remote, not a local directory.",
+        "Nine curated variants (dev, review, docs, git, jira, product, skills, teams, or the full set) scope exactly which skills load.",
+      ],
+      costs: [
+        "Claude Code only; a Codex, Cursor or Gemini CLI session cannot install this way.",
+        "A local directory marketplace source silently skips auto-update until it is switched to a GitHub remote.",
+      ],
+    },
+    {
+      slug: "npx-skills-add", label: "npx skills add", win: false,
+      cells: {
+        "auto-update": { score: 1, max: 5, text: "It copies each skill into the target tool's own skills directory once; nothing re-checks the source after that." },
+        "outside-claude-code": { score: 5, max: 5, text: "AGENTS.md names it as the path for any Agent-Skills-compatible tool: Codex, Cursor, Gemini CLI, OpenCode." },
+        "setup-steps": { score: 5, max: 5, text: "A single command, npx skills add mgiovani/cc-arsenal, no plugin system or marketplace registration first." },
+        "selective-install": { score: 2, max: 5, text: "Installs the skill set the skills.sh CLI resolves for the repo; this repo's docs describe no per-skill picker for it." },
+        "footprint": { score: 3, max: 5, text: "Copies files into each tool's own skills directory, once per tool, with no central manifest tying the copies together." },
+      },
+      strengths: [
+        "One command reaches any Agent-Skills-compatible tool, not just Claude Code.",
+        "No plugin marketplace or repository registration step first.",
+      ],
+      costs: [
+        "A one-time copy: nothing pulls in a newer skill version without re-running the command.",
+        "No documented way to install a single skill rather than the whole set.",
+      ],
+    },
+    {
+      slug: "symlink-install", label: "Symlink install", win: false,
+      cells: {
+        "auto-update": { score: 5, max: 5, text: "Creates symlinks in ~/.claude, so a local repo edit is live immediately with no separate update step." },
+        "outside-claude-code": { score: 1, max: 5, text: "The symlinks land in ~/.claude, Claude Code's own directory; CLAUDE.md marks the method for developing cc-arsenal itself." },
+        "setup-steps": { score: 2, max: 5, text: "uv sync --extra dev, then uv run python -m scripts.setup.install, then optionally scripts.setup.configure." },
+        "selective-install": { score: 5, max: 5, text: "make configure is interactive: it lets a developer choose exactly which skills to symlink, the finest grain of the four." },
+        "footprint": { score: 2, max: 5, text: "Leaves system-wide symlinks in ~/.claude, the exact footprint CLAUDE.md says the plugin system avoids." },
+      },
+      strengths: [
+        "A local repo edit is live immediately, since ~/.claude holds a symlink, not a copy.",
+        "make configure picks specific skills interactively rather than all or nothing.",
+      ],
+      costs: [
+        "CLAUDE.md marks it explicitly for developing cc-arsenal itself, not for a regular user.",
+        "Leaves system-wide symlinks behind, which the plugin system exists partly to replace.",
+      ],
+    },
+    {
+      slug: "manual-copy", label: "Manual copy", win: false,
+      cells: {
+        "auto-update": { score: 1, max: 5, text: "A copied folder is frozen at copy time by definition; nothing marks it as behind the source." },
+        "outside-claude-code": { score: 5, max: 5, text: "Copying skills/<name>/ into any tool's own skills directory works regardless of tool, since a skill is just a folder." },
+        "setup-steps": { score: 2, max: 5, text: "Find the folder and copy it, once per skill, with no batch command." },
+        "selective-install": { score: 5, max: 5, text: "The developer chooses precisely which folder to copy, nothing more and nothing less." },
+        "footprint": { score: 3, max: 5, text: "No symlinks, but a duplicated copy per tool with no record tying it back to the source." },
+      },
+      strengths: [
+        "Works with any tool that reads a skills directory, no CLI or plugin system involved.",
+        "The developer chooses exactly which skill to copy.",
+      ],
+      costs: [
+        "A copied folder drifts silently from the source; nothing flags it as stale.",
+        "Every skill has to be found and copied one at a time.",
+      ],
+    },
+  ],
+  decision: "Default to the plugin marketplace for a Claude Code user: it is the only option with managed enable and disable, and CLAUDE.md's own comparison names it the replacement for the symlink method's system-wide footprint. Reach for npx skills add instead the moment the target is Codex, Cursor, Gemini CLI or another non-Claude-Code tool, since the marketplace and the symlink method both stop at Claude Code's own directory.",
+  sources: [
+    { label: "Plugin System (Recommended for Claude Code)", href: "https://github.com/mgiovani/cc-arsenal/blob/main/CLAUDE.md#plugin-system-recommended-for-claude-code", claim: "Marketplace add command, plugin variants table, and the benefits list over npx skills add." },
+    { label: "Troubleshooting plugin updates", href: "https://github.com/mgiovani/cc-arsenal/blob/main/CLAUDE.md#troubleshooting-plugin-updates", claim: "Local directory marketplaces do not support auto-update; a GitHub remote source does." },
+    { label: "Development Installation (Symlink Method)", href: "https://github.com/mgiovani/cc-arsenal/blob/main/CLAUDE.md#development-installation-symlink-method", claim: "Marked for developing cc-arsenal itself; make configure symlinks only the skills selected." },
+    { label: "Install in any agent", href: "https://github.com/mgiovani/cc-arsenal/blob/main/AGENTS.md#install-in-any-agent", claim: "npx skills add is the skills.sh CLI; it reaches Codex, Cursor, Gemini CLI and OpenCode." },
+    { label: "Repository Architecture", href: "https://github.com/mgiovani/cc-arsenal/blob/main/AGENTS.md#repository-architecture", claim: "Every skill lives once under skills/<name>/SKILL.md, so a skill is a folder a tool can copy directly." },
+  ],
+}/*SAMPLE*/;
+
+function pips(score, max) {
+  return Array.from({ length: max }, (_, i) => `<i${i < score ? ' class="on"' : ''}></i>`).join('');
+}
+
+function scoreCell(cell) {
+  return `<span class="score"><span class="pips" aria-label="${cell.score} of ${cell.max}">${pips(cell.score, cell.max)}</span>${cell.score}</span><span class="text">${Render.esc(cell.text)}</span>`;
+}
+
+function anchoredCell(tag, anchor, label, cls, html) {
+  const classes = ['anchored', cls].filter(Boolean).join(' ');
+  return `<${tag} class="${classes}" data-anchor="${Render.esc(anchor)}" data-label="${Render.esc(label)}">`
+    + `<button class="mark" type="button" aria-label="Comment on ${Render.esc(label)}">+</button>`
+    + `<div class="body">${html}</div></${tag}>`;
+}
+
+function renderQuestion(data) {
+  return `<section class="section" id="question" data-section="The question">
+    <h2>The question</h2>
+    <p class="tldr">${Render.esc(data.question)}</p>
+  </section>`;
+}
+
+function renderMatrix(data) {
+  if (!data.criteria.length || !data.options.length) {
+    return `<section class="section" id="matrix" data-section="Matrix">
+      <h2>Matrix</h2>
+      <div class="empty"><p class="title">No options or criteria yet</p><p class="text">Add at least three options and one criterion to build the comparison.</p></div>
+    </section>`;
+  }
+  // Column headers stay plain th (not anchored): the option's own anchor
+  // lives once, on its block in the Options section below, so a comment
+  // never has to choose between two DOM homes for the same identity.
+  const head = data.options.map((o) => {
+    const pick = `<button type="button" class="btn pick" data-page-key="winner" data-page-value="option-${Render.esc(o.slug)}" aria-pressed="false">Pick</button>`;
+    return `<th${o.win ? ' class="win"' : ''}>${Render.esc(o.label)}<br>${pick}</th>`;
+  }).join('');
+  const rows = data.criteria.map((c) => {
+    const th = anchoredCell('th', `criterion-${c.slug}`, c.label, '', `${Render.esc(c.label)}<span class="meta">weight ${c.weight}</span>`);
+    const cells = data.options.map((o) => {
+      const cell = o.cells[c.slug];
+      const label = `${o.label} / ${c.label}`;
+      return anchoredCell('td', `cell-${o.slug}-${c.slug}`, label, o.win ? 'win' : '', scoreCell(cell));
+    }).join('');
+    return `<tr>${th}${cells}</tr>`;
+  }).join('');
+  return `<section class="section" id="matrix" data-section="Matrix">
+    <div class="section-head"><h2>Matrix</h2><span class="meta">${data.options.length} options, ${data.criteria.length} criteria</span></div>
+    <div class="table-scroll">
+      <table class="matrix">
+        <thead><tr><th>Criterion</th>${head}</tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+  </section>`;
+}
+
+function renderOption(o) {
+  const head = `<div class="head"><h3 class="title">${Render.esc(o.label)}</h3>`
+    + `<button type="button" class="btn pick" data-page-key="winner" data-page-value="option-${Render.esc(o.slug)}" aria-pressed="false">Pick</button>`
+    + `${o.win ? '<span class="tag">Recommended</span>' : ''}</div>`;
+  const strengths = `<div class="side before"><h4 class="side-h">Strengths</h4><ul>${o.strengths.map((s) => `<li>${Render.esc(s)}</li>`).join('')}</ul></div>`;
+  const costs = `<div class="side after"><h4 class="side-h">Costs</h4><ul>${o.costs.map((s) => `<li>${Render.esc(s)}</li>`).join('')}</ul></div>`;
+  return Render.anchored({
+    anchor: `option-${o.slug}`,
+    label: o.label,
+    cls: 'option',
+    html: `${head}<div class="split">${strengths}${costs}</div>`,
+  });
+}
+
+function renderOptions(data) {
+  if (!data.options.length) {
+    return `<section class="section" id="options" data-section="Options">
+      <h2>Options</h2>
+      <div class="empty"><p class="title">No options yet</p><p class="text">Each option needs a strengths and costs summary once it is added to the matrix.</p></div>
+    </section>`;
+  }
+  return `<section class="section" id="options" data-section="Options">
+    <div class="section-head"><h2>Options</h2><span class="meta">${data.options.length}</span></div>
+    <div class="list">${data.options.map(renderOption).join('')}</div>
+  </section>`;
+}
+
+function renderDecision(data) {
+  const body = data.decision
+    ? `<aside class="callout" data-kind="decision"><span class="callout-label">Decision</span><p>${Render.esc(data.decision)}</p></aside>`
+    : `<div class="empty"><p class="title">No decision recorded</p><p class="text">State a winner and the reasoning once the matrix above settles.</p></div>`;
+  return `<section class="section" id="decision" data-section="Decision"><h2>Decision</h2>${body}</section>`;
+}
+
+function renderSources(data) {
+  if (!data.sources.length) {
+    return `<section class="section" id="sources" data-section="Sources">
+      <h2>Sources</h2>
+      <div class="empty"><p class="title">No sources cited</p><p class="text">Every scored cell above needs a source behind it; list them here.</p></div>
+    </section>`;
+  }
+  const items = data.sources.map((s) => (
+    `<li><cite class="source"><a href="${Render.esc(s.href)}">${Render.esc(s.label)}</a></cite><p class="text">${Render.esc(s.claim)}</p></li>`
+  )).join('');
+  return `<section class="section" id="sources" data-section="Sources">
+    <div class="section-head"><h2>Sources</h2><span class="meta">${data.sources.length}</span></div>
+    <ul class="stack">${items}</ul>
+  </section>`;
+}
+
+function mount(data) {
+  const root = document.getElementById('root');
+  root.innerHTML = `<header class="page-head">
+      <h1>${Render.esc(data.title)}</h1>
+      <p class="meta">${Render.esc(data.byline)}</p>
+    </header>`
+    + renderQuestion(data)
+    + renderMatrix(data)
+    + renderOptions(data)
+    + renderDecision(data)
+    + renderSources(data);
+}
+
+mount(DATA);
+if (window.Render) {
+  Render.init({ verdicts: null, file: 'compare-install-cc-arsenal-skills-2026-09-23.html', title: DATA.title });
+}
+</script>

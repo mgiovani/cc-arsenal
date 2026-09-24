@@ -1,0 +1,302 @@
+<title>Map: cc-arsenal scripts</title>
+<!-- impeccable-disable overused-font -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../page.css">
+
+<script id="state" type="application/json">{"v":1,"verdicts":{},"comments":[]}</script>
+
+<header class="toolbar">
+  <div class="toolbar-row">
+    <span class="toolbar-title">Map: cc-arsenal scripts</span>
+    <div class="counts" aria-label="Counts"></div>
+    <span class="spacer"></span>
+    <div class="seg" role="group" aria-label="Theme" data-theme-toggle>
+      <button type="button" data-value="auto" aria-pressed="true">Auto</button>
+      <button type="button" data-value="light" aria-pressed="false">Light</button>
+      <button type="button" data-value="dark" aria-pressed="false">Dark</button>
+    </div>
+    <div class="toolbar-group">
+      <button type="button" class="btn" data-action="digest">Copy digest</button>
+      <button type="button" class="btn btn-icon" data-action="shortcuts" aria-label="Keyboard shortcuts" aria-expanded="false" aria-controls="shortcuts">?</button>
+      <button type="button" class="btn btn-primary" data-action="save">Save</button>
+    </div>
+  </div>
+</header>
+
+<div id="shortcuts" class="shortcuts" hidden>
+  <div class="shortcuts-inner">
+    <h2>Keyboard</h2>
+    <div class="shortcut"><span class="keys"><kbd>j</kbd><kbd>k</kbd></span>Next or previous module</div>
+    <div class="shortcut"><span class="keys"><kbd>c</kbd></span>Comment on the current module</div>
+    <div class="shortcut"><span class="keys"><kbd>Esc</kbd></span>Close composer or panel</div>
+    <div class="shortcut"><span class="keys"><kbd>?</kbd></span>Show or hide this panel</div>
+  </div>
+</div>
+
+<main class="wrap wrap-wide" id="root"></main>
+
+<script src="../page.js"></script>
+<script>
+/*
+DATA shape. Replace every field below with a verified map of a different
+subsystem; keep the shape.
+
+{
+  scope: {
+    subject:     string,  // what this map covers, one line
+    commit:      string,  // short hash the map was built from
+    verified:    string,  // how edges were confirmed
+    outOfScope:  string,  // what this map deliberately stops short of
+  },
+  entryPoints: TreeNode[],   // TreeNode = { dir, children: TreeNode[] } | { name, note? }
+  graph: {
+    title: string,          // the diagram's conclusion, read aloud by role="img"
+    nodes: [{ id, label, sub?, x, y, w, h, variant? }],   // variant: "" | "key"
+    edges: [{ d, variant? }],                             // variant: "" | "key"; d is an SVG path
+  },
+  dataPath: [{ title, fn, key? }],   // one flow stage each; key marks the stage the page is about
+  modules: [{ id, label, path, owns, dependsOn, entry }],
+  layers: [{ name, meta, items: string[], key? }],        // top level first
+}
+*/
+const DATA = /*SAMPLE*/{
+  scope: {
+    subject: "scripts/, the skill catalog and install tooling behind make docs, make install and make configure",
+    commit: "775f5af",
+    verified: "every edge below was confirmed by reading the import or the function call, not by matching similar names",
+    outOfScope: "skills/render/scripts/assemble.py has its own map. This page stops at the boundary where scripts/tests/test_render_assemble.py imports it by path. No trust, process or network boundary is crossed anywhere in this subsystem: everything here runs locally against files already in the checkout."
+  },
+  entryPoints: [
+    { dir: "scripts/", children: [
+      { name: "gen_skill_docs.py", note: "entry: make docs, make docs-check" },
+      { name: "bump_version.py", note: "entry: make bump-version VERSION=x.y.z" },
+      { dir: "setup/", children: [
+        { name: "install.py", note: "entry: make install, make dry-run" },
+        { name: "configure.py", note: "entry: make configure" }
+      ] },
+      { dir: "tests/", children: [
+        { name: "test_gen_skill_docs.py" },
+        { name: "test_bump_version.py" },
+        { name: "test_install.py" },
+        { name: "test_render_assemble.py", note: "imports skills/render/scripts/assemble.py by path" }
+      ] }
+    ] }
+  ],
+  graph: {
+    title: "skills.sh.json, marketplace.json and 54 SKILL.md files fan into gen_skill_docs.py, which writes three generated docs",
+    nodes: [
+      { id: "src", label: "skills.sh.json", sub: "source of truth", x: 8, y: 16, w: 270, h: 64 },
+      { id: "skills", label: "skills/*/SKILL.md", sub: "54 files", x: 294, y: 16, w: 280, h: 64, variant: "key" },
+      { id: "marketplace", label: "marketplace.json", sub: "plugin coverage", x: 590, y: 16, w: 282, h: 64 },
+      { id: "gen", label: "gen_skill_docs.py", sub: "make docs", x: 280, y: 128, w: 320, h: 64, variant: "key" },
+      { id: "readme", label: "README.md", x: 8, y: 240, w: 260, h: 64 },
+      { id: "agents", label: "AGENTS.md", x: 284, y: 240, w: 260, h: 64 },
+      { id: "features", label: "docs/features.md", x: 560, y: 240, w: 284, h: 64 }
+    ],
+    edges: [
+      { d: "M143 80 V104 H440 V128" },
+      { d: "M434 80 V104 H440 V128", variant: "key" },
+      { d: "M731 80 V104 H440 V128" },
+      { d: "M440 192 V216 H138 V240" },
+      { d: "M440 192 V216 H414 V240" },
+      { d: "M440 192 V216 H702 V240" }
+    ]
+  },
+  dataPath: [
+    { title: "Read every skill", fn: "load_skills()" },
+    { title: "Group them", fn: "load_groups()" },
+    { title: "Validate marketplace coverage", fn: "validate_marketplace()" },
+    { title: "Build every target", fn: "build_targets()", key: true },
+    { title: "Write what changed", fn: "main(), the stale-file loop" }
+  ],
+  modules: [
+    {
+      id: "module-scripts-gen-skill-docs-py", label: "gen_skill_docs.py",
+      path: "scripts/gen_skill_docs.py",
+      owns: "Regenerating README.md, AGENTS.md and docs/features.md from skills.sh.json",
+      dependsOn: "skills.sh.json, every skills/*/SKILL.md frontmatter, marketplace.json",
+      entry: "make docs, make docs-check"
+    },
+    {
+      id: "module-scripts-bump-version-py", label: "bump_version.py",
+      path: "scripts/bump_version.py",
+      owns: "Bumping every version field listed in .version-bump.json",
+      dependsOn: ".version-bump.json",
+      entry: "make bump-version VERSION=x.y.z"
+    },
+    {
+      id: "module-scripts-setup-install-py", label: "install.py",
+      path: "scripts/setup/install.py",
+      owns: "Symlinking skill files into ~/.claude, with conflict detection and backups",
+      dependsOn: "click, pydantic, rich",
+      entry: "make install, make dry-run"
+    },
+    {
+      id: "module-scripts-setup-configure-py", label: "configure.py",
+      path: "scripts/setup/configure.py",
+      owns: "The interactive picker for which skills get symlinked",
+      dependsOn: "setup/install.py: ConflictManager, ConflictResolution, FileDiscovery, InstallationConfig, InstallationItem, SymlinkManager",
+      entry: "make configure"
+    },
+    {
+      id: "module-scripts-tests-test-render-assemble-py", label: "test_render_assemble.py",
+      path: "scripts/tests/test_render_assemble.py",
+      owns: "Regression coverage for the render skill assemble.py gate",
+      dependsOn: "skills/render/scripts/assemble.py, loaded by path since render/scripts is not an importable package name",
+      entry: "make test"
+    },
+    {
+      id: "module-scripts-tests-test-gen-skill-docs-py", label: "test_gen_skill_docs.py",
+      path: "scripts/tests/test_gen_skill_docs.py",
+      owns: "Regression coverage for gen_skill_docs.py drift detection",
+      dependsOn: "scripts/gen_skill_docs.py",
+      entry: "make test"
+    }
+  ],
+  layers: [
+    { name: "Entry points", meta: "Makefile targets", items: ["make docs", "make bump-version", "make install", "make configure", "make test"] },
+    { name: "Generators and validators", meta: "scripts/*.py", items: ["gen_skill_docs.py", "bump_version.py"], key: true },
+    { name: "Install pipeline", meta: "scripts/setup/", items: ["install.py", "configure.py"] },
+    { name: "Source of truth", meta: "config and content files", items: ["skills.sh.json", ".version-bump.json", "marketplace.json", "SKILL.md x54"] }
+  ]
+};
+
+function emptyBlock(title, text) {
+  return `<div class="empty"><p class="title">${Render.esc(title)}</p><p class="text">${Render.esc(text)}</p></div>`;
+}
+
+function renderTreeNode(node) {
+  if (node.children) {
+    return `<li class="dir"><span class="name">${Render.path(node.dir)}</span><ul>${node.children.map(renderTreeNode).join('')}</ul></li>`;
+  }
+  const note = node.note ? `<span class="note">${Render.esc(node.note)}</span>` : '';
+  return `<li><span class="name">${Render.path(node.name)}</span>${note}</li>`;
+}
+
+function renderEntryPoints(list) {
+  if (!list.length) {
+    return emptyBlock('No entry points recorded', 'Add the binaries, routes, jobs or CLI commands where execution actually starts.');
+  }
+  return `<ul class="tree" aria-label="Entry points and key files">${list.map(renderTreeNode).join('')}</ul>`;
+}
+
+function renderGraph(g) {
+  if (!g.nodes.length) {
+    return emptyBlock('No verified graph yet', 'Read the file that defines each node and confirm every edge before drawing it.');
+  }
+  const nodes = g.nodes.map((n) => {
+    const cls = n.variant ? ` ${n.variant}` : '';
+    const labelY = n.y + (n.sub ? 26 : 32);
+    const sub = n.sub ? `<text class="sub" x="${n.x + n.w / 2}" y="${n.y + 51}">${Render.esc(n.sub)}</text>` : '';
+    return `<g class="node${cls}"><rect x="${n.x}" y="${n.y}" width="${n.w}" height="${n.h}"/><text x="${n.x + n.w / 2}" y="${labelY}">${Render.esc(n.label)}</text>${sub}</g>`;
+  }).join('');
+  const edges = g.edges.map((e) => {
+    const cls = e.variant ? ` ${e.variant}` : '';
+    const marker = e.variant === 'key' ? 'arr-key' : 'arr';
+    return `<g class="edge${cls}"><path d="${e.d}" marker-end="url(#${marker})"/></g>`;
+  }).join('');
+  const svg = `<div class="graph"><svg viewBox="0 0 880 320" role="img" aria-labelledby="g-map-t">`
+    + `<title id="g-map-t">${Render.esc(g.title)}</title>`
+    + `<defs>`
+    + `<marker id="arr" viewBox="0 0 8 8" refX="8" refY="4" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto"><path d="M0 0 L8 4 L0 8 z"/></marker>`
+    + `<marker id="arr-key" class="key" viewBox="0 0 8 8" refX="8" refY="4" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto"><path d="M0 0 L8 4 L0 8 z"/></marker>`
+    + `</defs>${edges}${nodes}</svg></div>`;
+  return Render.anchored({ anchor: 'diagram-scripts-doc-fanout', label: g.title, html: svg });
+}
+
+function renderDataPath(stages) {
+  if (!stages.length) {
+    return emptyBlock('No data path traced', 'Trace the system most important operation end to end, one stage per function, in the order it actually runs.');
+  }
+  const items = stages.map((s) => {
+    const cls = s.key ? ' key' : '';
+    return `<li class="stage${cls}"><span class="title">${Render.esc(s.title)}</span><span class="meta mono" title="${Render.esc(s.fn)}">${Render.esc(s.fn)}</span></li>`;
+  }).join('');
+  return `<ol class="flow" aria-label="How make docs rebuilds the generated catalogs">${items}</ol>`;
+}
+
+function renderModules(mods) {
+  if (!mods.length) {
+    return emptyBlock('No modules mapped', 'Read the file that defines each component before it becomes a row.');
+  }
+  const rows = mods.map((m) => `<tr>`
+    + `<td class="anchored" data-anchor="${Render.esc(m.id)}" data-label="${Render.esc(m.label)}">`
+    + `<button class="mark" type="button" aria-label="Comment on ${Render.esc(m.label)}">+</button>`
+    + `<div class="body mono">${Render.path(m.path)}</div></td>`
+    + `<td>${Render.esc(m.owns)}</td>`
+    + `<td>${Render.esc(m.dependsOn)}</td>`
+    + `<td class="mono">${Render.esc(m.entry)}</td>`
+    + `</tr>`).join('');
+  return `<div class="table-scroll"><table class="table"><thead><tr><th>Module</th><th>Owns</th><th>Depends on</th><th>Entry</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+
+function renderLayers(layers) {
+  if (!layers.length) {
+    return emptyBlock('No layers named', 'Group modules by the level of the system they belong to, top level first.');
+  }
+  const items = layers.map((l) => {
+    const cls = l.key ? ' class="key"' : '';
+    const tags = l.items.map((t) => `<span class="tag mono">${Render.esc(t)}</span>`).join('');
+    return `<li${cls}><span class="layer-name">${Render.esc(l.name)}<span class="meta">${Render.path(l.meta)}</span></span><span class="layer-items">${tags}</span></li>`;
+  }).join('');
+  return `<ol class="layers">${items}</ol>`;
+}
+
+function mount() {
+  const root = document.getElementById('root');
+  root.innerHTML = `
+    <nav class="toc" aria-label="On this page">
+      <h2>On this page</h2>
+      <ol>
+        <li><a href="#entry-points" aria-current="true">Entry points</a></li>
+        <li><a href="#module-graph">Module graph</a></li>
+        <li><a href="#data-path">Data path</a></li>
+        <li><a href="#modules">Modules</a></li>
+        <li><a href="#layers">Layers</a></li>
+      </ol>
+    </nav>
+
+    <header class="page-head">
+      <h1>${Render.esc(DATA.scope.subject)}</h1>
+      <p class="meta">Built from commit <span class="mono">${Render.esc(DATA.scope.commit)}</span>. ${Render.esc(DATA.scope.verified)}.</p>
+    </header>
+
+    <aside class="callout" data-kind="note">
+      <span class="callout-label">Note</span>
+      <p>${Render.esc(DATA.scope.outOfScope)}</p>
+    </aside>
+
+    <section class="section" id="entry-points" data-section="Entry points">
+      <h2>Entry points</h2>
+      ${renderEntryPoints(DATA.entryPoints)}
+    </section>
+
+    <section class="section" id="module-graph" data-section="Module graph">
+      <h2>Module graph</h2>
+      ${renderGraph(DATA.graph)}
+    </section>
+
+    <section class="section" id="data-path" data-section="Data path">
+      <h2>Data path</h2>
+      ${renderDataPath(DATA.dataPath)}
+    </section>
+
+    <section class="section" id="modules" data-section="Modules">
+      <h2>Modules</h2>
+      ${renderModules(DATA.modules)}
+    </section>
+
+    <section class="section" id="layers" data-section="Layers">
+      <h2>Layers</h2>
+      ${renderLayers(DATA.layers)}
+    </section>
+  `;
+}
+
+mount();
+if (window.Render) {
+  Render.init({ verdicts: null, file: 'map-cc-arsenal-scripts-2026-09-23.html', title: 'Map: cc-arsenal scripts' });
+}
+</script>

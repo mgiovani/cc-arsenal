@@ -22,5 +22,13 @@
   { "query": "explain that last message again in simpler English", "should_trigger": false },
   { "query": "generate a logo for this project", "should_trigger": false },
   { "query": "review this PR for security issues", "should_trigger": false },
-  { "query": "write an ADR recording why we chose Postgres", "should_trigger": false }
+  { "query": "write an ADR recording why we chose Postgres", "should_trigger": false },
+  { "query": "render a guided walkthrough of the auth module so my teammate can comment stop by stop", "should_trigger": true },
+  { "query": "walk me through this function right here in the terminal, no page needed", "should_trigger": false },
+  { "query": "render this incident's timeline as a page the on-call team can annotate", "should_trigger": true },
+  { "query": "write a postmortem doc into docs/", "should_trigger": false },
+  { "query": "render this before/after diff so reviewers can accept or reject each hunk", "should_trigger": true },
+  { "query": "just run git diff on the working tree and show me the output", "should_trigger": false },
+  { "query": "turn this week's status report into something the team can mark up", "should_trigger": true },
+  { "query": "post this week's status report in the #standup Slack channel", "should_trigger": false }
 ]

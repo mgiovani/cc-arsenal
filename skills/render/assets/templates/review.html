@@ -1,0 +1,396 @@
+<title>Foundation Review</title>
+<!-- impeccable-disable overused-font -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../page.css">
+
+<script id="state" type="application/json">{"v":1,"verdicts":{},"comments":[]}</script>
+
+<header class="toolbar">
+  <div class="toolbar-row">
+    <span class="toolbar-title">skills/render foundation review</span>
+    <div class="counts" aria-label="Counts"></div>
+    <span class="spacer"></span>
+    <div class="seg" role="group" aria-label="Theme" data-theme-toggle>
+      <button type="button" data-value="auto" aria-pressed="true">Auto</button>
+      <button type="button" data-value="light" aria-pressed="false">Light</button>
+      <button type="button" data-value="dark" aria-pressed="false">Dark</button>
+    </div>
+    <div class="toolbar-group">
+      <button type="button" class="btn" data-action="digest">Copy digest</button>
+      <button type="button" class="btn btn-icon" data-action="shortcuts" aria-label="Keyboard shortcuts" aria-expanded="false" aria-controls="shortcuts">?</button>
+      <button type="button" class="btn btn-primary" data-action="save">Save</button>
+    </div>
+  </div>
+  <div class="filterbar">
+    <div class="seg" data-filter="verdict" role="group" aria-label="Filter by verdict"></div>
+    <div class="seg" role="group" aria-label="Filter by severity" data-filter="severity">
+      <button type="button" data-value="all" aria-pressed="true">All</button>
+      <button type="button" data-value="critical" aria-pressed="false">Critical</button>
+      <button type="button" data-value="high" aria-pressed="false">High</button>
+      <button type="button" data-value="medium" aria-pressed="false">Medium</button>
+      <button type="button" data-value="low" aria-pressed="false">Low</button>
+    </div>
+  </div>
+</header>
+
+<div id="shortcuts" class="shortcuts" hidden>
+  <div class="shortcuts-inner">
+    <h2>Keyboard</h2>
+    <div class="shortcut"><span class="keys"><kbd>j</kbd><kbd>k</kbd></span>Next or previous finding</div>
+    <div class="shortcut"><span class="keys"><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd></span>Fix, won't fix, discuss</div>
+    <div class="shortcut"><span class="keys"><kbd>c</kbd></span>Comment on the current finding</div>
+    <div class="shortcut"><span class="keys"><kbd>/</kbd></span>Focus the verdict filter</div>
+    <div class="shortcut"><span class="keys"><kbd>Esc</kbd></span>Close composer or panel</div>
+    <div class="shortcut"><span class="keys"><kbd>?</kbd></span>Show or hide this panel</div>
+  </div>
+</div>
+
+<main class="wrap" id="root"></main>
+
+<script src="../page.js"></script>
+<script>
+/*
+DATA shape (replace wholesale to review something else):
+{
+  reviewed: {
+    scope: string,        // what was reviewed, one line
+    files: string[],       // paths touched by the review
+    dimensions: string[],  // review-code style dimensions this pass covered
+  },
+  tldr: string,             // one or two sentences, the review's overall read
+  risk: string,             // one sentence for the "Risk" callout
+  decision: string,         // one sentence for the "Decision" callout
+  findings: [
+    {
+      severity: 'critical' | 'high' | 'medium' | 'low',
+      claim: string,        // one-line claim, kept verbatim from the source review
+      file: string,         // path
+      line: number,
+      failure: string,      // the concrete, reproducible consequence
+      code: { path: string, range: string, lines: [{ n: number, text: string, hl?: boolean }] },
+      diff: null | { path: string, stat: string, lines: [{ n: string, text: string, kind: '' | 'add' | 'del' | 'hunk' }] },
+    },
+  ],
+  suggestions: [
+    { claim: string, file: string, note: string },  // no reproducible failure; a lower-confidence idea
+  ],
+}
+*/
+
+const DATA = /*SAMPLE*/{
+  reviewed: {
+    scope: 'The render skill foundation: the assembler gate, the runtime, its test suite, and one mode reference file',
+    files: [
+      'scripts/assemble.py',
+      'assets/page.js',
+      'references/feedback-loop.md',
+      'scripts/tests/test_render_assemble.py',
+    ],
+    dimensions: ['correctness', 'test coverage', 'consistency with the shipped tokens'],
+  },
+  tldr: 'Five findings and one suggestion across the assembler, the runtime and one reference file: the shadow gate has a blur-shaped hole, a CSS snippet in feedback-loop.md still cites a retired token, and a delete path can remove the wrong comment.',
+  risk: "assemble.py's own shadow check has a hole: a page can ship `filter: blur(...)` and the gate still exits 0, even though the brief bans blur outright.",
+  decision: 'Land the two high-severity fixes (the blur gate hole and the stale feedback-loop.md snippet) before another mode template copies either pattern.',
+  findings: [
+    {
+      severity: 'critical',
+      claim: 'The shadow gate lets filter: blur(...) through',
+      file: 'scripts/assemble.py',
+      line: 174,
+      failure: "A page's inline style can add filter: blur(6px) to soften an edge and assemble.py exits 0. The brief bans blur alongside gradients and drop shadows, but _shadow_ok only checks the filter property for the string drop-shadow.",
+      code: {
+        path: 'scripts/assemble.py',
+        range: 'L172-176',
+        lines: [
+          { n: 172, text: "    if prop == 'text-shadow':" },
+          { n: 173, text: "        return v.lower() == 'none'" },
+          { n: 174, text: "    if prop == 'filter':", hl: true },
+          { n: 175, text: "        return 'drop-shadow' not in v.lower()", hl: true },
+          { n: 176, text: "    return prop != 'backdrop-filter'" },
+        ],
+      },
+      diff: {
+        path: 'scripts/assemble.py',
+        stat: '+2 -1',
+        lines: [
+          { n: '', text: "@@ -172,5 +172,6 @@ def _shadow_ok(prop: str, value: str) -> bool:", kind: 'hunk' },
+          { n: 172, text: "     if prop == 'text-shadow':", kind: '' },
+          { n: 173, text: "         return v.lower() == 'none'", kind: '' },
+          { n: 174, text: "     if prop == 'filter':", kind: '' },
+          { n: 175, text: "-        return 'drop-shadow' not in v.lower()", kind: 'del' },
+          { n: 175, text: "+        lowered = v.lower()", kind: 'add' },
+          { n: 176, text: "+        return 'drop-shadow' not in lowered and 'blur(' not in lowered", kind: 'add' },
+          { n: 177, text: "     return prop != 'backdrop-filter'", kind: '' },
+        ],
+      },
+    },
+    {
+      severity: 'high',
+      claim: 'feedback-loop.md still shows the retired --faint token and a 4px radius',
+      file: 'references/feedback-loop.md',
+      line: 110,
+      failure: 'Copying this snippet into a new mode template ships color: var(--faint) (undefined, so the browser falls back to inherited black or white with no warning) and a rounded corner, both of which assemble.py rejects the moment the page is assembled.',
+      code: {
+        path: 'references/feedback-loop.md',
+        range: 'L107-112',
+        lines: [
+          { n: 107, text: '.anchored > .mark {' },
+          { n: 108, text: '  opacity: 0; transition: opacity .12s ease;' },
+          { n: 109, text: '  background: none; border: 0; cursor: pointer; padding: 0;' },
+          { n: 110, text: "  font: inherit; font-size: .75rem; color: var(--faint);", hl: true },
+          { n: 111, text: '  width: 1.25rem; height: 1.25rem; border-radius: 4px;', hl: true },
+          { n: 112, text: '}' },
+        ],
+      },
+      diff: null,
+    },
+    {
+      severity: 'high',
+      claim: 'deleteComment can remove the wrong comment on a timestamp collision',
+      file: 'assets/page.js',
+      line: 217,
+      failure: "It matches by anchor plus at (an ISO millisecond timestamp) via findIndex. Two comments landing on the same block in the same millisecond, for example a fast Cmd+Enter submit right after a first one, get the same at value, and the delete button then always removes the first match, even when the reader clicked the second comment's Delete.",
+      code: {
+        path: 'assets/page.js',
+        range: 'L215-223',
+        lines: [
+          { n: 215, text: 'function deleteComment(block, at) {' },
+          { n: 216, text: '  const anchor = block.dataset.anchor;' },
+          { n: 217, text: '  const idx = state.comments.findIndex((c) => c.anchor === anchor && c.at === at);', hl: true },
+          { n: 218, text: '  if (idx === -1) return;' },
+          { n: 219, text: '  state.comments.splice(idx, 1);' },
+          { n: 220, text: '  persist();' },
+          { n: 221, text: '  renderComments(block);' },
+          { n: 222, text: '  paintMark(block);' },
+          { n: 223, text: '}' },
+        ],
+      },
+      diff: null,
+    },
+    {
+      severity: 'medium',
+      claim: 'No test exercises the filter or backdrop-filter gate branch',
+      file: 'scripts/tests/test_render_assemble.py',
+      line: 105,
+      failure: 'test_box_shadow_blur_fails only calls check() with box-shadow. Nothing in the suite calls it with filter: blur(...) or backdrop-filter: blur(...), so the critical finding above (assemble.py:174) could regress again with a fully green test run.',
+      code: {
+        path: 'scripts/tests/test_render_assemble.py',
+        range: 'L105-109',
+        lines: [
+          { n: 105, text: 'def test_box_shadow_blur_fails() -> None:', hl: true },
+          { n: 106, text: '    violations = assemble.check(' },
+          { n: 107, text: "        _wrap_style('.card { box-shadow: 0 2px 8px var(--ink); }')", hl: true },
+          { n: 108, text: '    )' },
+          { n: 109, text: "    assert any(v.rule == 'shadow' for v in violations)" },
+        ],
+      },
+      diff: null,
+    },
+    {
+      severity: 'low',
+      claim: 'updateCounts writes a count nothing on the page reads',
+      file: 'assets/page.js',
+      line: 124,
+      failure: "setCount('all', blocks.length) runs on every verdict change, but the shipped toolbar markup has no [data-count=\"all\"] element to receive it. Harmless today (the loop in setCount just matches nothing), but the next person adding an All tile will assume the wiring already works.",
+      code: {
+        path: 'assets/page.js',
+        range: 'L116-125',
+        lines: [
+          { n: 116, text: '  let undecided = 0;' },
+          { n: 117, text: '  for (const b of blocks) {' },
+          { n: 118, text: '    const d = state.verdicts[b.dataset.anchor]?.d;' },
+          { n: 119, text: '    if (d && d in tally) tally[d] += 1;' },
+          { n: 120, text: '    else undecided += 1;' },
+          { n: 121, text: '  }' },
+          { n: 122, text: "  for (const [k, v] of Object.entries(tally)) setCount(k, v);" },
+          { n: 123, text: "  setCount('undecided', undecided);" },
+          { n: 124, text: "  setCount('all', blocks.length);", hl: true },
+          { n: 125, text: '}' },
+        ],
+      },
+      diff: null,
+    },
+  ],
+  suggestions: [
+    {
+      claim: "blocks.md doesn't flag that a facet value is compared case-sensitively",
+      file: 'references/blocks.md',
+      note: "A block's data-facet-<name> and a filterbar button's data-value are compared with !== in page.js (around line 270), so won't-fix and wont-fix would silently never match. No reproducible failure yet since every shipped facet value happens to agree, but a one-line note next to the data-facet-<name> rule would save the next mode author a debugging session.",
+    },
+  ],
+}/*SAMPLE*/;
+
+const SEVERITY_ORDER = ['critical', 'high', 'medium', 'low'];
+const SEVERITY_LABEL = { critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' };
+
+function tagHtml(severity) {
+  if (severity === 'critical') return '<span class="tag-crit">Critical</span>';
+  if (severity === 'high') return '<span class="tag-high">High</span>';
+  return `<span class="tag">${Render.esc(SEVERITY_LABEL[severity])}</span>`;
+}
+
+function codeHtml(code) {
+  const lines = code.lines.map((l) => (
+    `<span class="ln${l.hl ? ' hl' : ''}" data-n="${l.n}">${Render.esc(l.text)}</span>`
+  )).join('');
+  return (
+    '<figure class="code">'
+    + `<figcaption><span class="path">${Render.path(code.path)}</span><span class="meta">${Render.esc(code.range)}</span></figcaption>`
+    + `<div class="lines">${lines}</div>`
+    + '</figure>'
+  );
+}
+
+function diffHtml(diff) {
+  if (!diff) return '';
+  const lines = diff.lines.map((l) => (
+    `<span class="ln${l.kind ? ' ' + l.kind : ''}" data-n="${Render.esc(String(l.n))}">${Render.esc(l.text)}</span>`
+  )).join('');
+  return (
+    '<figure class="diff code">'
+    + `<figcaption><span class="path">${Render.path(diff.path)}</span><span class="diff-stat">${Render.esc(diff.stat)}</span></figcaption>`
+    + `<div class="lines">${lines}</div>`
+    + '</figure>'
+  );
+}
+
+function findingAnchor(f) {
+  return `finding-${Render.slug(f.file)}-${f.line}-${Render.slug(f.claim)}`;
+}
+
+function findingHtml(f) {
+  const anchor = findingAnchor(f);
+  const head = (
+    '<div class="head">'
+    + tagHtml(f.severity)
+    + `<span class="title">${Render.esc(f.claim)}</span>`
+    + `<span class="meta">${Render.path(f.file)}:${f.line}</span>`
+    + Render.verdict(anchor)
+    + '</div>'
+  );
+  const body = (
+    head
+    + `<p class="text">${Render.esc(f.failure)}</p>`
+    + codeHtml(f.code)
+    + diffHtml(f.diff)
+  );
+  return Render.anchored({
+    anchor,
+    label: f.claim,
+    cls: 'finding',
+    facets: { severity: f.severity },
+    verdict: false,
+    html: body,
+  });
+}
+
+function suggestionAnchor(s) {
+  return `finding-${Render.slug(s.file)}-suggestion-${Render.slug(s.claim)}`;
+}
+
+function suggestionHtml(s) {
+  const anchor = suggestionAnchor(s);
+  const head = (
+    '<div class="head">'
+    + `<span class="title">${Render.esc(s.claim)}</span>`
+    + `<span class="meta">${Render.path(s.file)}</span>`
+    + Render.verdict(anchor)
+    + '</div>'
+  );
+  const body = head + `<p class="text">${Render.esc(s.note)}</p>`;
+  return Render.anchored({
+    anchor,
+    label: s.claim,
+    cls: 'row',
+    facets: {},
+    verdict: false,
+    html: body,
+  });
+}
+
+function emptyHtml(title, text) {
+  return `<div class="empty"><p class="title">${Render.esc(title)}</p><p class="text">${Render.esc(text)}</p></div>`;
+}
+
+function glanceHtml(data) {
+  const facts = (
+    '<dl class="facts">'
+    + `<div><dt>Files reviewed</dt><dd>${data.reviewed.files.length}</dd></div>`
+    + `<div><dt>Findings</dt><dd>${data.findings.length}</dd></div>`
+    + `<div><dt>Suggestions</dt><dd>${data.suggestions.length}</dd></div>`
+    + `<div><dt>Dimensions</dt><dd>${Render.esc(data.reviewed.dimensions.join(', '))}</dd></div>`
+    + '</dl>'
+  );
+
+  const counts = SEVERITY_ORDER.map((s) => data.findings.filter((f) => f.severity === s).length);
+  const shade = { critical: 's1', high: 's2', medium: 's3', low: 's0' };
+  const tallyCounts = SEVERITY_ORDER.map((s, i) => (
+    `<div class="${shade[s]}"><dt>${Render.esc(SEVERITY_LABEL[s])}</dt><dd>${counts[i]}</dd></div>`
+  )).join('');
+  const tallyBar = SEVERITY_ORDER.map((s, i) => (
+    `<i class="${shade[s]}" style="--v:${counts[i]}"></i>`
+  )).join('');
+
+  return (
+    `<p class="tldr">${Render.esc(data.tldr)}</p>`
+    + facts
+    + '<div class="tally" role="group" aria-label="Findings by severity">'
+    + `<dl class="tally-counts">${tallyCounts}</dl>`
+    + `<div class="tally-bar" aria-hidden="true">${tallyBar}</div>`
+    + '</div>'
+    + `<aside class="callout" data-kind="risk"><span class="callout-label">Risk</span><p>${Render.esc(data.risk)}</p></aside>`
+    + `<aside class="callout" data-kind="decision"><span class="callout-label">Decision</span><p>${Render.esc(data.decision)}</p></aside>`
+  );
+}
+
+function findingsHtml(data) {
+  if (!data.findings.length && !data.suggestions.length) {
+    return emptyHtml('No findings', 'Nothing was flagged in this pass. Widen the scope or check the source review ran to completion.');
+  }
+
+  const groups = SEVERITY_ORDER.map((severity) => {
+    const items = data.findings.filter((f) => f.severity === severity);
+    if (!items.length) return '';
+    let lastFile = null;
+    const rows = items.map((f) => {
+      const fileHeading = f.file === lastFile ? '' : `<h4 class="mono">${Render.esc(f.file)}</h4>`;
+      lastFile = f.file;
+      return fileHeading + findingHtml(f);
+    }).join('');
+    return `<h3>${Render.esc(SEVERITY_LABEL[severity])} &middot; ${items.length}</h3><div class="list">${rows}</div>`;
+  }).join('');
+
+  const suggestions = data.suggestions.length
+    ? `<h3>Suggestions</h3><p class="meta">No reproducible failure; worth a look.</p><div class="list">${data.suggestions.map(suggestionHtml).join('')}</div>`
+    : '';
+
+  return (
+    `<div class="section-head"><h2>Findings</h2><span class="meta">${data.findings.length} findings, ${data.suggestions.length} suggestion${data.suggestions.length === 1 ? '' : 's'}</span></div>`
+    + groups
+    + suggestions
+  );
+}
+
+function mount(data) {
+  const root = document.getElementById('root');
+  root.innerHTML = (
+    '<header class="page-head">'
+    + '<h1>Foundation review: render skill assets</h1>'
+    + `<p class="meta">${Render.esc(data.reviewed.scope)}, ${data.reviewed.files.length} files</p>`
+    + '</header>'
+    + `<section class="section" id="glance" data-section="At a glance"><h2>At a glance</h2>${glanceHtml(data)}</section>`
+    + `<section class="section" id="findings" data-section="Findings">${findingsHtml(data)}</section>`
+  );
+}
+
+mount(DATA);
+if (window.Render) {
+  Render.init({
+    verdicts: ['fix', "won't fix", 'discuss'],
+    file: 'review-render-foundation-2026-09-23.html',
+    title: 'Foundation review: render skill assets',
+  });
+}
+</script>

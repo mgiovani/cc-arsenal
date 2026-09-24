@@ -16,13 +16,16 @@ exists.
 | `test-suite` (its analysis pass) | `audit` | one uncovered path |
 | `vrt-check` | `review` | one changed component, with its image triptych |
 | `project-planner`, `implement-feature`, `orchestrate` | `plan` | one step |
-| `clotho-research` | `map` | one file or risk the change touches |
+| `clotho-research` | `tour` | one file or risk the change touches, in the order it's worth reading |
 | `docs-adr`, `docs-rfc` | `compare` | one alternative considered |
 | `find-skills` | `compare` | one candidate skill |
 | `product-prd` | `prd` | one requirement |
 | `prd-to-issues` | `prd` | one requirement, with the issue it became |
 | `product-design-spec` | `prd` | one screen, traced to its requirement |
 | `docs-diagram` | `map` | one component |
+| `gh-daily`, `jira-daily`, `jira-todo` | `report` | one status line or metric |
+| `refactor`, `db-migrate` | `diff` | one hunk |
+| `fix-bug` | `timeline` | one step of the investigation narrative (symptom, hypothesis, root cause, fix) |
 
 A skill not in this table still works: run it, look at the shape of its output,
 and pick the mode from the table in SKILL.md. Say which mode you picked.
@@ -42,6 +45,6 @@ and pick the mode from the table in SKILL.md. Say which mode you picked.
   they are what make the page reviewable rather than assertive.
 - Skills that produce actions rather than findings are not worth wrapping. Every
   `git-*` skill, `ship`, `gitflow`, `docker-init`, `ci-generate`, `create-rule`,
-  `create-skill`, `improve-skill`, `inject-docs`, `db-migrate`, `agent-browser`,
-  the image generators, and `wtf`. If asked anyway, say why a page adds nothing
-  and offer the bare skill.
+  `create-skill`, `improve-skill`, `inject-docs`, `agent-browser`, the image
+  generators, and `wtf`. If asked anyway, say why a page adds nothing and offer
+  the bare skill.

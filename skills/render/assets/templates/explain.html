@@ -1,0 +1,249 @@
+<title>Explain: render's comment loop</title>
+<!-- impeccable-disable overused-font -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../page.css">
+
+<script id="state" type="application/json">{"v":1,"verdicts":{},"comments":[]}</script>
+
+<header class="toolbar">
+  <div class="toolbar-row">
+    <span class="toolbar-title">Explain: render's comment loop</span>
+    <div class="counts" aria-label="Counts"></div>
+    <span class="spacer"></span>
+    <div class="seg" role="group" aria-label="Theme" data-theme-toggle>
+      <button type="button" data-value="auto" aria-pressed="true">Auto</button>
+      <button type="button" data-value="light" aria-pressed="false">Light</button>
+      <button type="button" data-value="dark" aria-pressed="false">Dark</button>
+    </div>
+    <div class="toolbar-group">
+      <button type="button" class="btn" data-action="digest">Copy digest</button>
+      <button type="button" class="btn btn-icon" data-action="shortcuts" aria-label="Keyboard shortcuts" aria-expanded="false" aria-controls="shortcuts">?</button>
+      <button type="button" class="btn btn-primary" data-action="save">Save</button>
+    </div>
+  </div>
+</header>
+
+<div id="shortcuts" class="shortcuts" hidden>
+  <div class="shortcuts-inner">
+    <h2>Keyboard</h2>
+    <div class="shortcut"><span class="keys"><kbd>j</kbd><kbd>k</kbd></span>Next or previous section</div>
+    <div class="shortcut"><span class="keys"><kbd>c</kbd></span>Comment on the current section</div>
+    <div class="shortcut"><span class="keys"><kbd>Esc</kbd></span>Close composer or panel</div>
+    <div class="shortcut"><span class="keys"><kbd>?</kbd></span>Show or hide this panel</div>
+  </div>
+</div>
+
+<main class="wrap wrap-wide" id="root"></main>
+
+<script src="../page.js"></script>
+<script>
+/*
+DATA shape (replace wholesale; every field below is read by the render functions further down):
+{
+  subject: string,                 // the page's h1 and toolbar title source
+  tldr: string,                    // the one-line answer, first
+  mechanism: {
+    anchor: string, label: string,
+    stages: [{ title: string, fn: string, key?: boolean }],   // pipeline, in order
+  },
+  code: {
+    anchor: string, label: string, path: string, range: string,
+    lines: [{ n: number, text: string, hl?: boolean, pin?: number }],
+    notes: [{ pin: number, strong: string, text: string }],
+  },
+  detail: {
+    anchor: string, label: string,
+    items: [{ q: string, a: string, source: string }],        // 5 to 12 items
+  },
+  gotcha: { anchor: string, label: string, text: string, source: string },
+  sources: { anchor: string, label: string, items: [{ href: string, text: string }] },
+  scope: string,                   // what this page does not cover, last
+}
+*/
+const DATA = /*SAMPLE*/{
+  subject: "How render's comment loop works",
+  tldr: "A comment survives a rewrite because every anchored block carries an id derived from its own content: Render.anchored() writes that id into the markup, submitComment() stores the comment next to it, and persist() writes the pair to localStorage before Save ever touches the page's own state script.",
+  mechanism: {
+    anchor: "diagram-render-feedback-loop",
+    label: "The render feedback loop, start to finish",
+    stages: [
+      { title: "Author renders a block", fn: "Render.anchored()" },
+      { title: "Page loads", fn: "Render.init()" },
+      { title: "Every block hydrates", fn: "hydrate()" },
+      { title: "Reader clicks the mark", fn: "openComposer()" },
+      { title: "Comment is stored", fn: "submitComment()", key: true },
+      { title: "Draft is written", fn: "persist()" },
+      { title: "Reader saves", fn: "buildDocument()" },
+    ],
+  },
+  code: {
+    anchor: "code-page-js-submit-comment",
+    label: "submitComment(), page.js:202-213",
+    path: "skills/render/assets/page.js",
+    range: "L202-213",
+    lines: [
+      { n: 202, text: "  state.comments.push({" },
+      { n: 203, text: "    anchor: block.dataset.anchor," },
+      { n: 204, text: "    label: labelFor(block)," },
+      { n: 205, text: "    section: block.closest('[data-section]')?.dataset.section || '',", pin: 1 },
+      { n: 206, text: "    text," },
+      { n: 207, text: "    at: new Date().toISOString()," },
+      { n: 208, text: "  });" },
+      { n: 209, text: "  persist();", pin: 2 },
+      { n: 210, text: "  closeComposer(block);" },
+      { n: 211, text: "  renderComments(block);" },
+      { n: 212, text: "  paintMark(block);", pin: 3 },
+      { n: 213, text: "}" },
+    ],
+    notes: [
+      { pin: 1, strong: "Identity, not position.", text: "anchor, label and section all get stored on the comment itself, so an orphaned comment still reads as \"you said X about Y\" after the block it was left on is gone." },
+      { pin: 2, strong: "persist() is the whole write path.", text: "it stamps state.updated, writes the draft to localStorage and flags Save dirty. Nothing else touches storage." },
+      { pin: 3, strong: "Repaint, not re-render.", text: "only this block's comment list and mark count are redrawn; the rest of the page is left alone." },
+    ],
+  },
+  detail: {
+    anchor: "detail-questions",
+    label: "Questions this answers",
+    items: [
+      {
+        q: "Why is an anchor derived from content, never from position?",
+        a: "A position-derived anchor like step-3 breaks silently the moment content is inserted above it: the old anchor still resolves, so a comment left on the third step reattaches to whatever is third next time.",
+        source: "references/feedback-loop.md, Anchors",
+      },
+      {
+        q: "What happens if the reader's localStorage draft is newer than the saved page?",
+        a: "loadState() compares draft.updated against the embedded state's updated timestamp and only uses the draft when it is strictly newer, so a stale draft can never resurrect comments the author already removed.",
+        source: "assets/page.js:53-59, loadState()",
+      },
+      {
+        q: "Does a comment survive when the page is regenerated with new content?",
+        a: "Yes if its anchor still resolves. If the anchor is gone the comment is kept anyway and reported as orphaned on the next read-back, because a verdict with no target is dropped but what a reader said still matters.",
+        source: "references/feedback-loop.md, Re-rendering an existing page",
+      },
+      {
+        q: "Why does page.js capture RAW as its very first line, before anything else runs?",
+        a: "RAW is document.documentElement.outerHTML taken at module load, before any render call can mutate the DOM. buildDocument() then slices that string and swaps only the state script, so it never serializes a live, possibly half-edited page.",
+        source: "assets/page.js:1 and 489-496",
+      },
+      {
+        q: "How does Copy digest group what the reader marked?",
+        a: "buildDigest() lists page-level decisions first, then verdicts in fixed order, then resolved comments grouped by section, then orphaned comments last and named separately rather than dropped.",
+        source: "assets/page.js:427-457, buildDigest()",
+      },
+      {
+        q: "Why is deleting a comment matched by anchor and timestamp instead of an id?",
+        a: "A comment carries no id field. deleteComment() finds the entry by the (anchor, at) pair, and at is the ISO timestamp stamped when the comment was pushed, which is unique enough within one block's own list.",
+        source: "assets/page.js:215-223, deleteComment()",
+      },
+    ],
+  },
+  gotcha: {
+    anchor: "note-mark-must-stay-grid-child",
+    label: "The mark button must stay a grid child",
+    text: "The comment affordance is laid out with CSS grid, not position: absolute, because an absolutely positioned child gets clipped by any ancestor with overflow-x: auto, which is exactly what wraps the wide tables and matrices this skill requires to stay commentable.",
+    source: "references/feedback-loop.md, The affordance",
+  },
+  sources: {
+    anchor: "sources-render-feedback-loop",
+    label: "Sources",
+    items: [
+      { href: "https://github.com/mgiovani/cc-arsenal/blob/main/skills/render/assets/page.js#L197-L223", text: "assets/page.js:197-223, the comment functions" },
+      { href: "https://github.com/mgiovani/cc-arsenal/blob/main/skills/render/assets/page.js#L621-L630", text: "assets/page.js:621-630, anchored()" },
+      { href: "https://github.com/mgiovani/cc-arsenal/blob/main/skills/render/references/feedback-loop.md", text: "references/feedback-loop.md, the mechanic this page walks through" },
+      { href: "https://github.com/mgiovani/cc-arsenal/blob/main/skills/render/references/blocks.md", text: "references/blocks.md, Anchored blocks" },
+    ],
+  },
+  scope: "This covers the client-side loop only: an anchor written once, a comment read back from the same page. Publishing through the Artifact runtime and any server-held state are a separate mechanism this page does not walk through.",
+};
+
+function emptyBlock(title, text) {
+  return `<div class="empty"><p class="title">${Render.esc(title)}</p><p class="text">${Render.esc(text)}</p></div>`;
+}
+
+function renderAnswer(d) {
+  if (!d.tldr) return emptyBlock('No answer yet', 'DATA.tldr is empty; the page has no one-line answer to show.');
+  return Render.anchored({ anchor: 'tldr-' + Render.slug(d.subject), label: 'The one-line answer', html: `<p class="tldr">${Render.esc(d.tldr)}</p>` });
+}
+
+function renderMechanism(m) {
+  if (!m || !m.stages?.length) return emptyBlock('No mechanism recorded', 'Add stages to DATA.mechanism.stages to show the pipeline.');
+  const stages = m.stages.map((s) => (
+    `<li class="stage${s.key ? ' key' : ''}"><span class="title">${Render.esc(s.title)}</span>`
+    + `<span class="meta mono" title="${Render.esc(s.fn)}">${Render.esc(s.fn)}</span></li>`
+  )).join('');
+  return Render.anchored({ anchor: m.anchor, label: m.label, html: `<ol class="flow">${stages}</ol>` });
+}
+
+function renderCode(c) {
+  if (!c || !c.lines?.length) return emptyBlock('No code path recorded', 'Add DATA.code to walk through the key function for this subject.');
+  const lines = c.lines.map((l) => {
+    const cls = 'ln' + (l.hl ? ' hl' : '');
+    const pin = l.pin ? `<span class="pin">${l.pin}</span>` : '';
+    return `<span class="${cls}" data-n="${l.n}">${Render.esc(l.text)}${pin}</span>`;
+  }).join('');
+  const notes = (c.notes || []).map((n) => (
+    `<li><span class="pin">${n.pin}</span><span><b>${Render.esc(n.strong)}</b> ${Render.esc(n.text)}</span></li>`
+  )).join('');
+  const html = (
+    `<div class="annot"><figure class="code"><figcaption><span class="path">${Render.path(c.path)}</span>`
+    + `<span class="meta">${Render.esc(c.range)}</span></figcaption><div class="lines">${lines}</div></figure>`
+    + `<ol class="notes">${notes}</ol></div>`
+  );
+  return Render.anchored({ anchor: c.anchor, label: c.label, html });
+}
+
+function renderDetail(d) {
+  if (!d || !d.items?.length) return emptyBlock('No questions recorded', 'Add entries to DATA.detail.items, one per question the reader is likely to ask.');
+  const items = d.items.map((it) => (
+    `<details class="disclosure"><summary>${Render.esc(it.q)}<span class="meta mono">${Render.path(it.source)}</span></summary>`
+    + `<div class="disclosure-body"><p class="text">${Render.esc(it.a)}</p></div></details>`
+  )).join('');
+  return Render.anchored({ anchor: d.anchor, label: d.label, html: items });
+}
+
+function renderGotcha(g) {
+  if (!g) return emptyBlock('No gotcha recorded', 'Add DATA.gotcha for the one thing readers get wrong about this mechanism.');
+  const html = (
+    `<aside class="callout" data-kind="note"><span class="callout-label">Note</span>`
+    + `<p>${Render.esc(g.text)} <span class="mono">${Render.path(g.source)}</span></p></aside>`
+  );
+  return Render.anchored({ anchor: g.anchor, label: g.label, html });
+}
+
+function renderSources(s) {
+  if (!s || !s.items?.length) return emptyBlock('No sources recorded', 'Add entries to DATA.sources.items citing what this explanation was checked against.');
+  const items = s.items.map((i) => (
+    `<div><cite class="source"><a href="${Render.esc(i.href)}">${Render.path(i.text)}</a></cite></div>`
+  )).join('');
+  return Render.anchored({ anchor: s.anchor, label: s.label, html: `<div class="stack">${items}</div>` });
+}
+
+function mount() {
+  document.getElementById('root').innerHTML = (
+    '<nav class="toc" aria-label="On this page"><h2>On this page</h2><ol>'
+    + '<li><a href="#answer" aria-current="true">Answer</a></li>'
+    + '<li><a href="#mechanism">How it works</a></li>'
+    + '<li><a href="#code-path">Key code path</a></li>'
+    + '<li><a href="#detail">Detail</a></li>'
+    + '<li><a href="#gotcha">Gotchas</a></li>'
+    + '<li><a href="#sources">Sources</a></li>'
+    + '</ol></nav>'
+    + '<header class="page-head">'
+    + `<h1>${Render.esc(DATA.subject)}</h1>`
+    + '<p class="meta">Verified against the files this page cites. Comments only, no verdicts: this mode is for questions, not decisions.</p>'
+    + '</header>'
+    + '<section class="section" id="answer" data-section="Answer"><h2>Answer</h2>' + renderAnswer(DATA) + '</section>'
+    + '<section class="section" id="mechanism" data-section="Mechanism"><h2>How it works</h2>' + renderMechanism(DATA.mechanism) + '</section>'
+    + '<section class="section" id="code-path" data-section="Key code path"><h2>The code that captures a comment</h2>' + renderCode(DATA.code) + '</section>'
+    + '<section class="section" id="detail" data-section="Detail"><h2>Questions this answers</h2>' + renderDetail(DATA.detail) + '</section>'
+    + '<section class="section" id="gotcha" data-section="Gotchas"><h2>What trips people up</h2>' + renderGotcha(DATA.gotcha) + '</section>'
+    + '<section class="section" id="sources" data-section="Sources"><h2>Sources</h2>' + renderSources(DATA.sources)
+    + `<p class="text">${Render.esc(DATA.scope)}</p></section>`
+  );
+}
+
+mount();
+Render.init({ verdicts: null, file: 'explain-render-comment-loop-2026-09-23.html', title: DATA.subject });
+</script>

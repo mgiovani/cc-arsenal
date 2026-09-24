@@ -14,8 +14,10 @@
         "the page's CSS defines its palette as custom properties on a bare :root selector, redefines them under a prefers-color-scheme dark media query guarded against [data-theme=\"light\"], and redefines them again under :root[data-theme=\"dark\"]",
         "body has an explicit background drawn from a token, not left transparent",
         "the response reports the output path and the finding counts, and does not claim to have fixed anything",
-        "the publish call supplies a favicon, which the Artifact contract requires on a first publish",
-        "the palette is greyscale apart from the three verdict states: no brand accent, no colored headings, filters or counts, and selected or pressed controls use an ink fill rather than a hue"
+        "the publish call supplies an icon, which the Artifact contract requires on a first publish",
+        "every color on the page resolves to one of the eight neutral tokens (or a color-mix of them): there is no hue anywhere, including on the verdict controls, whose decision is read from the pressed segment's ink-fill position rather than from a color",
+        "the page was built by copying assets/templates/review.html and replacing its /*SAMPLE*/ DATA object rather than hand-authored from a blank file, then assembled with scripts/assemble.py so page.css and page.js are inlined into the single file, the assemble.py gate passes with no --allow-sample flag and no leftover /*SAMPLE*/ marker, and every corner on the page is square (no border-radius, no rx/ry)",
+        "no rendered text on the page is smaller than 15px anywhere (meta, tags, mono identifiers, code excerpts included), and scripts/assemble.py's font-size rule reports zero violations on the assembled page"
       ]
     },
     {
@@ -106,6 +108,57 @@
         "the page's save control regenerates the document and offers it as a download rather than relying on the browser's own Save Page As",
         "the response tells the user to replace the file at the reported path with the downloaded copy and say when done",
         "the response does not tell the user their browser can save the marks into the original file in place"
+      ]
+    },
+    {
+      "id": "happy-path-tour-mode",
+      "prompt": "Run render tour on how skills/render/scripts/assemble.py works: inline_assets() splicing in page.css/page.js, then check() gating the result through _hex_violations, _color_function_violations and _css_declaration_violations.",
+      "assertions": [
+        "an HTML file is written under .cc-arsenal/renders/ with a name starting 'tour-'",
+        "the page is built by copying assets/templates/tour.html and replacing its /*SAMPLE*/ DATA object, then assembling with scripts/assemble.py, not hand-authored from a blank file",
+        "tour mode carries no verdict controls, matching its 'none, comments only' row in the mode table; only the anchored comment affordance appears on each stop",
+        "each stop is anchored to the real function or file it walks (inline_assets, check, main, or similar), never to its position in the list",
+        "the stops follow a reading order that actually makes sense for the code (e.g. inlining before gating, gating before reporting), not an arbitrary or invented order",
+        "code shown on the page is excerpted from the real file content, not paraphrased or fabricated",
+        "the assembled output passes scripts/assemble.py with zero violations and no leftover /*SAMPLE*/ marker"
+      ]
+    },
+    {
+      "id": "happy-path-timeline-mode",
+      "prompt": "Run render timeline on the render skill's own history from CHANGELOG.md: added in [5.2.0] on 2026-08-30 as one of five skills, then this release's monochrome/square/Geist redesign adding tour, timeline, diff and report.",
+      "assertions": [
+        "an HTML file is written under .cc-arsenal/renders/ with a name starting 'timeline-'",
+        "the page is built by copying assets/templates/timeline.html and replacing its /*SAMPLE*/ DATA object, then assembled with scripts/assemble.py",
+        "timeline mode carries no verdict controls; each event carries only the anchored comment affordance",
+        "events are rendered with the timeline block (a dated vertical rule), not as an undated steps list",
+        "each event's anchor is derived from the event's own identity (e.g. its date plus a slug of what happened), not from its position in the sequence",
+        "the two real dated events from CHANGELOG.md appear with their actual dates, in chronological order, and no invented event is added",
+        "the assembled output passes scripts/assemble.py with zero violations and no leftover /*SAMPLE*/ marker"
+      ]
+    },
+    {
+      "id": "happy-path-diff-mode",
+      "prompt": "Run render diff on a proposed change to skills/render/scripts/assemble.py's _shadow_ok function: the before is the current allow-list check, the after simplifies it to a single set membership test.",
+      "assertions": [
+        "an HTML file is written under .cc-arsenal/renders/ with a name starting 'diff-'",
+        "the page is built by copying assets/templates/diff.html and replacing its /*SAMPLE*/ DATA object, then assembled with scripts/assemble.py",
+        "each hunk carries accept / revise / reject verdict controls, matching diff mode's row in the mode table",
+        "the before and after code are both shown via the diff block, with added and removed lines distinguished by the .add/.del line classes rather than by color alone",
+        "each hunk's anchor is derived from the file and the hunk's identity, not from its position among the hunks",
+        "the diff shown reflects a real, specific proposed change to the named function rather than an invented or generic example",
+        "the assembled output passes scripts/assemble.py with zero violations, no leftover /*SAMPLE*/ marker, and square corners throughout"
+      ]
+    },
+    {
+      "id": "happy-path-report-mode",
+      "prompt": "Run render report on this week's gh-daily output for the cc-arsenal repo: 3 PRs merged, 2 open review requests, 1 stale branch older than 14 days.",
+      "assertions": [
+        "an HTML file is written under .cc-arsenal/renders/ with a name starting 'report-'",
+        "the page is built by copying assets/templates/report.html and replacing its /*SAMPLE*/ DATA object, then assembled with scripts/assemble.py",
+        "report mode carries no verdict controls; metrics and status lines carry only the anchored comment affordance",
+        "the tldr and facts or tally blocks are used for the counts (3 merged, 2 open reviews, 1 stale branch) rather than a hero metric or a wall of prose",
+        "every number on the page traces to a value gh-daily actually reported, none invented to fill out the layout",
+        "the assembled output passes scripts/assemble.py with zero violations and no leftover /*SAMPLE*/ marker"
       ]
     }
   ]

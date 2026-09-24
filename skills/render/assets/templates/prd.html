@@ -1,0 +1,319 @@
+<title>Render Skill PRD</title>
+<!-- impeccable-disable overused-font -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../page.css">
+
+<script id="state" type="application/json">{"v":1,"verdicts":{},"comments":[]}</script>
+
+<header class="toolbar">
+  <div class="toolbar-row">
+    <span class="toolbar-title">Render skill v1.1 PRD</span>
+    <div class="counts" aria-label="Counts"></div>
+    <span class="spacer"></span>
+    <div class="seg" role="group" aria-label="Theme" data-theme-toggle>
+      <button type="button" data-value="auto" aria-pressed="true">Auto</button>
+      <button type="button" data-value="light" aria-pressed="false">Light</button>
+      <button type="button" data-value="dark" aria-pressed="false">Dark</button>
+    </div>
+    <div class="toolbar-group">
+      <button type="button" class="btn" data-action="digest">Copy digest</button>
+      <button type="button" class="btn btn-icon" data-action="shortcuts" aria-label="Keyboard shortcuts" aria-expanded="false" aria-controls="shortcuts">?</button>
+      <button type="button" class="btn btn-primary" data-action="save">Save</button>
+    </div>
+  </div>
+  <div class="filterbar">
+    <div class="seg" data-filter="verdict" role="group" aria-label="Filter by verdict"></div>
+    <div class="seg" role="group" aria-label="Filter by family" data-filter="family">
+      <button type="button" data-value="all" aria-pressed="true">All</button>
+      <button type="button" data-value="design-system" aria-pressed="false">Design system</button>
+      <button type="button" data-value="runtime" aria-pressed="false">Runtime</button>
+      <button type="button" data-value="blocks" aria-pressed="false">Blocks</button>
+      <button type="button" data-value="verification" aria-pressed="false">Verification</button>
+    </div>
+  </div>
+</header>
+
+<div id="shortcuts" class="shortcuts" hidden>
+  <div class="shortcuts-inner">
+    <h2>Keyboard</h2>
+    <div class="shortcut"><span class="keys"><kbd>j</kbd><kbd>k</kbd></span>Next or previous requirement</div>
+    <div class="shortcut"><span class="keys"><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd></span>Keep, change, drop</div>
+    <div class="shortcut"><span class="keys"><kbd>c</kbd></span>Comment on the current requirement</div>
+    <div class="shortcut"><span class="keys"><kbd>/</kbd></span>Focus the verdict filter</div>
+    <div class="shortcut"><span class="keys"><kbd>Esc</kbd></span>Close composer or panel</div>
+    <div class="shortcut"><span class="keys"><kbd>?</kbd></span>Show or hide this panel</div>
+  </div>
+</div>
+
+<main class="wrap wrap-wide" id="root"></main>
+
+<script src="../page.js"></script>
+<script>
+/*
+  DATA shape (replace wholesale for a new PRD):
+  {
+    page: { title: string, subtitle: string },
+    facts: [ { label: string, value: string, mono?: boolean } ],
+    families: [ { id: string (slug, matches the family filter's data-value), name: string, blurb: string } ],
+    requirements: [
+      {
+        id: string (e.g. "RENDER-DS-01"),
+        family: string (a families[].id),
+        text: string (the requirement, verbatim, not paraphrased),
+        hasSource: boolean,
+        evidence: { detail: string, source: string|null } (source is a file or file:line citation, null when hasSource is false)
+      }
+    ],
+    risks: [ { title: string, body: string } ] (open questions the reader must not miss),
+    acceptance: [ { text: string, done: boolean } ]
+  }
+*/
+const DATA = /*SAMPLE*/{
+  page: {
+    title: 'Render skill v1.1 PRD',
+    subtitle: '12 requirements across 4 families. Sign off keep, request a change, or drop each one.',
+  },
+  facts: [
+    { label: 'Owner', value: 'mgiovani' },
+    { label: 'Status', value: 'In review' },
+    { label: 'Version', value: '1.1.0', mono: true },
+    { label: 'Spec', value: 'skills/render/references/page-kit.md', mono: true },
+  ],
+  families: [
+    { id: 'design-system', name: 'Design system', blurb: 'The token, shape and type contract every block in page.css must satisfy: eight neutral tokens, square corners, and two typefaces.' },
+    { id: 'runtime', name: 'Runtime', blurb: 'What window.Render and page.js owe every page: state load, verdicts, comments, filters, keyboard and save.' },
+    { id: 'blocks', name: 'Blocks', blurb: 'How content picks its block and carries its identity, per blocks.md and feedback-loop.md.' },
+    { id: 'verification', name: 'Verification', blurb: 'The mechanical gates a page must clear before it ships, run by assemble.py, impeccable and stopslop.' },
+  ],
+  requirements: [
+    {
+      id: 'RENDER-DS-01', family: 'design-system',
+      text: 'Every color in page.css resolves to one of the eight neutral tokens, transparent, currentColor, or color-mix() of tokens: zero hue anywhere, including the verdict control.',
+      hasSource: true,
+      evidence: { detail: 'page.css defines eight tokens under :root, all R=G=B, and caps the verdict encoding at an ink fill for the pressed segment rather than a tint.', source: 'assets/page.css:3-19' },
+    },
+    {
+      id: 'RENDER-DS-02', family: 'design-system',
+      text: 'border-radius is 0 everywhere, including a reset for button, input, textarea and select, and every SVG rx and ry is 0.',
+      hasSource: true,
+      evidence: { detail: 'The universal reset sets border-radius to 0 on every element, then repeats it explicitly on button, input, textarea and select.', source: 'assets/page.css:46-47' },
+    },
+    {
+      id: 'RENDER-DS-03', family: 'design-system',
+      text: 'Type is Geist 400, 500 and 600 plus Geist Mono 400 and 500, loaded from one Google Fonts link with system fallbacks, and no other typeface appears on the page.',
+      hasSource: true,
+      evidence: { detail: 'The --sans and --mono custom properties resolve to Geist and Geist Mono first, with system fallbacks after.', source: 'assets/page.css:14-15' },
+    },
+    {
+      id: 'RENDER-RT-01', family: 'runtime',
+      text: 'Render.init loads the embedded state or a newer localStorage draft, hydrates every anchored block\'s verdict, comments and picks, then wires theme, filters and keyboard handling in one call.',
+      hasSource: true,
+      evidence: { detail: 'init() calls loadState, buildToolbar, fillVerdicts, hydrate, applyTheme, applyFilters, observeToc and wireEvents in sequence, so a page needs exactly one Render.init call.', source: 'assets/page.js:709-719' },
+    },
+    {
+      id: 'RENDER-RT-02', family: 'runtime',
+      text: 'The toolbar is one sticky unit under a single hairline; at 720px and under it stops being sticky and each row scrolls sideways as one line instead of wrapping.',
+      hasSource: true,
+      evidence: { detail: '.toolbar is position: sticky with a border-bottom, and the 720px query sets position: static plus flex-wrap: nowrap and overflow-x: auto on both rows.', source: 'assets/page.css:128-161' },
+    },
+    {
+      id: 'RENDER-RT-03', family: 'runtime',
+      text: 'Render.setPage persists the choice to localStorage, marks Save dirty exactly like a verdict change, and repaints every button carrying a matching data-page-key and data-page-value.',
+      hasSource: true,
+      evidence: { detail: 'setPage calls persist() then paintPicks(), which syncs aria-pressed on every [data-page-key][data-page-value] button on the page.', source: 'assets/page.js:278-289' },
+    },
+    {
+      id: 'RENDER-BLK-01', family: 'blocks',
+      text: 'Every section renders the block whose shape matches its content, per the content-shape-to-block table, and no paragraph runs longer than three lines.',
+      hasSource: true,
+      evidence: { detail: 'The table maps a shape, a count that sums to a whole, a sequence, a before and after, to exactly one block, so a section either has a matching row or is prose that does not belong on the page.', source: 'blocks.md:16-43' },
+    },
+    {
+      id: 'RENDER-BLK-02', family: 'blocks',
+      text: 'Every anchored block carries a data-anchor derived from content identity, never from position, unique on the page, plus a data-label.',
+      hasSource: true,
+      evidence: { detail: 'A position-derived anchor like step-3 keeps resolving after content is inserted above it, so a comment silently reattaches to the wrong row; the anchor has to come from the content\'s own identifier.', source: 'feedback-loop.md:20-44' },
+    },
+    {
+      id: 'RENDER-BLK-03', family: 'blocks',
+      text: 'Every section shows an .empty state naming what is missing when its DATA list is empty, instead of rendering nothing.',
+      hasSource: false,
+      evidence: { detail: 'No recorded source. blocks.md\'s own empty entry documents the block\'s markup but not this per-section obligation yet.', source: null },
+    },
+    {
+      id: 'RENDER-VER-01', family: 'verification',
+      text: 'scripts/assemble.py inlines page.css and page.js, then gates the result: six-digit neutral hexes only, no rgb, hsl, hwb, lab, lch, oklab or oklch, no named colors in color properties, border-radius only 0, box-shadow only none or a 1px inset outline, and no leftover SAMPLE marker.',
+      hasSource: true,
+      evidence: { detail: 'check() walks every style block and presentation attribute and reports the file and line for each violation, so the gate is mechanical rather than a reviewer\'s judgment call.', source: 'scripts/assemble.py:262-291' },
+    },
+    {
+      id: 'RENDER-VER-02', family: 'verification',
+      text: 'npx impeccable detect returns 0 findings on every shipped template and on the gallery, with no waiver added beyond the overused-font line.',
+      hasSource: true,
+      evidence: { detail: 'Step 6 of the skill\'s own build checklist: run impeccable on the assembled file and fix whatever it flags before delivering.', source: 'SKILL.md:121' },
+    },
+    {
+      id: 'RENDER-VER-03', family: 'verification',
+      text: 'A local monochrome-linting pass prints nothing against every changed reference doc.',
+      hasSource: false,
+      evidence: { detail: 'No recorded source in the shipped docs; checked by hand before merge alongside the impeccable and assemble.py gates.', source: null },
+    },
+  ],
+  risks: [
+    {
+      title: 'page-kit.md still shows the pre-rebuild verdict tints',
+      body: 'page-kit.md\'s Color section still ships a keep, edit, drop hex ramp and a --faint token from before this rebuild, while the shipped page.css uses only the eight neutral tokens and an ink fill for the pressed verdict segment. A future edit that copies page-kit.md\'s own reference CSS instead of page.css would reintroduce hue. This section still needs a rewrite pass to match what shipped.',
+    },
+  ],
+  acceptance: [
+    { text: 'scripts/assemble.py passes with zero violations on the gallery and on all twelve mode templates', done: false },
+    { text: 'npx impeccable detect skills/render returns 0 findings', done: false },
+    { text: 'A functional smoke test in Chrome: set a verdict by click and by 1, 2, 3, move with j and k, leave a comment, reload keeps the draft, Copy digest and Save both work', done: false },
+    { text: 'make check, make validate-structure and make test are green, and git status shows only the intended paths', done: false },
+  ],
+}/*SAMPLE*/;
+
+function reqAnchor(req) { return 'req-' + Render.slug(req.id); }
+function riskAnchor(risk) { return 'risk-' + Render.slug(risk.title); }
+
+function renderHead() {
+  return `<header class="page-head"><h1>${Render.esc(DATA.page.title)}</h1><p class="meta">${Render.esc(DATA.page.subtitle)}</p></header>`;
+}
+
+function renderToc() {
+  const items = [['glance', 'At a glance'], ...DATA.families.map((f) => ['fam-' + f.id, f.name]), ['open-questions', 'Open questions'], ['acceptance', 'Acceptance criteria']];
+  const links = items.map(([id, label], i) => `<li><a href="#${id}"${i === 0 ? ' aria-current="true"' : ''}>${Render.esc(label)}</a></li>`).join('');
+  return `<nav class="toc" aria-label="On this page"><h2>On this page</h2><ol>${links}</ol></nav>`;
+}
+
+function renderFacts() {
+  if (!DATA.facts.length) {
+    return '<div class="empty"><p class="title">No facts recorded</p><p class="text">Owner, status, version and source have not been filled in yet.</p></div>';
+  }
+  const cells = DATA.facts.map((f) => `<div><dt>${Render.esc(f.label)}</dt><dd${f.mono ? ' class="mono"' : ''}>${f.mono ? Render.path(f.value) : Render.esc(f.value)}</dd></div>`).join('');
+  return `<dl class="facts">${cells}</dl>`;
+}
+
+// Counts come from the DOM's own aria-pressed state, not a re-parse of the
+// embedded or localStorage JSON: page.js paints verdicts onto the rendered
+// buttons (on load and on every click) but never writes them back into the
+// #state script tag, so that tag stays the page's original snapshot.
+function tallyCounts() {
+  const counts = { keep: 0, change: 0, drop: 0, undecided: 0 };
+  for (const req of DATA.requirements) {
+    const seg = document.querySelector(`.anchored[data-anchor="${reqAnchor(req)}"] .verdict.seg`);
+    const pressed = seg?.querySelector('button[aria-pressed="true"]')?.dataset.v;
+    if (pressed && pressed in counts) counts[pressed] += 1;
+    else counts.undecided += 1;
+  }
+  return counts;
+}
+
+function renderTally() {
+  if (!DATA.requirements.length) {
+    return '<div class="empty"><p class="title">No requirements yet</p><p class="text">Nothing to tally until requirements are added.</p></div>';
+  }
+  const counts = tallyCounts();
+  return (
+    '<div class="tally" role="group" aria-label="Requirements by verdict">'
+    + '<dl class="tally-counts">'
+    + `<div class="s1"><dt>Keep</dt><dd>${counts.keep}</dd></div>`
+    + `<div class="s2"><dt>Change</dt><dd>${counts.change}</dd></div>`
+    + `<div class="s3"><dt>Drop</dt><dd>${counts.drop}</dd></div>`
+    + `<div class="s0"><dt>Undecided</dt><dd>${counts.undecided}</dd></div>`
+    + '</dl>'
+    + '<div class="tally-bar" aria-hidden="true">'
+    + `<i class="s1" style="--v:${counts.keep}"></i><i class="s2" style="--v:${counts.change}"></i><i class="s3" style="--v:${counts.drop}"></i><i class="s0" style="--v:${counts.undecided}"></i>`
+    + '</div></div>'
+  );
+}
+
+function renderGlance() {
+  return (
+    '<section class="section" id="glance" data-section="At a glance"><h2>At a glance</h2>'
+    + `<p class="tldr">Render pages look generated today because every run invents its own CSS, JS and layout; this PRD covers the fix as ${DATA.requirements.length} requirements across ${DATA.families.length} families: design system, runtime, blocks and verification.</p>`
+    + renderFacts()
+    + `<div id="tally-wrap">${renderTally()}</div>`
+    + '</section>'
+  );
+}
+
+function renderRequirementRow(req) {
+  const anchor = reqAnchor(req);
+  const head = `<div class="head"><span class="tag mono">${Render.esc(req.id)}</span><span class="title">${Render.esc(req.text)}</span>${Render.verdict(anchor)}</div>`;
+  const sourceLabel = req.hasSource ? req.evidence.source : 'no source';
+  const evidenceBody = req.hasSource
+    ? `<p class="text">${Render.esc(req.evidence.detail)}</p><cite class="source">${Render.esc(req.evidence.source)}</cite>`
+    : `<p class="text">${Render.esc(req.evidence.detail)}</p>`;
+  const disclosure = `<details class="disclosure"><summary>Evidence<span class="meta">${Render.esc(sourceLabel)}</span></summary><div class="disclosure-body">${evidenceBody}</div></details>`;
+  return Render.anchored({
+    anchor,
+    label: `${req.id}  -  ${req.text.slice(0, 70)}`,
+    cls: 'row',
+    facets: { family: req.family },
+    verdict: false,
+    html: head + disclosure,
+  });
+}
+
+function renderFamilySection(family) {
+  const reqs = DATA.requirements.filter((r) => r.family === family.id);
+  const count = `${reqs.length} requirement${reqs.length === 1 ? '' : 's'}`;
+  const body = reqs.length
+    ? `<div class="list">${reqs.map(renderRequirementRow).join('')}</div>`
+    : `<div class="empty"><p class="title">No requirements in ${Render.esc(family.name)}</p><p class="text">Nothing has been filed under this family yet.</p></div>`;
+  return (
+    `<section class="section" id="fam-${Render.esc(family.id)}" data-section="${Render.esc(family.name)}">`
+    + `<div class="section-head"><h2>${Render.esc(family.name)}</h2><span class="meta">${count}</span></div>`
+    + `<p class="text">${Render.esc(family.blurb)}</p>`
+    + body
+    + '</section>'
+  );
+}
+
+function renderRisk(risk) {
+  const html = `<aside class="callout" data-kind="risk"><span class="callout-label">Risk</span><p>${Render.esc(risk.body)}</p></aside>`;
+  return Render.anchored({ anchor: riskAnchor(risk), label: risk.title, cls: '', facets: {}, verdict: false, html });
+}
+
+function renderOpenQuestions() {
+  const body = DATA.risks.length
+    ? DATA.risks.map(renderRisk).join('')
+    : '<div class="empty"><p class="title">No open questions</p><p class="text">Nothing is blocking sign-off right now.</p></div>';
+  return `<section class="section" id="open-questions" data-section="Open questions"><h2>Open questions</h2>${body}</section>`;
+}
+
+function renderAcceptance() {
+  const body = DATA.acceptance.length
+    ? `<ul class="checklist">${DATA.acceptance.map((a) => `<li${a.done ? ' class="done"' : ''}><span class="box" aria-hidden="true"></span><span>${Render.esc(a.text)}</span></li>`).join('')}</ul>`
+    : '<div class="empty"><p class="title">No acceptance criteria</p><p class="text">Nothing has been defined for sign-off yet.</p></div>';
+  return `<section class="section" id="acceptance" data-section="Acceptance criteria"><h2>Acceptance criteria</h2>${body}</section>`;
+}
+
+function mount() {
+  document.getElementById('root').innerHTML = (
+    renderToc()
+    + renderHead()
+    + renderGlance()
+    + DATA.families.map(renderFamilySection).join('')
+    + renderOpenQuestions()
+    + renderAcceptance()
+  );
+}
+
+function refreshTally() {
+  const wrap = document.getElementById('tally-wrap');
+  if (wrap) wrap.innerHTML = renderTally();
+}
+
+mount();
+if (window.Render) {
+  Render.init({ verdicts: ['keep', 'change', 'drop'], file: 'prd-render-skill-1-1-2026-09-23.html', title: DATA.page.title });
+  refreshTally(); // pick up any verdicts the embedded or draft state already carried
+  document.addEventListener('click', (ev) => {
+    if (ev.target.closest('.verdict.seg button[data-v]')) refreshTally();
+  });
+}
+</script>

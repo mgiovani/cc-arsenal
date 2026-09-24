@@ -40,3 +40,25 @@ stops trusting the page.
   their own spec's order.
 - If a requirement contradicts another, anchor a note on both rather than
   picking a winner.
+
+## Blocks
+
+Composition, in order, per `blocks.md`:
+
+- `tldr`: the problem in one line, at the top of "At a glance".
+- `facts`: owner, status, version, source.
+- `tally`: requirement counts by verdict (keep, change, drop, undecided) plus
+  the stacked bar.
+- Per family, a `section` with a one-line blurb, holding a `list` of `row`
+  blocks: one per requirement, the ID in `.mono`, the requirement text at
+  readable measure, a `disclosure` holding the evidence behind it, and the
+  verdict control in the head.
+- `callout` (`data-kind="risk"`, anchored): one per open question, in its own
+  "Open questions" section.
+- `checklist`: acceptance criteria, in its own "Acceptance criteria" section.
+
+Sections: "At a glance", one per family, "Open questions", "Acceptance
+criteria". Four or more families triggers `wrap-wide` plus the `toc` rail per
+`blocks.md`'s rule of thumb.
+
+Template: `assets/templates/prd.html`.

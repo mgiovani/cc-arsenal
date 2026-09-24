@@ -44,3 +44,18 @@ launders it into looking measured.
   frequently the right answer and it is the one most often left off.
 - Do not normalize scores across criteria that have no common unit. Show the real
   values and let the weights do the work.
+
+## Blocks
+
+Composition, from [blocks.md](blocks.md):
+
+- `tldr`: the question and its stakes.
+- `matrix`: options as columns, weighted criteria as rows, an anchored cell
+  per intersection.
+- `pick`: one per option header and one per option summary, both writing
+  `page.winner`.
+- `split`: one per option, strengths versus costs.
+- `callout`: `data-kind="decision"`, the call and its reasoning.
+- Citations: a list of `cite.source` items, one per fact behind a scored cell.
+
+Template: `assets/templates/compare.html`.

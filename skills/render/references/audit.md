@@ -49,3 +49,27 @@ one for a cleaner headline.
   scope is the result.
 - Group by area before severity here, inverting `review`. At this scale the
   reader is choosing where to spend an afternoon, not adjudicating one claim.
+
+## Blocks
+
+Template: [`assets/templates/audit.html`](../assets/templates/audit.html), a
+`wrap-wide` page with a `toc` rail by area.
+
+| Block | Content |
+|---|---|
+| `page-head` | Subject, and one meta line: finding count, area count, scan date |
+| `tldr` | The one-sentence answer to where the risk is concentrated |
+| `facts` | Areas, findings, skills in scope, scan date |
+| `tally` | Findings by severity (critical, high, medium, low), four shades |
+| `checklist` | What the audit scanned, the scope named as done items |
+| `callout` | A risk naming the worst finding, a note on method or scope |
+| `heat` | Area by severity, the map of the audit, placed above the findings |
+| `bars` | Findings per area, ranked, right after the heat table |
+| `row` (anchored, per area section) | One finding: severity tag, claim, file or script location, verdict |
+| `empty` | Per area, per tally, per heat and per bars, when the audit's finding list is empty |
+
+Findings live one `section` per area (`data-section` is the area name), each
+holding a `.list` of anchored `row` blocks sorted critical to low. The
+filterbar carries verdict, area, severity and category, and the verdict
+filter's `Undecided` option is load-bearing once an audit runs past a
+handful of findings.

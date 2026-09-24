@@ -1,0 +1,178 @@
+<title>Overnight eval loop incident</title>
+<!-- impeccable-disable overused-font -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../page.css">
+
+<script id="state" type="application/json">{"v":1,"verdicts":{},"comments":[]}</script>
+
+<header class="toolbar">
+  <div class="toolbar-row">
+    <span class="toolbar-title">Overnight eval loop incident</span>
+    <div class="counts" aria-label="Counts"></div>
+    <span class="spacer"></span>
+    <div class="seg" role="group" aria-label="Theme" data-theme-toggle>
+      <button type="button" data-value="auto" aria-pressed="true">Auto</button>
+      <button type="button" data-value="light" aria-pressed="false">Light</button>
+      <button type="button" data-value="dark" aria-pressed="false">Dark</button>
+    </div>
+    <div class="toolbar-group">
+      <button type="button" class="btn" data-action="digest">Copy digest</button>
+      <button type="button" class="btn btn-icon" data-action="shortcuts" aria-label="Keyboard shortcuts" aria-expanded="false" aria-controls="shortcuts">?</button>
+      <button type="button" class="btn btn-primary" data-action="save">Save</button>
+    </div>
+  </div>
+</header>
+
+<div id="shortcuts" class="shortcuts" hidden>
+  <div class="shortcuts-inner">
+    <h2>Keyboard</h2>
+    <div class="shortcut"><span class="keys"><kbd>j</kbd><kbd>k</kbd></span>Next or previous event</div>
+    <div class="shortcut"><span class="keys"><kbd>c</kbd></span>Comment on the current event</div>
+    <div class="shortcut"><span class="keys"><kbd>Esc</kbd></span>Close composer or panel</div>
+    <div class="shortcut"><span class="keys"><kbd>?</kbd></span>Show or hide this panel</div>
+  </div>
+</div>
+
+<main class="wrap" id="root"></main>
+
+<script src="../page.js"></script>
+<script>
+/*
+ * DATA shape (replace wholesale):
+ * {
+ *   subject:   string,   // one line: what happened and its impact (the tldr)
+ *   window:    { start: string, end: string },  // "YYYY-MM-DD HH:MM" each
+ *   duration:  string,   // human-readable span, e.g. "8h 50m"
+ *   detection: string,   // how and when the incident was first noticed
+ *   impact:    string,   // one line: what was actually affected
+ *   risk:      string,   // root cause, one or two sentences
+ *   decision:  string,   // what changed as a result, one or two sentences
+ *   events: [{
+ *     at:       string,   // ISO-ish timestamp, "YYYY-MM-DDTHH:MM"
+ *     title:    string,
+ *     who:      string,   // the person or system that acted
+ *     what:     string,   // one or two sentences
+ *     evidence: string,   // where this is confirmed: a log, a file, a dashboard
+ *     minor:    boolean,  // true dims the marker for a secondary event
+ *   }],
+ *   actions: [{
+ *     title: string,
+ *     owner: string,
+ *     done:  boolean,
+ *     note:  string,     // one line of detail
+ *   }],
+ * }
+ */
+const DATA = /*SAMPLE*/{
+  subject: "An overnight eval batch treated every crash and every quota error the same way, relaunch the whole run, and by morning it had burned through the Fable model's daily limit and throttled five other models with it.",
+  window: { start: "2026-07-17 23:50", end: "2026-07-18 08:40" },
+  duration: "8h 50m",
+  detection: "Manual: the user opened a Fable session at 09:02 and hit a limit error",
+  impact: "Fable exhausted, 5 other models throttled",
+  risk: "The driver script's except-and-relaunch block could not tell a transient timeout from a hard quota error, so a 429 from an exhausted model triggered the same full-batch restart as a network blip, with no cap and no backoff to stop it.",
+  decision: "Unattended batch and eval loops now carry a hard token or call budget cap and must stop to ask the user after two consecutive crashes, instead of silently relaunching the whole run. Recorded in ~/.claude/CLAUDE.md under Unattended Background Jobs.",
+  events: [
+    { at: "2026-07-17T23:50", title: "Loop launched with no budget cap", who: "the user, before bed", what: "Kicked off the overnight benchmark run manually; the driver script had no token or call ceiling and no distinction between a transient retry and a full restart.", evidence: "session transcript, 23:50", minor: false },
+    { at: "2026-07-18T00:41", title: "First executor crash, full batch relaunched", who: "driver script", what: "One haiku executor timed out; the script treated the timeout as fatal and relaunched the entire batch from scenario 1, not just the failed executor.", evidence: "eval log, run 1", minor: false },
+    { at: "2026-07-18T02:15", title: "Second crash, second full relaunch", who: "driver script", what: "Same failure mode repeated with no backoff and no cap on the relaunch count.", evidence: "eval log, run 2", minor: true },
+    { at: "2026-07-18T03:52", title: "Third and fourth relaunch", who: "driver script", what: "Two more crash-and-restart cycles, each one re-running scenarios already completed and re-spending their tokens.", evidence: "eval log, runs 3-4", minor: true },
+    { at: "2026-07-18T05:30", title: "Fable returns its first quota warning", who: "Fable API", what: "Token usage from the repeated full-batch restarts pushed the Fable model close to its daily limit; the API began returning slow-down warnings the script ignored.", evidence: "eval log, run 5", minor: true },
+    { at: "2026-07-18T07:58", title: "Fable quota exhausted, loop treats it as another crash", who: "driver script", what: "The 429 from Fable was caught by the same generic except-and-relaunch block as a timeout, so the script restarted the whole batch again, on Fable, with zero quota left.", evidence: "eval log, run 6", minor: false },
+    { at: "2026-07-18T08:40", title: "Loop halts on its own, five more models throttled", who: "driver script", what: "The relaunch loop had silently fallen back through five other models as each one hit its own limit in turn, and stopped only once none had quota left to try.", evidence: "eval log, final run", minor: false },
+    { at: "2026-07-18T09:02", title: "User opens a Fable session, sees the limit error", who: "the user", what: "First human contact with the incident: a normal morning session refused to start with a model limit reached error.", evidence: "session transcript, 09:02", minor: false },
+    { at: "2026-07-18T09:20", title: "Usage dashboard confirms the scope", who: "the user", what: "Checked the usage dashboard and found Fable exhausted plus five other models throttled to varying degrees, all from the same run.", evidence: "usage dashboard, 09:20", minor: true },
+    { at: "2026-07-18T14:30", title: "Rule written: hard cap plus stop after two crashes", who: "the user", what: "Added the Unattended Background Jobs rule to CLAUDE.md: any unattended batch or eval loop needs a hard token or call budget cap, and must stop and ask instead of silently relaunching after two consecutive crashes.", evidence: "~/.claude/CLAUDE.md", minor: false },
+  ],
+  actions: [
+    { title: "Add the hard budget cap to the eval driver script itself", owner: "owner: platform", done: false, note: "The rule lives in CLAUDE.md today; the batch runner script still has no enforced cap or crash counter reading it." },
+    { title: "Distinguish a timeout from a quota error in the relaunch handler", owner: "owner: platform", done: false, note: "A 429 and a network timeout still hit the same except block and trigger the same full restart." },
+    { title: "Write the Unattended Background Jobs rule into CLAUDE.md", owner: "owner: user, 2026-07-18", done: true, note: "Hard cap plus stop-after-two-crashes, recorded the same day." },
+    { title: "Confirm Fable and the five throttled models recovered", owner: "owner: user, 2026-07-19", done: true, note: "All six models cleared their limits by the next reset." },
+  ],
+}/*SAMPLE*/;
+
+function fmt(at) {
+  return String(at).slice(0, 16).replace('T', ' ');
+}
+
+function renderGlance(d) {
+  const facts = `<dl class="facts">
+    <div><dt>Window</dt><dd>${Render.esc(d.window.start)} to ${Render.esc(d.window.end)}</dd></div>
+    <div><dt>Duration</dt><dd>${Render.esc(d.duration)}</dd></div>
+    <div><dt>Detection</dt><dd>${Render.esc(d.detection)}</dd></div>
+    <div><dt>Impact</dt><dd>${Render.esc(d.impact)}</dd></div>
+  </dl>`;
+  const callouts = (d.risk || d.decision)
+    ? (d.risk ? `<aside class="callout" data-kind="risk"><span class="callout-label">Risk</span><p>${Render.esc(d.risk)}</p></aside>` : '')
+      + (d.decision ? `<aside class="callout" data-kind="decision"><span class="callout-label">Decision</span><p>${Render.esc(d.decision)}</p></aside>` : '')
+    : '<div class="empty"><p class="title">No root cause recorded</p><p class="text">Add risk and decision to DATA to explain what went wrong and what changed.</p></div>';
+  return `<p class="tldr">${Render.esc(d.subject)}</p>${facts}${callouts}`;
+}
+
+function renderEvent(ev) {
+  const anchor = `event-${Render.esc(ev.at).slice(0, 10)}-${Render.slug(ev.title)}`;
+  const state = ev.minor ? ' data-state="minor"' : '';
+  return `<li class="anchored" data-anchor="${anchor}" data-label="${Render.esc(ev.title)}">
+    <button class="mark" type="button" aria-label="Comment on ${Render.esc(ev.title)}">+</button>
+    <div class="body event"${state}>
+      <time datetime="${Render.esc(ev.at)}">${Render.esc(fmt(ev.at))}</time>
+      <div class="what">
+        <span class="title">${Render.esc(ev.title)}</span>
+        <span class="meta">${Render.esc(ev.who)}</span>
+        <p class="text">${Render.esc(ev.what)}</p>
+        <cite class="source">${Render.esc(ev.evidence)}</cite>
+      </div>
+    </div>
+  </li>`;
+}
+
+function renderTimelineSection(events) {
+  if (!events.length) {
+    return '<div class="empty"><p class="title">No events yet</p><p class="text">Add dated entries to DATA.events to build the timeline.</p></div>';
+  }
+  return `<ol class="timeline">${events.map(renderEvent).join('')}</ol>`;
+}
+
+function renderAction(a) {
+  const anchor = `action-${Render.slug(a.title)}`;
+  const tag = a.done ? '<span class="tag">Done</span>' : '<span class="tag-high">Open</span>';
+  return Render.anchored({
+    anchor,
+    label: a.title,
+    cls: 'row',
+    html: `<div class="head">${tag}<span class="title">${Render.esc(a.title)}</span><span class="meta">${Render.esc(a.owner)}</span></div><p class="text">${Render.esc(a.note)}</p>`,
+  });
+}
+
+function renderActionsSection(actions) {
+  if (!actions.length) {
+    return '<div class="empty"><p class="title">No action items</p><p class="text">Add entries to DATA.actions to track follow-up work.</p></div>';
+  }
+  return `<div class="list">${actions.map(renderAction).join('')}</div>`;
+}
+
+function mount(data) {
+  const openCount = data.actions.filter((a) => !a.done).length;
+  document.getElementById('root').innerHTML = `
+    <section class="section" id="glance" data-section="At a glance">
+      <h2>At a glance</h2>
+      ${renderGlance(data)}
+    </section>
+    <section class="section" id="timeline" data-section="Timeline">
+      <div class="section-head"><h2>Timeline</h2><span class="meta">${data.events.length} events</span></div>
+      ${renderTimelineSection(data.events)}
+    </section>
+    <section class="section" id="actions" data-section="Action items">
+      <div class="section-head"><h2>Action items</h2><span class="meta">${openCount} open</span></div>
+      ${renderActionsSection(data.actions)}
+    </section>
+  `;
+}
+
+mount(DATA);
+if (window.Render) {
+  Render.init({ verdicts: null, file: 'timeline-eval-loop-incident-2026-09-23.html', title: 'Overnight eval loop incident' });
+}
+</script>

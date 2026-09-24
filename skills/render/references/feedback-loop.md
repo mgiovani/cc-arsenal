@@ -2,14 +2,14 @@
 
 Every page this skill builds carries the same mechanic: the user marks things,
 saves, and the marks come back bound to what they were left on. This file
-specifies that mechanic. It is shared by all eight modes.
+specifies that mechanic. It is shared by all twelve modes.
 
 ## The two kinds of feedback
 
 **Verdicts** are a small fixed choice on a page's primary items: keep, change,
 drop, or the mode's equivalent. They exist because a three-state decision across
-eighty rows has to be one click. Six modes have them; `explain` and `map` do
-not.
+eighty rows has to be one click. Seven modes have them; `explain`, `map`,
+`tour`, `timeline` and `report` do not.
 
 **Comments** are free text bound to any anchored element, including headings,
 diagrams, prose and table cells. Every mode has them. A verdict decides; a
@@ -82,44 +82,33 @@ orphaned comment stay meaningful after its anchor disappears.
 
 `verdicts` is keyed by anchor, so it holds only per-block decisions. A decision
 belonging to the page rather than to one block goes in `page`, which is where
-`compare` mode's winner lives. Read-back covers `page`, `verdicts` and
-`comments`.
+`compare` mode's winner lives. Write and read it through the runtime,
+`Render.setPage(key, value)` and `Render.getPage(key)`, rather than touching
+`state.page` directly: `setPage` persists, marks the Save button dirty and
+repaints every `button[data-page-key][data-page-value]` on the page (the
+`.pick` control) to match. A `null` or `undefined` value deletes the key.
+Read-back covers `page`, `verdicts` and `comments`.
 
 ## The affordance
 
 A single control in the gutter of every anchored block. It shows a `+` when the
 block has no comments and a count when it does. Both states are drawn in the
 page's neutrals, dim by default and ink once the block carries a comment: the
-count itself is the signal, and a hue here competes with the verdict colors that
-have earned one. It must be reachable by keyboard,
-so reveal it on `:focus-within` as well as `:hover`, and give it a real
-`aria-label`.
+count itself is the signal. There is no hue to compete with here; a verdict is
+now encoded by the ink fill's position in its segmented control, not by a
+color, so the mark stays in the page's neutrals in every state. It must be
+reachable by keyboard, so it reveals on `:focus-within` as well as `:hover`,
+and carries a real `aria-label`.
 
 Lay the gutter out with grid rather than pulling the control into negative
 space. A `position: absolute; left: -1.75rem` child is clipped by any ancestor
 with `overflow-x: auto`, which is exactly what wraps the wide tables and
-matrices whose cells this skill says must be commentable.
-
-```css
-.anchored {
-  display: grid; grid-template-columns: 1.5rem 1fr; align-items: start;
-}
-.anchored > .mark {
-  opacity: 0; transition: opacity .12s ease;
-  background: none; border: 0; cursor: pointer; padding: 0;
-  font: inherit; font-size: .75rem; color: var(--faint);
-  width: 1.25rem; height: 1.25rem; border-radius: 4px;
-}
-.anchored:hover > .mark,
-.anchored:focus-within > .mark,
-.anchored > .mark:focus-visible,
-.anchored > .mark.has { opacity: 1; }
-.anchored > .mark.has { color: var(--ink); }
-@media (max-width: 760px) {
-  .anchored { grid-template-columns: 1fr; }
-  .anchored > .mark { opacity: 1; justify-self: start; margin-bottom: .35rem; }
-}
-```
+matrices whose cells this skill says must be commentable. `assets/page.css`
+does this already, in its `.anchored`, `.anchored > .mark` and
+`:is(td, th).anchored` rules: a CSS grid gutter column on desktop that moves
+to a right-aligned column under 720px and stays statically visible there, and
+into a corner-positioned mark for an anchored table cell. Reuse those classes
+rather than re-deriving the layout.
 
 The gutter column belongs to the block, so it travels with the block into a
 scroll container and cannot fall off the left edge of the viewport. On narrow
@@ -132,104 +121,62 @@ needs.
 
 ## Wiring
 
-Delegate to one event listener on `document`, so the handlers survive a
-re-render.
+`assets/page.js` ships this wiring already; a page never re-implements it.
+Everything delegates to two listeners on `document` (`onClick`, `onKeydown`),
+wired once by `wireEvents()`, so the handlers survive a re-render. State is
+loaded once by `loadState()`, then normalised by `normalize()` before anything
+reads it.
 
-State is loaded once, by the block under "What `localStorage` is and is not"
-below, then normalised:
+Set `data-label` on every anchored block rather than relying on the runtime's
+fallback. The affordance button is a child of the block, so a bare
+`block.textContent` would pick up the `+` or the comment count and store
+labels reading `"+Rate limiter must reject..."`. `labelFor()` reads an inner
+`.body` element (with the mark, comments and composer stripped out first) for
+that reason; give every anchored block a `.body` and the fallback stays
+correct if `data-label` is ever missing.
 
-```js
-state.page = state.page || {};
-state.verdicts = state.verdicts || {};
-state.comments = state.comments || [];
-
-const commentsFor = a => state.comments.filter(c => c.anchor === a);
-
-document.addEventListener("click", ev => {
-  const mark = ev.target.closest(".mark");
-  if (!mark) return;
-  const block = mark.closest(".anchored");
-  openComposer(block, block.dataset.anchor);
-});
-
-function labelFor(block) {
-  if (block.dataset.label) return block.dataset.label;
-  const body = block.querySelector(".body") || block;
-  return body.textContent.trim().slice(0, 80);
-}
-
-function saveComment(block, text) {
-  if (!text.trim()) return;
-  state.comments.push({
-    anchor:  block.dataset.anchor,
-    label:   labelFor(block),
-    section: block.closest("[data-section]")?.dataset.section || "",
-    text:    text.trim(),
-    at:      new Date().toISOString(),
-  });
-  persist();
-  paintMark(block);
-}
-```
-
-Set `data-label` on every anchored block rather than relying on the fallback.
-The affordance button is a child of the block, so a bare `block.textContent`
-picks up the `+` or the comment count and stores labels reading `"+Rate limiter
-must reject..."`. The fallback reads an inner `.body` element for that reason;
-give every anchored block one.
-
-`persist()` stamps `state.updated`, writes to `localStorage`, and flags the save
-control as dirty. Publishing is explicit, on a button, never on load and never on
-every keystroke.
+Saving a comment (`submitComment()`) or a verdict (`setVerdict()`) both end in
+`persist()`, which stamps `state.updated`, writes the draft to `localStorage`
+and calls `markDirty()` to flag the Save control. Publishing is explicit, on
+the Save button (`save()`), never on load and never on every keystroke.
 
 **What `localStorage` is and is not.** It holds work the reader has not
-published yet, so a closed tab does not lose it. On load, read it and use it only
-when it is strictly newer than the embedded state:
+published yet, so a closed tab does not lose it. `loadState()` reads it and
+uses the draft only when it is strictly newer than the embedded state:
 
 ```js
-const embedded = JSON.parse(document.getElementById("state").textContent);
-let state = embedded;
-try {
-  const draft = JSON.parse(localStorage.getItem(KEY) || "null");
-  if (draft && draft.updated > (embedded.updated || "")) state = draft;
-} catch (e) {}
+if (draft && draft.updated > (embedded.updated || '')) return normalize(draft);
 ```
 
 The comparison matters. Without it a draft resurrects comments the author has
-already acted on and removed from the published page. Clear the draft after a
-successful publish.
+already acted on and removed from the published page. `save()` calls
+`clearDraft()` after a successful publish.
 
 ## Saving
 
-Capture the document source once, before any render mutates the DOM, then swap
-the state block into it. Never serialize the live DOM.
+`assets/page.js` captures the document source once, as the first statement in
+the file (`const RAW = document.documentElement.outerHTML`), before any render
+mutates the DOM, then swaps the state block into a fresh copy of it. Never
+serialize the live DOM.
 
-```js
-const RAW = document.documentElement.outerHTML;   // first line of the script
-
-async function publish() {
-  const json = JSON.stringify(state).replace(/</g, "\\u003c");
-  const doc  = "<!doctype html>\n" + RAW.replace(
-    /(<script id="state" type="application\/json">)[\s\S]*?(<\/script>)/,
-    (m, open, close) => open + json + close);
-  // Artifact runtime: await (await claude.use("artifact")).publish(doc)
-  // File fallback: offer `doc` as a download, or tell the user to save in place
-}
-```
-
-Escaping `<` in the JSON keeps a comment containing markup from closing the
-script tag early. Write the closing tag in the pattern as `<\/script>` so the
-HTML parser does not end the script at the regex literal.
+`buildDocument()` does the swap: it locates the `<script id="state">` tag in
+`RAW`, re-serializes `state` with `<` escaped (`.replace(/</g, '\\u003c')`,
+which keeps a comment containing markup from closing the script tag early),
+and splices the JSON between the original open and close tags. `publish()`
+then tries `window.claude.use('artifact')` and falls back to `download()` (a
+Blob and an object URL) when no Artifact runtime answers or the publish call
+rejects; `save()` wraps both in the Save button's pending and dirty state and
+calls `clearDraft()` on success.
 
 `RAW` and the authored file are two different things, and page-kit.md's rule
 about omitting the document wrapper applies only to the file. At runtime
 `document.documentElement.outerHTML` returns `<html>...</html>` for the live
 document, wrapper included and doctype excluded, because the doctype is a
-sibling node rather than a child. Prepending the doctype therefore produces one
-complete document, not a nested one.
+sibling node rather than a child. Prepending the doctype in `buildDocument()`
+therefore produces one complete document, not a nested one.
 
-See [page-kit.md](page-kit.md) for which of the two save paths applies and how
-to choose at runtime.
+See [page-kit.md](page-kit.md) for which of the two save paths a page ends up
+on and how `publish()` chooses between them at runtime.
 
 ## Re-rendering an existing page
 

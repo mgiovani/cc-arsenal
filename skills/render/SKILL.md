@@ -1,8 +1,9 @@
 ---
 name: render
-description: Turn a plan, PRD, review, audit, comparison, brainstorm, explanation
-  or architecture map into an interactive HTML page the user marks up in place,
-  then read their marks back and act on them. Every section carries an anchored
+description: Turn a plan, PRD, review, audit, comparison, brainstorm, explanation,
+  architecture map, code walkthrough, incident timeline, before/after diff or
+  status report into an interactive HTML page the user marks up in place, then
+  read their marks back and act on them. Every section carries an anchored
   comment affordance, so feedback returns bound to the exact thing it was left on.
   Use for "render this as a page", "make this visual", "I want to review this
   properly", "turn this plan into something I can comment on", or to wrap another
@@ -13,7 +14,7 @@ description: Turn a plan, PRD, review, audit, comparison, brainstorm, explanatio
 metadata:
   summary: "Turn any output into an interactive HTML page you mark up in place, then read the marks back"
   author: mgiovani
-  version: 1.0.0
+  version: 1.1.0
 disable-model-invocation: true
 argument-hint: <mode|/skill|path> [subject]
 allowed-tools: Read, Write, Edit, Grep, Glob, Bash, Task, Skill, Artifact
@@ -47,6 +48,10 @@ way to answer back that survives the round trip.
 | `brainstorm` | Idea cards, the tension each one resolves, by theme | shortlist / park / drop |
 | `explain` | The one-line answer, the mechanism, then detail on demand | none, comments only |
 | `map` | Module graph, data flow, entry points | none, comments only |
+| `tour` | A guided walkthrough of the code, one stop per file or function | none, comments only |
+| `timeline` | Dated events for an incident or a piece of history | none, comments only |
+| `diff` | Before/after hunks the reader decides on | accept / revise / reject |
+| `report` | A status and metrics summary | none, comments only |
 
 Each mode's contents are specified in `references/<mode>.md`. Load only the one
 you need, and load it after the mode is settled.
@@ -90,12 +95,40 @@ depends on. The page is still built; it just loses the calibration pass.
 
 ### 4. Build the page
 
-[references/page-kit.md](references/page-kit.md) holds the document skeleton
-and the state block, plus how a page is written and published. Anchors and the
-comment affordance are specified in
+No page is hand-authored from a blank file. `assets/page.css` and
+`assets/page.js` ship the whole design system and runtime; `assets/gallery.html`
+renders every block once and is the visual catalog to check a block's markup
+against; `assets/templates/<mode>.html` is the composition to start from.
+Building means:
+
+1. Copy `assets/templates/<mode>.html` for the resolved mode straight to the
+   real output path, `.cc-arsenal/renders/<mode>-<slug>-<YYYY-MM-DD>.html` (see
+   the Document skeleton section of
+   [references/page-kit.md](references/page-kit.md) for why the move is safe
+   even though the template's `../page.css` and `../page.js` links are
+   relative).
+2. Replace the whole `/*SAMPLE*/`-marked `DATA` object with the real content
+   gathered in step 2. Keep the template's structure and its
+   `Render.anchored()` calls.
+3. Compose any section the template doesn't already cover only from the block
+   library in [references/blocks.md](references/blocks.md): prefer a block
+   whenever the content has a shape (a sequence, a comparison, a magnitude, a
+   before/after, a hierarchy) over writing another paragraph.
+4. Never hand-write a new CSS color. Every value already comes from a token in
+   `assets/page.css`.
+5. Run `scripts/assemble.py` on that same path, in place (`-o` pointing at the
+   input), to inline `page.css` and `page.js` into the single file the gate
+   checks and the reader receives, and let it gate the result against the
+   design contract. A real page never passes `--allow-sample`: a leftover
+   `/*SAMPLE*/` marker is a gate failure, not a warning.
+6. Run `npx impeccable detect` on the assembled file and fix whatever it flags
+   before delivering.
+
+Anchors and the comment affordance are specified in
 [references/feedback-loop.md](references/feedback-loop.md), and every mode
-carries them. Reach for [references/diagrams.md](references/diagrams.md) only
-once the content turns out to have a shape worth drawing.
+carries them through the templates. Reach for
+[references/diagrams.md](references/diagrams.md) only once the content turns
+out to have a shape worth drawing as a `graph` block.
 
 Six rules hold across every mode:
 
@@ -109,10 +142,15 @@ Six rules hold across every mode:
    and redefine them again under `:root[data-theme="dark"]`. Give `body` an
    explicit token background. A color whose only definition sits inside a media
    block renders one theme's text on the other theme's background.
-4. **The page is greyscale.** Color is spent only on the verdict vocabulary,
-   where it distinguishes marked items at a glance. Selected and pressed states
-   are an ink fill, not a hue; there is no brand accent, no colored heading or
-   filter, and no colored diagram. See the Color section of
+4. **The page is greyscale, including verdicts.** Every color on the page is
+   one of the eight neutral tokens in `assets/page.css`. There is no hue
+   anywhere, not even for keep/change/drop. A verdict's decision reads from
+   the pressed segment's position in its fixed-order ink-fill control rather
+   than from a color. A dropped or rejected item strikes its title. Corners
+   are square: `border-radius: 0` everywhere, including form controls and SVG
+   `rx`/`ry`. Shadows are limited to a 1px inset outline. No text on the page
+   sets a `font-size` below 15px, since hierarchy comes from weight and color
+   rather than from shrinking text. See the Color and Shape sections of
    [references/page-kit.md](references/page-kit.md).
 5. **Diagrams are inline SVG built from the page's own tokens.** Mermaid brings
    its own theme and fights the three-state setup above.
@@ -161,5 +199,6 @@ nothing until that is answered.
   marks across it is a required step, not a side effect: read the existing state
   block and embed it in the new page, per the re-render rules in
   [references/feedback-loop.md](references/feedback-loop.md).
-- Two modes carry no verdict controls, `explain` and `map`. They still carry
-  anchored comments, which is usually the only feedback those pages need.
+- Five modes carry no verdict controls: `explain`, `map`, `tour`, `timeline`
+  and `report`. They still carry anchored comments, which is usually the only
+  feedback those pages need.

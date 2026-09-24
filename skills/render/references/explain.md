@@ -41,3 +41,16 @@ most prone to.
   this way is a different page and rarely the one that was asked for.
 - One worked example beats three abstractions. Use a real one from the project
   where the subject is the project's own code.
+
+## Blocks
+
+Composition, in order. The answer comes first, in a `tldr`. Next the mechanism,
+as a `flow` pipeline (or a `graph` where the subject branches or merges).
+Then the key code path in an `annot`, code left and numbered notes right,
+followed by one `disclosure` entry per question a reader is likely to ask.
+A `callout` with `data-kind="note"` carries the one gotcha. A plain citation
+list closes the page, `source` per item, what the explanation was checked
+against.
+
+Every block is wrapped `anchored` so a reader can question or correct any part
+of it. Verdicts stay null throughout. Template: `assets/templates/explain.html`.

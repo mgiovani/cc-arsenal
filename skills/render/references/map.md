@@ -41,3 +41,21 @@ not exist is the most damaging thing this page can contain.
   tier reads as complete and is not.
 - Note the commit the map was built from. It goes stale, and the reader needs to
   know how stale.
+
+## Blocks
+
+`wrap-wide` plus `toc`, no toolbar filterbar (map has no verdicts and no facet
+filters). Composition, in page order:
+
+| Block | Holds |
+|---|---|
+| `tree` | Entry points and key files: the binaries, CLI commands and modules a reader needs before anything else, grouped by directory |
+| `graph` | The module graph as one inline SVG: nodes that exist on disk, edges confirmed by reading the import or call, never inferred from similar names |
+| `flow` | The data path: one operation traced end to end, one pipeline stage per function, in the order it actually runs |
+| `table` | One row per module: what it owns, what it depends on, and the command or route that enters it. The module cell is anchored (`module-<path-slug>`) |
+| `layers` | The architecture as stacked levels, top level first |
+
+A `callout` (kind `note`) states what the map leaves out and whether it crosses
+a trust, process or network boundary. Every diagram is anchored
+(`diagram-<slug>`); entry points and layers are not, per blocks.md's anchored
+block contract. Template: `assets/templates/map.html`.
