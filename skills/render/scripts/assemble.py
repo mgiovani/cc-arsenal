@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Inline a render page's local stylesheet/script links into one file, then
-gate the result against the skill's monochrome, square-corner design contract
-(zero hue anywhere, radius 0, no shadows/blur, no leftover sample data).
+gate the result against the skill's monochrome, square-corner, token-only
+design contract (zero hue anywhere, radius 0, no shadows/blur, no raw CSS
+length outside :root, no leftover sample data).
 
 Usage: assemble.py INPUT.html [-o OUTPUT.html] [--allow-sample] [--check-only]
 """
@@ -32,7 +33,19 @@ RADIUS_ATTR_RE = re.compile(r"""(?<![\w-])(rx|ry)\s*=\s*(?:"([^"]*)"|'([^']*)')"
 SVG_FONT_SIZE_ATTR_RE = re.compile(
     r"""(?<![\w-])font-size\s*=\s*(?:"([^"]*)"|'([^']*)')""", re.IGNORECASE
 )
-DECL_RE = re.compile(r'([a-zA-Z-]+)\s*:\s*([^;{}]+)(?=[;}])')
+DECL_RE = re.compile(r'([a-zA-Z-][\w-]*)\s*:\s*([^;{}]+)(?=[;}])')
+LENGTH_RE = re.compile(
+    r'(?<![\w.-])(-?(?:\d*\.)?\d+)'
+    r'(px|rem|em|ch|ex|lh|rlh|vw|vh|vmin|vmax|vi|vb|dvh|svh|lvh|dvw|svw|lvw|'
+    r'cqw|cqh|cqi|cqb|cqmin|cqmax|cm|mm|in|pt|pc|q)\b',
+    re.IGNORECASE,
+)
+BREAKPOINTS = frozenset({'600px', '720px', '860px', '1100px'})
+AT_PRELUDE_RE = re.compile(r'@(?:media|container)[^{]*')
+CSS_COMMENT_RE = re.compile(r'/\*.*?\*/', re.DOTALL)
+CSS_STRING_RE = re.compile(r'"(?:[^"\\]|\\.)*"|\'(?:[^\'\\]|\\.)*\'')
+STYLE_ATTR_INTERP_RE = re.compile(r'\$\{[^}]*\}')
+STYLE_ATTR_UNITLESS_RE = re.compile(r'^-?(\d*\.)?\d+$')
 FONT_SIZE_TOKEN_RE = re.compile(r'^(-?\d*\.?\d+)(px|rem|em|%)$', re.IGNORECASE)
 FONT_SIZE_SMALL_KEYWORDS = {'xx-small', 'x-small', 'small', 'smaller'}
 FONT_SIZE_FLOOR_PX = 15
@@ -44,7 +57,9 @@ COLOR_FUNC_RE = re.compile(
 )
 VAR_RE = re.compile(r'var\([^)]*\)')
 WORD_RE = re.compile(r'[a-zA-Z]+')
-BOX_SHADOW_PART_RE = re.compile(r'^\s*inset\s+0\s+0\s+0\s+1px\s+var\(--[\w-]+\)\s*$')
+BOX_SHADOW_PART_RE = re.compile(
+    r'^\s*inset\s+0\s+0\s+0\s+(?:1px|var\(--hair\))\s+var\(--[\w-]+\)\s*$'
+)
 SAMPLE_MARKER = '/*SAMPLE*/'
 HEX_FULL_LEN = 6
 ASSETS_DIR = Path(__file__).resolve().parent.parent / 'assets'
@@ -272,6 +287,121 @@ def _css_regions(html: str) -> list[tuple[str, int]]:
     return regions
 
 
+def _style_block_regions(html: str) -> list[tuple[str, int]]:
+    return [(m.group(1), m.start(1)) for m in STYLE_BLOCK_RE.finditer(html)]
+
+
+def _scrub_css_text(text: str) -> str:
+    """Blank out comments and quoted strings, same length, newlines kept.
+
+    Keeps line numbers correct for later offset math, and stops a comment
+    like "overlaps its neighbour by 1px" or a `content:"12px"` value from
+    tripping the raw-length rule or confusing the :root brace walker.
+    """
+
+    def _blank(match: re.Match[str]) -> str:
+        return ''.join(ch if ch == '\n' else ' ' for ch in match.group(0))
+
+    text = CSS_COMMENT_RE.sub(_blank, text)
+    return CSS_STRING_RE.sub(_blank, text)
+
+
+def _root_exempt_spans(scrubbed: str) -> list[tuple[int, int]]:
+    """Spans of every outermost rule whose prelude starts with :root.
+
+    Only depth-0 rules are checked; a matching rule's whole span (through
+    its matching close brace, including anything nested inside it such as
+    a `@media (prefers-color-scheme: dark) { ... }` block) is exempt.
+    """
+    spans: list[tuple[int, int]] = []
+    depth = 0
+    prelude_start = 0
+    open_pos: int | None = None
+    for i, ch in enumerate(scrubbed):
+        if ch == '{':
+            if depth == 0:
+                prelude = scrubbed[prelude_start:i].strip()
+                open_pos = i if prelude.startswith(':root') else None
+            depth += 1
+        elif ch == '}':
+            depth = max(depth - 1, 0)
+            if depth == 0:
+                if open_pos is not None:
+                    spans.append((open_pos, i))
+                    open_pos = None
+                prelude_start = i + 1
+    return spans
+
+
+def _in_spans(pos: int, spans: list[tuple[int, int]]) -> bool:
+    return any(start <= pos < end for start, end in spans)
+
+
+def _length_is_zero(number: str) -> bool:
+    try:
+        return float(number) == 0
+    except ValueError:
+        return False
+
+
+def _raw_length_violations(html: str, text: str, offset: int) -> list[Violation]:
+    scrubbed = _scrub_css_text(text)
+    root_spans = _root_exempt_spans(scrubbed)
+    prelude_spans = [(m.start(), m.end()) for m in AT_PRELUDE_RE.finditer(scrubbed)]
+
+    out = []
+    for m in LENGTH_RE.finditer(scrubbed):
+        if _in_spans(m.start(), root_spans) or _in_spans(m.start(), prelude_spans):
+            continue
+        if _length_is_zero(m.group(1)):
+            continue
+        out.append(
+            Violation(_line_at(html, offset + m.start()), 'raw-length', m.group(0))
+        )
+
+    for start, end in prelude_spans:
+        if _in_spans(start, root_spans):
+            continue
+        for lm in LENGTH_RE.finditer(scrubbed[start:end]):
+            if lm.group(0) not in BREAKPOINTS:
+                pos = start + lm.start()
+                out.append(
+                    Violation(_line_at(html, offset + pos), 'raw-length', lm.group(0))
+                )
+    return out
+
+
+def _style_attr_violations(html: str) -> list[Violation]:
+    """A style="..." attribute may only set unitless custom properties.
+
+    ${...} interpolations are stripped from the whole value first, not
+    per-declaration: an interpolation's own source (e.g. a JS template
+    literal joining parts with `';'`) can contain a literal ";" that would
+    otherwise split one declaration into two.
+    """
+    out = []
+    for m in STYLE_ATTR_RE.finditer(html):
+        group_index = 1 if m.group(1) is not None else 2
+        value_text = m.group(group_index)
+        base_offset = m.start(group_index)
+        stripped = STYLE_ATTR_INTERP_RE.sub('', value_text)
+        for raw_decl in stripped.split(';'):
+            decl = raw_decl.strip()
+            if not decl:
+                continue
+            prop, sep, value = decl.partition(':')
+            prop = prop.strip()
+            value = value.strip()
+            ok = (
+                bool(sep)
+                and prop.startswith('--')
+                and (value == '' or STYLE_ATTR_UNITLESS_RE.match(value))
+            )
+            if not ok:
+                out.append(Violation(_line_at(html, base_offset), 'style-attr', decl))
+    return out
+
+
 def _presentation_attr_regions(html: str) -> list[tuple[str, int]]:
     regions = []
     for m in PRESENTATION_ATTR_RE.finditer(html):
@@ -304,7 +434,7 @@ def _css_declaration_violations(html: str, text: str, offset: int) -> list[Viola
                     _line_at(html, value_offset), 'shadow', f'{prop}: {value.strip()}'
                 )
             )
-        if prop in ('font-size', 'font'):
+        if prop in ('font-size', 'font') or prop.startswith('--text'):
             token = _font_size_token(value)
             if token is not None and _font_size_below_floor(token):
                 out.append(
@@ -325,6 +455,11 @@ def check(html: str) -> list[Violation]:
         violations += _hex_violations(html, text, offset)
         violations += _color_function_violations(html, text, offset)
         violations += _css_declaration_violations(html, text, offset)
+
+    for text, offset in _style_block_regions(html):
+        violations += _raw_length_violations(html, text, offset)
+
+    violations += _style_attr_violations(html)
 
     for value, offset in _presentation_attr_regions(html):
         violations += _hex_violations(html, value, offset)

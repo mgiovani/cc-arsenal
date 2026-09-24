@@ -5,6 +5,7 @@ that can't be imported normally -- so it is loaded by path via importlib.
 """
 
 import importlib.util
+import re
 from pathlib import Path
 from types import ModuleType
 
@@ -30,9 +31,9 @@ CLEAN_PAGE = """<!doctype html>
 <html>
 <head>
 <style>
-  :root { --bg: #fafafa; --ink: #0f0f0f; }
+  :root { --bg: #fafafa; --ink: #0f0f0f; --hair: 1px; }
   body { background: var(--bg); color: var(--ink); border-radius: 0; }
-  .btn { box-shadow: inset 0 0 0 1px var(--ink); }
+  .btn { box-shadow: inset 0 0 0 var(--hair) var(--ink); }
   .mix { background: color-mix(in srgb, var(--ink) 20%, var(--bg)); }
 </style>
 </head>
@@ -111,7 +112,10 @@ def test_box_shadow_blur_fails() -> None:
 
 def test_box_shadow_allowed_inset_passes() -> None:
     violations = assemble.check(
-        _wrap_style('.card { box-shadow: inset 0 0 0 1px var(--line); }')
+        _wrap_style(
+            ':root { --hair: 1px; }'
+            ' .card { box-shadow: inset 0 0 0 var(--hair) var(--line); }'
+        )
     )
     assert violations == []
 
@@ -318,3 +322,106 @@ def test_main_in_place_output_same_as_input(
 
     assert assemble.main() == 0
     assert '<style>a { color: var(--ink); }</style>' in page.read_text()
+
+
+# --- raw-length / style-attr gate: plan-spec case table -------------------
+
+
+@pytest.mark.parametrize(
+    ('css', 'expect_raw_length'),
+    [
+        ('.a{padding:12px}', True),
+        ('.a{padding:var(--space-3)}', False),
+        (':root{--space-3:12px}', False),
+        (
+            ':root:not([data-theme="light"])'
+            '{@media (prefers-color-scheme: dark){--x:3px}}',
+            False,
+        ),
+        ('.a{--mark-top:8px}', True),
+        (
+            '.a{margin:0px; flex:1 1 0; line-height:1.25; width:50%; '
+            'transition:opacity 120ms; transform:rotate(45deg);}',
+            False,
+        ),
+        ('.a{letter-spacing:-0.02em}', True),
+        ('.a{max-width:62ch}', True),
+        ('.a{height:70vh}', True),
+        ('.a{font-size:1rem}', True),
+        ('.a{width:calc(100% - 16px)}', True),
+        ('.a{width:calc(100% - var(--space-4))}', False),
+        ('@media (max-width:720px){.a{color:red}}', False),
+        ('@media (max-width:700px){.a{color:red}}', True),
+        ('/* by 1px */ .a{content:"12px"}', False),
+    ],
+)
+def test_raw_length_case_table(css: str, expect_raw_length: bool) -> None:
+    violations = assemble.check(_wrap_style(css))
+    hit = any(v.rule == 'raw-length' for v in violations)
+    assert hit == expect_raw_length
+
+
+@pytest.mark.parametrize(
+    ('style_value', 'expect_violation'),
+    [
+        ('--v:.42', False),
+        ('--v:${n}', False),
+        ('width:12px', True),
+        ('--x:12px', True),
+        ('color:var(--ink)', True),
+        ('--v:${n}px', True),
+    ],
+)
+def test_style_attr_case_table(style_value: str, expect_violation: bool) -> None:
+    violations = assemble.check(f'<div style="{style_value}"></div>')
+    hit = any(v.rule == 'style-attr' for v in violations)
+    assert hit == expect_violation
+
+
+def test_text_custom_property_below_floor_fails() -> None:
+    violations = assemble.check(_wrap_style(':root{--text-sm:12px}'))
+    assert any(v.rule == 'font-size' for v in violations)
+
+
+def test_box_shadow_allows_hair_token_shadow_literal_still_rejected() -> None:
+    # A bare 1px shadow is now itself a raw-length violation outside :root,
+    # even though BOX_SHADOW_PART_RE still recognizes the literal for shadow.
+    violations = assemble.check(
+        _wrap_style('.a { box-shadow: inset 0 0 0 1px var(--ink); }')
+    )
+    assert any(v.rule == 'raw-length' for v in violations)
+
+
+# --- shipped-pages regression: every real page the skill ships must be clean
+
+
+RENDER_ASSETS_DIR = Path(__file__).resolve().parents[2] / 'skills' / 'render' / 'assets'
+
+
+def _shipped_html_pages() -> list[Path]:
+    pages = sorted(RENDER_ASSETS_DIR.glob('*.html'))
+    pages += sorted((RENDER_ASSETS_DIR / 'templates').glob('*.html'))
+    return pages
+
+
+@pytest.mark.parametrize('page', _shipped_html_pages(), ids=lambda p: p.name)
+def test_shipped_page_passes_gate(page: Path) -> None:
+    assembled = assemble.inline_assets(page.read_text(encoding='utf-8'), page.parent)
+    violations = [v for v in assemble.check(assembled) if v.rule != 'sample']
+    assert violations == [], f'{page.name}: {violations}'
+
+
+# --- diagrams.js guard: only allowed .style. use is setProperty('--...')
+
+
+def test_diagrams_js_has_no_direct_style_writes() -> None:
+    diagrams_js = RENDER_ASSETS_DIR / 'diagrams.js'
+    if not diagrams_js.is_file():
+        pytest.skip('diagrams.js not landed yet')
+    text = diagrams_js.read_text(encoding='utf-8')
+    for m in re.finditer(r'\.style\.', text):
+        tail = text[m.end() : m.end() + len("setProperty('--")]
+        assert tail == "setProperty('--", (
+            f".style. used outside setProperty('--...') near: "
+            f'{text[max(0, m.start() - 20) : m.end() + 20]!r}'
+        )
