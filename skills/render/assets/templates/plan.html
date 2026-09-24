@@ -4,6 +4,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="../page.css">
+<link rel="stylesheet" href="../diagrams.css">
 
 <script id="state" type="application/json">{"v":1,"verdicts":{},"comments":[]}</script>
 
@@ -43,6 +44,7 @@
 <main class="wrap" id="root"></main>
 
 <script src="../page.js"></script>
+<script src="../diagrams.js"></script>
 <script>
 /*
  * DATA shape (replace wholesale):
@@ -50,6 +52,7 @@
  *   title: string,                 // the plan's own name, becomes <h1> and the toolbar title
  *   goal: string,                  // one or two sentences, the tldr
  *   risk: string,                  // one sentence, the single Risk callout
+ *   critical: string,              // one-sentence conclusion for the critical-path diagram's title
  *   facts: [{ label: string, value: string, mono?: boolean }],
  *   steps: [{
  *     id: string,                  // slug used for the anchor, step-<id>
@@ -75,6 +78,7 @@ const DATA = /*SAMPLE*/{
   title: "docs-check: score staleness per directory, not just per repo",
   goal: "docs-check returns one staleness score for the whole repository today. Split it into one score per top-level directory (skills, integrations, scripts, docs) plus the existing repo-wide rollup, so a stale skill cannot hide behind a fresh one.",
   risk: "scoring-criteria.md's weights assume a single flat doc tree. Splitting by directory risks double-counting root files like AGENTS.md and CLAUDE.md, which are referenced from every directory's own docs but live outside all four buckets.",
+  critical: "Auditing the scorer and surveying directory boundaries both feed the bucket implementation, which flows through the report and eval updates to a final rollup check.",
   facts: [
     { label: "Steps", value: "6" },
     { label: "Directories scored", value: "4" },
@@ -191,57 +195,25 @@ function renderGlance(data) {
   );
 }
 
-function nodeSvg(x, y, w, h, label, cls) {
-  const cx = x + w / 2;
-  const cy = y + h / 2;
-  return (
-    `<g class="node${cls ? " " + cls : ""}"><rect x="${x}" y="${y}" width="${w}" height="${h}"/>` +
-    `<text x="${cx}" y="${cy}">${Render.esc(label)}</text></g>`
-  );
-}
-
-function edgeSvg(d, cls, marker) {
-  return `<g class="edge${cls ? " " + cls : ""}"><path d="${d}" marker-end="url(#${marker})"/></g>`;
-}
-
 function renderGraph(data) {
-  const forked = data.steps.filter((s) => s.deps.length > 1);
-  if (!forked.length) {
+  const edges = data.steps.flatMap((s) => s.deps.map((d) => ({ from: d, to: s.id })));
+  if (!edges.length) {
     return (
       `<section class="section" id="path" data-section="Critical path"><h2>Critical path</h2>` +
-      `<div class="empty"><p class="title">No branching dependencies</p>` +
-      `<p class="text">Every step here depends on at most one other step, so a diagram would carry one arrow per row and nothing more.</p></div></section>`
+      `<div class="empty"><p class="title">No dependencies declared</p>` +
+      `<p class="text">Every step here lists no dependencies, so a diagram would draw ${data.steps.length} disconnected boxes and nothing more.</p></div></section>`
     );
   }
-  const svg = (
-    `<svg viewBox="0 0 816 144" role="img" aria-labelledby="g-critical-path-t">` +
-    `<title id="g-critical-path-t">Auditing the scorer and surveying directory boundaries both feed the bucket implementation, which flows through the report and eval updates to a final rollup check.</title>` +
-    `<defs>` +
-    `<marker id="arr" viewBox="0 0 8 8" refX="8" refY="4" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto"><path d="M0 0 L8 4 L0 8 z"/></marker>` +
-    `<marker id="arr-key" class="key" viewBox="0 0 8 8" refX="8" refY="4" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto"><path d="M0 0 L8 4 L0 8 z"/></marker>` +
-    `</defs>` +
-    edgeSvg("M178 32 H198 V72 H218", "", "arr") +
-    edgeSvg("M178 112 H198 V72 H218", "", "arr") +
-    edgeSvg("M388 72 H428", "", "arr") +
-    edgeSvg("M598 72 H638", "key", "arr-key") +
-    nodeSvg(8, 8, 170, 48, "Audit scorer") +
-    nodeSvg(8, 88, 170, 48, "Survey boundaries") +
-    nodeSvg(218, 48, 170, 48, "Add buckets") +
-    nodeSvg(428, 48, 170, 48, "Report + evals") +
-    nodeSvg(638, 48, 170, 48, "Verify rollup", "key") +
-    `</svg>`
-  );
-  return (
-    `<section class="section" id="path" data-section="Critical path"><h2>Critical path</h2>` +
-    Render.anchored({
-      anchor: "diagram-critical-path-6-steps",
-      label: "Auditing and surveying feed the bucket implementation, then the report and eval updates, before a final rollup check",
-      cls: "",
-      verdict: false,
-      html: `<div class="graph">${svg}</div>`,
-    }) +
-    `</section>`
-  );
+  const nodes = data.steps.map((s) => ({ id: s.id, label: s.title }));
+  const diagram = Render.diagram.dependency({
+    anchor: `diagram-critical-path-${Render.slug(data.title)}`,
+    title: data.critical,
+    dir: "LR",
+    critical: true,
+    nodes,
+    edges,
+  });
+  return `<section class="section" id="path" data-section="Critical path"><h2>Critical path</h2>${diagram}</section>`;
 }
 
 function fileTree(step) {

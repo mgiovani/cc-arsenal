@@ -1,0 +1,652 @@
+/* diagrams.css: pairs with diagrams.js. The :root block below is the only
+  place a raw length may appear; every other rule reads a token or works in
+  unitless custom properties through calc(var(--x) * 100%). JS reads --route,
+  --fan, --marker and --label-gap via getComputedStyle, so those stay a plain
+  length or a var() alias to one. JS writes the unitless --tracks and
+  --labeled per figure so a rank gap grows to fit the wires routed through it. */
+
+:root {
+  --node-min: var(--col-md);
+  --node-max: var(--col-lg);
+  --node-pad-y: var(--space-3);
+  --node-pad-x: var(--space-4);
+  --node-gap: var(--space-12);
+  --rank-gap: var(--space-16);
+  --route: var(--space-4);
+  --fan: var(--space-4);
+  --marker: var(--space-2);
+  --label-gap: var(--space-2);
+  --canvas-pad: var(--space-6);
+  --plot-h: 320px;
+  --plot-min: 560px;
+  --lane-head: var(--col-sm);
+}
+
+/* Frame */
+.dg { display: block; }
+.dg-scroll { overflow-x: auto; scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
+.dg-canvas {
+  /* the channel a rank gap opens must fit every wire routed through it:
+    tracks+1 slots of --route, plus room for up to --tracks labels
+    stacked one per track (the worst case, when every parallel wire in
+    the channel carries one) at a full line-height and --label-gap
+    clearance each side plus one more --label-gap of slack (a rendered
+    SVG text bbox runs a little taller than --text*--leading-tight
+    alone accounts for). --rank-gap stays the floor; this only grows it. */
+  --channel-gap: max(
+    var(--rank-gap),
+    calc((var(--tracks, 0) + 1) * var(--route) + var(--labeled, 0) * var(--tracks, 0) * (var(--text) * var(--leading-tight) + 3 * var(--label-gap)))
+  );
+  position: relative;
+  width: max-content;
+  min-width: 100%;
+  display: grid;
+  grid-template-columns: repeat(var(--cols), minmax(var(--node-min), var(--node-max)));
+  grid-auto-rows: min-content;
+  gap: var(--channel-gap) var(--node-gap);
+  padding: var(--canvas-pad);
+  padding-right: calc(var(--canvas-pad) + var(--back, 0) * var(--route));
+  padding-bottom: calc(var(--canvas-pad) + var(--loops, 0) * var(--route) * 2);
+}
+.dg[data-dir="LR"] .dg-canvas {
+  grid-template-columns: repeat(var(--ranks), minmax(var(--node-min), var(--node-max)));
+  grid-auto-rows: min-content;
+  grid-template-rows: repeat(var(--cols), minmax(var(--node-min), var(--node-max)));
+  gap: var(--node-gap) var(--channel-gap);
+  padding-right: calc(var(--canvas-pad) + var(--loops, 0) * var(--route) * 2);
+  padding-bottom: calc(var(--canvas-pad) + var(--back, 0) * var(--route));
+}
+.dg-wires { position: absolute; inset: 0; overflow: visible; pointer-events: none; }
+.dg-cap { margin-top: var(--space-2); font-size: var(--text); color: var(--mute); }
+.dg-sr {
+  position: absolute;
+  width: var(--hair);
+  height: var(--hair);
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Nodes */
+.dg-node {
+  grid-row: var(--r);
+  grid-column: var(--c);
+  display: grid;
+  gap: var(--space-0-5);
+  align-content: start;
+  padding: var(--node-pad-y) var(--node-pad-x);
+  background: var(--panel);
+  border: var(--hair) solid var(--line-strong);
+}
+.dg[data-dir="LR"] .dg-node { grid-column: var(--r); grid-row: var(--c); }
+.dg-node .title { font-size: var(--text); font-weight: 500; color: var(--ink); }
+.dg-node .meta { font-family: var(--mono); font-size: var(--text); color: var(--mute); }
+.dg-node.is-key { border-color: var(--ink); border-width: var(--stroke-key); }
+.dg-node.is-sunk { background: var(--sunk); }
+.dg-node.is-soft { border-style: dashed; }
+.dg-node.is-soft .title { color: var(--soft); }
+
+/* Wires */
+.dg-edge { color: var(--mute); }
+.dg-edge.is-key { color: var(--ink); }
+.dg-line {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: var(--hair);
+  stroke-linejoin: miter;
+  stroke-linecap: square;
+  shape-rendering: crispEdges;
+}
+.dg-edge.is-key .dg-line { stroke-width: var(--stroke-key); }
+.dg-edge.is-soft .dg-line { stroke-dasharray: var(--space-1) var(--space-1); }
+.dg-head { fill: currentColor; stroke: none; }
+.dg-head.is-one, .dg-head.is-many { fill: none; stroke: currentColor; stroke-width: var(--hair); }
+.dg-label { fill: var(--panel); stroke: none; }
+.dg-label-text { fill: var(--soft); font-family: var(--mono); font-size: var(--text); }
+.dg-edge.is-key .dg-label-text { fill: var(--ink); }
+.dg-cross { fill: currentColor; stroke: none; }
+
+/* Flow and behavior */
+/* sequence: participant heads reuse .dg-node in row 1; message rows carry
+  their own label (arrows are SVG, drawn straight into .dg-wires). */
+.dg-sequence .dg-msg {
+  grid-column: 1 / -1;
+  grid-row: var(--r);
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  min-height: var(--node-gap);
+  padding-top: var(--space-1);
+}
+.dg-sequence .dg-msg-n {
+  font-family: var(--mono);
+  font-size: var(--text);
+  color: var(--mute);
+}
+.dg-sequence .dg-msg-label {
+  font-size: var(--text);
+  color: var(--ink);
+}
+.dg-sequence .dg-msg-label.is-soft { color: var(--soft); font-style: italic; }
+.dg-sequence .dg-msg-label.is-key { color: var(--ink); font-weight: 600; }
+.dg-sequence .dg-lifeline {
+  fill: none;
+  stroke: var(--soft);
+  stroke-width: var(--hair);
+  stroke-dasharray: var(--space-1) var(--space-1);
+}
+
+/* state: the initial marker and the final double-rule are pure CSS on top
+  of the shared .dg-node the core already draws. */
+.dg-state .dg-node.is-initial { position: relative; }
+.dg-state .dg-node.is-initial::before {
+  content: '';
+  position: absolute;
+  width: var(--marker);
+  height: var(--marker);
+  background: var(--ink);
+  left: 50%;
+  top: calc(-1 * var(--route) / 2);
+  transform: translate(-50%, -50%);
+}
+.dg-state[data-dir="LR"] .dg-node.is-initial::before {
+  left: calc(-1 * var(--route) / 2);
+  top: 50%;
+}
+.dg-state .dg-node.is-final {
+  outline: var(--hair) solid var(--ink);
+  outline-offset: var(--space-0-5);
+}
+
+/* flowchart: a decision is a double border; a terminal reuses is-sunk. */
+.dg-flowchart .dg-node.is-decision {
+  border: calc(var(--hair) * 3) double var(--ink);
+}
+
+/* swimlane: lanes are fixed grid rows (dir:'LR'); a sticky header column
+  is the one thing route()'s own [data-dir="LR"] CSS doesn't provide. */
+.dg-swimlane[data-dir="LR"] .dg-canvas {
+  grid-template-columns: var(--lane-head) repeat(var(--ranks), minmax(var(--node-min), var(--node-max)));
+  grid-template-rows: repeat(var(--cols), min-content);
+}
+.dg-swimlane .dg-lane-head {
+  grid-column: 1;
+  grid-row: var(--c);
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  background: var(--panel);
+  padding: var(--node-pad-y) var(--node-pad-x);
+  border-bottom: var(--hair) solid var(--soft);
+}
+.dg-swimlane .dg-node {
+  margin-block: var(--space-6);
+  border-bottom: var(--hair) solid var(--soft);
+}
+
+/* cycle: 2 rows placed entirely through the shared .dg-node --r/--c grid;
+  the centre label is the only custom-positioned element. */
+.dg-cycle-center {
+  position: absolute;
+  left: calc(var(--cx, 0.5) * 100%);
+  top: calc(var(--cy, 0.5) * 100%);
+  transform: translate(-50%, -50%);
+  font-size: var(--text);
+  color: var(--mute);
+  text-align: center;
+  max-width: var(--col-md);
+}
+
+
+/* Structure */
+/* architecture: zones are grid columns; row 1 is reserved for zone headers
+  so a label never sits on a component (diagrams-structure.js offsets every
+  component's --c by one to leave it clear). */
+/* .dg[data-dir="LR"] .dg-canvas in diagrams.css also sets grid-template-rows
+  (specificity 0,0,3,0); matching that shape here (0,0,2,0) would silently
+  lose the cascade, so this selector repeats .dg and [data-dir="LR"] to
+  come out ahead regardless of stylesheet order. */
+.dg.dg-architecture[data-dir="LR"] .dg-canvas {
+  grid-template-rows: auto repeat(var(--cols), minmax(var(--node-min), var(--node-max)));
+}
+.dg-architecture .dg-zone {
+  grid-column: var(--r);
+  grid-row: 1 / -1;
+  box-sizing: border-box;
+  padding: var(--space-6);
+  border: var(--hair) dashed var(--soft);
+}
+.dg-architecture .dg-zone-head {
+  grid-column: var(--r);
+  grid-row: 1;
+  align-self: start;
+  padding: var(--space-2) var(--space-6);
+  font-family: var(--mono);
+  font-size: var(--text);
+  font-weight: 500;
+  color: var(--soft);
+}
+
+/* er: entities are wide, fixed-width columns of header + field rows; ports
+  pin to a field row's own y instead of fanning to the node's side. */
+.dg-er {
+  --node-min: var(--col-lg);
+  --node-max: var(--col-lg);
+}
+.dg-er .dg-node {
+  padding: 0;
+  gap: 0;
+}
+.dg-er .dg-ehead {
+  padding: var(--node-pad-y) var(--node-pad-x);
+  font-weight: 600;
+  color: var(--ink);
+  border-bottom: var(--hair) solid var(--line-strong);
+}
+.dg-er .dg-field {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--control);
+  padding: 0 var(--node-pad-x);
+  border-top: var(--hair) solid var(--line-strong);
+  font-family: var(--mono);
+  font-size: var(--text);
+}
+.dg-er .dg-field:first-of-type { border-top: none; }
+.dg-er .fname { flex: 1; color: var(--ink); }
+.dg-er .ftype { color: var(--mute); }
+.dg-er .tag { color: var(--soft); font-weight: 500; }
+.dg-er .dg-end { fill: currentColor; stroke: none; }
+.dg-er .dg-end.is-one { fill: none; stroke: currentColor; stroke-width: var(--hair); }
+
+/* containment: pure HTML, no wires; children auto-fill at --col-sm minimum,
+  fill alternates panel/sunk by nesting depth unless a box states its own. */
+.dg-containment .dg-boxes,
+.dg-containment .dg-children {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  /* auto-fit, not auto-fill: a handful of boxes should stretch to fill the
+    canvas, not get squeezed into --col-sm-wide columns beside empty
+    trailing tracks (only auto-fit collapses those to zero). */
+  grid-template-columns: repeat(auto-fit, minmax(var(--col-sm), 1fr));
+  gap: var(--space-4);
+}
+.dg-containment .dg-children { margin-top: var(--space-4); }
+.dg-containment .dg-box {
+  display: grid;
+  align-content: start;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  background: var(--panel);
+  border: var(--hair) solid var(--line-strong);
+}
+.dg-containment .dg-box.is-alt { background: var(--sunk); }
+.dg-containment .dg-box.is-sunk { background: var(--sunk); }
+.dg-containment .dg-box.is-key { border-color: var(--ink); border-width: var(--stroke-key); }
+.dg-containment .dg-boxhead { display: grid; gap: var(--space-0-5); font-weight: 500; color: var(--ink); }
+.dg-containment .dg-sub { font-family: var(--mono); font-size: var(--text); color: var(--mute); }
+
+
+/* Planning */
+/* -- gantt ------------------------------------------------------------- */
+
+.dg-gantt .dg-canvas { display: block; }
+.dg-gantt-grid {
+  display: grid;
+  grid-template-columns: minmax(var(--node-min), var(--node-max)) minmax(var(--plot-min), 3fr);
+  row-gap: var(--node-gap);
+  align-items: stretch;
+}
+.dg-gantt-head, .dg-row { display: contents; }
+.dg-row-label {
+  grid-column: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  padding-right: var(--space-4);
+  font-size: var(--text);
+  color: var(--ink);
+}
+.dg-row-track {
+  grid-column: 2;
+  position: relative;
+  min-height: calc(var(--control) + var(--space-2));
+  border-top: var(--hair) solid var(--line-strong);
+}
+.dg-gantt-head .dg-row-track { min-height: var(--control-sm); border-top: none; border-bottom: var(--hair) solid var(--line-strong); }
+.dg-tick {
+  position: absolute;
+  left: calc(var(--t) * 100%);
+  bottom: var(--space-1);
+  transform: translateX(-50%);
+  font-family: var(--mono);
+  font-size: var(--text);
+  color: var(--mute);
+  white-space: nowrap;
+}
+.dg-today { position: absolute; left: calc(var(--t) * 100%); top: 0; bottom: 0; width: var(--hair); background: var(--soft); }
+.dg-bar {
+  position: absolute;
+  top: 50%;
+  left: calc(var(--s) * 100%);
+  width: calc((var(--e) - var(--s)) * 100%);
+  height: var(--control-sm);
+  transform: translateY(-50%);
+  background: var(--panel);
+  border: var(--hair) solid var(--line-strong);
+}
+.dg-bar.is-done { background: var(--ink); border-color: var(--ink); }
+.dg-bar.is-active { background: color-mix(in srgb, var(--ink) 45%, var(--panel)); border-color: var(--ink); }
+.dg-bar.is-planned { background: var(--panel); border-color: var(--soft); border-style: dashed; }
+.dg-bar.is-key { border-width: var(--stroke-key); }
+.dg-milestone {
+  left: calc(var(--s) * 100%);
+  width: var(--marker);
+  height: var(--marker);
+  transform: translate(-50%, -50%);
+  background: var(--ink);
+  border: none;
+}
+
+/* -- kanban -------------------------------------------------------------- */
+
+.dg-kanban .dg-canvas { display: block; }
+.dg-kanban-board {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(var(--node-min), var(--node-max)));
+  align-items: start;
+  gap: var(--space-6);
+}
+.dg-kanban-col { display: grid; gap: var(--space-3); min-width: 0; }
+.dg-kanban-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding-bottom: var(--space-2);
+  border-bottom: var(--hair) solid var(--line-strong);
+}
+.dg-kanban-head .title { font-size: var(--text); }
+.dg-kanban-count { font-size: var(--text); color: var(--mute); }
+.dg-kanban-count.is-over { color: var(--ink); font-weight: 600; }
+.dg-kanban-cards { display: grid; gap: var(--space-3); list-style: none; padding: 0; margin: 0; }
+.dg-kanban-card {
+  display: grid;
+  gap: var(--space-0-5);
+  padding: var(--space-3);
+  background: var(--panel);
+  border: var(--hair) solid var(--line-strong);
+}
+.dg-kanban-card.is-key { border-color: var(--ink); border-width: var(--stroke-key); }
+.dg-kanban-card.is-blocked { border-style: dashed; border-color: var(--soft); }
+.dg-tag {
+  justify-self: start;
+  font-family: var(--mono);
+  font-size: var(--text);
+  color: var(--soft);
+  border: var(--hair) dashed var(--soft);
+  padding: 0 var(--space-1);
+}
+
+/* -- storymap -------------------------------------------------------------- */
+
+.dg-storymap .dg-canvas { display: block; }
+.dg-backbone {
+  display: grid;
+  grid-template-columns: repeat(var(--n), minmax(var(--node-min), var(--node-max)));
+  gap: var(--node-gap);
+}
+.dg-backbone-cell {
+  min-width: 0;
+  padding: var(--node-pad-y) var(--node-pad-x);
+  background: var(--panel);
+  border: var(--hair) solid var(--ink);
+  font-weight: 500;
+  color: var(--ink);
+}
+.dg-release-cut {
+  margin-top: var(--space-6);
+  padding-top: var(--space-2);
+  border-top: var(--stroke-key) solid var(--ink);
+  font-family: var(--mono);
+  font-size: var(--text);
+  color: var(--mute);
+}
+.dg-story-row {
+  display: grid;
+  grid-template-columns: repeat(var(--n), minmax(var(--node-min), var(--node-max)));
+  gap: var(--node-gap);
+  margin-top: var(--space-3);
+}
+.dg-cell { display: grid; align-content: start; min-width: 0; }
+.dg-cell ul { display: grid; gap: var(--space-3); list-style: none; padding: 0; margin: 0; }
+.dg-story {
+  padding: var(--space-3);
+  background: var(--panel);
+  border: var(--hair) solid var(--line-strong);
+  font-size: var(--text);
+  color: var(--ink);
+}
+.dg-story.is-key { border-color: var(--ink); border-width: var(--stroke-key); }
+
+/* -- quadrant -------------------------------------------------------------- */
+
+.dg-quadrant .dg-canvas { display: block; }
+.dg-quad-plot {
+  position: relative;
+  min-width: var(--plot-min);
+  min-height: var(--plot-h);
+  border: var(--hair) solid var(--line-strong);
+}
+.dg-quad-plot::before, .dg-quad-plot::after { content: ""; position: absolute; background: var(--soft); }
+.dg-quad-plot::before { left: 50%; top: 0; bottom: 0; width: var(--hair); }
+.dg-quad-plot::after { top: 50%; left: 0; right: 0; height: var(--hair); }
+.dg-quad-corner { position: absolute; padding: var(--space-2); font-size: var(--text); color: var(--mute); }
+.dg-quad-corner.is-tl { top: 0; left: 0; }
+.dg-quad-corner.is-tr { top: 0; right: 0; text-align: right; }
+.dg-quad-corner.is-bl { bottom: 0; left: 0; }
+.dg-quad-corner.is-br { bottom: 0; right: 0; text-align: right; }
+.dg-quad-axis { position: absolute; font-size: var(--text); font-weight: 500; color: var(--mute); }
+.dg-quad-axis.is-x { bottom: calc(-1 * var(--space-6)); left: 50%; transform: translateX(-50%); }
+.dg-quad-axis.is-y { top: 50%; left: calc(-1 * var(--space-6)); transform: translateY(-50%) rotate(-90deg); }
+.dg-quad-item {
+  position: absolute;
+  left: calc(var(--x) * 100%);
+  bottom: calc(var(--y) * 100%);
+  display: grid;
+  justify-items: center;
+  gap: var(--space-1);
+  transform: translate(-50%, 50%);
+}
+.dg-quad-mark { width: var(--marker); height: var(--marker); background: var(--ink); }
+.dg-quad-item.is-key .dg-quad-mark { outline: var(--stroke-key) solid var(--ink); outline-offset: var(--space-0-5); }
+.dg-quad-label {
+  font-size: var(--text);
+  color: var(--ink);
+  white-space: nowrap;
+  transform: translateY(calc(var(--dy, 0) * var(--hair)));
+}
+
+
+/* Analysis and data */
+/* fishbone: pure CSS, no SVG overlay. Categories alternate top/bottom around
+  a spine that runs into the effect box; a bone is just the category's own
+  left border, not a drawn diagonal line. */
+.dg-fishbone .dg-fb-plot {
+  display: grid;
+  grid-template-columns: repeat(var(--cols), minmax(var(--node-min), var(--node-max))) minmax(var(--node-min), var(--node-max));
+  grid-template-rows: auto minmax(var(--space-6), auto) auto;
+  align-items: end;
+  gap: var(--space-6) var(--node-gap);
+}
+.dg-fishbone .dg-fb-cat {
+  grid-column: var(--col);
+  border-left: var(--hair) dashed var(--soft);
+  padding: 0 0 0 var(--space-3);
+}
+.dg-fishbone .dg-fb-cat.is-fb-top { grid-row: 1; align-self: end; }
+.dg-fishbone .dg-fb-cat.is-fb-bottom { grid-row: 3; align-self: start; }
+.dg-fishbone .dg-fb-cat .title { display: block; font-weight: 500; color: var(--ink); margin-bottom: var(--space-1); }
+.dg-fishbone .dg-fb-cat ul { margin: 0; padding-left: var(--space-4); color: var(--mute); }
+.dg-fishbone .dg-fb-spine { grid-row: 2; grid-column: 1 / -1; align-self: center; border-top: var(--stroke-key) solid var(--ink); }
+.dg-fishbone .dg-fb-effect {
+  /* Row 2, the spine's own row, not a 1/-1 span: the categories above and
+    below can differ in height, which would pull a spanning box's 50%
+    midpoint off the spine's actual line. Sharing the spine's row makes
+    the two align by construction instead of by coincidence. */
+  grid-row: 2;
+  grid-column: var(--col);
+  align-self: center;
+  display: flex;
+  align-items: center;
+  padding: var(--node-pad-y) var(--node-pad-x);
+  border: var(--stroke-key) solid var(--ink);
+  position: relative;
+}
+.dg-fishbone .dg-fb-effect::before {
+  content: '';
+  position: absolute;
+  left: calc(-1 * var(--node-gap));
+  top: 50%;
+  transform: translateY(-50%);
+  border-style: solid;
+  border-width: var(--space-2) var(--node-gap) var(--space-2) 0;
+  border-color: transparent var(--ink) transparent transparent;
+}
+.dg-fishbone .dg-fb-effect .title { font-weight: 500; color: var(--ink); }
+
+/* waterfall: one column per bar, --lo/--hi fraction the bar's vertical span;
+  dashed connectors between consecutive running totals are drawn in
+  draw() from the plot's own measured box. */
+.dg-waterfall .dg-wf-plot {
+  position: relative;
+  height: var(--plot-h);
+  min-width: var(--plot-min);
+  display: grid;
+  grid-template-columns: repeat(var(--n), minmax(var(--space-10), 1fr));
+  gap: 0 var(--space-4);
+  padding-top: calc(var(--text) * var(--leading-tight) + var(--space-4));
+  /* 3 lines' worth, not 1: a narrow viewport wraps a longer label (see
+    overflow-wrap on .dg-wf-col-label below) across several lines. */
+  padding-bottom: calc(var(--text) * var(--leading-tight) * 3 + var(--space-2));
+}
+.dg-waterfall .dg-wf-col { position: relative; }
+.dg-waterfall .dg-wf-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc((1 - var(--hi)) * 100%);
+  height: calc((var(--hi) - var(--lo)) * 100%);
+  border: var(--hair) solid var(--ink);
+}
+.dg-waterfall .dg-wf-bar.is-wf-total { background: var(--ink); }
+.dg-waterfall .dg-wf-bar.is-wf-up { background: color-mix(in srgb, var(--ink) 45%, var(--panel)); }
+.dg-waterfall .dg-wf-bar.is-wf-down { background: var(--panel); }
+.dg-waterfall .dg-wf-val {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + var(--space-1));
+  transform: translateX(-50%);
+  font-family: var(--mono);
+  font-size: var(--text);
+  color: var(--ink);
+  white-space: nowrap;
+}
+.dg-waterfall .dg-wf-col-label {
+  position: absolute;
+  top: calc(100% + var(--space-1));
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: var(--text);
+  color: var(--mute);
+  /* A narrow column (min --space-10) is narrower than one unbroken word
+    like "typography": break it mid-word rather than let it run past the
+    column into a neighbor's label. */
+  overflow-wrap: anywhere;
+}
+.dg-waterfall .dg-wf-zero { position: absolute; left: 0; right: 0; top: calc((1 - var(--zero)) * 100%); border-top: var(--hair) solid var(--ink); }
+
+/* treemap: squarify() lays out cells at build time; positions are unitless
+  fractions of a 16:9 unit rectangle, so no runtime measurement is needed
+  for placement (draw() only toggles the sub-label at small sizes). */
+/* min-height floors the plot so a narrow viewport doesn't squeeze every
+  cell proportionally shorter along with it (aspect-ratio alone shrank a
+  cell's title below its own wrapped-text height at 390px); the 16:9
+  ratio still holds everywhere it leaves enough room on its own. */
+.dg-treemap .dg-tm-plot { position: relative; width: 100%; aspect-ratio: 16 / 9; min-height: var(--plot-h); }
+.dg-treemap .dg-tm-cell {
+  position: absolute;
+  left: calc(var(--x) * 100%);
+  top: calc(var(--y) * 100%);
+  width: calc(var(--w) * 100%);
+  height: calc(var(--h) * 100%);
+  border: var(--hair) solid var(--soft);
+  background: var(--panel);
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-0-5);
+  overflow: hidden;
+}
+.dg-treemap .dg-tm-cell.is-key { border-color: var(--ink); border-width: var(--stroke-key); }
+.dg-treemap .dg-tm-cell .title { font-weight: 500; color: var(--ink); }
+.dg-treemap .dg-tm-cell .dg-tm-val { font-family: var(--mono); color: var(--mute); }
+.dg-treemap .dg-tm-cell .dg-tm-sub { color: var(--soft); }
+
+/* funnel: pure CSS rows, a bar sized by --v = value / first stage. */
+.dg-funnel .dg-fn-plot { display: flex; flex-direction: column; gap: var(--space-3); min-width: var(--plot-min); }
+.dg-funnel .dg-fn-row {
+  display: grid;
+  grid-template-columns: var(--col-md) 1fr var(--col-sm);
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--control);
+}
+.dg-funnel .dg-fn-label { color: var(--ink); }
+.dg-funnel .dg-fn-track { display: flex; justify-content: center; }
+.dg-funnel .dg-fn-bar { width: calc(var(--v) * 100%); min-width: var(--hair); height: var(--control); background: var(--ink); }
+.dg-funnel .dg-fn-value { font-family: var(--mono); color: var(--mute); text-align: right; display: flex; flex-direction: column; }
+.dg-funnel .dg-fn-conv { color: var(--soft); font-size: var(--text); }
+
+/* line: a slope chart is the same builder with x.ticks.length === 2. The
+  chart area leaves a --col-sm gutter on the right for direct end labels
+  (both ends, for a slope chart) instead of a legend; polylines are drawn
+  in draw() from the chart's own measured box, since a data line is
+  legitimately diagonal (route()'s H/V-only wire() doesn't fit it). */
+.dg-line .dg-ln-plot { position: relative; height: var(--plot-h); min-width: var(--plot-min); }
+/* A left gutter matching the right one, even though only a slope chart's
+  start labels use it: reserving it unconditionally keeps the chart's own
+  right edge (and so the end-label formula below) unchanged whether or
+  not a given chart has start labels at all. */
+.dg-line .dg-ln-chart { position: relative; width: calc(100% - 2 * var(--col-sm)); height: 100%; margin-left: var(--col-sm); }
+.dg-line .dg-ln-grid { position: absolute; left: 0; right: 0; top: calc(var(--y) * 100%); border-top: var(--hair) solid var(--line); }
+.dg-line .dg-ln-grid .dg-ln-tick {
+  position: absolute;
+  left: 0;
+  transform: translateY(-100%);
+  font-family: var(--mono);
+  font-size: var(--text);
+  color: var(--mute);
+}
+.dg-line .dg-ln-xticks { position: absolute; left: 0; right: 0; top: 100%; padding-top: var(--space-2); }
+.dg-line .dg-ln-xticks span { position: absolute; left: calc(var(--x) * 100%); transform: translateX(-50%); font-size: var(--text); color: var(--mute); }
+.dg-line .dg-ln-end-label {
+  position: absolute;
+  top: calc(var(--y) * 100%);
+  font-size: var(--text);
+  color: var(--ink);
+  white-space: nowrap;
+  transform: translateY(calc(-50% + var(--dy, 0) * var(--hair)));
+}
+.dg-line .dg-ln-end-label.is-ln-end { left: calc(100% - var(--col-sm) + var(--space-2)); }
+.dg-line .dg-ln-end-label.is-ln-start { right: calc(100% - var(--col-sm) + var(--space-2)); }
+.dg-line .dg-ln-point { fill: currentColor; }
+.dg-line .dg-edge.is-ln-dash-1 .dg-line { stroke-dasharray: var(--space-1) var(--space-1); }
+.dg-line .dg-edge.is-ln-dash-2 .dg-line { stroke-dasharray: var(--space-2) var(--space-1); }
+.dg-line .dg-edge.is-ln-dash-3 .dg-line { stroke-dasharray: var(--space-0-5) var(--space-2); }

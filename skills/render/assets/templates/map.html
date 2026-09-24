@@ -4,6 +4,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="../page.css">
+<link rel="stylesheet" href="../diagrams.css">
 
 <script id="state" type="application/json">{"v":1,"verdicts":{},"comments":[]}</script>
 
@@ -38,6 +39,7 @@
 <main class="wrap wrap-wide" id="root"></main>
 
 <script src="../page.js"></script>
+<script src="../diagrams.js"></script>
 <script>
 /*
 DATA shape. Replace every field below with a verified map of a different
@@ -52,9 +54,11 @@ subsystem; keep the shape.
   },
   entryPoints: TreeNode[],   // TreeNode = { dir, children: TreeNode[] } | { name, note? }
   graph: {
-    title: string,          // the diagram's conclusion, read aloud by role="img"
-    nodes: [{ id, label, sub?, x, y, w, h, variant? }],   // variant: "" | "key"
-    edges: [{ d, variant? }],                             // variant: "" | "key"; d is an SVG path
+    anchor: string,          // diagram-<slug>, drawn with Render.diagram.dependency or .architecture
+    title:  string,          // the diagram's conclusion, one sentence
+    nodes:  [{ id, label, sub?, zone?, key?, sunk? }],   // zone ties a node to a zones[].id below
+    edges:  [{ from, to, label?, key?, soft? }],
+    zones?: [{ id, label }],  // present -> Render.diagram.architecture; absent -> .dependency
   },
   dataPath: [{ title, fn, key? }],   // one flow stage each; key marks the stage the page is about
   modules: [{ id, label, path, owns, dependsOn, entry }],
@@ -85,23 +89,25 @@ const DATA = /*SAMPLE*/{
     ] }
   ],
   graph: {
-    title: "skills.sh.json, marketplace.json and 54 SKILL.md files fan into gen_skill_docs.py, which writes three generated docs",
+    anchor: "diagram-scripts-doc-fanout",
+    title: "skills.sh.json and 54 SKILL.md files fan into gen_skill_docs.py, which writes the generated docs",
+    zones: [
+      { id: "source", label: "Source of truth" },
+      { id: "generator", label: "Generator" },
+      { id: "docs", label: "Generated docs" }
+    ],
     nodes: [
-      { id: "src", label: "skills.sh.json", sub: "source of truth", x: 8, y: 16, w: 270, h: 64 },
-      { id: "skills", label: "skills/*/SKILL.md", sub: "54 files", x: 294, y: 16, w: 280, h: 64, variant: "key" },
-      { id: "marketplace", label: "marketplace.json", sub: "plugin coverage", x: 590, y: 16, w: 282, h: 64 },
-      { id: "gen", label: "gen_skill_docs.py", sub: "make docs", x: 280, y: 128, w: 320, h: 64, variant: "key" },
-      { id: "readme", label: "README.md", x: 8, y: 240, w: 260, h: 64 },
-      { id: "agents", label: "AGENTS.md", x: 284, y: 240, w: 260, h: 64 },
-      { id: "features", label: "docs/features.md", x: 560, y: 240, w: 284, h: 64 }
+      { id: "src", label: "skills.sh.json + marketplace.json", sub: "grouping and plugin coverage", zone: "source" },
+      { id: "skills", label: "skills/*/SKILL.md", sub: "54 files", zone: "source", key: true },
+      { id: "gen", label: "gen_skill_docs.py", sub: "make docs", zone: "generator", key: true },
+      { id: "readme", label: "README.md + AGENTS.md", zone: "docs" },
+      { id: "features", label: "docs/features.md", zone: "docs" }
     ],
     edges: [
-      { d: "M143 80 V104 H440 V128" },
-      { d: "M434 80 V104 H440 V128", variant: "key" },
-      { d: "M731 80 V104 H440 V128" },
-      { d: "M440 192 V216 H138 V240" },
-      { d: "M440 192 V216 H414 V240" },
-      { d: "M440 192 V216 H702 V240" }
+      { from: "src", to: "gen" },
+      { from: "skills", to: "gen", key: true },
+      { from: "gen", to: "readme" },
+      { from: "gen", to: "features" }
     ]
   },
   dataPath: [
@@ -186,24 +192,12 @@ function renderGraph(g) {
   if (!g.nodes.length) {
     return emptyBlock('No verified graph yet', 'Read the file that defines each node and confirm every edge before drawing it.');
   }
-  const nodes = g.nodes.map((n) => {
-    const cls = n.variant ? ` ${n.variant}` : '';
-    const labelY = n.y + (n.sub ? 26 : 32);
-    const sub = n.sub ? `<text class="sub" x="${n.x + n.w / 2}" y="${n.y + 51}">${Render.esc(n.sub)}</text>` : '';
-    return `<g class="node${cls}"><rect x="${n.x}" y="${n.y}" width="${n.w}" height="${n.h}"/><text x="${n.x + n.w / 2}" y="${labelY}">${Render.esc(n.label)}</text>${sub}</g>`;
-  }).join('');
-  const edges = g.edges.map((e) => {
-    const cls = e.variant ? ` ${e.variant}` : '';
-    const marker = e.variant === 'key' ? 'arr-key' : 'arr';
-    return `<g class="edge${cls}"><path d="${e.d}" marker-end="url(#${marker})"/></g>`;
-  }).join('');
-  const svg = `<div class="graph"><svg viewBox="0 0 880 320" role="img" aria-labelledby="g-map-t">`
-    + `<title id="g-map-t">${Render.esc(g.title)}</title>`
-    + `<defs>`
-    + `<marker id="arr" viewBox="0 0 8 8" refX="8" refY="4" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto"><path d="M0 0 L8 4 L0 8 z"/></marker>`
-    + `<marker id="arr-key" class="key" viewBox="0 0 8 8" refX="8" refY="4" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto"><path d="M0 0 L8 4 L0 8 z"/></marker>`
-    + `</defs>${edges}${nodes}</svg></div>`;
-  return Render.anchored({ anchor: 'diagram-scripts-doc-fanout', label: g.title, html: svg });
+  if (g.zones && g.zones.length) {
+    return Render.diagram.architecture({
+      anchor: g.anchor, title: g.title, zones: g.zones, components: g.nodes, edges: g.edges || [],
+    });
+  }
+  return Render.diagram.dependency({ anchor: g.anchor, title: g.title, nodes: g.nodes, edges: g.edges || [] });
 }
 
 function renderDataPath(stages) {

@@ -3,6 +3,19 @@
 The document skeleton, where the file goes, and how it gets published. Shared by
 all twelve modes.
 
+- [Output path](#output-path)
+- [The two delivery paths](#the-two-delivery-paths)
+- [Document skeleton](#document-skeleton)
+- [Tokens](#tokens)
+- [Color](#color)
+- [Theming](#theming)
+- [Type and layout](#type-and-layout)
+- [Shape](#shape)
+- [Gate](#gate)
+- [States](#states)
+- [Images](#images)
+- [What not to build](#what-not-to-build)
+
 ## Output path
 
 Default: `.cc-arsenal/renders/<mode>-<slug>-<YYYY-MM-DD>.html`, relative to the
@@ -72,8 +85,11 @@ No page is authored from a blank file. Every mode ships a template at
 `../page.js`, a `/*SAMPLE*/`-marked `DATA` object standing in for real
 content, and the render calls already wired to `Render.anchored()`,
 `Render.init()` and the rest of the runtime `assets/page.js` ships (`esc`,
-`slug`, `cap`, `path`, `verdict`, `getPage`, `setPage`). Building a page is
-copy, fill, assemble, check:
+`slug`, `cap`, `path`, `verdict`, `getPage`, `setPage`). A template whose mode
+can carry a diagram (`map`, `plan`, `explain`, `brainstorm`, `report`) also
+links `../diagrams.css` and `../diagrams.js`, right after `page.css`/`page.js`
+so `Render.diagram.<type>` is available before any render call runs. Building
+a page is copy, fill, assemble, check:
 
 1. Copy the template straight to the real output path,
    `.cc-arsenal/renders/<mode>-<slug>-<YYYY-MM-DD>.html`, and edit it there.
@@ -142,6 +158,30 @@ When publishing as an Artifact, omit `<!doctype>`, `<html>`, `<head>` and
 `<body>`; the publish step supplies them. The `RAW` capture still returns the
 full wrapped document at runtime, which is what `save()` in `assets/page.js`
 needs.
+
+## Tokens
+
+Every non-color value on the page is one of the tokens below, defined once on
+bare `:root` in `assets/page.css` (color tokens are in the Color section next).
+Nothing hand-writes a raw length outside this block; `scripts/assemble.py`'s
+`raw-length` rule gates that mechanically (see Gate).
+
+| Group | Tokens | Values |
+|---|---|---|
+| Type | `--text` `--text-lg` `--text-xl` `--text-2xl` | 15px / 17px / 20px / 30px |
+| Leading | `--leading` `--leading-tight` `--leading-code` | 1.55 / 1.25 / 24px |
+| Tracking | `--tracking` `--tracking-tight` | -0.01em / -0.02em |
+| Measure | `--measure` `--digits` | 62ch / 5ch |
+| Space | `--space-0-5` … `--space-24` | 2px, 4px, 6px, 8px, 10px, 12px, 16px, 20px, 24px, 32px, 40px, 48px, 64px, 96px (multiples of 4px) |
+| Stroke | `--hair` `--stroke-key` | 1px / 2px |
+| Controls | `--control` `--control-sm` `--icon` `--pin`, plus `--bar` `--gutter` | 32px / 24px / 14px / 22px, 52px / 40px |
+| Widths | `--page` `--page-wide` `--col-xs` `--col-sm` `--col-md` `--col-lg` | 960px / 1200px / 88px / 120px / 168px / 260px |
+| Heights | `--scroll-max` `--toc-max` | 70vh / `calc(100vh - var(--bar) - var(--space-16))` |
+
+**Breakpoints stay literal**: 600px, 720px, 860px, 1100px. A `@media`/`@container`
+condition can't read a custom property, so these four numbers appear directly
+in `page.css` and `diagrams.css` rather than as tokens; the gate allowlists
+exactly these four and flags any other raw length in a media prelude.
 
 ## Color
 
@@ -265,28 +305,30 @@ Brand lives in precision, and the interface should disappear into the task.
   (`family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500`). A display
   face in a row label is a costume. Set `font-variant-numeric: tabular-nums`
   wherever digits align in a column.
-- **15px is the smallest font size anywhere on the page.** No text drops
-  below it: not meta, tags, kbd, line numbers, code, counts, legends, SVG
+- **`--text` (15px) is the smallest font size anywhere on the page.** No text
+  drops below it: not meta, tags, kbd, line numbers, code, counts, legends, SVG
   labels, nothing. `scripts/assemble.py`'s `font-size` rule gates this
   mechanically.
-- **Fixed px scale, not `clamp()`: 15 / 17 / 20 / 30.** 15 carries body text,
-  UI labels, buttons, filters, tags, meta, mono identifiers and paths, code
-  excerpts, kbd, line numbers, legends, heat and matrix values, and SVG node
-  labels. 17 is `h3` and sub-section headings. 20 is `h2` and the `.tldr`
-  statement. 30 is `h1`, tracked at -0.02em. Hierarchy within the 15px layer
-  comes from weight (400/500/600) and color (`--ink`/`--mute`/`--soft`), the
-  way Linear does it, never from shrinking text further. Line-height: 1.55 for
-  body, 1.25 for UI controls and headings.
-- **Control sizing follows the larger type**: buttons and `.seg` segments 32px
-  tall, the toolbar row 52px, the filterbar about 48px, tags about 24px tall,
-  `kbd` at least 24px, the `.mark` comment gutter at least 32px, row padding
-  scaled to keep the rhythm.
-- **Prose measure 65 to 75 characters.** Data and dense rows can run wider.
+- **Fixed scale, not `clamp()`: `--text` / `--text-lg` / `--text-xl` / `--text-2xl`
+  (15 / 17 / 20 / 30px).** `--text` carries body text, UI labels, buttons,
+  filters, tags, meta, mono identifiers and paths, code excerpts, kbd, line
+  numbers, legends, heat and matrix values, and SVG node labels. `--text-lg` is
+  `h3` and sub-section headings. `--text-xl` is `h2` and the `.tldr` statement.
+  `--text-2xl` is `h1`, tracked at `--tracking-tight`. Hierarchy within the
+  `--text` layer comes from weight (400/500/600) and color
+  (`--ink`/`--mute`/`--soft`), the way Linear does it, never from shrinking
+  text further. Line-height: `--leading` for body, `--leading-tight` for UI
+  controls and headings.
+- **Control sizing follows the larger type.** Buttons, `.seg` segments and the
+  `.mark` comment gutter are `--control` tall; tags and `kbd` are
+  `--control-sm`; the toolbar row is `--bar`. Row padding scales off the
+  `--space-*` ramp to keep the rhythm.
+- **Prose measure `--measure` (62ch).** Data and dense rows can run wider.
 - **Wide content scrolls inside its own container** with `overflow-x: auto`, so
   the body never scrolls sideways.
 - **Layout does the spacing.** Flex or grid with `gap`, never per-element
-  margins that collapse or double. Group related rows tightly, separate distinct
-  groups generously, and leave more space above a heading than below it.
+  margins that collapse or double. Related rows sit tight; distinct groups get
+  more room, and a heading gets more space above it than below.
 - **Declare elevation once**, a hairline or a shadow, never both. A 1px border
   under a soft shadow is the ghost card.
 - **Responsive behavior is structural**: a column collapses, a row restacks, a
@@ -302,12 +344,34 @@ rectangles are square, its edges use miter joins and square caps
 (`stroke-linejoin: miter; stroke-linecap: square`), never a rounded corner or
 a soft line end.
 
-No shadow but one: `box-shadow: inset 0 0 0 1px var(--token)`, used where an
-outline would clip (a `.layers` row marked `key`) and a `border` would shift
-the layout by a pixel. Every other elevation is a hairline (`border` or
-`border-top`/`border-bottom`), never a soft offset shadow, and never a
-hairline stacked under a shadow. No `blur()`, no `backdrop-filter`, no
+No shadow but one: `box-shadow: inset 0 0 0 var(--hair) var(--token)`, used
+where an outline would clip (a `.layers` row marked `key`) and a `border`
+would shift the layout by a pixel. Every other elevation is a hairline
+(`border` or `border-top`/`border-bottom`), never a soft offset shadow, and
+never a hairline stacked under a shadow. No `blur()`, no `backdrop-filter`, no
 translucent panel: a surface is opaque or it is not drawn.
+
+## Gate
+
+`scripts/assemble.py` inlines `page.css`/`page.js` (and, for a mode that
+carries one, `diagrams.css`/`diagrams.js`) into the single file the reader
+gets, then gates that file mechanically. Every rule it enforces:
+
+| Rule | Fails on |
+|---|---|
+| `hex` | a hex color that isn't 6-digit R=G=B |
+| `color-function` | any `rgb/hsl/hwb/lab/lch/oklab/oklch` function |
+| `named-color` | a CSS named color in a color-bearing property or presentation attribute |
+| `radius` | `border-radius`/`rx`/`ry` set to anything but `0` |
+| `shadow` | a `box-shadow` other than `none` or the one allowed inset outline, any `text-shadow`, `filter: drop-shadow()`/`blur()`, or any `backdrop-filter` |
+| `font-size` | a `font-size`/`font` value, or a `--text*` token definition, below the 15px floor, in any unit or keyword |
+| `raw-length` | a length (px, rem, em, ch, vw, vh, …) inside `<style>` outside a `:root` block, or in an `@media`/`@container` prelude that isn't one of the four literal breakpoints |
+| `style-attr` | an inline `style="..."` that sets anything but a unitless custom property (`--k:${n}`) |
+| `sample` | a leftover `/*SAMPLE*/` marker (a real page never passes `--allow-sample`) |
+
+A violation prints `file:line: rule: snippet` and the script exits nonzero.
+A tenth color, a rounded corner, or a hand-written pixel gap is a gate
+failure, not a style note.
 
 ## States
 

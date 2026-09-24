@@ -454,40 +454,21 @@
       <li class="stage key"><span class="title">Fix counts outside</span><span class="meta mono" title="apply_counts()">apply_counts()</span></li>
     </ol>
 
-    <h3>Graph</h3>
-    <article class="anchored" data-anchor="diagram-render-assembly" data-label="How a render page is assembled">
-      <button class="mark" type="button" aria-label="Comment on How a render page is assembled">+</button>
+    <h3>Diagram</h3>
+    <article class="anchored" data-anchor="diagram-catalog-pointer" data-label="Where the 18 diagram types live">
+      <button class="mark" type="button" aria-label="Comment on Where the 18 diagram types live">+</button>
       <div class="body">
-        <div class="graph">
-          <svg viewBox="0 0 1144 216" role="img" aria-labelledby="g-assembly-t">
-            <title id="g-assembly-t">Every page passes through assemble.py, which inlines page.css and page.js into the mode template and gates the result</title>
-            <defs>
-              <marker id="arr" viewBox="0 0 8 8" refX="8" refY="4" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto"><path d="M0 0 L8 4 L0 8 z"/></marker>
-              <marker id="arr-key" class="key" viewBox="0 0 8 8" refX="8" refY="4" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto"><path d="M0 0 L8 4 L0 8 z"/></marker>
-            </defs>
-            <g class="edge"><path d="M200 48 H240" marker-end="url(#arr)"/></g>
-            <g class="edge"><path d="M432 48 H472" marker-end="url(#arr)"/></g>
-            <g class="edge"><path d="M664 48 H704" marker-end="url(#arr)"/></g>
-            <g class="edge key"><path d="M896 48 H936" marker-end="url(#arr-key)"/></g>
-            <g class="edge"><path d="M684 150 V110 H750 V72" marker-end="url(#arr)"/></g>
-            <g class="edge"><path d="M916 150 V110 H850 V72" marker-end="url(#arr)"/></g>
-            <g class="edge"><text x="800" y="104">inlined</text></g>
-            <g class="node"><rect x="8" y="24" width="192" height="48"/><text x="104" y="48">SKILL.md</text></g>
-            <g class="node"><rect x="240" y="24" width="192" height="48"/><text x="336" y="48">references/mode.md</text></g>
-            <g class="node"><rect x="472" y="24" width="192" height="48"/><text x="568" y="48">templates/mode.html</text></g>
-            <g class="node key"><rect x="704" y="24" width="192" height="48"/><text x="800" y="48">assemble.py</text></g>
-            <g class="node"><rect x="936" y="24" width="192" height="48"/><text x="1032" y="48">page.html</text></g>
-            <g class="node sunk"><rect x="588" y="150" width="192" height="48"/><text x="684" y="174">page.css</text></g>
-            <g class="node sunk"><rect x="820" y="150" width="192" height="48"/><text x="916" y="174">page.js</text></g>
-          </svg>
-        </div>
+        <aside class="callout" data-kind="note">
+          <span class="callout-label">Note</span>
+          <p>A diagram is data, not a hand-drawn block: <code class="mono">Render.diagram.&lt;type&gt;(spec)</code> lays itself out. See <code class="mono">diagram-gallery.html</code> for all 18 types drawn once with real content, and <a href="diagrams.md">references/diagrams.md</a> for the catalog.</p>
+        </aside>
       </div>
     </article>
 
     <h3>Layers</h3>
     <ol class="layers">
       <li><span class="layer-name">Mode templates<span class="meta">12 files</span></span><span class="layer-items"><span class="tag mono">plan.html</span><span class="tag mono">review.html</span><span class="tag mono">compare.html</span><span class="tag mono">diff.html</span><span class="tag mono">report.html</span></span></li>
-      <li><span class="layer-name">Block library<span class="meta">references/blocks.md</span></span><span class="layer-items"><span class="tag">row</span><span class="tag">finding</span><span class="tag">diff</span><span class="tag">matrix</span><span class="tag">steps</span><span class="tag">graph</span></span></li>
+      <li><span class="layer-name">Block library<span class="meta">references/blocks.md</span></span><span class="layer-items"><span class="tag">row</span><span class="tag">finding</span><span class="tag">diff</span><span class="tag">matrix</span><span class="tag">steps</span><span class="tag">diagram</span></span></li>
       <li class="key"><span class="layer-name">Runtime and tokens<span class="meta">page.js, page.css</span></span><span class="layer-items"><span class="tag">verdicts</span><span class="tag">comments</span><span class="tag">filters</span><span class="tag">keyboard</span><span class="tag">theme</span></span></li>
       <li><span class="layer-name">Gate<span class="meta">scripts/assemble.py</span></span><span class="layer-items"><span class="tag">zero hue</span><span class="tag">radius 0</span><span class="tag">no shadow</span><span class="tag">no sample data</span></span></li>
     </ol>

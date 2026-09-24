@@ -7,10 +7,12 @@ built.
 
 - **Header**: what is being built, in one sentence taken from the plan itself,
   and the step count.
-- **Critical path**: one diagram, when the steps have real dependencies. The
-  point it must make is which chain sets the total, so weight that chain and let
-  the parallel branches recede. Skip the diagram entirely when the plan is a flat
-  sequence, since an arrow between every consecutive pair carries nothing.
+- **Critical path**: one diagram, when the steps have real dependencies. Drawn
+  with `Render.diagram.dependency` from `steps[].deps`, left to right, with
+  `critical: true` marking the chain that sets the plan's total; write that
+  conclusion as `DATA.critical`, one sentence, and it becomes the diagram's
+  title. Skip the diagram entirely when no step names a dependency, since a
+  diagram of disconnected boxes carries nothing.
 - **Per step**, one anchored block: what it does, which files it touches, what it
   depends on, and how it is verified. A step with no verification is shown with
   that gap visible, not hidden.
@@ -51,9 +53,11 @@ Template: `assets/templates/plan.html`. Composition, in reading order:
 - `tldr` and `facts` (page-head plus At a glance): the plan's goal in one
   sentence and a handful of labelled values about the plan itself.
 - `callout` (`data-kind="risk"`): the one risk the plan cannot absorb quietly.
-- `graph`, anchored: the step dependency fan-out and fan-in, shown only when a
-  step depends on more than one other step; an `.empty` state explains why the
-  diagram is skipped on a flat sequence.
+- `diagram`, anchored: `Render.diagram.dependency`, one node per step and one
+  edge per `deps` entry, `dir: 'LR'`, `critical: true`; an `.empty` state
+  explains why the diagram is skipped when no step names a dependency, and a
+  plan over the type's budget shows the builder's own refusal instead of a
+  cramped graph.
 - `steps`, each `<li class="anchored">` holding what the step does, the files
   it touches (`tree`, or a note when a step touches none), what it depends on,
   a verdict control, and either its verification or a visible `tag` saying the

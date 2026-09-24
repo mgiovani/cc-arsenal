@@ -15,6 +15,10 @@ The reader is not deciding anything on this page, they are catching up.
   area against day, area against status, locale against category. Use whichever
   block the axes deserve; `heat` earns its place when the magnitude itself is
   part of the point, `table` when the reader needs exact values side by side.
+- **A trend**, optional, where a metric is worth tracking across more than one
+  checkpoint: `DATA.trend` (2 or more x-axis ticks, one or more series) draws a
+  `Render.diagram.line`; exactly 2 ticks reads as a slope chart. Skip it where a
+  single period's numbers are the whole story.
 - **Blockers**, each a `callout` with `data-kind="risk"`. A report that hides
   what is stuck is worse than no report.
 - **Next steps**, as a `checklist` mixing what is already done with what is

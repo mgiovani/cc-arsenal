@@ -4,6 +4,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="../page.css">
+<link rel="stylesheet" href="../diagrams.css">
 
 <script id="state" type="application/json">{"v":1,"verdicts":{},"comments":[]}</script>
 
@@ -38,6 +39,7 @@
 <main class="wrap" id="root"></main>
 
 <script src="../page.js"></script>
+<script src="../diagrams.js"></script>
 <script>
 /*
 DATA shape (replace wholesale, keep the field names):
@@ -48,6 +50,12 @@ DATA shape (replace wholesale, keep the field names):
   tally: { segments: [{ label: string, count: number }] },   // <=4, order becomes s1..s3,s0
   areas: [{ label: string, value: number, max: number, mono?: boolean, dim?: boolean }],  // bars
   breakdown: { caption: string, cols: string[], rows: [{ label: string, values: number[] }] }, // heat
+  trend?: {                          // optional line chart; 2 x-axis ticks draw a slope chart
+    title?: string,                  // the diagram's conclusion; falls back to a generic sentence
+    x: { label: string, ticks: string[] },
+    y: { label: string, unit?: string },
+    series: [{ label: string, values: number[], key?: boolean }],
+  },
   risks: [{ label: string, text: string }],
   next: [{ label: string, done?: boolean }],
   timeline: [{ at: string, label: string, meta: string, minor?: boolean }]
@@ -87,6 +95,17 @@ const DATA = /*SAMPLE*/{
       { label: 'Root config', values: [545, 17] },
       { label: 'Docs', values: [440, 3] },
       { label: 'Skills', values: [70, 57] },
+    ],
+  },
+  trend: {
+    title: "Every area's line count fell sharply in the second week except skills/, which rose as the catalog regeneration landed.",
+    x: { label: 'Day', ticks: ['2026-09-16', '2026-09-23'] },
+    y: { label: 'Lines changed' },
+    series: [
+      { label: 'Scripts', values: [774, 0] },
+      { label: 'Root config', values: [545, 17] },
+      { label: 'Docs', values: [440, 3] },
+      { label: 'Skills', values: [70, 57], key: true },
     ],
   },
   risks: [
@@ -197,6 +216,19 @@ function renderBreakdown(breakdown) {
   });
 }
 
+function renderTrend(trend) {
+  if (!trend || !(trend.series || []).length) {
+    return empty('No trend recorded', 'Add DATA.trend with 2 or more x-axis ticks and at least one series to chart a trend across time.');
+  }
+  return Render.diagram.line({
+    anchor: `diagram-trend-${Render.slug(trend.y?.label || 'metric')}`,
+    title: trend.title || `${trend.series.map((s) => s.label).join(', ')} over ${trend.x.ticks.length} periods.`,
+    x: trend.x,
+    y: trend.y || {},
+    series: trend.series,
+  });
+}
+
 function renderChecklist(next) {
   if (!next.length) return empty('No next steps', 'Nothing is queued after this report.');
   const items = next.map((n) => `<li${n.done ? ' class="done"' : ''}><span class="box" aria-hidden="true"></span><span>${Render.esc(n.label)}</span></li>`).join('');
@@ -245,6 +277,11 @@ function mount(data) {
     <section class="section" id="breakdown" data-section="Breakdown">
       <div class="section-head"><h2>Breakdown</h2><span class="meta">${data.breakdown.rows.length} areas</span></div>
       ${renderBreakdown(data.breakdown)}
+    </section>
+
+    <section class="section" id="trend" data-section="Trend">
+      <div class="section-head"><h2>Trend</h2><span class="meta">${(data.trend?.series || []).length} series</span></div>
+      ${renderTrend(data.trend)}
     </section>
 
     <section class="section" id="next" data-section="Next steps">

@@ -9,6 +9,18 @@ comparison, a before and after, a number per item), a block shows that shape and
 a paragraph hides it. Prefer a block whenever content has a shape, and keep
 prose for the reasoning that connects blocks.
 
+- [Content shape to block](#content-shape-to-block)
+- [Page frame](#page-frame)
+- [Render API](#render-api)
+- [Anchored blocks](#anchored-blocks)
+- [At a glance](#at-a-glance): `tldr`, `facts`, `tally`, `callout`
+- [Items](#items): `row`, `finding`, `idea`, `checklist`
+- [Code](#code): `code`, `diff`, `annot`
+- [Data](#data): `table`, `matrix`, `heat`, `bars`
+- [Structure](#structure): `steps`, `timeline`, `flow`, `diagram`, `layers`, `tree`, `split`
+- [Frame blocks](#frame-blocks): `toolbar`, `toc`, `tabs`, `disclosure`, `empty`
+- [Primitives](#primitives)
+
 ## Content shape to block
 
 Read the content first, name its shape, then take the block from this table.
@@ -33,7 +45,7 @@ Read the content first, name its shape, then take the block from this table.
 | A sequence where order matters | `steps` |
 | Events with dates or times | `timeline` |
 | A pipeline where each stage feeds the next | `flow` |
-| A structure that branches or merges | `graph` |
+| A structure that branches or merges, a process, a comparison or a plot with real data | `diagram` (18 types, see [diagrams.md](diagrams.md)) |
 | An architecture of stacked levels | `layers` |
 | Files and folders, with the ones a change touches | `tree` |
 | A before and after, or pros and cons, in prose | `split` |
@@ -292,21 +304,27 @@ Markup: `<ol class="flow"><li class="stage [key]"><span class="title">...</span>
 `key` marks the stage the page is about. The function name is single-line with
 an ellipsis, never a mid-word wrap; the `title` attribute carries the full text
 for a name too long to show. Modes: explain, map, tour. Don't: use it for
-branching structure; that is `graph`.
+branching or cyclic structure; that is `diagram`.
 
-### graph
+### diagram
 
-Inline SVG for structure that branches or merges, per
-[diagrams.md](diagrams.md). Square nodes, 1px edges, emphasis by stroke weight.
-Markup: `<div class="graph"><svg viewBox="..." role="img" aria-labelledby="t"><title id="t">The conclusion</title><g class="edge [key|soft]"><path .../></g><g class="node [key|sunk]"><rect .../><text .../></g></svg></div>`.
-Define arrowheads as `<marker>` elements (add `class="key"` for the heavy one).
-Modes: map, explain, tour. Don't: set `rx`, a fill colour, or a pixel width.
+Data-driven, not hand-drawn: call `Render.diagram.<type>({ anchor, title, ...data })`
+and it lays itself out, routes its own edges and refuses over budget instead of
+overflowing. 18 types across four groups (flow: sequence, state, flowchart,
+swimlane, cycle; structure: dependency, architecture, er, containment;
+planning: gantt, kanban, storymap, quadrant; data: fishbone, waterfall,
+treemap, funnel, line), each with its own data shape, budget and Don't, all
+specified in [diagrams.md](diagrams.md). `dependency` replaces the old
+hand-drawn `graph` block. Modes: map, explain, tour, plan, brainstorm, report.
+Don't: hand-write SVG or coordinates for any of these; a diagram over budget
+gets split, never overridden.
 
 ### layers
 
 An architecture of stacked levels, top level first.
 Markup: `<ol class="layers"><li [class="key"]><span class="layer-name">Runtime<span class="meta">page.js</span></span><span class="layer-items"><span class="tag">...</span></span></li></ol>`.
-Modes: map, explain, tour. Don't: draw arrows between layers; that is `graph`.
+Modes: map, explain, tour. Don't: draw arrows between layers; that is a
+`diagram` (`architecture` or `containment`).
 
 ### tree
 

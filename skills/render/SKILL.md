@@ -14,7 +14,7 @@ description: Turn a plan, PRD, review, audit, comparison, brainstorm, explanatio
 metadata:
   summary: "Turn any output into an interactive HTML page you mark up in place, then read the marks back"
   author: mgiovani
-  version: 1.1.0
+  version: 1.2.0
 disable-model-invocation: true
 argument-hint: <mode|/skill|path> [subject]
 allowed-tools: Read, Write, Edit, Grep, Glob, Bash, Task, Skill, Artifact
@@ -114,8 +114,10 @@ Building means:
    library in [references/blocks.md](references/blocks.md): prefer a block
    whenever the content has a shape (a sequence, a comparison, a magnitude, a
    before/after, a hierarchy) over writing another paragraph.
-4. Never hand-write a new CSS color. Every value already comes from a token in
-   `assets/page.css`.
+4. Never hand-write a new CSS color or a raw length. Every value already comes
+   from a token in `assets/page.css`. A diagram comes from
+   `Render.diagram.<type>(spec)`, never hand-drawn SVG; see
+   [references/diagrams.md](references/diagrams.md) for the type catalog.
 5. Run `scripts/assemble.py` on that same path, in place (`-o` pointing at the
    input), to inline `page.css` and `page.js` into the single file the gate
    checks and the reader receives, and let it gate the result against the
@@ -152,8 +154,10 @@ Six rules hold across every mode:
    sets a `font-size` below 15px, since hierarchy comes from weight and color
    rather than from shrinking text. See the Color and Shape sections of
    [references/page-kit.md](references/page-kit.md).
-5. **Diagrams are inline SVG built from the page's own tokens.** Mermaid brings
-   its own theme and fights the three-state setup above.
+5. **Diagrams are data, not drawings.** Never hand-write SVG or coordinates;
+   call `Render.diagram.<type>` and let it lay itself out. Over budget means
+   the content gets split into more than one diagram, never squeezed to fit.
+   See [references/diagrams.md](references/diagrams.md).
 6. **State drives the DOM, never the reverse.** The page renders from its
    embedded state object. Saving serializes that object, never the live DOM.
 

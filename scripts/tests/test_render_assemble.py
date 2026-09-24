@@ -324,7 +324,7 @@ def test_main_in_place_output_same_as_input(
     assert '<style>a { color: var(--ink); }</style>' in page.read_text()
 
 
-# --- raw-length / style-attr gate: plan-spec case table -------------------
+# --- raw-length / style-attr gate -------------------------------------------
 
 
 @pytest.mark.parametrize(

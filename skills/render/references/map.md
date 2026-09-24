@@ -9,7 +9,10 @@ The shape of a codebase or a system. No verdicts, comments everywhere.
   unfamiliar repo needs these before anything else.
 - **The module graph**, as one diagram. Nodes are things that exist on disk;
   edges are imports or calls that were verified, never inferred from similar
-  names.
+  names. Drawn with `Render.diagram.dependency`, or `Render.diagram.architecture`
+  when the nodes group into zones (layers, services, trust boundaries); pass
+  `nodes`/`edges` with ids and labels only, never coordinates, and let the
+  diagram engine lay it out.
 - **A data path**, traced end to end for the system's most important operation.
   One concrete trace teaches more than a complete graph, because it shows the
   order things happen in.
@@ -50,7 +53,7 @@ filters). Composition, in page order:
 | Block | Holds |
 |---|---|
 | `tree` | Entry points and key files: the binaries, CLI commands and modules a reader needs before anything else, grouped by directory |
-| `graph` | The module graph as one inline SVG: nodes that exist on disk, edges confirmed by reading the import or call, never inferred from similar names |
+| `diagram` | The module graph: `Render.diagram.dependency` (flat) or `.architecture` (zoned), nodes that exist on disk, edges confirmed by reading the import or call, never inferred from similar names. Over the type's node/edge budget, split into more than one diagram rather than fight the refusal |
 | `flow` | The data path: one operation traced end to end, one pipeline stage per function, in the order it actually runs |
 | `table` | One row per module: what it owns, what it depends on, and the command or route that enters it. The module cell is anchored (`module-<path-slug>`) |
 | `layers` | The architecture as stacked levels, top level first |

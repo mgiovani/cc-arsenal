@@ -17,7 +17,8 @@
         "the publish call supplies an icon, which the Artifact contract requires on a first publish",
         "every color on the page resolves to one of the eight neutral tokens (or a color-mix of them): there is no hue anywhere, including on the verdict controls, whose decision is read from the pressed segment's ink-fill position rather than from a color",
         "the page was built by copying assets/templates/review.html and replacing its /*SAMPLE*/ DATA object rather than hand-authored from a blank file, then assembled with scripts/assemble.py so page.css and page.js are inlined into the single file, the assemble.py gate passes with no --allow-sample flag and no leftover /*SAMPLE*/ marker, and every corner on the page is square (no border-radius, no rx/ry)",
-        "no rendered text on the page is smaller than 15px anywhere (meta, tags, mono identifiers, code excerpts included), and scripts/assemble.py's font-size rule reports zero violations on the assembled page"
+        "no rendered text on the page is smaller than 15px anywhere (meta, tags, mono identifiers, code excerpts included), and scripts/assemble.py's font-size rule reports zero violations on the assembled page",
+        "scripts/assemble.py's check() reports zero raw-length violations (no hand-written px/rem/em/ch length outside a :root block) and zero style-attr violations (every inline style=\"...\" sets only a unitless custom property) on the assembled page"
       ]
     },
     {
@@ -158,6 +159,41 @@
         "report mode carries no verdict controls; metrics and status lines carry only the anchored comment affordance",
         "the tldr and facts or tally blocks are used for the counts (3 merged, 2 open reviews, 1 stale branch) rather than a hero metric or a wall of prose",
         "every number on the page traces to a value gh-daily actually reported, none invented to fill out the layout",
+        "the assembled output passes scripts/assemble.py with zero violations and no leftover /*SAMPLE*/ marker"
+      ]
+    },
+    {
+      "id": "happy-path-map-mode-diagram",
+      "prompt": "Run render map on this repo's 7-module dependency graph: auth depends on db and config; api depends on auth and db; worker depends on db and config; config depends on nothing.",
+      "assertions": [
+        "an HTML file is written under .cc-arsenal/renders/ with a name starting 'map-'",
+        "the page is built by copying assets/templates/map.html and replacing its /*SAMPLE*/ DATA object, then assembled with scripts/assemble.py",
+        "the graph is drawn via Render.diagram.dependency (or Render.diagram.architecture if the modules group into zones), never hand-written SVG",
+        "the diagram call passes only nodes and edges, with no coordinate, position, x or y field anywhere in the data",
+        "every dependency named in the prompt appears as an edge, and no edge is invented",
+        "the assembled output passes scripts/assemble.py with zero violations and no leftover /*SAMPLE*/ marker"
+      ]
+    },
+    {
+      "id": "judgment-oversized-map-splits",
+      "prompt": "Run render map on this repo's actual module graph, which has about 20 modules and would be a single dependency diagram of 20 nodes.",
+      "assertions": [
+        "the response does not call Render.diagram.dependency once with all ~20 nodes, since the dependency budget is 9 nodes and 12 edges",
+        "the modules are grouped (by layer, by directory, or by another real seam in the code) into more than one diagram, each at or under the 9-node budget",
+        "no diagram is drawn past its declared budget and no per-page override or budget bypass is invented",
+        "the grouping is based on the real module structure, not an arbitrary even split",
+        "each resulting diagram still carries a real, non-fabricated set of edges between the nodes it covers"
+      ]
+    },
+    {
+      "id": "happy-path-explain-mode-sequence",
+      "prompt": "Run render explain on how a login request flows through this app: the client calls the API gateway, the gateway calls the auth service, the auth service queries the user database and returns a token, and the gateway returns the token to the client.",
+      "assertions": [
+        "an HTML file is written under .cc-arsenal/renders/ with a name starting 'explain-'",
+        "the page is built by copying assets/templates/explain.html and replacing its /*SAMPLE*/ DATA object, then assembled with scripts/assemble.py",
+        "the mechanism is drawn via Render.diagram.sequence with the four participants (client, gateway, auth service, user database) and the messages between them, never hand-written SVG",
+        "the sequence diagram carries a text alternative (a .dg-sr list or equivalent) describing every message in order, for a reader who cannot see the diagram",
+        "explain mode's one-line answer and detail-on-demand structure are preserved; the diagram supplements the mechanism section rather than replacing it",
         "the assembled output passes scripts/assemble.py with zero violations and no leftover /*SAMPLE*/ marker"
       ]
     }

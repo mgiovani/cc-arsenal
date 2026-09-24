@@ -122,7 +122,7 @@ a {
 a:hover { text-decoration-color: currentColor; }
 code, kbd, samp, pre, .mono { font-family: var(--mono); font-size: 100%; }
 .num, [data-count], time, .tabular { font-variant-numeric: tabular-nums; }
-.scroll, .table-scroll, .graph, .lines, .diff-split, .heat-scroll {
+.scroll, .table-scroll, .lines, .diff-split, .heat-scroll {
   scrollbar-width: thin;
   scrollbar-color: var(--line-strong) transparent;
 }
@@ -949,22 +949,6 @@ figcaption > .meta { margin-left: auto; font-family: var(--mono); white-space: n
   .flow > .stage:not(:last-child)::after { top: auto; bottom: calc(-1 * (var(--space-6) + var(--hair))); right: auto; left: var(--space-5); width: 0; height: calc(var(--space-6) + var(--hair) - var(--space-0-5)); border-top: 0; border-left: var(--hair) solid var(--mute); }
   .flow > .stage:not(:last-child)::before { top: auto; bottom: calc(-1 * var(--space-6)); right: auto; left: var(--space-4); transform: rotate(135deg); }
 }
-
-/* Graph: inline SVG, tokens only */
-.graph { overflow-x: auto; border: var(--hair) solid var(--line); background: var(--panel); padding: var(--space-3); }
-.graph svg { width: 100%; height: auto; min-width: calc(var(--col-sm) * 6); overflow: visible; font-family: var(--sans); }
-.graph .node rect { fill: var(--panel); stroke: var(--line-strong); stroke-width: 1; shape-rendering: crispEdges; }
-.graph .node text { fill: var(--ink); font-size: var(--text); font-weight: 500; text-anchor: middle; dominant-baseline: central; }
-.graph .node .sub { fill: var(--mute); font-size: var(--text); font-weight: 400; font-family: var(--mono); }
-.graph .node.key rect { stroke: var(--ink); stroke-width: 1.5; }
-.graph .node.sunk rect { fill: var(--sunk); }
-.graph .edge path { stroke: var(--mute); fill: none; stroke-width: 1; stroke-linecap: square; stroke-linejoin: miter; }
-.graph .edge.key path { stroke: var(--ink); stroke-width: 2; }
-.graph .edge.soft path { stroke-dasharray: 3 3; }
-.graph .edge text { fill: var(--soft); font-size: var(--text); font-family: var(--mono); text-anchor: middle; }
-.graph marker path { fill: var(--mute); stroke: none; }
-.graph marker.key path { fill: var(--ink); }
-.graph figcaption, .graph + .meta { margin-top: var(--space-2); }
 
 /* Layers: stacked architecture */
 .layers { display: grid; border: var(--hair) solid var(--line); background: var(--panel); }

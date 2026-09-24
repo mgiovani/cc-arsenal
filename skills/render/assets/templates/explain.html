@@ -4,6 +4,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="../page.css">
+<link rel="stylesheet" href="../diagrams.css">
 
 <script id="state" type="application/json">{"v":1,"verdicts":{},"comments":[]}</script>
 
@@ -38,6 +39,7 @@
 <main class="wrap wrap-wide" id="root"></main>
 
 <script src="../page.js"></script>
+<script src="../diagrams.js"></script>
 <script>
 /*
 DATA shape (replace wholesale; every field below is read by the render functions further down):
@@ -46,7 +48,11 @@ DATA shape (replace wholesale; every field below is read by the render functions
   tldr: string,                    // the one-line answer, first
   mechanism: {
     anchor: string, label: string,
-    stages: [{ title: string, fn: string, key?: boolean }],   // pipeline, in order
+    stages?: [{ title: string, fn: string, key?: boolean }],   // pipeline, in order
+    diagram?: {                     // alternative to stages: a real diagram instead of a list
+      type: 'sequence' | 'state' | 'flowchart',
+      ...spec,                      // the named type's own data shape (see references/diagrams.md)
+    },
   },
   code: {
     anchor: string, label: string, path: string, range: string,
@@ -68,15 +74,23 @@ const DATA = /*SAMPLE*/{
   mechanism: {
     anchor: "diagram-render-feedback-loop",
     label: "The render feedback loop, start to finish",
-    stages: [
-      { title: "Author renders a block", fn: "Render.anchored()" },
-      { title: "Page loads", fn: "Render.init()" },
-      { title: "Every block hydrates", fn: "hydrate()" },
-      { title: "Reader clicks the mark", fn: "openComposer()" },
-      { title: "Comment is stored", fn: "submitComment()", key: true },
-      { title: "Draft is written", fn: "persist()" },
-      { title: "Reader saves", fn: "buildDocument()" },
-    ],
+    diagram: {
+      type: "sequence",
+      participants: [
+        { id: "author", label: "Author" },
+        { id: "pagejs", label: "page.js" },
+        { id: "reader", label: "Reader" },
+        { id: "storage", label: "localStorage" },
+      ],
+      messages: [
+        { from: "author", to: "pagejs", label: "Render.anchored() writes the block" },
+        { from: "pagejs", to: "pagejs", label: "Render.init() hydrates every anchor" },
+        { from: "reader", to: "pagejs", label: "clicks the mark: openComposer()" },
+        { from: "pagejs", to: "storage", label: "submitComment() calls persist()" },
+        { from: "storage", to: "pagejs", label: "loadState() reads the draft back", soft: true },
+        { from: "pagejs", to: "reader", label: "buildDocument() writes Save", key: true },
+      ],
+    },
   },
   code: {
     anchor: "code-page-js-submit-comment",
@@ -168,7 +182,14 @@ function renderAnswer(d) {
 }
 
 function renderMechanism(m) {
-  if (!m || !m.stages?.length) return emptyBlock('No mechanism recorded', 'Add stages to DATA.mechanism.stages to show the pipeline.');
+  if (!m) return emptyBlock('No mechanism recorded', 'Add DATA.mechanism with either stages or a diagram.');
+  if (m.diagram) {
+    const { type, ...spec } = m.diagram;
+    const builder = Render.diagram[type];
+    if (!builder) return emptyBlock('Unknown diagram type', `DATA.mechanism.diagram.type "${type}" is not sequence, state or flowchart.`);
+    return builder({ anchor: m.anchor, title: m.label, ...spec });
+  }
+  if (!m.stages?.length) return emptyBlock('No mechanism recorded', 'Add stages to DATA.mechanism.stages, or a diagram, to show the pipeline.');
   const stages = m.stages.map((s) => (
     `<li class="stage${s.key ? ' key' : ''}"><span class="title">${Render.esc(s.title)}</span>`
     + `<span class="meta mono" title="${Render.esc(s.fn)}">${Render.esc(s.fn)}</span></li>`

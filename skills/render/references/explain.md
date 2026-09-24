@@ -7,8 +7,10 @@ Understanding, built in layers. No verdicts, comments everywhere.
 - **The answer in one line**, first, before any context. A reader who stops here
   should still have what they asked for.
 - **The mechanism**, showing how the thing actually works. A diagram carries
-  this best where the subject has a shape; where it does not, a worked example or
-  a walked-through trace does the same job. The page is still the deliverable
+  this best where the subject has a shape: `Render.diagram.sequence` for a
+  request or message flow, `.state` for a state machine, `.flowchart` for a
+  decision path. Where none of those fit, a plain ordered list of stages or a
+  walked-through trace does the same job. The page is still the deliverable
   either way, because the reader's questions have to land somewhere.
 - **The detail**, in sections the reader opens as needed. Each section answers
   one question and says which question in its heading.
@@ -45,7 +47,9 @@ most prone to.
 ## Blocks
 
 Composition, in order. The answer comes first, in a `tldr`. Next the mechanism,
-as a `flow` pipeline (or a `graph` where the subject branches or merges).
+as a `flow` pipeline, or `DATA.mechanism.diagram` (a `sequence`, `state` or
+`flowchart` built with `Render.diagram.<type>`) where the subject branches,
+merges or has real message passing between named actors.
 Then the key code path in an `annot`, code left and numbered notes right,
 followed by one `disclosure` entry per question a reader is likely to ask.
 A `callout` with `data-kind="note"` carries the one gotcha. A plain citation
