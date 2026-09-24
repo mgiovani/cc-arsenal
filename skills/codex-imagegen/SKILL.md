@@ -38,7 +38,7 @@ codex --version
 ```
 
 - Not found → tell the user to install Codex CLI and stop.
-- Version older than 0.156 → `gpt-6-sol` can 400 with "requires a newer version" and `--approve-for-me` doesn't exist yet; tell the user to upgrade before continuing. See [references/troubleshooting.md](references/troubleshooting.md) for the auth/version gotcha table.
+- `codex exec` rejects the model or auth → see [references/troubleshooting.md](references/troubleshooting.md).
 - Run from the target repo's root so codex's relative move-file paths land in the right workspace.
 
 ## Phase 2: Gather the brief and budget effort
@@ -69,7 +69,7 @@ codex exec --approve-for-me -m gpt-6-sol -c model_reasoning_effort="<xhigh|high>
 
 If transparency is required, say so explicitly in the brief ("transparent background"): the skill's built-in flow handles chroma-key removal on its own; don't ask for it as a separate step.
 
-`--approve-for-me` (workspace-write sandbox plus automatic approval review) replaced `--full-auto`, which Codex 0.156 removed. The review step still lets the chroma-removal helper fetch its dependencies.
+`--approve-for-me` (workspace-write sandbox plus automatic approval review) lets the chroma-removal helper fetch its dependencies.
 
 For a consistent character across multiple images, put the *full* shared design brief in every asset's prompt, and generate pose/mood variants as edits of the first approved image rather than independent generations: one built-in `image_gen` call per asset is the skill's own rule, so batches are sequential, not parallel.
 
@@ -101,7 +101,7 @@ Codex can claim chroma removal succeeded while the key color is still visibly th
 ## Notes
 
 - Chroma-key flow: the built-in `image_gen` tool has no native alpha, so the skill generates on a flat chroma-key background then strips it locally. **Never** pass `--despill`/`--spill-cleanup` on pink/magenta-family subject art: despill desaturates those colors toward gray.
-- ChatGPT-account auth rejects API-only models; if `-m gpt-6-sol` fails on an auth error rather than a version error, see [references/troubleshooting.md](references/troubleshooting.md).
+- ChatGPT-account auth rejects API-only models; if `-m gpt-6-sol` fails on an auth error, see [references/troubleshooting.md](references/troubleshooting.md).
 - Regenerating with the same output filenames is cheap; re-integrating a bad asset into the app isn't: favor a re-run over shipping a QC failure.
 - If a chroma removal comes out visibly wrong, don't just report failure: the raw generation and the fix procedure are in [references/troubleshooting.md](references/troubleshooting.md) (load it when you actually hit this).
 
@@ -153,4 +153,4 @@ skill instead. Stopping here.
 
 ## Reference Files
 
-- `references/troubleshooting.md`: version/auth gotcha table, manual chroma-key recovery procedure. Load when a version/auth error blocks Phase 1, or a chroma removal needs a manual fix after Phase 5.
+- `references/troubleshooting.md`: auth/binary gotcha table, manual chroma-key recovery procedure. Load when an auth or binary error blocks Phase 1, or a chroma removal needs a manual fix after Phase 5.
