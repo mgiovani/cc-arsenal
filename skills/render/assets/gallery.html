@@ -4,6 +4,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="page.css">
+<link rel="stylesheet" href="diagrams.css">
 
 <script id="state" type="application/json">{"v":1,"page":{"matrix-pick":"shipped"},"verdicts":{},"comments":[]}</script>
 
@@ -455,15 +456,8 @@
     </ol>
 
     <h3>Diagram</h3>
-    <article class="anchored" data-anchor="diagram-catalog-pointer" data-label="Where the 18 diagram types live">
-      <button class="mark" type="button" aria-label="Comment on Where the 18 diagram types live">+</button>
-      <div class="body">
-        <aside class="callout" data-kind="note">
-          <span class="callout-label">Note</span>
-          <p>A diagram is data, not a hand-drawn block: <code class="mono">Render.diagram.&lt;type&gt;(spec)</code> lays itself out. See <code class="mono">diagram-gallery.html</code> for all 18 types drawn once with real content, and <a href="diagrams.md">references/diagrams.md</a> for the catalog.</p>
-        </aside>
-      </div>
-    </article>
+    <div id="gallery-diagram"></div>
+    <p class="meta">All 18 types, each drawn once with real content, are in <span class="mono">diagram-gallery.html</span>; the catalog is <span class="mono">references/diagrams.md</span>.</p>
 
     <h3>Layers</h3>
     <ol class="layers">
@@ -584,8 +578,31 @@
 </main>
 
 <script src="page.js"></script>
+<script src="diagrams.js"></script>
 <script>
   if (window.Render) {
+    document.getElementById('gallery-diagram').outerHTML = Render.diagram.dependency({
+      anchor: 'diagram-render-assembly',
+      title: 'Every page runs SKILL.md to a mode template, links both asset pairs, and leaves assemble.py as one gated file.',
+      nodes: [
+        { id: 'skill', label: 'SKILL.md' },
+        { id: 'mode', label: 'references/<mode>.md' },
+        { id: 'tmpl', label: 'templates/<mode>.html', key: true },
+        { id: 'kit', label: 'page.css + page.js', sunk: true },
+        { id: 'dg', label: 'diagrams.css + diagrams.js', sunk: true },
+        { id: 'asm', label: 'assemble.py', key: true },
+        { id: 'out', label: 'page.html', sub: 'inlined, gated', key: true },
+      ],
+      edges: [
+        { from: 'skill', to: 'mode', label: 'picks a mode' },
+        { from: 'mode', to: 'tmpl' },
+        { from: 'tmpl', to: 'kit', label: 'links' },
+        { from: 'tmpl', to: 'dg', label: 'links' },
+        { from: 'kit', to: 'asm' },
+        { from: 'dg', to: 'asm' },
+        { from: 'asm', to: 'out', label: 'inlines and gates', key: true },
+      ],
+    });
     Render.init({ verdicts: ['keep', 'change', 'drop'], file: 'gallery-render-blocks-2026-09-23.html', title: 'Render block gallery' });
   }
 </script>

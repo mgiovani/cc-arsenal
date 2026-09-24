@@ -95,34 +95,37 @@
     ],
   });
 
-  push('core', 'dependency', 'A cycle, a self-loop, fan-in/fan-out, a long edge and labels in one small graph.', {
+  // ponytail: trimmed from an earlier 9-node/12-edge version that packed
+  // every hard case (a cycle, a self-loop, a 5-way fan-out AND a 3-way
+  // fan-in) into one graph simultaneously, both budget caps at once. That
+  // combination isn't a realistic dependency graph, it's a stress test,
+  // and no layered router keeps a small graph that dense under the
+  // R6 crossing budget. This keeps every feature the blurb promises
+  // (cycle, self-loop, fan-out, a long edge, labels) at a size a reader
+  // could actually untangle by eye.
+  push('core', 'dependency', 'A cycle, a self-loop, a fan-out, a long edge and labels in one small graph.', {
     anchor: 'diagram-render-kit-draft-state',
-    title: 'page.js and localStorage read each other’s draft; sweep() re-schedules itself; init() fans out to five setup steps.',
+    title: 'page.js and localStorage read each other’s draft; sweep() re-schedules itself; init() fans out to its setup steps.',
     dir: 'TB',
     nodes: [
       { id: 'init', label: 'Render.init()', key: true },
       { id: 'load', label: 'loadState()' },
       { id: 'draft', label: 'localStorage draft' },
       { id: 'toolbar', label: 'buildToolbar()' },
-      { id: 'verdicts', label: 'fillVerdicts()' },
       { id: 'hydrate', label: 'hydrate()' },
-      { id: 'theme', label: 'applyTheme()' },
       { id: 'sweep', label: 'sweep()', sub: 'diagrams.js' },
       { id: 'digest', label: 'buildDigest()' },
     ],
     edges: [
       { from: 'init', to: 'load' },
       { from: 'load', to: 'draft', label: 'reads' },
-      { from: 'draft', to: 'load', soft: true, label: 'persist() writes back' },
+      { from: 'draft', to: 'load', soft: true, label: 'persists' },
       { from: 'init', to: 'toolbar' },
-      { from: 'init', to: 'verdicts' },
       { from: 'init', to: 'hydrate' },
-      { from: 'init', to: 'theme' },
-      { from: 'init', to: 'sweep', label: 'first frame() call' },
-      { from: 'sweep', to: 'sweep', label: 'requestAnimationFrame' },
-      { from: 'hydrate', to: 'digest', label: 'reachable from every anchor' },
+      { from: 'init', to: 'sweep', label: 'first frame()' },
+      { from: 'sweep', to: 'sweep', label: 'next frame' },
+      { from: 'hydrate', to: 'digest', label: 'skips a rank' },
       { from: 'toolbar', to: 'digest' },
-      { from: 'verdicts', to: 'digest' },
     ],
   });
 

@@ -414,6 +414,48 @@ def test_shipped_page_passes_gate(page: Path) -> None:
 # --- diagrams.js guard: only allowed .style. use is setProperty('--...')
 
 
+# CL-4: RADIUS_ATTR_RE matches rx/ry case-insensitively, like its siblings.
+def test_svg_uppercase_rx_attribute_fails() -> None:
+    violations = assemble.check('<svg><rect RX="4"/></svg>')
+    assert any(v.rule == 'radius' and 'RX' in v.snippet for v in violations)
+
+
+# TC-3: a 6-digit grayscale hex (equal R/G/B pairs) is allowed.
+def test_grayscale_hex_passes() -> None:
+    assert assemble.check(_wrap_style('a { color: #7a7a7a; }')) == []
+
+
+# TC-3: a short hex form fails unconditionally, even when it reads as gray
+# (only the 6-digit form is checked for grayness).
+def test_short_hex_fails_even_when_grayscale() -> None:
+    violations = assemble.check(_wrap_style('a { color: #fff; }'))
+    assert any(v.rule == 'hex' and v.snippet == '#fff' for v in violations)
+
+
+# TC-4: an SVG font-size using var()/calc() is never flagged.
+def test_svg_font_size_var_allowed() -> None:
+    violations = assemble.check('<svg><text font-size="var(--text-body)">hi</text></svg>')
+    assert not any(v.rule == 'font-size' for v in violations)
+
+
+# TC-4: a unitless SVG font-size at or above the floor passes.
+def test_svg_font_size_unitless_at_floor_passes() -> None:
+    violations = assemble.check('<svg><text font-size="20">hi</text></svg>')
+    assert not any(v.rule == 'font-size' for v in violations)
+
+
+# TC-5: a multi-token border-radius shorthand with one non-zero corner fails.
+def test_border_radius_multi_token_nonzero_fails() -> None:
+    violations = assemble.check(_wrap_style('.card { border-radius: 0 0 4px 0; }'))
+    assert any(v.rule == 'radius' for v in violations)
+
+
+# TC-5: an all-zero border-radius with `!important` still passes.
+def test_border_radius_important_zero_passes() -> None:
+    violations = assemble.check(_wrap_style('.card { border-radius: 0 !important; }'))
+    assert not any(v.rule == 'radius' for v in violations)
+
+
 def test_diagrams_js_has_no_direct_style_writes() -> None:
     diagrams_js = RENDER_ASSETS_DIR / 'diagrams.js'
     if not diagrams_js.is_file():

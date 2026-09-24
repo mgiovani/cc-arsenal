@@ -51,6 +51,18 @@
     return Math.round(n * 100) / 100;
   }
 
+  // fanFrac: the 0..1 position of slot i among n siblings spread evenly
+  // across one side of a box. An odd-sized fan's middle slot would
+  // otherwise land at exactly 0.5 -- the same point a DIFFERENT node's
+  // single, dead-centred port can independently land on when a barycenter
+  // layout centres it directly under/over this one (R3: two unrelated
+  // edges' long runs then coincide exactly). n === 1 has no sibling to
+  // spread from and no collision risk of its own, so it stays centred.
+  function fanFrac(i, n) {
+    const frac = (i + 1) / (n + 1);
+    return (n > 1 && n % 2 === 1 && i === (n - 1) / 2) ? frac + 1 / (n + 1) / 4 : frac;
+  }
+
   function cssId(id) {
     return window.CSS?.escape ? CSS.escape(String(id)) : String(id).replace(/(["\\])/g, '\\$1');
   }
@@ -187,7 +199,21 @@
     return `<div class="${cls}" data-id="${esc(n.id)}"${styleAttr}><span class="title">${esc(n.label)}</span>${sub}</div>`;
   }
 
-  // -- layered layout ----------------------------------------------------------
+  // -- layered layout (Sugiyama: rank, order, place) --------------------------
+  //
+  // Shape: { rank, pos, ranks, cols2, back, loops, critical, channels,
+  // chainOf, halfCol }. `pos.get(id)` is { rank, col } where `col` is a
+  // 0-based HALF-column start (a real node spans 2 half-columns --
+  // `grid-column: var(--c) / span 2` -- a dummy spans 1 and renders no
+  // element at all; route() threads the wire straight through its slot).
+  // `chainOf.get(edge)` is `{ layFrom, layTo, rev, span, chain, hopTracks,
+  // staple }`: `chain` is every waypoint from layFrom to layTo (dummies
+  // included) in RANK-INCREASING order; `rev` says the edge itself actually
+  // runs the other way (its `.from` is `layTo`), which is all route() needs
+  // to draw the arrow at the true e.to while walking the chain backwards.
+  // `channels[r]` is the gap between rank r and r+1: `{ tracks, labeled }`,
+  // read by both the caller's build-time --t/--l styleAttr (channelHtml
+  // below) and route()'s own draw-time track-to-pixel lookup.
   function layered(nodes, edges, opts = {}) {
     const ids = nodes.map((n) => n.id);
     const idSet = new Set(ids);
@@ -201,7 +227,12 @@
       real.push(e);
     }
 
-    // 1. cycle breaking: DFS in input order, an edge into a GRAY node is back.
+    // 1. cycle breaking: DFS in input order, an edge into a GRAY node is
+    // back. This ONLY feeds the rank relaxation below (Kahn needs a DAG);
+    // whether an edge is drawn REVERSED is decided afterwards, from the
+    // finished ranks themselves (step 3), since a pinned graph's edge into
+    // an earlier zone runs backward regardless of what this
+    // declaration-order walk happened to see first.
     const WHITE = 0; const GRAY = 1; const BLACK = 2;
     const color = new Map(ids.map((id) => [id, WHITE]));
     const forward = new Map(ids.map((id) => [id, []]));
@@ -217,7 +248,8 @@
     for (const id of ids) if (color.get(id) === WHITE) visit(id);
 
     // 2. rank by longest path (Kahn), forward edges only. opts.rank(id) can
-    // pin a node's rank (architecture zones); pinned nodes are never raised.
+    // pin a node's rank (architecture zones, ER's referencing->referenced
+    // order); pinned nodes are never raised by the relaxation.
     const pin = typeof opts.rank === 'function' ? opts.rank : null;
     const rank = new Map(ids.map((id) => [id, pin ? (pin(id) ?? 0) : 0]));
     const indeg = new Map(ids.map((id) => [id, 0]));
@@ -236,64 +268,289 @@
     }
     const maxRank = ids.length ? Math.max(...ids.map((id) => rank.get(id))) : 0;
 
-    // 3. order within rank: 4 barycenter sweeps, stable sort.
+    // 3. every real edge, reversed for layering wherever the FINISHED ranks
+    // run backward (rank(to) < rank(from)) -- a DFS cycle-back edge always
+    // qualifies, and so does a pinned graph's edge into an earlier zone.
+    // span 0 is a same-rank edge (pinned graphs only).
+    const chainOf = new Map();
+    const dummyIds = [];
+    let dummySeq = 0;
+    for (const e of real) {
+      const rf = rank.get(e.from); const rt = rank.get(e.to);
+      const rev = rf > rt;
+      const layFrom = rev ? e.to : e.from;
+      const layTo = rev ? e.from : e.to;
+      const span = Math.abs(rt - rf);
+      const chain = [layFrom];
+      for (let k = 1; k < span; k += 1) {
+        dummySeq += 1;
+        const id = `__dg-dummy-${dummySeq}`;
+        dummyIds.push(id);
+        rank.set(id, rank.get(layFrom) + k); // dummy ranks live in the SAME map as real ones
+        chain.push(id);
+      }
+      chain.push(layTo);
+      chainOf.set(e, {
+        layFrom, layTo, rev, span, chain, hopTracks: [], staple: null,
+      });
+    }
+    const widthOf = (id) => (rank.has(id) && !idSet.has(id) ? 1 : 2); // dummy ids were never in `ids`
+    const allIds = [...ids, ...dummyIds];
+
+    // 4. ordering graph: every rank-adjacent hop in every chain (real,
+    // dummy, or the mix), collapsed to plain parent/child links so
+    // barycenter and crossing-counting never need to know a dummy from a
+    // real node. A same-rank (span 0) chain has no rank-adjacent hop of its
+    // own -- nothing to add here (route() staples it later).
     const byRank = Array.from({ length: maxRank + 1 }, () => []);
-    for (const id of ids) byRank[rank.get(id)].push(id);
-    const colIndex = new Map();
-    function reindex() { for (const arr of byRank) arr.forEach((id, i) => colIndex.set(id, i)); }
+    for (const id of allIds) byRank[rank.get(id)].push(id);
+    const order = new Map();
+    function reindex() { for (const arr of byRank) arr.forEach((id, i) => order.set(id, i)); }
     reindex();
-    const parentsOf = new Map(ids.map((id) => [id, []]));
-    const childrenOf = new Map(ids.map((id) => [id, []]));
-    for (const id of ids) for (const e of forward.get(id)) { parentsOf.get(e.to).push(id); childrenOf.get(id).push(e.to); }
-    function barycenter(id, neighborsOf) {
+    const parentsOf = new Map(allIds.map((id) => [id, []]));
+    const childrenOf = new Map(allIds.map((id) => [id, []]));
+    for (const info of chainOf.values()) {
+      for (let i = 1; i < info.chain.length; i += 1) {
+        parentsOf.get(info.chain[i]).push(info.chain[i - 1]);
+        childrenOf.get(info.chain[i - 1]).push(info.chain[i]);
+      }
+    }
+
+    // 5. order within rank: barycenter sweeps (down/up, x8) each followed by
+    // a transpose pass (swap an adjacent pair iff it strictly lowers the
+    // EXACT crossing count, dummies included), keeping the best ordering
+    // seen. Deterministic: ties break on the previous order (stable sort).
+    function barycenterOf(id, neighborsOf) {
       const ns = neighborsOf.get(id);
-      return ns.length ? ns.reduce((s, n) => s + colIndex.get(n), 0) / ns.length : colIndex.get(id);
+      return ns.length ? ns.reduce((s, n) => s + order.get(n), 0) / ns.length : order.get(id);
     }
     function sweepPass(neighborsOf) {
       for (const arr of byRank) {
-        const scored = arr.map((id, i) => [id, barycenter(id, neighborsOf), i]);
+        const scored = arr.map((id, i) => [id, barycenterOf(id, neighborsOf), i]);
         scored.sort((a, b) => (a[1] - b[1]) || (a[2] - b[2]));
         arr.length = 0;
         for (const [id] of scored) arr.push(id);
       }
       reindex();
     }
-    sweepPass(parentsOf); sweepPass(childrenOf); sweepPass(parentsOf); sweepPass(childrenOf);
-
-    // 4. placement: parents' mean column, pushed right on collision, then a
-    // backward pass compacts left again without crossing. ponytail: no
-    // second desired-value recompute in the backward pass, just a squeeze;
-    // good enough at this diagram's node counts (<=9), revisit if a real
-    // page ever wants tighter packing.
-    const col = new Map();
-    for (const arr of byRank) {
-      let prev = -1;
-      for (const id of arr) {
-        const parents = parentsOf.get(id);
-        const desired = parents.length
-          ? Math.round(parents.reduce((s, p) => s + col.get(p), 0) / parents.length)
-          : colIndex.get(id);
-        const placed = Math.max(desired, prev + 1);
-        col.set(id, placed);
-        prev = placed;
+    function crossingsBetween(r) {
+      const upper = byRank[r]; const lower = byRank[r + 1];
+      if (!upper || !lower) return 0;
+      const pairs = [];
+      upper.forEach((id, i) => { for (const c of childrenOf.get(id)) pairs.push([i, order.get(c)]); });
+      pairs.sort((a, b) => a[0] - b[0]);
+      let crossings = 0;
+      for (let i = 0; i < pairs.length; i += 1) {
+        for (let j = i + 1; j < pairs.length; j += 1) if (pairs[j][1] < pairs[i][1]) crossings += 1;
       }
-      for (let i = arr.length - 2; i >= 0; i -= 1) {
-        const next = col.get(arr[i + 1]);
-        col.set(arr[i], Math.max(0, Math.min(col.get(arr[i]), next - 1)));
+      return crossings;
+    }
+    function totalCrossings() {
+      let sum = 0;
+      for (let r = 0; r < byRank.length - 1; r += 1) sum += crossingsBetween(r);
+      return sum;
+    }
+    function transposePass() {
+      for (let r = 0; r < byRank.length; r += 1) {
+        const arr = byRank[r];
+        for (let i = 0; i < arr.length - 1; i += 1) {
+          const before = crossingsBetween(r - 1) + crossingsBetween(r);
+          [arr[i], arr[i + 1]] = [arr[i + 1], arr[i]];
+          reindex();
+          const after = crossingsBetween(r - 1) + crossingsBetween(r);
+          if (after >= before) { [arr[i], arr[i + 1]] = [arr[i + 1], arr[i]]; reindex(); }
+        }
       }
     }
-    const used = [...new Set(col.values())].sort((a, b) => a - b);
-    const remap = new Map(used.map((c, i) => [c, i]));
-    for (const id of ids) col.set(id, remap.get(col.get(id)));
+    const snapshot = () => byRank.map((arr) => arr.slice());
+    const restore = (snap) => { snap.forEach((arr, r) => { byRank[r] = arr.slice(); }); reindex(); };
 
-    const pos = new Map(ids.map((id) => [id, { rank: rank.get(id), col: col.get(id) }]));
+    let best = snapshot(); let bestCrossings = totalCrossings();
+    for (let sweep = 0; sweep < 8; sweep += 1) {
+      sweepPass(sweep % 2 === 0 ? parentsOf : childrenOf);
+      transposePass();
+      const c = totalCrossings();
+      if (c < bestCrossings) { bestCrossings = c; best = snapshot(); }
+    }
+    restore(best);
 
-    // 5. critical path: from the deepest node, walk a forward predecessor
+    // 6. placement, in half-column units: an initial tight left-to-right
+    // pack, then down (parents' centres) / up (children's centres) / down
+    // again, each pass keeping order, pushing right on collision, then
+    // pulling back toward the desired centre without overlap.
+    const start = new Map();
+    function centerOf(id) { return start.get(id) + widthOf(id) / 2; }
+    // A run of siblings sharing the exact same desired centre (the common
+    // shape: one parent fanning to several children, or several parents
+    // converging on one child) all want to sit AT that point, but the
+    // collision walk below only ever pushes a later sibling clear of an
+    // EARLIER one -- given an identical want, that always resolves to the
+    // first sibling hugging the shared centre and every other one stacked
+    // to its right, never a symmetric fan. Spreading such a run evenly
+    // around its shared centre first turns that degenerate case into
+    // ordinary distinct wants, which the walk below already places and
+    // non-overlaps correctly; a single-child/single-parent CHAIN above/below
+    // the fan then inherits a properly centred desired value from it on the
+    // next pass, instead of forever chasing the fan's lopsided one.
+    function spreadTiedWants(arr, wants) {
+      const out = wants.slice();
+      let i = 0;
+      while (i < arr.length) {
+        if (wants[i] == null) { i += 1; continue; }
+        let j = i;
+        while (j + 1 < arr.length && wants[j + 1] != null && Math.abs(wants[j + 1] - wants[i]) < 1e-6) j += 1;
+        if (j > i) {
+          let total = 0;
+          for (let k = i; k <= j; k += 1) total += widthOf(arr[k]);
+          let acc = -total / 2;
+          for (let k = i; k <= j; k += 1) {
+            const w = widthOf(arr[k]);
+            out[k] = wants[i] + acc + w / 2;
+            acc += w;
+          }
+        }
+        i = j + 1;
+      }
+      return out;
+    }
+    function resolveRank(arr, desiredOf) {
+      const wants = spreadTiedWants(arr, arr.map((id) => desiredOf(id)));
+      let prevEnd = 0;
+      arr.forEach((id, i) => {
+        const w = widthOf(id);
+        const want = wants[i];
+        const s = want == null
+          ? (start.has(id) ? Math.max(start.get(id), prevEnd) : prevEnd)
+          : Math.max(want - w / 2, prevEnd);
+        start.set(id, s);
+        prevEnd = s + w;
+      });
+      for (let i = arr.length - 2; i >= 0; i -= 1) {
+        const id = arr[i]; const w = widthOf(id);
+        const want = wants[i];
+        const ceiling = start.get(arr[i + 1]) - w;
+        const pulled = want == null ? start.get(id) : want - w / 2;
+        start.set(id, Math.max(0, Math.min(start.get(id), pulled, ceiling)));
+      }
+    }
+    // Each pass can UNDO a better centering an earlier pass already found --
+    // a childless root re-derived from its (just-moved) children in pass 2
+    // has nothing pulling it back in pass 3, but a leaf whose only parent IS
+    // that root gets yanked right back toward it, overshooting a symmetric
+    // fan back into a lopsided one. Bend cost (squared parent/child centre
+    // deviation, the same "keep the best snapshot" trick totalCrossings
+    // uses for ordering) picks the pass that actually reads straightest,
+    // instead of trusting whichever pass happened to run last.
+    function bendCost() {
+      let cost = 0;
+      for (const [child, parents] of parentsOf) {
+        for (const p of parents) { const d = centerOf(child) - centerOf(p); cost += d * d; }
+      }
+      return cost;
+    }
+    let bestStart = new Map(start); let bestCost = Infinity;
+    function considerBest() {
+      const c = bendCost();
+      if (c < bestCost) { bestCost = c; bestStart = new Map(start); }
+    }
+    for (const arr of byRank) resolveRank(arr, () => null); considerBest(); // pass 0: tight pack
+    const meanOf = (neighborsOf) => (id) => {
+      const ns = neighborsOf.get(id);
+      return ns.length ? ns.reduce((s, n) => s + centerOf(n), 0) / ns.length : null;
+    };
+    for (let r = 0; r <= maxRank; r += 1) resolveRank(byRank[r], meanOf(parentsOf)); // pass 1: down
+    considerBest();
+    for (let r = maxRank; r >= 0; r -= 1) resolveRank(byRank[r], meanOf(childrenOf)); // pass 2: up
+    considerBest();
+    for (let r = 0; r <= maxRank; r += 1) resolveRank(byRank[r], meanOf(parentsOf)); // pass 3: down
+    considerBest();
+    for (const [id, v] of bestStart) start.set(id, v);
+
+    // Final integer snap: half-columns are CSS grid lines, so round each
+    // desired centre to its nearest whole slot, then re-walk left to right
+    // (monotonic, non-overlapping) so the rounding itself can't reopen an
+    // overlap the floats had otherwise kept apart.
+    const halfCol = new Map();
+    for (const arr of byRank) {
+      let prevEnd = 0;
+      for (const id of arr) {
+        const w = widthOf(id);
+        const s = Math.max(Math.round(start.get(id)), prevEnd);
+        halfCol.set(id, s);
+        prevEnd = s + w;
+      }
+    }
+    let minHalf = 0;
+    if (allIds.length) minHalf = Math.min(...allIds.map((id) => halfCol.get(id)));
+    let cols2 = 0;
+    for (const id of allIds) {
+      halfCol.set(id, halfCol.get(id) - minHalf);
+      cols2 = Math.max(cols2, halfCol.get(id) + widthOf(id));
+    }
+
+    const pos = new Map(ids.map((id) => [id, { rank: rank.get(id), col: halfCol.get(id) }]));
+
+    // 7. per-channel hops: every chain's rank-adjacent pairs, plus a
+    // same-rank edge stapled through the nearest channel (the one after
+    // this rank, or the one before it for the very last rank -- never a
+    // separate far margin). A pair is drawn straight when the two ends
+    // already share a half-column; everything else needs its own track,
+    // assigned by greedy interval colouring over the half-column span
+    // (sorted by direction then position, so same-direction hops cluster).
+    const channels = Array.from({ length: Math.max(0, maxRank) }, () => ({ pending: [], tracks: 0, labeled: false }));
+    for (const [e, info] of chainOf) {
+      if (info.span === 0) {
+        const r = rank.get(info.layFrom);
+        // maxRank === 0 (every node on one rank) has no channel at all to
+        // stage a staple through; route() then falls back to a fixed
+        // canvas-padding offset instead of a measured `.dg-chan` band.
+        const chIdx = maxRank > 0 ? (r >= maxRank ? maxRank - 1 : r) : -1;
+        const hop = {
+          e, a: info.layFrom, b: info.layTo, chIdx, straight: false, staple: true, track: 0,
+        };
+        if (chIdx >= 0) channels[chIdx].pending.push(hop);
+        info.staple = hop;
+        continue;
+      }
+      for (let i = 0; i < info.chain.length - 1; i += 1) {
+        const a = info.chain[i]; const b = info.chain[i + 1];
+        const chIdx = rank.get(a);
+        const hop = {
+          e, a, b, chIdx, straight: halfCol.get(a) === halfCol.get(b), staple: false,
+        };
+        channels[chIdx].pending.push(hop);
+        info.hopTracks.push(hop);
+      }
+    }
+    for (const ch of channels) {
+      const elbows = ch.pending.filter((h) => !h.straight);
+      const dirOf = (h) => (halfCol.get(h.b) >= halfCol.get(h.a) ? 0 : 1);
+      const loOf = (h) => Math.min(halfCol.get(h.a), halfCol.get(h.b));
+      elbows.sort((h1, h2) => (dirOf(h1) - dirOf(h2)) || (loOf(h1) - loOf(h2)));
+      const trackEnd = [];
+      for (const hop of elbows) {
+        const lo = loOf(hop); const hi = Math.max(halfCol.get(hop.a), halfCol.get(hop.b));
+        let t = trackEnd.findIndex((end) => end <= lo);
+        if (t === -1) { t = trackEnd.length; trackEnd.push(hi); } else trackEnd[t] = hi;
+        hop.track = t;
+      }
+      // A straight labelled hop needs no horizontal jog row, but still wants
+      // its OWN slice of the channel's height for the label itself -- floor
+      // tracks at the labelled-hop count so the --l/--t height formula
+      // below doesn't zero out (tracks:0 * labeled:1 is still 0) when every
+      // hop in a labelled channel happens to run straight.
+      const labeledHops = ch.pending.filter((h) => h.e.label).length;
+      ch.tracks = Math.max(trackEnd.length, labeledHops);
+      ch.labeled = labeledHops > 0;
+      delete ch.pending;
+    }
+
+    // 8. critical path: from the deepest node, walk a forward predecessor
     // at each rank back to a source.
     let critical = null;
     if (opts.critical && ids.length) {
       const cNodes = new Set(); const cEdges = new Set();
-      let current = ids.reduce((best, id) => (rank.get(id) > rank.get(best) ? id : best), ids[0]);
+      let current = ids.reduce((bestId, id) => (rank.get(id) > rank.get(bestId) ? id : bestId), ids[0]);
       cNodes.add(current);
       let guard = ids.length + 1;
       while (guard > 0) {
@@ -306,7 +563,17 @@
       critical = { nodes: cNodes, edges: cEdges };
     }
 
-    return { rank, pos, ranks: maxRank + 1, cols: used.length, back, loops, critical };
+    return {
+      rank, pos, ranks: maxRank + 1, cols2, back, loops, critical, channels, chainOf, halfCol,
+    };
+  }
+
+  // channelHtml: the `.dg-chan` spacer markup a builder interleaves after
+  // every rank row/column (see diagrams.css's `min-content auto` template);
+  // JS writes each channel's own unitless --t/--l so its `auto` track sizes
+  // to exactly that channel's own load, never the whole figure's worst one.
+  function channelHtml(layout) {
+    return layout.channels.map((ch, i) => `<div class="dg-chan" style="--ch:${i};--t:${ch.tracks};--l:${ch.labeled ? 1 : 0}"></div>`).join('');
   }
 
   // -- router / wires ----------------------------------------------------------
@@ -319,6 +586,13 @@
   }
   function pt(a, c, dir) {
     return dir === 'LR' ? { x: a, y: c } : { x: c, y: a };
+  }
+
+  // Three prongs from a point on the line, spreading onto the entity edge;
+  // closing them into a triangle would read as an arrowhead.
+  function crowsFoot(from, edge, dx, m) {
+    const spread = (k) => (dx !== 0 ? { x: edge.x, y: edge.y + k * m * 0.75 } : { x: edge.x + k * m * 0.75, y: edge.y });
+    return [-1, 0, 1].map((k) => { const q = spread(k); return `M ${round(from.x)} ${round(from.y)} L ${round(q.x)} ${round(q.y)}`; }).join(' ');
   }
 
   function wires(fig) {
@@ -372,10 +646,7 @@
           : `<path class="dg-head is-one" d="M ${round(back.x - m / 2)} ${round(back.y)} H ${round(back.x + m / 2)}"/>`;
       }
       if (kind === 'many') {
-        const p1 = dx !== 0 ? { x: back.x, y: back.y - m * 0.6 } : { x: back.x - m * 0.6, y: back.y };
-        const p2 = dx !== 0 ? { x: back.x, y: back.y + m * 0.6 } : { x: back.x + m * 0.6, y: back.y };
-        return `<path class="dg-head is-many" d="M ${round(p1.x)} ${round(p1.y)} L ${round(b.x)} ${round(b.y)} `
-          + `L ${round(p2.x)} ${round(p2.y)} M ${round(p1.x)} ${round(p1.y)} L ${round(p2.x)} ${round(p2.y)}"/>`;
+        return `<path class="dg-head is-many" d="${crowsFoot(back, b, dx, m)}"/>`;
       }
       const p1 = dx !== 0 ? { x: back.x, y: back.y - m * 0.5 } : { x: back.x - m * 0.5, y: back.y };
       const p2 = dx !== 0 ? { x: back.x, y: back.y + m * 0.5 } : { x: back.x + m * 0.5, y: back.y };
@@ -393,23 +664,51 @@
       return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
     }
 
-    function labelMarkup(points, text, labelAt) {
-      if (!text) return '';
-      const at = labelAt === 'source' ? points[0] : longestSegment(points);
+    // text: a plain string, or an array of lines (resolveLabels' own
+    // wrap-on-collision fallback, R4 -- a label with nowhere clear to sit
+    // beside its line at its single-line width gets a real second line
+    // instead of just being left overlapping something).
+    function measureLabel(text) {
+      const lines = Array.isArray(text) ? text : [text];
       const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
       t.setAttribute('class', 'dg-label-text');
-      t.textContent = text;
+      const lh = px('--text') * px('--leading-tight');
+      lines.forEach((line, i) => {
+        const tspan = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
+        tspan.setAttribute('x', '0');
+        tspan.setAttribute('dy', String(i === 0 ? 0 : lh));
+        tspan.textContent = line;
+        t.appendChild(tspan);
+      });
       svg.appendChild(t);
       const bbox = t.getBBox();
       t.remove();
+      return bbox;
+    }
+
+    function labelRect(at, bbox) {
       const pad = px('--label-gap');
       const rx = at.x - bbox.width / 2 - pad / 2;
       const ry = at.y - bbox.height / 2 - pad / 4;
+      return { left: rx, top: ry, right: rx + bbox.width + pad, bottom: ry + bbox.height + pad / 2 };
+    }
+
+    // labelAt: 'source' (the edge's own start), a resolved {x,y} point (a
+    // collision-checked pick from route()'s own candidate search), or
+    // omitted (falls back to this edge's own longest segment).
+    function labelMarkup(points, text, labelAt) {
+      if (!text) return '';
+      const lines = Array.isArray(text) ? text : [text];
+      const at = labelAt === 'source' ? points[0] : (labelAt && typeof labelAt === 'object' ? labelAt : longestSegment(points));
+      const bbox = measureLabel(lines);
+      const r = labelRect(at, bbox);
+      const lh = px('--text') * px('--leading-tight');
+      const y0 = at.y - (lh * (lines.length - 1)) / 2;
+      const tspans = lines.map((line, i) => `<tspan x="${round(at.x)}" y="${round(y0 + i * lh)}">${esc(line)}</tspan>`).join('');
       return (
-        `<rect class="dg-label" x="${round(rx)}" y="${round(ry)}" width="${round(bbox.width + pad)}" `
-        + `height="${round(bbox.height + pad / 2)}"/>`
-        + `<text class="dg-label-text" x="${round(at.x)}" y="${round(at.y)}" `
-        + `dominant-baseline="central" text-anchor="middle">${esc(text)}</text>`
+        `<rect class="dg-label" x="${round(r.left)}" y="${round(r.top)}" width="${round(r.right - r.left)}" `
+        + `height="${round(r.bottom - r.top)}"/>`
+        + `<text class="dg-label-text" text-anchor="middle" dominant-baseline="central">${tspans}</text>`
       );
     }
 
@@ -427,28 +726,28 @@
       return g;
     }
 
-    return { svg, box, wire, clear };
+    return {
+      svg, box, wire, clear, measureLabel, labelRect, longestSegment,
+    };
   }
 
-  // isLane: an edge that can't run straight down into the next rank without
-  // crossing other ranks' node rows, so it takes a margin lane outside the
-  // node grid instead of jogging through it (back edge, same-rank, or a
-  // forward edge that skips a rank). Shared by route() and by a builder's
-  // own --back/--loops styleAttr count, so the two never drift apart.
+  // isLane: true only for a layout with no chain data of its own (swimlane's
+  // fixed lane rows, resolveLanes below) where an edge can't run straight
+  // into the next rank without crossing other ranks' rows. A layered()
+  // figure never reaches this: span > 1 gets dummies, span 0 gets a channel
+  // staple, and a reversed edge just swaps which side it exits/enters.
   function isLane(layout, e) {
     if (e.from === e.to) return false;
-    const backSet = layout.back || new Set();
-    if (backSet.has(e)) return true;
+    if (layout.chainOf) return false;
     return layout.rank.get(e.to) - layout.rank.get(e.from) !== 1;
   }
   function laneEdges(layout, edges) {
     return edges.filter((e) => isLane(layout, e));
   }
 
-  // forwardChannels: adjacent-rank edges grouped by the rank they leave,
-  // i.e. the ones route() jogs through the channel rather than lanes
-  // around. Exposed so a builder can size --tracks itself (see channelStats)
-  // without recomputing this grouping.
+  // forwardChannels / channelStats / laneBand / laneReserve: swimlane's own
+  // (still uniform, still margin-lane) rank-gap sizing -- kept verbatim for
+  // the one layout type that has no per-channel `channels` table of its own.
   function forwardChannels(layout, edges) {
     const groups = new Map();
     for (const e of edges) {
@@ -459,20 +758,6 @@
     }
     return groups;
   }
-
-  // channelStats: the --tracks/--labeled pair diagrams.css turns into the
-  // rank gap (see its --channel-gap). Only valid for a layered()+route()
-  // figure; a builder with its own layout computes the equivalent itself
-  // (max wires sharing one rank-to-rank band, and whether any of them carry
-  // a label) and writes --tracks/--labeled the same way in its own
-  // styleAttr.
-  //
-  // A lane edge (route()'s margin path) steps into this same channel band
-  // on both ends before it crosses to the margin (R2), and a labelled step
-  // needs full label-height room there (laneBand(e)), not just a --route
-  // slot — room forwardChannels() never asks for, since it excludes lane
-  // edges entirely. Treating a labelled lane as needing its own track slot
-  // folds that into the shared formula instead of adding a second one.
   function channelStats(layout, edges) {
     const groups = forwardChannels(layout, edges);
     let tracks = 0;
@@ -481,34 +766,37 @@
     const labeled = edges.some((e) => e.from !== e.to && e.label) ? 1 : 0;
     return { tracks, labeled };
   }
-
-  // laneBand: how much room one lane edge needs, cumulative from the grid
-  // edge outward — big enough for a --route run off the port on one end and
-  // a --marker + --route arrowhead run on the other, or (when the edge is
-  // labelled) the same line-height-plus-clearance the channel-gap formula
-  // in diagrams.css uses, whichever is larger. Lanes are drawn in order, so
-  // the Nth lane's actual distance from the grid is the sum of the first N
-  // bands — always >= its own band, so this is a sufficient (if sometimes
-  // generous) per-lane reservation, not a tight one.
   function laneBand(e) {
     const base = px('--route') + px('--marker');
     if (!e.label) return base;
     return Math.max(base, px('--text') * px('--leading-tight') + 2 * px('--label-gap'));
   }
-
-  // laneReserve: total lane space a figure's CSS must reserve, in --route
-  // units (so `calc(var(--back) * var(--route))` — already in
-  // diagrams.css — comes out to the exact pixel sum route() will actually
-  // use). A builder with its own layout mirrors this in its own --back.
   function laneReserve(layout, edges) {
     const routeGap = px('--route') || 1;
     const total = laneEdges(layout, edges).reduce((sum, e) => sum + laneBand(e), 0);
     return round(total / routeGap);
   }
 
-  // route(): drives wires() from a layered() layout. `port(edge, end)` (end
-  // is 'from'|'to') can return { frac } to pin a port instead of fanning it,
-  // e.g. ER lining a relation up with its field row.
+  // channelBand: a channel's own rank-axis pixel band, read directly off its
+  // `.dg-chan` spacer element (index 0 has none above it, so its OWN a0 is
+  // used as the fallback for "the row above"). Two adjacent bands sharing a
+  // boundary line means a rank row's own extent is just "between the
+  // channel above it and the one below", so nothing here ever needs to
+  // measure an empty row.
+  function channelBand(fig, w, dir, index) {
+    const el = fig.querySelectorAll('.dg-chan')[index];
+    return el ? axes(w.box(el), dir) : null;
+  }
+  function trackCoord(band, track, tracks) {
+    return band.a0 + (band.a1 - band.a0) * ((track + 1) / (tracks + 1));
+  }
+
+  // route(): drives wires() from a layered() layout (or a fixed-row layout
+  // like swimlane's resolveLanes, with no chainOf of its own -- the loop
+  // below falls back to the old margin-lane geometry only for that case).
+  // `port(edge, end)` (end is 'from'|'to') can return { frac } to pin a port
+  // instead of preference+spread, e.g. ER lining a relation up with its
+  // field row.
   function route(fig, layout, edges, opts = {}) {
     const dir = opts.dir === 'LR' ? 'LR' : 'TB';
     const portOverride = typeof opts.port === 'function' ? opts.port : null;
@@ -517,117 +805,343 @@
 
     const boxes = new Map();
     for (const el of fig.querySelectorAll('.dg-node[data-id]')) boxes.set(el.dataset.id, w.box(el));
-    // The margin lanes' baseline is the grid's own content edge (the
-    // nearest/widest node's near/far side on the cross axis), not the
-    // canvas element's border box: that box already includes the padding
-    // CSS reserved for these lanes (--back(-start) * --route, see
-    // diagrams.css), so measuring from it would double that reservation
-    // and push lanes straight through it.
-    const gridEdge = boxes.size
-      ? Math.max(...[...boxes.values()].map((b) => axes(b, dir).c1))
-      : axes(w.box(fig.querySelector('.dg-canvas')), dir).c1;
+    const routeGap = px('--route');
+    const fan = px('--fan');
 
     const real = edges.filter((e) => e.from !== e.to);
     const loopEdges = edges.filter((e) => e.from === e.to);
-    const lanes = new Set(laneEdges(layout, real));
+    const built = [];
 
-    // Every edge attaches to a node on one of two physical sides: its
-    // rank-axis "a1" side (a regular forward edge's own exit, and a
-    // forward lane's exit / a backward lane's entry) or its "a0" side (a
-    // regular forward edge's entry, and the reverse for lanes). Two edges
-    // sharing a (node, side) must fan across it together regardless of
-    // whether either one is a lane — a lane's initial hop leaves via the
-    // exact same side a regular edge does (R3: two independent fans that
-    // both default a lone member to the centre collide there).
-    const sideGroups = new Map();
-    function sideKey(id, side) { return `${id}|${side}`; }
-    function addSide(id, side, e) {
-      const k = sideKey(id, side);
-      if (!sideGroups.has(k)) sideGroups.set(k, []);
-      sideGroups.get(k).push(e);
-    }
-    for (const e of real) {
-      const forward = lanes.has(e) ? layout.rank.get(e.to) > layout.rank.get(e.from) : true;
-      addSide(e.from, forward ? 'a1' : 'a0', e);
-      addSide(e.to, forward ? 'a0' : 'a1', e);
-    }
-    function sideFrac(id, side, e) {
-      const group = sideGroups.get(sideKey(id, side)) || [e];
-      const otherOf = (edge) => (edge.from === id ? edge.to : edge.from);
-      const sorted = [...group].sort((a, b) => (
-        (layout.pos.get(otherOf(a))?.col ?? 0) - (layout.pos.get(otherOf(b))?.col ?? 0)
-      ));
-      const i = Math.max(0, sorted.indexOf(e));
-      return (i + 1) / (sorted.length + 1);
-    }
-
-    const routeGap = px('--route');
-    let laneOffset = 0;
-    let drawn = 0;
-
-    // Track colouring for the forward case: every non-straight edge leaving
-    // the same rank shares a channel, so give each one a distinct mid-jog
-    // offset instead of stacking them on one line (a greedy index, not a
-    // real interval-graph colouring; the small budgets here never need more).
-    const channelGroups = forwardChannels(layout, real);
-
-    for (const e of real) {
-      const fromBox = boxes.get(e.from); const toBox = boxes.get(e.to);
-      if (!fromBox || !toBox) continue;
-      const fromA = axes(fromBox, dir); const toA = axes(toBox, dir);
-      let points;
-
-      if (lanes.has(e)) {
-        // A lane edge must never cut sideways through the row it leaves or
-        // enters (R2): step into the empty rank-gap band first (clearing
-        // every sibling in that row, since grid items stretch to a shared
-        // row height), only then cross to the margin lane and back. `step`
-        // reuses laneBand's route+marker/label sizing so this hop is itself
-        // never a too-short run (R5) or a too-tight label seam (R4).
-        const forward = layout.rank.get(e.to) > layout.rank.get(e.from);
-        const sign = forward ? 1 : -1;
-        const exitA = forward ? fromA.a1 : fromA.a0;
-        const enterA = forward ? toA.a0 : toA.a1;
-        const step = laneBand(e);
-        laneOffset += laneBand(e);
-        const laneCross = gridEdge + laneOffset;
-        const cf = portOverride?.(e, 'from')?.frac ?? sideFrac(e.from, forward ? 'a1' : 'a0', e);
-        const ct = portOverride?.(e, 'to')?.frac ?? sideFrac(e.to, forward ? 'a0' : 'a1', e);
-        const c1 = fromA.c0 + (fromA.c1 - fromA.c0) * cf;
-        const c2 = toA.c0 + (toA.c1 - toA.c0) * ct;
-        points = [
-          pt(exitA, c1, dir),
-          pt(exitA + sign * step, c1, dir),
-          pt(exitA + sign * step, laneCross, dir),
-          pt(enterA - sign * step, laneCross, dir),
-          pt(enterA - sign * step, c2, dir),
-          pt(enterA, c2, dir),
-        ];
-      } else {
-        const f1 = portOverride?.(e, 'from') ?? { frac: sideFrac(e.from, 'a1', e) };
-        const f2 = portOverride?.(e, 'to') ?? { frac: sideFrac(e.to, 'a0', e) };
-        const c1 = fromA.c0 + (fromA.c1 - fromA.c0) * f1.frac;
-        const c2 = toA.c0 + (toA.c1 - toA.c0) * f2.frac;
-        const p1 = pt(fromA.a1, c1, dir); const p2 = pt(toA.a0, c2, dir);
-        if (Math.abs(c1 - c2) < routeGap / 2) {
-          // Ports close enough that a jog would draw a sub-route/2 sliver
-          // (R5): snap to one cross position so the line stays a single
-          // straight orthogonal segment instead of a near-invisible dogleg.
-          points = [pt(fromA.a1, c1, dir), pt(toA.a0, c1, dir)];
-        } else {
-          const group = channelGroups.get(layout.rank.get(e.from)) || [e];
-          const step = (toA.a0 - fromA.a1) / (group.length + 1);
-          const mid = fromA.a1 + step * (group.indexOf(e) + 1);
-          points = [p1, pt(mid, c1, dir), pt(mid, c2, dir), p2];
-        }
+    if (layout.chainOf) {
+      // -- crossScale: a piecewise-linear map from a half-column index to a
+      // cross pixel, calibrated from the REAL nodes actually measured (this
+      // never assumes a uniform track width -- content can size columns
+      // unevenly). Falls back to half of --node-min when fewer than two
+      // distinct columns exist to calibrate a slope from.
+      const pts = [];
+      for (const [id, box] of boxes) {
+        const p = layout.pos.get(id);
+        if (!p) continue;
+        const a = axes(box, dir);
+        pts.push([p.col + 1, (a.c0 + a.c1) / 2]);
+      }
+      pts.sort((a2, b2) => a2[0] - b2[0]);
+      let unit = px('--node-min') / 2;
+      for (let i = 1; i < pts.length; i += 1) {
+        const dh = pts[i][0] - pts[0][0];
+        if (dh > 0) { unit = (pts[i][1] - pts[0][1]) / dh; break; }
+      }
+      function crossOf(half) {
+        if (!pts.length) return 0;
+        const centerHalf = half + 0.5;
+        let nearest = pts[0];
+        for (const p of pts) if (Math.abs(p[0] - centerHalf) < Math.abs(nearest[0] - centerHalf)) nearest = p;
+        return nearest[1] + (centerHalf - nearest[0]) * unit;
+      }
+      function coordOf(id) {
+        const box = boxes.get(id);
+        if (box) return axes(box, dir);
+        const r = layout.rank.get(id);
+        const x = crossOf(layout.halfCol.get(id));
+        const above = channelBand(fig, w, dir, r - 1);
+        const below = channelBand(fig, w, dir, r);
+        const a0 = above ? above.a1 : 0;
+        const a1 = below ? below.a0 : a0;
+        return {
+          a0, a1, c0: x, c1: x,
+        };
       }
 
-      w.wire(points, {
-        from: e.from, to: e.to, key: Boolean(layout.critical?.edges.has(e)), soft: Boolean(e.soft),
-        head: e.end === 'one' || e.end === 'many' || e.end === 'none' ? e.end : 'arrow',
-        label: e.label, labelAt: e.labelAt,
-      });
-      drawn += 1;
+      // -- ports: preferred cross coordinate = the very next waypoint's own
+      // centre, clamped inside this side (inset by --fan), then spread to
+      // keep neighbours >= --fan apart while staying inside the side (F). A
+      // lone edge whose preference already sits inside its own side needs
+      // no spreading at all -- that IS its final coordinate, so two
+      // vertically stacked boxes get one straight run, never an S-bend.
+      const sideGroups = new Map();
+      const sideKey = (id, side) => `${id}|${side}`;
+      function addSide(id, side, e, otherCenter) {
+        const k = sideKey(id, side);
+        if (!sideGroups.has(k)) sideGroups.set(k, []);
+        sideGroups.get(k).push({ e, otherCenter });
+      }
+      function spread(prefs, lo, hi, gap) {
+        const n = prefs.length;
+        if (!n) return [];
+        const sorted = prefs.map((v, i) => [v, i]).sort((a2, b2) => a2[0] - b2[0]);
+        const desired = sorted.map(([v]) => Math.max(lo, Math.min(hi, v)));
+        // A raw preference beyond this side clamps to lo/hi, and several
+        // out-of-range preferences (e.g. two children whose own centres
+        // both sit left of a narrow parent) can clamp to the exact SAME
+        // boundary -- spread a run of ties inward from whichever boundary
+        // it sits on (or, for a genuine mid-range tie, outward from its
+        // shared centre) using each one's own ORIGINAL relative order,
+        // before the pack/overflow below ever sees them. Without this, two
+        // tied desires both being re-clamped to the same boundary at the
+        // very end (R3: a real, reported collision) undoes whatever the
+        // pack step spread them apart to in between.
+        const eased = desired.slice();
+        for (let i = 0; i < n;) {
+          let j = i;
+          while (j + 1 < n && Math.abs(desired[j + 1] - desired[i]) < 1e-6) j += 1;
+          const size = j - i + 1;
+          if (size > 1) {
+            const atLo = Math.abs(desired[i] - lo) < 1e-6;
+            const atHi = Math.abs(desired[i] - hi) < 1e-6;
+            for (let k = i; k <= j; k += 1) {
+              if (atLo) eased[k] = Math.min(hi, lo + (k - i) * gap);
+              else if (atHi) eased[k] = Math.max(lo, hi - (j - k) * gap);
+              else eased[k] = desired[i] + (k - i - (size - 1) / 2) * gap;
+            }
+          }
+          i = j + 1;
+        }
+        const vals = eased.slice();
+        for (let i = 1; i < n; i += 1) if (vals[i] < vals[i - 1] + gap) vals[i] = vals[i - 1] + gap;
+        const overflow = vals[n - 1] - hi;
+        // No hard re-clamp to [lo, hi] here on purpose: a spread wider than
+        // the side can fit even after easing ties (more ports than the box
+        // has room for at a full --fan apart) has nowhere left to give, and
+        // clamping back would recreate the very collision this rewrite
+        // exists to avoid -- landing a hair past the fan inset is the
+        // lesser problem.
+        if (overflow > 0) for (let i = n - 1; i >= 0; i -= 1) vals[i] -= overflow;
+        for (let i = 1; i < n; i += 1) if (vals[i] < vals[i - 1]) vals[i] = vals[i - 1];
+        const out = new Array(n);
+        sorted.forEach(([, i], k) => { out[i] = vals[k]; });
+        return out;
+      }
+      // sideCoord: an ABSOLUTE cross pixel (not a 0..1 fraction like the
+      // legacy sideFrac below) -- preference+spread already computes in
+      // real coordinates, so callers use this value directly.
+      function sideCoord(id, side, e) {
+        const box = boxes.get(id);
+        const a = axes(box, dir);
+        const group = sideGroups.get(sideKey(id, side));
+        if (!group) return (a.c0 + a.c1) / 2;
+        const lo = a.c0 + fan; const hi = Math.max(lo, a.c1 - fan);
+        // Two labelled edges sharing one side (the common forward/reversed
+        // pair between the same two stacked boxes) need more than --fan
+        // between their ports, or their labels have nowhere clear to sit
+        // beside their own line even with resolveLabels' canvas-clamped
+        // fallback (R4) -- a bare node-to-node side never has this problem,
+        // so the wider gap is scoped to labelled groups only.
+        const gap = group.filter((g) => g.e.label).length > 1 ? fan * 2 : fan;
+        const coords = spread(group.map((g) => g.otherCenter), lo, hi, gap);
+        const i = Math.max(0, group.findIndex((g) => g.e === e));
+        return coords[i];
+      }
+      // Exit ports first: preferred cross coordinate = the very next
+      // waypoint's own centre, clamped+spread inside this side (unchanged).
+      for (const e of real) {
+        const info = layout.chainOf.get(e);
+        if (!info || info.span === 0) continue;
+        const exitSide = info.rev ? 'a0' : 'a1';
+        const nextFromFrom = info.rev ? info.chain[info.chain.length - 2] : info.chain[1];
+        addSide(e.from, exitSide, e, (coordOf(nextFromFrom).c0 + coordOf(nextFromFrom).c1) / 2);
+      }
+      // Enter ports second: for a DIRECT hop (no dummies -- span 1) the
+      // target's preference is the SOURCE'S OWN just-resolved exit port,
+      // never the source box's raw centre -- source port = clamp(target
+      // centre into source side); target port = clamp(source port into
+      // target side). Two boxes that already overlap on the cross axis then
+      // clamp to the exact same coordinate on both sides, so a lone edge
+      // between them draws one straight segment (never the diagonal or the
+      // centre-seeking S-bend independent centres produced) and a real
+      // elbow still moves monotonically toward its target. A multi-hop
+      // edge's predecessor is a dummy with no side/fan of its own, so it
+      // keeps preferring that dummy's plain interpolated centre.
+      for (const e of real) {
+        const info = layout.chainOf.get(e);
+        if (!info || info.span === 0) continue;
+        const enterSide = info.rev ? 'a1' : 'a0';
+        const exitSide = info.rev ? 'a0' : 'a1';
+        let otherCenter;
+        if (info.span === 1) {
+          otherCenter = sideCoord(e.from, exitSide, e);
+        } else {
+          const nextFromTo = info.rev ? info.chain[1] : info.chain[info.chain.length - 2];
+          const c = coordOf(nextFromTo);
+          otherCenter = (c.c0 + c.c1) / 2;
+        }
+        addSide(e.to, enterSide, e, otherCenter);
+      }
+
+      // -- one edge's full polyline: a port at each true end, one V
+      // (straight) or V-H-V (elbow, on its channel's assigned track) per
+      // hop in between (G). A `rev` edge walks its chain back to front so
+      // the point list still runs e.from -> e.to (the arrow always lands on
+      // the FINAL point), entering the true e.to on its `a1` side, exactly
+      // as if it had been drawn forward and flipped.
+      function chainPoints(info, c1, c2) {
+        const seq = info.rev ? info.chain.slice().reverse() : info.chain;
+        const hops = info.rev ? info.hopTracks.slice().reverse() : info.hopTracks;
+        const goingDown = !info.rev;
+        const points = [];
+        // prevC: the cross coordinate ACTUALLY drawn for the previous hop's
+        // end, threaded forward as this hop's cFrom (instead of recomputing
+        // a node's raw midpoint) -- a merged hop's own cShared can shift
+        // slightly off that raw midpoint (R9 below), and reusing the drawn
+        // value keeps every hop's start exactly where the last one's end
+        // landed, so a multi-hop chain can never reopen a hairline diagonal
+        // at the seam between two hops.
+        let prevC = c1;
+        for (let k = 0; k < seq.length - 1; k += 1) {
+          const A = coordOf(seq[k]); const B = coordOf(seq[k + 1]);
+          const exitA = goingDown ? A.a1 : A.a0;
+          const enterA = goingDown ? B.a0 : B.a1;
+          const cFrom = prevC;
+          const cTo = k === seq.length - 2 ? c2 : (B.c0 + B.c1) / 2;
+          const hop = hops[k];
+          const merge = !hop || hop.straight || Math.abs(cFrom - cTo) < routeGap / 2;
+          // A merged hop draws ONE straight run, so both its ends must land
+          // on the exact same cross coordinate (R9) -- cFrom and cTo can
+          // still differ by a sub-pixel-to-few-px amount even after port
+          // resolution (e.g. two edges fanned into the same side), and
+          // drawing straight to the un-averaged cTo would leave a hairline
+          // diagonal instead of a true V/H segment.
+          const cShared = merge ? (cFrom + cTo) / 2 : cFrom;
+          if (k === 0) points.push(pt(exitA, cShared, dir));
+          if (merge) {
+            points.push(pt(enterA, cShared, dir));
+            prevC = cShared;
+          } else {
+            const band = channelBand(fig, w, dir, hop.chIdx);
+            const y = band ? trackCoord(band, hop.track, layout.channels[hop.chIdx].tracks) : (exitA + enterA) / 2;
+            points.push(pt(y, cFrom, dir), pt(y, cTo, dir), pt(enterA, cTo, dir));
+            prevC = cTo;
+          }
+        }
+        return points;
+      }
+
+      for (const e of real) {
+        const info = layout.chainOf.get(e);
+        if (!info || info.span === 0) continue;
+        const exitSide = info.rev ? 'a0' : 'a1';
+        const enterSide = info.rev ? 'a1' : 'a0';
+        const fromA = axes(boxes.get(e.from), dir); const toA = axes(boxes.get(e.to), dir);
+        const c1 = portOverride?.(e, 'from')?.frac != null
+          ? fromA.c0 + (fromA.c1 - fromA.c0) * portOverride(e, 'from').frac
+          : sideCoord(e.from, exitSide, e);
+        const c2 = portOverride?.(e, 'to')?.frac != null
+          ? toA.c0 + (toA.c1 - toA.c0) * portOverride(e, 'to').frac
+          : sideCoord(e.to, enterSide, e);
+        const points = chainPoints(info, c1, c2);
+        built.push({
+          e, points, opts: {
+            from: e.from, to: e.to, key: Boolean(layout.critical?.edges.has(e)), soft: Boolean(e.soft),
+            head: e.end === 'one' || e.end === 'many' || e.end === 'none' ? e.end : 'arrow', label: e.label,
+          },
+        });
+      }
+
+      // Same-rank staple (pinned ranks only): both ports on the same side,
+      // down into the nearest channel, across on its assigned track, back
+      // up -- a short detour through the ADJACENT channel, never a margin.
+      for (const e of real) {
+        const info = layout.chainOf.get(e);
+        if (!info || info.span !== 0 || !info.staple) continue;
+        const chIdx = info.staple.chIdx;
+        const side = chIdx >= 0 && chIdx === layout.rank.get(e.from) ? 'a1' : 'a0';
+        const fromA = axes(boxes.get(e.from), dir); const toA = axes(boxes.get(e.to), dir);
+        const c1 = sideCoord(e.from, side, e);
+        const c2 = sideCoord(e.to, side, e);
+        const band = chIdx >= 0 ? channelBand(fig, w, dir, chIdx) : null;
+        const y = band
+          ? trackCoord(band, info.staple.track, layout.channels[chIdx].tracks)
+          : (side === 'a1' ? fromA.a1 + routeGap * 2 : fromA.a0 - routeGap * 2);
+        const edgeA = side === 'a1' ? fromA.a1 : fromA.a0;
+        const edgeB = side === 'a1' ? toA.a1 : toA.a0;
+        built.push({
+          e,
+          points: [pt(edgeA, c1, dir), pt(y, c1, dir), pt(y, c2, dir), pt(edgeB, c2, dir)],
+          opts: {
+            from: e.from, to: e.to, key: Boolean(layout.critical?.edges.has(e)), soft: Boolean(e.soft),
+            head: e.end === 'one' || e.end === 'many' || e.end === 'none' ? e.end : 'arrow', label: e.label,
+          },
+        });
+      }
+    } else {
+      // -- legacy margin-lane routing (swimlane only): identical shape to
+      // the pre-Sugiyama router, since a fixed-row layout has no
+      // intermediate slot of its own to thread a long edge through.
+      const lanes = new Set(laneEdges(layout, real));
+      const gridEdge = boxes.size
+        ? Math.max(...[...boxes.values()].map((b) => axes(b, dir).c1))
+        : axes(w.box(fig.querySelector('.dg-canvas')), dir).c1;
+
+      const sideGroups = new Map();
+      const sideKey = (id, side) => `${id}|${side}`;
+      function addSide(id, side, e) {
+        const k = sideKey(id, side);
+        if (!sideGroups.has(k)) sideGroups.set(k, []);
+        sideGroups.get(k).push(e);
+      }
+      for (const e of real) {
+        const forward = lanes.has(e) ? layout.rank.get(e.to) > layout.rank.get(e.from) : true;
+        addSide(e.from, forward ? 'a1' : 'a0', e);
+        addSide(e.to, forward ? 'a0' : 'a1', e);
+      }
+      function sideFrac(id, side, e) {
+        const group = sideGroups.get(sideKey(id, side)) || [e];
+        const otherOf = (edge) => (edge.from === id ? edge.to : edge.from);
+        const sorted = [...group].sort((a2, b2) => (
+          (layout.pos.get(otherOf(a2))?.col ?? 0) - (layout.pos.get(otherOf(b2))?.col ?? 0)
+        ));
+        const i = Math.max(0, sorted.indexOf(e));
+        return fanFrac(i, sorted.length);
+      }
+
+      const channelGroups = forwardChannels(layout, real);
+      let laneOffset = 0;
+      for (const e of real) {
+        const fromBox = boxes.get(e.from); const toBox = boxes.get(e.to);
+        if (!fromBox || !toBox) continue;
+        const fromA = axes(fromBox, dir); const toA = axes(toBox, dir);
+        let points;
+        if (lanes.has(e)) {
+          const forward = layout.rank.get(e.to) > layout.rank.get(e.from);
+          const sign = forward ? 1 : -1;
+          const exitA = forward ? fromA.a1 : fromA.a0;
+          const enterA = forward ? toA.a0 : toA.a1;
+          const step = laneBand(e);
+          laneOffset += laneBand(e);
+          const laneCross = gridEdge + laneOffset;
+          const cf = portOverride?.(e, 'from')?.frac ?? sideFrac(e.from, forward ? 'a1' : 'a0', e);
+          const ct = portOverride?.(e, 'to')?.frac ?? sideFrac(e.to, forward ? 'a0' : 'a1', e);
+          const c1 = fromA.c0 + (fromA.c1 - fromA.c0) * cf;
+          const c2 = toA.c0 + (toA.c1 - toA.c0) * ct;
+          points = [
+            pt(exitA, c1, dir),
+            pt(exitA + sign * step, c1, dir),
+            pt(exitA + sign * step, laneCross, dir),
+            pt(enterA - sign * step, laneCross, dir),
+            pt(enterA - sign * step, c2, dir),
+            pt(enterA, c2, dir),
+          ];
+        } else {
+          const f1 = portOverride?.(e, 'from') ?? { frac: sideFrac(e.from, 'a1', e) };
+          const f2 = portOverride?.(e, 'to') ?? { frac: sideFrac(e.to, 'a0', e) };
+          const c1 = fromA.c0 + (fromA.c1 - fromA.c0) * f1.frac;
+          const c2 = toA.c0 + (toA.c1 - toA.c0) * f2.frac;
+          const p1 = pt(fromA.a1, c1, dir); const p2 = pt(toA.a0, c2, dir);
+          if (Math.abs(c1 - c2) < routeGap / 2) {
+            points = [pt(fromA.a1, c1, dir), pt(toA.a0, c1, dir)];
+          } else {
+            const group = channelGroups.get(layout.rank.get(e.from)) || [e];
+            const step = (toA.a0 - fromA.a1) / (group.length + 1);
+            const mid = fromA.a1 + step * (group.indexOf(e) + 1);
+            points = [p1, pt(mid, c1, dir), pt(mid, c2, dir), p2];
+          }
+        }
+        built.push({
+          e, points, opts: {
+            from: e.from, to: e.to, key: Boolean(layout.critical?.edges.has(e)), soft: Boolean(e.soft),
+            head: e.end === 'one' || e.end === 'many' || e.end === 'none' ? e.end : 'arrow', label: e.label,
+          },
+        });
+      }
     }
 
     for (const e of loopEdges) {
@@ -636,14 +1150,180 @@
       const a = axes(box, dir);
       const c1 = a.c0 + (a.c1 - a.c0) * 0.3; const c2 = a.c0 + (a.c1 - a.c0) * 0.7;
       const out = a.a1 + routeGap * 2;
-      w.wire([pt(a.a1, c1, dir), pt(out, c1, dir), pt(out, c2, dir), pt(a.a1, c2, dir)], {
-        from: e.from, to: e.to, key: Boolean(e.key), soft: Boolean(e.soft), label: e.label, head: 'arrow',
+      built.push({
+        e,
+        points: [pt(a.a1, c1, dir), pt(out, c1, dir), pt(out, c2, dir), pt(a.a1, c2, dir)],
+        opts: { from: e.from, to: e.to, key: Boolean(e.key), soft: Boolean(e.soft), label: e.label, head: 'arrow' },
       });
-      drawn += 1;
     }
+
+    const canvasBox = w.box(fig.querySelector('.dg-canvas'));
+    resolveLabels(w, built, boxes, px('--label-gap'), canvasBox, px('--canvas-pad'));
+    let drawn = 0;
+    for (const b of built) { w.wire(b.points, { ...b.opts, labelAt: b.labelAt }); drawn += 1; }
 
     fig.dataset.dgEdges = String(drawn);
     return drawn;
+  }
+
+  // resolveLabels: for every built edge that carries a label, pick the spot
+  // (one of its OWN segments' midpoints, longest first, falling back to its
+  // start point) that clears every node, every OTHER edge's line and every
+  // label already placed. Run once ALL edges'
+  // geometry is known, so a label can't collide with a line routed later in
+  // the same figure (the gap the per-edge longestSegment default leaves).
+  function resolveLabels(w, built, boxes, labelGap, canvasBox, canvasPad) {
+    const canvasRect = {
+      left: canvasPad, top: canvasPad, right: canvasBox.w - canvasPad, bottom: canvasBox.h - canvasPad,
+    };
+    function segRectDist(p0, p1, r) {
+      const minX = Math.min(p0.x, p1.x); const maxX = Math.max(p0.x, p1.x);
+      const minY = Math.min(p0.y, p1.y); const maxY = Math.max(p0.y, p1.y);
+      const dx = minX > r.right ? minX - r.right : (maxX < r.left ? r.left - maxX : 0);
+      const dy = minY > r.bottom ? minY - r.bottom : (maxY < r.top ? r.top - maxY : 0);
+      return Math.hypot(dx, dy);
+    }
+    function rectsClear(a, b, gap) {
+      return a.right + gap <= b.left || b.right + gap <= a.left || a.bottom + gap <= b.top || b.bottom + gap <= a.top;
+    }
+    function segmentsOf(points) {
+      const out = [];
+      for (let i = 1; i < points.length; i += 1) out.push([points[i - 1], points[i]]);
+      return out;
+    }
+    // candidateSpots: each segment's own midpoint first (longest segment
+    // first), then -- since a straight edge has only ONE segment to offer,
+    // no alternate midpoint to fall back on at all -- that same midpoint
+    // shifted sideways, clear of the line itself, by roughly the label's
+    // own half-extent plus labelGap. Two edges running --fan apart between
+    // the same pair of stacked boxes (a forward edge and its reversed-back
+    // sibling, R4) can then each park beside their own line instead of
+    // fighting over one shared centre point neither could otherwise avoid.
+    function candidateSpots(points, bbox) {
+      const segs = segmentsOf(points).map((s) => ({
+        s, len: Math.hypot(s[1].x - s[0].x, s[1].y - s[0].y),
+      })).sort((a, b) => b.len - a.len);
+      const out = [];
+      for (const { s } of segs) {
+        const mid = { x: (s[0].x + s[1].x) / 2, y: (s[0].y + s[1].y) / 2 };
+        out.push(mid);
+        if (!bbox) continue;
+        const vertical = Math.abs(s[1].x - s[0].x) < 0.5;
+        const horizontal = Math.abs(s[1].y - s[0].y) < 0.5;
+        if (vertical) {
+          const dx = bbox.width / 2 + labelGap;
+          const minX = canvasRect.left + bbox.width / 2 + labelGap / 2;
+          const maxX = canvasRect.right - bbox.width / 2 - labelGap / 2;
+          out.push({ x: mid.x + dx, y: mid.y }, { x: mid.x - dx, y: mid.y });
+          // A node hugging the canvas edge (R4: the leftmost column's own
+          // labelled back-and-forth pair) can push the full sideways shift
+          // off-canvas -- clamping it to the widest shift that still fits
+          // gives up some clearance from the OTHER line rather than none.
+          out.push({ x: Math.min(maxX, mid.x + dx), y: mid.y }, { x: Math.max(minX, mid.x - dx), y: mid.y });
+          // Along the line, a quarter in from each end: a viewport too
+          // narrow for the sideways shift (two close, opposite-direction
+          // edges at 390px, R4) still usually has each line running its
+          // own slightly different span, enough to separate their labels
+          // vertically even when neither can move sideways.
+          out.push({ x: mid.x, y: s[0].y + (s[1].y - s[0].y) * 0.25 }, { x: mid.x, y: s[0].y + (s[1].y - s[0].y) * 0.75 });
+        } else if (horizontal) {
+          const dy = bbox.height / 2 + labelGap;
+          const minY = canvasRect.top + bbox.height / 2 + labelGap / 4;
+          const maxY = canvasRect.bottom - bbox.height / 2 - labelGap / 4;
+          out.push({ x: mid.x, y: mid.y + dy }, { x: mid.x, y: mid.y - dy });
+          out.push({ x: mid.x, y: Math.min(maxY, mid.y + dy) }, { x: mid.x, y: Math.max(minY, mid.y - dy) });
+          out.push({ x: s[0].x + (s[1].x - s[0].x) * 0.25, y: mid.y }, { x: s[0].x + (s[1].x - s[0].x) * 0.75, y: mid.y });
+        }
+      }
+      return out;
+    }
+
+    // splitLabel: a plain word-count midpoint break, tried only once a
+    // single line genuinely can't clear anything (see place() below) -- not
+    // a balanced/greedy wrap, just enough to turn one too-wide line into
+    // two that fit a channel with real height to spare but little width.
+    function splitLabel(text) {
+      const words = text.split(' ');
+      if (words.length < 2) return null;
+      const mid = Math.ceil(words.length / 2);
+      return [words.slice(0, mid).join(' '), words.slice(mid).join(' ')];
+    }
+    const rectGap = (a2, b2) => {
+      const dx = Math.max(a2.left - b2.right, b2.left - a2.right);
+      const dy = Math.max(a2.top - b2.bottom, b2.top - a2.bottom);
+      return dx > 0 && dy > 0 ? Math.hypot(dx, dy) : Math.max(dx, dy);
+    };
+    const shortfall = (gap, need) => Math.max(0, need - gap);
+
+    const nodeRects = [...boxes.values()].map((b) => ({ left: b.x, top: b.y, right: b.x + b.w, bottom: b.y + b.h }));
+    const placed = [];
+    for (const b of built) {
+      if (!b.opts.label) continue;
+      // place(): the full search for ONE candidate label value (a plain
+      // string, or a wrapped array of lines), returning the best spot found
+      // and whether it actually clears everything.
+      const place = (value) => {
+        const bbox = w.measureLabel(value);
+        const spots = candidateSpots(b.points, bbox);
+        const clears = (at) => {
+          const r = w.labelRect(at, bbox);
+          // R8: a label parked on a margin-lane's own far stub can
+          // otherwise run past the canvas edge entirely (the lane-width
+          // reservation sizes for the label's height, not its width).
+          if (r.left < canvasRect.left || r.right > canvasRect.right || r.top < canvasRect.top || r.bottom > canvasRect.bottom) return false;
+          if (nodeRects.some((n) => !rectsClear(r, n, labelGap))) return false;
+          if (placed.some((p) => !rectsClear(r, p, labelGap))) return false;
+          for (const other of built) {
+            if (other === b) continue;
+            for (const [p0, p1] of segmentsOf(other.points)) {
+              if (segRectDist(p0, p1, r) < labelGap) return false;
+            }
+          }
+          return true;
+        };
+        const inBounds = (at) => {
+          const r = w.labelRect(at, bbox);
+          return r.left >= canvasRect.left && r.right <= canvasRect.right && r.top >= canvasRect.top && r.bottom <= canvasRect.bottom;
+        };
+        // badness: how far short of labelGap this spot falls against the
+        // nearest thing it crowds, summed over every offender -- used only
+        // when NO candidate fully clears, so a compromise still prefers
+        // whichever offset/along-segment candidate crowds LESS instead of
+        // always collapsing back to the same first (plain-centre) spot.
+        const badness = (at) => {
+          const r = w.labelRect(at, bbox);
+          let cost = 0;
+          for (const n of nodeRects) cost += shortfall(rectGap(r, n), labelGap) ** 2;
+          for (const p of placed) cost += shortfall(rectGap(r, p), labelGap) ** 2;
+          for (const other of built) {
+            if (other === b) continue;
+            for (const [p0, p1] of segmentsOf(other.points)) cost += shortfall(segRectDist(p0, p1, r), labelGap) ** 2;
+          }
+          return cost;
+        };
+        const found = spots.find(clears);
+        const chosen = found ?? spots.filter(inBounds).sort((a2, b2) => badness(a2) - badness(b2))[0] ?? spots[0];
+        return {
+          value, bbox, at: chosen, cleared: Boolean(found), cost: found ? 0 : badness(chosen),
+        };
+      };
+
+      let result = place(b.opts.label);
+      // A single line with nowhere clear to sit (R4, e.g. two opposite
+      // edges --fan apart at a viewport too narrow for either to move
+      // sideways): try it wrapped into two shorter, taller lines before
+      // settling for a spot that still crowds something.
+      if (!result.cleared) {
+        const wrapped = typeof b.opts.label === 'string' ? splitLabel(b.opts.label) : null;
+        if (wrapped) {
+          const wrappedResult = place(wrapped);
+          if (wrappedResult.cleared || wrappedResult.cost < result.cost) result = wrappedResult;
+        }
+      }
+      b.opts.label = result.value;
+      b.labelAt = result.at;
+      placed.push(w.labelRect(result.at, result.bbox));
+    }
   }
 
   // -- squarify / scale / ticks / days / nudge / thin -----------------------
@@ -722,28 +1402,77 @@
     return Math.round(Date.parse(`${iso}T00:00:00Z`) / 86400000);
   }
 
-  function nudge(els, axis = 'y') {
-    const minGap = px('--fan') || 8;
-    const items = [...els].map((el) => ({ el, box: el.getBoundingClientRect() }))
-      .sort((a, b) => (axis === 'y' ? a.box.top - b.box.top : a.box.left - b.box.left));
-    let prevEdge = -Infinity;
-    for (const it of items) {
-      const start = axis === 'y' ? it.box.top : it.box.left;
-      const size = axis === 'y' ? it.box.height : it.box.width;
-      const dy = start < prevEdge + minGap ? prevEdge + minGap - start : 0;
-      it.el.style.setProperty('--dy', String(Math.round(dy)));
-      prevEdge = start + dy + size;
+  // opts.minGap: minimum clearance (default --fan). opts.obstacles: extra
+  // fixed rects (e.g. a corner label) that els must also clear but never
+  // move themselves. opts.bound: a hard {start,end} range (viewport
+  // coordinates, same frame as getBoundingClientRect) the whole cascaded
+  // group must fit inside -- shift it back into range first, then compact
+  // its gaps if it's still too tall even fully shifted (bounded
+  // degradation: tighter gaps beat a label pushed off the visible plot).
+  function nudge(els, axis = 'y', opts = {}) {
+    const minGap = opts.minGap ?? (px('--fan') || 8);
+    const items = [...els];
+    // Idempotent: always measure the NATURAL position, never a previous
+    // call's own output. --dy is a transform, so getBoundingClientRect()
+    // on a later redraw (a ResizeObserver tick, fonts.ready) would
+    // otherwise read this call's already-nudged position as if it were
+    // natural, decide no offset is needed, and reset --dy to 0 -- silently
+    // undoing the separation this same function drew a moment earlier.
+    for (const el of items) el.style.setProperty('--dy', '0');
+    const marks = items.map((el) => {
+      const box = el.getBoundingClientRect();
+      return {
+        el, start: axis === 'y' ? box.top : box.left, size: axis === 'y' ? box.height : box.width, fixed: false,
+      };
+    });
+    for (const ob of opts.obstacles || []) {
+      marks.push({
+        el: null, start: axis === 'y' ? ob.top : ob.left, size: axis === 'y' ? ob.height : ob.width, fixed: true,
+      });
     }
+    marks.sort((a, b) => a.start - b.start);
+
+    let prevEdge = -Infinity;
+    for (const m of marks) {
+      if (m.fixed) { prevEdge = Math.max(prevEdge, m.start + m.size); continue; }
+      const dy = m.start < prevEdge + minGap ? prevEdge + minGap - m.start : 0;
+      m.dy = dy;
+      prevEdge = m.start + dy + m.size;
+    }
+
+    const real = marks.filter((m) => !m.fixed);
+    if (opts.bound && real.length) {
+      const first = real[0]; const last = real[real.length - 1];
+      let shift = 0;
+      const bottom = last.start + last.dy;
+      if (bottom + last.size > opts.bound.end) shift = opts.bound.end - (bottom + last.size);
+      const top = first.start + first.dy + shift;
+      if (top < opts.bound.start) shift += opts.bound.start - top;
+      for (const m of real) m.dy += shift;
+      // Still too tall for the space even fully shifted into range: compact
+      // the GAPS around the first item's own (now-shifted) position rather
+      // than let the far end run past the boundary.
+      const extent = (last.start + last.dy + last.size) - (first.start + first.dy);
+      const avail = opts.bound.end - opts.bound.start;
+      if (extent > avail) {
+        const scale = Math.max(0, (avail - first.size) / (extent - first.size || 1));
+        const base = first.dy;
+        for (const m of real) m.dy = base + (m.dy - base) * scale;
+      }
+    }
+    for (const m of real) m.el.style.setProperty('--dy', String(Math.round(m.dy)));
   }
 
   function thin(els) {
+    const items = [...els];
+    for (const el of items) el.hidden = false;
+    const boxes = items.map((el) => el.getBoundingClientRect());
     let prevRight = -Infinity;
-    for (const el of els) {
-      el.hidden = false;
-      const box = el.getBoundingClientRect();
-      if (box.left < prevRight) { el.hidden = true; continue; }
+    items.forEach((el, i) => {
+      const box = boxes[i];
+      if (box.left < prevRight) { el.hidden = true; return; }
       prevRight = box.right;
-    }
+    });
   }
 
   // -- dependency (the old .graph, replaced) -----------------------------------
@@ -758,8 +1487,6 @@
     if (unknown) return fail(anchor, title, `Edge references an unknown id ("${unknown.from}" -> "${unknown.to}"). Fix the id and try again.`);
 
     const layout = layered(nodes, edges, { dir, critical });
-    const laneRoom = laneReserve(layout, edges);
-    const { tracks, labeled } = channelStats(layout, edges);
 
     const nodesHtml = nodes.map((n) => {
       const p = layout.pos.get(n.id);
@@ -780,8 +1507,8 @@
       title,
       dir,
       edges: edges.length,
-      styleAttr: ` style="--cols:${layout.cols};--ranks:${layout.ranks};--back:${laneRoom};--loops:${layout.loops.length ? 1 : 0};--tracks:${tracks};--labeled:${labeled}"`,
-      html: nodesHtml,
+      styleAttr: ` style="--cols2:${layout.cols2};--ranks:${layout.ranks};--loops:${layout.loops.length ? 1 : 0}"`,
+      html: nodesHtml + channelHtml(layout),
       sr,
       draw(fig) { route(fig, layout, edges, { dir }); },
     });
@@ -791,9 +1518,9 @@
   window.Render.diagram = {
     dependency,
     _: Object.freeze({
-      BUDGET, px, round, cssId, frame, fail, check, node, layered, route, wires,
-      isLane, laneEdges, forwardChannels, channelStats, laneBand, laneReserve,
-      squarify, scale, ticks, days, nudge, thin,
+      px, round, cssId, frame, fail, check, node, layered, route, wires, channelHtml,
+      isLane, laneEdges, channelStats, laneReserve,
+      squarify, scale, ticks, days, nudge, thin, fanFrac, crowsFoot,
     }),
   };
 })();
@@ -804,8 +1531,8 @@
 
   const { esc } = window.Render;
   const {
-    frame, fail, check, node, layered, route, wires,
-    channelStats, laneReserve, px, cssId,
+    frame, fail, check, node, layered, route, wires, channelHtml,
+    channelStats, laneReserve, px, round, cssId,
   } = window.Render.diagram._;
 
   // -- sequence ----------------------------------------------------------
@@ -864,11 +1591,11 @@
         // participants).
         participants.forEach((p, i) => {
           const box = headBoxes[i];
-          const x = round2(box.x + box.w / 2);
+          const x = round(box.x + box.w / 2);
           const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
           path.setAttribute('class', 'dg-lifeline');
           path.setAttribute('data-lifeline', p.id);
-          path.setAttribute('d', `M ${x} ${round2(box.y + box.h)} V ${round2(lifelineBottom)}`);
+          path.setAttribute('d', `M ${x} ${round(box.y + box.h)} V ${round(lifelineBottom)}`);
           w.svg.appendChild(path);
         });
 
@@ -878,12 +1605,12 @@
           const rowBox = w.box(rowEls[i]);
           const fromIdx = participants.findIndex((p) => p.id === m.from);
           const toIdx = participants.findIndex((p) => p.id === m.to);
-          const fromX = round2(headBoxes[fromIdx].x + headBoxes[fromIdx].w / 2);
-          const toX = round2(headBoxes[toIdx].x + headBoxes[toIdx].w / 2);
-          const y = round2(rowBox.y + rowBox.h);
+          const fromX = round(headBoxes[fromIdx].x + headBoxes[fromIdx].w / 2);
+          const toX = round(headBoxes[toIdx].x + headBoxes[toIdx].w / 2);
+          const y = round(rowBox.y + rowBox.h);
           let points;
           if (m.from === m.to) {
-            const yTop = round2(y - px('--route') * 2);
+            const yTop = round(y - px('--route') * 2);
             points = [{ x: fromX, y: yTop }, { x: fromX + loopW, y: yTop }, { x: fromX + loopW, y }, { x: fromX, y }];
           } else {
             points = [{ x: fromX, y }, { x: toX, y }];
@@ -897,8 +1624,6 @@
       },
     });
   }
-
-  function round2(n) { return Math.round(n * 100) / 100; }
 
   // -- state ---------------------------------------------------------------
   // A layered()/route() type, same shape as dependency; the only additions
@@ -919,8 +1644,6 @@
     if (initials.length > 1) return fail(anchor, title, `${initials.length} initial states declared. A state machine starts in exactly one place.`);
 
     const layout = layered(states, transitions, { dir });
-    const laneRoom = laneReserve(layout, transitions);
-    const { tracks, labeled } = channelStats(layout, transitions);
 
     const nodesHtml = states.map((s) => {
       const p = layout.pos.get(s.id);
@@ -939,11 +1662,39 @@
       title,
       dir,
       edges: transitions.length,
-      styleAttr: ` style="--cols:${layout.cols};--ranks:${layout.ranks};--back:${laneRoom};--loops:${layout.loops.length ? 1 : 0};--tracks:${tracks};--labeled:${labeled}"`,
-      html: nodesHtml,
+      styleAttr: ` style="--cols2:${layout.cols2};--ranks:${layout.ranks};--loops:${layout.loops.length ? 1 : 0}"`,
+      html: nodesHtml + channelHtml(layout),
       sr: `${initialNote}<ul>${srItems}</ul>`,
-      draw(fig) { route(fig, layout, transitions, { dir }); },
+      draw(fig) {
+        route(fig, layout, transitions, { dir });
+        if (initials[0]) drawInitialMarker(fig, initials[0], dir);
+      },
     });
+  }
+
+  // drawInitialMarker: a filled --marker square with a short arrow into the
+  // initial state, drawn off the same measured node box every other wire
+  // uses (a CSS ::before had no connector and no way to draw one). The run
+  // length is capped by the actual headroom above/before the node so the
+  // square never runs into the canvas edge (R8) regardless of --canvas-pad.
+  function drawInitialMarker(fig, initial, dir) {
+    const w = wires(fig);
+    const el = fig.querySelector(`.dg-node[data-id="${cssId(initial.id)}"]`);
+    if (!el) return;
+    const box = w.box(el);
+    const marker = px('--marker');
+    const isLR = dir === 'LR';
+    const headA = isLR ? box.x : box.y;
+    const cross = isLR ? box.y + box.h / 2 : box.x + box.w / 2;
+    const headroom = headA - px('--space-2') - marker;
+    const d = Math.min(px('--route'), Math.max(2, headroom));
+    const tailA = headA - d;
+    const farA = tailA - marker;
+    const headPt = isLR ? { x: headA, y: cross } : { x: cross, y: headA };
+    const tailPt = isLR ? { x: tailA, y: cross } : { x: cross, y: tailA };
+    w.wire([tailPt, headPt], { to: initial.id, head: 'arrow' });
+    const rect = isLR ? { x: farA, y: cross - marker / 2 } : { x: cross - marker / 2, y: farA };
+    w.svg.insertAdjacentHTML('beforeend', `<rect class="dg-cross" x="${round(rect.x)}" y="${round(rect.y)}" width="${round(marker)}" height="${round(marker)}"/>`);
   }
 
   // -- flowchart -------------------------------------------------------------
@@ -969,8 +1720,6 @@
     if (badDecision) return fail(anchor, title, `Decision "${badDecision.label}" needs at least 2 labeled outgoing edges (its branch names).`);
 
     const layout = layered(nodes, edges, { dir });
-    const laneRoom = laneReserve(layout, edges);
-    const { tracks, labeled } = channelStats(layout, edges);
 
     const nodesHtml = nodes.map((n) => {
       const p = layout.pos.get(n.id);
@@ -988,8 +1737,8 @@
       title,
       dir,
       edges: edges.length,
-      styleAttr: ` style="--cols:${layout.cols};--ranks:${layout.ranks};--back:${laneRoom};--loops:${layout.loops.length ? 1 : 0};--tracks:${tracks};--labeled:${labeled}"`,
-      html: nodesHtml,
+      styleAttr: ` style="--cols2:${layout.cols2};--ranks:${layout.ranks};--loops:${layout.loops.length ? 1 : 0}"`,
+      html: nodesHtml + channelHtml(layout),
       sr: `<ul>${srItems}</ul>`,
       draw(fig) { route(fig, layout, edges, { dir }); },
     });
@@ -1119,7 +1868,7 @@
         const boxes = stages.map((_, i) => w.box(fig.querySelectorAll('.dg-node')[i]));
         const topBox = boxes[0]; // stage 0 is always top row (topCount = ceil(n/2) >= 1)
         const bottomIdx = stages.findIndex((_, i) => rowOf(i) === 1); // always found: n >= 3
-        const gapMid = round2((topBox.y + topBox.h + boxes[bottomIdx].y) / 2);
+        const gapMid = round((topBox.y + topBox.h + boxes[bottomIdx].y) / 2);
 
         function anchorY(box, row) { return row === 0 ? box.y + box.h : box.y; }
         // n === 3 puts a single stage on the short row, so that one stage
@@ -1149,21 +1898,21 @@
           const rowA = rowOf(i); const rowB = rowOf(j);
           let points;
           if (rowA === rowB) {
-            const y = round2(a.y + a.h / 2);
+            const y = round(a.y + a.h / 2);
             const goingRight = b.x > a.x;
             points = [
-              { x: round2(goingRight ? a.x + a.w : a.x), y },
-              { x: round2(goingRight ? b.x : b.x + b.w), y },
+              { x: round(goingRight ? a.x + a.w : a.x), y },
+              { x: round(goingRight ? b.x : b.x + b.w), y },
             ];
           } else {
-            const level = round2(gapMid + (crossingsSeen === 0 ? -routeGap : routeGap));
+            const level = round(gapMid + (crossingsSeen === 0 ? -routeGap : routeGap));
             crossingsSeen += 1;
-            const ax = round2(anchorX(a, 'exit')); const bx = round2(anchorX(b, 'enter'));
+            const ax = round(anchorX(a, 'exit')); const bx = round(anchorX(b, 'enter'));
             points = dedupe([
-              { x: ax, y: round2(anchorY(a, rowA)) },
+              { x: ax, y: round(anchorY(a, rowA)) },
               { x: ax, y: level },
               { x: bx, y: level },
-              { x: bx, y: round2(anchorY(b, rowB)) },
+              { x: bx, y: round(anchorY(b, rowB)) },
             ]);
           }
           w.wire(points, { from: stages[i].id ?? `stage-${i}`, to: stages[j].id ?? `stage-${j}`, key: Boolean(stages[i].key) });
@@ -1175,7 +1924,7 @@
           const centerEl = fig.querySelector('.dg-cycle-center');
           const canvasBox = w.box(fig.querySelector('.dg-canvas'));
           centerEl.style.setProperty('--cx', '0.5');
-          centerEl.style.setProperty('--cy', String(round2(gapMid / canvasBox.h)));
+          centerEl.style.setProperty('--cy', String(round(gapMid / canvasBox.h)));
         }
       },
     });
@@ -1190,8 +1939,8 @@
 
   const { esc } = window.Render;
   const {
-    frame, fail, check, node, layered, route, wires,
-    channelStats, laneReserve, px, round, cssId,
+    frame, fail, check, node, layered, route, wires, channelHtml,
+    px, round, cssId, crowsFoot,
   } = window.Render.diagram._;
 
   // -- architecture ----------------------------------------------------------
@@ -1222,16 +1971,12 @@
     if (badEdge) return fail(anchor, title, `Edge references an unknown id ("${badEdge.from}" -> "${badEdge.to}"). Fix the id and try again.`);
 
     const compZone = new Map(components.map((c) => [c.id, zoneIndex.get(c.zone)]));
-    // layered()'s column placement walks ranks in ascending order and looks
-    // up each node's parents' columns as it goes, so a "parent" that hasn't
-    // been placed yet (any edge into an EARLIER zone, i.e. backward once
-    // ranks are pinned by zone) reads back undefined and poisons the mean
-    // with NaN. Ordering only needs forward/same-zone edges; route() below
-    // still draws every edge, backward ones included, straight off `layout`.
-    const orderEdges = edges.filter((e) => compZone.get(e.to) >= compZone.get(e.from));
-    const layout = layered(components, orderEdges, { rank: (id) => compZone.get(id) });
-    const laneRoom = laneReserve(layout, edges);
-    const { tracks, labeled } = channelStats(layout, edges);
+    // layered() reverses any edge whose finished ranks run backward (an
+    // edge into an EARLIER zone) for its own ordering/dummy-chain purposes,
+    // so the full edge set can go straight in -- no more filtering backward
+    // edges out to dodge the old placement algorithm's NaN-on-unplaced-
+    // parent bug.
+    const layout = layered(components, edges, { rank: (id) => compZone.get(id) });
 
     const zoneHtml = zones.map((z, i) => (
       `<div class="dg-zone" style="--r:${i + 1}"></div>`
@@ -1259,8 +2004,8 @@
       title,
       dir: 'LR',
       edges: edges.length,
-      styleAttr: ` style="--cols:${layout.cols};--ranks:${layout.ranks};--back:${laneRoom};--loops:${layout.loops.length ? 1 : 0};--tracks:${tracks};--labeled:${labeled}"`,
-      html: zoneHtml + nodesHtml,
+      styleAttr: ` style="--cols2:${layout.cols2};--ranks:${layout.ranks};--loops:${layout.loops.length ? 1 : 0}"`,
+      html: zoneHtml + nodesHtml + channelHtml(layout),
       sr,
       draw(fig) {
         route(fig, layout, edges, { dir: 'LR' });
@@ -1350,8 +2095,6 @@
     });
 
     const layout = layered(entities, routeEdges);
-    const laneRoom = laneReserve(layout, routeEdges);
-    const { tracks, labeled } = channelStats(layout, routeEdges);
 
     const entitiesHtml = entities.map((ent) => {
       const p = layout.pos.get(ent.id);
@@ -1382,8 +2125,8 @@
       title,
       dir: 'LR',
       edges: routeEdges.length,
-      styleAttr: ` style="--cols:${layout.cols};--ranks:${layout.ranks};--back:${laneRoom};--loops:${layout.loops.length ? 1 : 0};--tracks:${tracks};--labeled:${labeled}"`,
-      html: entitiesHtml,
+      styleAttr: ` style="--cols2:${layout.cols2};--ranks:${layout.ranks};--loops:${layout.loops.length ? 1 : 0}"`,
+      html: entitiesHtml + channelHtml(layout),
       sr: `<ul>${srItems}</ul>`,
       draw(fig) {
         const w = wires(fig);
@@ -1451,12 +2194,7 @@
         ? `<path class="dg-end is-one" d="M ${round(fwd.x)} ${round(fwd.y - m / 2)} V ${round(fwd.y + m / 2)}"/>`
         : `<path class="dg-end is-one" d="M ${round(fwd.x - m / 2)} ${round(fwd.y)} H ${round(fwd.x + m / 2)}"/>`;
     }
-    const q1 = dx !== 0 ? { x: fwd.x, y: fwd.y - m * 0.6 } : { x: fwd.x - m * 0.6, y: fwd.y };
-    const q2 = dx !== 0 ? { x: fwd.x, y: fwd.y + m * 0.6 } : { x: fwd.x + m * 0.6, y: fwd.y };
-    return (
-      `<path class="dg-end is-many" d="M ${round(q1.x)} ${round(q1.y)} L ${round(p0.x)} ${round(p0.y)} `
-      + `L ${round(q2.x)} ${round(q2.y)} M ${round(q1.x)} ${round(q1.y)} L ${round(q2.x)} ${round(q2.y)}"/>`
-    );
+    return `<path class="dg-end is-many" d="${crowsFoot(fwd, p0, dx, m)}"/>`;
   }
 
   function drawFromEndGlyphs(fig, routeEdges) {
@@ -1774,10 +2512,13 @@
 
   function quadrant(data = {}) {
     const {
-      anchor, title = '', x, y, quadrants, items = [],
+      anchor, title = '', x = {}, y = {}, quadrants, items = [],
     } = data;
     const reason = check('quadrant', data, { items: items.length });
     if (reason) return fail(anchor, title, reason);
+    if (!x.label || x.low == null || x.high == null || !y.label || y.low == null || y.high == null) {
+      return fail(anchor, title, 'A quadrant needs both x and y axis definitions with label, low and high.');
+    }
 
     for (const it of items) {
       if (!(it.x >= 0 && it.x <= 1) || !(it.y >= 0 && it.y <= 1)) {
@@ -1812,7 +2553,21 @@
       ),
       sr: `<ul>${srItems}</ul>`,
       draw(fig) {
-        nudge(fig.querySelectorAll('.dg-quad-label'), 'y');
+        const labels = fig.querySelectorAll('.dg-quad-label');
+        const corners = [...fig.querySelectorAll('.dg-quad-corner')].map((el) => el.getBoundingClientRect());
+        nudge(labels, 'y', { obstacles: corners });
+        // nudge() only ever pushes labels apart vertically; a label can
+        // still run past the canvas's own edge horizontally (its mark
+        // stays at the data point, only the label text needs to slide).
+        const canvasRect = fig.querySelector('.dg-canvas').getBoundingClientRect();
+        const pad = px('--canvas-pad');
+        for (const label of labels) {
+          const r = label.getBoundingClientRect();
+          let dx = 0;
+          if (r.right > canvasRect.right - pad) dx = (canvasRect.right - pad) - r.right;
+          else if (r.left < canvasRect.left + pad) dx = (canvasRect.left + pad) - r.left;
+          if (dx) label.style.setProperty('--dx', String(Math.round(dx)));
+        }
       },
     });
   }
@@ -2090,16 +2845,22 @@
     const xticksHtml = xTicks.map((t, i) => `<span style="--x:${round(xAt(i))}">${esc(String(t))}</span>`).join('');
 
     const points = series.map((s) => s.values.map((v, i) => ({ x: xAt(i), y: 1 - f(v) })));
-    const labelsHtml = series.map((s, si) => {
-      const pts = points[si];
-      const ends = isSlope ? [['is-ln-start', pts[0]], ['is-ln-end', pts[pts.length - 1]]] : [['is-ln-end', pts[pts.length - 1]]];
-      return ends.map(([pos, p]) => (
-        `<span class="dg-ln-end-label ${pos}" style="--y:${round(p.y)}">${esc(s.label)}</span>`
+    // Series that meet at one value share one label; nudging them apart
+    // separately would park names far from where their lines end.
+    const labelsAt = (i, pos) => {
+      const groups = new Map();
+      series.forEach((s, si) => {
+        const yAt = round(points[si][i].y);
+        groups.set(yAt, [...(groups.get(yAt) || []), s.label]);
+      });
+      return [...groups].map(([yAt, names]) => (
+        `<span class="dg-ln-end-label ${pos}${names.length > 1 ? ' is-ln-group' : ''}" style="--y:${yAt}">${esc(names.join(', '))}</span>`
       )).join('');
-    }).join('');
+    };
+    const labelsHtml = (isSlope ? labelsAt(0, 'is-ln-start') : '') + labelsAt(tickCount - 1, 'is-ln-end');
 
     const html = (
-      `<div class="dg-ln-plot"><div class="dg-ln-chart">`
+      `<div class="dg-ln-plot${isSlope ? ' is-slope' : ''}"><div class="dg-ln-chart">`
       + `<div class="dg-ln-grids">${gridHtml}</div>`
       + `<div class="dg-ln-xticks">${xticksHtml}</div>`
       + `</div><div class="dg-ln-labels">${labelsHtml}</div></div>`
@@ -2140,8 +2901,17 @@
         });
         const startLabels = [...fig.querySelectorAll('.dg-ln-end-label.is-ln-start')];
         const endLabels = [...fig.querySelectorAll('.dg-ln-end-label.is-ln-end')];
-        if (startLabels.length) nudge(startLabels, 'y');
-        if (endLabels.length) nudge(endLabels, 'y');
+        // the label's own minimum height (text * leading-tight), bounded to
+        // the chart's own drawn box: several series clustered near one end
+        // must compact (and if needed shift back into view) instead of
+        // cascading past the plot into an unlabelled vertical scroll.
+        const chartRect = fig.querySelector('.dg-ln-chart').getBoundingClientRect();
+        const opts = {
+          minGap: px('--text') * px('--leading-tight'),
+          bound: { start: chartRect.top, end: chartRect.bottom },
+        };
+        if (startLabels.length) nudge(startLabels, 'y', opts);
+        if (endLabels.length) nudge(endLabels, 'y', opts);
       },
     });
   }

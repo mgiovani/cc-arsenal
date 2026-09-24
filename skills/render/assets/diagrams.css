@@ -33,9 +33,14 @@
     clearance each side plus one more --label-gap of slack (a rendered
     SVG text bbox runs a little taller than --text*--leading-tight
     alone accounts for). --rank-gap stays the floor; this only grows it. */
+  /* the marker term matters here, not just route: the LAST hop into an
+    arrowhead needs --marker + --route clear (R5), and dividing the channel
+    into (tracks+1) equal slots means the SHORTEST slot -- whichever track
+    sits closest to either rank -- is what has to clear that floor, not the
+    average slot. */
   --channel-gap: max(
     var(--rank-gap),
-    calc((var(--tracks, 0) + 1) * var(--route) + var(--labeled, 0) * var(--tracks, 0) * (var(--text) * var(--leading-tight) + 3 * var(--label-gap)))
+    calc((var(--tracks, 0) + 1) * (var(--route) + var(--marker)) + var(--labeled, 0) * var(--tracks, 0) * (var(--text) * var(--leading-tight) + 3 * var(--label-gap)))
   );
   position: relative;
   width: max-content;
@@ -51,12 +56,83 @@
 .dg[data-dir="LR"] .dg-canvas {
   grid-template-columns: repeat(var(--ranks), minmax(var(--node-min), var(--node-max)));
   grid-auto-rows: min-content;
-  grid-template-rows: repeat(var(--cols), minmax(var(--node-min), var(--node-max)));
+  /* --node-min/--node-max are WIDTH tokens; a row's height is its content,
+    same as grid-auto-rows above (dg-swimlane used to repeat this correctly
+    scoped to itself, now redundant since this covers every LR figure). */
+  grid-template-rows: repeat(var(--cols), min-content);
   gap: var(--node-gap) var(--channel-gap);
   padding-right: calc(var(--canvas-pad) + var(--loops, 0) * var(--route) * 2);
   padding-bottom: calc(var(--canvas-pad) + var(--back, 0) * var(--route));
 }
 .dg-wires { position: absolute; inset: 0; overflow: visible; pointer-events: none; }
+
+/* Sugiyama-layered figures (dependency, state, flowchart, architecture, er):
+  the cross axis runs in HALF-columns (--cols2 unitless tracks, two per node
+  column) so a node ( span 2, `--c` is its half-column START) can centre on
+  an odd sibling count or a single child. The rank axis stays whole ranks,
+  but every rank row/column is followed by its OWN `auto` channel track (an
+  explicit .dg-chan spacer per gap, sized by ITS OWN --t/--l, see below) --
+  no more shared --channel-gap sized to the figure's single worst channel.
+  `.dg.dg-<type>` (not just `.dg-<type>`) repeats .dg alongside each type so
+  this always outranks the generic .dg-canvas rule above regardless of
+  stylesheet order (same trap the architecture zone rule below already
+  works around). */
+.dg.dg-dependency .dg-canvas, .dg.dg-state .dg-canvas, .dg.dg-flowchart .dg-canvas,
+.dg.dg-architecture .dg-canvas, .dg.dg-er .dg-canvas {
+  /* fit-content, not minmax: a track's own content (the node the router
+    actually measured) decides its width up to the --node-max cap, instead
+    of every track growing to node-max regardless of what's in it. The
+    --node-min FLOOR moves to .dg-node's own min-width below, since
+    fit-content has no minimum side of its own to hold it. This is what
+    keeps a <= 4-column TB figure inside the ~940px content column instead
+    of clipping at 1360 (--node-min/--node-max stay the same tokens, only
+    which side of the grid enforces them changes). */
+  grid-template-columns: repeat(var(--cols2), fit-content(calc((var(--node-max) - var(--node-gap)) / 2)));
+  grid-template-rows: repeat(var(--ranks), min-content auto);
+  column-gap: var(--node-gap);
+  row-gap: 0;
+}
+.dg.dg-dependency[data-dir="LR"] .dg-canvas, .dg.dg-state[data-dir="LR"] .dg-canvas, .dg.dg-flowchart[data-dir="LR"] .dg-canvas,
+.dg.dg-architecture[data-dir="LR"] .dg-canvas, .dg.dg-er[data-dir="LR"] .dg-canvas {
+  /* the rank axis is now columns: it keeps the node-min/max WIDTH clamp
+    (that range IS a node's own width) plus its own auto channel column.
+    The cross axis (rows) stays min-content, same as the generic LR rule --
+    row HEIGHT is content, never a width token, halved count or not. */
+  grid-template-columns: repeat(var(--ranks), fit-content(var(--node-max)) auto);
+  grid-template-rows: repeat(var(--cols2), min-content);
+  row-gap: var(--node-gap);
+  column-gap: 0;
+}
+.dg.dg-dependency .dg-node, .dg.dg-state .dg-node, .dg.dg-flowchart .dg-node,
+.dg.dg-architecture .dg-node, .dg.dg-er .dg-node {
+  /* --r is still a plain 1-based rank; calc() maps it onto its row's actual
+    grid line now that a channel track sits between every pair of ranks. */
+  grid-row: calc(var(--r) * 2 - 1);
+  grid-column: var(--c) / span 2;
+}
+.dg.dg-dependency[data-dir="LR"] .dg-node, .dg.dg-state[data-dir="LR"] .dg-node, .dg.dg-flowchart[data-dir="LR"] .dg-node,
+.dg.dg-architecture[data-dir="LR"] .dg-node, .dg.dg-er[data-dir="LR"] .dg-node {
+  grid-column: calc(var(--r) * 2 - 1);
+  grid-row: var(--c) / span 2;
+}
+/* .dg-chan: one explicit spacer per rank gap (channelHtml in diagrams.js),
+  placed on its own `auto` track by --ch (0-based channel index) and sized
+  by its OWN --t (tracks)/--l (labelled?) -- the same formula the old shared
+  --channel-gap used, just per channel instead of maxed across the figure. A
+  channel with one straight edge (--t:0) comes out exactly --rank-gap. */
+.dg.dg-dependency .dg-chan, .dg.dg-state .dg-chan, .dg.dg-flowchart .dg-chan,
+.dg.dg-architecture .dg-chan, .dg.dg-er .dg-chan {
+  grid-row: calc(var(--ch) * 2 + 2);
+  grid-column: 1 / -1;
+  height: max(var(--rank-gap), calc((var(--t, 0) + 1) * (var(--route) + var(--marker)) + var(--l, 0) * var(--t, 0) * (var(--text) * var(--leading-tight) + 3 * var(--label-gap))));
+}
+.dg.dg-dependency[data-dir="LR"] .dg-chan, .dg.dg-state[data-dir="LR"] .dg-chan, .dg.dg-flowchart[data-dir="LR"] .dg-chan,
+.dg.dg-architecture[data-dir="LR"] .dg-chan, .dg.dg-er[data-dir="LR"] .dg-chan {
+  grid-column: calc(var(--ch) * 2 + 2);
+  grid-row: 1 / -1;
+  height: auto;
+  width: max(var(--rank-gap), calc((var(--t, 0) + 1) * (var(--route) + var(--marker)) + var(--l, 0) * var(--t, 0) * (var(--text) * var(--leading-tight) + 3 * var(--label-gap))));
+}
 .dg-cap { margin-top: var(--space-2); font-size: var(--text); color: var(--mute); }
 .dg-sr {
   position: absolute;
@@ -74,6 +150,7 @@
   display: grid;
   gap: var(--space-0-5);
   align-content: start;
+  min-width: var(--node-min);
   padding: var(--node-pad-y) var(--node-pad-x);
   background: var(--panel);
   border: var(--hair) solid var(--line-strong);
@@ -136,23 +213,11 @@
   stroke-dasharray: var(--space-1) var(--space-1);
 }
 
-/* state: the initial marker and the final double-rule are pure CSS on top
-  of the shared .dg-node the core already draws. */
-.dg-state .dg-node.is-initial { position: relative; }
-.dg-state .dg-node.is-initial::before {
-  content: '';
-  position: absolute;
-  width: var(--marker);
-  height: var(--marker);
-  background: var(--ink);
-  left: 50%;
-  top: calc(-1 * var(--route) / 2);
-  transform: translate(-50%, -50%);
-}
-.dg-state[data-dir="LR"] .dg-node.is-initial::before {
-  left: calc(-1 * var(--route) / 2);
-  top: 50%;
-}
+/* state: the initial marker (a filled square) and its short connecting
+  arrow are drawn into .dg-wires by drawInitialMarker (diagrams.js), sized
+  and positioned off the same measured node box every other wire uses --
+  a CSS-only ::before had no way to draw the connector. The final state's
+  double-rule stays pure CSS, nothing to route. */
 .dg-state .dg-node.is-final {
   outline: var(--hair) solid var(--ink);
   outline-offset: var(--space-0-5);
@@ -166,8 +231,10 @@
 /* swimlane: lanes are fixed grid rows (dir:'LR'); a sticky header column
   is the one thing route()'s own [data-dir="LR"] CSS doesn't provide. */
 .dg-swimlane[data-dir="LR"] .dg-canvas {
+  /* grid-template-rows: min-content now comes from the generic
+    .dg[data-dir="LR"] .dg-canvas rule above; only the lane-head column is
+    swimlane's own. */
   grid-template-columns: var(--lane-head) repeat(var(--ranks), minmax(var(--node-min), var(--node-max)));
-  grid-template-rows: repeat(var(--cols), min-content);
 }
 .dg-swimlane .dg-lane-head {
   grid-column: 1;
@@ -209,17 +276,20 @@
   lose the cascade, so this selector repeats .dg and [data-dir="LR"] to
   come out ahead regardless of stylesheet order. */
 .dg.dg-architecture[data-dir="LR"] .dg-canvas {
-  grid-template-rows: auto repeat(var(--cols), minmax(var(--node-min), var(--node-max)));
+  grid-template-rows: auto repeat(var(--cols2), min-content);
 }
 .dg-architecture .dg-zone {
-  grid-column: var(--r);
+  /* span 2: the zone's own content column plus its trailing channel, so the
+    dashed frame reads as one continuous band instead of stopping short at
+    the half-column grid's content track. */
+  grid-column: calc(var(--r) * 2 - 1) / span 2;
   grid-row: 1 / -1;
   box-sizing: border-box;
   padding: var(--space-6);
   border: var(--hair) dashed var(--soft);
 }
 .dg-architecture .dg-zone-head {
-  grid-column: var(--r);
+  grid-column: calc(var(--r) * 2 - 1) / span 2;
   grid-row: 1;
   align-self: start;
   padding: var(--space-2) var(--space-6);
@@ -260,7 +330,7 @@
 .dg-er .ftype { color: var(--mute); }
 .dg-er .tag { color: var(--soft); font-weight: 500; }
 .dg-er .dg-end { fill: currentColor; stroke: none; }
-.dg-er .dg-end.is-one { fill: none; stroke: currentColor; stroke-width: var(--hair); }
+.dg-er .dg-end.is-one, .dg-er .dg-end.is-many { fill: none; stroke: currentColor; stroke-width: var(--hair); }
 
 /* containment: pure HTML, no wires; children auto-fill at --col-sm minimum,
   fill alternates panel/sunk by nesting depth unless a box states its own. */
@@ -271,8 +341,8 @@
   padding: 0;
   display: grid;
   /* auto-fit, not auto-fill: a handful of boxes should stretch to fill the
-    canvas, not get squeezed into --col-sm-wide columns beside empty
-    trailing tracks (only auto-fit collapses those to zero). */
+    canvas, not get squeezed into --col-sm columns beside empty trailing
+    tracks (only auto-fit collapses those to zero). */
   grid-template-columns: repeat(auto-fit, minmax(var(--col-sm), 1fr));
   gap: var(--space-4);
 }
@@ -469,7 +539,7 @@
   font-size: var(--text);
   color: var(--ink);
   white-space: nowrap;
-  transform: translateY(calc(var(--dy, 0) * var(--hair)));
+  transform: translate(calc(var(--dx, 0) * var(--hair)), calc(var(--dy, 0) * var(--hair)));
 }
 
 
@@ -528,7 +598,10 @@
   height: var(--plot-h);
   min-width: var(--plot-min);
   display: grid;
-  grid-template-columns: repeat(var(--n), minmax(var(--space-10), 1fr));
+  /* --space-10 (the bar-width floor) is too narrow for a single long label
+    token to wrap without breaking mid-word; widen the column instead of
+    forcing that break (see .dg-wf-col-label below). */
+  grid-template-columns: repeat(var(--n), minmax(var(--col-xs), 1fr));
   gap: 0 var(--space-4);
   padding-top: calc(var(--text) * var(--leading-tight) + var(--space-4));
   /* 3 lines' worth, not 1: a narrow viewport wraps a longer label (see
@@ -565,10 +638,10 @@
   text-align: center;
   font-size: var(--text);
   color: var(--mute);
-  /* A narrow column (min --space-10) is narrower than one unbroken word
-    like "typography": break it mid-word rather than let it run past the
-    column into a neighbor's label. */
-  overflow-wrap: anywhere;
+  /* Wrap at word boundaries only: with the column now at least --col-xs
+    wide, a normal break already fits every shipped label;
+    overflow-wrap: anywhere broke single tokens like "typography" mid-word. */
+  overflow-wrap: normal;
 }
 .dg-waterfall .dg-wf-zero { position: absolute; left: 0; right: 0; top: calc((1 - var(--zero)) * 100%); border-top: var(--hair) solid var(--ink); }
 
@@ -619,7 +692,12 @@
   (both ends, for a slope chart) instead of a legend; polylines are drawn
   in draw() from the chart's own measured box, since a data line is
   legitimately diagonal (route()'s H/V-only wire() doesn't fit it). */
-.dg-line .dg-ln-plot { position: relative; height: var(--plot-h); min-width: var(--plot-min); }
+.dg-line .dg-ln-plot {
+  position: relative;
+  height: var(--plot-h);
+  min-width: var(--plot-min);
+  margin-bottom: calc(2 * var(--space-2) + var(--text) * var(--leading-tight));
+}
 /* A left gutter matching the right one, even though only a slope chart's
   start labels use it: reserving it unconditionally keeps the chart's own
   right edge (and so the end-label formula below) unchanged whether or
@@ -634,8 +712,17 @@
   font-size: var(--text);
   color: var(--mute);
 }
+/* Only a slope chart puts series names in the left gutter; elsewhere the
+  y values go there so they never sit on the first data point. */
+.dg-line .dg-ln-plot:not(.is-slope) .dg-ln-tick { left: auto; right: calc(100% + var(--space-2)); transform: translateY(-50%); }
 .dg-line .dg-ln-xticks { position: absolute; left: 0; right: 0; top: 100%; padding-top: var(--space-2); }
-.dg-line .dg-ln-xticks span { position: absolute; left: calc(var(--x) * 100%); transform: translateX(-50%); font-size: var(--text); color: var(--mute); }
+/* white-space: nowrap matters here, not just cosmetics: an absolutely
+  positioned span with only `left` set (no `right`/width) sizes its
+  shrink-to-fit width off the space between `left` and the containing
+  block's edge, so the rightmost tick (left: 100%) computed almost no
+  width and wrapped its date across two lines even though translateX(-50%)
+  leaves it plenty of room to spill into. */
+.dg-line .dg-ln-xticks span { position: absolute; left: calc(var(--x) * 100%); transform: translateX(-50%); font-size: var(--text); color: var(--mute); white-space: nowrap; }
 .dg-line .dg-ln-end-label {
   position: absolute;
   top: calc(var(--y) * 100%);
@@ -646,6 +733,7 @@
 }
 .dg-line .dg-ln-end-label.is-ln-end { left: calc(100% - var(--col-sm) + var(--space-2)); }
 .dg-line .dg-ln-end-label.is-ln-start { right: calc(100% - var(--col-sm) + var(--space-2)); }
+.dg-line .dg-ln-end-label.is-ln-group { white-space: normal; width: calc(var(--col-sm) - var(--space-2)); }
 .dg-line .dg-ln-point { fill: currentColor; }
 .dg-line .dg-edge.is-ln-dash-1 .dg-line { stroke-dasharray: var(--space-1) var(--space-1); }
 .dg-line .dg-edge.is-ln-dash-2 .dg-line { stroke-dasharray: var(--space-2) var(--space-1); }

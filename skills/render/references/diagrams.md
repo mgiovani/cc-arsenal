@@ -119,7 +119,7 @@ message rather than draw something misleading.
 | `gantt` | 12 tasks | a bad date, a task's start after its own end, a task outside the window, or a task starting before its `after` predecessor ends |
 | `kanban` | 5 columns, 6 cards each | a `limit` that isn't a positive integer |
 | `storymap` | 6 activities, 3 releases, 4 stories per cell | a story names a release id not in `releases`, or an activity has no stories at all |
-| `quadrant` | 12 items | a coordinate outside 0..1 |
+| `quadrant` | 12 items | a coordinate outside 0..1, or an axis missing its label, low or high |
 | `fishbone` | 6 categories, 4 causes each | fewer than 2 categories, or a category with no causes |
 | `waterfall` | 8 steps | `start + Σdelta ≠ end` |
 | `treemap` | 8 cells | a value ≤ 0, an item under 2% of the total, or items that don't sum to `total` |
@@ -177,9 +177,10 @@ fans out is a `flowchart` or `dependency`.
 
 What a thing can be, and what moves it from one state to the next.
 Data: `{ anchor, title, states: [{id, label, sub?, initial?, final?, key?, sunk?}], transitions: [{from, to, label, key?, soft?}], dir?: 'TB'|'LR' }`.
-The initial state carries a filled square marker; a final state gets a
-double rule. A back edge (a state that returns to an earlier one) routes
-through a margin lane instead of being refused.
+The initial state carries a filled square marker with a short arrow into it;
+a final state gets a double rule. A back edge (a state that returns to an earlier one) is
+reversed for layering and drawn entering the earlier state from below,
+instead of being refused or taking a margin lane.
 Modes: explain, map.
 Don't: label a transition with only the destination; every transition needs
 the event that triggers it.
@@ -224,9 +225,12 @@ Don't: use it for a process with a real end; that's `flowchart` or
 What depends on what: fan-in, fan-out, and cycles (a tree can't show
 either). Replaces the old hand-drawn `graph` block.
 Data: `{ anchor, title, nodes: [{id, label, sub?, key?, sunk?}], edges: [{from, to, label?, key?, soft?}], dir?: 'TB'|'LR', critical?: true }`.
-A cycle draws its back edge through a margin lane and names it in the text
-alternative ("Cycle: a → b → a") instead of refusing. `critical: true` walks
-back from the deepest node and marks the path `is-key`.
+A cycle's back edge is reversed for layering (drawn entering its target from
+below, not detoured through a margin lane) and named in the text alternative
+("Cycle: a → b → a") instead of refusing. A rank-skipping edge gets a dummy
+waypoint per intermediate rank so it still runs a straight or single-elbow
+line, never a far-margin detour. `critical: true` walks back from the
+deepest node and marks the path `is-key`.
 Modes: map, explain, tour, plan (via `dir: 'LR', critical: true`).
 Don't: pass coordinates; this type lays itself out. Don't use it for a pure
 hierarchy with no cross-links; that's `containment`.
@@ -242,7 +246,8 @@ Data: `{ anchor, title, zones: [{id, label}], components: [{id, label, sub?, zon
 Modes: map, explain, tour (fixed left-to-right; no `dir` option).
 Don't: pass coordinates. Don't reach for it when nothing is grouped into
 zones; that's `dependency`. An edge into an earlier zone is honest, not an
-error: it draws as a back edge through the same margin lane a cycle would.
+error: it's reversed for layering and drawn entering that earlier zone, the
+same as any other back edge, with the crossing marker at the zone boundary.
 
 ### er
 
@@ -312,9 +317,9 @@ Data: `{ anchor, title, x: {label, low, high}, y: {label, low, high}, quadrants?
 (`x`/`y` on each item in 0..1).
 Modes: none. `quadrants` overrides the four auto-derived corner labels when
 the default "high y, low x"-style phrasing doesn't fit the data.
-Don't: pass a coordinate outside 0..1 expecting it to clamp; that's a
-refusal, not a clamp. Colliding labels are spread apart automatically, don't
-pre-offset them yourself.
+Don't: pass a coordinate outside 0..1 expecting it to clamp, or leave out an
+axis's label, low or high; both are refusals. Colliding labels are spread
+apart automatically, don't pre-offset them yourself.
 
 ## Analysis and data
 

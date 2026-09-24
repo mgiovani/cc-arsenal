@@ -29,7 +29,9 @@ PRESENTATION_ATTR_RE = re.compile(
     r"""\s*=\s*(?:"([^"]*)"|'([^']*)')""",
     re.IGNORECASE,
 )
-RADIUS_ATTR_RE = re.compile(r"""(?<![\w-])(rx|ry)\s*=\s*(?:"([^"]*)"|'([^']*)')""")
+RADIUS_ATTR_RE = re.compile(
+    r"""(?<![\w-])(rx|ry)\s*=\s*(?:"([^"]*)"|'([^']*)')""", re.IGNORECASE
+)
 SVG_FONT_SIZE_ATTR_RE = re.compile(
     r"""(?<![\w-])font-size\s*=\s*(?:"([^"]*)"|'([^']*)')""", re.IGNORECASE
 )
@@ -279,16 +281,16 @@ def _color_function_violations(html: str, text: str, offset: int) -> list[Violat
     ]
 
 
+def _style_block_regions(html: str) -> list[tuple[str, int]]:
+    return [(m.group(1), m.start(1)) for m in STYLE_BLOCK_RE.finditer(html)]
+
+
 def _css_regions(html: str) -> list[tuple[str, int]]:
-    regions = [(m.group(1), m.start(1)) for m in STYLE_BLOCK_RE.finditer(html)]
+    regions = _style_block_regions(html)
     for m in STYLE_ATTR_RE.finditer(html):
         group_index = 1 if m.group(1) is not None else 2
         regions.append((m.group(group_index), m.start(group_index)))
     return regions
-
-
-def _style_block_regions(html: str) -> list[tuple[str, int]]:
-    return [(m.group(1), m.start(1)) for m in STYLE_BLOCK_RE.finditer(html)]
 
 
 def _scrub_css_text(text: str) -> str:
