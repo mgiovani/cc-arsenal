@@ -6,7 +6,7 @@
     "email": "e@giovani.dev"
   },
   "metadata": {
-    "description": "cc-arsenal \u2014 48 production-grade Agent Skills for development workflows; works with Claude Code and any Agent-Skills-compatible agent.",
+    "description": "cc-arsenal \u2014 49 production-grade Agent Skills for development workflows; works with Claude Code and any Agent-Skills-compatible agent.",
     "version": "6.0.0"
   },
   "plugins": [
@@ -14,7 +14,7 @@
       "name": "cc-arsenal",
       "source": "./",
       "strict": true,
-      "description": "Complete toolkit: all 48 skills covering development, documentation, git, github, jira, code review, testing, refactoring, CI/CD, image generation, framework documentation injection, product specs, multi-agent orchestration, open-source launch prep, skill creation and improvement, and more",
+      "description": "Complete toolkit: all 49 skills covering development, documentation, git, github, jira, code review, testing, refactoring, CI/CD, image generation, framework documentation injection, product specs, multi-agent orchestration, open-source launch prep, skill creation and improvement, and more",
       "version": "6.0.0",
       "author": {
         "name": "Giovani Moutinho",
@@ -245,7 +245,7 @@
       "name": "cc-arsenal-skills",
       "source": "./",
       "strict": false,
-      "description": "Specialty skills: Browser automation (agent-browser), third-party skill discovery (find-skills), specification-driven skill creation with eval system and description optimization (create-skill v2.0), CLAUDE.md rule creation (create-rule), evidence-based improvement of existing skills (improve-skill), and model-tiered multi-agent orchestration (orchestrate)",
+      "description": "Specialty skills: Browser automation (agent-browser), third-party skill discovery (find-skills), specification-driven skill creation with eval system and description optimization (create-skill v2.0), CLAUDE.md rule creation (create-rule), evidence-based improvement of existing skills (improve-skill), measured token-waste audits of AI coding setups (optimize-ai-setup), and model-tiered multi-agent orchestration (orchestrate)",
       "version": "6.0.0",
       "author": {
         "name": "Giovani Moutinho",
@@ -269,6 +269,7 @@
         "./skills/create-skill/",
         "./skills/find-skills/",
         "./skills/improve-skill/",
+        "./skills/optimize-ai-setup/",
         "./skills/orchestrate/",
         "./skills/render/",
         "./skills/wtf/"

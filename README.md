@@ -8,7 +8,7 @@
 [![Agent Skills compatible](https://img.shields.io/badge/Agent%20Skills-compatible-blueviolet.svg)](https://agentskills.io)
 [![Code style: ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
-48 production-grade [Agent Skills](https://agentskills.io) for real development workflows: code review, shipping, docs, git, testing, multi-agent orchestration, and more. Each is a battle-tested workflow you invoke in plain language. Works with Claude Code, Codex, Cursor, Gemini CLI, and any Agent-Skills-compatible agent.
+49 production-grade [Agent Skills](https://agentskills.io) for real development workflows: code review, shipping, docs, git, testing, multi-agent orchestration, and more. Each is a battle-tested workflow you invoke in plain language. Works with Claude Code, Codex, Cursor, Gemini CLI, and any Agent-Skills-compatible agent.
 
 ## See it work
 
@@ -41,10 +41,10 @@ make -C integrations/claude-code/claude-hi standard # Schedule 5-hour windows
 <!-- gen:skills-readme start -->
 <!-- generated: edit skills.sh.json or SKILL.md frontmatter, then run `make docs` -->
 
-**48 Skills** organized by category:
+**49 Skills** organized by category:
 
 <details>
-<summary><b>AI Workflow Tools</b> (7) — Tools that work on your AI agent itself, not on your codebase.</summary>
+<summary><b>AI Workflow Tools</b> (8) — Tools that work on your AI agent itself, not on your codebase.</summary>
 
 | Skill | What it does |
 |---|---|
@@ -53,6 +53,7 @@ make -C integrations/claude-code/claude-hi standard # Schedule 5-hour windows
 | [`create-skill`](skills/create-skill/) | Specification-driven skill creation with eval system and description optimization |
 | [`find-skills`](skills/find-skills/) | Discover and install third-party agent skills from skills.sh |
 | [`improve-skill`](skills/improve-skill/) | Rewrite an existing skill to the authoring standard, with baseline-vs-new eval evidence |
+| [`optimize-ai-setup`](skills/optimize-ai-setup/) | Measure token waste across installed AI coding tools and rank the fixes |
 | [`render`](skills/render/) | Turn any output into an interactive HTML page you mark up in place, then read the marks back |
 | [`wtf`](skills/wtf/) | Re-explain your own previous message in plain, simplified English (ASD-STE100 style) when the user didn't understand it |
 
