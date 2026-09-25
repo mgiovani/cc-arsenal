@@ -17,7 +17,7 @@ disable-model-invocation: true
 
 # Dependency Review
 
-Comprehensive dependency audit covering vulnerability scanning, license compliance, and staleness analysis. This skill performs **analysis only**: it never modifies code, lock files, or manifests, and never auto-installs upgrades or missing audit tools (it reports them as unavailable instead).
+Dependency audit covering vulnerability scanning, license compliance, and staleness. This skill only analyzes: it never touches code or lock files. It also never auto-installs upgrades or missing audit tools, reporting anything missing as unavailable instead.
 
 Cite exact package names/versions/CVE IDs from actual tool output, never estimate or invent them.
 
@@ -46,7 +46,7 @@ Read each detected manifest to understand:
 
 ### Phase 2: Run Native Audit Commands
 
-Execute the audit command for each detected package manager, run independent commands in parallel, and save all raw output (including "tool not installed" errors) for Phase 3. Commands per ecosystem are in [references/audit-commands.md](references/audit-commands.md), load it now.
+Execute the audit command for each detected package manager. Run independent commands in parallel, and save all raw output (including "tool not installed" errors) for Phase 3. Commands per ecosystem are in [references/audit-commands.md](references/audit-commands.md), load it now.
 
 ### Phase 3: Analyze Vulnerabilities, Licenses, and Staleness
 
@@ -62,16 +62,20 @@ Whichever mode you use:
 
 ### Phase 4: Risk Assessment & Prioritization
 
-1. **Collect all findings** across the three dimensions
-2. **Deduplicate**: remove findings reported under more than one dimension
-3. **Cross-reference**: Combine vulnerability + license + staleness data per package
-4. **Prioritize by composite risk**:
- - **Critical**: Known exploited CVEs (CISA KEV), RCE vulnerabilities, packages with no maintained fork
- - **High**: High-severity CVEs with public exploits, copyleft license in proprietary project, packages 3+ major versions behind
- - **Medium**: Medium-severity CVEs without public exploit, permissive-but-unusual licenses, packages 1-2 major versions behind
- - **Low**: Low-severity CVEs, informational license notes, minor version drift
-5. **Group by action type**: Security patches (non-breaking) vs. major upgrades (breaking) vs. replacements (abandoned packages)
-6. **Statistics**: Count total dependencies, vulnerable, license-risky, stale
+1. Collect all findings across the three dimensions.
+2. Deduplicate: remove findings reported under more than one dimension.
+3. Cross-reference: combine vulnerability + license + staleness data per package.
+4. Prioritize by composite risk, using this severity table:
+
+   | Severity | Criteria |
+   | --- | --- |
+   | Critical | Known exploited CVEs (CISA KEV), RCE vulnerabilities, packages with no maintained fork |
+   | High | High-severity CVEs with public exploits, copyleft license in a proprietary project, packages 3+ major versions behind |
+   | Medium | Medium-severity CVEs without a public exploit, permissive-but-unusual licenses, packages 1-2 major versions behind |
+   | Low | Low-severity CVEs, informational license notes, minor version drift |
+
+5. Group findings by action type: security patches (non-breaking), major upgrades (breaking), or replacements for abandoned packages.
+6. Report statistics: total dependencies, vulnerable count, license-risky count, stale count.
 
 ### Phase 5: Generate Dependency Report
 
@@ -83,12 +87,12 @@ Before presenting the report, verify:
 1. Every vulnerability finding has a CVE/GHSA ID or audit tool reference
 2. Every finding references the exact installed version and fix version
 3. License findings reference the actual license field from the package manifest
-4. Staleness findings include current version, latest version, and release date
+4. Staleness findings include the current and latest versions plus the release date
 5. Statistics are accurate (counted from actual tool output, not estimated)
 6. No duplicate findings across categories
 7. Risk ratings are justified with evidence
 8. Upgrade recommendations include breaking change warnings where applicable
-9. No invented CVEs, license types, or version numbers
+9. No invented CVEs or license types, and no made-up version numbers
 10. Dependabot alerts are reconciled with local audit results
 
 ## Scoping
@@ -97,12 +101,14 @@ By default, run all three dimensions (vulnerabilities, licenses, staleness) at m
 
 ## Limitations
 
-- **Static analysis only**: Cannot detect runtime-only vulnerabilities
-- **Tool dependent**: Accuracy depends on the installed audit tools and their databases
-- **License heuristic**: License detection relies on package metadata which may be incomplete
-- **No private registry support**: May not detect vulnerabilities in packages from private registries
-- **Transitive depth**: Some ecosystems have limited transitive vulnerability data
-- **Advisory lag**: New CVEs may not be in audit databases for 24-48 hours after disclosure
+| Limitation | Detail |
+| --- | --- |
+| Static analysis only | Cannot detect runtime-only vulnerabilities |
+| Tool dependent | Accuracy depends on the installed audit tools and their databases |
+| License heuristic | License detection relies on package metadata, which may be incomplete |
+| No private registry support | May not detect vulnerabilities in packages from private registries |
+| Transitive depth | Some ecosystems have limited transitive vulnerability data |
+| Advisory lag | New CVEs may not be in audit databases for 24-48 hours after disclosure |
 
 ## References
 

@@ -175,7 +175,6 @@ def split_train_test(
     not_trigger_shuffled = should_not_trigger[:]
     rng.shuffle(not_trigger_shuffled)
 
-    # Split each class at TRAIN_RATIO
     trigger_split = int(len(trigger_shuffled) * TRAIN_RATIO)
     not_trigger_split = int(len(not_trigger_shuffled) * TRAIN_RATIO)
 
@@ -413,7 +412,6 @@ def main(
     console.print(Panel(current_description, border_style='dim'))
     console.print()
 
-    # Step 1: Generate queries
     console.print('[bold]Step 1:[/bold] Generating trigger queries...')
     try:
         should_trigger, should_not_trigger = generate_queries(
@@ -479,7 +477,6 @@ def main(
             console.print(f'[yellow]Warning: Could not improve description: {e}[/yellow]')
             break
 
-    # Step 4: Validate on test set
     console.print('\n[bold]Step 4:[/bold] Validating best description on test set...')
     test_accuracy, test_results = test_description(best_description, test_set, model)
 
@@ -498,7 +495,6 @@ def main(
     console.print('[bold]Optimized Description:[/bold]')
     console.print(Panel(best_description, border_style='green'))
 
-    # Save benchmark
     save_benchmark(
         skill_path,
         {

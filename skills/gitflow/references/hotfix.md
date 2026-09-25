@@ -19,7 +19,7 @@ Use this only when the fix genuinely cannot wait for a release. If it can wait, 
 ## 3. PR to main, wait for green
 
 - Push and open a PR `hotfix/<x.y.z>` into `main`. The full Definition-of-Done gate runs automatically (same suite as a release).
-- Wait for every check to be green. A red check is a defect to root-fix, not something to work around. No CI pipeline on the repo? Skip this step and say so.
+- Wait for every check to be green. A red check is a defect to root-fix, not something to work around. If the repo has no CI pipeline, skip this step and say so.
 
 ## 4. Merge, deploy, tag, release
 

@@ -2,7 +2,7 @@
 
 Thank you for your interest in contributing to {{PROJECT_NAME}}! This document provides guidelines and instructions for contributing.
 
-## Table of Contents
+## Table of contents
 
 - [Code of Conduct](#code-of-conduct)
 - [Getting Started](#getting-started)
@@ -31,7 +31,7 @@ We are committed to providing a welcoming and inspiring community for all. Pleas
 - Publishing others' private information
 - Other conduct which could reasonably be considered inappropriate
 
-## Getting Started
+## Getting started
 
 ### Prerequisites
 
@@ -40,7 +40,7 @@ Before you begin, ensure you have:
 - Git for version control
 - Access to the project repository
 
-### Development Setup
+### Development setup
 
 See [onboarding.md](./onboarding.md) for detailed setup instructions.
 
@@ -60,9 +60,9 @@ cd {{PROJECT_NAME}}
 {{DEV_COMMAND}}
 ```
 
-## How to Contribute
+## How to contribute
 
-### Reporting Bugs
+### Reporting bugs
 
 Before creating a bug report:
 1. Check existing issues to avoid duplicates
@@ -77,7 +77,7 @@ When reporting a bug, include:
 - **Environment**: OS, version, browser, etc.
 - **Screenshots**: If applicable
 
-### Suggesting Enhancements
+### Suggesting enhancements
 
 Enhancement suggestions are welcome! Include:
 - **Use Case**: Why is this enhancement needed?
@@ -85,7 +85,7 @@ Enhancement suggestions are welcome! Include:
 - **Alternatives**: What other solutions were considered?
 - **Impact**: Who will benefit from this enhancement?
 
-### Contributing Code
+### Contributing code
 
 1. **Fork the Repository**
    ```bash
@@ -129,9 +129,9 @@ Enhancement suggestions are welcome! Include:
    # Create PR via GitHub UI
    ```
 
-## Pull Request Process
+## Pull request process
 
-### Before Submitting
+### Before submitting
 
 - [ ] Code follows project coding standards
 - [ ] Tests pass locally
@@ -140,7 +140,7 @@ Enhancement suggestions are welcome! Include:
 - [ ] Commit messages follow conventions
 - [ ] Branch is up to date with main
 
-### PR Guidelines
+### PR guidelines
 
 **Title Format:**
 ```
@@ -159,22 +159,22 @@ type(scope): Brief description
 3. Address feedback
 4. Approval and merge
 
-### After Your PR is Merged
+### After your PR is merged
 
 - Delete your feature branch
 - Update your local repository
 - Celebrate! 🎉
 
-## Coding Standards
+## Coding standards
 
-### General Principles
+### General principles
 
 - **DRY**: Don't Repeat Yourself
 - **KISS**: Keep It Simple, Stupid
 - **YAGNI**: You Aren't Gonna Need It
 - **SOLID**: Follow SOLID principles
 
-### Code Style
+### Code style
 
 {{LANGUAGE_SPECIFIC_STYLE}}
 
@@ -196,16 +196,16 @@ type(scope): Brief description
 {{FILE_STRUCTURE}}
 ```
 
-## Testing Guidelines
+## Testing guidelines
 
-### Test Requirements
+### Test requirements
 
 - Unit tests for all new functions/methods
 - Integration tests for new features
 - E2E tests for critical user flows
 - Maintain or improve test coverage
 
-### Writing Tests
+### Writing tests
 
 ```{{LANGUAGE}}
 # Example test structure
@@ -223,7 +223,7 @@ describe('Feature', () => {
 });
 ```
 
-### Running Tests
+### Running tests
 
 ```bash
 # Run all tests
@@ -238,14 +238,14 @@ describe('Feature', () => {
 
 ## Documentation
 
-### Documentation Standards
+### Documentation standards
 
 - Update docs with code changes
 - Use clear, concise language
 - Include code examples
 - Keep formatting consistent
 
-### Documentation Types
+### Documentation types
 
 **Code Documentation:**
 - Inline comments for complex logic
@@ -264,13 +264,13 @@ describe('Feature', () => {
 
 ## Community
 
-### Communication Channels
+### Communication channels
 
 - **GitHub Issues**: Bug reports, feature requests
 - **Discussions**: General questions, ideas
 - **Pull Requests**: Code review, collaboration
 
-### Getting Help
+### Getting help
 
 - Check existing documentation
 - Search closed issues

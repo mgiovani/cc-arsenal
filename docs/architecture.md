@@ -1,12 +1,10 @@
 # Claude Code Arsenal Architecture
 
-**Last Updated:** 2026-02-13
-**Version:** 3.1.0
-**Authors:** Giovani Moutinho
+Last updated: 2026-02-13 · Version: 3.1.0 · Authors: Giovani Moutinho
 
 ## Overview
 
-Claude Code Arsenal is a professional collection of workflow automation skills built on the open [Agent Skills standard](https://agentskills.io). The system uses a **two-tier design**: one canonical `skills/` directory that is agent-agnostic by default, with an optional Claude Code layer (plugin variants, hooks, subagent orchestration) added on top.
+Claude Code Arsenal is a professional collection of workflow automation skills built on the open [Agent Skills standard](https://agentskills.io). The system uses a two-tier design: one canonical `skills/` directory that is agent-agnostic by default, with an optional Claude Code layer (plugin variants, hooks, subagent orchestration) added on top.
 
 ## Two-Tier Architecture
 
@@ -32,14 +30,16 @@ Claude Code Arsenal is a professional collection of workflow automation skills b
 
 ### Components
 
-**`skills/<name>/SKILL.md`** (Tier 1, agnostic core):
+#### `skills/<name>/SKILL.md` (Tier 1, agnostic core)
+
 - Standard Agent Skills format: `name` + `description` frontmatter is all any tool needs
 - Works with Claude Code, Codex, Cursor, OpenCode, Gemini CLI, and other agents that support the standard
 - Non-Claude tools simply ignore any Claude Code-specific frontmatter keys present in the same file
 - Distributed via `npx skills add mgiovani/cc-arsenal`
 - See [features.md](./features.md) for the current, categorized skill count
 
-**Claude Code layer** (Tier 2, optional):
+#### Claude Code layer (Tier 2, optional)
+
 - CC-only frontmatter keys (`allowed-tools`, `disable-model-invocation`, `hooks`, `context`, `agent`) live inline in the same `SKILL.md`: other tools ignore them safely
 - Subagents (Task tool) for parallel work, advanced context management, quality-gate hooks
 - Plugin variants declared in `.claude-plugin/marketplace.json`, installed via `/plugin marketplace add mgiovani/cc-arsenal`
@@ -48,30 +48,40 @@ Claude Code Arsenal is a professional collection of workflow automation skills b
 ## System Context
 
 Claude Code Arsenal operates as an extension layer on top of Claude Code, providing:
-- **Workflow Commands**: Git operations and documentation generation (ADR, RFC, diagrams)
-- **Skills**: Model-invoked capabilities that Claude automatically loads when relevant (Jira CLI, skill creator)
+
+| Provides | Description |
+|---|---|
+| Workflow Commands | Git operations and documentation generation (ADR, RFC, diagrams) |
+| Skills | Model-invoked capabilities that Claude automatically loads when relevant (Jira CLI, skill creator) |
 
 The system integrates with:
-- **Claude Code CLI**: The primary execution environment
-- **Git**: For version control operations and conventional commits
-- **GitHub**: For pull request creation and repository management
-- **Jira**: For issue tracking integration (via jira-cli skill)
+
+| System | Role |
+|---|---|
+| Claude Code CLI | The primary execution environment |
+| Git | For version control operations and conventional commits |
+| GitHub | For pull request creation and repository management |
+| Jira | For issue tracking integration (via jira-cli skill) |
 
 ## Goals and Non-Goals
 
 ### Goals
 
-- **Developer Experience**: Provide seamless, zero-config installation via Claude Code marketplace
-- **Documentation Automation**: Generate and maintain architecture documentation, ADRs, RFCs, and diagrams
-- **Git Workflow Automation**: Streamline commit and PR creation with conventional commit standards
-- **Quality**: Enforce coding standards and best practices
+| Goal | Description |
+|---|---|
+| Developer Experience | Provide seamless, zero-config installation via Claude Code marketplace |
+| Documentation Automation | Generate and maintain architecture documentation, ADRs, RFCs, and diagrams |
+| Git Workflow Automation | Streamline commit and PR creation with conventional commit standards |
+| Quality | Enforce coding standards and best practices |
 
 ### Non-Goals
 
-- **IDE Integration**: This is a CLI tool, not an IDE plugin
-- **Language-Specific Tools**: Focuses on workflow automation, not language-specific tooling
-- **Code Execution**: Commands coordinate work; they don't execute untrusted code
-- **Cloud Services**: Runs entirely locally; no cloud dependencies
+| Non-Goal | Description |
+|---|---|
+| IDE Integration | This is a CLI tool, not an IDE plugin |
+| Language-Specific Tools | Focuses on workflow automation, not language-specific tooling |
+| Code Execution | Commands coordinate work; they don't execute untrusted code |
+| Cloud Services | Runs entirely locally; no cloud dependencies |
 
 ## High-Level Design
 
@@ -105,11 +115,11 @@ graph TB
     Docs --> DocInit[docs:init]
 ```
 
-The system uses a **plugin-based architecture** with clear separation between:
-1. **Installation Layer**: Claude Code marketplace plugin system
-2. **Component Layer**: Commands, skills
-3. **Execution Layer**: Claude Code runtime
-4. **Integration Layer**: External tools (Git, GitHub, Jira, etc.)
+The system uses a plugin-based architecture with clear separation between:
+1. Installation Layer: Claude Code marketplace plugin system
+2. Component Layer: Commands, skills
+3. Execution Layer: Claude Code runtime
+4. Integration Layer: External tools (Git, GitHub, Jira, etc.)
 
 ### Detailed Component Architecture
 
@@ -212,9 +222,7 @@ graph TB
     class ADRTemplates,RFCTemplates,DocTemplates templateStyle
 ```
 
-**Component Count:**
-
-Skills are the only component type today, and the count changes as skills are added or merged. **See [features.md](./features.md) for the current, authoritative skill count and categorized list** rather than the older commands+skills numbers in the diagram above.
+Component count: skills are the only component type today, and the count changes as skills are added or merged. See [features.md](./features.md) for the current, authoritative skill count and categorized list, rather than the older commands+skills numbers in the diagram above.
 
 ## Detailed Design
 
@@ -222,42 +230,42 @@ Skills are the only component type today, and the count changes as skills are ad
 
 #### Installation System
 
-**Responsibilities:**
+Responsibilities:
 - Plugin marketplace integration for one-click installation
 - Plugin descriptor management and versioning
 - Component registration with Claude Code
 - Configuration management and validation
 
-**Interfaces:**
-- **Plugin Descriptor**: `plugin.json` - Declares commands and skills
-- **Marketplace Integration**: Distributed via Claude Code marketplace
-- **Makefile**: Development and validation commands
+Interfaces:
+- Plugin Descriptor: `plugin.json` - Declares commands and skills
+- Marketplace Integration: Distributed via Claude Code marketplace
+- Makefile: Development and validation commands
 
-**Dependencies:**
+Dependencies:
 - Claude Code CLI (host environment)
 - Git (for repository management)
 - Python 3.12+ with UV (for development only)
 
 #### Skills System
 
-**Responsibilities:**
+Responsibilities:
 - Provide model-invoked capabilities that Claude loads automatically
 - Use progressive disclosure to save context
 - Bundle scripts, references, and assets for complex tasks
 - Enable skill creation and distribution
 
-**Interfaces:**
-- **SKILL.md Format**: Markdown with YAML frontmatter (name, description, `disable-model-invocation`)
-- **Auto-Invocation**: Claude discovers skills via frontmatter metadata
-- **Resource Bundling**: `scripts/`, `references/`, `assets/` directories, loaded only as needed
-- **Eval Convention**: `evals/evals.json` (task assertions) + `evals/trigger-eval.json` (trigger/near-miss query set), the same schema `create-skill`'s validation scripts consume, used to check both that a skill does what it claims and that it fires (or correctly doesn't fire) on the right prompts
+Interfaces:
+- SKILL.md Format: Markdown with YAML frontmatter (name, description, `disable-model-invocation`)
+- Auto-Invocation: Claude discovers skills via frontmatter metadata
+- Resource Bundling: `scripts/`, `references/`, `assets/` directories, loaded only as needed
+- Eval Convention: `evals/evals.json` (task assertions) + `evals/trigger-eval.json` (trigger/near-miss query set), the same schema `create-skill`'s validation scripts consume, used to check both that a skill does what it claims and that it fires (or correctly doesn't fire) on the right prompts
 
-**Dependencies:**
+Dependencies:
 - Claude Code Skill tool
 - External tools (Jira CLI for jira-cli skill)
 - Python scripts for skill utilities
 
-**Available Skills:**
+Available Skills:
 All skills live under `skills/<name>/`. See [features.md](./features.md) for the current, categorized list and count: this document does not duplicate it to avoid drift.
 
 ### Data Flow
@@ -281,7 +289,7 @@ All skills live under `skills/<name>/`. See [features.md](./features.md) for the
 
 #### Internal APIs
 
-- **Marketplace API**: JSON-based plugin variant configuration (`.claude-plugin/marketplace.json`)
+- Marketplace API: JSON-based plugin variant configuration (`.claude-plugin/marketplace.json`)
   ```json
   {
     "name": "cc-arsenal-git",
@@ -289,7 +297,7 @@ All skills live under `skills/<name>/`. See [features.md](./features.md) for the
   }
   ```
 
-- **SKILL.md API**: Markdown files with YAML frontmatter
+- SKILL.md API: Markdown files with YAML frontmatter
   ```markdown
   ---
   name: my-skill
@@ -300,98 +308,80 @@ All skills live under `skills/<name>/`. See [features.md](./features.md) for the
 
 #### External Integrations
 
-- **Claude Code Plugin API**: `plugin.json` descriptor format
-- **Git CLI**: Shell command execution for version control
-- **GitHub CLI (gh)**: API calls for pull requests and issues
-- **Jira REST API**: Integration via jira-cli skill
+- Claude Code Plugin API: `plugin.json` descriptor format
+- Git CLI: Shell command execution for version control
+- GitHub CLI (gh): API calls for pull requests and issues
+- Jira REST API: Integration via jira-cli skill
 
 ## Technology Stack
 
-### Backend
-
-- **Language:** Python 3.12+
-- **Package Manager:** UV (modern, fast Python package manager)
-- **CLI Framework:** Click + Typer for command-line interfaces
-- **Validation:** Pydantic 2.x for data validation and settings
-- **Templating:** Jinja2 for content generation
-
-### Development Tools
-
-- **Linting:** Ruff (fast Python linter)
-- **Type Checking:** Mypy with strict mode
-- **Testing:** pytest with >90% coverage requirement
-- **Formatting:** Ruff formatter with single quotes
-- **Pre-commit:** Automated quality checks
-
-### Infrastructure
-
-- **Installation:** Symlink-based architecture
-- **Distribution:** Git repository + Claude Code marketplace
-- **Configuration:** JSON files in ~/.claude/
-- **Storage:** Local file system only
+| Layer | Component | Detail |
+|---|---|---|
+| Backend | Language | Python 3.12+ |
+| Backend | Package Manager | UV (modern, fast Python package manager) |
+| Backend | CLI Framework | Click + Typer for command-line interfaces |
+| Backend | Validation | Pydantic 2.x for data validation and settings |
+| Backend | Templating | Jinja2 for content generation |
+| Development Tools | Linting | Ruff (fast Python linter) |
+| Development Tools | Type Checking | Mypy with strict mode |
+| Development Tools | Testing | pytest with >90% coverage requirement |
+| Development Tools | Formatting | Ruff formatter with single quotes |
+| Development Tools | Pre-commit | Automated quality checks |
+| Infrastructure | Installation | Symlink-based architecture |
+| Infrastructure | Distribution | Git repository + Claude Code marketplace |
+| Infrastructure | Configuration | JSON files in ~/.claude/ |
+| Infrastructure | Storage | Local file system only |
 
 ## Security Considerations
 
-### Authentication & Authorization
+The project has no server component: its security posture is about what runs on the user's own machine.
 
-- **No Authentication Required**: Runs locally with user's file system permissions
-- **Permission Model**: Relies on OS-level file permissions
-
-### Data Protection
-
-- **No Data Collection**: All operations are local; no telemetry
-- **Secure Defaults**: Git operations use user's existing Git configuration
-
-### Network Security
-
-- **External Calls**: Only to user-authorized services (GitHub, Jira)
-- **API Token Management**: Uses user's existing token storage
-- **No Cloud Dependencies**: Entirely local execution
+| Category | Area | Detail |
+|---|---|---|
+| Authentication & Authorization | Authentication | No authentication required: runs locally with the user's file system permissions |
+| Authentication & Authorization | Authorization | Permission model relies on OS-level file permissions |
+| Data Protection | Data Collection | None: all operations are local, with no telemetry |
+| Data Protection | Secure Defaults | Git operations use the user's existing Git configuration |
+| Network Security | Network Calls | Only to user-authorized services (GitHub, Jira) |
+| Network Security | API Tokens | Uses the user's existing token storage |
+| Network Security | Cloud Dependencies | None: execution is entirely local |
 
 ## Performance and Scalability
 
-### Performance Requirements
+As a local CLI tool, cc-arsenal has no server-side scaling concerns.
 
-- **Component Load Time**: <100ms to load command/skill files
-- **Command Execution**: <1s for local commands, variable for Git/API operations
-
-### Scaling Strategy
-
-- **Horizontal Scaling**: Not applicable (local CLI tool)
-- **Vertical Scaling**: Limited by local machine resources
-- **Component Loading**: Lazy loading via Claude Code's progressive disclosure
-
-### Bottlenecks and Limitations
-
-- **File System I/O**: Command/skill loading depends on disk speed
-- **External APIs**: GitHub/Jira operations limited by API rate limits
-- **Context Window**: Skills with large bundled resources may consume significant context
+| Aspect | Category | Detail |
+|---|---|---|
+| Performance target | Component Load Time | <100ms to load command/skill files |
+| Performance target | Command Execution | <1s for local commands, variable for Git/API operations |
+| Scaling | Horizontal Scaling | Not applicable (local CLI tool) |
+| Scaling | Vertical Scaling | Limited by local machine resources |
+| Scaling | Component Loading | Lazy loading via Claude Code's progressive disclosure |
+| Bottleneck | File System I/O | Command/skill loading depends on disk speed |
+| Bottleneck | External APIs | GitHub/Jira operations limited by API rate limits |
+| Bottleneck | Context Window | Skills with large bundled resources may consume significant context |
 
 ## Reliability and Monitoring
 
-### Error Handling
+There's no backend to keep available: reliability here means clear local error feedback and a recovery path built on Git.
 
-- **User Feedback**: Rich CLI output with clear error messages
-- **Logging**: Structured logging for debugging
-
-### Monitoring and Observability
-
-- **Metrics**: None (local tool with no telemetry)
-- **Logging**: Optional debug logging to ~/.claude/logs/
-- **Tracing**: Not applicable
-- **Alerting**: User-visible error messages only
-
-### Disaster Recovery
-
-- **Backup**: User's Git repository serves as backup
-- **Recovery**: Reinstall from marketplace or Git clone
-- **Rollback**: Git version control for configuration changes
+| Area | Category | Detail |
+|---|---|---|
+| Error Handling | User Feedback | Rich CLI output with clear error messages |
+| Error Handling | Logging | Structured logging for debugging |
+| Monitoring | Metrics | None (local tool with no telemetry) |
+| Monitoring | Logging | Optional debug logging to ~/.claude/logs/ |
+| Monitoring | Tracing | Not applicable |
+| Monitoring | Alerting | User-visible error messages only |
+| Disaster Recovery | Backup | User's Git repository serves as backup |
+| Disaster Recovery | Recovery | Reinstall from marketplace or Git clone |
+| Disaster Recovery | Rollback | Git version control for configuration changes |
 
 ## Deployment and Operations
 
 ### Deployment Strategy
 
-**Plugin Installation (Recommended):**
+Plugin installation (recommended):
 
 ```bash
 /plugin marketplace add mgiovani/cc-arsenal
@@ -400,7 +390,7 @@ All skills live under `skills/<name>/`. See [features.md](./features.md) for the
 /plugin install cc-arsenal@cc-arsenal-marketplace
 ```
 
-**Alternative: Direct Installation:**
+Alternative: direct installation:
 ```bash
 # Clone and install locally
 git clone https://github.com/mgiovani/cc-arsenal.git
@@ -419,96 +409,98 @@ make validate-plugins
 
 ### Configuration Management
 
-- **Marketplace Descriptor**: `.claude-plugin/marketplace.json` in repository, defining each plugin variant and its skills
-- **Skill Definitions**: `skills/<name>/SKILL.md`, one per skill
+Two files drive configuration for the whole project, and both live in the repository rather than in any external service:
+
+- Marketplace Descriptor: `.claude-plugin/marketplace.json` in repository, defining each plugin variant and its skills
+- Skill Definitions: `skills/<name>/SKILL.md`, one per skill
 
 ### Development Workflow
 
-1. **Clone Repository**: Fork and clone cc-arsenal
-2. **Install Dependencies**: `uv sync --extra dev`
-3. **Make Changes**: Edit commands or skills
-4. **Validate Plugin**: `make validate-plugins` checks structure
-5. **Run Quality Checks**: `make check` (lint, format, type-check, test)
-6. **Test in Claude Code**: Install plugin locally and test
-7. **Submit PR**: Follow conventional commit format
+1. Clone Repository: Fork and clone cc-arsenal
+2. Install Dependencies: `uv sync --extra dev`
+3. Make Changes: Edit commands or skills
+4. Validate Plugin: `make validate-plugins` checks structure
+5. Run Quality Checks: `make check` (lint, format, type-check, test)
+6. Test in Claude Code: Install plugin locally and test
+7. Submit PR: Follow conventional commit format
 
 ## Alternative Designs Considered
 
 ### Alternative 1: Monolithic Plugin
 
-**Description:** Single large plugin file instead of modular components
+Description: single large plugin file instead of modular components.
 
-**Pros:**
+Pros:
 - Simpler distribution
 - Fewer files to manage
 - Single version number
 
-**Cons:**
+Cons:
 - Users must install everything or nothing
 - Harder to customize and extend
 - Larger context window usage
 - Slower loading times
 
-**Decision:** Rejected in favor of modular architecture for flexibility and extensibility
+Decision: rejected in favor of modular architecture for flexibility and extensibility.
 
 ### Alternative 2: Cloud-Based Service
 
-**Description:** Host commands and skills in cloud with API access
+Description: host commands and skills in cloud with API access.
 
-**Pros:**
+Pros:
 - Centralized updates
 - Version control for all users
 - Analytics and usage tracking
 
-**Cons:**
+Cons:
 - Privacy concerns (data leaves user's machine)
 - Network dependency
 - Latency for API calls
 - Requires authentication infrastructure
 
-**Decision:** Rejected to maintain local-first, privacy-focused approach
+Decision: rejected to maintain local-first, privacy-focused approach.
 
 ### Alternative 3: VS Code Extension
 
-**Description:** Build as VS Code extension instead of Claude Code plugin
+Description: build as VS Code extension instead of Claude Code plugin.
 
-**Pros:**
+Pros:
 - Larger user base
 - Rich IDE integration
 - More mature extension ecosystem
 
-**Cons:**
+Cons:
 - Doesn't integrate with Claude Code workflow
 - Requires different architecture
 - Limited to VS Code users
 
-**Decision:** Rejected; cc-arsenal is specifically designed for Claude Code
+Decision: rejected; cc-arsenal is specifically designed for Claude Code.
 
 ## Future Considerations
 
 ### Planned Improvements
 
-- **Extended Command Library**: More testing and utility commands
-- **Template Library**: More documentation templates (API docs, testing guides)
-- **Integration Testing**: E2E tests for command workflows
-- **Documentation Site**: Dedicated docs site with examples and tutorials
+- Extended Command Library: More testing and utility commands
+- Template Library: More documentation templates (API docs, testing guides)
+- Integration Testing: E2E tests for command workflows
+- Documentation Site: Dedicated docs site with examples and tutorials
 
 ### Technical Debt
 
-- **Test Coverage**: Need to increase from current coverage to >90%
-- **Type Hints**: Some scripts lack complete type annotations
-- **Command Documentation**: Some commands need more detailed usage examples
-- **Error Handling**: Commands could provide more actionable error messages
+- Test Coverage: Need to increase from current coverage to >90%
+- Type Hints: Some scripts lack complete type annotations
+- Command Documentation: Some commands need more detailed usage examples
+- Error Handling: Commands could provide more actionable error messages
 
 ### Long-term Vision
 
-**6-Month Goals:**
+6-month goals:
 - 20+ commands covering testing, deployment, and code analysis workflows
 - Community-contributed skill library for common integrations
 - Automated command testing framework with E2E scenarios
 - Comprehensive documentation with video tutorials
 
-**12-Month Goals:**
+12-month goals:
 - Multi-project documentation management
 - Advanced workflow orchestration with command dependencies
 - Integration with more external tools (Linear, Notion, Slack, etc.)
@@ -525,12 +517,14 @@ make validate-plugins
 
 ## Glossary
 
-- **Plugin**: Claude Code extension installed via marketplace, containing a set of skills
-- **Skill**: The only component type in this repo. Either user-invoked (an explicit slash command, e.g. `/git-commit`) or model-invoked (Claude auto-loads it when context matches, e.g. `jira-cli`), set by the `disable-model-invocation` frontmatter field
-- **Marketplace Descriptor**: `marketplace.json` file declaring plugin variants and their skills
-- **Progressive Disclosure**: Loading only necessary information to save context window
-- **Eval Convention**: `evals/evals.json` + `evals/trigger-eval.json` bundled with a skill to test its behavior and triggering
-- **Conventional Commits**: Standardized commit message format (type(scope): description)
+| Term | Definition |
+|---|---|
+| Plugin | Claude Code extension installed via marketplace, containing a set of skills |
+| Skill | The only component type in this repo. Either user-invoked (an explicit slash command, e.g. `/git-commit`) or model-invoked (Claude auto-loads it when context matches, e.g. `jira-cli`), set by the `disable-model-invocation` frontmatter field |
+| Marketplace Descriptor | `marketplace.json` file declaring plugin variants and their skills |
+| Progressive Disclosure | Loading only necessary information to save context window |
+| Eval Convention | `evals/evals.json` + `evals/trigger-eval.json` bundled with a skill to test its behavior and triggering |
+| Conventional Commits | Standardized commit message format (type(scope): description) |
 
 ---
 

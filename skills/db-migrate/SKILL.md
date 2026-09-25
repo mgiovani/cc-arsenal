@@ -2,7 +2,7 @@
 name: db-migrate
 description: Creates, checks the status of, and validates database migrations by auto-detecting the project's migration framework (Alembic, Prisma, Knex, Django, Rails/ActiveRecord, Flyway, Atlas, TypeORM, Sequelize, SQLx, golang-migrate, Liquibase) from marker files, then driving that framework's own CLI. Use when the user wants to create a new migration, check pending vs. applied migration status, or validate a migration for a missing rollback script, a missing foreign-key index, or a destructive operation like DROP TABLE / TRUNCATE / DELETE FROM. Trigger phrases include "create a migration", "check migration status", "any pending migrations", "validate this migration", "does this migration have a rollback". Not for designing the schema change itself or writing ORM model code (use implement-feature), this skill only manages migration files and framework tooling once the schema change is already decided.
 metadata:
-  summary: "Create, validate, and manage database migrations across any framework"
+  summary: "Create and validate database migrations, then manage them across any framework"
   author: mgiovani
   version: 2.0.0
 argument-hint: '[create|status|validate] [--name migration_name] [--dry-run]'
@@ -70,11 +70,11 @@ Run the framework's status command and show applied migrations (with timestamps)
 #### validate
 
 Check the target migration file(s) for:
-1. **Rollback exists**: every `up`/forward change has a matching `down`/reverse (warn if missing).
-2. **Naming convention**: matches the pattern already used in the migrations directory.
-3. **Foreign-key indexes**: `grep -iE "REFERENCES|foreign_key|FK_"` and confirm a corresponding `CREATE INDEX` exists.
-4. **Destructive operations**: `grep -iE "DROP TABLE|DROP COLUMN|TRUNCATE|DELETE FROM"`, flag every hit by line.
-5. **Mixed data + schema changes**: warn if one file both alters structure and mutates rows; these usually deploy and roll back better as two files.
+1. Rollback exists: every `up`/forward change has a matching `down`/reverse (warn if missing).
+2. Naming convention: matches the pattern already used in the migrations directory.
+3. Foreign-key indexes: `grep -iE "REFERENCES|foreign_key|FK_"` and confirm a corresponding `CREATE INDEX` exists.
+4. Destructive operations: `grep -iE "DROP TABLE|DROP COLUMN|TRUNCATE|DELETE FROM"`, flag every hit by line.
+5. Mixed data + schema changes: warn if one file both alters structure and mutates rows, since these usually deploy and roll back better as two files.
 
 ### Phase 4: Report
 

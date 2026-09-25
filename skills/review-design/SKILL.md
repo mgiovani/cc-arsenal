@@ -11,7 +11,7 @@ description: Performs a comprehensive UX/UI/design quality audit of a live URL o
   performance review (use review-code, review-security, review-deps, or review-perf).
   Not for pixel-diff visual regression testing against a baseline (use vrt-check).
 metadata:
-  summary: "UX/UI/design quality audit mapped to WCAG 2.2 AA, Material Design 3, and Apple HIG"
+  summary: "UX/UI/design quality audit mapped to WCAG 2.2 AA plus the Material Design 3 and Apple HIG guidelines"
   author: mgiovani
   version: 1.1.1
 disable-model-invocation: true
@@ -23,17 +23,17 @@ agent: general-purpose
 
 # Design Review
 
-Comprehensive UX/UI/design quality analysis across **8 audit dimensions**, each mapped to
-authoritative standards. This skill performs **analysis only** - it identifies design
+Comprehensive UX/UI/design quality analysis across 8 audit dimensions, each mapped to
+authoritative standards. This skill only analyzes: it identifies design
 issues, explains findings against a cited criterion, and suggests fix approaches without
 making code changes.
 
 It supports two input modes:
 
-- **Live mode**: audits a running URL via the `agent-browser` CLI (screenshots + DOM/accessibility snapshot).
-- **Static mode**: audits a codebase (CSS/components/design tokens) via Grep.
+- Live mode: audits a running URL via the `agent-browser` CLI (screenshots + DOM/accessibility snapshot).
+- Static mode: audits a codebase (CSS/components/design tokens) via Grep.
 
-When both a URL and a codebase target are supplied, it runs both and emits **two separate reports**.
+When both a URL and a codebase target are supplied, it runs both and emits two separate reports.
 
 ## Audit Taxonomy (8 Dimensions)
 
@@ -51,17 +51,17 @@ When both a URL and a codebase target are supplied, it runs both and emits **two
 Measurable criteria for dimensions 1–4 are in [references/criteria-foundations.md](references/criteria-foundations.md);
 dimensions 5–8 are in [references/criteria-interaction.md](references/criteria-interaction.md).
 
-## Anti-Hallucination Guidelines
+## Anti-hallucination guidelines
 
-**CRITICAL**: Design reviews must be based on ACTUAL evidence, never assumptions:
+Design reviews must be based on actual evidence, never assumptions. This is critical:
 
-1. **Observe before claiming** - Never report an issue without reading the code (static) or viewing the screenshot/snapshot (live)
-2. **Evidence-based findings** - Every finding cites a file path + line number (static) OR a screenshot region + DOM ref (live)
-3. **Cite a criterion** - Every finding maps to a criterion ID and an authoritative citation (WCAG SC, MD3 spec, etc.)
-4. **Measure, don't estimate** - Report actual values (contrast ratio, px size, ms duration), not guesses. In static mode there is no rendered page to sample from: compute the WCAG relative-luminance contrast ratio directly from the two hex/rgb values found in the CSS/tokens (formula in [references/agent-prompts.md](references/agent-prompts.md#computing-contrast-ratio-from-hexrgb-no-browser-needed)); never eyeball a ratio
-5. **Applicable-only scoring** - Only score dimensions that apply to the target; never penalize what cannot be observed
-6. **State what was NOT checked** - Every report ends with an explicit coverage gap section
-7. **No invented standards** - Only reference real WCAG SCs, MD3 specs, and HIG guidance
+1. Observe before claiming: never report an issue without reading the code (static) or viewing the screenshot/snapshot (live)
+2. Evidence-based findings: every finding cites a file path + line number (static) OR a screenshot region + DOM ref (live)
+3. Cite a criterion: every finding maps to a criterion ID and an authoritative citation (WCAG SC, MD3 spec, etc.)
+4. Measure, don't estimate: report actual values (contrast ratio, px size, ms duration), not guesses. In static mode there is no rendered page to sample from, so compute the WCAG relative-luminance contrast ratio directly from the two hex/rgb values found in the CSS/tokens (formula in [references/agent-prompts.md](references/agent-prompts.md#computing-contrast-ratio-from-hexrgb-no-browser-needed)); never eyeball a ratio
+5. Applicable-only scoring: only score dimensions that apply to the target; never penalize what cannot be observed
+6. State what was NOT checked: every report ends with an explicit coverage gap section
+7. No invented standards: only reference real WCAG SCs, MD3 specs, and HIG guidance
 
 ## Review Workflow
 
@@ -79,10 +79,10 @@ Arguments:
 - "--scope [dimension]": Focus on one dimension (e.g., typography, color, accessibility)
 ```
 
-**Mode resolution:**
-- A URL argument (or `--mode live`) → **live** audit.
-- A PR / commit / `--all` / path (or `--mode static`) → **static** audit.
-- Both a URL and a codebase target present (or `--mode both`) → run **both**, emit two reports.
+Mode resolution:
+- A URL argument (or `--mode live`) → live audit.
+- A PR / commit / `--all` / path (or `--mode static`) → static audit.
+- Both a URL and a codebase target present (or `--mode both`) → run both, emit two reports.
 
 For static PR/commit scope, get changed files:
 ```bash
@@ -137,20 +137,22 @@ Capture additional viewports/pages if the user names them. Always `agent-browser
 
 **Then spawn 6 parallel Explore agents** (model: `sonnet`) covering the 8 dimensions. For the full per-agent prompts (live screenshot/snapshot analysis AND static grep patterns), see [references/agent-prompts.md](references/agent-prompts.md). Without a Task tool, run the 6 dimension analyses sequentially inline yourself, one after another, using the same per-agent prompts and criteria references.
 
-**Agent assignments:**
-- **Agent 1**: Visual Hierarchy + Layout & Spacing (Dimension 1)
-- **Agent 2**: Typography (Dimension 2)
-- **Agent 3**: Color + Dark Mode (Dimension 3)
-- **Agent 4**: Depth/Shadows + Components/Affordance (Dimensions 4, 5)
-- **Agent 5**: Feedback & States + Motion/Microinteractions (Dimensions 6, 7)
-- **Agent 6**: Accessibility, WCAG 2.2 AA (Dimension 8, cross-cutting)
+Agent assignments:
+
+| Agent | Covers |
+| --- | --- |
+| Agent 1 | Visual Hierarchy + Layout & Spacing (Dimension 1) |
+| Agent 2 | Typography (Dimension 2) |
+| Agent 3 | Color + Dark Mode (Dimension 3) |
+| Agent 4 | Depth/Shadows + Components/Affordance (Dimensions 4, 5) |
+| Agent 5 | Feedback & States + Motion/Microinteractions (Dimensions 6, 7) |
+| Agent 6 | Accessibility, WCAG 2.2 AA (Dimension 8, cross-cutting) |
 
 Each agent must:
 1. Read the relevant criteria reference for its dimensions (criteria-foundations.md or criteria-interaction.md)
-2. **Live**: visually analyze the screenshot and cross-reference the DOM/a11y snapshot
-   **Static**: Grep CSS/components/tokens for measurable failures, then Read each match to verify
-3. Record the **measured value** (contrast ratio, px, ms, dp) as evidence
-4. Map each finding to a **criterion ID + citation** (WCAG SC / MD3 / HIG / NN/g)
+2. Live: visually analyze the screenshot and cross-reference the DOM/a11y snapshot. Static: grep CSS/components/tokens for measurable failures, then read each match to verify
+3. Record the measured value (contrast ratio, px, ms, dp) as evidence
+4. Map each finding to a criterion ID + citation (WCAG SC / MD3 / HIG / NN/g)
 5. Classify severity (Critical/High/Medium/Low)
 6. Provide a concrete fix (2-3 approaches with the target value)
 
@@ -158,16 +160,20 @@ Each agent must:
 
 After all agents complete:
 
-1. **Collect** findings from the 6 agents
-2. **Deduplicate** across agents (same element/criterion = one finding)
-3. **Prioritize by severity**:
-   - **Critical**: WCAG AA failure blocking use (contrast < 3:1 on text, no keyboard focus, missing form labels), unusable touch targets
-   - **High**: WCAG AA contrast failures (< 4.5:1 body text), missing focus-visible, no reduced-motion support, broken hierarchy
-   - **Medium**: Off-grid spacing, un-tinted shadows, weak typographic scale, missing hover/active states
-   - **Low**: Polish: minor inconsistency, sub-optimal line length, icon-label spacing
-4. **Map to dimension**: Group findings under the 8 dimensions
-5. **Applicable-only score**: For each dimension that applies, score = passed criteria / applicable criteria. Skip dimensions that cannot be observed and say so.
-6. **Statistics**: total findings, by severity, by dimension; elements/files reviewed vs. those with issues
+1. Collect findings from the 6 agents.
+2. Deduplicate across agents (same element/criterion = one finding).
+3. Prioritize by severity, using this table:
+
+   | Severity | Criteria |
+   | --- | --- |
+   | Critical | WCAG AA failure blocking use (contrast < 3:1 on text, no keyboard focus, missing form labels), unusable touch targets |
+   | High | WCAG AA contrast failures (< 4.5:1 body text), missing focus-visible, no reduced-motion support, broken hierarchy |
+   | Medium | Off-grid spacing, un-tinted shadows, weak typographic scale, missing hover/active states |
+   | Low | Polish: minor inconsistency, sub-optimal line length, icon-label spacing |
+
+4. Map to dimension: group findings under the 8 dimensions.
+5. Applicable-only score: for each dimension that applies, score = passed criteria / applicable criteria. Skip dimensions that cannot be observed and say so.
+6. Statistics: total findings, by severity, by dimension; elements/files reviewed vs. those with issues.
 
 ### Phase 5: Generate Report(s)
 
@@ -240,11 +246,13 @@ If omitted, all 8 dimensions are audited.
 
 ## Limitations
 
-- **Heuristic + measured**: combines tool measurements with expert heuristics; some judgment calls remain
-- **Live mode needs a reachable URL** and the `agent-browser` CLI installed
-- **Static mode is pattern-based**: dynamic/runtime states may be missed
-- **Screenshot analysis** depends on render fidelity at the captured viewport
-- **Expert review recommended** for high-stakes or regulated interfaces
+| Limitation | Detail |
+| --- | --- |
+| Heuristic + measured | Combines tool measurements with expert heuristics; some judgment calls remain |
+| Live mode | Needs a reachable URL and the `agent-browser` CLI installed |
+| Static mode | Pattern-based; dynamic/runtime states may be missed |
+| Screenshot analysis | Depends on render fidelity at the captured viewport |
+| Expert review | Recommended for high-stakes or regulated interfaces |
 
 ## Standards References
 

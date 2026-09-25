@@ -57,13 +57,13 @@ format differs.
 For each non-default locale file, flatten both it and the default locale to `key ->
 value` pairs and compute:
 
-- **Missing**: key exists in the default locale, absent here.
-- **Untranslated**: key exists in both, and the value is byte-identical to the default
+- Missing: key exists in the default locale, absent here.
+- Untranslated: key exists in both, and the value is byte-identical to the default
   locale's value.
-- **Orphan**: key exists here, absent from the default locale (usually a rename or
+- Orphan: key exists here, absent from the default locale (usually a rename or
   deletion that didn't propagate).
 
-**Do not filter out short or single-word identical matches.** The bug class this skill
+Do not filter out short or single-word identical matches. The bug class this skill
 exists for is exactly that: a one-word label like "Developer" left untranslated because
 it looked like it might legitimately be the same in both languages. Report every
 identical match and let a human judge which ones are real bugs: a "smart" filter that

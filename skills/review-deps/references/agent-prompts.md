@@ -1,12 +1,12 @@
-# Dependency Review - Analysis Patterns
+# Dependency review - analysis patterns
 
 Detailed analysis steps for the three dependency-review dimensions used in Phase 3: vulnerabilities, licenses, staleness. Load this reference before starting Phase 3.
 
 Each section below is written as a self-contained prompt. Use it two ways:
-- **Default (single pass)**: work through all three sections yourself, in order, against the Phase 2 output already in context.
-- **Large-output fan-out**: when the audit output is too large to reason about in one pass (e.g. a multi-ecosystem monorepo), spawn one `Explore` agent per section, pasting that section's prompt verbatim plus the relevant Phase 2 output.
+- Default, single pass: work through all three sections yourself, in order, against the Phase 2 output already in context.
+- Large-output fan-out: when the audit output is too large to reason about in one pass (e.g. a multi-ecosystem monorepo), spawn one `Explore` agent per section, pasting that section's prompt verbatim plus the relevant Phase 2 output.
 
-## Dimension 1: Vulnerability Analysis (CVE/GHSA Triage)
+## Dimension 1: vulnerability analysis (CVE/GHSA triage)
 
 ```
 Agent 1 - Vulnerability Analysis:
@@ -49,7 +49,7 @@ Return findings sorted by severity (Critical first), then by exploitability."
 - subagent_type: "Explore" (only used when fanning out; skip this line when running inline)
 ```
 
-## Dimension 2: License Compliance Analysis
+## Dimension 2: license compliance analysis
 
 ```
 Agent 2 - License Compliance Analysis:
@@ -111,7 +111,7 @@ Return findings sorted by risk level, grouped by license category."
 - subagent_type: "Explore" (only used when fanning out; skip this line when running inline)
 ```
 
-## Dimension 3: Staleness & Upgrade Complexity Analysis
+## Dimension 3: staleness & upgrade complexity analysis
 
 ```
 Agent 3 - Staleness & Upgrade Complexity Analysis:
@@ -198,12 +198,14 @@ Return findings sorted by staleness level, then by number of dependents (most im
 
 Audit commands per ecosystem live in [audit-commands.md](audit-commands.md) (loaded in Phase 2, not needed again here).
 
-## Recommended Follow-up
+## Recommended follow-up
 
 After reviewing the dependency report:
 
-1. **Immediate**: Apply non-breaking security patches (patch/minor version bumps)
-2. **Short-term**: Address high-severity CVEs requiring major upgrades
-3. **Medium-term**: Resolve license compliance issues
-4. **Long-term**: Replace deprecated/abandoned dependencies
-5. **Ongoing**: Configure Dependabot/Renovate for automated dependency updates
+| Timeframe | Action |
+| --- | --- |
+| Immediate | Apply non-breaking security patches (patch/minor version bumps) |
+| Short-term | Address high-severity CVEs requiring major upgrades |
+| Medium-term | Resolve license compliance issues |
+| Long-term | Replace deprecated/abandoned dependencies |
+| Ongoing | Configure Dependabot/Renovate for automated dependency updates |

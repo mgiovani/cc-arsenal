@@ -231,7 +231,7 @@ def render_readme(groups: Sequence[Group], total: int) -> str:
     for group in groups:
         lines += [
             '<details>',
-            f'<summary><b>{group.title}</b> ({len(group.skills)}) — '
+            f'<summary><b>{group.title}</b> ({len(group.skills)}): '
             f'{group.description}</summary>',
             '',
             '| Skill | What it does |',
@@ -260,21 +260,24 @@ def render_agents(groups: Sequence[Group], total: int) -> str:
             group.description,
             '',
         ]
-        lines += [f'- **{s.name}**: {s.summary}' for s in group.skills]
+        lines += [f'- `{s.name}`: {s.summary}' for s in group.skills]
     return '\n'.join(lines)
 
 
 def split_feature_bodies(block: str) -> dict[str, str]:
     bodies: dict[str, str] = {}
-    matches = list(re.finditer(r'^#### `/([a-z0-9-]+)` \((auto|manual)\)$', block, re.M))
+    # Require a blank line before the marker, matching render_features's output.
+    # Without it, an inline `` `/foo` (manual) `` mention inside a body would be
+    # mistaken for the next skill's heading and truncate the body above it.
+    matches = list(
+        re.finditer(r'(?:(?<=\n\n)|\A)`/([a-z0-9-]+)` \((auto|manual)\)$', block, re.M)
+    )
     for index, match in enumerate(matches):
         end = matches[index + 1].start() if index + 1 < len(matches) else len(block)
         body = block[match.end() : end]
-        # A group heading sitting between two skills belongs to the next group, not to
-        # the body above it -- without this the heading is re-emitted twice per group.
-        # Matched by group-heading shape, not by "is a heading": a skill body may
-        # legitimately contain its own ### subheading, and truncating there would
-        # delete hand-written prose permanently on the next run.
+        # A group heading between two skills belongs to the next group; truncate the
+        # body there so it isn't re-emitted twice. Match the group-heading shape, not
+        # any heading, since a skill body may hold its own ### subheading to preserve.
         heading = GROUP_HEADING_RE.search(body)
         if heading is not None:
             body = body[: heading.start()]
@@ -291,7 +294,7 @@ def render_features(
         lines.append(group.description)
         for skill in group.skills:
             tag = 'manual' if skill.manual else 'auto'
-            lines += ['', f'#### `/{skill.name}` ({tag})']
+            lines += ['', f'`/{skill.name}` ({tag})']
             lines.append(bodies.get(skill.name) or skill.summary)
     return '\n'.join(lines)
 

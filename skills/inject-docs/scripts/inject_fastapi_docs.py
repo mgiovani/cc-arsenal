@@ -73,7 +73,6 @@ def inject_or_update_section(
     )
 
     if section_pattern.search(existing_content):
-        # Update existing section
         updated_content = section_pattern.sub(new_section, existing_content)
         return updated_content, True
     # Append new section
@@ -103,25 +102,20 @@ def main() -> int:
     # Detect project root (current working directory)
     project_root = Path.cwd()
 
-    # Detect target file
     target_file = detect_target_file(project_root)
     file_existed = target_file.exists()
 
-    # Read existing content or start with empty
     existing_content = target_file.read_text(encoding='utf-8') if file_existed else ''
 
-    # Read FastAPI best practices content
     try:
         fastapi_section = read_fastapi_best_practices()
     except FileNotFoundError:
         return 1
 
-    # Inject or update section
     updated_content, was_updated = inject_or_update_section(
         existing_content, fastapi_section
     )
 
-    # Write updated content
     target_file.write_text(updated_content, encoding='utf-8')
     new_size = len(updated_content.encode('utf-8'))
 

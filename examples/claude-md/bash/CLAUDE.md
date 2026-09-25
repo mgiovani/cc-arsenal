@@ -1,12 +1,12 @@
-# CLAUDE.md - Bash/Shell Script Project
+# CLAUDE.md - Bash/Shell script project
 
 This file provides guidance to Claude Code (claude.ai/code) when working with Bash scripts and shell-based projects.
 
-## Project Architecture
+## Project architecture
 
 This is a **Bash/Shell scripting project** following best practices for maintainable, robust shell scripts.
 
-### Project Structure
+### Project structure
 ```
 project/
 ├── bin/                   # Executable scripts
@@ -31,9 +31,9 @@ project/
 └── Makefile              # Build automation
 ```
 
-## Development Commands
+## Development commands
 
-### Script Execution
+### Script execution
 ```bash
 # Make scripts executable
 chmod +x bin/*
@@ -70,7 +70,7 @@ bats tests/test_main.bats
 bats --verbose tests/
 ```
 
-### Code Quality
+### Code quality
 ```bash
 # Install ShellCheck (static analysis)
 # On macOS:
@@ -89,7 +89,7 @@ shellcheck bin/main-script
 shfmt -w -i 2 bin/* lib/*.sh
 ```
 
-### Build and Installation
+### Build and installation
 ```bash
 # Build project
 make build
@@ -107,9 +107,9 @@ make dist
 make clean
 ```
 
-## Bash Best Practices
+## Bash best practices
 
-### Script Header Template
+### Script header template
 ```bash
 #!/usr/bin/env bash
 
@@ -136,7 +136,7 @@ source "${LIB_DIR}/common.sh"
 source "${LIB_DIR}/logging.sh"
 ```
 
-### Function Definitions
+### Function definitions
 ```bash
 # Function template with documentation
 #######################################
@@ -166,7 +166,7 @@ function_name() {
 }
 ```
 
-### Error Handling
+### Error handling
 ```bash
 # lib/common.sh - Common utility functions
 
@@ -229,7 +229,7 @@ cleanup() {
 trap cleanup EXIT INT TERM
 ```
 
-### Configuration Management
+### Configuration management
 ```bash
 # lib/config.sh - Configuration management
 
@@ -284,7 +284,7 @@ load_config "${DEFAULT_CONFIG_FILE}"
 [[ -r "${ENV_CONFIG_FILE}" ]] && load_config "${ENV_CONFIG_FILE}"
 ```
 
-### Logging System
+### Logging system
 ```bash
 # lib/logging.sh - Logging utilities
 
@@ -334,7 +334,7 @@ log_info()  { _log $LOG_LEVEL_INFO "$GREEN" "INFO: $*"; }
 log_debug() { _log $LOG_LEVEL_DEBUG "$BLUE" "DEBUG: $*"; }
 ```
 
-### Command Line Argument Parsing
+### Command line argument parsing
 ```bash
 #!/usr/bin/env bash
 
@@ -428,7 +428,7 @@ parse_args "$@"
 
 ## Testing with BATS
 
-### Test File Template
+### Test file template
 ```bash
 #!/usr/bin/env bats
 
@@ -483,7 +483,7 @@ teardown() {
 }
 ```
 
-## Makefile Template
+## Makefile template
 
 ```makefile
 # Makefile for Bash project
@@ -568,7 +568,7 @@ dev-setup: ## Set up development environment
   @echo "$(GREEN)Development setup complete$(NC)"
 ```
 
-## Environment Variables
+## Environment variables
 
 ```bash
 # Common environment variables for shell scripts

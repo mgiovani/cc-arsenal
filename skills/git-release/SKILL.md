@@ -22,23 +22,23 @@ Create semantic version releases with automated changelog generation from conven
 ## Quality Guidelines
 
 Release operations are high-consequence and irreversible once pushed:
-1. **Verify every change**: analyze actual commits, not assumptions
-2. **Confirm version bump**: the detected semver bump must match the change scope
-3. **Validate changelog**: every entry must correspond to a real commit
-4. **User approval required**: confirm before executing anything in Phase 5
+1. Verify every change: analyze actual commits, not assumptions
+2. Confirm version bump: the detected semver bump must match the change scope
+3. Validate changelog: every entry must correspond to a real commit
+4. User approval required: confirm before executing anything in Phase 5
 
 ## Workflow
 
 ### Phase 1: Collect Commits Since Last Tag
 
-1. **Find the latest tag**:
+1. Find the latest tag:
  ```bash
  git describe --tags --abbrev=0 2>/dev/null || echo "none"
  ```
  - If no tags exist, collect all commits on the current branch
  - If a tag exists, collect commits since that tag
 
-2. **Collect commits**:
+2. Collect commits:
  ```bash
  # With existing tag
  git log <last-tag>..HEAD --format="%H %s" --no-merges
@@ -47,15 +47,15 @@ Release operations are high-consequence and irreversible once pushed:
  git log --format="%H %s" --no-merges
  ```
 
-3. **Validate preconditions**:
+3. Validate preconditions:
  - Working tree is clean: `git status --porcelain`
  - On the expected branch (main/master or release branch)
  - Remote is up to date: `git fetch origin && git log HEAD..origin/$(git branch --show-current) --oneline`
  - If there are no commits since the last tag, abort with a clear message
 
-### Phase 2: Auto-Detect Version Bump
+### Phase 2: Auto-detect version bump
 
-1. **Parse each commit** using conventional commit format:
+1. Parse each commit using conventional commit format:
  - Extract type: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`
  - Extract scope (optional): text in parentheses after type
  - Detect breaking changes: `!` after type/scope OR `BREAKING CHANGE:` in commit body
@@ -63,15 +63,15 @@ Release operations are high-consequence and irreversible once pushed:
 
  This is plain regex/string parsing over commit subjects, do it inline regardless of commit count, no agent needed.
 
-2. **Determine version bump**: load `references/semver-guide.md` for the full commit-type → bump mapping and pre-1.0 rules. The highest-priority bump wins (major > minor > patch).
+2. Determine version bump: load `references/semver-guide.md` for the full commit-type → bump mapping and pre-1.0 rules. The highest-priority bump wins (major > minor > patch).
 
-3. **Calculate new version**:
+3. Calculate new version:
  - Parse last tag as semver (strip leading `v` if present)
  - If no previous tag, start from `0.1.0` (first feature release) or `1.0.0` if user specifies
  - Apply the detected bump
  - Respect `--major`, `--minor`, or `--patch` override from arguments
 
-4. **Display version summary**: the counts must reflect commits you actually parsed in step 1, never estimated:
+4. Display version summary: the counts must reflect commits you actually parsed in step 1, never estimated:
  ```
  Current version: v1.2.3
  Detected bump: minor (2 features, 5 fixes, 3 chores)
@@ -82,9 +82,9 @@ Release operations are high-consequence and irreversible once pushed:
 
 ### Phase 3: Build the CHANGELOG Entry
 
-1. **Read existing CHANGELOG.md** (if it exists) to understand the current format and preserve it
+1. Read existing CHANGELOG.md (if it exists) to understand the current format and preserve it
 
-2. **Group commits by type** using this order and heading format:
+2. Group commits by type using this order and heading format:
  ```markdown
  ## [1.3.0](https://github.com/owner/repo/compare/v1.2.3...v1.3.0) (YYYY-MM-DD)
 
@@ -108,39 +108,39 @@ Release operations are high-consequence and irreversible once pushed:
  ```
 
  Type-to-heading mapping:
- - Breaking changes (any type with `!` or `BREAKING CHANGE:`) → **Breaking Changes**
- - `feat` → **Features**
- - `fix` → **Bug Fixes**
- - `perf` → **Performance**
- - `docs` → **Documentation**
- - `refactor`, `style`, `test`, `build`, `ci`, `chore`, `revert`, `other` → **Other Changes**
+ - Breaking changes (any type with `!` or `BREAKING CHANGE:`) → Breaking Changes
+ - `feat` → Features
+ - `fix` → Bug Fixes
+ - `perf` → Performance
+ - `docs` → Documentation
+ - `refactor`, `style`, `test`, `build`, `ci`, `chore`, `revert`, `other` → Other Changes
 
  Only include sections that have entries. Omit empty sections.
 
-3. **Generate comparison URL**:
+3. Generate comparison URL:
  ```bash
  gh repo view --json url -q .url 2>/dev/null || git remote get-url origin
  ```
 
-4. **Construct the changelog entry**:
+4. Construct the changelog entry:
  - Use short commit hashes (7 chars) linked to the full commit URL
  - If scope exists, bold it: `**scope:** description`
  - If no scope: just the description
  - Date format: `YYYY-MM-DD`
 
-5. **Insertion logic** (defines the mechanics only, nothing is written to disk yet, so the Phase 4 preview and a later abort both stay side-effect-free):
+5. Insertion logic (defines the mechanics only, nothing is written to disk yet, so the Phase 4 preview and a later abort both stay side-effect-free):
  - If CHANGELOG.md exists, insert the entry after the `# Changelog` header, preserving existing entries below it
  - If CHANGELOG.md does not exist, this entry becomes the file's first entry under a new `# Changelog` header
  - Maintain a blank line between the header and first entry, and between entries
  - The actual file write happens in Phase 5 step 2, or Phase 3b step 2 for changelog-only mode: both reuse this same logic
 
-6. **Verify the write** (same call sites as step 5): after writing the file, re-read it and confirm the new version heading (`## [<new-version>]`) is present and that at least one section under it has a real bullet line, not just an empty `### Heading` with nothing below. A narrated changelog is not evidence the write succeeded, check the file on disk, e.g.:
+6. Verify the write (same call sites as step 5): after writing the file, re-read it and confirm the new version heading (`## [<new-version>]`) is present and that at least one section under it has a real bullet line, not just an empty `### Heading` with nothing below. A narrated changelog is not evidence the write succeeded, check the file on disk, e.g.:
  ```bash
  grep -A2 "## \[<new-version>\]" CHANGELOG.md
  ```
  If the heading is missing, or every section under it is empty, abort before creating the release commit: "CHANGELOG.md write produced empty sections, release aborted, no commit created." Do not proceed to Phase 5 step 3 (or, in changelog-only mode, report success) on a failed verification.
 
-### Phase 3b: Changelog-Only Mode (if `--changelog-only`)
+### Phase 3b: Changelog-only mode (if `--changelog-only`)
 
 When `--changelog-only` is passed, skip Phases 4-6 entirely:
 
@@ -161,7 +161,7 @@ git-release --changelog-only
 
 ### Phase 4: User Approval
 
-1. **Display release summary**:
+1. Display release summary:
  ```
  === Release Summary ===
 
@@ -195,9 +195,9 @@ git-release --changelog-only
  6. Create GitHub release with changelog
  ```
 
-2. **If `--dry-run` (or `-n`) was passed**: stop here. The summary above already shows everything that would happen, this flag is the only dry-run entry point, so no separate "preview" option is offered below.
+2. If `--dry-run` (or `-n`) was passed: stop here. The summary above already shows everything that would happen, this flag is the only dry-run entry point, so no separate "preview" option is offered below.
 
-3. **Otherwise, ask for confirmation**:
+3. Otherwise, ask for confirmation:
  - "Proceed with release": continue to Phase 5
  - "Change version": ask for the desired version, recalculate, re-display the summary
  - "Abort": exit cleanly with "Release cancelled."
@@ -206,7 +206,7 @@ git-release --changelog-only
 
 Execute all release actions in strict order. Stop immediately if any step fails and report which step failed and what manual cleanup may be needed.
 
-1. **Update version files** (detect and update all that exist):
+1. Update version files (detect and update all that exist):
  - `package.json`: Update `"version": "x.y.z"` field
  - `package-lock.json`: Update `"version": "x.y.z"` at root level
  - `pyproject.toml`: Update `version = "x.y.z"` under `[project]` or `[tool.poetry]`
@@ -216,26 +216,26 @@ Execute all release actions in strict order. Stop immediately if any step fails 
  - `build.gradle` / `build.gradle.kts`: Update `version = "x.y.z"`
  - Other version files: Skip unknown formats, notify user
 
-2. **Write CHANGELOG.md** using the Phase 3 step 5 insertion logic, including its step 6 verification (abort before step 3 below if verification fails).
+2. Write CHANGELOG.md using the Phase 3 step 5 insertion logic, including its step 6 verification (abort before step 3 below if verification fails).
 
-3. **Create release commit**:
+3. Create release commit:
  ```bash
  git add -A
  git commit -m "chore(release): v<new-version>"
  ```
 
-4. **Create annotated tag**:
+4. Create annotated tag:
  ```bash
  git tag -a v<new-version> -m "Release v<new-version>"
  ```
 
-5. **Push commit and tag**:
+5. Push commit and tag:
  ```bash
  git push origin $(git branch --show-current)
  git push origin v<new-version>
  ```
 
-6. **Create GitHub release** (unless `--no-github` flag is set):
+6. Create GitHub release (unless `--no-github` flag is set):
  ```bash
  notes_file=$(mktemp -t release-notes)
  # write the changelog entry (without the "## [version]" header) to $notes_file
@@ -247,7 +247,7 @@ Execute all release actions in strict order. Stop immediately if any step fails 
  ```
  A fixed path (e.g. `/tmp/release-notes.md`) can collide across concurrent or repeated runs: `mktemp` guarantees a unique file.
 
-7. **Display completion summary**:
+7. Display completion summary:
  ```
  Release v1.3.0 completed successfully!
 
@@ -271,22 +271,22 @@ When force flags conflict (e.g., `--major --minor`), use the highest: major > mi
 
 ## Edge Cases
 
-- **No conventional commits**: If commits don't follow conventional format, default to `patch` bump and list all commits under **Other Changes**
-- **Pre-release versions** (e.g., `0.x.y`): Follow semver pre-1.0 rules, breaking changes bump minor, features bump minor, fixes bump patch
-- **Monorepo**: If multiple `package.json` files exist, only update the root one. Warn the user about other version files found
-- **Dirty working tree**: Abort with a clear message asking the user to commit or stash changes first
-- **No remote**: If `git push` fails due to no remote, skip push and GitHub release, warn the user
-- **Tag already exists**: If the computed tag already exists, abort and suggest a force flag or a different version
-- **CHANGELOG write verification fails**: If the re-read in Phase 3 step 6 shows a missing heading or empty sections, abort before the release commit, never commit a changelog write you haven't confirmed on disk
+- No conventional commits: If commits don't follow conventional format, default to `patch` bump and list all commits under Other Changes
+- Pre-release versions (e.g., `0.x.y`): Follow semver pre-1.0 rules, breaking changes bump minor, features bump minor, fixes bump patch
+- Monorepo: If multiple `package.json` files exist, only update the root one. Warn the user about other version files found
+- Dirty working tree: Abort with a clear message asking the user to commit or stash changes first
+- No remote: If `git push` fails due to no remote, skip push and GitHub release, warn the user
+- Tag already exists: If the computed tag already exists, abort and suggest a force flag or a different version
+- CHANGELOG write verification fails: If the re-read in Phase 3 step 6 shows a missing heading or empty sections, abort before the release commit, never commit a changelog write you haven't confirmed on disk
 
 ## Important Notes
 
-- **Conventional Commits**: Works best with conventional commits (see the git-commit skill)
-- **Tag Format**: Always uses `v` prefix (e.g., `v1.3.0`) unless existing tags use a different convention
-- **CHANGELOG Format**: Follows [Keep a Changelog](https://keepachangelog.com/) conventions
-- **Semver**: Follows [Semantic Versioning 2.0.0](https://semver.org/)
-- **Never skip hooks**: Never pass `--no-verify` on the release commit
-- **No inline execution**: Nothing in Phase 1-4 writes to the working tree, the first mutation is Phase 5 step 1, after approval
+- Conventional Commits: Works best with conventional commits (see the git-commit skill)
+- Tag Format: Always uses `v` prefix (e.g., `v1.3.0`) unless existing tags use a different convention
+- CHANGELOG Format: Follows [Keep a Changelog](https://keepachangelog.com/) conventions
+- Semver: Follows [Semantic Versioning 2.0.0](https://semver.org/)
+- Never skip hooks: Never pass `--no-verify` on the release commit
+- No inline execution: Nothing in Phase 1-4 writes to the working tree, the first mutation is Phase 5 step 1, after approval
 
 ## Examples
 

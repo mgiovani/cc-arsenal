@@ -246,37 +246,50 @@ Return findings with:
 ## Security Best Practices by Role
 
 ### For Developers
-1. **Run before PR**: Check code before creating pull requests
-2. **Fix Critical/High first**: Prioritize based on severity
-3. **Understand, don't copy-paste**: Learn why the vulnerability exists
-4. **Test fixes**: Verify fixes do not break functionality
-5. **Add tests**: Write security tests to prevent regressions
+
+| Practice | Detail |
+| --- | --- |
+| Run before PR | Check code before creating pull requests |
+| Fix Critical/High first | Prioritize based on severity |
+| Understand, don't copy-paste | Learn why the vulnerability exists |
+| Test fixes | Verify fixes do not break functionality |
+| Add tests | Write security tests to prevent regressions |
 
 ### For Security Teams
-1. **Validate findings**: Verify each finding is a real vulnerability
-2. **Assess risk**: Consider exploitability in the specific context
-3. **Prioritize**: Not all findings need immediate fixes
-4. **Track metrics**: Monitor security trends over time
-5. **Provide training**: Use findings as teaching opportunities
+
+| Practice | Detail |
+| --- | --- |
+| Validate findings | Verify each finding is a real vulnerability |
+| Assess risk | Consider exploitability in the specific context |
+| Prioritize | Not all findings need immediate fixes |
+| Track metrics | Monitor security trends over time |
+| Provide training | Use findings as teaching opportunities |
 
 ### For DevOps/SRE
-1. **Automate**: Integrate security scanning into CI/CD
-2. **Gate deployments**: Block deployments with Critical vulnerabilities
-3. **Monitor**: Set up alerts for new vulnerabilities
-4. **Rotate secrets**: Immediately rotate any exposed credentials
-5. **Incident response**: Have a plan for security incidents
+
+| Practice | Detail |
+| --- | --- |
+| Automate | Integrate security scanning into CI/CD |
+| Gate deployments | Block deployments with Critical vulnerabilities |
+| Monitor | Set up alerts for new vulnerabilities |
+| Rotate secrets | Immediately rotate any exposed credentials |
+| Incident response | Have a plan for security incidents |
 
 ## Recommended Follow-up
 
-1. **Manual review**: Security expert should review all Critical/High findings
-2. **Dynamic testing**: Use DAST tools (OWASP ZAP, Burp Suite) for runtime testing
-3. **Penetration testing**: Professional pentest for production systems
-4. **Security tools**: Integrate SAST/SCA tools into CI/CD pipeline
-5. **Training**: Educate developers on secure coding practices
+| Action | Detail |
+| --- | --- |
+| Manual review | Security expert should review all Critical/High findings |
+| Dynamic testing | Use DAST tools (OWASP ZAP, Burp Suite) for runtime testing |
+| Penetration testing | Professional pentest for production systems |
+| Security tools | Integrate SAST/SCA tools into CI/CD pipeline |
+| Training | Educate developers on secure coding practices |
 
 ## Tool Recommendations
 
-- **Python**: Bandit, Safety, pip-audit, Semgrep
-- **JavaScript**: ESLint Security, npm audit, Snyk
-- **Java**: SpotBugs + FindSecBugs, OWASP Dependency-Check
-- **Multi-language**: SonarQube, Semgrep, CodeQL
+| Stack | Tools |
+| --- | --- |
+| Python | Bandit, Safety, pip-audit, Semgrep |
+| JavaScript | ESLint Security, npm audit, Snyk |
+| Java | SpotBugs + FindSecBugs, OWASP Dependency-Check |
+| Multi-language | SonarQube, Semgrep, CodeQL |

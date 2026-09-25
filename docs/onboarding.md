@@ -1,6 +1,6 @@
 # Claude Code Arsenal - Developer Onboarding Guide
 
-**Last Updated:** 2025-12-12
+Last updated: 2025-12-12
 
 ## Welcome to Claude Code Arsenal! 🎉
 
@@ -10,24 +10,21 @@ This guide will help you get started as a developer on the Claude Code Arsenal p
 
 ### Required Tools
 
-- **Python 3.12+**: Download from [python.org](https://www.python.org/downloads/)
-- **UV Package Manager**: Modern, fast Python package installer
+- Python 3.12+: Download from [python.org](https://www.python.org/downloads/)
+- UV Package Manager: Modern, fast Python package installer
   ```bash
   curl -LsSf https://astral.sh/uv/install.sh | sh
   ```
-- **Git**: For version control
-- **Claude Code**: The host environment for this project
+- Git: For version control
+- Claude Code: The host environment for this project
 
-### Recommended Tools
+### Recommended Tools and Accounts
 
-- **VS Code** or **Cursor**: Modern code editors with Python support
-- **GitHub CLI (gh)**: For PR creation and issue management
+- VS Code or Cursor: Modern code editors with Python support
+- GitHub CLI (gh): For PR creation and issue management
   ```bash
   brew install gh  # macOS
   ```
-
-### Account Requirements
-
 - GitHub account with repository access
 - (Optional) Jira account if working on jira-cli skill
 
@@ -131,11 +128,13 @@ gitgraph
 
 ### Code Standards
 
-- **Type Hints**: Required for all Python functions
-- **Docstrings**: Google-style docstrings for public APIs
-- **Formatting**: Ruff with single quotes, 90 character line length
-- **Testing**: >90% code coverage requirement
-- **Linting**: Pass all Ruff checks before committing
+| Aspect | Requirement |
+|---|---|
+| Type hints | Required for all Python functions |
+| Docstrings | Google-style docstrings for public APIs |
+| Formatting | Ruff with single quotes, 90 character line length |
+| Testing | >90% code coverage requirement |
+| Linting | Pass all Ruff checks before committing |
 
 ### Commit Guidelines
 
@@ -149,7 +148,7 @@ git commit -m "test(skills): add tests for install.py"
 git commit -m "chore(deps): update pydantic to 2.5.1"
 ```
 
-**Commit Types:**
+Commit types:
 - `feat:` - New feature (new or enhanced skill)
 - `fix:` - Bug fix
 - `docs:` - Documentation only
@@ -203,7 +202,7 @@ cc-arsenal/
 
 ### Local Development
 
-**Install in Development Mode:**
+Install in development mode:
 ```bash
 # Install with symlinks (changes reflect immediately)
 make install
@@ -212,7 +211,7 @@ make install
 make dry-run
 ```
 
-**Validate Plugin Structure:**
+Validate plugin structure:
 ```bash
 # Validate marketplace.json and skill structure
 make validate-plugins
@@ -257,7 +256,7 @@ make format        # Formats code in place
 
 ### Debugging
 
-**Debug Installation:**
+Debug installation:
 ```bash
 # Dry run shows what would be installed
 make dry-run
@@ -269,7 +268,7 @@ ls -la ~/.claude/skills/
 cat ~/.claude/skills/git-commit/SKILL.md
 ```
 
-**Debug Tests:**
+Debug tests:
 ```bash
 # Run with verbose output
 uv run pytest -vv
@@ -283,17 +282,17 @@ uv run pytest --pdb
 
 ## Architecture Overview
 
-Claude Code Arsenal uses a **plugin-based architecture** for modular skill loading. Skills can be installed via the Claude Code marketplace (recommended) or symlinked directly via `make install` for local development.
+Claude Code Arsenal uses a plugin-based architecture for modular skill loading. Skills can be installed via the Claude Code marketplace (recommended) or symlinked directly via `make install` for local development.
 
-**Installation Flow:**
+Installation flow:
 1. User installs via Claude Code marketplace (recommended) or `make install` (contributors)
 2. `marketplace.json` declares each plugin variant and the skills it includes
 3. Claude Code discovers skills from the installed plugin
 4. Skills are loaded on-demand: frontmatter first, full body only when relevant, bundled resources only as needed
 
-**Skill Types** (set by the `disable-model-invocation` frontmatter field):
-- **User-invoked**: Slash commands for explicit operations (e.g., `/git-commit`)
-- **Model-invoked**: Auto-loaded by Claude when context matches (e.g., `review-code`, `agent-browser`)
+Skill types (set by the `disable-model-invocation` frontmatter field):
+- User-invoked: Slash commands for explicit operations (e.g., `/git-commit`)
+- Model-invoked: Auto-loaded by Claude when context matches (e.g., `review-code`, `agent-browser`)
 
 See [features.md](./features.md) for the current, authoritative skill list and [architecture.md](./architecture.md) for detailed system design.
 
@@ -301,23 +300,23 @@ See [features.md](./features.md) for the current, authoritative skill list and [
 
 ### Adding a New Skill
 
-1. **Create Skill Directory**:
+1. Create skill directory:
    ```bash
    mkdir -p skills/my-skill
    ```
 
-2. **Create SKILL.md**:
+2. Create SKILL.md:
    ```bash
    vim skills/my-skill/SKILL.md
    ```
 
-3. **Add Bundled Resources** (optional):
+3. Add bundled resources (optional):
    ```bash
    mkdir -p skills/my-skill/scripts
    mkdir -p skills/my-skill/references
    ```
 
-4. **Install and Test**:
+4. Install and test:
    ```bash
    make install
    # Claude will auto-load when context matches
@@ -327,30 +326,30 @@ See `skills/create-skill/SKILL.md` for comprehensive skill creation guide.
 
 ### Fixing a Bug
 
-1. **Create Fix Branch**:
+1. Create fix branch:
    ```bash
    git checkout -b fix/bug-description
    ```
 
-2. **Write Failing Test** (TDD approach):
+2. Write failing test (TDD approach):
    ```bash
    vim tests/test_bugfix.py
    uv run pytest tests/test_bugfix.py  # Should fail
    ```
 
-3. **Fix the Issue**:
+3. Fix the issue:
    ```bash
    # Make your changes
    uv run pytest tests/test_bugfix.py  # Should pass
    ```
 
-4. **Run Full Test Suite**:
+4. Run full test suite:
    ```bash
    make test
    make check
    ```
 
-5. **Submit PR**: Follow PR process
+5. Submit PR: Follow PR process
 
 ## Troubleshooting
 
@@ -358,7 +357,7 @@ See `skills/create-skill/SKILL.md` for comprehensive skill creation guide.
 
 #### Issue: "uv: command not found"
 
-**Solution:**
+Solution:
 ```bash
 # Install UV package manager
 curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -369,7 +368,7 @@ source ~/.bashrc  # or ~/.zshrc
 
 #### Issue: "make: command not found"
 
-**Solution:**
+Solution:
 ```bash
 # Use the direct script commands instead
 uv run python -m scripts.setup.install
@@ -378,7 +377,7 @@ uv run pytest
 
 #### Issue: Skill not showing up in Claude Code
 
-**Solution:**
+Solution:
 ```bash
 # Verify symlink was created
 ls -la ~/.claude/skills/
@@ -391,7 +390,7 @@ make install
 
 #### Issue: Tests failing with import errors
 
-**Solution:**
+Solution:
 ```bash
 # Ensure you're in the correct directory
 cd cc-arsenal
@@ -405,7 +404,7 @@ python --version  # Should be 3.12+
 
 #### Issue: Type checking errors
 
-**Solution:**
+Solution:
 ```bash
 # Run type checker
 make type-check
@@ -416,11 +415,11 @@ make type-check
 
 ### Getting Help
 
-- **Documentation**: Check `docs/` directory for guides
-- **Existing Issues**: Search [GitHub Issues](https://github.com/mgiovani/cc-arsenal/issues)
-- **Troubleshooting Guide**: See [troubleshooting.md](./troubleshooting.md)
-- **Discussions**: Ask in [GitHub Discussions](https://github.com/mgiovani/cc-arsenal/discussions)
-- **Maintainer**: Open an issue or contact via GitHub
+- Documentation: Check `docs/` directory for guides
+- Existing issues: Search [GitHub Issues](https://github.com/mgiovani/cc-arsenal/issues)
+- Troubleshooting guide: See [troubleshooting.md](./troubleshooting.md)
+- Discussions: Ask in [GitHub Discussions](https://github.com/mgiovani/cc-arsenal/discussions)
+- Maintainer: Open an issue or contact via GitHub
 
 ## Resources
 
@@ -448,11 +447,11 @@ make type-check
 
 ## Next Steps
 
-1. ✅ **Complete Setup**: Ensure all prerequisites are installed and tests pass
-2. 🔍 **Explore Codebase**: Browse commands and skills
-3. 🧪 **Run Examples**: Try using existing commands in Claude Code
-4. 🎯 **Pick First Issue**: Look for ["good first issue"](https://github.com/mgiovani/cc-arsenal/labels/good%20first%20issue) labels
-5. 💬 **Join Community**: Introduce yourself in GitHub Discussions
+1. ✅ Complete setup: Ensure all prerequisites are installed and tests pass
+2. 🔍 Explore codebase: Browse commands and skills
+3. 🧪 Run examples: Try using existing commands in Claude Code
+4. 🎯 Pick first issue: Look for ["good first issue"](https://github.com/mgiovani/cc-arsenal/labels/good%20first%20issue) labels
+5. 💬 Join community: Introduce yourself in GitHub Discussions
 
 ## Feedback
 
@@ -464,6 +463,6 @@ This onboarding guide is a living document. If you encounter issues or have sugg
 
 ---
 
-**Need Help?** Don't hesitate to reach out by opening a [GitHub Issue](https://github.com/mgiovani/cc-arsenal/issues) or starting a [Discussion](https://github.com/mgiovani/cc-arsenal/discussions).
+Need help? Don't hesitate to reach out by opening a [GitHub Issue](https://github.com/mgiovani/cc-arsenal/issues) or starting a [Discussion](https://github.com/mgiovani/cc-arsenal/discussions).
 
-**Happy Developing! 🚀**
+Happy developing! 🚀

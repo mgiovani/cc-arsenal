@@ -218,9 +218,11 @@ regenerated from the CLI's own `agent-browser skills get core --full` so it
 stays in sync with the installed version. Load each only when the task
 needs it:
 
-- **[references/commands.md](references/commands.md)**: load when you need a command signature, flag, or alias not covered by the cheat sheet above (navigation, interaction, `find`, wait, screenshot/video, settings, tabs, frames, network/console, MCP server, global flags).
-- **[references/advanced.md](references/advanced.md)**: load for session-state persistence, authentication (login flows, OAuth, 2FA, cookie import), trust-boundary safety rules, proxy configuration, or Chrome DevTools profiling.
-- **[references/workflows.md](references/workflows.md)**: load for the snapshot + ref model in depth, or video-recording patterns.
+| File | Load for |
+|---|---|
+| [references/commands.md](references/commands.md) | a command signature, flag, or alias not covered by the cheat sheet above (navigation, interaction, `find`, wait, screenshot/video, settings, tabs, frames, network/console, MCP server, global flags) |
+| [references/advanced.md](references/advanced.md) | session-state persistence, authentication (login flows, OAuth, 2FA, cookie import), trust-boundary safety rules, proxy configuration, or Chrome DevTools profiling |
+| [references/workflows.md](references/workflows.md) | the snapshot + ref model in depth, or video-recording patterns |
 
 If these ever drift from the installed CLI, regenerate with
 `agent-browser skills get core --full` and re-split (see git history of this
@@ -230,9 +232,9 @@ file for the split points).
 
 ### Official Documentation
 
-- **GitHub**: https://github.com/vercel-labs/agent-browser
-- **AGENTS.md**: AI agent integration guide, bundled with the CLI
-- **CLI source**: `npx opensrc vercel-labs/agent-browser` (fetches the actual source for reference: there is no vendored copy in this skill)
+- GitHub: https://github.com/vercel-labs/agent-browser
+- AGENTS.md: AI agent integration guide, bundled with the CLI
+- CLI source: `npx opensrc vercel-labs/agent-browser` (fetches the actual source for reference: there is no vendored copy in this skill)
 
 ### Environment Variables
 

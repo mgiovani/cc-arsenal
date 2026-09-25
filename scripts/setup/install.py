@@ -11,6 +11,7 @@ import shutil
 import subprocess
 import sys
 import time
+from collections import defaultdict
 from enum import Enum
 from pathlib import Path
 
@@ -226,10 +227,8 @@ class ConflictManager:
         console.print('\n🔍 [bold]Conflict Resolution Required[/bold]')
 
         # Group conflicts by category for easier review
-        by_category: dict[str, list[InstallationItem]] = {}
+        by_category: defaultdict[str, list[InstallationItem]] = defaultdict(list)
         for item in conflicted_items:
-            if item.category not in by_category:
-                by_category[item.category] = []
             by_category[item.category].append(item)
 
         for category, items in by_category.items():

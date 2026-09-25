@@ -6,10 +6,10 @@ What differs is where the default locale lives and how to flatten its file forma
 
 ## next-intl
 
-- **Default locale**: `defaultLocale` in `i18n/routing.ts` (or `middleware.ts` / a
+- Default locale: `defaultLocale` in `i18n/routing.ts` (or `middleware.ts` / a
   `next.config.js` matcher). Locale files usually at `messages/<locale>.json` or
   `src/messages/<locale>.json`, referenced from `i18n/request.ts`.
-- **Format**: nested JSON.
+- Format: nested JSON.
 
 ```bash
 python3 - <<'EOF'
@@ -35,15 +35,15 @@ EOF
 
 ## i18next / react-i18next
 
-- **Default locale**: `fallbackLng` in the `i18next.init(...)` config.
-- **Format**: nested JSON, one file per `<lang>/<namespace>`. Run the same flatten
+- Default locale: `fallbackLng` in the `i18next.init(...)` config.
+- Format: nested JSON, one file per `<lang>/<namespace>`. Run the same flatten
   script above once per namespace (e.g. `public/locales/en/common.json` vs
   `public/locales/pt-BR/common.json`), not once for the whole language.
 
 ## react-intl
 
-- **Default locale**: wherever `defaultLocale` is passed to `IntlProvider`.
-- **Format**: usually flat JSON already (`id -> message`), extracted via
+- Default locale: wherever `defaultLocale` is passed to `IntlProvider`.
+- Format: usually flat JSON already (`id -> message`), extracted via
   `babel-plugin-formatjs`/`formatjs extract` into `lang/<locale>.json`. If the project
   keeps messages inline (`defineMessages`, `<FormattedMessage defaultMessage="...">`)
   there is no default-locale file: skip Step 2 and rely on the hardcoded-string scan.
@@ -52,8 +52,8 @@ EOF
 
 ## vue-i18n
 
-- **Default locale**: `fallbackLocale` in the `createI18n({...})` config.
-- **Format**: JSON or YAML at `src/locales/<lang>.json`/`.yaml`, or inline `<i18n
+- Default locale: `fallbackLocale` in the `createI18n({...})` config.
+- Format: JSON or YAML at `src/locales/<lang>.json`/`.yaml`, or inline `<i18n
   locale="en">{...}</i18n>` custom blocks inside `.vue` SFCs.
 - JSON: same flatten script as next-intl above.
 - YAML: use `js-yaml` if it's already a project dependency (`node -e "..."`), otherwise
@@ -62,11 +62,11 @@ EOF
 
 ## Django gettext
 
-- **Default locale**: source strings live directly in code (`_("...")`, `{% trans %}`,
+- Default locale: source strings live directly in code (`_("...")`, `{% trans %}`,
   `{% blocktrans %}`): there is no default-locale catalog file to diff against.
   `LANGUAGE_CODE` in `settings.py` only picks which translation to serve, not where the
   source text lives.
-- **Format**: `locale/<lang>/LC_MESSAGES/django.po`, entries are `msgid` / `msgstr`
+- Format: `locale/<lang>/LC_MESSAGES/django.po`, entries are `msgid` / `msgstr`
   pairs. Missing = empty `msgstr ""`. Untranslated = `msgstr` identical to `msgid`.
   Orphan = entries marked obsolete with a leading `#~`.
 
@@ -84,9 +84,9 @@ directly (strip the `msgid "`/`msgstr "` prefix and trailing `"`).
 
 ## Rails I18n
 
-- **Default locale**: `config.i18n.default_locale` in `config/application.rb` (defaults
+- Default locale: `config.i18n.default_locale` in `config/application.rb` (defaults
   to `en` if unset).
-- **Format**: YAML with the locale as the single top-level key
+- Format: YAML with the locale as the single top-level key
   (`en: { sidebar: { developer: "Developer" } }`).
 
 ```bash

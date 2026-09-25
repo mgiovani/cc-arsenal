@@ -15,7 +15,7 @@ Exactly 3 scenarios per skill: a happy path, a judgment case (ambiguous input, n
 }
 ```
 
-- **A correct refusal must be able to score 100%.** Never bundle a "should refuse" assertion in the same scenario as assertions that only make sense if the skill proceeded past the refusal point: a run that correctly stops early can't satisfy both, and that isn't a flaw in the run, it's a flaw in the eval. Split guard behavior into its own scenario.
+- **A correct refusal must be able to score 100%.** Never bundle a "should refuse" assertion in the same scenario as assertions that only make sense if the skill proceeded past the refusal point. A run that correctly stops early can't satisfy both, and that is a flaw in the eval, not in the run. Split guard behavior into its own scenario.
 - **Refusal/precondition scenarios assert that no mutating command ran**: no file writes outside what was explicitly requested, no `git commit`/`push`, no destructive Bash. A broken "helpful" auto-fix that ignores the guard and does the thing anyway should fail this assertion, not slip through because the report merely mentions the refusal.
 - **No assertion may require mid-run interactive input.** A sandboxed eval run can't pause for a reply. Where the skill needs the user to answer something, assert that the final message asks the right question and stops there: not that the conversation continued past it.
 - **Bake fixtures into the prompt.** Any sample file contents, repo state, or command output the scenario depends on goes directly into the eval prompt as a `SANDBOX SETUP (do this first, exactly): ...` block, so the scenario is deterministic on any host and doesn't depend on a live tool or network call succeeding.

@@ -21,7 +21,7 @@ agent: general-purpose
 
 # Project Planner
 
-Break a large, complex project into manageable tasks with clear dependencies, progress tracking, and a visual diagram.
+Break a large project into tasks with explicit dependencies, then track progress and diagram the result in Mermaid.
 
 ## Project to Plan
 
@@ -55,7 +55,7 @@ Use Task tool with Explore agent:
 
 **Step 0.2: Scope Gate**
 
-Check whether the request names a concrete deliverable and rough boundaries (what's in, what's out). If it doesn't (e.g. "improve the app", "make things better", "plan our roadmap" with no target named), stop. End the response with 2-3 clarifying questions (via `AskUserQuestion` or plain prose) about the concrete deliverable, scope boundaries, or target outcome, and produce nothing else: no task breakdown, no `TaskCreate` calls, no Mermaid diagram, no files. A 25-task plan built on invented scope is worse than no plan, because the user must now audit every task against what they actually meant, instead of just answering the question. Do not soften this into "ask, then proceed with reasonable assumptions anyway": the questions are the entire response.
+Check whether the request names a concrete deliverable and rough boundaries (what's in, what's out). If it doesn't (e.g. "improve the app", "make things better", "plan our roadmap" with no target named), stop. End the response with 2-3 clarifying questions (via `AskUserQuestion` or plain prose) about the concrete deliverable, scope boundaries, or target outcome. Produce no task breakdown, no `TaskCreate` calls, no Mermaid diagram, and no files. Skipping the question is the costlier path: a 25-task plan built on invented scope forces the user to audit every task against what they actually meant, when answering the question up front would have taken seconds. Do not soften this into "ask, then proceed with reasonable assumptions anyway": the questions are the entire response.
 
 If the deliverable and boundaries are clear but secondary details are missing (timeline, tech stack preference, team size), that's not a scope gate failure: ask about those with `AskUserQuestion`, flag the assumption you're using if the user doesn't answer, and continue to Phase 1.
 
@@ -63,10 +63,13 @@ If the deliverable and boundaries are clear but secondary details are missing (t
 
 Break the project into 3-7 major milestones (significant deliverables or phases), then create tasks under each milestone.
 
-**Task Granularity Guidelines**:
-- **Too large**: "Build the authentication system" (breaks into 10+ subtasks)
-- **Too small**: "Import bcrypt library" (trivial step within a larger task)
-- **Just right**: "Implement password hashing with bcrypt and validation" (aim for 2-8 hours of work per task)
+Task granularity guidelines:
+
+| Size | Example | Why |
+|------|---------|-----|
+| Too large | "Build the authentication system" | breaks into 10+ subtasks |
+| Too small | "Import bcrypt library" | trivial step within a larger task |
+| Just right | "Implement password hashing with bcrypt and validation" | aim for 2-8 hours of work per task |
 
 ### Phase 2: Dependency Mapping
 
@@ -90,7 +93,7 @@ TaskUpdate: { taskId: "6", addBlockedBy: ["4", "5"] }    # middleware after endp
 
 ### Phase 3: Visualization
 
-Don't start this phase until every task in the plan has its `blockedBy` relations recorded (real `TaskUpdate` calls, or the `outputs/tasks.json` equivalent in a sandboxed run). That recorded data is the single source of truth for both the diagram and the critical path: never hand-draw an edge or a chain from memory/intuition about what "should" depend on what. A diagram that disagrees with the actual dependencies is worse than no diagram: downstream work gets sequenced off the picture, not the data, and nobody notices until it breaks.
+Don't start this phase until every task in the plan has its `blockedBy` relations recorded (real `TaskUpdate` calls, or the `outputs/tasks.json` equivalent in a sandboxed run). That recorded data is the single source of truth for both the diagram and the critical path: never hand-draw an edge or a chain from memory/intuition about what "should" depend on what. A diagram that disagrees with the actual dependencies is worse than no diagram: downstream work gets sequenced off the picture instead of the data, and by the time anyone notices, the plan has already steered work wrong.
 
 **Step 3.1: Draw the diagram mechanically from recorded edges.** For every `addBlockedBy` entry recorded in Phase 2, emit exactly one Mermaid edge, `<blocker> --> <task>`. One recorded relation, one edge, no more, no fewer. A task with an empty `addBlockedBy` gets no incoming edge, full stop, even if it feels like it should logically follow something.
 

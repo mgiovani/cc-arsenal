@@ -39,3 +39,14 @@ repos:
         language: system
         pass_filenames: false
         files: ^(scripts/gen_skill_docs\.py|skills/.*/SKILL\.md|skills\.sh\.json|README\.md|AGENTS\.md|CONTRIBUTING\.md|docs/(features|getting-started|onboarding)\.md|\.claude-plugin/.*\.json)$
+      - id: stopslop
+        name: stopslop
+        # stopslop exits 0 for tier-B findings (every prose rule) and only
+        # nonzero for tier A, so gate on whether it printed anything.
+        entry: sh -c 'out=$(stopslop "$@") || true; [ -z "$out" ] || { printf "%s\n" "$out"; exit 1; }' --
+        language: rust
+        additional_dependencies: ['cli:stopslop:^0']
+        types_or: [markdown, python]
+        # Mirrors `exclude` in stopslop.toml: that key only applies when stopslop
+        # walks a directory itself, and pre-commit hands it explicit paths.
+        exclude: ((^|/)assets/templates/|^docs/CODE_OF_CONDUCT\.md$)

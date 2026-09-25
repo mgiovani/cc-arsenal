@@ -1,4 +1,4 @@
-# Getting Started with Claude Code Arsenal
+# Getting started with Claude Code Arsenal
 
 A comprehensive guide to setting up and using the Claude Code Arsenal for automated development workflows.
 
@@ -10,17 +10,17 @@ Claude Code Arsenal is a professional collection of 49 skills designed to enhanc
 
 Before you begin, ensure you have:
 
-- **Claude Code** (Anthropic's official Claude CLI)
-- **Git** (for version control)
+- Claude Code (Anthropic's official Claude CLI)
+- Git (for version control)
 
 Everything below only applies if you plan to contribute to cc-arsenal itself:
 
-- **Python 3.12+**
-- **UV** (fast Python package management): `curl -LsSf https://astral.sh/uv/install.sh | sh`
+- Python 3.12+
+- UV (fast Python package management): `curl -LsSf https://astral.sh/uv/install.sh | sh`
 
 ## Installation
 
-### Plugin Marketplace (Recommended)
+### Plugin marketplace (recommended)
 
 This is the primary installation method for all users. Register the repository as a Claude Code plugin marketplace, then install the variant you want:
 
@@ -41,7 +41,7 @@ Or pick a focused variant instead of the full toolkit, see [Features](features.m
 /plugin install cc-arsenal-review@cc-arsenal-marketplace  # Code review and quality skills
 ```
 
-**Team configuration:** add to `.claude/settings.json` so every team member auto-installs the marketplace on trust:
+Team configuration: add to `.claude/settings.json` so every team member auto-installs the marketplace on trust:
 
 ```json
 {
@@ -54,7 +54,7 @@ Or pick a focused variant instead of the full toolkit, see [Features](features.m
 }
 ```
 
-### Symlink Install (Contributors Only)
+### Symlink install (Contributors only)
 
 Only use this if you're developing cc-arsenal itself: it creates symlinks into `~/.claude/` so file edits are reflected immediately, without a plugin reinstall:
 
@@ -68,7 +68,7 @@ make install       # symlink everything to ~/.claude
 make configure     # optional: interactively choose which skills to symlink
 ```
 
-### Optional Feature: Enhanced Statusline
+### Optional feature: enhanced statusline
 
 ```bash
 make install-statusline
@@ -88,20 +88,20 @@ make info
 make validate-structure
 ```
 
-## Core Components
+## Core components
 
 ### Skills
 
 Claude Code Arsenal ships 49 skills, split between:
 
-- **User-invoked** skills: explicit slash commands (e.g. `/docs-adr`, `/git-commit`)
-- **Model-invoked** skills: Claude loads them automatically when the request matches (e.g. `agent-browser`, `create-skill`, `test-suite`)
+- User-invoked skills: explicit slash commands (e.g. `/docs-adr`, `/git-commit`)
+- Model-invoked skills: Claude loads them automatically when the request matches (e.g. `agent-browser`, `create-skill`, `test-suite`)
 
 Skills use progressive disclosure: Claude reads only the frontmatter until a skill is relevant, then loads its full body and bundled resources (`scripts/`, `references/`, `assets/`, `evals/`) as needed. See [Features](features.md) for the complete, categorized list.
 
-## Advanced Setup
+## Advanced setup
 
-### Smart Session Scheduling
+### Smart session scheduling
 
 Replace manual cron workarounds with intelligent scheduling:
 
@@ -111,7 +111,7 @@ make -C integrations/claude-code/claude-hi standard  # Quick 9am/2pm/7pm schedul
 make -C integrations/claude-code/claude-hi status    # Check current schedule
 ```
 
-### Enhanced Statusline
+### Enhanced statusline
 
 ```bash
 make install-statusline
@@ -123,17 +123,17 @@ Shows session costs, token usage, time remaining in the current 5-hour window, a
 
 Configuration for a symlink install is managed through the interactive `make configure` wizard, which lets you select specific skills to symlink to `~/.claude/`. It never modifies `~/.claude/settings.json`. Plugin installs are managed entirely through `/plugin`.
 
-## Development Workflow Integration
+## Development workflow integration
 
-### Daily Development
+### Daily development
 
 Your enhanced workflow includes:
 
-1. **Documentation automation**: `/docs-adr`, `/docs-rfc`, `/docs-diagram`, `/docs-update`, `/docs-check`, `/docs-init`
-2. **Git automation**: `/git-commit`, `/git-create-pr`, `/git-release`, `/ship`
-3. **Specialized skills**: Claude automatically invokes relevant model-invoked skills when needed
+1. Documentation automation: `/docs-adr`, `/docs-rfc`, `/docs-diagram`, `/docs-update`, `/docs-check`, `/docs-init`
+2. Git automation: `/git-commit`, `/git-create-pr`, `/git-release`, `/ship`
+3. Specialized skills: Claude automatically invokes relevant model-invoked skills when needed
 
-### Code Review Process (Contributors)
+### Code review process (Contributors)
 
 ```bash
 make check                 # All quality checks (lint + type-check)
@@ -157,19 +157,19 @@ make info
 make validate-structure
 ```
 
-## Next Steps
+## Next steps
 
-1. **Create Custom Skills**: Use the `create-skill` skill to build specialized capabilities
-2. **Set Up Team Workflows**: Share the plugin marketplace config across your team
-3. **Enhanced Statusline**: Track token usage and session costs with `make install-statusline`
+1. Create custom skills: use the `create-skill` skill to build specialized capabilities
+2. Set up team workflows: share the plugin marketplace config across your team
+3. Enhanced statusline: track token usage and session costs with `make install-statusline`
 
-### Community and Support
+### Community and support
 
-- **Documentation**: Browse `docs/` for detailed guides
-- **Issues**: Report bugs at https://github.com/mgiovani/cc-arsenal/issues
-- **Discussions**: Ask questions at https://github.com/mgiovani/cc-arsenal/discussions
+- Documentation: browse `docs/` for detailed guides
+- Issues: report bugs at https://github.com/mgiovani/cc-arsenal/issues
+- Discussions: ask questions at https://github.com/mgiovani/cc-arsenal/discussions
 
-### Stay Updated
+### Stay updated
 
 Plugin installs update via `/plugin` → Update now. For a symlink (contributor) install:
 

@@ -49,7 +49,7 @@ jira issue worklog add ISSUE-1 "2h" --comment "Implementation work"
 
 ## Worked Examples
 
-**Confirm the CLI flavor before anything else:**
+Confirm the CLI flavor before anything else:
 ```
 $ jira version
 jira version 1.5.1
@@ -57,7 +57,7 @@ Homepage: https://github.com/ankitpokhrel/jira-cli
 ```
 A different `jira version` output (or a "command not found") means stop and resolve `which jira` before running any command from this skill.
 
-**Parse `--plain` output for scripting**: columns are tab-separated, headers are on unless suppressed:
+Parse `--plain` output for scripting: columns are tab-separated, headers are on unless suppressed:
 ```
 $ jira issue list -a$(jira me) -s"In Progress" --plain --no-headers --columns key,summary
 PROJ-123	Fix login redirect loop
@@ -68,7 +68,7 @@ jira issue list -a$(jira me) -s"In Progress" --plain --no-headers --columns key,
   while IFS=$'\t' read -r key summary; do echo "Working: $key - $summary"; done
 ```
 
-**Create non-interactively and capture the new key from the URL jira-cli prints:**
+Create non-interactively and capture the new key from the URL jira-cli prints:
 ```
 $ jira issue create -tBug -s"Login redirect loop" -yHigh --no-input
 Issue created
@@ -78,7 +78,7 @@ https://your-domain.atlassian.net/browse/PROJ-125
 key=$(jira issue create -tBug -s"Login redirect loop" -yHigh --no-input | grep -oE '[A-Z]+-[0-9]+$')
 ```
 
-**Bulk sprint add sourced from a live filter, not a hardcoded list:**
+Bulk sprint add sourced from a live filter, not a hardcoded list:
 ```bash
 jira sprint add SPRINT_ID $(jira issue list -s"Ready for Dev" --plain --columns key --no-headers | tr '\n' ' ')
 ```
@@ -89,24 +89,26 @@ Load reference files on demand, don't pull all three into context for a single c
 
 ### 1. Comprehensive Commands Reference
 
-**Load:** [references/commands.md](./references/commands.md)
+Load: [references/commands.md](./references/commands.md)
 
 Detailed syntax for issue management (list, create, edit, assign, move, view, link, clone, delete, comments, worklog), epic management, sprint management, releases, and output-format options.
 
 ### 2. Common Workflow Examples
 
-**Load:** [references/workflows.md](./references/workflows.md)
+Load: [references/workflows.md](./references/workflows.md)
 
 Multi-command patterns: sprint planning, code review handoff, bug triage, epic tracking, incident response, backlog grooming, cross-team coordination.
 
 ### 3. Scripting and Automation
 
-**Load:** [references/scripting.md](./references/scripting.md)
+Load: [references/scripting.md](./references/scripting.md)
 
 Raw bash automation that isn't already a curated skill: bulk assignment, auto-labeling, CSV export, velocity/metrics calculation, CI/CD hooks (GitHub Actions, GitLab CI, Jenkins), error handling and rate-limiting patterns.
 
 ## Resources
 
-- **GitHub**: https://github.com/ankitpokhrel/jira-cli
-- **Installation Guide**: https://github.com/ankitpokhrel/jira-cli/wiki/Installation
-- **FAQs**: https://github.com/ankitpokhrel/jira-cli/discussions/categories/faqs
+| Resource | Link |
+|---|---|
+| GitHub | https://github.com/ankitpokhrel/jira-cli |
+| Installation guide | https://github.com/ankitpokhrel/jira-cli/wiki/Installation |
+| FAQs | https://github.com/ankitpokhrel/jira-cli/discussions/categories/faqs |

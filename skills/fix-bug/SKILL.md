@@ -15,20 +15,21 @@ metadata:
 
 # Bug Fix
 
-Fix the bug described by the user (a plain description, an issue ID, or a failing
-test name) using test-driven debugging: reproduce it, find the root cause with
-evidence, apply the smallest fix, verify, commit.
+Fix the bug the user describes. It might arrive as a plain description, sometimes
+as an issue ID, occasionally just the name of a failing test. Work test-driven:
+reproduce the failure first. Track down the root cause with evidence. Apply the
+smallest fix that resolves it, run the tests, commit.
 
-## Anti-Hallucination Guidelines
+## Anti-hallucination guidelines
 
 A fix that "should work" but was never run against a failing test is a guess, not a fix:
 
-1. **Reproduce first**: don't fix what you haven't seen fail.
-2. **Test-driven**: write or locate a failing test before implementing the fix; confirm it actually fails.
-3. **Verify root cause**: locate the bug with grep/read evidence (file path, line number), not intuition.
-4. **Verify the fix**: run the full test suite; all tests must pass before calling the bug fixed.
-5. **No invented fixes**: only implement solutions that address the demonstrated root cause.
-6. **Reference real code**: never make claims about code you haven't read.
+1. Reproduce first: don't fix what you haven't seen fail.
+2. Test-driven: write or locate a failing test before implementing the fix; confirm it actually fails.
+3. Verify root cause: locate the bug with grep/read evidence (file path, line number), not intuition.
+4. Verify the fix: run the full test suite; all tests must pass before calling the bug fixed.
+5. No invented fixes: only implement solutions that address the demonstrated root cause.
+6. Reference real code: never make claims about code you haven't read.
 
 ## Workflow Mode: Inline by Default
 
@@ -188,9 +189,9 @@ info, and any `LEAN-DEBT` markers left behind.
 
 ## Important Notes
 
-- **Test-driven**: see the test fail before writing the fix.
-- **Minimal changes**: fix the bug, don't refactor unrelated code.
-- **Evidence-based**: cite real file paths and line numbers, never a guess.
-- **All tests must pass** before this is done; never commit with failing tests.
-- **Ask when unsure**: clarifying is cheaper than guessing wrong and redoing it.
-- **Browser testing is optional**: only when the bug is UI-facing and the tooling is available (see references/examples.md).
+- Test-driven: see the test fail before writing the fix.
+- Minimal changes: fix the bug, don't refactor unrelated code.
+- Evidence-based: cite real file paths and line numbers, never a guess.
+- All tests must pass before this is done; never commit with failing tests.
+- Ask when unsure: clarifying is cheaper than guessing wrong and redoing it.
+- Browser testing is optional, only when the bug is UI-facing and the tooling is available (see references/examples.md).

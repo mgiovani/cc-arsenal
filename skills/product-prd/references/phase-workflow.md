@@ -10,16 +10,13 @@ resume machinery).
 DISCOVER → DECIDE → ═AUTHORIZATION GATE═ → AUTHOR → VALIDATE
 ```
 
-- **Discover**: ingest the source; inspect the repo before asking anything; tag
-  every finding CONFIRMED / INFERRED / UNKNOWN. Then run **gate-zero**.
-- **Decide**: pick the tier (size AND intent), fan out research, interview the open
-  decisions in dependency order, assemble the ~1-page alignment summary.
-- **Authorization gate**: the one hard stop. Author nothing until the user
-  explicitly authorizes. On "no": revise and re-present. Never author on silence.
-- **Author**: fill the tier's single PRD.md from its template; ID'd, testable,
-  traceable requirements; one append-only decision log.
-- **Validate**: run `validate.py` + `hygiene.py`, fix CRITICAL/MAJOR, self-grade,
-  hand off.
+| Phase | What happens |
+|---|---|
+| Discover | Ingest the source; inspect the repo before asking anything; tag every finding CONFIRMED / INFERRED / UNKNOWN. Then run gate-zero. |
+| Decide | Pick the tier (size AND intent), fan out research, interview the open decisions in dependency order, assemble the ~1-page alignment summary. |
+| Authorization gate | The one hard stop. Author nothing until the user explicitly authorizes. On "no": revise and re-present. Never author on silence. |
+| Author | Fill the tier's single PRD.md from its template; ID'd, testable, traceable requirements; one append-only decision log. |
+| Validate | Run `validate.py` + `hygiene.py`, fix CRITICAL/MAJOR, self-grade, hand off. |
 
 ## Gate-zero: does this need a written doc at all?
 
@@ -40,12 +37,12 @@ overrides the assessment.
 
 | Tier | When | Output |
 |---|---|---|
-| **brief** (small) | single feature/addition | one `PRD.md` from `brief.md`, ~2-3 requirements, <30s read |
-| **one-pager** (medium) | a module or small app | one `PRD.md` from `one-pager.md`, mandatory non-goals, ≤2pp |
-| **big / validation** | "should we build this?" | one `PRD.md` from `prfaq.md`, press release + FAQ + top-3 failures |
-| **big / execution** | "we've decided; build it" | one `PRD.md` from `prd-full.md`, numbered reqs, baseline/target/window metrics, dated changelog |
+| brief (small) | single feature/addition | one `PRD.md` from `brief.md`, ~2-3 requirements, <30s read |
+| one-pager (medium) | a module or small app | one `PRD.md` from `one-pager.md`, mandatory non-goals, ≤2pp |
+| big / validation | "should we build this?" | one `PRD.md` from `prfaq.md`, press release + FAQ + top-3 failures |
+| big / execution | "we've decided; build it" | one `PRD.md` from `prd-full.md`, numbered reqs, baseline/target/window metrics, dated changelog |
 
-Single file is the default at **every** tier. Split a section into its own file
+Single file is the default at every tier. Split a section into its own file
 only when it outgrows itself; reach for `scaffold.py --enterprise` only for a
 platform-scale program that genuinely needs the multi-file tree.
 
@@ -63,14 +60,14 @@ On a boundary, ask the user which tier rather than guessing.
 
 ### Graduating guard
 
-If a **one-pager** draft exceeds ~5-7 requirements or the scope touches more than
-one team/system, **stop and restart in `prd-full.md`** rather than bloating the
+If a one-pager draft exceeds ~5-7 requirements or the scope touches more than
+one team/system, stop and restart in `prd-full.md` rather than bloating the
 one-pager in place. Bloating a lighter template is the failure mode this guard prevents.
 
 ## Discovery mode: pick by context
 
-- **Cold start:** ask 3-5 lettered clarifying questions (terse answers like "1A,2C,3B").
-- **Warm start (already discussed):** synthesize from the conversation + a quick repo
+- Cold start: ask 3-5 lettered clarifying questions (terse answers like "1A,2C,3B").
+- Warm start (already discussed): synthesize from the conversation + a quick repo
   scan, but always run a lightweight completeness/gap check before finalizing, or
   the PRD inherits whatever was wrong in the prior context. Tag remaining gaps
   `[NEEDS CLARIFICATION: ...]`.
@@ -107,12 +104,13 @@ forums/blogs.
 
 ## Knowledge categories: keep them separate
 
-- **Facts**: verified from the repo or a cited source (CONFIRMED).
-- **Assumptions**: working beliefs pending validation → decision log (`assumption`).
-- **Decisions**: choices the user approved → decision log (`decision`).
-- **Recommendations**: your evidence-based advice; never rendered as an approved
-  requirement until a decision approves it.
-- **Findings**: externally sourced, always cited → decision log (`finding`).
+| Category | Meaning |
+|---|---|
+| Facts | verified from the repo or a cited source (CONFIRMED) |
+| Assumptions | working beliefs pending validation → decision log (`assumption`) |
+| Decisions | choices the user approved → decision log (`decision`) |
+| Recommendations | your evidence-based advice; never rendered as an approved requirement until a decision approves it |
+| Findings | externally sourced, always cited → decision log (`finding`) |
 
 Blurring these is the most common PRD failure. A recommendation the user hasn't
 approved is not a requirement.

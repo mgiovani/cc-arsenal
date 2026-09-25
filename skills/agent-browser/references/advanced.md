@@ -9,10 +9,9 @@ Multiple isolated browser sessions with state persistence and concurrent browsin
 
 **Related**: see Authentication Patterns below for login patterns, [SKILL.md](../SKILL.md) for quick start.
 
-## Contents
+Jump to a subsection:
 
 - [Named Sessions](#named-sessions)
-- [Session Isolation Properties](#session-isolation-properties)
 - [Session State Persistence](#session-state-persistence)
 - [Common Patterns](#common-patterns)
 - [Default Session](#default-session)
@@ -35,15 +34,7 @@ agent-browser --session auth fill @e1 "user@example.com"
 agent-browser --session public get text body
 ```
 
-## Session Isolation Properties
-
-Each session has independent:
-- Cookies
-- LocalStorage / SessionStorage
-- IndexedDB
-- Cache
-- Browsing history
-- Open tabs
+Each session has independent cookies, localStorage/sessionStorage, IndexedDB, cache, browsing history, and open tabs.
 
 ## Session State Persistence
 
@@ -227,7 +218,7 @@ Login flows, session persistence, OAuth, 2FA, and authenticated browsing.
 
 The fastest way to authenticate is to reuse cookies from a Chrome session you are already logged into.
 
-**Step 1: Start Chrome with remote debugging**
+Start Chrome with remote debugging enabled:
 
 ```bash
 # macOS
@@ -240,18 +231,18 @@ google-chrome --remote-debugging-port=9222
 "C:\Program Files\Google\Chrome\Application\chrome.exe" --remote-debugging-port=9222
 ```
 
-Log in to your target site(s) in this Chrome window as you normally would.
+Log in to your target site(s) in that window as you normally would.
 
 > **Security note:** `--remote-debugging-port` exposes full browser control on localhost. Any local process can connect and read cookies, execute JS, etc. Only use on trusted machines and close Chrome when done.
 
-**Step 2: Grab the auth state**
+Next, grab the auth state from that running Chrome:
 
 ```bash
 # Auto-discover the running Chrome and save its cookies + localStorage
 agent-browser --auto-connect state save ./my-auth.json
 ```
 
-**Step 3: Reuse in automation**
+Then reuse it in automation, either at launch or by loading it into an existing session. This works for any site, including those behind OAuth, SSO, or 2FA, as long as Chrome already has valid session cookies:
 
 ```bash
 # Load auth at launch
@@ -261,8 +252,6 @@ agent-browser --state ./my-auth.json open https://app.example.com/dashboard
 agent-browser state load ./my-auth.json
 agent-browser open https://app.example.com/dashboard
 ```
-
-This works for any site, including those with complex OAuth flows, SSO, or 2FA -- as long as Chrome already has valid session cookies.
 
 > **Security note:** State files contain session tokens in plaintext. Add them to `.gitignore`, delete when no longer needed, and set `AGENT_BROWSER_ENCRYPTION_KEY` for encryption at rest. See [Security Best Practices](#security-best-practices).
 
@@ -659,7 +648,7 @@ facebook/react and is safe; custom `--init-script` files are the user's
 responsibility.
 
 The hook in particular exposes `window.__REACT_DEVTOOLS_GLOBAL_HOOK__` to
-every page in the browsing context, including third-party iframes. For
+every page in the browsing context, including cross-origin iframes. For
 production-auditing tasks against sites that handle secrets, consider
 whether you want that global exposed during the session.
 
@@ -925,13 +914,13 @@ agent-browser profiler stop ./trace.json
 
 The `--categories` flag accepts a comma-separated list of Chrome trace categories. Default categories include:
 
-- `devtools.timeline` -- standard DevTools performance traces
-- `v8.execute` -- time spent running JavaScript
-- `blink` -- renderer events
-- `blink.user_timing` -- `performance.mark()` / `performance.measure()` calls
-- `latencyInfo` -- input-to-latency tracking
-- `renderer.scheduler` -- task scheduling and execution
-- `toplevel` -- broad-spectrum basic events
+- `devtools.timeline`: standard DevTools performance traces
+- `v8.execute`: time spent running JavaScript
+- `blink`: renderer events
+- `blink.user_timing`: `performance.mark()` / `performance.measure()` calls
+- `latencyInfo`: input-to-latency tracking
+- `renderer.scheduler`: task scheduling and execution
+- `toplevel`: broad-spectrum basic events
 
 Several `disabled-by-default-*` categories are also included for detailed timeline, call stack, and V8 CPU profiling data.
 
@@ -988,9 +977,9 @@ The `metadata.clock-domain` field is set based on the host platform (Linux or ma
 
 Load the output JSON file in any of these tools:
 
-- **Chrome DevTools**: Performance panel > Load profile (Ctrl+Shift+I > Performance)
-- **Perfetto UI**: https://ui.perfetto.dev/ -- drag and drop the JSON file
-- **Trace Viewer**: `chrome://tracing` in any Chromium browser
+- Chrome DevTools: Performance panel > Load profile (Ctrl+Shift+I > Performance)
+- Perfetto UI: https://ui.perfetto.dev/ (drag and drop the JSON file)
+- Trace Viewer: `chrome://tracing` in any Chromium browser
 
 ## Limitations
 

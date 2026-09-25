@@ -22,35 +22,35 @@ Generate comprehensive test suites with coverage gap analysis and parallel test 
 
 $ARGUMENTS
 
-## Anti-Hallucination Guidelines
+## Anti-hallucination guidelines
 
 Test generation must be grounded in code you actually read and patterns you actually verified: a test for a method that doesn't exist, or a coverage number you didn't measure, is worse than no test at all:
 
 1. Read the source file before writing any test for it.
 2. Discover the test framework from the project itself (Step 0.2) rather than assuming pytest/vitest/jest.
-3. Match the project's existing test style, fixtures, and conventions exactly.
+3. Match the project's existing test style exactly, down to its fixtures and other conventions.
 4. Run every generated test: a test that has never executed is unverified.
-5. Only reference methods, functions, and interfaces that exist in the code you read.
+5. Only reference methods and functions that exist in the code you read, along with their real interfaces.
 6. Every test needs a meaningful assertion, not just "does not throw."
 7. Target untested code paths; don't duplicate coverage that already exists.
-8. Any coverage percentage, baseline, or file path you report must come from a command you actually ran, never estimate or invent one, even under time pressure.
+8. Any coverage percentage or baseline you report must come from a command you actually ran; the same goes for any file path. Never estimate or invent one, even under time pressure.
 
 A Stop hook re-runs the discovered test/coverage/lint commands automatically before letting the session end (see frontmatter). Phase 4 below exists only to catch failures before that automatic gate fires, not to duplicate it.
 
 ## Scope: pick a track before starting
 
-- **Small** (1-2 tests, a single file, a quick fix): skip task creation and the approval gate. Discover the test command (Step 0.2), write the tests, run them, done. Don't spin up Task Management ceremony for a two-test add.
-- **Large** (multiple files/modules, a coverage push, anything needing parallel subagents): use the full Phase 0-5 workflow with Task Management below.
+- Small (1-2 tests, a single file, a quick fix): skip task creation and the approval gate. Discover the test command (Step 0.2), write the tests, run them, done. Don't spin up Task Management ceremony for a two-test add.
+- Large (multiple files/modules, a coverage push, anything needing parallel subagents): use the full Phase 0-5 workflow with Task Management below.
 
 If unsure, default to Small and escalate only if the target turns out to span several modules.
 
-**Portability:** No `Task`/`TaskCreate` tools in this environment? Skip task tracking and the parallel subagent fan-out in Phase 3: write the tests for each module group yourself, one group at a time. The phase structure is the contract; parallelism is just a speedup.
+Portability: No `Task`/`TaskCreate` tools in this environment? Skip task tracking and the parallel subagent fan-out in Phase 3: write the tests for each module group yourself, one group at a time. The phase structure is the contract; parallelism is just a speedup.
 
 ## Implementation Workflow (Large track)
 
 ### Phase 0: Project Discovery
 
-**Step 0.1: Create Task Structure**
+Step 0.1: Create Task Structure
 
 Create one task per phase, in order. `TaskCreate` returns the task's real ID: capture it and reuse that captured value everywhere below. Never assume IDs are literally `"1"`, `"2"`, etc.
 
@@ -75,7 +75,7 @@ TaskUpdate: { taskId: commitId, addBlockedBy: [verifyId] }
 TaskUpdate: { taskId: discoverId, status: "in_progress" }
 ```
 
-**Step 0.2: Discover Test Workflow**
+Step 0.2: Discover Test Workflow
 
 Use a Haiku-powered Explore agent for token-efficient discovery:
 
@@ -111,7 +111,7 @@ Use Task tool with Explore agent:
 
 Store discovered commands and patterns for use in later phases.
 
-**Step 0.3: Complete Phase 0**
+Step 0.3: Complete Phase 0
 
 ```
 TaskUpdate: { taskId: discoverId, status: "completed" }
@@ -120,15 +120,15 @@ TaskList  # Check that the Phase 1 task (gapsId) is now unblocked
 
 ### Phase 1: Coverage Gap Analysis
 
-**Goal**: Identify what code lacks test coverage and prioritize test generation targets.
+Goal: Identify what code lacks test coverage and prioritize test generation targets.
 
-**Step 1.1: Start Phase 1**
+Step 1.1: Start Phase 1
 
 ```
 TaskUpdate: { taskId: gapsId, status: "in_progress" }
 ```
 
-**Step 1.2: Establish Coverage Baseline**
+Step 1.2: Establish Coverage Baseline
 
 Run the discovered coverage command to get the current state:
 
@@ -160,18 +160,21 @@ Use Task tool with Explore agent:
 - model: "haiku"
 ```
 
-**Step 1.3: Prioritize Test Targets**
+Step 1.3: Prioritize Test Targets
 
 Rank files/modules for test generation by:
-1. **Critical business logic** - Authentication, payments, data processing
-2. **Untested code** - Files with zero test coverage
-3. **Complex code** - High cyclomatic complexity, many branches
-4. **Recently changed** - Code modified in recent commits (use `git log --oneline -20 --name-only`)
-5. **Error-prone areas** - Code with known bugs or frequent changes
+
+| Priority | Signal |
+| --- | --- |
+| 1 | Critical business logic: authentication, payments, data processing |
+| 2 | Untested code: files with zero test coverage |
+| 3 | Complex code: high cyclomatic complexity, many branches |
+| 4 | Recently changed: code modified in recent commits (use `git log --oneline -20 --name-only`) |
+| 5 | Error-prone areas: code with known bugs or frequent changes |
 
 If the user specified target files/modules, prioritize those. Otherwise, use the ranking above.
 
-**Step 1.4: Complete Phase 1**
+Step 1.4: Complete Phase 1
 
 ```
 TaskUpdate: { taskId: gapsId, status: "completed" }
@@ -180,15 +183,15 @@ TaskList  # Check that the Phase 2 task (planId) is now unblocked
 
 ### Phase 2: Test Plan (User Approval)
 
-**Goal**: Present a test plan for user review before generating tests.
+Goal: Present a test plan for user review before generating tests.
 
-**Step 2.1: Start Phase 2**
+Step 2.1: Start Phase 2
 
 ```
 TaskUpdate: { taskId: planId, status: "in_progress" }
 ```
 
-**Step 2.2: Present Test Plan**
+Step 2.2: Present Test Plan
 
 Use `AskUserQuestion` to present the plan and get approval:
 
@@ -207,14 +210,17 @@ AskUserQuestion:
 
 No `AskUserQuestion` tool available? Present the same plan as plain text and wait for the user's reply before moving on to Phase 3.
 
-The plan should include for each target:
-- **File/module path** being tested
-- **Functions/methods** to cover
-- **Test types**: Unit tests, integration tests, edge cases
-- **Estimated test count** per file
-- **Test file location** following project conventions
+The plan should include, for each target:
 
-**Step 2.3: Complete Phase 2**
+| Field | Content |
+| --- | --- |
+| File/module path | The path being tested |
+| Functions/methods | Which ones to cover |
+| Test types | Unit tests, integration tests, edge cases |
+| Estimated test count | Per file |
+| Test file location | Following project conventions |
+
+Step 2.3: Complete Phase 2
 
 ```
 TaskUpdate: { taskId: planId, status: "completed" }
@@ -223,15 +229,15 @@ TaskList  # Check that the Phase 3 task (genId) is now unblocked
 
 ### Phase 3: Parallel Test Generation
 
-**Goal**: Generate tests efficiently using parallel subagents, one per module or file group.
+Goal: Generate tests efficiently using parallel subagents, one per module or file group.
 
-**Step 3.1: Start Phase 3**
+Step 3.1: Start Phase 3
 
 ```
 TaskUpdate: { taskId: genId, status: "in_progress" }
 ```
 
-**Step 3.2: Create Parallel Subagent Tasks**
+Step 3.2: Create Parallel Subagent Tasks
 
 Group approved test targets into logical units (by module, feature area, or related files) and create a child task for each, capturing each returned ID:
 
@@ -247,11 +253,11 @@ apiChildId = TaskCreate({ subject: "Write tests for API routes", description: "G
 TaskUpdate: { taskId: verifyId, addBlockedBy: [authChildId, userChildId, apiChildId] }
 ```
 
-**Step 3.3: Spawn Parallel Subagents**
+Step 3.3: Spawn Parallel Subagents
 
 For each module group, spawn a Sonnet subagent using the Task tool:
 
-**Subagent Instructions Template:**
+Subagent Instructions Template:
 
 ```
 Generate comprehensive tests for [MODULE/FILES].
@@ -285,23 +291,23 @@ After writing tests:
 Do NOT commit - the main agent handles commits.
 ```
 
-**Model Selection:**
-- **Use Sonnet (default)** for test generation (requires code understanding and writing)
-- **Use Haiku** only for pure exploration tasks (not applicable in Phase 3)
+Model Selection:
+- Use Sonnet (default) for test generation, since it requires code understanding and writing.
+- Use Haiku only for pure exploration tasks (not applicable in Phase 3).
 
-**Parallelization Strategy:**
+Parallelization Strategy:
 - Spawn all independent module subagents simultaneously
 - Each subagent writes tests for its assigned module group
 - Subagents run tests locally to verify before completion
 
-**Step 3.4: Review Subagent Output**
+Step 3.4: Review Subagent Output
 
 After each subagent completes:
 1. Review the generated test files
 2. Verify the tests follow project conventions
 3. Update the corresponding child task: `TaskUpdate: { taskId: <that child's captured ID>, status: "completed" }`
 
-**Step 3.5: Complete Phase 3**
+Step 3.5: Complete Phase 3
 
 ```
 # After all subagent tasks complete
@@ -311,7 +317,7 @@ TaskList  # Verify Phase 4 (verifyId) is now unblocked
 
 ### Phase 4: Quality Verification
 
-**Goal**: Catch failures before the Stop hook's automatic final check.
+Goal: Catch failures before the Stop hook's automatic final check.
 
 Run the discovered test command once:
 
@@ -334,13 +340,13 @@ TaskList  # Check that the Phase 5 task (commitId) is now unblocked
 
 ### Phase 5: Final Commit
 
-**Step 5.1: Start Phase 5**
+Step 5.1: Start Phase 5
 
 ```
 TaskUpdate: { taskId: commitId, status: "in_progress" }
 ```
 
-**Step 5.2: Create Commit**
+Step 5.2: Create Commit
 
 Use the `cc-arsenal:git-commit` skill to create the commit where available; otherwise create a conventional commit manually, using the actual coverage numbers from the command you ran in Phase 4/Phase 1, never an estimate:
 
@@ -354,7 +360,7 @@ git commit -m "test: add comprehensive tests for [modules]
 - Frameworks: [test framework used]"
 ```
 
-**Step 5.3: Complete Phase 5 and Test Generation**
+Step 5.3: Complete Phase 5 and Test Generation
 
 ```
 TaskUpdate: { taskId: commitId, status: "completed" }
@@ -364,26 +370,31 @@ TaskList  # Show final status - all tasks should be completed
 ## Output Summary
 
 Provide a summary including:
-- **Tests generated**: Number of test files and test cases
-- **Coverage improvement**: Baseline → new coverage percentage (from the commands actually run, not estimated)
-- **Modules covered**: List of modules/files that received new tests
-- **Test types**: Unit, integration, edge cases breakdown
-- **Remaining gaps**: What still lacks coverage and recommendations
-- **Commit**: Reference to the commit created
+
+| Field | Content |
+| --- | --- |
+| Tests generated | Number of test files and test cases |
+| Coverage improvement | Baseline to new coverage percentage (from the commands actually run, not estimated) |
+| Modules covered | List of modules/files that received new tests |
+| Test types | Unit, integration, edge cases breakdown |
+| Remaining gaps | What still lacks coverage and recommendations |
+| Commit | Reference to the commit created |
 
 ## Test Quality Principles
 
 Generated tests must follow these principles:
 
-1. **Arrange-Act-Assert**: Clear structure in every test
-2. **Single responsibility**: Each test verifies one behavior
-3. **Descriptive names**: Test name explains the scenario and expected outcome
-4. **Independence**: Tests do not depend on execution order or shared state
-5. **Deterministic**: Same result every time, no flaky tests
-6. **Fast**: Unit tests run quickly; minimize I/O and external calls
-7. **Readable**: Tests serve as documentation for the code under test
-8. **Maintainable**: Avoid testing implementation details; test behavior and contracts
-9. **Lean coverage**: Over-testing is the failure mode in the other direction: skip trivial getters, pure pass-throughs, and framework-guaranteed behavior. Don't add a snapshot test or an assert-nothing test just to move a coverage number. The one exception: never skip a test for a security, validation, or data-loss path just because it's tedious to set up, that risk is always worth the test.
+| Principle | Detail |
+| --- | --- |
+| Arrange-Act-Assert | Clear structure in every test |
+| Single responsibility | Each test verifies one behavior |
+| Descriptive names | Test name explains the scenario and expected outcome |
+| Independence | Tests do not depend on execution order or shared state |
+| Deterministic | Same result every time, no flaky tests |
+| Fast | Unit tests run quickly; minimize I/O and external calls |
+| Readable | Tests serve as documentation for the code under test |
+| Maintainable | Avoid testing implementation details; test behavior and contracts |
+| Lean coverage | Over-testing is the failure mode in the other direction. Skip trivial getters and pure pass-throughs, as well as framework-guaranteed behavior. Don't add a snapshot test or an assert-nothing test just to move a coverage number. The one exception: never skip a test for a security or validation path, or one touching data loss, just because it's tedious to set up; that risk is always worth the test. |
 
 ## Additional Resources
 

@@ -1,4 +1,4 @@
-# Claude Slash Command Automation
+# Claude slash command automation
 
 Automate your custom Claude Code slash commands on a daily schedule! Perfect for workflows like daily standups, automated reviews, security scans, and performance monitoring.
 
@@ -6,7 +6,7 @@ Automate your custom Claude Code slash commands on a daily schedule! Perfect for
 
 Just like you automate PR reviews with cron, now you can automate any Claude Code custom slash command to run at scheduled times. This creates a proactive AI workflow layer that handles routine tasks automatically.
 
-## Quick Start
+## Quick start
 
 ```bash
 # Interactive setup
@@ -22,41 +22,41 @@ make claude-slash-list
 make claude-slash-remove
 ```
 
-## Common Use Cases
+## Common use cases
 
-### Daily Standups
+### Daily standups
 ```bash
 # Automate daily standup at 9am
 ./claude_slash_cron.sh setup '/daily-standup' '9'
 ```
 
-### Code Reviews
+### Code reviews
 ```bash
 # Review PRs twice daily
 ./claude_slash_cron.sh setup '/review-prs' '10,16' '/path/to/project'
 ```
 
-### Security Scans
+### Security scans
 ```bash
 # Security audit every morning
 ./claude_slash_cron.sh setup '/security-scan' '8'
 ```
 
-### Performance Monitoring
+### Performance monitoring
 ```bash
 # Performance checks at business hours
 ./claude_slash_cron.sh setup '/perf-check' '9,12,15,17'
 ```
 
-### Deployment Verification
+### Deployment verification
 ```bash
 # Check deployments after typical deploy times
 ./claude_slash_cron.sh setup '/check-deploy' '11,17'
 ```
 
-## Advanced Usage
+## Advanced usage
 
-### Project-Specific Automation
+### Project-specific automation
 ```bash
 # Run command in specific project directory
 ./claude_slash_cron.sh setup '/daily-standup' '9' '~/myproject' 'project-standup'
@@ -67,14 +67,17 @@ make claude-slash-remove
 ./claude_slash_cron.sh setup '/deploy-check' '14' '/var/www/production'
 ```
 
-### Directory Selection Guide
-- **Current directory**: Leave empty - command runs wherever you are when it executes
-- **Specific project**: Enter full path - command always runs in that project folder
-- **Tilde expansion**: `~/myproject` expands to `/Users/yourname/myproject`
-- **Relative paths**: `../other-project` resolves relative to current directory
-- **Validation**: System checks if directory exists and offers to create it
+### Directory selection guide
 
-### Multiple Schedules
+| Option | Behavior |
+| --- | --- |
+| Current directory | Leave empty; the command runs wherever you are when it executes |
+| Specific project | Enter a full path; the command always runs in that project folder |
+| Tilde expansion | `~/myproject` expands to `/Users/yourname/myproject` |
+| Relative paths | `../other-project` resolves relative to the current directory |
+| Validation | The system checks whether the directory exists and offers to create it |
+
+### Multiple schedules
 ```bash
 # Different commands at different times
 ./claude_slash_cron.sh setup '/morning-brief' '8'
@@ -82,16 +85,18 @@ make claude-slash-remove
 ./claude_slash_cron.sh setup '/evening-summary' '18'
 ```
 
-## Schedule Formats
+## Schedule formats
 
-- **Single time**: `'9'` (9am daily)
-- **Multiple times**: `'9,17'` (9am and 5pm daily)
-- **Business hours**: `'9,12,15,17'` (every 3 hours)
-- **Frequent**: `'8,10,12,14,16,18'` (every 2 hours)
+The schedule argument accepts one or more comma-separated hours (0-23, 24-hour clock), and the cron job fires once for each hour listed:
 
-## Management Commands
+- Single time: `'9'` (9am daily)
+- Multiple times: `'9,17'` (9am and 5pm daily)
+- Business hours: `'9,12,15,17'` (every 3 hours)
+- Frequent: `'8,10,12,14,16,18'` (every 2 hours)
 
-### Setup New Automation
+## Management commands
+
+### Setup new automation
 ```bash
 # Interactive setup
 make claude-slash-setup
@@ -100,7 +105,7 @@ make claude-slash-setup
 ./claude_slash_cron.sh setup <command> <schedule> [project_dir] [name]
 ```
 
-### Monitor Status
+### Monitor status
 ```bash
 # Show all automations and recent activity
 make claude-slash-status
@@ -109,7 +114,7 @@ make claude-slash-status
 make claude-slash-list
 ```
 
-### Remove Automation
+### Remove automation
 ```bash
 # Interactive removal
 make claude-slash-remove
@@ -118,13 +123,15 @@ make claude-slash-remove
 ./claude_slash_cron.sh remove <name>
 ```
 
-## File Locations
+## File locations
 
-- **Execution script**: `~/.claude/run_slash_command.sh`
-- **Configurations**: `~/.claude/slash_cron/*.conf`
-- **Activity log**: `~/.claude/slash_cron.log`
+Setup writes three files under `~/.claude`, and every automation reads and appends to them on each run:
 
-## Integration with Existing Workflows
+- Execution script: `~/.claude/run_slash_command.sh`
+- Configurations: `~/.claude/slash_cron/*.conf`
+- Activity log: `~/.claude/slash_cron.log`
+
+## Integration with existing workflows
 
 This system works alongside your existing cron jobs. For example:
 
@@ -137,14 +144,14 @@ This system works alongside your existing cron jobs. For example:
 0 10 * * * ~/.claude/run_slash_command.sh "/review-prs"
 ```
 
-## Security & Reliability
+## Security & reliability
 
-- **Timeout protection**: Commands timeout after 5 minutes
-- **Full logging**: All executions logged with timestamps
-- **Error handling**: Failed commands don't break the schedule
-- **Context awareness**: Commands run in correct project directories
+- Timeout protection: commands timeout after 5 minutes
+- Full logging: all executions logged with timestamps
+- Error handling: failed commands don't break the schedule
+- Context awareness: commands run in the correct project directories
 
-## Example Workflow: Full Day Automation
+## Example workflow: full day automation
 
 ```bash
 # Morning briefing
@@ -172,7 +179,7 @@ This creates a fully automated AI-powered workday with:
 
 ## Troubleshooting
 
-### Command Not Running
+### Command not running
 ```bash
 # Check cron jobs are installed
 crontab -l | grep "Claude Slash"
@@ -181,7 +188,7 @@ crontab -l | grep "Claude Slash"
 tail ~/.claude/slash_cron.log
 ```
 
-### Execution Errors
+### Execution errors
 ```bash
 # Test command manually
 ~/.claude/run_slash_command.sh "/your-command"
@@ -190,7 +197,7 @@ tail ~/.claude/slash_cron.log
 make claude-slash-status
 ```
 
-### Permission Issues
+### Permission issues
 ```bash
 # Ensure script is executable
 chmod +x ~/.claude/run_slash_command.sh
@@ -199,12 +206,12 @@ chmod +x ~/.claude/run_slash_command.sh
 ./claude_slash_cron.sh create-script
 ```
 
-## Pro Tips
+## Pro tips
 
-1. **Start simple**: Begin with one automation and expand gradually
-2. **Use descriptive names**: Makes management easier with multiple automations
-3. **Test first**: Run commands manually before automating
-4. **Monitor logs**: Check activity regularly to ensure smooth operation
-5. **Combine with claude-hi**: Use both systems for comprehensive Claude automation
+1. Start simple: begin with one automation and expand gradually
+2. Use descriptive names: makes management easier with multiple automations
+3. Test first: run commands manually before automating
+4. Monitor logs: check activity regularly to ensure smooth operation
+5. Combine with claude-hi: use both systems for comprehensive Claude automation
 
 Transform your development workflow with intelligent, scheduled AI assistance!

@@ -21,16 +21,16 @@ agent: general-purpose
 
 Create a new Architecture Decision Record (ADR) documenting an architectural decision.
 
-## Anti-Hallucination Guidelines
+## Anti-hallucination guidelines
 
 ADRs document real decisions about real code: every claim in the ADR must be verifiable
 in the repo, not assumed. Before writing:
 
-1. **Verify the technology exists**: if the ADR mentions "Redis", confirm Redis is
+1. Verify the technology exists: if the ADR mentions "Redis", confirm Redis is
    actually used somewhere in the codebase.
-2. **Reference actual files**: grep/glob to find real file paths; never invent one.
-3. **Quote real code**: if citing a pattern, find an actual example of it.
-4. **Check current state**: the Context section must reflect verified reality, not a
+2. Reference actual files: grep/glob to find real file paths, never invent one.
+3. Quote real code: if citing a pattern, find an actual example of it.
+4. Check current state: the Context section must reflect verified reality, not a
    plausible-sounding guess.
 
 ## Workflow

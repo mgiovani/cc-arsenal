@@ -29,7 +29,7 @@ questions and nothing else. Never both in the same turn.
 
 $ARGUMENTS
 
-## Anti-Hallucination Guidelines
+## Anti-hallucination guidelines
 
 Before implementing anything:
 1. Discover project commands first: do not assume `bun`, `npm`, `make`, etc. exist.
@@ -44,18 +44,12 @@ Before implementing anything:
 
 Write the smallest change that fully does the job, and that the next person can change without fear. Two goals at once: minimal footprint, easy to change.
 
-**Before you add code**
-- **Does it already exist?** Search this codebase, the standard library, the framework, and installed dependencies before writing anything new. Reuse beats reimplementation.
-- **Does it need to exist?** Build only what a current, concrete requirement needs: no speculative flags, options, or extension points for a future that may never come.
-- **Is the abstraction earning its keep?** No interface with a single implementation, no factory for one product, no wrapper that only forwards. Add indirection when a second caller actually appears.
+Before you add code, search this codebase, the standard library, the framework, and installed dependencies first: reuse beats reimplementation. Build only what a current, concrete requirement needs, skip speculative flags, options, or extension points for a future that may never come. Watch for abstraction that isn't earning its keep: no interface with a single implementation, no factory for one product, no wrapper that only forwards; add indirection once a second caller actually appears.
 
-**While you write it**
-- **Change it in one place.** Put logic where a future change touches one spot: fix the shared function once instead of guarding every caller.
-- **Smallest correct surface.** Prefer the change that reuses or deletes code over the one that adds it. Fewer files, shorter diff, as long as it stays complete.
-- **Read before you change.** Trace the real flow of the code you touch, end to end, first. A tiny diff written without understanding is a liability, not lean.
+While you write it, put logic where a future change touches one spot, fixing the shared function once instead of guarding every caller. Favor the change that reuses or deletes code over the one that adds it, fewer files and a shorter diff, as long as it stays complete. Trace the real flow of the code you touch, end to end, before changing it: a tiny diff written without understanding is a liability, not lean.
 
 **The line you never cross: lean, never negligent**
-"Only what the task needs" is about scope, not corner-cutting. Input/trust-boundary validation, error and data-loss handling, security, and accessibility are always in scope, however small the change. A version that drops one of these isn't leaner: it's unfinished.
+"Only what the task needs" is about scope, not corner-cutting. Validating input at trust boundaries and handling errors or data loss stay in scope no matter how small the change is, and so does keeping it secure and accessible. A version that drops any of that isn't leaner: it's unfinished.
 
 **When you deliberately simplify**
 Leave an auditable trail instead of a silent gap:
@@ -65,14 +59,11 @@ A marker is for a shortcut chosen on purpose: never a license to skip the never-
 
 ## Verification Gates
 
-Before marking an implementation complete, run the project's real commands (discovered in Phase 0) and require all of them to pass:
-1. **Test suite**: e.g. `make test`, `npm test`, `pytest`.
-2. **Lint**: e.g. `make lint`, `npm run lint`, `ruff check`.
-3. **Type check / build**: if the project has one.
+Before marking an implementation complete, run the project's real commands (discovered in Phase 0) and require all of them to pass: the test suite (e.g. `make test`, `npm test`, `pytest`), lint (e.g. `make lint`, `npm run lint`, `ruff check`), and type check / build if the project has one.
 
 Any check fails → keep working, do not mark complete. Command not found → go back to Phase 0 discovery, don't guess one.
 
-## Task Tracking: Opt-In, Not Default
+## Task tracking: opt-in, not default
 
 Create Task-system entries (`TaskCreate`/`TaskUpdate`) **only** when the feature crosses
 one of these:
@@ -246,7 +237,7 @@ and go back to asking, the same way Step 0.0 would have.
 Summarize: features implemented, files created/modified, tests added, manual-testing
 results (if performed), and any known limitations or follow-up items. Every number in
 this summary must trace back to a command actually run this session (see
-Anti-Hallucination Guidelines).
+Anti-hallucination guidelines).
 
 ## Usage
 

@@ -102,9 +102,9 @@ This reference is loaded when `db-migrate` needs framework-specific commands.
 
 ## Common Pitfalls
 
-1. **Missing DOWN migration**: Always write rollback scripts; production incidents require quick rollback
-2. **Non-transactional DDL**: Some DB engines (MySQL) auto-commit DDL; wrap in explicit transactions where supported
-3. **Large table migrations**: `ALTER TABLE` on large tables can lock; use `ADD COLUMN ... DEFAULT NULL` then backfill
-4. **Index creation**: Use `CREATE INDEX CONCURRENTLY` (Postgres) to avoid table locks
-5. **Enum types**: Adding enum values is forward-only in some DBs; plan carefully
-6. **Running in CI without a DB**: Use Docker service containers or test databases in CI pipelines
+1. Missing DOWN migration: always write rollback scripts, since production incidents require a quick rollback.
+2. Non-transactional DDL: some DB engines (MySQL) auto-commit DDL, so wrap it in explicit transactions where supported.
+3. Large table migrations: `ALTER TABLE` on large tables can lock, so use `ADD COLUMN ... DEFAULT NULL` then backfill.
+4. Index creation: use `CREATE INDEX CONCURRENTLY` (Postgres) to avoid table locks.
+5. Enum types: adding enum values is forward-only in some DBs, so plan carefully.
+6. Running in CI without a DB: use Docker service containers or test databases in CI pipelines

@@ -1,10 +1,12 @@
-# CI/CD Platform Patterns
+# CI/CD platform patterns
 
 Detailed YAML structure and patterns for each supported CI/CD platform. Use these as reference templates, adapting commands and versions to match the actual project stack discovered in Phase 1.
 
 ## GitHub Actions
 
-### Standard Node.js Pipeline
+### Standard Node.js pipeline
+
+Four parallel jobs, lint, test, build, security, gated behind a single concurrency group so superseded runs on the same ref get cancelled automatically.
 
 ```yaml
 name: CI
@@ -98,7 +100,9 @@ jobs:
       #     scan-ref: "."
 ```
 
-### Standard Python Pipeline
+### Standard Python pipeline
+
+Same shape as the Node.js pipeline above, swapped to `uv` (falls back to `pip` where noted) for dependency management.
 
 ```yaml
 name: CI
@@ -154,7 +158,9 @@ jobs:
       - run: uv run pip-audit  # or safety check
 ```
 
-### Matrix Testing Pattern
+### Matrix testing pattern
+
+Drop this in place of a single `test` job to run it across several Python versions; `fail-fast: false` keeps every version reporting even after one fails.
 
 ```yaml
   test:
@@ -173,7 +179,9 @@ jobs:
       - run: pytest
 ```
 
-### Docker Build & Push Pattern
+### Docker build & push pattern
+
+Note the `image` output: downstream deploy jobs must consume it rather than re-deriving their own tag, or they risk shipping an image that doesn't match what was just built.
 
 ```yaml
   docker:
@@ -206,7 +214,9 @@ jobs:
           cache-to: type=gha,mode=max
 ```
 
-### Vercel Deployment Pattern
+### Vercel deployment pattern
+
+Runs after `build`, deploys straight to production on a push to `main`.
 
 ```yaml
   deploy:
@@ -232,7 +242,9 @@ jobs:
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 ```
 
-### AWS Deployment Pattern (ECS)
+### AWS deployment pattern (ECS)
+
+Needs the `docker` job's image output to render the task definition; it deliberately does not restart the service blind.
 
 ```yaml
   deploy:
@@ -262,7 +274,9 @@ jobs:
           wait-for-service-stability: true
 ```
 
-### Monorepo Path Filter Pattern
+### Monorepo path filter pattern
+
+Only runs the `frontend`/`backend` jobs when their own paths changed, so an unrelated change doesn't rebuild the whole repo.
 
 ```yaml
 on:
@@ -311,7 +325,9 @@ jobs:
 
 ## GitLab CI
 
-### Standard Node.js Pipeline
+### Standard Node.js pipeline
+
+GitLab's `rules:` blocks stand in for GitHub's `on:` triggers; each job runs on merge requests and on pushes to the default branch.
 
 ```yaml
 stages:
@@ -381,7 +397,9 @@ security:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 ```
 
-### Standard Python Pipeline
+### Standard Python pipeline
+
+No `deploy` stage here (add one if the project needs it); the `uv` cache is keyed on the branch slug so a branch's dependency install stays warm across runs.
 
 ```yaml
 stages:
@@ -439,7 +457,9 @@ security:
   allow_failure: true
 ```
 
-### GitLab Docker Build Pattern
+### GitLab Docker build pattern
+
+Uses docker-in-docker (`dind`) as a service rather than the host's daemon, GitLab's usual sandboxing model for building images inside a runner.
 
 ```yaml
 docker:
@@ -462,7 +482,9 @@ docker:
 
 ## CircleCI
 
-### Standard Node.js Pipeline
+### Standard Node.js pipeline
+
+CircleCI's own `node` orb handles install and caching, so the jobs below only need to declare the commands.
 
 ```yaml
 version: 2.1
@@ -535,7 +557,9 @@ workflows:
             - test
 ```
 
-### Standard Python Pipeline
+### Standard Python pipeline
+
+No `python` orb dependency step here, `uv` is installed directly since it's faster than the orb's pip-based install.
 
 ```yaml
 version: 2.1
@@ -598,7 +622,9 @@ workflows:
 
 ## Jenkins
 
-### Declarative Pipeline (Node.js)
+### Declarative pipeline (Node.js)
+
+Jenkinsfiles are Groovy, not YAML; a `docker` agent pins the toolchain image the same way `runs-on`/`image:` does elsewhere.
 
 ```groovy
 pipeline {
@@ -691,7 +717,9 @@ pipeline {
 }
 ```
 
-### Declarative Pipeline (Python)
+### Declarative pipeline (Python)
+
+Lint, format, and type-check run as parallel branches of the same `Quality` stage rather than sequential steps.
 
 ```groovy
 pipeline {
@@ -762,9 +790,9 @@ pipeline {
 
 ---
 
-## Common Patterns (Cross-Platform)
+## Common patterns (cross-platform)
 
-### Caching Strategies
+### Caching strategies
 
 | Package Manager | Cache Key | Cache Path |
 |----------------|-----------|------------|
@@ -778,7 +806,7 @@ pipeline {
 | cargo | `Cargo.lock` hash | `~/.cargo/registry` |
 | go | `go.sum` hash | `~/go/pkg/mod` |
 
-### Security Scanning Tools
+### Security scanning tools
 
 | Language | Dependency Scan | SAST | Container Scan |
 |----------|----------------|------|----------------|
@@ -789,7 +817,7 @@ pipeline {
 | Java | OWASP Dependency-Check | SpotBugs, Semgrep | Trivy |
 | Ruby | `bundle-audit` | Brakeman | Trivy |
 
-### Branch Protection Patterns
+### Branch protection patterns
 
 ```
 main/master branch:
@@ -810,7 +838,7 @@ release/* branches:
   - Full pipeline including deploy to staging
 ```
 
-### Environment-Based Deployment
+### Environment-based deployment
 
 ```
 PR → lint + test + build (no deploy)

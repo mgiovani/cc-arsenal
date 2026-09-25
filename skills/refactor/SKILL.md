@@ -16,7 +16,7 @@ metadata:
 
 # Refactor
 
-Refactor code safely using characterization tests, incremental changes, and continuous verification. Every change preserves existing behavior while improving code structure, readability, and maintainability.
+Refactor code safely: capture current behavior with characterization tests, then restructure it in small steps, running the full test suite after each one before moving to the next.
 
 ## Refactoring Goal
 
@@ -26,16 +26,16 @@ $ARGUMENTS
 
 Refactoring changes code structure WITHOUT changing behavior. Every step must be verified against existing tests. If tests break, the refactoring introduced a bug: revert and retry.
 
-## Anti-Hallucination Guidelines
+## Anti-hallucination guidelines
 
-1. **Read before changing**: understand all callers and dependencies first.
-2. **Test before and after**: full suite before starting, and again after every incremental change. Results must match.
-3. **Characterization tests first**: where coverage is thin, capture current behavior in tests before restructuring.
-4. **Incremental changes**: one small, verifiable change at a time. Never combine steps into a single edit.
-5. **No feature changes**: refactoring doesn't add features, fix bugs, or change behavior; those are separate tasks (`implement-feature`, `fix-bug`). Phase 0's scope gate below is where this gets enforced, not just stated.
-6. **Reference real code**: never claim a structure you haven't verified by reading the actual files.
-7. **Prefer deletion over addition**: when several call sites share logic, consolidate it into one place and delete the copies, rather than wrapping them in a new abstraction.
-8. **Never trim the floor**: simplifying structure must not drop a validation check, an error/data-loss path, a security control, or an accessibility branch. If a step would drop one, it's a behavior change, not a refactor, stop and re-scope it separately.
+1. Read the code first: understand all callers and dependencies before touching anything.
+2. Run the full test suite before starting and again after every incremental change; results must match.
+3. Where coverage is thin, capture current behavior in characterization tests before restructuring.
+4. Change one small, verifiable thing at a time. Never combine steps into a single edit.
+5. Refactoring changes structure, not behavior: no new features, no bug fixes. Those are separate tasks (`implement-feature`, `fix-bug`), and Phase 0's scope gate below is where this gets enforced, not just stated.
+6. Never claim a structure you haven't verified by reading the actual files.
+7. When several call sites share logic, consolidate it into one place and delete the copies, rather than wrapping them in a new abstraction.
+8. Simplifying structure must never remove a validation check or an error/data-loss path, nor a security control or an accessibility branch already in place. Losing any of those counts as a behavior change, not a refactor, so stop and re-scope it separately.
 
 ## Quality Gates
 
@@ -70,7 +70,7 @@ The Phase 0 scope gate below always runs, even on the skip path: it's a five-sec
 **Step 0a: Mixed-scope gate (blocking, do this before anything else, no exceptions):**
 
 1. Read the request for anything that isn't a pure structural change to existing behavior (a new option, a new endpoint, a bug fix, "while you're in there, also add..."). A rename/extract/move/inline/simplify/dedupe is refactor scope; anything that changes what the code *does* for a caller is not.
-2. If the request is mixed-scope, do not write, edit, or commit any code for the behavior-changing half, not as a draft, not because "it's small anyway."
+2. If the request is mixed-scope, touch no code for the behavior-changing half, not as a draft, not because "it's small anyway."
 3. If the split is unambiguous, proceed with the refactor half only and skip to Step 0b.
 4. If it's genuinely unclear which half the user wants (e.g. the request could be read as "rename only" or "rename plus feature, your call"), use `AskUserQuestion` to ask before writing any code. Don't guess.
 5. Whichever path you took, the Phase 6 summary MUST name the deferred behavior-changing piece by name and point to `implement-feature` (or `fix-bug`). This is checked against the actual final message sent to the user, not against intent recorded earlier in the run: a run that does the refactor correctly but never says what it skipped has not passed this gate.
@@ -81,9 +81,9 @@ No mixed scope detected → proceed straight to Step 0b.
 
 ### Phase 1: Scope Analysis
 
-Map every caller and dependent of the target (Grep for calls, imports, type references, and dynamic/string-based lookups), and map its existing test coverage: what's tested, what's a gap. For a single-file target with an obvious blast radius, do this yourself; for a wider one, two Explore agents in parallel (callers/dependencies, then test coverage) save tokens, prompts in `references/task-chain.md`.
+Map every caller and dependent of the target: grep for direct calls and imports, plus type references and any dynamic or string-based lookups that might reference it. Then map its existing test coverage: what's tested, what's a gap. For a single-file target with an obvious blast radius, do this yourself; for a wider one, two Explore agents in parallel (callers/dependencies, then test coverage) save tokens, prompts in `references/task-chain.md`.
 
-If the refactoring touches more than 5 files, changes a public API, or affects external consumers, use `AskUserQuestion` to confirm scope before proceeding.
+If the refactoring spans more than 5 files, or changes a public API that external consumers depend on, confirm scope with `AskUserQuestion` before proceeding.
 
 ### Phase 2: Characterization Tests
 
@@ -113,14 +113,14 @@ Run every quality check the project has, against the Phase 0 baseline.
 - [ ] Characterization tests pass
 - [ ] No new lint or type errors
 - [ ] Code is cleaner/simpler than before (the actual point of doing this)
-- [ ] No accidental behavior changes, debug code, or commented-out code
+- [ ] No accidental behavior changes; no leftover debug code or commented-out code
 - [ ] All callers updated, no dangling references
 
 Then read the actual diff (`git diff`) end to end for anything not on that list: leftover debug statements, unrelated formatting churn, missed import updates, orphaned code. Fix before proceeding, don't leave the task `in_progress` with a known-broken gate.
 
 ### Phase 5: Final Commit
 
-Use the `git-commit` skill if available. Otherwise commit manually with type `refactor:`, a subject describing WHAT was restructured, a body explaining WHY, and always end with "No behavioral changes.":
+Use the `git-commit` skill if available. Otherwise commit manually with type `refactor:`. The subject describes what was restructured and the body explains why; the message always ends with "No behavioral changes.":
 
 ```
 refactor: extract validation logic from OrderProcessor
@@ -143,16 +143,20 @@ No behavioral changes.
 
 ### Phase 6: Summary Report
 
-Report what was restructured, which technique was used, files touched, before/after test results (must match), any characterization tests added, and the commit hash. Only state metrics (line counts, complexity, coverage %) that came from a command actually run this session: never estimate them.
+Report:
+- what was restructured, and which technique was used
+- files touched
+- before/after test results (must match)
+- any characterization tests added
+- the commit hash
 
-If Phase 0's scope gate deferred any behavior-changing work, state that by name here, explicitly, and point to `implement-feature`/`fix-bug`, even if it was already mentioned earlier in the run. The final message is what gets checked, not the earlier reasoning.
+Only state metrics (line counts, complexity, coverage %) that came from a command actually run this session: never estimate them.
+
+If Phase 0's scope gate deferred any behavior-changing work, name it here explicitly and point to `implement-feature`/`fix-bug`, even if it was already mentioned earlier in the run. The final message is what gets checked, not the earlier reasoning.
 
 ## Important Notes
 
-- **Tests before and after every change**: non-negotiable.
-- **No behavior changes**: refactoring changes structure only; if tests break, revert.
-- **Minimal scope**: refactor only what was requested; resist "while I'm here" changes to adjacent code.
-- **Ask when unsure**: better to clarify scope than to over-refactor.
+Tests before and after every change are non-negotiable. Refactoring changes structure only, not behavior: if tests break, revert. Scope stays minimal: refactor only what was requested, and resist "while I'm here" changes to adjacent code. When unsure, clarify scope rather than over-refactor.
 
 ## Additional Resources
 

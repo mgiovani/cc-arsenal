@@ -10,17 +10,19 @@ enforce the mechanical subset.
 
 Use these keywords, and only these, for obligations:
 
-- **MUST / MUST NOT**: an absolute requirement / prohibition.
-- **SHOULD / SHOULD NOT**: recommended; a deviation needs a documented reason.
-- **MAY**: genuinely optional.
+| Keyword | Meaning |
+|---|---|
+| MUST / MUST NOT | an absolute requirement / prohibition |
+| SHOULD / SHOULD NOT | recommended; a deviation needs a documented reason |
+| MAY | genuinely optional |
 
-One requirement states **one** obligation. If you need two, write two requirements.
+One requirement states a single obligation. If you need two, write two requirements.
 
 ## The eight-term vague-word blocklist (verbatim)
 
-These words are not testable and are **forbidden** in a requirement statement:
+These words are not testable and are forbidden in a requirement statement:
 
-> **fast, scalable, intuitive, robust, secure, seamless, user-friendly, performant**
+> `fast`, `scalable`, `intuitive`, `robust`, `secure`, `seamless`, `user-friendly`, `performant`
 
 Replace each with a measurable target: "responds within 200 ms at p95", not
 "fast"; "supports 10k concurrent sessions", not "scalable"; "meets WCAG 2.2 AA",
@@ -28,7 +30,7 @@ not "user-friendly".
 
 ## Compound-requirement split
 
-A requirement is **compound** (and must be split) when it:
+A requirement is compound, and must be split, when it:
 
 - contains two or more obligation keywords in one statement ("the system MUST log
   the user in and MUST send an email"), or
@@ -43,12 +45,14 @@ clauses (MINOR); `hygiene.py` proposes the split count.
 
 Every requirement should be:
 
-- **I**ndependent: minimal coupling to other requirements.
-- **N**egotiable: a statement of intent, not a bolted-down implementation.
-- **V**aluable: traceable to a user need, a goal, or an approved decision.
-- **E**stimable: small and clear enough that effort is knowable.
-- **S**mall: one behaviour. If Small/Estimable fails, split (see above).
-- **T**estable: has Given/When/Then acceptance criteria a test can check.
+| Letter | Term | Meaning |
+|---|---|---|
+| I | Independent | minimal coupling to other requirements |
+| N | Negotiable | a statement of intent, not a bolted-down implementation |
+| V | Valuable | traces back to a user need or an approved decision; a stated product goal counts too |
+| E | Estimable | small and clear enough that effort is knowable |
+| S | Small | one behaviour; if Small or Estimable fails, split (see above) |
+| T | Testable | has Given/When/Then acceptance criteria a test can check |
 
 When Small or Estimable fails, `hygiene.py` emits a `SPLIT` suggestion.
 
@@ -58,18 +62,20 @@ For NFR/SEC/DATA and other system-facing requirements, Gherkin's user framing
 fits poorly: use EARS (Easy Approach to Requirements Syntax). Lead with the
 trigger/condition, not bury it mid-sentence:
 
-- **Ubiquitous:** "The system shall {{response}}."
-- **Event-driven:** "When {{trigger}}, the system shall {{response}}."
-- **State-driven:** "While {{state}}, the system shall {{response}}."
-- **Optional-feature:** "Where {{feature is present}}, the system shall {{response}}."
-- **Unwanted behaviour:** "If {{condition}}, then the system shall {{response}}."
+| Template | Form |
+|---|---|
+| Ubiquitous | "The system shall {{response}}." |
+| Event-driven | "When {{trigger}}, the system shall {{response}}." |
+| State-driven | "While {{state}}, the system shall {{response}}." |
+| Optional-feature | "Where {{feature is present}}, the system shall {{response}}." |
+| Unwanted behaviour | "If {{condition}}, then the system shall {{response}}." |
 
 `hygiene.py` emits an `EARS` suggestion when a non-UI requirement buries its
 trigger or omits the normative verb.
 
 ## [NEEDS CLARIFICATION] tag
 
-When a gap surfaces during authoring, do **not** guess: write the assumption
+When a gap surfaces during authoring, don't guess: write the assumption
 down as an inline, greppable tag:
 
 ```
@@ -81,6 +87,6 @@ Resolve every tag before hand-off, or move it to the decision log as an open que
 
 ## Every requirement is also
 
-- **Uniquely ID'd**: `PRD-<CAT>-NNN`, stable, never reused (see `requirement-standards.md`).
-- **Traceable**: links back to an approved decision, a research finding, or a user need.
-- **Evidence-tagged**: a finding, an evidence path, and a confidence level.
+- Uniquely ID'd: `PRD-<CAT>-NNN`, stable, never reused (see `requirement-standards.md`).
+- Traceable: links back to an approved decision or a user need; a research finding can ground it too.
+- Evidence-tagged: records a finding and an evidence path, plus an overall confidence level.

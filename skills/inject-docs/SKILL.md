@@ -29,7 +29,7 @@ Inject compressed framework-specific best practices and documentation into the c
 | **Next.js** | `next` in package.json | Vercel's agents-md codemod (version-aware) |
 | **FastAPI** | `fastapi` in requirements.txt/pyproject.toml | zhanymkanov/fastapi-best-practices |
 
-## Anti-Hallucination Guidelines
+## Anti-hallucination guidelines
 
 **CRITICAL**:
 1. **Auto-detect the framework** before running anything - check project files to identify the framework
@@ -61,7 +61,7 @@ Before running anything, auto-detect the framework and verify prerequisites:
    - If neither exists, default to `CLAUDE.md` (Claude Code's native format)
    - Inform the user which file will be updated
 
-### Phase 1: Run Framework-Specific Injection
+### Phase 1: Run framework-specific injection
 
 #### Option A: Next.js Projects
 

@@ -86,11 +86,9 @@ def validate(doc: dict) -> list[Error]:
     tokens: dict[str, object] = {}
     types: dict[str, str | None] = {}
     collect(doc, [], None, tokens, types)
-    # Second pass over $type. A token still lacking an own/inherited $type is an
-    # error ONLY when it is not a pure alias: per DTCG 2025.10 a pure-alias token
-    # takes its effective $type from the alias target (walking the chain via the
-    # tokens map), so it is well-typed even inside an untyped group. Unresolved or
-    # cyclic aliases are reported separately by check_aliases.
+    # Second pass over $type. A pure-alias token is exempt: per DTCG 2025.10 it takes
+    # its effective $type from the alias target, so it's well-typed even inside an
+    # untyped group. check_aliases reports unresolved/cyclic aliases separately.
     for path, value in tokens.items():
         if types.get(path) is not None:
             continue

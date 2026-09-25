@@ -306,7 +306,7 @@ Return structured findings with file path, line numbers, severity, code snippet,
 - subagent_type: "Explore"
 ```
 
-## Agent 6 - Simplicity & Over-Engineering
+## Agent 6 - Simplicity & Over-engineering
 
 ```
 Agent 6 - Simplicity & Over-Engineering (Explore, Haiku):
@@ -351,31 +351,40 @@ Agent 6 - Simplicity & Over-Engineering (Explore, Haiku):
   model: "haiku"
 ```
 
-Report Addendum (Phase 4/5): add a sixth dimension, **Simplicity & Over-Engineering**, finding prefix `OE-`, default severity Minor or Nit (escalate to Major only when the complexity itself causes a reliability/maintainability failure, not merely because it exists). Per-finding fields: severity, `file:line`, the single tag, description, suggested deletion/replacement, lines-removed. Report the aggregate separately:
+Report Addendum (Phase 4/5): add a sixth dimension, Simplicity & Over-engineering, finding prefix `OE-`, default severity Minor or Nit (escalate to Major only when the complexity itself causes a reliability/maintainability failure, not merely because it exists). Per-finding fields: severity, `file:line`, the single tag, description, suggested deletion/replacement, lines-removed. Report the aggregate separately:
 
-> **Estimated lines removable (static count, not a benchmark): ~N**
+> Estimated lines removable (static count, not a benchmark): ~N
 
 `N` is the sum of lines-removed across all `OE-` findings, counted from code actually read. Never state or imply a percentage, runtime, token, or bundle-size saving next to this number: no leaner version was built or measured. If a real, previously-measured benchmark exists for the flagged code, cite it instead of inventing a figure.
 
 ## Review Best Practices by Audience
 
-### For Code Authors
-1. **Address Critical/Major first**: Fix issues that affect correctness and reliability
-2. **Understand the why**: Learn the reasoning behind each finding before fixing
-3. **Request re-review**: Run the skill again after fixes, it re-derives the current diff and re-scopes on its own
-4. **Push back on Nits**: Not every suggestion needs to be accepted
-5. **Add tests for bugs found**: Each correctness finding should have a regression test
+### For code authors
 
-### For Reviewers
-1. **Validate findings**: Verify each finding is a genuine issue, not a false positive
-2. **Consider context**: Some patterns are acceptable in specific contexts
-3. **Prioritize**: Not every finding needs to block a PR
-4. **Be constructive**: Focus on the code, not the author
-5. **Acknowledge good work**: Highlight well-written code and patterns
+| Practice | Detail |
+|----------|--------|
+| Address Critical/Major first | fix issues that affect correctness and reliability |
+| Understand the why | learn the reasoning behind each finding before fixing |
+| Request re-review | run the skill again after fixes, it re-derives the current diff and re-scopes on its own |
+| Push back on Nits | not every suggestion needs to be accepted |
+| Add tests for bugs found | each correctness finding should have a regression test |
 
-### For Tech Leads
-1. **Track trends**: Monitor recurring issue types across reviews
-2. **Update standards**: Use findings to improve coding guidelines
-3. **Share learnings**: Use reviews as teaching opportunities
-4. **Calibrate severity**: Ensure severity ratings match team standards
-5. **Automate what you can**: Add linting rules for frequently caught patterns
+### For reviewers
+
+| Practice | Detail |
+|----------|--------|
+| Validate findings | verify each finding is a genuine issue, not a false positive |
+| Consider context | some patterns are acceptable in specific contexts |
+| Prioritize | not every finding needs to block a PR |
+| Be constructive | focus on the code, not the author |
+| Acknowledge good work | highlight well-written code and patterns |
+
+### For tech leads
+
+| Practice | Detail |
+|----------|--------|
+| Track trends | monitor recurring issue types across reviews |
+| Update standards | use findings to improve coding guidelines |
+| Share learnings | use reviews as teaching opportunities |
+| Calibrate severity | ensure severity ratings match team standards |
+| Automate what you can | add linting rules for frequently caught patterns |

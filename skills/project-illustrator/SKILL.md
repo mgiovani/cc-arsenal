@@ -9,7 +9,7 @@ metadata:
 
 # Project Illustrator
 
-Build a project art system that remains recognizable across a tiny avatar, a wide README hero, and later illustrations. Base every decision on the product and its existing identity rather than on generic technology imagery.
+Build a project art system that stays recognizable at every size. A tiny avatar has to read as clearly as a wide README hero, and so does whatever illustration follows later. Base every decision on the product and its existing identity rather than on generic technology imagery.
 
 ## 1. Discover the identity
 

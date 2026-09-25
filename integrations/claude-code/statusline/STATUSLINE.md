@@ -27,14 +27,17 @@ The statusline renders two lines:
 ```
 
 Line 1 components, in order:
-- 🤖 **Model**: name/version, from `model.display_name` or `model.id`
-- 📊 **Context**: `context_window.used_percentage`, rounded
-- 📁 **Directory**: current directory, `~`-shortened
-- 🌿 **Git**: branch, with `●` for uncommitted changes
-- 🌳 **Worktree**: worktree name, shown only when in a worktree
-- 💰 **Cost**: `cost.total_cost_usd` for the session
-- 📝 **Lines changed**: `+added/-removed`; **disabled by default**, enable via config
-- ⏱️ **Session duration**: from `cost.total_duration_ms`; hidden until a session has run
+
+| Icon | Component | Source |
+| --- | --- | --- |
+| 🤖 | Model | name/version, from `model.display_name` or `model.id` |
+| 📊 | Context | `context_window.used_percentage`, rounded |
+| 📁 | Directory | current directory, `~`-shortened |
+| 🌿 | Git | branch, with `●` for uncommitted changes |
+| 🌳 | Worktree | worktree name, shown only when in a worktree |
+| 💰 | Cost | `cost.total_cost_usd` for the session |
+| 📝 | Lines changed | `+added/-removed`; disabled by default, enable via config |
+| ⏱️ | Session duration | from `cost.total_duration_ms`; hidden until a session has run |
 
 Line 2 is the usage line (see [Usage](#usage) for where its data comes from) plus, when multi-account is configured, an account badge (see [Multiple accounts](#multiple-accounts)).
 
@@ -152,7 +155,7 @@ To point the script at a different config file entirely (e.g. for previewing a c
 
 ## Multiple accounts
 
-The statusline supports more than one Claude account on the same machine. Per-account usage isolation (cache, lock, and backoff state) is keyed on `CLAUDE_CODE_OAUTH_TOKEN`; the account badge is independent of it and renders from `CLAUDE_STATUSLINE_ACCOUNT_LABEL` alone (see [Account badge](#account-badge)).
+The statusline supports more than one Claude account on the same machine, using `CLAUDE_CODE_OAUTH_TOKEN` to key each account's state. The account badge works differently: it renders from `CLAUDE_STATUSLINE_ACCOUNT_LABEL` alone, regardless of which token is active (see [Account badge](#account-badge)).
 
 ### Precedence
 
@@ -166,7 +169,7 @@ Everything scoped to an account is keyed by the first 12 hex characters of `sha2
 - Rate-limit backoff/lock state (used by the background fetcher): `/tmp/statusline_live_cache/oauth_backoff.<hash>`, `oauth_backoff_count.<hash>`, `oauth_cache.lock.<hash>`
 - External-consumer rate-limit snapshot: `/tmp/claude_rate_limits_cache.<hash>.json` (vs. the stable `/tmp/claude_rate_limits_cache.json` for the default account)
 
-This means two accounts running statuslines concurrently (e.g. in separate tmux sessions with different `CLAUDE_CODE_OAUTH_TOKEN` exports) never clobber each other's cache, backoff, or lock state.
+This means two accounts running statuslines concurrently (e.g. in separate tmux sessions with different `CLAUDE_CODE_OAUTH_TOKEN` exports) never clobber each other's state.
 
 ### Account badge
 
@@ -186,9 +189,11 @@ If the OAuth token is invalid, the network call fails, or the cache is simply em
 
 ## Platform support
 
-- **macOS and Linux**: first-class, actively used code paths (`lib/core/platform.sh` branches on `uname -s` for `stat`, hashing, and date parsing).
-- **WSL**: behaves as Linux (uses the Linux branches of `platform.sh`, and the file-based credentials fallback since there's no macOS Keychain).
-- **Native Git Bash on Windows**: best-effort, untested (the script sources `sha256sum`/`date -d` style Linux commands as a fallback, which Git Bash generally provides, but this path has no test coverage).
+| Platform | Support level | Notes |
+| --- | --- | --- |
+| macOS and Linux | First-class, actively used | `lib/core/platform.sh` branches on `uname -s` for `stat`, hashing, and date parsing |
+| WSL | Behaves as Linux | Uses the Linux branches of `platform.sh`, plus the file-based credentials fallback since there's no macOS Keychain |
+| Native Git Bash on Windows | Best-effort, untested | The script sources `sha256sum`/`date -d` style Linux commands as a fallback, which Git Bash generally provides, but this path has no test coverage |
 
 ## Troubleshooting
 

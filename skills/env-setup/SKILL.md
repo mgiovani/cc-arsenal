@@ -20,14 +20,14 @@ allowed-tools:
 
 Scan the codebase for environment variable usage, generate or update `.env.example`, validate `.env` completeness, and detect leaked secrets.
 
-## Anti-Hallucination Guidelines
+## Anti-hallucination guidelines
 
 Only report variables that are actually found in the code:
-1. **Grep before reporting**: Never invent variable names; only list what grep actually returns
-2. **Read .env.example before writing**: Preserve existing entries; only add/update what changed
-3. **No actual secrets**: `.env.example` must only contain placeholder values (e.g., `your_api_key_here`)
-4. **Verify .gitignore**: Actually read the file before claiming `.env` is ignored
-5. **Never echo a found secret value**: when Phase 6 flags a leaked secret, report the variable name and `file:line` only. Never print, quote, or write the actual value into chat output, a report file, or anywhere else: the scan's job is to locate leaks, not to create a second one.
+1. Grep before reporting: never invent variable names, only list what grep actually returns.
+2. Read `.env.example` before writing: preserve existing entries, only add/update what changed.
+3. No actual secrets: `.env.example` must only contain placeholder values (e.g., `your_api_key_here`).
+4. Verify `.gitignore`: actually read the file before claiming `.env` is ignored.
+5. Never echo a found secret value: when Phase 6 flags a leaked secret, report the variable name and `file:line` only. Never print, quote, or write the actual value into chat output, a report file, or anywhere else: the scan's job is to locate leaks, not to create a second one.
 
 ## Workflow
 
@@ -47,9 +47,9 @@ Group discovered variables by prefix/service: see the service prefix table in
 Stripe, AWS, Email, App config, Client vars).
 
 Classify each variable:
-- **Required vs Optional** (required if no default/fallback in code)
-- **Secret vs Config** (secret if it contains key/secret/password/token in name)
-- **Client-exposed** (`NEXT_PUBLIC_*`, `VITE_*`: flag if contains secrets)
+- Required vs optional: required if no default/fallback in code.
+- Secret vs config: secret if it contains key/secret/password/token in the name.
+- Client-exposed: `NEXT_PUBLIC_*`, `VITE_*`; flag if it contains secrets.
 
 ### Phase 3: Compare with .env.example
 
@@ -68,7 +68,7 @@ Report:
 
 ### Phase 4: Generate / Update .env.example
 
-**For `scan` or `sync` operations**:
+For `scan` or `sync` operations:
 
 Generate `.env.example` with:
 - SCREAMING_SNAKE_CASE variable names
@@ -92,10 +92,10 @@ actual file.
 
 Read `.env` and check:
 
-1. **Missing required variables**: Every variable in code without a default/fallback must be set
-2. **Empty values**: `VAR=` with no value is suspicious for required vars
-3. **Stale variables**: Present in `.env` but not found in codebase scan
-4. **`.gitignore` check**: Verify `.env` (and `.env.local`) are in `.gitignore`
+1. Missing required variables: every variable in code without a default/fallback must be set.
+2. Empty values: `VAR=` with no value is suspicious for required vars.
+3. Stale variables: present in `.env` but not found in codebase scan.
+4. `.gitignore` check: verify `.env` (and `.env.local`) are in `.gitignore`.
 
 ```bash
 grep -E "^\.env" .gitignore 2>/dev/null
@@ -105,7 +105,7 @@ Warn clearly if `.env` is NOT in `.gitignore`.
 
 ### Phase 6: Secret Detection (if `--check-secrets`)
 
-**Scan `.env` for high-entropy strings and known secret patterns**:
+Scan `.env` for high-entropy strings and known secret patterns:
 
 ```bash
 # Check for common secret patterns
@@ -116,7 +116,7 @@ The character class includes `_`, `-`, `.` alongside base64's `+/=`: most real k
 (`sk_live_...`, `xoxb-...`, `AKIA...`) contain underscores or hyphens, and a base64-only class
 silently misses them.
 
-**Check git history for leaked secrets**:
+Check git history for leaked secrets:
 ```bash
 git log --all --full-history --diff-filter=A -p -- .env 2>/dev/null | grep -iE "(password|secret|key)\s*=" | head -20
 ```
@@ -124,11 +124,11 @@ git log --all --full-history --diff-filter=A -p -- .env 2>/dev/null | grep -iE "
 Report each hit as a commit + `file:line` reference (e.g. `git log` output line, or
 `.env:12`), never paste the matched value itself into the report.
 
-**Flag client-exposed secrets**:
+Flag client-exposed secrets:
 - Check `NEXT_PUBLIC_*`, `VITE_*`, `REACT_APP_*` variables
 - If any contain "secret", "key", "password", "token" in the name, warn loudly, by variable name only
 
-**Recommend pre-commit tools**:
+Recommend pre-commit tools:
 - `detect-secrets` (Python): `pip install detect-secrets && detect-secrets scan > .secrets.baseline`
 - `gitleaks`: `gitleaks detect --source=.`
 
@@ -141,9 +141,11 @@ Report each hit as a commit + `file:line` reference (e.g. `git log` output line,
 
 ## Important Notes
 
-- **Never include real secrets** in `.env.example`: only placeholder values
-- **Never echo a found secret's value**: report variable name + `file:line` only, whether the finding goes to chat or a report file
-- **Client-exposed vars** (`NEXT_PUBLIC_*`, `VITE_*`) are bundled into the frontend: flag if their name suggests a secret
-- **`.env` must be gitignored**: verify and warn if not
-- **Historical leaks matter**: even if `.env` is gitignored now, it may have been committed in the past
-- **Stale variables** in `.env` can be security risks: document and remove unused ones
+| Note | Detail |
+|---|---|
+| Never include real secrets | `.env.example` holds only placeholder values |
+| Never echo a found secret's value | report variable name + `file:line` only, whether the finding goes to chat or a report file |
+| Client-exposed vars | `NEXT_PUBLIC_*`, `VITE_*` are bundled into the frontend; flag if their name suggests a secret |
+| `.env` must be gitignored | verify and warn if not |
+| Historical leaks matter | even if `.env` is gitignored now, it may have been committed in the past |
+| Stale variables | unused entries in `.env` can be security risks; document and remove them |

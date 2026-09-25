@@ -18,14 +18,14 @@ Thank you for your interest in contributing to Claude Code Arsenal! This documen
 
 We are committed to providing a welcoming and inspiring community for all. Please read and follow our [Code of Conduct](./CODE_OF_CONDUCT.md).
 
-**Expected Behavior:**
+Expected behavior:
 - Be respectful and inclusive
 - Exercise empathy and kindness
 - Give and gracefully accept constructive feedback
 - Focus on what is best for the community
 - Assume positive intent
 
-**Unacceptable Behavior:**
+Unacceptable behavior:
 - Harassment, discrimination, or offensive comments
 - Trolling, insulting, or derogatory comments
 - Public or private harassment
@@ -37,14 +37,14 @@ We are committed to providing a welcoming and inspiring community for all. Pleas
 ### Prerequisites
 
 Before you begin, ensure you have:
-- **Python 3.12+**: Modern Python version with latest features
-- **UV Package Manager**: Fast, modern Python package installer
+- Python 3.12+: modern Python version with latest features
+- UV Package Manager: fast, modern Python package installer
   ```bash
   curl -LsSf https://astral.sh/uv/install.sh | sh
   ```
-- **Git**: For version control
-- **Claude Code**: Host environment for testing
-- **GitHub Account**: With repository access for PRs
+- Git: for version control
+- Claude Code: host environment for testing
+- GitHub Account: with repository access for PRs
 
 ### Development Setup
 
@@ -74,29 +74,29 @@ make check
 ### Reporting Bugs
 
 Before creating a bug report:
-1. **Check existing issues** to avoid duplicates
-2. **Use the latest version** to verify the bug still exists
-3. **Collect environment information**:
+1. Check existing issues to avoid duplicates
+2. Use the latest version to verify the bug still exists
+3. Collect environment information:
    - Python version: `python --version`
    - UV version: `uv --version`
    - Claude Code version
    - Operating system
 
 When reporting a bug, include:
-- **Description**: Clear, concise description of the issue
-- **Steps to Reproduce**: Step-by-step instructions
+- Description: clear, concise description of the issue
+- Steps to Reproduce: step-by-step instructions
   ```
   1. Install cc-arsenal via make install
   2. Run /git:commit command
   3. Error occurs: "..."
   ```
-- **Expected Behavior**: What should happen
-- **Actual Behavior**: What actually happens
-- **Environment**: OS, Python version, Claude Code version
-- **Logs**: Relevant error messages or logs
-- **Screenshots**: If applicable (especially for CLI output)
+- Expected Behavior: what should happen
+- Actual Behavior: what actually happens
+- Environment: OS, Python version, Claude Code version
+- Logs: relevant error messages or logs
+- Screenshots: if applicable (especially for CLI output)
 
-**Use the Bug Report Template:**
+Use the bug report template:
 ```markdown
 **Bug Description**
 A clear and concise description of what the bug is.
@@ -123,20 +123,20 @@ Any other context about the problem.
 
 Enhancement suggestions are welcome! Include:
 
-- **Use Case**: Why is this enhancement needed?
+- Use Case: why is this enhancement needed?
   - What problem does it solve?
   - Who will benefit from it?
 
-- **Proposed Solution**: How should it work?
+- Proposed Solution: how should it work?
   - Detailed description of the feature
   - Example usage or API
   - UI/UX considerations (for commands/CLI)
 
-- **Alternatives**: What other solutions were considered?
+- Alternatives: what other solutions were considered?
   - Why is your proposal better?
   - Trade-offs and considerations
 
-- **Impact**: Who will benefit from this enhancement?
+- Impact: who will benefit from this enhancement?
   - User personas (agent creators, contributors, end users)
   - Priority level (critical, high, medium, low)
 
@@ -166,7 +166,7 @@ git checkout -b fix/descriptive-name
 git checkout -b docs/descriptive-name
 ```
 
-**Branch Naming:**
+Branch naming:
 - `feature/docs-diagram-evals` - New skill feature
 - `feature/jira-skill-enhancement` - New skill feature
 - `fix/file-protection-pattern` - Bug fix
@@ -175,7 +175,7 @@ git checkout -b docs/descriptive-name
 
 #### 3. Make Your Changes
 
-**For New Skills:**
+For new skills:
 ```bash
 # Create skill directory
 mkdir -p skills/my-skill
@@ -187,7 +187,7 @@ vim skills/my-skill/SKILL.md
 mkdir -p skills/my-skill/scripts
 ```
 
-**General Guidelines:**
+General guidelines:
 - Follow existing patterns and conventions
 - Write clean, readable code
 - Add type hints to all Python functions
@@ -204,7 +204,7 @@ vim tests/test_my_feature.py
 # Aim for >90% coverage for new code
 ```
 
-**Test Structure:**
+Test structure:
 ```python
 """Tests for my feature."""
 
@@ -253,7 +253,7 @@ git commit -m "type(scope): description"
 
 Follow [Conventional Commits](https://www.conventionalcommits.org/):
 
-**Commit Format:**
+Commit format:
 ```
 type(scope): subject
 
@@ -262,7 +262,7 @@ type(scope): subject
 [optional footer]
 ```
 
-**Types:**
+Types:
 - `feat:` - New feature (agent, command, hook, skill)
 - `fix:` - Bug fix
 - `docs:` - Documentation only
@@ -271,7 +271,7 @@ type(scope): subject
 - `test:` - Adding or updating tests
 - `chore:` - Maintenance (dependencies, tooling)
 
-**Scopes:**
+Scopes:
 - `commands` - Command-related changes
 - `skills` - Skill-related changes
 - `plugin` - Plugin configuration changes
@@ -279,7 +279,7 @@ type(scope): subject
 - `tests` - Test infrastructure
 - `docs` - Documentation
 
-**Examples:**
+Examples:
 ```bash
 git commit -m "feat(commands): add docs:api command for API documentation"
 git commit -m "feat(skills): add Linear integration skill"
@@ -317,12 +317,12 @@ Use this checklist:
 
 ### PR Guidelines
 
-**Title Format:**
+Title format:
 ```
 type(scope): Brief description
 ```
 
-**Description Template:**
+Description template:
 ```markdown
 ## Summary
 Brief description of what this PR does.
@@ -354,12 +354,12 @@ How was this tested?
 - [ ] Follows coding standards
 ```
 
-**Review Process:**
-1. **Automated Checks**: CI/CD runs linting, type checking, tests
-2. **Code Review**: Maintainers review code quality and design
-3. **Feedback**: Address review comments
-4. **Approval**: At least one maintainer approval required
-5. **Merge**: Squash and merge to main
+Review process:
+1. Automated Checks: CI/CD runs linting, type checking, tests
+2. Code Review: Maintainers review code quality and design
+3. Feedback: Address review comments
+4. Approval: At least one maintainer approval required
+5. Merge: Squash and merge to main
 
 ### After Your PR is Merged
 
@@ -379,23 +379,27 @@ git push origin main
 
 ### General Principles
 
-- **DRY**: Don't Repeat Yourself
-- **KISS**: Keep It Simple, Stupid
-- **YAGNI**: You Aren't Gonna Need It
-- **SOLID**: Follow SOLID principles
-- **Separation of Concerns**: Clear module boundaries
+| Principle | Meaning |
+|---|---|
+| DRY | Don't Repeat Yourself |
+| KISS | Keep It Simple, Stupid |
+| YAGNI | You Aren't Gonna Need It |
+| SOLID | Follow SOLID principles |
+| Separation of Concerns | Clear module boundaries |
 
 ### Python Code Style
 
-**Follow PEP 8 with project customizations:**
+Follows PEP 8 with these project customizations:
 
-- **Line Length**: 90 characters (not 79)
-- **Quotes**: Single quotes for strings (except docstrings)
-- **Indentation**: 4 spaces (no tabs)
-- **Type Hints**: Required for all function signatures
-- **Docstrings**: Google-style for public APIs
+| Aspect | Convention |
+|---|---|
+| Line Length | 90 characters (not 79) |
+| Quotes | Single quotes for strings (except docstrings) |
+| Indentation | 4 spaces (no tabs) |
+| Type Hints | Required for all function signatures |
+| Docstrings | Google-style for public APIs |
 
-**Naming Conventions:**
+Naming conventions:
 ```python
 # Variables and functions: snake_case
 user_name = "John"
@@ -415,7 +419,7 @@ def _internal_helper() -> None:
     pass
 ```
 
-**Type Hints:**
+Type hints:
 ```python
 from typing import List, Dict, Optional
 
@@ -437,7 +441,7 @@ def process_data(
     ...
 ```
 
-**Docstrings:**
+Docstrings:
 ```python
 def my_function(arg1: str, arg2: int) -> bool:
     """Brief description of what the function does.
@@ -459,14 +463,14 @@ def my_function(arg1: str, arg2: int) -> bool:
     ...
 ```
 
-**Comments:**
+Comments:
 - Write self-documenting code (good variable/function names)
 - Add comments for complex logic or non-obvious decisions
 - Keep comments up to date with code changes
 - Use `# TODO:` for future improvements
 - Use `# FIXME:` for known issues
 
-**File Organization:**
+File organization:
 ```python
 """Module docstring describing the module."""
 
@@ -505,14 +509,16 @@ if __name__ == '__main__':
 
 ### Test Requirements
 
-- **Coverage**: >90% for new code, maintain overall coverage
-- **Unit Tests**: All new functions/methods
-- **Integration Tests**: New features and workflows
-- **Test Organization**: Mirror source structure in scripts/tests/
+| Requirement | Detail |
+|---|---|
+| Coverage | >90% for new code, maintain overall coverage |
+| Unit Tests | All new functions/methods |
+| Integration Tests | New features and workflows |
+| Test Organization | Mirror source structure in scripts/tests/ |
 
 ### Writing Tests
 
-**Test Structure:**
+Test structure:
 ```python
 """Tests for the version bump script (scripts/tests/test_bump_version.py)."""
 
@@ -564,32 +570,34 @@ uv run pytest -s
 
 ### Documentation Standards
 
-- **Update with code**: Documentation changes with code changes
-- **Clear language**: Simple, concise, actionable
-- **Code examples**: Include examples for complex features
-- **Consistent formatting**: Follow existing documentation patterns
+| Standard | Description |
+|---|---|
+| Update with code | Documentation changes with code changes |
+| Clear language | Simple, concise, actionable |
+| Code examples | Include examples for complex features |
+| Consistent formatting | Follow existing documentation patterns |
 
 ### Documentation Types
 
-**Code Documentation:**
+Code documentation:
 - Inline comments for complex logic
 - Docstrings for functions/classes (Google-style)
 - Type hints for all public APIs
 - README files for major modules
 
-**Component Documentation:**
+Component documentation:
 - `AGENT.md` - Agent instructions and capabilities
 - `COMMAND.md` - Command usage and examples
 - `HOOK.md` - Hook triggers and validation logic
 - `SKILL.md` - Skill description and bundled resources
 
-**User Documentation:**
+User documentation:
 - `README.md` - Project overview and quick start
 - `docs/onboarding.md` - Developer setup guide
 - `docs/architecture.md` - System architecture
 - `docs/troubleshooting.md` - Common issues and solutions
 
-**Architecture Documentation:**
+Architecture documentation:
 - Create ADRs for significant decisions
 - Update architecture docs for major changes
 - Keep diagrams current (Mermaid format)
@@ -598,9 +606,11 @@ uv run pytest -s
 
 ### Communication Channels
 
-- **GitHub Issues**: Bug reports, feature requests
-- **GitHub Discussions**: General questions, ideas, community chat
-- **Pull Requests**: Code review, collaboration
+| Channel | Purpose |
+|---|---|
+| GitHub Issues | Bug reports, feature requests |
+| GitHub Discussions | General questions, ideas, community chat |
+| Pull Requests | Code review, collaboration |
 
 ### Getting Help
 
@@ -624,7 +634,7 @@ By contributing to Claude Code Arsenal, you agree that your contributions will b
 
 ---
 
-**Thank you for contributing to Claude Code Arsenal!**
+Thank you for contributing to Claude Code Arsenal!
 
 For questions or clarifications, please open an issue or start a discussion.
 

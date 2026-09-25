@@ -1,12 +1,12 @@
-# CLAUDE.md - React.js Project
+# CLAUDE.md - React.js project
 
 This file provides guidance to Claude Code (claude.ai/code) when working with this React.js project.
 
-## Project Architecture
+## Project architecture
 
-This is a **React.js application** built with TypeScript, using modern React patterns and a component-based architecture.
+This is a React.js application built with TypeScript, using modern React patterns and a component-based architecture.
 
-### Project Structure
+### Project structure
 ```
 project/
 ├── public/                # Static assets
@@ -31,9 +31,9 @@ project/
 └── docs/               # Documentation
 ```
 
-## Development Commands
+## Development commands
 
-### Package Management
+### Package management
 ```bash
 # Install dependencies
 npm install
@@ -53,7 +53,7 @@ yarn add -D package-name
 pnpm add -D package-name
 ```
 
-### Development Server
+### Development server
 ```bash
 # Start development server
 npm run dev
@@ -66,7 +66,7 @@ pnpm dev
 npm run dev -- --port 3001
 ```
 
-### Building and Production
+### Building and production
 ```bash
 # Build for production
 npm run build
@@ -102,7 +102,7 @@ npm run test:coverage
 npm run test:e2e
 ```
 
-### Code Quality
+### Code quality
 ```bash
 # Lint code
 npm run lint
@@ -119,39 +119,32 @@ npm run format
 npm run type-check
 ```
 
-## Technology Stack
+## Technology stack
 
-### Core Framework
-- **React 18+**: Modern React with concurrent features
-- **TypeScript**: Static type checking
-- **Vite**: Fast build tool and dev server
+| Category | Package | Purpose |
+|---|---|---|
+| Core framework | `React 18+` | Modern React with concurrent features |
+| Core framework | `TypeScript` | Static type checking |
+| Core framework | `Vite` | Fast build tool and dev server |
+| State management | `Zustand` | Lightweight state management |
+| State management | `TanStack Query` | Server state management |
+| State management | `React Context` | For global app state (theme, auth) |
+| Styling | `Tailwind CSS` | Utility-first CSS framework |
+| Styling | `CSS Modules` | Component-scoped CSS (alternative) |
+| Styling | `styled-components` | CSS-in-JS (alternative) |
+| UI components | `Radix UI` | Unstyled, accessible components |
+| UI components | `shadcn/ui` | Pre-built components with Tailwind |
+| UI components | `Heroicons` | Hand-crafted SVG icons |
+| Development tools | `Vitest` | Unit testing framework |
+| Development tools | `Testing Library` | React component testing utilities |
+| Development tools | `Playwright` | End-to-end testing |
+| Development tools | `ESLint` | JavaScript/TypeScript linter |
+| Development tools | `Prettier` | Code formatter |
+| Development tools | `Storybook` | Component development environment |
 
-### State Management
-- **Zustand**: Lightweight state management
-- **TanStack Query**: Server state management
-- **React Context**: For global app state (theme, auth)
+## Component patterns
 
-### Styling
-- **Tailwind CSS**: Utility-first CSS framework
-- **CSS Modules**: Component-scoped CSS (alternative)
-- **styled-components**: CSS-in-JS (alternative)
-
-### UI Components
-- **Radix UI**: Unstyled, accessible components
-- **shadcn/ui**: Pre-built components with Tailwind
-- **Heroicons**: Beautiful hand-crafted SVG icons
-
-### Development Tools
-- **Vitest**: Unit testing framework
-- **Testing Library**: React component testing utilities
-- **Playwright**: End-to-end testing
-- **ESLint**: JavaScript/TypeScript linter
-- **Prettier**: Code formatter
-- **Storybook**: Component development environment
-
-## Component Patterns
-
-### Functional Components with Hooks
+### Functional components with hooks
 ```tsx
 // src/components/UserProfile.tsx
 import React from 'react';
@@ -192,7 +185,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({ userId, onEdit }) => {
 };
 ```
 
-### Custom Hooks
+### Custom hooks
 ```tsx
 // src/hooks/useLocalStorage.ts
 import { useState, useEffect } from 'react';
@@ -222,7 +215,7 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
 }
 ```
 
-### State Management with Zustand
+### State management with Zustand
 ```tsx
 // src/store/authStore.ts
 import { create } from 'zustand';
@@ -305,9 +298,9 @@ export default function App() {
 }
 ```
 
-## API Integration
+## API integration
 
-### Service Layer
+### Service layer
 ```tsx
 // src/services/apiClient.ts
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
@@ -369,7 +362,7 @@ class ApiClient {
 export const apiClient = new ApiClient(API_BASE_URL);
 ```
 
-### Data Fetching with TanStack Query
+### Data fetching with TanStack Query
 ```tsx
 // src/services/userService.ts
 import { apiClient } from './apiClient';
@@ -418,9 +411,9 @@ export const useCreateUser = () => {
 };
 ```
 
-## Environment Configuration
+## Environment configuration
 
-### Environment Variables
+### Environment variables
 ```bash
 # .env.local
 VITE_API_URL=http://localhost:3000/api
@@ -428,7 +421,7 @@ VITE_APP_NAME=My React App
 VITE_ENABLE_ANALYTICS=false
 ```
 
-### Configuration Management
+### Configuration management
 ```tsx
 // src/config/env.ts
 interface Config {
@@ -444,7 +437,7 @@ export const config: Config = {
 };
 ```
 
-## Vite Configuration
+## Vite configuration
 
 ```typescript
 // vite.config.ts
@@ -475,7 +468,7 @@ export default defineConfig({
 });
 ```
 
-## Package.json Scripts
+## Package.json scripts
 
 ```json
 {

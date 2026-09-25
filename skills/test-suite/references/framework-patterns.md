@@ -1,10 +1,11 @@
-# Test Framework Patterns
+# Test framework patterns
 
 Framework-specific patterns for test generation. Use these as reference when writing tests to match idiomatic patterns for each framework.
 
 ## Python: pytest
 
-### File Structure
+### File structure & naming
+
 ```
 project/
 ├── src/module/
@@ -17,14 +18,11 @@ project/
     └── test_models.py       # Tests for models.py
 ```
 
-### Naming Convention
-- Test files: `test_<module>.py`
-- Test functions: `test_<function>_<scenario>_<expected>`
-- Fixture files: `conftest.py` (auto-discovered by pytest)
+Test files follow `test_<module>.py`, test functions follow `test_<function>_<scenario>_<expected>`, and fixture files live in `conftest.py` (auto-discovered by pytest).
 
 ### Patterns
 
-**Basic unit test:**
+Basic unit test:
 ```python
 def test_create_user_with_valid_data_returns_user(user_factory):
     user = create_user(name="Alice", email="alice@example.com")
@@ -32,7 +30,7 @@ def test_create_user_with_valid_data_returns_user(user_factory):
     assert user.email == "alice@example.com"
 ```
 
-**Parametrized tests:**
+Parametrized tests:
 ```python
 @pytest.mark.parametrize("input_val,expected", [
     ("hello", "HELLO"),
@@ -44,14 +42,14 @@ def test_uppercase_with_various_inputs(input_val, expected):
     assert uppercase(input_val) == expected
 ```
 
-**Exception testing:**
+Exception testing:
 ```python
 def test_create_user_with_empty_name_raises_validation_error():
     with pytest.raises(ValidationError, match="name cannot be empty"):
         create_user(name="", email="test@example.com")
 ```
 
-**Fixtures (conftest.py):**
+Fixtures (conftest.py):
 ```python
 @pytest.fixture
 def db_session():
@@ -68,7 +66,7 @@ def sample_user(db_session):
     return user
 ```
 
-**Mocking:**
+Mocking:
 ```python
 from unittest.mock import patch, MagicMock
 
@@ -78,7 +76,7 @@ def test_send_email_calls_smtp_client(mocker):
     mock_smtp.send.assert_called_once()
 ```
 
-**Async tests (pytest-asyncio):**
+Async tests (pytest-asyncio):
 ```python
 @pytest.mark.asyncio
 async def test_fetch_user_returns_user_data():
@@ -86,7 +84,7 @@ async def test_fetch_user_returns_user_data():
     assert result["name"] == "Alice"
 ```
 
-### Coverage Command
+### Coverage command
 ```bash
 pytest --cov=src --cov-report=term-missing --cov-report=html
 ```
@@ -95,7 +93,8 @@ pytest --cov=src --cov-report=term-missing --cov-report=html
 
 ## JavaScript/TypeScript: Vitest
 
-### File Structure
+### File structure & naming
+
 ```
 project/
 ├── src/
@@ -110,14 +109,11 @@ project/
         └── format.test.ts
 ```
 
-### Naming Convention
-- Test files: `<module>.test.ts` or `<module>.spec.ts`
-- Describe blocks: Module/class name
-- It blocks: `should <expected behavior> when <condition>`
+Test files follow `<module>.test.ts` or `<module>.spec.ts`. Describe blocks name the module or class; it blocks read `should <expected behavior> when <condition>`.
 
 ### Patterns
 
-**Basic unit test:**
+Basic unit test:
 ```typescript
 import { describe, it, expect } from 'vitest';
 import { createUser } from '../src/services/userService';
@@ -135,7 +131,7 @@ describe('createUser', () => {
 });
 ```
 
-**Parameterized tests (each):**
+Parameterized tests (each):
 ```typescript
 describe('uppercase', () => {
   it.each([
@@ -148,7 +144,7 @@ describe('uppercase', () => {
 });
 ```
 
-**Async tests:**
+Async tests:
 ```typescript
 describe('fetchUser', () => {
   it('should return user data for valid id', async () => {
@@ -158,7 +154,7 @@ describe('fetchUser', () => {
 });
 ```
 
-**Mocking:**
+Mocking:
 ```typescript
 import { vi } from 'vitest';
 
@@ -173,7 +169,7 @@ it('should call sendEmail on registration', async () => {
 });
 ```
 
-**Setup/teardown:**
+Setup/teardown:
 ```typescript
 import { beforeEach, afterEach } from 'vitest';
 
@@ -190,7 +186,7 @@ describe('UserService', () => {
 });
 ```
 
-### Coverage Command
+### Coverage command
 ```bash
 vitest --coverage
 # or
@@ -201,10 +197,10 @@ vitest run --coverage
 
 ## JavaScript: Jest
 
-### File Structure
+### File structure
 Same as Vitest. Jest and Vitest share nearly identical API.
 
-### Key Differences from Vitest
+### Key differences from Vitest
 - Import from `@jest/globals` or use globals
 - Mock with `jest.mock()` instead of `vi.mock()`
 - Use `jest.fn()` instead of `vi.fn()`
@@ -212,7 +208,7 @@ Same as Vitest. Jest and Vitest share nearly identical API.
 
 ### Patterns
 
-**Mocking (Jest-specific):**
+Mocking (Jest-specific):
 ```typescript
 jest.mock('../src/services/emailService');
 
@@ -224,7 +220,7 @@ beforeEach(() => {
 });
 ```
 
-**Snapshot testing:**
+Snapshot testing:
 ```typescript
 it('should render user profile correctly', () => {
   const result = renderUserProfile({ name: 'Alice' });
@@ -232,7 +228,7 @@ it('should render user profile correctly', () => {
 });
 ```
 
-### Coverage Command
+### Coverage command
 ```bash
 jest --coverage
 # or
@@ -243,7 +239,8 @@ npx jest --coverage
 
 ## Go: testing
 
-### File Structure
+### File structure & naming
+
 ```
 project/
 ├── service/
@@ -254,14 +251,11 @@ project/
     └── auth_test.go
 ```
 
-### Naming Convention
-- Test files: `<source>_test.go` (co-located)
-- Test functions: `Test<FunctionName>_<Scenario>`
-- Table-driven: Standard Go pattern
+Test files follow `<source>_test.go`, co-located with the source; test functions follow `Test<FunctionName>_<Scenario>`. Table-driven tests are the standard Go pattern.
 
 ### Patterns
 
-**Basic test:**
+Basic test:
 ```go
 func TestCreateUser_ValidInput_ReturnsUser(t *testing.T) {
     user, err := CreateUser("Alice", "alice@example.com")
@@ -274,7 +268,7 @@ func TestCreateUser_ValidInput_ReturnsUser(t *testing.T) {
 }
 ```
 
-**Table-driven tests:**
+Table-driven tests:
 ```go
 func TestUppercase(t *testing.T) {
     tests := []struct {
@@ -297,7 +291,7 @@ func TestUppercase(t *testing.T) {
 }
 ```
 
-**With testify:**
+With testify:
 ```go
 import "github.com/stretchr/testify/assert"
 
@@ -308,7 +302,7 @@ func TestCreateUser_EmptyName_ReturnsError(t *testing.T) {
 }
 ```
 
-### Coverage Command
+### Coverage command
 ```bash
 go test ./... -cover
 go test ./... -coverprofile=coverage.out
@@ -319,7 +313,7 @@ go tool cover -html=coverage.out
 
 ## Rust: cargo test
 
-### File Structure
+### File structure
 ```
 project/
 ├── src/
@@ -332,7 +326,7 @@ project/
 
 ### Patterns
 
-**Unit tests (in-file):**
+Unit tests (in-file):
 ```rust
 #[cfg(test)]
 mod tests {
@@ -353,7 +347,7 @@ mod tests {
 }
 ```
 
-### Coverage Command
+### Coverage command
 ```bash
 cargo test
 cargo tarpaulin --out Html  # Coverage with tarpaulin
@@ -361,23 +355,27 @@ cargo tarpaulin --out Html  # Coverage with tarpaulin
 
 ---
 
-## Common Anti-Patterns to Avoid
+## Common anti-patterns to avoid
 
-1. **Testing implementation details**: Test behavior, not internal state
-2. **Overly broad tests**: One test checking 10 things, split into focused tests
-3. **Flaky tests**: Tests depending on timing, network, or random data
-4. **Test duplication**: Same scenario tested multiple ways without added value
-5. **Missing edge cases**: Only testing happy path
-6. **Brittle mocks**: Mocking too deeply into the dependency chain
-7. **No assertion**: Tests that only check "does not throw"
-8. **Shared mutable state**: Tests that depend on execution order
+| Anti-pattern | Detail |
+| --- | --- |
+| Testing implementation details | Test behavior, not internal state |
+| Overly broad tests | One test checking 10 things, split into focused tests |
+| Flaky tests | Tests depending on timing, network, or random data |
+| Test duplication | Same scenario tested multiple ways without added value |
+| Missing edge cases | Only testing happy path |
+| Brittle mocks | Mocking too deeply into the dependency chain |
+| No assertion | Tests that only check "does not throw" |
+| Shared mutable state | Tests that depend on execution order |
 
-## Edge Cases to Always Test
+## Edge cases to always test
 
-- **Empty inputs**: Empty strings, empty arrays, null/undefined/None
-- **Boundary values**: 0, -1, MAX_INT, empty collections, single-element collections
-- **Invalid inputs**: Wrong types, missing required fields, malformed data
-- **Error conditions**: Network failures, file not found, permission denied
-- **Concurrency**: Race conditions, deadlocks (when applicable)
-- **Unicode**: Non-ASCII characters, emoji, RTL text
-- **Large inputs**: Performance under load, memory limits
+| Category | Examples |
+| --- | --- |
+| Empty inputs | Empty strings, empty arrays, null/undefined/None |
+| Boundary values | 0, -1, MAX_INT, empty collections, single-element collections |
+| Invalid inputs | Wrong types, missing required fields, malformed data |
+| Error conditions | Network failures, file not found, permission denied |
+| Concurrency | Race conditions, deadlocks (when applicable) |
+| Unicode | Non-ASCII characters, emoji, RTL text |
+| Large inputs | Performance under load, memory limits |

@@ -33,7 +33,7 @@ git log --oneline origin/main..HEAD 2>/dev/null | head -20
 
 Also check whether the branch is pushed to remote (`git log origin/<branch>..HEAD`: an error means local-only).
 
-**Determine the base branch** (once, reuse the result for the rest of the run):
+Determine the base branch once, and reuse the result for the rest of the run:
 1. User passed `--base <branch>`: use it.
 2. Otherwise `gh pr view --json baseRefName -q .baseRefName 2>/dev/null` (if an open PR exists).
 3. Otherwise `git config branch.<name>.merge`.
@@ -41,11 +41,11 @@ Also check whether the branch is pushed to remote (`git log origin/<branch>..HEA
 
 Determine sync strategy:
 
-**Merge (default)**: use when the branch has been pushed to remote, the user did not pass `--rebase`, or you are unsure.
+Merge (default): use when the branch has been pushed to remote, the user did not pass `--rebase`, or you are unsure.
 
-**Rebase (opt-in)**: use only when the user explicitly passed `--rebase`.
+Rebase (opt-in): use only when the user explicitly passed `--rebase`.
 
-**Fork sync** (`--upstream`), sync from the `upstream` remote instead of `origin`: `git fetch upstream && git merge upstream/<base>`.
+Fork sync (`--upstream`) syncs from the `upstream` remote instead of `origin`: `git fetch upstream && git merge upstream/<base>`.
 
 Display the detected state and proposed strategy before proceeding:
 
@@ -60,17 +60,17 @@ Dirty tree:     no
 
 ### Phase 2: Pre-sync Safety
 
-1. **Dirty working tree**: with `--stash`, run `git stash push -m "git-sync auto-stash"` before syncing. Without `--stash`, abort and tell the user to commit, stash, or re-run with `--stash`.
-2. **Fetch latest**: `git fetch origin` (and `git fetch upstream` for fork sync).
-3. **Re-check divergence** after fetch so the numbers you report are accurate, not the pre-fetch snapshot.
+1. Dirty working tree: with `--stash`, run `git stash push -m "git-sync auto-stash"` before syncing. Without `--stash`, abort and tell the user to commit, stash, or re-run with `--stash`.
+2. Fetch latest: `git fetch origin` (and `git fetch upstream` for fork sync).
+3. Re-check divergence after fetch so the numbers you report are accurate, not the pre-fetch snapshot.
 
 ### Phase 3: Execute & Report
 
-**Merge**: `git merge origin/<base>`
+Merge: `git merge origin/<base>`
 
-**Rebase, local-only branch**: `git rebase origin/<base>`
+Rebase, local-only branch: `git rebase origin/<base>`
 
-**Rebase, pushed branch**: warn before rewriting shared history:
+Rebase, pushed branch: warn before rewriting shared history:
 
 ```
 WARNING: This branch has been pushed to remote.
@@ -85,7 +85,7 @@ git rebase origin/<base>
 git push --force-with-lease origin <branch>
 ```
 
-**On merge/rebase conflict**: do not guess how to resolve them:
+On merge/rebase conflict, do not guess how to resolve them:
 1. `git diff --name-only --diff-filter=U` to list conflicting files.
 2. Report the exact file list, e.g.:
    ```
@@ -97,7 +97,7 @@ git push --force-with-lease origin <branch>
    ```
 3. Stop and wait. Do not attempt automatic resolution.
 
-**After a successful sync**:
+After a successful sync:
 1. If a stash was auto-created in Phase 2, pop it now: `git stash pop`. If the pop itself conflicts, report those conflicting files the same way as a merge conflict.
 2. Gather real numbers, don't estimate:
    ```bash
@@ -121,7 +121,7 @@ git push --force-with-lease origin <branch>
 
 ## Important Notes
 
-- **Never force push to main/master**, regardless of flags or user insistence.
+- Never force push to main/master, regardless of flags or user insistence.
 - Merge is the safe default for shared branches; only rebase branches you're sure are local-only or where the user explicitly accepted the force-push warning.
 - Use `--force-with-lease`, never bare `--force`, so a rebase-push can't clobber someone else's commits.
 - Fork workflow requires the `upstream` remote to already be configured (`git remote add upstream <url>`).

@@ -122,7 +122,6 @@ def run_single_eval(
     # Run baseline (no skill)
     baseline_output, baseline_duration = run_claude(prompt, model)
 
-    # Save outputs
     (eval_dir / 'with_skill.txt').write_text(with_skill_output, encoding='utf-8')
     (eval_dir / 'baseline.txt').write_text(baseline_output, encoding='utf-8')
 

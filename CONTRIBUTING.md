@@ -2,25 +2,25 @@
 
 We welcome contributions! Please follow these guidelines to ensure a smooth contribution process.
 
-## Quick Start for Contributors
+## Quick Start for contributors
 
-1. **Fork** the repository
-2. **Create** a feature branch: `git checkout -b feature/amazing-feature`
-3. **Develop** your changes with tests and documentation
-4. **Validate** with our quality checks: `make check`
-5. **Submit** a pull request with detailed description
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/amazing-feature`
+3. Develop your changes with tests and documentation
+4. Validate with our quality checks: `make check`
+5. Submit a pull request with detailed description
 
-## Development Setup
+## Development setup
 
 ### Prerequisites
 
-- **Python 3.12+** (for modern language features and performance)
-- **UV** (for fast Python package management) - **REQUIRED**
+- Python 3.12+ (for modern language features and performance)
+- UV (for fast Python package management) - REQUIRED
   - Install: `curl -LsSf https://astral.sh/uv/install.sh | sh`
   - Docs: https://docs.astral.sh/uv/getting-started/installation/
-- **Claude Code** (Anthropic's official Claude CLI)
+- Claude Code (Anthropic's official Claude CLI)
 
-### Setting Up Your Development Environment
+### Setting up your development environment
 
 ```bash
 # Clone your fork
@@ -34,9 +34,9 @@ make dev
 make pre-commit-install
 ```
 
-## Development Workflow
+## Development workflow
 
-### Code Quality Checks
+### Code quality checks
 
 Before submitting any changes, ensure your code passes all quality checks:
 
@@ -55,22 +55,22 @@ make coverage       # Tests with coverage report
 make validate-structure
 ```
 
-### Quality Standards
+### Quality standards
 
 All contributions must meet these standards:
 
-- **Python 3.12+** with modern language features
-- **Type hints** for all functions and classes
-- **Comprehensive tests** with >90% coverage
-- **Rich CLI interfaces** with progress indicators and error handling
-- **Detailed documentation** with examples and troubleshooting
-- **Security-first** approach with input validation and error handling
+- Python 3.12+ with modern language features
+- Type hints for all functions and classes
+- Comprehensive tests with >90% coverage
+- Rich CLI interfaces with progress indicators and error handling
+- Detailed documentation with examples and troubleshooting
+- Security-first approach with input validation and error handling
 
-## Contributing Different Types of Components
+## Contributing different types of components
 
-CC-Arsenal's only component type is the **skill** (49 skills today, see [docs/features.md](docs/features.md) for the full, categorized list). Every workflow, whether user-invoked (a slash command like `/git-commit`) or model-invoked (auto-loaded like `review-code`), is a skill under `skills/<name>/SKILL.md`.
+CC-Arsenal's only component type is the skill (49 skills today, see [docs/features.md](docs/features.md) for the full, categorized list). Every workflow, whether user-invoked (a slash command like `/git-commit`) or model-invoked (auto-loaded like `review-code`), is a skill under `skills/<name>/SKILL.md`.
 
-### Creating New Skills
+### Creating new skills
 
 Skills are modular capabilities Claude loads via progressive disclosure. To create a new skill, use the create-skill skill for guidance:
 
@@ -101,11 +101,11 @@ After creating a skill:
 2. Add its path to the relevant plugin(s) in `.claude-plugin/marketplace.json`. These variants are an install-time concern and stay hand-maintained; they deliberately do not mirror the display groups.
 3. Run `make docs` to regenerate the skill lists in `README.md`, `AGENTS.md` and `docs/features.md`.
 
-Do not hand-edit those three lists: they sit inside `<!-- gen:skills-* -->` markers and `make docs` overwrites them. `make check` fails if they are out of date, or if a skill belongs to no group. Hand-written prose in `docs/features.md` under each `#### /<name>` heading *is* preserved across regeneration, so that is where per-skill detail belongs.
+Do not hand-edit those three lists: they sit inside `<!-- gen:skills-* -->` markers and `make docs` overwrites them. `make check` fails if they are out of date, or if a skill belongs to no group. Hand-written prose in `docs/features.md` under each `` `/<name>` (tag) `` line *is* preserved across regeneration, so that is where per-skill detail belongs.
 
-## Code Style Guidelines
+## Code style guidelines
 
-### Python Code Style
+### Python code style
 
 - Follow PEP 8 with 90-character line length
 - Use type hints for all functions and parameters
@@ -113,16 +113,16 @@ Do not hand-edit those three lists: they sit inside `<!-- gen:skills-* -->` mark
 - Follow Google-style docstrings
 - Use meaningful variable and function names
 
-### Markdown Documentation
+### Markdown documentation
 
 - Use clear, descriptive headings
 - Include code examples with proper syntax highlighting
 - Provide both basic and advanced usage examples
 - Include troubleshooting sections where appropriate
 
-## Testing Guidelines
+## Testing guidelines
 
-### Writing Tests
+### Writing tests
 
 - Write tests for all new functionality
 - Aim for >90% code coverage
@@ -130,7 +130,7 @@ Do not hand-edit those three lists: they sit inside `<!-- gen:skills-* -->` mark
 - Test both success and failure scenarios
 - Include integration tests for complex workflows
 
-### Running Tests
+### Running tests
 
 ```bash
 # Run all tests
@@ -146,33 +146,33 @@ uv run pytest scripts/tests/test_install.py
 uv run pytest -v
 ```
 
-## Documentation Standards
+## Documentation standards
 
-### README Updates
+### README updates
 
 When adding new features:
 - Update the main README.md with usage examples
 - Add appropriate sections to the feature overview
 - Include installation notes if required
 
-### Inline Documentation
+### Inline documentation
 
 - Add docstrings to all public functions and classes
 - Include parameter types and return value descriptions
 - Provide usage examples in docstrings for complex functions
 
-## Security Considerations
+## Security considerations
 
-### Security-First Development
+### Security-first development
 
 All code must follow security best practices:
 
-- **Input Validation**: Validate all user inputs
-- **No Hardcoded Secrets**: Use environment variables for sensitive data
-- **Dependency Security**: Keep dependencies updated and scan for vulnerabilities
-- **Error Handling**: Don't expose sensitive information in error messages
+- Input Validation: Validate all user inputs
+- No Hardcoded Secrets: Use environment variables for sensitive data
+- Dependency Security: Keep dependencies updated and scan for vulnerabilities
+- Error Handling: Don't expose sensitive information in error messages
 
-### Security Review Process
+### Security review process
 
 Security-related changes require additional review:
 - Security hooks and authentication components
@@ -180,9 +180,9 @@ Security-related changes require additional review:
 - External API integrations
 - Dependency updates
 
-## Pull Request Guidelines
+## Pull request guidelines
 
-### PR Description Template
+### PR description template
 
 ```markdown
 ## Summary
@@ -206,23 +206,21 @@ Brief description of the changes
 - [ ] No breaking changes (or properly documented)
 ```
 
-### Review Process
+### Review process
 
-1. **Automated Checks**: All CI checks must pass
-2. **Code Review**: At least one maintainer review required
-3. **Testing**: Verify tests cover new functionality
-4. **Documentation**: Ensure documentation is updated
+1. Automated Checks: All CI checks must pass
+2. Code Review: At least one maintainer review required
+3. Testing: Verify tests cover new functionality
+4. Documentation: Ensure documentation is updated
 
-## Release Process
-
-### Versioning
+## Release process
 
 We follow [Semantic Versioning](https://semver.org/):
-- **MAJOR**: Breaking changes
-- **MINOR**: New features (backward compatible)
-- **PATCH**: Bug fixes (backward compatible)
+- MAJOR: Breaking changes
+- MINOR: New features (backward compatible)
+- PATCH: Bug fixes (backward compatible)
 
-### Release Checklist
+### Release checklist
 
 - [ ] Version number updated in `pyproject.toml`
 - [ ] CHANGELOG.md updated with release notes
@@ -230,31 +228,29 @@ We follow [Semantic Versioning](https://semver.org/):
 - [ ] Documentation updated
 - [ ] Security review completed (if applicable)
 
-## Getting Help
+## Getting help
 
-### Communication Channels
+### Communication channels
 
-- **Issues**: [GitHub Issues](https://github.com/mgiovani/cc-arsenal/issues) for bugs and feature requests
-- **Discussions**: [GitHub Discussions](https://github.com/mgiovani/cc-arsenal/discussions) for questions and ideas
-- **Email**: For security issues, contact e@giovani.dev
+- Issues: [GitHub Issues](https://github.com/mgiovani/cc-arsenal/issues) for bugs and feature requests
+- Discussions: [GitHub Discussions](https://github.com/mgiovani/cc-arsenal/discussions) for questions and ideas
+- Email: For security issues, contact e@giovani.dev
 
-### Common Issues
+### Common issues
 
-- **Installation Problems**: Check UV installation and Python version
-- **Test Failures**: Ensure all dependencies are installed with `make dev`
-- **Style Issues**: Run `make format` and `make lint`
+- Installation Problems: Check UV installation and Python version
+- Test Failures: Ensure all dependencies are installed with `make dev`
+- Style Issues: Run `make format` and `make lint`
 
 ## Code of Conduct
 
-### Our Standards
+### Our standards
 
 - Use welcoming and inclusive language
 - Be respectful of differing viewpoints and experiences
 - Gracefully accept constructive criticism
 - Focus on what is best for the community
 - Show empathy towards other community members
-
-### Enforcement
 
 Instances of unacceptable behavior may be reported to e@giovani.dev. All complaints will be reviewed and investigated promptly and fairly.
 

@@ -1,38 +1,38 @@
-# CLAUDE.md - Personal Development Environment
+# CLAUDE.md - Personal development environment
 
 This file provides guidance to Claude Code (claude.ai/code) for my personal development workflow and preferences.
 
-## Development Preferences
+## Development preferences
 
-### Code Style
-- **Language**: Prefer TypeScript over JavaScript, Python 3.12+ with type hints
-- **Formatting**: Use Prettier for JS/TS, Black for Python, with 100 character line length
-- **Architecture**: Favor functional programming patterns, clean architecture, and SOLID principles
-- **Testing**: Write comprehensive tests with >90% coverage using Jest/Vitest for JS/TS, pytest for Python
+### Code style
 
-### Technology Stack Preferences
+| Aspect | Preference |
+|---|---|
+| Language | Prefer TypeScript over JavaScript, Python 3.12+ with type hints |
+| Formatting | Use Prettier for JS/TS, Black for Python, with 100 character line length |
+| Architecture | Favor functional programming patterns, clean architecture, and SOLID principles |
+| Testing | Write comprehensive tests with >90% coverage using Jest/Vitest for JS/TS, pytest for Python |
 
-#### Frontend
-- **Framework**: React 18+ with TypeScript, Next.js for full-stack apps
-- **Styling**: Tailwind CSS with component libraries (shadcn/ui, Radix UI)
-- **State Management**: Zustand for client state, TanStack Query for server state
-- **Build Tools**: Vite for SPAs, Next.js for full-stack
+### Technology stack preferences
 
-#### Backend
-- **Languages**: TypeScript (Node.js), Python (FastAPI), Go for performance-critical services
-- **Frameworks**: Express.js/Fastify for Node.js, FastAPI for Python
-- **Databases**: PostgreSQL with Prisma/SQLAlchemy, Redis for caching
-- **API Design**: RESTful APIs with OpenAPI documentation, GraphQL for complex queries
+| Layer | Aspect | Preference |
+|---|---|---|
+| Frontend | Framework | React 18+ with TypeScript, Next.js for full-stack apps |
+| Frontend | Styling | Tailwind CSS with component libraries (shadcn/ui, Radix UI) |
+| Frontend | State management | Zustand for client state, TanStack Query for server state |
+| Frontend | Build tools | Vite for SPAs, Next.js for full-stack |
+| Backend | Languages | TypeScript (Node.js), Python (FastAPI), Go for performance-critical services |
+| Backend | Frameworks | Express.js/Fastify for Node.js, FastAPI for Python |
+| Backend | Databases | PostgreSQL with Prisma/SQLAlchemy, Redis for caching |
+| Backend | API design | RESTful APIs with OpenAPI documentation, GraphQL for complex queries |
+| DevOps & infrastructure | Containerization | Docker with multi-stage builds |
+| DevOps & infrastructure | Deployment | Vercel for frontend, Railway/Fly.io for backend services |
+| DevOps & infrastructure | CI/CD | GitHub Actions with automated testing and deployment |
+| DevOps & infrastructure | Monitoring | Sentry for error tracking, Vercel Analytics for performance |
 
-#### DevOps & Infrastructure
-- **Containerization**: Docker with multi-stage builds
-- **Deployment**: Vercel for frontend, Railway/Fly.io for backend services
-- **CI/CD**: GitHub Actions with automated testing and deployment
-- **Monitoring**: Sentry for error tracking, Vercel Analytics for performance
+## Common commands
 
-## Common Commands
-
-### Project Initialization
+### Project initialization
 ```bash
 # Node.js/TypeScript project
 npm create vite@latest . -- --template react-ts
@@ -48,7 +48,7 @@ npx create-next-app@latest . --typescript --tailwind --app --src-dir
 npm run dev
 ```
 
-### Development Workflow
+### Development workflow
 ```bash
 # Install dependencies
 npm install  # or: uv sync
@@ -67,7 +67,7 @@ npm run format  # or: uv run black .
 npm run build  # or: uv run python -m build
 ```
 
-### Database Operations
+### Database operations
 ```bash
 # Prisma (Node.js)
 npx prisma generate
@@ -79,7 +79,7 @@ uv run alembic revision --autogenerate -m "description"
 uv run alembic upgrade head
 ```
 
-## Project Structure Patterns
+## Project structure patterns
 
 ### Frontend (React/Next.js)
 ```
@@ -110,9 +110,9 @@ src/
 └── tests/             # Test suite
 ```
 
-## Development Principles
+## Development principles
 
-### Code Quality
+### Code quality
 - Always use TypeScript for new JavaScript projects
 - Write self-documenting code with clear variable names
 - Prefer composition over inheritance
