@@ -8,14 +8,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- **3 new skills** (48 to 51), all supporting an external agent-orchestration workflow:
-  - **prd-to-issues**: the seam between an approved PRD and a tracked backlog. Files one issue per requirement ID, records the dependencies the PRD states, and stays idempotent across re-runs by matching on that ID in the title. Refuses to file a requirement carrying an unresolved `[NEEDS CLARIFICATION]` tag rather than guessing, and never closes or edits an existing issue.
-  - **clotho-research**: pre-planning codebase research. Reports the files a change must touch, the prior art worth copying, and the concrete risks, without proposing an implementation.
-  - **review-plan**: adversarial review of an implementation plan against the actual repository, before any code exists. Assumes the plan is wrong and reports findings by severity; it never rewrites the plan.
+- **optimize-ai-setup**: audits the AI coding tools installed on the machine (Claude Code, Codex CLI/app, Cursor, Antigravity, Gemini CLI, Claude Desktop) for token waste and ranks the fixes. A stdlib-only script measures real session logs and configs (startup context, prompt-cache hit rate and rebuild causes, oversized CLAUDE.md/AGENTS.md, duplicate or unused skills, plugins and MCP servers, stale env settings, model and effort mix) without reading message content or secrets; the model reads only the compact report and the catalog entries for findings that fired, then applies the chosen fixes on opt-in.
+
+## [6.0.0] - 2026-09-24
+
+One skill added and six unused ones removed, taking the catalog from 53 to 48; the removals, and the `cc-arsenal-teams` plugin variant that goes with them, are the breaking change. The catalog is now grouped on skills.sh and generated from a single source, and render ships as a real asset kit with 18 diagram types.
+
+### Added
+- **project-illustrator**: creates a cohesive project art system from brand discovery through three-option mascot review, selected-character heroes, social cards, circular thumbnails, high-resolution masters, and pixel-level visual QA. It reuses existing project identities, avoids stale facts in baked artwork, and preserves approved compositions during focused repairs.
+- **Skill groups and generated catalogs.** `skills.sh.json` puts every skill in exactly one job-to-be-done group, so skills.sh shows grouped sections instead of a flat wall, and each `SKILL.md` carries a one-line `metadata.summary` for the catalogs to render. `make docs` (`scripts/gen_skill_docs.py`) regenerates the skill lists and every hardcoded count in `README.md`, `AGENTS.md`, `docs/features.md` and `CONTRIBUTING.md`; `make check` and pre-commit fail on drift, on a skill in no group, and on a skill no marketplace variant covers.
+
+### Changed
+- **render 1.2.0: 18 data-driven diagram types.** `assets/diagrams.js` and `assets/diagrams.css` add `Render.diagram.<type>(spec)` for sequence, state, flowchart, swimlane, cycle, architecture, dependency, er, containment, gantt, kanban, storymap, quadrant, fishbone, waterfall, treemap, funnel and line (a slope chart at two ticks). Each builder lays out plain data on a CSS grid and routes connectors by measuring the DOM, with generous spacing between entities. Over budget or dishonest data (a waterfall that doesn't sum, a funnel that grows) is refused with an `.empty` block and a console warning instead of drawn. `dependency` replaces the hand-drawn `graph` block in the map and plan templates. `page.css` now takes every length from a token, and `scripts/assemble.py` enforces it with a `raw-length` rule and a `style-attr` rule (inline styles may only set unitless custom properties).
+- **codex-imagegen**: runs Codex on `gpt-6-sol` and opens every prompt with `$imagegen using gpt-image-2.5-sunburst via the built-in image tool` (GPT Image 2.5 Sunburst), since Codex has no image-model flag. `--full-auto` is now `--approve-for-me`. **project-illustrator** and **oss-launch** name the same models when they call it.
+- **render: redesigned as a monochrome, square-corner, Geist-set kit**, shipped as real assets instead of prose alone: `assets/page.css` (zero-hue tokens, every block's styles), `assets/page.js` (the runtime, `window.Render`), `assets/gallery.html` (every block rendered once, the visual catalog), and one `assets/templates/<mode>.html` per mode. `scripts/assemble.py` inlines the CSS and JS into a page and gates it (hex/color-function/named-color/radius/shadow/font-size/sample rules; no leftover `/*SAMPLE*/` for a real page). Verdicts are now colorless, read from the pressed segment's ink-fill position rather than a hue. 15px is now the smallest font size anywhere on the page, on a fixed 15/17/20/30 type scale with hierarchy by weight and color instead of shrinking text further. Grows from 8 to 12 modes: `tour` (guided code walkthrough), `timeline` (dated incident or history events), `diff` (before/after hunks, accept/revise/reject) and `report` (status and metrics summary) join the existing eight.
+
+### Removed
+- **BREAKING: gh-daily, jira-daily, jira-todo, nanobanana, team-implement, team-review**: removed (unused). The `cc-arsenal-teams` plugin variant is gone with them, and `cc-arsenal-jira` now ships only `jira-cli`. If you installed `cc-arsenal-teams`, uninstall it; `orchestrate` covers multi-agent fan-out.
+
+### Fixed
+- **The skill docs generator could silently destroy hand-written prose.** Count rewriting ran over the preserved `docs/features.md` bodies, turning a sentence like "one of 12 supported toolchains" into the skill total, and a skill body with its own `###` heading was truncated at it. Both now have regression tests, and an empty `description:` fails loudly instead of rendering the string "None" into every catalog.
+- **CONTRIBUTING.md told contributors to hand-edit `docs/features.md`**, which is now generated, and never mentioned `skills.sh.json`, so a new skill would fail the group check. It now matches the Contributing steps in `AGENTS.md`.
+
+## [5.2.0] - 2026-08-30
+
+Five new skills, taking the catalog from 48 to 53. Four of them (prd-to-issues, clotho-research, review-plan, render) chain into one another: research a change, review the plan for it, file the issues, and put any of those outputs in front of a human as a page they can mark up.
+
+### Added
+- **render**: turns a plan, PRD, review, audit, comparison, brainstorm, explanation or architecture map into an interactive HTML page the user marks up in place, then reads those marks back and acts on them. Eight modes, each specified in its own reference file. Every anchored block carries a comment affordance, and a comment is stored with the label and section of what it was left on, so feedback returns bound to its subject and a comment whose target has since moved is reported as orphaned rather than silently dropped. Wraps any other skill (`render /review-code`) with no change to that skill. Publishes as an Artifact where one is available and writes a self-contained file otherwise. The first skill in this repository that produces HTML rather than markdown.
+- **prd-to-issues**: the seam between an approved PRD and a tracked backlog. Files one issue per requirement ID, records the dependencies the PRD states, and stays idempotent across re-runs by matching on that ID in the title. Refuses to file a requirement carrying an unresolved `[NEEDS CLARIFICATION]` tag rather than guessing, and never closes or edits an existing issue.
+- **clotho-research**: pre-planning codebase research. Reports the files a change must touch, the prior art worth copying, and the concrete risks, without proposing an implementation.
+- **review-plan**: adversarial review of an implementation plan against the actual repository, before any code exists. Assumes the plan is wrong and reports findings by severity; it never rewrites the plan.
+- **wtf**: re-explains the previous message in plain, simplified English (ASD-STE100 style) when the user did not follow it. Rewrites what was already said, and deliberately does no new work, research, or code.
 
 ### Fixed
 - **clotho-research declared tools it could not reach.** Its frontmatter listed `WebSearch` and `WebFetch` while the skill runs read-only (`Read, Grep, Find, Ls`), so the instructions told the model to search a web it had no tool for. Declared tools now match what it actually gets, and any externally recalled source must be marked `(unverified, recalled not fetched)`.
-- **AGENTS.md skill counts** were stale at 48 while the tree held 51; per-category counts now sum to the real total.
+- **Pre-commit was red on the product-* skill scripts.** editorconfig-checker read 14 docstring prose bullets as bad indentation; `indent_size` is now unset for `*.py`, leaving Python indentation to ruff instead of reflowing prose to multiples of four.
+- **Skill counts across the docs** were stale in five files at four different numbers (45, 46, 49, 52) while the tree held 53; every count and per-category subtotal now sums to the real total, and `wtf` is registered in the catalogs it was missing from.
 
 ## [5.1.0] - 2026-07-27
 

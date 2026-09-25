@@ -37,9 +37,8 @@ For local development, add a local marketplace instead:
 | `cc-arsenal-review` | Code review and quality audits |
 | `cc-arsenal-docs` | Documentation generation |
 | `cc-arsenal-git` | Git/GitHub workflow automation |
-| `cc-arsenal-jira` | Jira standup, planning, and CLI |
+| `cc-arsenal-jira` | Jira CLI |
 | `cc-arsenal-skills` | Specialty model-invoked capabilities |
-| `cc-arsenal-teams` | Team orchestration (experimental) |
 
 Each variant's exact skill set is defined in [`.claude-plugin/marketplace.json`](.claude-plugin/marketplace.json), the single source of truth, so the list never drifts across docs. The `cc-arsenal` variant intentionally omits the `skills` field there: an unset `skills` means "auto-load every skill in the repo," so it never needs syncing with the others.
 

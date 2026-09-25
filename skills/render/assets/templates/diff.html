@@ -1,0 +1,360 @@
+<title>Foundation Diff</title>
+<!-- impeccable-disable overused-font -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../page.css">
+
+<script id="state" type="application/json">{"v":1,"verdicts":{},"comments":[]}</script>
+
+<header class="toolbar">
+  <div class="toolbar-row">
+    <span class="toolbar-title">skills/render foundation diff</span>
+    <div class="counts" aria-label="Counts"></div>
+    <span class="spacer"></span>
+    <div class="seg" role="group" aria-label="Theme" data-theme-toggle>
+      <button type="button" data-value="auto" aria-pressed="true">Auto</button>
+      <button type="button" data-value="light" aria-pressed="false">Light</button>
+      <button type="button" data-value="dark" aria-pressed="false">Dark</button>
+    </div>
+    <div class="toolbar-group">
+      <button type="button" class="btn" data-action="digest">Copy digest</button>
+      <button type="button" class="btn btn-icon" data-action="shortcuts" aria-label="Keyboard shortcuts" aria-expanded="false" aria-controls="shortcuts">?</button>
+      <button type="button" class="btn btn-primary" data-action="save">Save</button>
+    </div>
+  </div>
+  <div class="filterbar">
+    <div class="seg" data-filter="verdict" role="group" aria-label="Filter by verdict"></div>
+  </div>
+</header>
+
+<div id="shortcuts" class="shortcuts" hidden>
+  <div class="shortcuts-inner">
+    <h2>Keyboard</h2>
+    <div class="shortcut"><span class="keys"><kbd>j</kbd><kbd>k</kbd></span>Next or previous hunk</div>
+    <div class="shortcut"><span class="keys"><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd></span>Accept, revise, reject</div>
+    <div class="shortcut"><span class="keys"><kbd>c</kbd></span>Comment on the current hunk</div>
+    <div class="shortcut"><span class="keys"><kbd>/</kbd></span>Focus the verdict filter</div>
+    <div class="shortcut"><span class="keys"><kbd>Esc</kbd></span>Close composer or panel</div>
+    <div class="shortcut"><span class="keys"><kbd>?</kbd></span>Show or hide this panel</div>
+  </div>
+</div>
+
+<main class="wrap wrap-wide" id="root"></main>
+
+<script src="../page.js"></script>
+<script>
+/*
+DATA shape (replace wholesale to diff something else):
+{
+  meta: {
+    title: string,        // becomes <h1> and the toolbar title
+    tldr: string,          // one or two sentences: what changes and why
+    base: string,          // what the diff is against, e.g. a commit or "main, working tree"
+  },
+  files: [
+    { path: string, status: 'add' | 'mod' | 'del', added: number, removed: number },
+  ],
+  hunks: [
+    // unified (the default)
+    { path: string, label: string, variant: 'unified', stat: string,
+      lines: [{ n: string, text: string, kind: '' | 'add' | 'del' | 'hunk' | 'pad' }] },
+    // split (for a config or prose hunk instead of code)
+    { path: string, label: string, variant: 'split', stat: string,
+      before: [{ n: string, text: string, kind: '' | 'add' | 'del' | 'pad' }],
+      after:  [{ n: string, text: string, kind: '' | 'add' | 'del' | 'pad' }] },
+  ],
+}
+`path` in a hunk must match a `path` in `files`; a file with no matching hunk
+still gets its own section, showing an empty state instead of a diff.
+*/
+
+const DATA = /*SAMPLE*/{
+  meta: {
+    title: 'skills/render foundation, diff review',
+    tldr: 'skills/render ships its shared stylesheet, runtime and assembly gate as real files instead of prose guidance, then adds a ninth mode, diff, for reviewing a migration or refactor hunk by hunk.',
+    base: 'main, working tree',
+  },
+  files: [
+    { path: 'skills/render/assets/page.css', status: 'add', added: 982, removed: 0 },
+    { path: 'skills/render/assets/page.js', status: 'add', added: 654, removed: 0 },
+    { path: 'skills/render/assets/gallery.html', status: 'add', added: 628, removed: 0 },
+    { path: 'skills/render/references/blocks.md', status: 'add', added: 363, removed: 0 },
+    { path: 'skills/render/scripts/assemble.py', status: 'add', added: 333, removed: 0 },
+    { path: 'scripts/tests/test_render_assemble.py', status: 'add', added: 186, removed: 0 },
+    { path: 'skills/render/SKILL.md', status: 'mod', added: 1, removed: 0 },
+  ],
+  hunks: [
+    {
+      path: 'skills/render/assets/page.css',
+      label: ':root tokens',
+      variant: 'unified',
+      stat: '+10 -0',
+      lines: [
+        { n: '', text: '@@ -0,0 +1,10 @@ :root tokens', kind: 'hunk' },
+        { n: '3', text: '+:root {', kind: 'add' },
+        { n: '4', text: '+  color-scheme: light;', kind: 'add' },
+        { n: '5', text: '+  --bg: #FAFAFA;', kind: 'add' },
+        { n: '6', text: '+  --panel: #FFFFFF;', kind: 'add' },
+        { n: '7', text: '+  --sunk: #F4F4F4;', kind: 'add' },
+        { n: '8', text: '+  --line: #E5E5E5;', kind: 'add' },
+        { n: '9', text: '+  --line-strong: #D4D4D4;', kind: 'add' },
+        { n: '10', text: '+  --ink: #0F0F0F;', kind: 'add' },
+        { n: '11', text: '+  --mute: #525252;', kind: 'add' },
+        { n: '12', text: '+  --soft: #737373;', kind: 'add' },
+      ],
+    },
+    {
+      path: 'skills/render/assets/page.js',
+      label: 'slug()',
+      variant: 'unified',
+      stat: '+3 -0',
+      lines: [
+        { n: '', text: '@@ -0,0 +1,3 @@ slug()', kind: 'hunk' },
+        { n: '16', text: '+  function slug(s) {', kind: 'add' },
+        { n: '17', text: '+    return String(s).toLowerCase().trim().replace(/[^a-z0-9]+/g, \'-\').replace(/^-+|-+$/g, \'\');', kind: 'add' },
+        { n: '18', text: '+  }', kind: 'add' },
+      ],
+    },
+    {
+      path: 'skills/render/scripts/assemble.py',
+      label: '_is_all_zero()',
+      variant: 'unified',
+      stat: '+3 -0',
+      lines: [
+        { n: '', text: '@@ -0,0 +1,3 @@ _is_all_zero()', kind: 'hunk' },
+        { n: '161', text: '+def _is_all_zero(value: str) -> bool:', kind: 'add' },
+        { n: '162', text: '+    tokens = value.replace(\'!important\', \'\').split()', kind: 'add' },
+        { n: '163', text: '+    return bool(tokens) and all(token in (\'0\', \'0px\') for token in tokens)', kind: 'add' },
+      ],
+    },
+    {
+      path: 'skills/render/assets/gallery.html',
+      label: 'toolbar markup',
+      variant: 'unified',
+      stat: '+7 -0',
+      lines: [
+        { n: '', text: '@@ -0,0 +1,7 @@ toolbar markup', kind: 'hunk' },
+        { n: '10', text: '+<header class="toolbar">', kind: 'add' },
+        { n: '11', text: '+  <div class="toolbar-row">', kind: 'add' },
+        { n: '12', text: '+    <span class="toolbar-title">Render block gallery</span>', kind: 'add' },
+        { n: '13', text: '+    <div class="counts" aria-label="Verdict counts">', kind: 'add' },
+        { n: '14', text: '+      <span><span data-count="keep">0</span>keep</span>', kind: 'add' },
+        { n: '15', text: '+      <span><span data-count="change">0</span>change</span>', kind: 'add' },
+        { n: '16', text: '+      <span><span data-count="drop">0</span>drop</span>', kind: 'add' },
+      ],
+    },
+    {
+      path: 'skills/render/references/blocks.md',
+      label: 'content shape table',
+      variant: 'unified',
+      stat: '+5 -0',
+      lines: [
+        { n: '', text: '@@ -0,0 +1,5 @@ content shape table', kind: 'hunk' },
+        { n: '16', text: '+| The content is | Use |', kind: 'add' },
+        { n: '17', text: '+|---|---|', kind: 'add' },
+        { n: '18', text: '+| The one-sentence answer to the page\'s question | `tldr` |', kind: 'add' },
+        { n: '19', text: '+| A handful of labelled values about one subject | `facts` |', kind: 'add' },
+        { n: '20', text: '+| Counts that add up to a whole | `tally` |', kind: 'add' },
+      ],
+    },
+    {
+      path: 'scripts/tests/test_render_assemble.py',
+      label: 'module loader',
+      variant: 'unified',
+      stat: '+11 -0',
+      lines: [
+        { n: '', text: '@@ -0,0 +1,11 @@ module loader', kind: 'hunk' },
+        { n: '1', text: '+"""Unit tests for the render skill\'s assembler/gate.', kind: 'add' },
+        { n: '2', text: '+', kind: 'add' },
+        { n: '3', text: '+The script lives in ``skills/render/scripts/`` -- a hyphenated package dir', kind: 'add' },
+        { n: '4', text: '+that can\'t be imported normally -- so it is loaded by path via importlib.', kind: 'add' },
+        { n: '5', text: '+"""', kind: 'add' },
+        { n: '6', text: '+', kind: 'add' },
+        { n: '7', text: '+import importlib.util', kind: 'add' },
+        { n: '8', text: '+from pathlib import Path', kind: 'add' },
+        { n: '9', text: '+from types import ModuleType', kind: 'add' },
+        { n: '10', text: '+', kind: 'add' },
+        { n: '11', text: '+import pytest', kind: 'add' },
+      ],
+    },
+    {
+      path: 'skills/render/SKILL.md',
+      label: 'Modes table',
+      variant: 'split',
+      stat: '+1 -0',
+      before: [
+        { n: '41', text: '| `compare` | Options against weighted criteria, evidence per cell | pick a winner |', kind: '' },
+        { n: '42', text: '| `brainstorm` | Idea cards, the tension each one resolves, by theme | shortlist / park / drop |', kind: '' },
+        { n: '43', text: '| `explain` | The one-line answer, the mechanism, then detail on demand | none, comments only |', kind: '' },
+        { n: '44', text: '| `map` | Module graph, data flow, entry points | none, comments only |', kind: '' },
+        { n: '', text: ' ', kind: 'pad' },
+      ],
+      after: [
+        { n: '41', text: '| `compare` | Options against weighted criteria, evidence per cell | pick a winner |', kind: '' },
+        { n: '42', text: '| `brainstorm` | Idea cards, the tension each one resolves, by theme | shortlist / park / drop |', kind: '' },
+        { n: '43', text: '| `explain` | The one-line answer, the mechanism, then detail on demand | none, comments only |', kind: '' },
+        { n: '44', text: '| `map` | Module graph, data flow, entry points | none, comments only |', kind: '' },
+        { n: '45', text: '+| `diff` | Before and after review, hunk by hunk, grouped by file | accept / revise / reject |', kind: 'add' },
+      ],
+    },
+  ],
+}/*SAMPLE*/;
+
+const VERDICTS = ['accept', 'revise', 'reject'];
+
+function lineHtml(l) {
+  return `<span class="ln${l.kind ? ' ' + l.kind : ''}" data-n="${Render.esc(l.n)}">${Render.esc(l.text)}</span>`;
+}
+
+function diffFigure(hunk) {
+  const cap = `<figcaption><span class="path">${Render.path(hunk.path)}</span><span class="diff-stat">${Render.esc(hunk.stat)}</span></figcaption>`;
+  if (hunk.variant === 'split') {
+    const side = (label, lines) => `<div><h4>${label}</h4><div class="lines">${lines.map(lineHtml).join('')}</div></div>`;
+    return `<figure class="diff">${cap}<div class="diff-split">${side('Before', hunk.before)}${side('After', hunk.after)}</div></figure>`;
+  }
+  return `<figure class="diff">${cap}<div class="lines">${hunk.lines.map(lineHtml).join('')}</div></figure>`;
+}
+
+function hunkAnchor(hunk) {
+  return `hunk-${Render.slug(hunk.path)}-${Render.slug(hunk.label)}`;
+}
+
+function hunkHtml(hunk) {
+  const anchor = hunkAnchor(hunk);
+  const label = `${hunk.path}: ${hunk.label}`;
+  return Render.anchored({ anchor, label, verdict: true, html: diffFigure(hunk) });
+}
+
+function renderHead(data) {
+  return (
+    `<header class="page-head"><h1>${Render.esc(data.meta.title)}</h1>`
+    + `<p class="meta">Diff against <span class="mono">${Render.esc(data.meta.base)}</span>, ${data.files.length} files touched.</p></header>`
+  );
+}
+
+function renderGlance(data) {
+  const added = data.files.reduce((n, f) => n + f.added, 0);
+  const removed = data.files.reduce((n, f) => n + f.removed, 0);
+  const largest = data.files.reduce((a, f) => (f.added > a.added ? f : a), data.files[0] || { path: '', added: 0 });
+  const facts = !data.files.length ? '' : (
+    '<dl class="facts">'
+    + `<div><dt>Base</dt><dd class="mono">${Render.esc(data.meta.base)}</dd></div>`
+    + `<div><dt>Files changed</dt><dd>${data.files.length}</dd></div>`
+    + `<div><dt>Lines</dt><dd>+${added} / -${removed}</dd></div>`
+    + `<div><dt>Largest file</dt><dd class="mono">${Render.path(largest.path)}</dd></div>`
+    + '</dl>'
+  );
+  const tally = !data.files.length ? '' : (
+    '<div class="tally" role="group" aria-label="Lines added and removed across the diff">'
+    + '<dl class="tally-counts">'
+    + `<div class="s1"><dt>Added</dt><dd>${added}</dd></div>`
+    + `<div class="s0"><dt>Removed</dt><dd>${removed}</dd></div>`
+    + '</dl>'
+    + `<div class="tally-bar" aria-hidden="true"><i class="s1" style="--v:${added}"></i><i class="s0" style="--v:${removed}"></i></div>`
+    + '</div>'
+  );
+  return (
+    '<section class="section" id="glance" data-section="At a glance"><h2>At a glance</h2>'
+    + `<p class="tldr">${Render.esc(data.meta.tldr)}</p>`
+    + facts + tally
+    + '</section>'
+  );
+}
+
+function treeHtml(files) {
+  if (!files.length) {
+    return '<div class="empty"><p class="title">No files touched</p><p class="text">This diff has no file changes to show.</p></div>';
+  }
+  const letters = { add: 'A', mod: 'M', del: 'D' };
+  const root = { children: {} };
+  for (const f of files) {
+    const parts = f.path.split('/');
+    let node = root;
+    parts.forEach((part, i) => {
+      node.children = node.children || {};
+      if (!node.children[part]) node.children[part] = { name: part, children: {}, file: i === parts.length - 1 ? f : null };
+      node = node.children[part];
+    });
+  }
+  function renderChildren(node) {
+    const kids = Object.values(node.children || {}).sort((a, b) => a.name.localeCompare(b.name));
+    return kids.map((k) => {
+      if (k.file) {
+        return (
+          `<li data-touch="${k.file.status}"><span class="name">${Render.esc(k.name)}</span>`
+          + `<span class="touch">${letters[k.file.status] || '?'}</span></li>`
+        );
+      }
+      return `<li class="dir"><span class="name">${Render.esc(k.name)}/</span><ul>${renderChildren(k)}</ul></li>`;
+    }).join('');
+  }
+  return `<ul class="tree" aria-label="Files touched in this diff">${renderChildren(root)}</ul>`;
+}
+
+function renderFiles(data) {
+  return (
+    '<section class="section" id="files" data-section="Touched files">'
+    + `<div class="section-head"><h2>Touched files</h2><span class="meta">${data.files.length} files</span></div>`
+    + treeHtml(data.files)
+    + '</section>'
+  );
+}
+
+function fileSection(file, hunks) {
+  const letters = { add: 'A', mod: 'M', del: 'D' };
+  const id = `file-${Render.slug(file.path)}`;
+  const stat = `+${file.added} -${file.removed}`;
+  const body = hunks.length
+    ? hunks.map(hunkHtml).join('')
+    : (
+      '<div class="empty"><p class="title">No hunk shown for this file</p>'
+      + `<p class="text">${Render.esc(file.path)} changed but no excerpt was selected for review.</p></div>`
+    );
+  return (
+    `<section class="section" id="${id}" data-section="${Render.esc(file.path)}">`
+    + `<div class="section-head"><h2 class="mono">${Render.path(file.path)}</h2>`
+    + `<span class="meta">${letters[file.status] || '?'}, ${Render.esc(stat)}</span></div>`
+    + body
+    + '</section>'
+  );
+}
+
+function renderFileSections(data) {
+  const byPath = {};
+  for (const h of data.hunks) {
+    (byPath[h.path] = byPath[h.path] || []).push(h);
+  }
+  return data.files.map((f) => fileSection(f, byPath[f.path] || [])).join('');
+}
+
+function tocHtml(data) {
+  const items = data.files
+    .map((f) => `<li><a href="#file-${Render.slug(f.path)}">${Render.esc(f.path.split('/').pop())}</a></li>`)
+    .join('');
+  return (
+    '<nav class="toc" aria-label="On this page"><h2>On this page</h2><ol>'
+    + '<li><a href="#glance" aria-current="true">At a glance</a></li>'
+    + '<li><a href="#files">Touched files</a></li>'
+    + items
+    + '</ol></nav>'
+  );
+}
+
+function mount(data) {
+  document.getElementById('root').innerHTML = (
+    tocHtml(data) + renderHead(data) + renderGlance(data) + renderFiles(data) + renderFileSections(data)
+  );
+  document.querySelector('.toolbar-title').textContent = 'skills/render foundation diff';
+}
+
+mount(DATA);
+
+if (window.Render) {
+  Render.init({
+    verdicts: VERDICTS,
+    file: `diff-${Render.slug(DATA.meta.title)}-2026-09-23.html`,
+    title: DATA.meta.title,
+  });
+}
+</script>

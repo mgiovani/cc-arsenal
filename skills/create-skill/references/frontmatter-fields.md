@@ -29,7 +29,7 @@ Validate against `scripts/quick_validate.py`: it enforces this exact key set and
 
 ## `context: fork` (Isolated subagent pattern)
 
-Used by `docs-adr`, `review-security`, `team-implement`, and others in this repo for skills that should run without the calling conversation's history: the SKILL.md content becomes the *entire* prompt for the subagent, not an addition to context.
+Used by `docs-adr`, `review-security`, and others in this repo for skills that should run without the calling conversation's history: the SKILL.md content becomes the *entire* prompt for the subagent, not an addition to context.
 
 ```yaml
 ---

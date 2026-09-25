@@ -14,6 +14,7 @@ description: >-
   branch topology, versioning, or promoting dev to main, use gitflow for that,
   including "ship it" said in a repo that runs gitflow.
 metadata:
+  summary: "Orchestrates a branch from \"code done\" to \"merged\" (runs review-code plus project-specific pre-merge checks)"
   author: mgiovani
   version: 1.0.0
 disable-model-invocation: false

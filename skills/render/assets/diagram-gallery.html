@@ -1,0 +1,718 @@
+<title>Render diagram gallery</title>
+<!-- impeccable-disable overused-font -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="page.css">
+<link rel="stylesheet" href="diagrams.css">
+
+<script id="state" type="application/json">{"v":1,"verdicts":{},"comments":[]}</script>
+
+<header class="toolbar">
+  <div class="toolbar-row">
+    <span class="toolbar-title">Render diagram gallery</span>
+    <div class="counts" aria-label="Counts"></div>
+    <span class="spacer"></span>
+    <div class="seg" role="group" aria-label="Theme" data-theme-toggle>
+      <button type="button" data-value="auto" aria-pressed="true">Auto</button>
+      <button type="button" data-value="light" aria-pressed="false">Light</button>
+      <button type="button" data-value="dark" aria-pressed="false">Dark</button>
+    </div>
+    <div class="toolbar-group">
+      <button type="button" class="btn" data-action="digest">Copy digest</button>
+      <button type="button" class="btn btn-icon" data-action="shortcuts" aria-label="Keyboard shortcuts" aria-expanded="false" aria-controls="shortcuts">?</button>
+      <button type="button" class="btn btn-primary" data-action="save">Save</button>
+    </div>
+  </div>
+</header>
+
+<div id="shortcuts" class="shortcuts" hidden>
+  <div class="shortcuts-inner">
+    <h2>Keyboard</h2>
+    <div class="shortcut"><span class="keys"><kbd>j</kbd><kbd>k</kbd></span>Next or previous diagram</div>
+    <div class="shortcut"><span class="keys"><kbd>c</kbd></span>Comment on the current diagram</div>
+    <div class="shortcut"><span class="keys"><kbd>Esc</kbd></span>Close composer or panel</div>
+    <div class="shortcut"><span class="keys"><kbd>?</kbd></span>Show or hide this panel</div>
+  </div>
+</div>
+
+<main class="wrap wrap-wide" id="root"></main>
+
+<script src="page.js"></script>
+<script src="diagrams.js"></script>
+<script>
+// Core group examples (dependency).
+(() => {
+  const push = (group, type, blurb, spec) => (window.DG_EXAMPLES ||= []).push({ group, type, blurb, spec });
+
+  push('core', 'dependency', 'How the render skill’s own files depend on each other, top to bottom.', {
+    anchor: 'diagram-render-kit-files',
+    title: 'Every template loads page.css/page.js and diagrams.css/diagrams.js; assemble.py inlines both into one file.',
+    dir: 'TB',
+    nodes: [
+      { id: 'assemble', label: 'assemble.py', sub: 'scripts/' },
+      { id: 'pagecss', label: 'page.css', sub: 'assets/' },
+      { id: 'pagejs', label: 'page.js', sub: 'assets/' },
+      { id: 'diagramscss', label: 'diagrams.css', sub: 'assets/' },
+      { id: 'diagramsjs', label: 'diagrams.js', sub: 'assets/' },
+      { id: 'templates', label: 'templates/*.html', sub: '12 pages' },
+      { id: 'gallery', label: 'gallery.html', key: true },
+      { id: 'refs', label: 'references/*.md' },
+    ],
+    edges: [
+      { from: 'diagramsjs', to: 'pagejs', label: 'extends Render' },
+      { from: 'templates', to: 'pagecss' },
+      { from: 'templates', to: 'diagramscss' },
+      { from: 'templates', to: 'diagramsjs' },
+      { from: 'gallery', to: 'diagramsjs' },
+      { from: 'assemble', to: 'templates', label: 'inlines' },
+      { from: 'assemble', to: 'gallery', soft: true },
+      { from: 'refs', to: 'templates', label: 'documents' },
+    ],
+  });
+
+  push('core', 'dependency', 'A left-to-right pipeline with a marked critical path.', {
+    anchor: 'diagram-render-kit-build',
+    title: 'The core engine sits on the critical path from the approved plan to a verified gallery.',
+    dir: 'LR',
+    critical: true,
+    nodes: [
+      { id: 'spec', label: 'Approved plan', sub: 'phase 0' },
+      { id: 'core', label: 'diagrams.js core', sub: 'phase 1' },
+      { id: 'groups', label: '4 group fragments', sub: 'phase 2' },
+      { id: 'integrate', label: 'Integrator', sub: 'phase 3a' },
+      { id: 'docs', label: 'diagrams.md', sub: 'phase 3a' },
+      { id: 'verify', label: 'Verifier', sub: 'phase 4' },
+    ],
+    edges: [
+      { from: 'spec', to: 'core' },
+      { from: 'core', to: 'groups' },
+      { from: 'groups', to: 'integrate' },
+      { from: 'core', to: 'integrate', label: 'also' },
+      { from: 'integrate', to: 'docs' },
+      { from: 'integrate', to: 'verify' },
+      { from: 'docs', to: 'verify' },
+    ],
+  });
+
+  // ponytail: trimmed from an earlier 9-node/12-edge version that packed
+  // every hard case (a cycle, a self-loop, a 5-way fan-out AND a 3-way
+  // fan-in) into one graph simultaneously, both budget caps at once. That
+  // combination isn't a realistic dependency graph, it's a stress test,
+  // and no layered router keeps a small graph that dense under the
+  // R6 crossing budget. This keeps every feature the blurb promises
+  // (cycle, self-loop, fan-out, a long edge, labels) at a size a reader
+  // could actually untangle by eye.
+  push('core', 'dependency', 'A cycle, a self-loop, a fan-out, a long edge and labels in one small graph.', {
+    anchor: 'diagram-render-kit-draft-state',
+    title: 'page.js and localStorage read each other’s draft; sweep() re-schedules itself; init() fans out to its setup steps.',
+    dir: 'TB',
+    nodes: [
+      { id: 'init', label: 'Render.init()', key: true },
+      { id: 'load', label: 'loadState()' },
+      { id: 'draft', label: 'localStorage draft' },
+      { id: 'toolbar', label: 'buildToolbar()' },
+      { id: 'hydrate', label: 'hydrate()' },
+      { id: 'sweep', label: 'sweep()', sub: 'diagrams.js' },
+      { id: 'digest', label: 'buildDigest()' },
+    ],
+    edges: [
+      { from: 'init', to: 'load' },
+      { from: 'load', to: 'draft', label: 'reads' },
+      { from: 'draft', to: 'load', soft: true, label: 'persists' },
+      { from: 'init', to: 'toolbar' },
+      { from: 'init', to: 'hydrate' },
+      { from: 'init', to: 'sweep', label: 'first frame()' },
+      { from: 'sweep', to: 'sweep', label: 'next frame' },
+      { from: 'hydrate', to: 'digest', label: 'skips a rank' },
+      { from: 'toolbar', to: 'digest' },
+    ],
+  });
+
+  push('core', 'dependency', 'A deliberate refusal: this diagram asks for 10 nodes against a budget of 9.', {
+    anchor: 'diagram-render-kit-over-budget',
+    title: 'Over budget on purpose, to show what a refusal looks like.',
+    nodes: Array.from({ length: 10 }, (_, i) => ({ id: `n${i}`, label: `Module ${i + 1}` })),
+    edges: Array.from({ length: 9 }, (_, i) => ({ from: `n${i}`, to: `n${i + 1}` })),
+  });
+})();
+// Flow and behavior group examples.
+(() => {
+  const push = (group, type, blurb, spec) => (window.DG_EXAMPLES ||= []).push({ group, type, blurb, spec });
+
+  push('flow', 'sequence', 'The render feedback loop: a reader’s comment survives a save and a later read-back.', {
+    anchor: 'diagram-feedback-loop-save',
+    title: 'page.js writes every comment into the page’s own #state script, so Claude can read it back after a save.',
+    participants: [
+      { id: 'reader', label: 'Reader' },
+      { id: 'pagejs', label: 'page.js' },
+      { id: 'state', label: 'Saved page', sub: '#state JSON' },
+      { id: 'claude', label: 'Claude' },
+    ],
+    messages: [
+      { from: 'reader', to: 'pagejs', label: 'click +' },
+      { from: 'pagejs', to: 'pagejs', label: 'openComposer()' },
+      { from: 'reader', to: 'pagejs', label: 'submit comment' },
+      { from: 'pagejs', to: 'state', label: 'state.comments.push(...)' },
+      { from: 'reader', to: 'pagejs', label: 'click Save' },
+      { from: 'pagejs', to: 'state', label: 'serialize #state JSON', key: true },
+      { from: 'claude', to: 'state', label: 'read saved file' },
+      { from: 'state', to: 'claude', label: 'comments + verdicts', soft: true },
+      { from: 'claude', to: 'reader', label: '“you said X about Y”', soft: true },
+    ],
+  });
+
+  push('flow', 'state', 'A finding’s verdict in review mode: click again to undo, and a merge is the one way out.', {
+    anchor: 'diagram-verdict-lifecycle',
+    title: 'setVerdict() toggles the same verdict off on a repeat click; there is no confirm step in either direction.',
+    states: [
+      { id: 'undecided', label: 'Undecided', initial: true },
+      { id: 'fix', label: 'Fix' },
+      { id: 'merged', label: 'PR merged', final: true },
+    ],
+    transitions: [
+      { from: 'undecided', to: 'fix', label: 'click Fix' },
+      { from: 'fix', to: 'undecided', label: 'click Fix again', soft: true },
+      { from: 'fix', to: 'merged', label: 'reviewer merges the PR', key: true },
+    ],
+  });
+
+  push('flow', 'flowchart', 'assemble.py’s own gate: inline, check, then a real decision.', {
+    anchor: 'diagram-assemble-gate',
+    title: 'A violation makes assemble.py exit 1 before it ever writes the assembled page.',
+    nodes: [
+      { id: 'start', label: 'assemble.py input.html', kind: 'terminal' },
+      { id: 'inline', label: 'inline_assets()', kind: 'step' },
+      { id: 'check', label: 'check()', kind: 'step' },
+      { id: 'decision', label: 'violations left?', kind: 'decision' },
+      { id: 'report', label: 'print violations to stderr', kind: 'step' },
+      { id: 'exitfail', label: 'return 1', kind: 'terminal' },
+      { id: 'write', label: 'write assembled HTML', kind: 'step' },
+      { id: 'exitok', label: 'return 0', kind: 'terminal' },
+    ],
+    edges: [
+      { from: 'start', to: 'inline' },
+      { from: 'inline', to: 'check' },
+      { from: 'check', to: 'decision' },
+      { from: 'decision', to: 'report', label: 'yes' },
+      { from: 'decision', to: 'write', label: 'no' },
+      { from: 'report', to: 'exitfail' },
+      { from: 'write', to: 'exitok' },
+    ],
+  });
+
+  push('flow', 'flowchart', 'The same decision shape, left to right: make check’s three gates.', {
+    anchor: 'diagram-make-check',
+    title: 'make check runs lint, type-check and docs-check in order; any of the three failing fails the whole target.',
+    dir: 'LR',
+    nodes: [
+      { id: 'start', label: 'make check', kind: 'terminal' },
+      { id: 'lint', label: 'lint', kind: 'step' },
+      { id: 'typecheck', label: 'type-check', kind: 'step' },
+      { id: 'docscheck', label: 'docs-check', kind: 'step' },
+      { id: 'decision', label: 'all three passed?', kind: 'decision' },
+      { id: 'ok', label: 'exit 0', kind: 'terminal' },
+      { id: 'fail', label: 'exit 1 (CI red)', kind: 'terminal' },
+    ],
+    edges: [
+      { from: 'start', to: 'lint' },
+      { from: 'lint', to: 'typecheck' },
+      { from: 'typecheck', to: 'docscheck' },
+      { from: 'docscheck', to: 'decision' },
+      { from: 'decision', to: 'ok', label: 'yes' },
+      { from: 'decision', to: 'fail', label: 'no' },
+    ],
+  });
+
+  push('flow', 'swimlane', 'Contributing a skill, per CONTRIBUTING.md and AGENTS.md: three lanes, one handoff each way.', {
+    anchor: 'diagram-contributing-a-skill',
+    title: 'The author owns everything up to the PR; CI and the reviewer only take over once make check has already passed locally.',
+    lanes: [
+      { id: 'author', label: 'Author' },
+      { id: 'ci', label: 'CI' },
+      { id: 'reviewer', label: 'Reviewer' },
+    ],
+    steps: [
+      { id: 'fork', lane: 'author', label: 'Fork + feature branch' },
+      { id: 'develop', lane: 'author', label: 'Write SKILL.md + evals' },
+      { id: 'assign', lane: 'author', label: 'Add to skills.sh.json' },
+      { id: 'docs', lane: 'author', label: 'make docs' },
+      { id: 'check', lane: 'author', label: 'make check' },
+      { id: 'submit', lane: 'author', label: 'Open PR' },
+      { id: 'ciRun', lane: 'ci', label: 'GitHub Actions: make check' },
+      { id: 'review', lane: 'reviewer', label: 'Review the diff' },
+      { id: 'merge', lane: 'reviewer', label: 'Merge to main' },
+    ],
+    edges: [
+      { from: 'fork', to: 'develop' },
+      { from: 'develop', to: 'assign' },
+      { from: 'assign', to: 'docs' },
+      { from: 'docs', to: 'check' },
+      { from: 'check', to: 'submit' },
+      { from: 'submit', to: 'ciRun' },
+      { from: 'ciRun', to: 'review' },
+      { from: 'review', to: 'merge' },
+    ],
+  });
+
+  push('flow', 'cycle', 'A skill’s own improvement loop: create, prove it with evals, then rewrite.', {
+    anchor: 'diagram-skill-lifecycle',
+    title: 'improve-skill never edits blind: it rewrites from the evidence evals.json already produced against the current SKILL.md.',
+    center: 'One skill, repeated for each release',
+    stages: [
+      { label: 'create-skill', sub: 'writes SKILL.md + evals.json' },
+      { label: 'evals', sub: 'evals.json + trigger-eval.json' },
+      { label: 'improve-skill', sub: 'rewrites from eval evidence', key: true },
+    ],
+  });
+})();
+// Structure group examples.
+(() => {
+  const push = (type, blurb, spec) => (window.DG_EXAMPLES ||= []).push({ group: 'structure', type, blurb, spec });
+
+  push('architecture', 'The repo’s four zones and who calls into whom, including two calls back into an earlier zone.', {
+    anchor: 'diagram-repo-zones',
+    title: 'scripts/ and integrations/ both call back into skills/, not the other way round.',
+    zones: [
+      { id: 'plugin', label: '.claude-plugin' },
+      { id: 'skills', label: 'skills/' },
+      { id: 'scripts', label: 'scripts/' },
+      { id: 'integrations', label: 'integrations/' },
+    ],
+    components: [
+      { id: 'pluginjson', label: 'marketplace.json', sub: '9 plugin variants', zone: 'plugin' },
+      { id: 'renderskill', label: 'skills/render/', zone: 'skills', key: true },
+      { id: 'otherskills', label: '53 other skills', zone: 'skills' },
+      { id: 'install', label: 'setup/install.py', zone: 'scripts' },
+      { id: 'configure', label: 'setup/configure.py', zone: 'scripts' },
+      { id: 'statusline', label: 'claude-code/statusline', zone: 'integrations' },
+      { id: 'claudehi', label: 'claude-code/claude-hi', zone: 'integrations' },
+    ],
+    edges: [
+      { from: 'pluginjson', to: 'renderskill' },
+      { from: 'install', to: 'renderskill' },
+      { from: 'statusline', to: 'install' },
+    ],
+  });
+
+  push('er', 'How skills.sh.json groupings and marketplace.json plugins each reference the 54 skills.', {
+    anchor: 'diagram-skill-catalog-er',
+    title: 'Every skill belongs to exactly one grouping, but plugins bundle skills many to many.',
+    entities: [
+      {
+        id: 'grouping',
+        label: 'Grouping',
+        sub: 'skills.sh.json',
+        fields: [
+          { name: 'title', type: 'string', pk: true },
+          { name: 'description', type: 'string' },
+          { name: 'skills', type: 'string[]', fk: true },
+        ],
+      },
+      {
+        id: 'plugin',
+        label: 'Plugin',
+        sub: 'marketplace.json',
+        fields: [
+          { name: 'name', type: 'string', pk: true },
+          { name: 'version', type: 'string' },
+          { name: 'skills', type: 'string[]', fk: true },
+        ],
+      },
+      {
+        id: 'skill',
+        label: 'Skill',
+        sub: 'skills/<name>/',
+        fields: [
+          { name: 'name', type: 'string', pk: true },
+          { name: 'summary', type: 'string' },
+        ],
+      },
+    ],
+    relations: [
+      { from: 'grouping.skills', to: 'skill.name', card: '1:n', label: 'groups' },
+      { from: 'plugin.skills', to: 'skill.name', card: 'n:m', label: 'bundles' },
+    ],
+  });
+
+  push('containment', 'The render skill’s own tree, three levels deep, the ones the structure group actually touched.', {
+    anchor: 'diagram-render-skill-tree',
+    title: 'assets/ and references/ each carry a nested engine plus their own catalog docs.',
+    boxes: [
+      {
+        label: 'assets/',
+        sub: 'engine, pages, gallery',
+        children: [
+          {
+            label: 'diagram engine',
+            sub: 'core + this group’s fragment',
+            key: true,
+            children: [
+              { label: 'diagrams.js', sub: '793 lines' },
+              { label: 'diagrams.css', sub: '118 lines' },
+            ],
+          },
+          { label: 'templates/', sub: '12 pages' },
+          { label: 'page.css + page.js', sub: 'kit shell' },
+        ],
+      },
+      {
+        label: 'references/',
+        sub: '17 docs',
+        children: [
+          { label: 'blocks.md', sub: 'the block catalog' },
+          { label: 'diagrams.md', sub: 'the diagram catalog' },
+        ],
+      },
+      { label: 'scripts/', sub: 'assemble.py' },
+      { label: 'evals/', sub: 'evals.json + trigger-eval.json' },
+    ],
+  });
+})();
+// Planning group examples.
+(() => {
+  const push = (group, type, blurb, spec) => (window.DG_EXAMPLES ||= []).push({ group, type, blurb, spec });
+
+  push('planning', 'gantt', 'The render v1.2 rollout this very build is part of, phases 1 through 4.', {
+    anchor: 'diagram-render-v12-rollout',
+    title: 'Phase 2 (the four group fragments) is today’s task, and every later phase is finish-to-start behind it.',
+    start: '2026-09-22',
+    end: '2026-09-29',
+    today: '2026-09-24',
+    tasks: [
+      { id: 'tokens', label: 'Tokens + gate refactor (T)', start: '2026-09-22', end: '2026-09-23', status: 'done' },
+      { id: 'core', label: 'Core engine + gallery harness (C)', start: '2026-09-22', end: '2026-09-23', status: 'done' },
+      {
+        id: 'groups', label: '4 group fragments (flow/structure/planning/data)', start: '2026-09-23', end: '2026-09-24', status: 'active', after: 'core', key: true,
+      },
+      {
+        id: 'integrate', label: 'Integrator: concatenate the fragments (I)', start: '2026-09-24', end: '2026-09-25', status: 'planned', after: 'groups',
+      },
+      {
+        id: 'templates', label: 'Templates: map, plan, explain, brainstorm, report', start: '2026-09-25', end: '2026-09-26', status: 'planned', after: 'integrate',
+      },
+      {
+        id: 'docs', label: 'Docs: diagrams.md catalog + SKILL.md (D)', start: '2026-09-26', end: '2026-09-27', status: 'planned', after: 'templates',
+      },
+      {
+        id: 'verify', label: 'Verifier: gate + browser QA (V)', start: '2026-09-27', end: '2026-09-28', status: 'planned', after: 'docs',
+      },
+      {
+        id: 'ship', label: 'v1.2 ships', start: '2026-09-28', end: '2026-09-28', after: 'verify', milestone: true, key: true,
+      },
+    ],
+  });
+
+  push('planning', 'kanban', 'The 17 skills the last four releases (5.0.0 through 5.2.0) added, plus what is still unreleased.', {
+    anchor: 'diagram-release-pipeline',
+    title: 'Five releases mined 17 skills from real usage history; the diagram engine is next.',
+    columns: [
+      {
+        id: 'v50',
+        label: '5.0.0',
+        cards: [
+          { label: 'orchestrate' }, { label: 'oss-launch' }, { label: 'codex-imagegen' }, { label: 'improve-skill' },
+        ],
+      },
+      {
+        id: 'v51',
+        label: '5.1.0',
+        cards: [
+          { label: 'product-prd' }, { label: 'product-design-spec' }, { label: 'product-design-tokens' },
+        ],
+      },
+      {
+        id: 'v52',
+        label: '5.2.0',
+        cards: [
+          { label: 'render' }, { label: 'prd-to-issues' }, { label: 'clotho-research' }, { label: 'review-plan' }, { label: 'wtf' },
+        ],
+      },
+      {
+        id: 'unreleased',
+        label: 'Unreleased',
+        cards: [
+          { label: 'project-illustrator', key: true },
+          { label: 'render: diagram engine (v1.2)', sub: 'in progress' },
+        ],
+      },
+    ],
+  });
+
+  push('planning', 'kanban', 'This same build, phase by phase, from its work breakdown.', {
+    anchor: 'diagram-render-v12-phases',
+    title: 'Phase 2’s WIP limit of 3 is already over by one; phase 3 can’t start until it clears.',
+    columns: [
+      {
+        id: 'phase1',
+        label: 'Phase 1',
+        cards: [{ label: 'Tokens + gate (T)' }, { label: 'Core engine (C)' }],
+      },
+      {
+        id: 'phase2',
+        label: 'Phase 2',
+        limit: 3,
+        cards: [
+          { label: 'Flow (G1)' }, { label: 'Structure (G2)' }, { label: 'Planning (G3)', key: true }, { label: 'Data (G4)' },
+        ],
+      },
+      {
+        id: 'phase3',
+        label: 'Phase 3',
+        cards: [
+          { label: 'Integrator (I)', sub: 'waiting on phase 2', blocked: true },
+          { label: 'Templates (P1/P2)', blocked: true },
+          { label: 'Docs (D)' },
+        ],
+      },
+    ],
+  });
+
+  push('planning', 'storymap', 'The render skill’s four core activities, one story per release, straight from the CHANGELOG.', {
+    anchor: 'diagram-render-story-map',
+    title: 'Every release adds a story to all four activities; nothing has regressed since v1.0.',
+    releases: [
+      { id: 'v10', label: 'v1.0 (5.2.0)' },
+      { id: 'v11', label: 'v1.1 (the redesigned kit)' },
+      { id: 'v12', label: 'v1.2 (this build)' },
+    ],
+    activities: [
+      {
+        id: 'write',
+        label: 'Write a page',
+        stories: [
+          { label: '8 modes: plan, map, review, audit, compare, brainstorm, explain, architecture', release: 'v10' },
+          { label: '12 modes: +tour, timeline, diff, report', release: 'v11' },
+          { label: '18 diagram types replace hand-drawn SVG', release: 'v12', key: true },
+        ],
+      },
+      {
+        id: 'review',
+        label: 'Review in place',
+        stories: [
+          { label: 'Anchored blocks with a mark button', release: 'v10' },
+          { label: 'Verdicts read from the pressed segment’s ink-fill position, no hue', release: 'v11' },
+          { label: 'Diagram figures get the same anchor and verdict controls', release: 'v12' },
+        ],
+      },
+      {
+        id: 'comment',
+        label: 'Leave a comment',
+        stories: [
+          { label: 'A comment is stored with its label and section; orphaned if the target moved', release: 'v10' },
+          { label: 'The composer opens from the mark or the "c" key', release: 'v11' },
+          { label: 'A refused diagram still gets a comment-able block', release: 'v12' },
+        ],
+      },
+      {
+        id: 'readback',
+        label: 'Read the marks back',
+        stories: [
+          { label: 'The skill re-reads verdicts and comments, then acts on them', release: 'v10' },
+          { label: 'Save serializes the original page, never overlay-drawn geometry', release: 'v11' },
+          { label: 'The digest copy includes a refused diagram’s reason', release: 'v12' },
+        ],
+      },
+    ],
+  });
+
+  push('planning', 'quadrant', 'A handful of shipped skills, plotted by how much effort each took against how much it changed.', {
+    anchor: 'diagram-skill-impact-effort',
+    title: 'The diagram engine and the statusline overhaul cluster in the high-effort corner; wtf and git-commit stay cheap.',
+    x: { label: 'Effort', low: 'Low', high: 'High' },
+    y: { label: 'Impact', low: 'Low', high: 'High' },
+    items: [
+      { label: 'render: diagram engine (v1.2)', x: 0.8, y: 0.82, key: true },
+      { label: 'Statusline overhaul', x: 0.82, y: 0.55 },
+      { label: 'project-illustrator', x: 0.72, y: 0.68 },
+      { label: 'ship', x: 0.55, y: 0.75 },
+      { label: 'orchestrate', x: 0.5, y: 0.7 },
+      { label: 'codex-imagegen', x: 0.4, y: 0.6 },
+      { label: 'git-commit', x: 0.15, y: 0.42 },
+      { label: 'wtf', x: 0.25, y: 0.25 },
+    ],
+  });
+})();
+// Analysis and data group examples.
+(window.DG_EXAMPLES ||= []).push({
+  group: 'data',
+  type: 'fishbone',
+  blurb: 'Why a render page fails assemble.py’s gate, one bone per rule category (assemble.py’s own Violation kinds).',
+  spec: {
+    anchor: 'diagram-fishbone-gate',
+    title: 'Six rule families cover every way a render page fails the gate.',
+    effect: 'A render page fails assemble.py’s gate',
+    causes: [
+      { label: 'raw-length', items: [
+        'a px/rem/em length written outside :root',
+        'a non-allowlisted number in an @media/@container prelude',
+      ] },
+      { label: 'style-attr', items: [
+        'style built via Object.entries().map().join() instead of a literal template',
+        'a style declaration carrying a unit, e.g. --w:12px',
+        'a style attribute setting a non-custom property',
+      ] },
+      { label: 'color', items: [
+        'a hex value like #0F0F0F',
+        'an rgb()/hsl()/oklch() function',
+        'a CSS named color word in a color-bearing property',
+      ] },
+      { label: 'radius', items: [
+        'border-radius set to a non-zero value',
+        'an rx/ry attribute set to a non-zero value',
+      ] },
+      { label: 'font-size', items: [
+        'font-size or a --text* token below the 15px floor',
+        'an SVG font-size= attribute below the floor',
+      ] },
+      { label: 'sample', items: [
+        'a leftover /*SAMPLE*/ marker shipped in a real page',
+      ] },
+    ],
+  },
+});
+
+(window.DG_EXAMPLES ||= []).push({
+  group: 'data',
+  type: 'waterfall',
+  blurb: 'page.css’s own raw-length count, from the pre-token kit (git show e300227) to the tokenized page.css shipping today, by rule category.',
+  spec: {
+    anchor: 'diagram-waterfall-raw-length',
+    title: 'The token refactor removed all 423 raw lengths from page.css; none remain outside :root.',
+    start: { label: 'page.css (pre-token kit)', value: 423 },
+    steps: [
+      { label: 'spacing', delta: -175 },
+      { label: 'typography', delta: -70 },
+      { label: 'sizing', delta: -69 },
+      { label: 'border', delta: -66 },
+      { label: 'other', delta: -23 },
+      { label: 'position', delta: -18 },
+      { label: 'shadow', delta: -2 },
+    ],
+    end: { label: 'page.css (token kit)', value: 0 },
+  },
+});
+
+(window.DG_EXAMPLES ||= []).push({
+  group: 'data',
+  type: 'treemap',
+  blurb: 'Skills per catalog group (skills.sh.json), folded to the 8-cell budget: the 5 smallest groups become Other.',
+  spec: {
+    anchor: 'diagram-treemap-skill-groups',
+    title: 'Review and AI Workflow Tools are the two largest skill groups.',
+    total: 54,
+    items: [
+      { label: 'Review', value: 8, key: true, sub: '8 skills' },
+      { label: 'AI Workflow Tools', value: 7, sub: '7 skills' },
+      { label: 'Docs', value: 6, sub: '6 skills' },
+      { label: 'Project setup', value: 6, sub: '6 skills' },
+      { label: 'Build', value: 5, sub: '5 skills' },
+      { label: 'Git', value: 4, sub: '4 skills' },
+      { label: 'GitHub', value: 4, sub: '4 skills' },
+      { label: 'Other', value: 14, sub: 'Design, Jira, Product, Art & Images, Multi-agent' },
+    ],
+  },
+});
+
+(window.DG_EXAMPLES ||= []).push({
+  group: 'data',
+  type: 'funnel',
+  blurb: 'The 54 skills, narrowed by how much of the authoring standard each one actually ships.',
+  spec: {
+    anchor: 'diagram-funnel-eval-coverage',
+    title: 'Every skill ships evals; 14 have no references/ directory yet.',
+    stages: [
+      { label: 'Skills', value: 54 },
+      { label: 'With evals.json', value: 53 },
+      { label: 'With trigger-eval.json', value: 53 },
+      { label: 'With references/', value: 40 },
+    ],
+  },
+});
+
+(window.DG_EXAMPLES ||= []).push({
+  group: 'data',
+  type: 'line',
+  blurb: 'The catalog’s skill count across eight tagged releases (CHANGELOG.md), from the first 20-skill cut to today’s 54.',
+  spec: {
+    anchor: 'diagram-line-skill-count',
+    title: 'The catalog has grown on every release since v2.0.0, with no regressions.',
+    x: { label: 'Release', ticks: ['v2.0.0', 'v2.1.0', 'v2.3.0', 'v3.0.0', 'v5.0.0', 'v5.1.0', 'v5.2.0', 'Unreleased'] },
+    y: { label: 'Skills' },
+    series: [
+      { label: 'Skill count', key: true, values: [20, 21, 22, 31, 45, 48, 53, 54] },
+    ],
+  },
+});
+
+(window.DG_EXAMPLES ||= []).push({
+  group: 'data',
+  type: 'line',
+  blurb: 'A slope chart (2 ticks): the same raw-length counts as the waterfall above, before and after the token refactor, one series per rule category.',
+  spec: {
+    anchor: 'diagram-line-slope-raw-length',
+    title: 'Every raw-length category in page.css dropped to zero, spacing furthest.',
+    x: { label: 'page.css', ticks: ['pre-token kit', 'token kit'] },
+    y: { label: 'raw lengths' },
+    series: [
+      { label: 'spacing', key: true, values: [175, 0] },
+      { label: 'typography', values: [70, 0] },
+      { label: 'sizing', values: [69, 0] },
+      { label: 'border', values: [66, 0] },
+      { label: 'other', values: [23, 0] },
+      { label: 'position', values: [18, 0] },
+      { label: 'shadow', values: [2, 0] },
+    ],
+  },
+});
+</script>
+<script>
+const GROUPS = [
+  ['core', 'Core'],
+  ['structure', 'Structure'],
+  ['flow', 'Flow and behavior'],
+  ['planning', 'Planning'],
+  ['data', 'Analysis and data'],
+];
+
+function emptyGroup(id) {
+  return `<div class="empty"><p class="title">No examples yet</p><p class="text">The ${Render.esc(id)} group hasn’t landed.</p></div>`;
+}
+
+function renderExample(ex) {
+  const builder = window.Render.diagram[ex.type];
+  if (!builder) return `<div class="empty"><p class="title">Unknown type: ${Render.esc(ex.type)}</p></div>`;
+  return `<p class="meta">${Render.esc(ex.blurb)}</p>${builder(ex.spec)}`;
+}
+
+function mount() {
+  const examples = window.DG_EXAMPLES || [];
+  const toc = GROUPS.map(([id, label]) => `<li><a href="#group-${id}">${Render.esc(label)}</a></li>`).join('');
+  const sections = GROUPS.map(([id, label]) => {
+    const items = examples.filter((ex) => ex.group === id);
+    const body = items.length ? items.map(renderExample).join('') : emptyGroup(id);
+    return `<section class="section" id="group-${id}" data-section="${Render.esc(label)}"><h2>${Render.esc(label)}</h2>${body}</section>`;
+  }).join('');
+
+  document.getElementById('root').innerHTML = `
+    <nav class="toc" aria-label="On this page">
+      <h2>On this page</h2>
+      <ol>${toc}</ol>
+    </nav>
+
+    <header class="page-head">
+      <h1>Render diagram gallery</h1>
+      <p class="meta">Every <span class="mono">Render.diagram.&lt;type&gt;</span> builder, drawn once with real
+      content from this repository. One example on this page is a deliberate refusal
+      (over the node budget) so you can see what "not drawn" looks like.</p>
+    </header>
+
+    ${sections}
+  `;
+}
+
+mount();
+if (window.Render) {
+  Render.init({ verdicts: null, file: 'diagram-gallery-render-2026-09-24.html', title: 'Render diagram gallery' });
+}
+</script>

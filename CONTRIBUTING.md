@@ -68,7 +68,7 @@ All contributions must meet these standards:
 
 ## Contributing different types of components
 
-CC-Arsenal's only component type is the **skill** (45 currently, see [docs/features.md](docs/features.md) for the full, categorized list). Every workflow, whether user-invoked (a slash command like `/git-commit`) or model-invoked (auto-loaded like `review-code`), is a skill under `skills/<name>/SKILL.md`.
+CC-Arsenal's only component type is the **skill** (49 skills today, see [docs/features.md](docs/features.md) for the full, categorized list). Every workflow, whether user-invoked (a slash command like `/git-commit`) or model-invoked (auto-loaded like `review-code`), is a skill under `skills/<name>/SKILL.md`.
 
 ### Creating new skills
 
@@ -86,6 +86,8 @@ Each skill should have a `SKILL.md` file with YAML frontmatter:
 name: "skill-name"
 description: "Skill description"
 disable-model-invocation: true  # false/omit for a model-invoked (auto-loading) skill
+metadata:
+  summary: "One line, under ~120 chars -- what the generated catalogs show"
 ---
 
 # Skill implementation with progressive disclosure...
@@ -93,7 +95,13 @@ disable-model-invocation: true  # false/omit for a model-invoked (auto-loading) 
 
 Skills can bundle `scripts/`, `references/`, and `assets/` in subdirectories. Add `evals/evals.json` (task assertions) and `evals/trigger-eval.json` (trigger/near-miss queries) so the skill's behavior and triggering are testable: see any existing skill's `evals/` directory for the schema.
 
-After creating a skill, add its path to the relevant plugin(s) in `.claude-plugin/marketplace.json` and add its entry to `docs/features.md`.
+After creating a skill:
+
+1. Assign it to exactly one group in `skills.sh.json`. That file is the single source of truth for how skills are grouped, both on [skills.sh](https://www.skills.sh/mgiovani/cc-arsenal) and in every catalog in this repo.
+2. Add its path to the relevant plugin(s) in `.claude-plugin/marketplace.json`. These variants are an install-time concern and stay hand-maintained; they deliberately do not mirror the display groups.
+3. Run `make docs` to regenerate the skill lists in `README.md`, `AGENTS.md` and `docs/features.md`.
+
+Do not hand-edit those three lists: they sit inside `<!-- gen:skills-* -->` markers and `make docs` overwrites them. `make check` fails if they are out of date, or if a skill belongs to no group. Hand-written prose in `docs/features.md` under each `#### /<name>` heading *is* preserved across regeneration, so that is where per-skill detail belongs.
 
 ## Code style guidelines
 

@@ -10,6 +10,8 @@ hooks:
       - type: agent
         prompt: "Verify test suite generation is complete and correct:\n\n1. **Run tests**: Execute the test command discovered in Phase 0. ALL tests must pass (both new and existing).\n2. **Check coverage**: If a coverage command was discovered, run it and verify coverage improved or meets target.\n3. **Run linter**: Use the lint command discovered in Phase 0. No linting errors in test files.\n\nIf any check fails, report the failure clearly and return decision: block with reason. Only allow stopping when all tests pass and no regressions exist.\n\nUse commands discovered in Phase 0. If not available, discover them now from CLAUDE.md or project files (Makefile, package.json, pyproject.toml)."
         timeout: 180
+metadata:
+  summary: "Generate test suites by analyzing coverage gaps and writing tests that match project conventions"
 ---
 
 # Test Suite Generator

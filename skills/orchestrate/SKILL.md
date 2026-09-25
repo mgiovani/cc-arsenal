@@ -8,12 +8,13 @@ description: Turn any task into a model-tiered multi-agent plan, decompose it in
   "act as orchestrator", "spawn subagents for this", "delegate this with the right
   models", "run this in parallel", or any task large enough to fan out across multiple
   independent workstreams. Not for a single well-scoped feature with a known shape (use
-  implement-feature), not for the full spec-driven agent-teams flow with cross-agent
-  messaging (use team-implement), and not for pure task breakdown with no execution (use
+  implement-feature), and not for pure task breakdown with no execution (use
   project-planner).
 disable-model-invocation: false
 argument-hint: "<task_description>"
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, Task, TaskCreate, TaskUpdate, TaskList, TaskGet
+metadata:
+  summary: "Decompose a task, map each part to the right model, run independent tracks in parallel, then synthesize"
 ---
 
 # Orchestrate

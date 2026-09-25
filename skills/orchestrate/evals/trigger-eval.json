@@ -10,7 +10,6 @@
   {"query": "can you orchestrate the migration of these 12 modules with subagents", "should_trigger": true},
   {"query": "act as an orchestrator: decompose, assign models, parallelize, synthesize", "should_trigger": true},
   {"query": "implement OAuth2 login for this app", "should_trigger": false},
-  {"query": "run the full team-implement spec workflow for this large multi-service epic", "should_trigger": false},
   {"query": "review this PR for correctness bugs", "should_trigger": false},
   {"query": "break this project into a dependency-ordered task list with a Mermaid diagram", "should_trigger": false},
   {"query": "run the CI checks locally on this branch", "should_trigger": false},

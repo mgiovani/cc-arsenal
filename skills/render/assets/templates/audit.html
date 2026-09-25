@@ -1,0 +1,356 @@
+<title>cc-arsenal risk audit</title>
+<!-- impeccable-disable overused-font -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../page.css">
+
+<script id="state" type="application/json">{"v":1,"verdicts":{},"comments":[]}</script>
+
+<header class="toolbar">
+  <div class="toolbar-row">
+    <span class="toolbar-title">cc-arsenal risk audit</span>
+    <div class="counts" aria-label="Counts"></div>
+    <span class="spacer"></span>
+    <div class="seg" role="group" aria-label="Theme" data-theme-toggle>
+      <button type="button" data-value="auto" aria-pressed="true">Auto</button>
+      <button type="button" data-value="light" aria-pressed="false">Light</button>
+      <button type="button" data-value="dark" aria-pressed="false">Dark</button>
+    </div>
+    <div class="toolbar-group">
+      <button type="button" class="btn" data-action="digest">Copy digest</button>
+      <button type="button" class="btn btn-icon" data-action="shortcuts" aria-label="Keyboard shortcuts" aria-expanded="false" aria-controls="shortcuts">?</button>
+      <button type="button" class="btn btn-primary" data-action="save">Save</button>
+    </div>
+  </div>
+  <div class="filterbar">
+    <div class="seg" data-filter="verdict" role="group" aria-label="Filter by verdict"></div>
+    <div class="seg" role="group" aria-label="Filter by area" data-filter="area">
+      <button type="button" data-value="all" aria-pressed="true">All</button>
+      <button type="button" data-value="manifests" aria-pressed="false">Manifests</button>
+      <button type="button" data-value="skills" aria-pressed="false">Skills</button>
+      <button type="button" data-value="scripts" aria-pressed="false">Scripts</button>
+      <button type="button" data-value="process" aria-pressed="false">Process</button>
+    </div>
+  </div>
+  <div class="filterbar">
+    <div class="seg" role="group" aria-label="Filter by severity" data-filter="severity">
+      <button type="button" data-value="all" aria-pressed="true">All</button>
+      <button type="button" data-value="critical" aria-pressed="false">Critical</button>
+      <button type="button" data-value="high" aria-pressed="false">High</button>
+      <button type="button" data-value="medium" aria-pressed="false">Medium</button>
+      <button type="button" data-value="low" aria-pressed="false">Low</button>
+    </div>
+    <div class="seg" role="group" aria-label="Filter by category" data-filter="category">
+      <button type="button" data-value="all" aria-pressed="true">All</button>
+      <button type="button" data-value="drift" aria-pressed="false">Drift</button>
+      <button type="button" data-value="coverage" aria-pressed="false">Coverage</button>
+      <button type="button" data-value="reliability" aria-pressed="false">Reliability</button>
+      <button type="button" data-value="process" aria-pressed="false">Process</button>
+    </div>
+  </div>
+</header>
+
+<div id="shortcuts" class="shortcuts" hidden>
+  <div class="shortcuts-inner">
+    <h2>Keyboard</h2>
+    <div class="shortcut"><span class="keys"><kbd>j</kbd><kbd>k</kbd></span>Next or previous finding</div>
+    <div class="shortcut"><span class="keys"><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd></span>Fix, won't fix, discuss</div>
+    <div class="shortcut"><span class="keys"><kbd>c</kbd></span>Comment on the current finding</div>
+    <div class="shortcut"><span class="keys"><kbd>/</kbd></span>Focus the verdict filter</div>
+    <div class="shortcut"><span class="keys"><kbd>Esc</kbd></span>Close composer or panel</div>
+    <div class="shortcut"><span class="keys"><kbd>?</kbd></span>Show or hide this panel</div>
+  </div>
+</div>
+
+<main class="wrap wrap-wide" id="root"></main>
+
+<script src="../page.js"></script>
+<script>
+/*
+DATA shape (replace wholesale to re-run this audit against different content):
+{
+  subject:        string,            // page title and h1
+  asOf:           "YYYY-MM-DD",      // date the scan ran
+  skillsInScope:  number,            // one scope number, from the tool that produced the counts
+  tldr:           string,            // the one-sentence answer to "where is the risk"
+  risk:           string,            // one sentence for the risk callout
+  note:           string,            // one sentence for the note callout, usually scope or method
+  checked:        string[],          // what this audit scanned, rendered as a checklist
+  areas:          [{ id: string, name: string }],           // toc order and heat/bars rows
+  findings: [
+    {
+      area:      string,             // matches an areas[].id
+      severity:  "critical"|"high"|"medium"|"low",
+      category:  "drift"|"coverage"|"reliability"|"process",
+      title:     string,             // the claim; also the anchor's claim slug
+      detail:    string,             // 1 to 3 lines, no walls of text
+      location:  string,             // file or script path, shown mono
+    },
+  ],
+}
+*/
+const DATA = /*SAMPLE*/{
+  subject: 'cc-arsenal risk audit',
+  asOf: '2026-09-23',
+  skillsInScope: 54,
+  tldr: "Nine open risks across four areas: a manifest version drift and two skill validation gaps are critical, the rest is process debt this repository has already named but not yet automated a guard for.",
+  risk: "The two critical findings sit in different areas, a manifest that can silently serve a stale version and skill frontmatter a validator does not fully cover, and neither has an automated guard yet.",
+  note: "These findings are drawn from this repository's own operating notes rather than a fresh static scan, and each one is filed against the file or script it concerns.",
+  checked: [
+    "Plugin manifests: marketplace.json and every plugin.json variant, for version parity",
+    "SKILL.md frontmatter across all 54 skills, for validator coverage",
+    "Scripts and CLI drivers, for background process ownership and argument handling",
+    "Eval aggregation, for dropped or missing benchmark runs",
+    "Local CI parity: pre-commit hooks and the shell wrappers scripts rely on",
+  ],
+  areas: [
+    { id: 'manifests', name: 'Manifests' },
+    { id: 'skills', name: 'Skills' },
+    { id: 'scripts', name: 'Scripts' },
+    { id: 'process', name: 'Process' },
+  ],
+  findings: [
+    {
+      area: 'manifests', severity: 'critical', category: 'drift',
+      title: "plugin.json version drifted from marketplace.json",
+      detail: "The release checklist moves version across five files, but automated bump-version covers only two of them, so .claude-plugin/plugin.json sat at the old version for five months while marketplace.json advanced.",
+      location: '.claude-plugin/plugin.json',
+    },
+    {
+      area: 'skills', severity: 'critical', category: 'coverage',
+      title: "quick_validate caught one of ten frontmatter breaks",
+      detail: "A punctuation swap across ten SKILL.md files broke frontmatter parsing, and the validator flagged only one of them, since its punctuation rule only checks mid-prose text, not frontmatter.",
+      location: 'skills/*/SKILL.md',
+    },
+    {
+      area: 'skills', severity: 'high', category: 'coverage',
+      title: "Skill-creation evals write into real skill directories",
+      detail: "Running an eval against improve-skill or create-skill is not sandboxed by default, so a benchmark pass can leave generated files inside skills/ and needs a git-status scan before any commit.",
+      location: 'skills/improve-skill, skills/create-skill',
+    },
+    {
+      area: 'scripts', severity: 'high', category: 'coverage',
+      title: "About one in thirty evaluation runs finishes with no transcript",
+      detail: "A benchmark pass that trusts its own run count silently drops roughly one result in thirty, so aggregating scores needs a scan for missing transcript files before it treats a total as complete.",
+      location: 'scripts (eval aggregation)',
+    },
+    {
+      area: 'scripts', severity: 'medium', category: 'reliability',
+      title: "A backgrounded codex-imagegen run can orphan the codex process",
+      detail: "Backgrounding the codex process and finishing early leaves it running with no owner to reap it, so a batch image run needs a driver script that stays attached until codex exits.",
+      location: 'skills/codex-imagegen',
+    },
+    {
+      area: 'scripts', severity: 'low', category: 'reliability',
+      title: "integrations/claude-code scripts must parse args defensively",
+      detail: "The Claude Code harness sometimes hands a script its args as a JSON string instead of a parsed object, and a script that assumes the object form throws on the string form.",
+      location: 'integrations/claude-code',
+    },
+    {
+      area: 'scripts', severity: 'low', category: 'process',
+      title: "stopslop 0.5.1 ships four known bugs the repo works around",
+      detail: "Both the release build and the PATH build carry the same four bugs, and the gate holds a documented workaround for each instead of the fix living upstream.",
+      location: 'scripts (stopslop gate)',
+    },
+    {
+      area: 'process', severity: 'medium', category: 'process',
+      title: "make pre-commit-run ignores untracked files",
+      detail: "A newly added file is never linted locally until it is staged, so a green local run does not guarantee CI stays green for that file.",
+      location: 'Makefile (pre-commit-run target)',
+    },
+    {
+      area: 'process', severity: 'medium', category: 'process',
+      title: "The RTK shell wrapper silently rejects rm -f",
+      detail: "trash stands in for rm on this machine and rejects the -f flag outright, so a delete that assumes rm -f removed a file can leave it in place with no error to catch.",
+      location: 'CLAUDE.md (Verify State, Not Signals)',
+    },
+  ],
+}/*SAMPLE*/;
+
+const SEVERITIES = ['critical', 'high', 'medium', 'low'];
+const SEV_RANK = Object.fromEntries(SEVERITIES.map((s, i) => [s, i]));
+
+function severityTag(sev) {
+  if (sev === 'critical') return '<span class="tag-crit">Critical</span>';
+  if (sev === 'high') return '<span class="tag-high">High</span>';
+  return `<span class="tag">${Render.esc(Render.cap(sev))}</span>`;
+}
+
+function findingAnchor(f) {
+  return `finding-${Render.slug(f.area)}-${Render.slug(f.title)}`;
+}
+
+function renderFinding(f) {
+  const anchor = findingAnchor(f);
+  const head = (
+    `<div class="head">${severityTag(f.severity)}`
+    + `<span class="title">${Render.esc(f.title)}</span>`
+    + `<span class="meta mono">${Render.path(f.location)}</span>`
+    + Render.verdict(anchor)
+    + '</div>'
+  );
+  const body = `${head}<p class="text">${Render.esc(f.detail)}</p>`;
+  return Render.anchored({
+    anchor, label: f.title, cls: 'row',
+    facets: { area: f.area, severity: f.severity, category: f.category },
+    verdict: false, html: body,
+  });
+}
+
+function renderArea(area) {
+  const items = DATA.findings
+    .filter((f) => f.area === area.id)
+    .sort((a, b) => SEV_RANK[a.severity] - SEV_RANK[b.severity]);
+  const head = (
+    `<div class="section-head"><h2>${Render.esc(area.name)}</h2>`
+    + `<span class="meta">${items.length} finding${items.length === 1 ? '' : 's'}</span></div>`
+  );
+  const body = items.length
+    ? `<div class="list">${items.map(renderFinding).join('')}</div>`
+    : (
+      '<div class="empty">'
+      + `<p class="title">No findings in ${Render.esc(area.name)}</p>`
+      + '<p class="text">Nothing in this audit currently points at this area.</p>'
+      + '</div>'
+    );
+  return `<section class="section" id="area-${Render.esc(area.id)}" data-section="${Render.esc(area.name)}">${head}${body}</section>`;
+}
+
+function severityCounts() {
+  const counts = { critical: 0, high: 0, medium: 0, low: 0 };
+  for (const f of DATA.findings) counts[f.severity] += 1;
+  return counts;
+}
+
+function renderTally() {
+  if (!DATA.findings.length) {
+    return '<div class="empty"><p class="title">No findings to tally</p><p class="text">Severity counts appear once findings are recorded.</p></div>';
+  }
+  const c = severityCounts();
+  return (
+    '<div class="tally" role="group" aria-label="Findings by severity">'
+    + '<dl class="tally-counts">'
+    + `<div class="s1"><dt>Critical</dt><dd>${c.critical}</dd></div>`
+    + `<div class="s2"><dt>High</dt><dd>${c.high}</dd></div>`
+    + `<div class="s3"><dt>Medium</dt><dd>${c.medium}</dd></div>`
+    + `<div class="s0"><dt>Low</dt><dd>${c.low}</dd></div>`
+    + '</dl>'
+    + '<div class="tally-bar" aria-hidden="true">'
+    + `<i class="s1" style="--v:${c.critical}"></i><i class="s2" style="--v:${c.high}"></i>`
+    + `<i class="s3" style="--v:${c.medium}"></i><i class="s0" style="--v:${c.low}"></i>`
+    + '</div></div>'
+  );
+}
+
+function renderChecked() {
+  if (!DATA.checked.length) {
+    return '<div class="empty"><p class="title">No scan scope recorded</p><p class="text">Say what this audit checked before it is re-run.</p></div>';
+  }
+  const items = DATA.checked
+    .map((c) => `<li class="done"><span class="box" aria-hidden="true"></span><span>${Render.esc(c)}</span></li>`)
+    .join('');
+  return `<ul class="checklist">${items}</ul>`;
+}
+
+function renderGlance() {
+  const facts = (
+    '<dl class="facts">'
+    + `<div><dt>Areas</dt><dd>${DATA.areas.length}</dd></div>`
+    + `<div><dt>Findings</dt><dd>${DATA.findings.length}</dd></div>`
+    + `<div><dt>Skills in scope</dt><dd>${DATA.skillsInScope}</dd></div>`
+    + `<div><dt>As of</dt><dd class="mono">${Render.esc(DATA.asOf)}</dd></div>`
+    + '</dl>'
+  );
+  return (
+    `<p class="tldr">${Render.esc(DATA.tldr)}</p>`
+    + facts
+    + renderTally()
+    + '<h3>Checked</h3>'
+    + renderChecked()
+    + '<aside class="callout" data-kind="risk"><span class="callout-label">Risk</span>'
+    + `<p>${Render.esc(DATA.risk)}</p></aside>`
+    + '<aside class="callout" data-kind="note"><span class="callout-label">Note</span>'
+    + `<p>${Render.esc(DATA.note)}</p></aside>`
+  );
+}
+
+function heatLevel(n) {
+  if (n === 0) return 0;
+  if (n === 1) return 3;
+  return 5;
+}
+
+function renderHeat() {
+  if (!DATA.findings.length) {
+    return '<div class="empty"><p class="title">No findings to map</p><p class="text">The heat table fills in once findings are recorded.</p></div>';
+  }
+  const rows = DATA.areas.map((area) => {
+    const cells = SEVERITIES.map((sev) => {
+      const n = DATA.findings.filter((f) => f.area === area.id && f.severity === sev).length;
+      return `<td data-h="${heatLevel(n)}">${n}</td>`;
+    }).join('');
+    return `<tr><th>${Render.esc(area.name)}</th>${cells}</tr>`;
+  }).join('');
+  return (
+    '<div class="heat-scroll"><table class="heat">'
+    + '<caption class="meta">Shaded by count: 0 open is unfilled, 1 open is a mid fill, 2 or more is a full fill.</caption>'
+    + '<thead><tr><th>Area</th><th>Critical</th><th>High</th><th>Medium</th><th>Low</th></tr></thead>'
+    + `<tbody>${rows}</tbody></table></div>`
+    + '<div class="heat-legend" aria-hidden="true"><span>0</span><i data-h="0"></i><i data-h="3"></i><i data-h="5"></i><span>2+</span></div>'
+  );
+}
+
+function renderBars() {
+  if (!DATA.findings.length) {
+    return '<div class="empty"><p class="title">No findings to rank</p><p class="text">Bars fill in once every area has at least one finding.</p></div>';
+  }
+  const rows = DATA.areas
+    .map((area) => ({ area, n: DATA.findings.filter((f) => f.area === area.id).length }))
+    .sort((a, b) => b.n - a.n);
+  const max = Math.max(1, ...rows.map((r) => r.n));
+  const items = rows.map((r) => (
+    `<li><span class="label">${Render.esc(r.area.name)}</span>`
+    + `<span class="bar"><i style="--v:${(r.n / max).toFixed(3)}"></i></span>`
+    + `<span class="value">${r.n}</span></li>`
+  )).join('');
+  return `<ol class="bars">${items}</ol>`;
+}
+
+function mount() {
+  const toc = DATA.areas
+    .map((a) => `<li><a href="#area-${Render.esc(a.id)}">${Render.esc(a.name)}</a></li>`)
+    .join('');
+  const areas = DATA.areas.map(renderArea).join('');
+  document.getElementById('root').innerHTML = (
+    '<nav class="toc" aria-label="On this page">'
+    + '<h2>On this page</h2><ol>'
+    + '<li><a href="#glance" aria-current="true">At a glance</a></li>'
+    + '<li><a href="#distribution">Distribution</a></li>'
+    + toc
+    + '</ol></nav>'
+    + '<header class="page-head">'
+    + `<h1>${Render.esc(DATA.subject)}</h1>`
+    + `<p class="meta">${DATA.findings.length} findings across ${DATA.areas.length} areas, as of <span class="mono">${Render.esc(DATA.asOf)}</span>.</p>`
+    + '</header>'
+    + '<section class="section" id="glance" data-section="At a glance">'
+    + `<h2>At a glance</h2>${renderGlance()}`
+    + '</section>'
+    + '<section class="section" id="distribution" data-section="Distribution">'
+    + '<div class="section-head"><h2>Distribution</h2><span class="meta">The map, before the findings</span></div>'
+    + `<h3>Area by severity</h3>${renderHeat()}`
+    + `<h3>Findings per area</h3>${renderBars()}`
+    + '</section>'
+    + areas
+  );
+}
+
+mount();
+if (window.Render) {
+  Render.init({
+    verdicts: ['fix', "won't fix", 'discuss'],
+    file: 'audit-cc-arsenal-risk-2026-09-23.html',
+    title: DATA.subject,
+  });
+}
+</script>

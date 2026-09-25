@@ -1,0 +1,208 @@
+---
+name: render
+description: Turn a plan, PRD, review, audit, comparison, brainstorm, explanation,
+  architecture map, code walkthrough, incident timeline, before/after diff or
+  status report into an interactive HTML page the user marks up in place, then
+  read their marks back and act on them. Every section carries an anchored
+  comment affordance, so feedback returns bound to the exact thing it was left on.
+  Use for "render this as a page", "make this visual", "I want to review this
+  properly", "turn this plan into something I can comment on", or to wrap another
+  skill's output (`render /review-code`). Not for generating a Mermaid diagram
+  into docs/ (use docs-diagram), not for designing a UI for a product being built
+  (use product-design-spec), and not for simplifying prose the user did not
+  understand (use wtf).
+metadata:
+  summary: "Turn any output into an interactive HTML page you mark up in place, then read the marks back"
+  author: mgiovani
+  version: 1.2.0
+disable-model-invocation: true
+argument-hint: <mode|/skill|path> [subject]
+allowed-tools: Read, Write, Edit, Grep, Glob, Bash, Task, Skill, Artifact
+---
+
+# Render
+
+Build a page the user can work, not a document they have to scroll. Long
+findings lists, requirement inventories, option matrices and step plans all lose
+their shape as linear markdown. This skill gives them one, and gives the user a
+way to answer back that survives the round trip.
+
+## Invocation forms
+
+| Form | Behavior |
+|------|----------|
+| `render <mode> [subject]` | Build that mode's page for the subject |
+| `render /<skill> [args]` | Run the wrapped skill, then render its output in the matching mode |
+| `render <path>` | Read an existing file and convert it to its matching mode |
+| `render` | Show the mode table and ask which one; never pick one silently |
+
+## Modes
+
+| Mode | The page is | Per-item verdicts |
+|------|-------------|-------------------|
+| `prd` | Requirements grouped by family, the evidence behind each | keep / change / drop |
+| `plan` | Ordered steps, their dependencies, the files each touches | approve / rework / cut |
+| `review` | Findings by severity and file, with the code excerpt | fix / won't fix / discuss |
+| `audit` | Whole-repo findings, filterable by area and severity | same triage as review |
+| `compare` | Options against weighted criteria, evidence per cell | pick a winner |
+| `brainstorm` | Idea cards, the tension each one resolves, by theme | shortlist / park / drop |
+| `explain` | The one-line answer, the mechanism, then detail on demand | none, comments only |
+| `map` | Module graph, data flow, entry points | none, comments only |
+| `tour` | A guided walkthrough of the code, one stop per file or function | none, comments only |
+| `timeline` | Dated events for an incident or a piece of history | none, comments only |
+| `diff` | Before/after hunks the reader decides on | accept / revise / reject |
+| `report` | A status and metrics summary | none, comments only |
+
+Each mode's contents are specified in `references/<mode>.md`. Load only the one
+you need, and load it after the mode is settled.
+
+## Workflow
+
+### 1. Resolve the mode
+
+From the first argument:
+
+- A mode name: use it.
+- A skill name with a leading slash: run that skill first, then map its output
+  to a mode using the table in `references/wrapping.md`.
+- A file path: read the file, then pick the mode its content matches. State
+  which mode you picked and why, in one line, before building.
+- Nothing: print the mode table above and ask. Do not guess.
+
+### 2. Gather the real content
+
+The page renders what the run actually produced. Never invent an item to fill a
+grid, never write placeholder copy, never carry an example from a reference file
+into a real page. If a section would be empty, the page says it is empty and
+why.
+
+A wrapped skill supplies its own output, and a file supplies its contents. With
+a bare mode, do the work the mode implies before rendering: `render review` on a
+diff runs the review first.
+
+### 3. Load the design guidance
+
+Announce `Using artifact-design to calibrate this page's treatment` and load the
+`artifact-design` skill before writing any HTML, via the `Skill` tool where one
+exists. If the page will declare a runtime capability, load
+`artifact-capabilities` the same way.
+
+Both are host skills rather than siblings in this repository, so they are absent
+on some agents. Where neither can be loaded, say so in one line and apply
+[references/page-kit.md](references/page-kit.md) directly: it carries the
+theming rules, the type and layout floor, and the state contract this skill
+depends on. The page is still built; it just loses the calibration pass.
+
+### 4. Build the page
+
+No page is hand-authored from a blank file. `assets/page.css` and
+`assets/page.js` ship the whole design system and runtime; `assets/gallery.html`
+renders every block once and is the visual catalog to check a block's markup
+against; `assets/templates/<mode>.html` is the composition to start from.
+Building means:
+
+1. Copy `assets/templates/<mode>.html` for the resolved mode straight to the
+   real output path, `.cc-arsenal/renders/<mode>-<slug>-<YYYY-MM-DD>.html` (see
+   the Document skeleton section of
+   [references/page-kit.md](references/page-kit.md) for why the move is safe
+   even though the template's `../page.css` and `../page.js` links are
+   relative).
+2. Replace the whole `/*SAMPLE*/`-marked `DATA` object with the real content
+   gathered in step 2. Keep the template's structure and its
+   `Render.anchored()` calls.
+3. Compose any section the template doesn't already cover only from the block
+   library in [references/blocks.md](references/blocks.md): prefer a block
+   whenever the content has a shape (a sequence, a comparison, a magnitude, a
+   before/after, a hierarchy) over writing another paragraph.
+4. Never hand-write a new CSS color or a raw length. Every value already comes
+   from a token in `assets/page.css`. A diagram comes from
+   `Render.diagram.<type>(spec)`, never hand-drawn SVG; see
+   [references/diagrams.md](references/diagrams.md) for the type catalog.
+5. Run `scripts/assemble.py` on that same path, in place (`-o` pointing at the
+   input), to inline `page.css` and `page.js` into the single file the gate
+   checks and the reader receives, and let it gate the result against the
+   design contract. A real page never passes `--allow-sample`: a leftover
+   `/*SAMPLE*/` marker is a gate failure, not a warning.
+6. Run `npx impeccable detect` on the assembled file and fix whatever it flags
+   before delivering.
+
+Anchors and the comment affordance are specified in
+[references/feedback-loop.md](references/feedback-loop.md), and every mode
+carries them through the templates. Reach for
+[references/diagrams.md](references/diagrams.md) only once the content turns
+out to have a shape worth drawing as a `graph` block.
+
+Six rules hold across every mode:
+
+1. **Every page is annotatable.** Anchors and the comment affordance are not a
+   per-mode feature. A page without them cannot return feedback, which is the
+   point of the skill.
+2. **Real content only.** See step 2.
+3. **Theme-correct in all three states.** Define the light palette as tokens on
+   bare `:root`, redefine those tokens under
+   `@media (prefers-color-scheme: dark)` guarded by `:not([data-theme="light"])`,
+   and redefine them again under `:root[data-theme="dark"]`. Give `body` an
+   explicit token background. A color whose only definition sits inside a media
+   block renders one theme's text on the other theme's background.
+4. **The page is greyscale, including verdicts.** Every color on the page is
+   one of the eight neutral tokens in `assets/page.css`. There is no hue
+   anywhere, not even for keep/change/drop. A verdict's decision reads from
+   the pressed segment's position in its fixed-order ink-fill control rather
+   than from a color. A dropped or rejected item strikes its title. Corners
+   are square: `border-radius: 0` everywhere, including form controls and SVG
+   `rx`/`ry`. Shadows are limited to a 1px inset outline. No text on the page
+   sets a `font-size` below 15px, since hierarchy comes from weight and color
+   rather than from shrinking text. See the Color and Shape sections of
+   [references/page-kit.md](references/page-kit.md).
+5. **Diagrams are data, not drawings.** Never hand-write SVG or coordinates;
+   call `Render.diagram.<type>` and let it lay itself out. Over budget means
+   the content gets split into more than one diagram, never squeezed to fit.
+   See [references/diagrams.md](references/diagrams.md).
+6. **State drives the DOM, never the reverse.** The page renders from its
+   embedded state object. Saving serializes that object, never the live DOM.
+
+### 5. Deliver and report
+
+Report the output path, the published link if there is one, and whatever count
+matters for this mode. Then say how to answer back: marks and comments are both
+kept by the page, so the user presses save and tells you. Keep this to two
+lines.
+
+### 6. Read the marks back
+
+When the user says they have marked it, read the page back per
+`references/feedback-loop.md`, then act on what it returns. Group your response
+by what they decided, not by page order, and name any comment whose anchor no
+longer resolves rather than dropping it.
+
+## Worked examples
+
+**Bare mode** (`render compare postgres vs sqlite for the vault store`): gather
+the real criteria from the project's own constraints and build the matrix with
+evidence behind every cell. Publish it, report the link, and wait. The user
+picks a winner on the page; you read it back and write the decision up.
+
+**Wrapping a skill** (`render /review-security`): run `review-security` to
+completion first. Its output is a severity-ranked list with file:line evidence,
+which maps to `review` mode. Build the triage board from the findings it
+actually produced, one anchor per finding.
+
+**Converting a file** (`render docs/plans/auth.md`): read it first. It turns out
+to be an ordered step list with dependencies, so say "rendering as `plan` mode"
+before building. Do not rewrite the plan's content while converting it.
+
+**No argument** (`render`): print the mode table and ask which mode. Build
+nothing until that is answered.
+
+## Notes
+
+- The wrapped skill never needs to know this skill exists. `render /<skill>`
+  runs it unchanged and renders what comes out.
+- Re-running `render` on the same subject updates the same page when the output
+  path matches. This is the intended way to revise, and preserving the reader's
+  marks across it is a required step, not a side effect: read the existing state
+  block and embed it in the new page, per the re-render rules in
+  [references/feedback-loop.md](references/feedback-loop.md).
+- Five modes carry no verdict controls: `explain`, `map`, `tour`, `timeline`
+  and `report`. They still carry anchored comments, which is usually the only
+  feedback those pages need.

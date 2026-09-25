@@ -1,0 +1,303 @@
+<title>cc-arsenal weekly status</title>
+<!-- impeccable-disable overused-font -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../page.css">
+<link rel="stylesheet" href="../diagrams.css">
+
+<script id="state" type="application/json">{"v":1,"verdicts":{},"comments":[]}</script>
+
+<header class="toolbar">
+  <div class="toolbar-row">
+    <span class="toolbar-title">cc-arsenal weekly status</span>
+    <div class="counts" aria-label="Counts"></div>
+    <span class="spacer"></span>
+    <div class="seg" role="group" aria-label="Theme" data-theme-toggle>
+      <button type="button" data-value="auto" aria-pressed="true">Auto</button>
+      <button type="button" data-value="light" aria-pressed="false">Light</button>
+      <button type="button" data-value="dark" aria-pressed="false">Dark</button>
+    </div>
+    <div class="toolbar-group">
+      <button type="button" class="btn" data-action="digest">Copy digest</button>
+      <button type="button" class="btn btn-icon" data-action="shortcuts" aria-label="Keyboard shortcuts" aria-expanded="false" aria-controls="shortcuts">?</button>
+      <button type="button" class="btn btn-primary" data-action="save">Save</button>
+    </div>
+  </div>
+</header>
+
+<div id="shortcuts" class="shortcuts" hidden>
+  <div class="shortcuts-inner">
+    <h2>Keyboard</h2>
+    <div class="shortcut"><span class="keys"><kbd>j</kbd><kbd>k</kbd></span>Next or previous item</div>
+    <div class="shortcut"><span class="keys"><kbd>c</kbd></span>Comment on the current item</div>
+    <div class="shortcut"><span class="keys"><kbd>Esc</kbd></span>Close composer or panel</div>
+    <div class="shortcut"><span class="keys"><kbd>?</kbd></span>Show or hide this panel</div>
+  </div>
+</div>
+
+<main class="wrap" id="root"></main>
+
+<script src="../page.js"></script>
+<script src="../diagrams.js"></script>
+<script>
+/*
+DATA shape (replace wholesale, keep the field names):
+{
+  meta: { subtitle: string, period: string },
+  tldr: string,
+  facts: [{ label: string, value: string, mono?: boolean }],
+  tally: { segments: [{ label: string, count: number }] },   // <=4, order becomes s1..s3,s0
+  areas: [{ label: string, value: number, max: number, mono?: boolean, dim?: boolean }],  // bars
+  breakdown: { caption: string, cols: string[], rows: [{ label: string, values: number[] }] }, // heat
+  trend?: {                          // optional line chart; 2 x-axis ticks draw a slope chart
+    title?: string,                  // the diagram's conclusion; falls back to a generic sentence
+    x: { label: string, ticks: string[] },
+    y: { label: string, unit?: string },
+    series: [{ label: string, values: number[], key?: boolean }],
+  },
+  risks: [{ label: string, text: string }],
+  next: [{ label: string, done?: boolean }],
+  timeline: [{ at: string, label: string, meta: string, minor?: boolean }]
+}
+*/
+const DATA = /*SAMPLE*/{
+  meta: {
+    subtitle: 'Four commits landed in the last two weeks: a catalog regeneration that touches every skill, a docs-generator fix, a workflow doc update, and an image-model retarget. Two long-standing release risks are still open.',
+    period: '2026-09-09 to 2026-09-23',
+  },
+  tldr: 'Four commits since September 9 touched 72 files (+1523/-383 lines) across the skill catalog, tooling and docs; the plugin cache and the 5-spot version number remain the two open release risks.',
+  facts: [
+    { label: 'Period', value: '2026-09-09 to 2026-09-23' },
+    { label: 'Commits', value: '4' },
+    { label: 'Files touched', value: '72' },
+    { label: 'Skills touched', value: '54' },
+    { label: 'Lines changed', value: '+1523 / -383' },
+  ],
+  tally: {
+    segments: [
+      { label: 'Features', count: 2 },
+      { label: 'Fixes', count: 1 },
+      { label: 'Docs', count: 1 },
+    ],
+  },
+  areas: [
+    { label: 'scripts/', value: 774, max: 774, mono: true },
+    { label: 'root config', value: 562, max: 774 },
+    { label: 'docs/', value: 443, max: 774, mono: true },
+    { label: 'skills/', value: 127, max: 774, mono: true },
+  ],
+  breakdown: {
+    caption: 'Lines changed per area, by day. Shading: 0, 1 to 50, 51 to 150, 151 to 400, 401 to 600, 601 or more.',
+    cols: ['2026-09-16', '2026-09-23'],
+    rows: [
+      { label: 'Scripts', values: [774, 0] },
+      { label: 'Root config', values: [545, 17] },
+      { label: 'Docs', values: [440, 3] },
+      { label: 'Skills', values: [70, 57] },
+    ],
+  },
+  trend: {
+    title: "Every area's line count fell sharply in the second week except skills/, which rose as the catalog regeneration landed.",
+    x: { label: 'Day', ticks: ['2026-09-16', '2026-09-23'] },
+    y: { label: 'Lines changed' },
+    series: [
+      { label: 'Scripts', values: [774, 0] },
+      { label: 'Root config', values: [545, 17] },
+      { label: 'Docs', values: [440, 3] },
+      { label: 'Skills', values: [70, 57], key: true },
+    ],
+  },
+  risks: [
+    {
+      label: 'Plugin marketplace cache goes stale silently',
+      text: 'A local directory marketplace caches marketplace.json on first install, and Claude Code never invalidates that cache when the local skill files change underneath it, so an installed plugin can keep serving an old skill version until the cache is cleared by hand.',
+    },
+    {
+      label: 'The version number lives in 5 places, only 2 are automated',
+      text: 'A release has to move the version across 5 manifest spots, and bump-version only covers 2 of them; plugin.json drifted from marketplace.json for 5 months before that gap was caught, and nothing currently stops it from happening again.',
+    },
+  ],
+  next: [
+    { label: 'Skill catalog regenerated from skills.sh.json, the single source for README, AGENTS.md and docs/features.md', done: true },
+    { label: 'Two latent data-loss paths closed in the skill docs generator', done: true },
+    { label: 'CONTRIBUTING.md updated to point at the new skill-catalog workflow', done: true },
+    { label: 'codex-imagegen retargeted to gpt-6-sol and GPT Image 2.5 Sunburst', done: true },
+    { label: 'Cut a release for the changes sitting in CHANGELOG Unreleased' },
+    { label: 'Bump all 5 version-drift spots together, not just the 2 manifests bump-version covers' },
+    { label: 'Clear the plugin marketplace cache after the next local marketplace update' },
+  ],
+  timeline: [
+    { at: '2026-09-16T16:03', label: 'Skill catalog regenerated from one source', meta: '0d6e629' },
+    { at: '2026-09-16T16:13', label: 'Two data-loss paths closed in the skill docs generator', meta: 'def6a6f', minor: true },
+    { at: '2026-09-16T17:56', label: 'CONTRIBUTING.md updated for the new catalog workflow', meta: 'a406e53', minor: true },
+    { at: '2026-09-23T16:50', label: 'codex-imagegen retargeted to gpt-6-sol', meta: '775f5af' },
+  ],
+};
+
+function empty(title, text) {
+  return `<div class="empty"><p class="title">${Render.esc(title)}</p><p class="text">${Render.esc(text)}</p></div>`;
+}
+
+function renderTldr(text) {
+  if (!text) return empty('No headline yet', 'The tldr answers the report\'s one question: is the repository on schedule.');
+  return Render.anchored({
+    anchor: 'tldr-weekly-status',
+    label: 'Headline status',
+    html: `<p class="tldr">${Render.esc(text)}</p>`,
+  });
+}
+
+function renderFacts(facts) {
+  if (!facts.length) return empty('No facts recorded', 'Add the labelled values that frame this report: period, commits, files touched.');
+  const rows = facts.map((f) => `<div><dt>${Render.esc(f.label)}</dt><dd${f.mono ? ' class="mono"' : ''}>${Render.esc(f.value)}</dd></div>`).join('');
+  return Render.anchored({
+    anchor: 'facts-weekly-status',
+    label: 'At a glance facts',
+    html: `<dl class="facts">${rows}</dl>`,
+  });
+}
+
+function renderTally(tally) {
+  const segs = tally.segments || [];
+  if (!segs.length) return empty('No commits tracked', 'Add the counts that sum to this report\'s total.');
+  const shades = ['s1', 's2', 's3', 's0'];
+  const total = segs.reduce((sum, s) => sum + s.count, 0);
+  const counts = segs.map((s, i) => `<div class="${shades[i] || 's0'}"><dt>${Render.esc(s.label)}</dt><dd>${s.count}</dd></div>`).join('');
+  const bar = segs.map((s, i) => `<i class="${shades[i] || 's0'}" style="--v:${s.count}"></i>`).join('');
+  return Render.anchored({
+    anchor: 'tally-commits-by-type',
+    label: 'Commits by type',
+    html: `<div class="tally" role="group" aria-label="Commits by type, ${total} total"><dl class="tally-counts">${counts}</dl><div class="tally-bar" aria-hidden="true">${bar}</div></div>`,
+  });
+}
+
+function renderRisks(risks) {
+  if (!risks.length) return empty('No open risks', 'Nothing is blocking this report right now.');
+  return risks.map((r) => Render.anchored({
+    anchor: `risk-${Render.slug(r.label)}`,
+    label: r.label,
+    html: `<aside class="callout" data-kind="risk"><span class="callout-label">Risk</span><p>${Render.esc(r.text)}</p></aside>`,
+  })).join('');
+}
+
+function renderBars(areas) {
+  if (!areas.length) return empty('No areas measured', 'Add one number per area to show where the work landed.');
+  const items = areas.map((a) => {
+    const v = a.max ? (a.value / a.max).toFixed(3) : '0';
+    return `<li><span class="label${a.mono ? ' mono' : ''}">${Render.esc(a.label)}</span><span class="bar"><i style="--v:${v}"></i></span><span class="value">${a.value}</span></li>`;
+  }).join('');
+  return Render.anchored({
+    anchor: 'bars-lines-changed-by-area',
+    label: 'Lines changed per area',
+    html: `<ol class="bars">${items}</ol>`,
+  });
+}
+
+function heatBand(v) {
+  if (v <= 0) return 0;
+  if (v <= 50) return 1;
+  if (v <= 150) return 2;
+  if (v <= 400) return 3;
+  if (v <= 600) return 4;
+  return 5;
+}
+
+function renderBreakdown(breakdown) {
+  const rows = breakdown.rows || [];
+  if (!rows.length) return empty('No breakdown yet', 'Add a two-dimensional count, such as lines changed per area and per day.');
+  const head = `<tr><th>Area</th>${breakdown.cols.map((c) => `<th class="mono">${Render.esc(c)}</th>`).join('')}</tr>`;
+  const body = rows.map((r) => `<tr><th>${Render.esc(r.label)}</th>${r.values.map((v) => `<td data-h="${heatBand(v)}">${v}</td>`).join('')}</tr>`).join('');
+  const legend = '<div class="heat-legend" aria-hidden="true"><span>0</span><i data-h="0"></i><i data-h="1"></i><i data-h="2"></i><i data-h="3"></i><i data-h="4"></i><i data-h="5"></i><span>600+</span></div>';
+  return Render.anchored({
+    anchor: 'heat-lines-changed-by-day',
+    label: 'Lines changed by day and area',
+    html: `<div class="heat-scroll"><table class="heat"><caption class="meta">${Render.esc(breakdown.caption)}</caption><thead>${head}</thead><tbody>${body}</tbody></table></div>${legend}`,
+  });
+}
+
+function renderTrend(trend) {
+  if (!trend || !(trend.series || []).length) {
+    return empty('No trend recorded', 'Add DATA.trend with 2 or more x-axis ticks and at least one series to chart a trend across time.');
+  }
+  return Render.diagram.line({
+    anchor: `diagram-trend-${Render.slug(trend.y?.label || 'metric')}`,
+    title: trend.title || `${trend.series.map((s) => s.label).join(', ')} over ${trend.x.ticks.length} periods.`,
+    x: trend.x,
+    y: trend.y || {},
+    series: trend.series,
+  });
+}
+
+function renderChecklist(next) {
+  if (!next.length) return empty('No next steps', 'Nothing is queued after this report.');
+  const items = next.map((n) => `<li${n.done ? ' class="done"' : ''}><span class="box" aria-hidden="true"></span><span>${Render.esc(n.label)}</span></li>`).join('');
+  return Render.anchored({
+    anchor: 'checklist-next-steps',
+    label: 'Next steps',
+    html: `<ul class="checklist">${items}</ul>`,
+  });
+}
+
+function renderTimeline(events) {
+  if (!events.length) return empty('No timeline for this period', 'Add the dated events that led to this status.');
+  const items = events.map((e) => {
+    const display = e.at.replace('T', ' ');
+    return `<li class="event"${e.minor ? ' data-state="minor"' : ''}><time datetime="${Render.esc(e.at)}">${Render.esc(display)}</time><div class="what"><span class="title">${Render.esc(e.label)}</span><span class="meta mono">${Render.esc(e.meta)}</span></div></li>`;
+  }).join('');
+  return Render.anchored({
+    anchor: 'timeline-recent-commits',
+    label: 'Recent commits',
+    html: `<ol class="timeline">${items}</ol>`,
+  });
+}
+
+function mount(data) {
+  const root = document.getElementById('root');
+  root.innerHTML = `
+    <header class="page-head">
+      <h1>cc-arsenal weekly status</h1>
+      <p class="meta">${Render.esc(data.meta.period)}, comments only, no verdicts on this page.</p>
+    </header>
+    <p class="text">${Render.esc(data.meta.subtitle)}</p>
+
+    <section class="section" id="glance" data-section="At a glance">
+      <h2>At a glance</h2>
+      ${renderTldr(data.tldr)}
+      ${renderFacts(data.facts)}
+      ${renderTally(data.tally)}
+      ${renderRisks(data.risks)}
+    </section>
+
+    <section class="section" id="work" data-section="Work by area">
+      <div class="section-head"><h2>Work by area</h2><span class="meta">${data.areas.length} areas</span></div>
+      ${renderBars(data.areas)}
+    </section>
+
+    <section class="section" id="breakdown" data-section="Breakdown">
+      <div class="section-head"><h2>Breakdown</h2><span class="meta">${data.breakdown.rows.length} areas</span></div>
+      ${renderBreakdown(data.breakdown)}
+    </section>
+
+    <section class="section" id="trend" data-section="Trend">
+      <div class="section-head"><h2>Trend</h2><span class="meta">${(data.trend?.series || []).length} series</span></div>
+      ${renderTrend(data.trend)}
+    </section>
+
+    <section class="section" id="next" data-section="Next steps">
+      <div class="section-head"><h2>Next steps</h2><span class="meta">${data.next.length} items</span></div>
+      ${renderChecklist(data.next)}
+    </section>
+
+    <section class="section" id="timeline" data-section="Timeline">
+      <div class="section-head"><h2>Timeline</h2><span class="meta">${data.timeline.length} events</span></div>
+      ${renderTimeline(data.timeline)}
+    </section>
+  `;
+}
+
+mount(DATA);
+if (window.Render) {
+  Render.init({ verdicts: null, file: 'report-cc-arsenal-weekly-status-2026-09-23.html', title: 'cc-arsenal weekly status' });
+}
+</script>

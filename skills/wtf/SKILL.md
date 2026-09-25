@@ -5,6 +5,7 @@ description: Re-explain your own previous message in plain, simplified English (
   "I don't get it", "explain that again simpler", "ELI5", or "in plain English". Rewrites
   what was already said; it does not do new work, new research, or new code.
 metadata:
+  summary: "Re-explain your own previous message in plain, simplified English (ASD-STE100 style) when the user didn't understand it"
   author: mgiovani
   version: 1.0.0
 disable-model-invocation: false

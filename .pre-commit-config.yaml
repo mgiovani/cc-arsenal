@@ -33,6 +33,12 @@ repos:
         types: [python]
         exclude: ^examples/
         require_serial: true
+      - id: gen-skill-docs
+        name: gen-skill-docs
+        entry: uv run python -m scripts.gen_skill_docs --check
+        language: system
+        pass_filenames: false
+        files: ^(scripts/gen_skill_docs\.py|skills/.*/SKILL\.md|skills\.sh\.json|README\.md|AGENTS\.md|CONTRIBUTING\.md|docs/(features|getting-started|onboarding)\.md|\.claude-plugin/.*\.json)$
       - id: stopslop
         name: stopslop
         # stopslop exits 0 for tier-B findings (every prose rule) and only
@@ -43,4 +49,4 @@ repos:
         types_or: [markdown, python]
         # Mirrors `exclude` in stopslop.toml: that key only applies when stopslop
         # walks a directory itself, and pre-commit hands it explicit paths.
-        exclude: ^skills/[^/]+/assets/templates/
+        exclude: ^(skills/[^/]+/assets/templates/|docs/CODE_OF_CONDUCT\.md$)

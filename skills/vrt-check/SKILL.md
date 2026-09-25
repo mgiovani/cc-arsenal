@@ -14,6 +14,8 @@ description: Runs the project's visual regression testing (VRT) workflow, detect
 disable-model-invocation: false
 argument-hint: "[--update] [--component name]"
 allowed-tools: Read, Bash, Grep, Glob, Task, AskUserQuestion
+metadata:
+  summary: "Runs the project's visual regression testing workflow, whatever tooling the repo actually uses"
 ---
 
 # VRT Check

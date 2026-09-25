@@ -9,6 +9,7 @@ description: Audit project dependencies for vulnerabilities, license compliance 
   changes. Not for app-code vulnerability scanning (use review-security) or auto-applying
   upgrades (this skill only recommends, never runs installs).
 metadata:
+  summary: "Audit dependencies for vulnerabilities, license risk, and staleness"
   author: mgiovani
   version: 1.1.0
 disable-model-invocation: true

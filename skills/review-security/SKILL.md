@@ -7,9 +7,10 @@ description: Perform an OWASP Top 10-focused static security review of a PR, com
   security, scan for vulnerabilities, or check OWASP compliance, "security review", "scan
   for vulnerabilities", "check OWASP top 10", "audit for XSS/SQLi/hardcoded secrets", "is
   this PR safe to ship security-wise". Analysis only, never modifies code. Not for general
-  code quality review (use review-code), dependency CVE/license/staleness auditing (use
-  review-deps), or a multi-agent PR review team (use team-review).
+  code quality review (use review-code), or dependency CVE/license/staleness auditing
+  (use review-deps).
 metadata:
+  summary: "OWASP Top 10 2025 security analysis with parallel scanning agents where available"
   author: mgiovani
   version: 1.1.0
 disable-model-invocation: true

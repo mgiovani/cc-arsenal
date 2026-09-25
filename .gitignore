@@ -62,3 +62,4 @@ ENV/
 
 # Ignore circular symlink from installation
 scripts/claude/statusline/statusline
+.cc-arsenal/

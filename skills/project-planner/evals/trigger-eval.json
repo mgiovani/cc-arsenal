@@ -13,7 +13,6 @@
   { "query": "draw an architecture diagram of our current system", "should_trigger": false },
   { "query": "fix the memory leak in the WebSocket connection handler", "should_trigger": false },
   { "query": "refactor the payment module to use a strategy pattern", "should_trigger": false },
-  { "query": "run the team-implement workflow on this Jira ticket", "should_trigger": false },
   { "query": "generate a standup report from my GitHub activity", "should_trigger": false },
   { "query": "write the commit message for these staged changes", "should_trigger": false },
   { "query": "create a PR for this branch", "should_trigger": false },

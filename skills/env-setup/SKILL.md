@@ -2,6 +2,7 @@
 name: env-setup
 description: Scans a codebase for environment variable usage to generate or sync .env.example, validate .env completeness against what the code actually reads, and detect leaked secrets in .env or git history. Use for "/env-setup", "update .env.example", "sync .env.example with the codebase", "check if .env has everything it needs", "is .env in .gitignore", or "scan for leaked secrets in .env". Not a full security audit (use review-security for OWASP-level scanning) and not a generic secret-rotation or CI-secrets-injection tool.
 metadata:
+  summary: "Scan a codebase for env var usage, sync .env.example, and detect leaked secrets"
   author: mgiovani
   version: 1.1.0
 disable-model-invocation: true

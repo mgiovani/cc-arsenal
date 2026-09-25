@@ -1,0 +1,201 @@
+{
+  "skill": "render",
+  "evals": [
+    {
+      "id": "happy-path-review-mode",
+      "prompt": "This repo has a review report listing 12 findings across src/auth.py (3 critical), src/query.py (2 high), and src/views.py (7 low), each with a file:line reference and a described failure. Run render review on it.",
+      "assertions": [
+        "an HTML file is written under .cc-arsenal/renders/ with a name starting 'review-'",
+        "all 12 findings appear on the page, none invented and none dropped",
+        "the severity ranking from the source report is preserved, critical before high before low",
+        "each finding is inside an element carrying a data-anchor derived from its file, line and a slug of its claim, so two findings on the same line do not collide, and never from its position in the list",
+        "each finding carries fix / won't fix / discuss verdict controls",
+        "the page contains a <script id=\"state\" type=\"application/json\"> block holding the verdict and comment state",
+        "the page's CSS defines its palette as custom properties on a bare :root selector, redefines them under a prefers-color-scheme dark media query guarded against [data-theme=\"light\"], and redefines them again under :root[data-theme=\"dark\"]",
+        "body has an explicit background drawn from a token, not left transparent",
+        "the response reports the output path and the finding counts, and does not claim to have fixed anything",
+        "the publish call supplies an icon, which the Artifact contract requires on a first publish",
+        "every color on the page resolves to one of the eight neutral tokens (or a color-mix of them): there is no hue anywhere, including on the verdict controls, whose decision is read from the pressed segment's ink-fill position rather than from a color",
+        "the page was built by copying assets/templates/review.html and replacing its /*SAMPLE*/ DATA object rather than hand-authored from a blank file, then assembled with scripts/assemble.py so page.css and page.js are inlined into the single file, the assemble.py gate passes with no --allow-sample flag and no leftover /*SAMPLE*/ marker, and every corner on the page is square (no border-radius, no rx/ry)",
+        "no rendered text on the page is smaller than 15px anywhere (meta, tags, mono identifiers, code excerpts included), and scripts/assemble.py's font-size rule reports zero violations on the assembled page",
+        "scripts/assemble.py's check() reports zero raw-length violations (no hand-written px/rem/em/ch length outside a :root block) and zero style-attr violations (every inline style=\"...\" sets only a unitless custom property) on the assembled page"
+      ]
+    },
+    {
+      "id": "happy-path-anchored-comments",
+      "prompt": "Run render plan on a 5-step implementation plan for adding rate limiting, where steps 3 and 4 both depend on step 2.",
+      "assertions": [
+        "every anchored block carries both data-anchor and data-label attributes",
+        "each anchored block contains a comment affordance control that is reachable without a mouse, revealed on :focus-within or :focus-visible and not on :hover alone",
+        "on viewports under roughly 760px the comment affordance is statically visible rather than hover-dependent",
+        "the comment composer opens inline beneath the block rather than as a modal dialog",
+        "a saved comment records anchor, label, section and text, not the anchor alone",
+        "step dependencies shown on the page come from the plan itself, and step 3 and step 4 are both shown depending on step 2",
+        "the page does not fabricate a dependency between consecutive steps that the plan did not state"
+      ]
+    },
+    {
+      "id": "judgment-wrapping-a-skill",
+      "prompt": "Run render /review-security on the current branch.",
+      "assertions": [
+        "review-security is run to completion first, and the page renders the findings it actually produced",
+        "no file under skills/review-security/ is created or modified",
+        "the finding claims are carried over in the source skill's wording rather than paraphrased",
+        "the severity ranking produced by review-security is preserved on the page",
+        "file:line evidence from each finding appears on its anchored block",
+        "the response does not add findings that review-security did not report"
+      ]
+    },
+    {
+      "id": "judgment-convert-existing-file",
+      "prompt": "Run render docs/plans/auth-rework.md. The file is a markdown document containing an ordered list of implementation steps with a dependencies section.",
+      "assertions": [
+        "the file is read before any mode is chosen",
+        "the response states which mode it selected and why, in one line, before building the page",
+        "plan mode is selected, matching the file's ordered-steps-with-dependencies shape",
+        "the plan's own step wording and ordering are preserved rather than rewritten during conversion",
+        "the original markdown file is not modified"
+      ]
+    },
+    {
+      "id": "judgment-read-marks-back-with-orphan",
+      "prompt": "The page at .cc-arsenal/renders/prd-lachesis-2026-08-30.html was marked by the user and saved. It carries a comment anchored to req-PRD-FR-099, which no longer exists in the current requirement set. Read the marks back.",
+      "assertions": [
+        "the page's state block is parsed rather than the rendered DOM being scraped",
+        "results are grouped by what the user decided rather than by page order",
+        "the comment on req-PRD-FR-099 is reported using its stored label and section and explicitly flagged as attached to something no longer present",
+        "the orphaned comment is not silently dropped from the report",
+        "the response acts on the returned marks rather than asking the user to restate them",
+        "the report covers page-level decisions, per-anchor verdicts and comments, not verdicts alone"
+      ]
+    },
+    {
+      "id": "refusal-no-mode-given",
+      "prompt": "render",
+      "assertions": [
+        "the response lists the available modes with what each one produces",
+        "the response asks which mode the user wants",
+        "no mode is guessed and no page is built",
+        "no file is written under .cc-arsenal/renders/ or anywhere else"
+      ]
+    },
+    {
+      "id": "refusal-wrapping-an-action-skill",
+      "prompt": "Run render /git-commit on my staged changes.",
+      "assertions": [
+        "no page is built for git-commit's output",
+        "the response explains that git-commit produces an action rather than a set of findings or decisions, so a page adds nothing",
+        "the response offers running git-commit directly instead",
+        "no commit is created as a side effect of the explanation"
+      ]
+    },
+    {
+      "id": "judgment-rerender-preserves-marks",
+      "prompt": "The page at .cc-arsenal/renders/review-auth-2026-08-30.html already carries 40 verdicts and 6 comments saved by the user. Re-run render review on the same subject after two of the findings were fixed, writing to that same path.",
+      "assertions": [
+        "the existing page's state block is read and parsed before the new page is written",
+        "the regenerated page embeds the carried state rather than an empty {\"verdicts\":{},\"comments\":[]} block",
+        "verdicts whose anchors no longer exist are dropped, since the findings they judged are gone",
+        "comments whose anchors no longer exist are retained in state and reported as orphaned rather than discarded",
+        "verdicts and comments on the findings that still exist are still present and still attached to them after the rebuild"
+      ]
+    },
+    {
+      "id": "judgment-no-artifact-tool-available",
+      "prompt": "Run render plan on a 6-step migration plan in an environment with no Artifact tool available.",
+      "assertions": [
+        "a self-contained HTML file is written and its path is reported",
+        "the response does not claim to have published anything or return an artifact link",
+        "the page's save control regenerates the document and offers it as a download rather than relying on the browser's own Save Page As",
+        "the response tells the user to replace the file at the reported path with the downloaded copy and say when done",
+        "the response does not tell the user their browser can save the marks into the original file in place"
+      ]
+    },
+    {
+      "id": "happy-path-tour-mode",
+      "prompt": "Run render tour on how skills/render/scripts/assemble.py works: inline_assets() splicing in page.css/page.js, then check() gating the result through _hex_violations, _color_function_violations and _css_declaration_violations.",
+      "assertions": [
+        "an HTML file is written under .cc-arsenal/renders/ with a name starting 'tour-'",
+        "the page is built by copying assets/templates/tour.html and replacing its /*SAMPLE*/ DATA object, then assembling with scripts/assemble.py, not hand-authored from a blank file",
+        "tour mode carries no verdict controls, matching its 'none, comments only' row in the mode table; only the anchored comment affordance appears on each stop",
+        "each stop is anchored to the real function or file it walks (inline_assets, check, main, or similar), never to its position in the list",
+        "the stops follow a reading order that actually makes sense for the code (e.g. inlining before gating, gating before reporting), not an arbitrary or invented order",
+        "code shown on the page is excerpted from the real file content, not paraphrased or fabricated",
+        "the assembled output passes scripts/assemble.py with zero violations and no leftover /*SAMPLE*/ marker"
+      ]
+    },
+    {
+      "id": "happy-path-timeline-mode",
+      "prompt": "Run render timeline on the render skill's own history from CHANGELOG.md: added in [5.2.0] on 2026-08-30 as one of five skills, then this release's monochrome/square/Geist redesign adding tour, timeline, diff and report.",
+      "assertions": [
+        "an HTML file is written under .cc-arsenal/renders/ with a name starting 'timeline-'",
+        "the page is built by copying assets/templates/timeline.html and replacing its /*SAMPLE*/ DATA object, then assembled with scripts/assemble.py",
+        "timeline mode carries no verdict controls; each event carries only the anchored comment affordance",
+        "events are rendered with the timeline block (a dated vertical rule), not as an undated steps list",
+        "each event's anchor is derived from the event's own identity (e.g. its date plus a slug of what happened), not from its position in the sequence",
+        "the two real dated events from CHANGELOG.md appear with their actual dates, in chronological order, and no invented event is added",
+        "the assembled output passes scripts/assemble.py with zero violations and no leftover /*SAMPLE*/ marker"
+      ]
+    },
+    {
+      "id": "happy-path-diff-mode",
+      "prompt": "Run render diff on a proposed change to skills/render/scripts/assemble.py's _shadow_ok function: the before is the current allow-list check, the after simplifies it to a single set membership test.",
+      "assertions": [
+        "an HTML file is written under .cc-arsenal/renders/ with a name starting 'diff-'",
+        "the page is built by copying assets/templates/diff.html and replacing its /*SAMPLE*/ DATA object, then assembled with scripts/assemble.py",
+        "each hunk carries accept / revise / reject verdict controls, matching diff mode's row in the mode table",
+        "the before and after code are both shown via the diff block, with added and removed lines distinguished by the .add/.del line classes rather than by color alone",
+        "each hunk's anchor is derived from the file and the hunk's identity, not from its position among the hunks",
+        "the diff shown reflects a real, specific proposed change to the named function rather than an invented or generic example",
+        "the assembled output passes scripts/assemble.py with zero violations, no leftover /*SAMPLE*/ marker, and square corners throughout"
+      ]
+    },
+    {
+      "id": "happy-path-report-mode",
+      "prompt": "Run render report on this week's GitHub activity for the cc-arsenal repo: 3 PRs merged, 2 open review requests, 1 stale branch older than 14 days.",
+      "assertions": [
+        "an HTML file is written under .cc-arsenal/renders/ with a name starting 'report-'",
+        "the page is built by copying assets/templates/report.html and replacing its /*SAMPLE*/ DATA object, then assembled with scripts/assemble.py",
+        "report mode carries no verdict controls; metrics and status lines carry only the anchored comment affordance",
+        "the tldr and facts or tally blocks are used for the counts (3 merged, 2 open reviews, 1 stale branch) rather than a hero metric or a wall of prose",
+        "every number on the page traces to a value in the prompt, none invented to fill out the layout",
+        "the assembled output passes scripts/assemble.py with zero violations and no leftover /*SAMPLE*/ marker"
+      ]
+    },
+    {
+      "id": "happy-path-map-mode-diagram",
+      "prompt": "Run render map on this repo's 7-module dependency graph: auth depends on db and config; api depends on auth and db; worker depends on db and config; config depends on nothing.",
+      "assertions": [
+        "an HTML file is written under .cc-arsenal/renders/ with a name starting 'map-'",
+        "the page is built by copying assets/templates/map.html and replacing its /*SAMPLE*/ DATA object, then assembled with scripts/assemble.py",
+        "the graph is drawn via Render.diagram.dependency (or Render.diagram.architecture if the modules group into zones), never hand-written SVG",
+        "the diagram call passes only nodes and edges, with no coordinate, position, x or y field anywhere in the data",
+        "every dependency named in the prompt appears as an edge, and no edge is invented",
+        "the assembled output passes scripts/assemble.py with zero violations and no leftover /*SAMPLE*/ marker"
+      ]
+    },
+    {
+      "id": "judgment-oversized-map-splits",
+      "prompt": "Run render map on this repo's actual module graph, which has about 20 modules and would be a single dependency diagram of 20 nodes.",
+      "assertions": [
+        "the response does not call Render.diagram.dependency once with all ~20 nodes, since the dependency budget is 9 nodes and 12 edges",
+        "the modules are grouped (by layer, by directory, or by another real seam in the code) into more than one diagram, each at or under the 9-node budget",
+        "no diagram is drawn past its declared budget and no per-page override or budget bypass is invented",
+        "the grouping is based on the real module structure, not an arbitrary even split",
+        "each resulting diagram still carries a real, non-fabricated set of edges between the nodes it covers"
+      ]
+    },
+    {
+      "id": "happy-path-explain-mode-sequence",
+      "prompt": "Run render explain on how a login request flows through this app: the client calls the API gateway, the gateway calls the auth service, the auth service queries the user database and returns a token, and the gateway returns the token to the client.",
+      "assertions": [
+        "an HTML file is written under .cc-arsenal/renders/ with a name starting 'explain-'",
+        "the page is built by copying assets/templates/explain.html and replacing its /*SAMPLE*/ DATA object, then assembled with scripts/assemble.py",
+        "the mechanism is drawn via Render.diagram.sequence with the four participants (client, gateway, auth service, user database) and the messages between them, never hand-written SVG",
+        "the sequence diagram carries a text alternative (a .dg-sr list or equivalent) describing every message in order, for a reader who cannot see the diagram",
+        "explain mode's one-line answer and detail-on-demand structure are preserved; the diagram supplements the mechanism section rather than replacing it",
+        "the assembled output passes scripts/assemble.py with zero violations and no leftover /*SAMPLE*/ marker"
+      ]
+    }
+  ]
+}

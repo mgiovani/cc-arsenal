@@ -7,10 +7,10 @@ description: Runs a comprehensive multi-agent code review of a PR, commit, or th
   code review, asks to review a PR or diff, or wants over-engineered code flagged
   for simplification. Analysis only, identifying issues without modifying code, committing,
   or running tests. Not for a security-focused audit (use review-security), a visual/UX
-  design critique (use review-design), a deep performance-only investigation with
-  profiling and query-level analysis (use review-perf), or a heavier multi-agent PR
-  review team with adversarial/security passes (use team-review).
+  design critique (use review-design), or a deep performance-only investigation with
+  profiling and query-level analysis (use review-perf).
 metadata:
+  summary: "Multi-agent code review across correctness, performance, style, tests, and error handling"
   author: mgiovani
   version: 1.1.0
 ---

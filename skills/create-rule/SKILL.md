@@ -9,6 +9,7 @@ description: Create a new memory/instruction rule for whatever AI coding tool a 
   create-skill). Not for discovering or installing existing third-party skills (use
   find-skills).
 metadata:
+  summary: "Create CLAUDE.md/AGENTS.md rules and memory guidelines"
   author: mgiovani
   version: 2.0.0
 disable-model-invocation: false

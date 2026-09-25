@@ -2,6 +2,7 @@
 name: db-migrate
 description: Creates, checks the status of, and validates database migrations by auto-detecting the project's migration framework (Alembic, Prisma, Knex, Django, Rails/ActiveRecord, Flyway, Atlas, TypeORM, Sequelize, SQLx, golang-migrate, Liquibase) from marker files, then driving that framework's own CLI. Use when the user wants to create a new migration, check pending vs. applied migration status, or validate a migration for a missing rollback script, a missing foreign-key index, or a destructive operation like DROP TABLE / TRUNCATE / DELETE FROM. Trigger phrases include "create a migration", "check migration status", "any pending migrations", "validate this migration", "does this migration have a rollback". Not for designing the schema change itself or writing ORM model code (use implement-feature), this skill only manages migration files and framework tooling once the schema change is already decided.
 metadata:
+  summary: "Create, validate, and manage database migrations across any framework"
   author: mgiovani
   version: 2.0.0
 argument-hint: '[create|status|validate] [--name migration_name] [--dry-run]'

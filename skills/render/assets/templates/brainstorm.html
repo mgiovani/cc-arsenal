@@ -1,0 +1,337 @@
+<title>Repo Merge Brainstorm</title>
+<!-- impeccable-disable overused-font -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../page.css">
+<link rel="stylesheet" href="../diagrams.css">
+
+<script id="state" type="application/json">{"v":1,"verdicts":{"idea-single-skills-dir-merge-both-repos":{"d":"shortlist"},"idea-mirror-mgiovani-skills-via-symlink":{"d":"park"},"idea-deprecate-mgiovani-skills-redirect":{"d":"drop"},"idea-one-agents-md-both-install-paths":{"d":"shortlist"},"idea-shared-skills-sh-json-manifest":{"d":"shortlist"},"idea-ci-job-copies-skills-across-repos":{"d":"drop"},"idea-keep-cc-only-frontmatter-optional":{"d":"shortlist"},"idea-per-skill-cc-overlay-file":{"d":"park"},"idea-single-changelog-release-cadence":{"d":"shortlist"}},"comments":[]}</script>
+
+<header class="toolbar">
+  <div class="toolbar-row">
+    <span class="toolbar-title">Repo merge brainstorm</span>
+    <div class="counts" aria-label="Counts"></div>
+    <span class="spacer"></span>
+    <div class="seg" role="group" aria-label="Theme" data-theme-toggle>
+      <button type="button" data-value="auto" aria-pressed="true">Auto</button>
+      <button type="button" data-value="light" aria-pressed="false">Light</button>
+      <button type="button" data-value="dark" aria-pressed="false">Dark</button>
+    </div>
+    <div class="toolbar-group">
+      <button type="button" class="btn" data-action="digest">Copy digest</button>
+      <button type="button" class="btn btn-icon" data-action="shortcuts" aria-label="Keyboard shortcuts" aria-expanded="false" aria-controls="shortcuts">?</button>
+      <button type="button" class="btn btn-primary" data-action="save">Save</button>
+    </div>
+  </div>
+  <div class="filterbar">
+    <div class="seg" data-filter="verdict" role="group" aria-label="Filter by verdict"></div>
+  </div>
+</header>
+
+<div id="shortcuts" class="shortcuts" hidden>
+  <div class="shortcuts-inner">
+    <h2>Keyboard</h2>
+    <div class="shortcut"><span class="keys"><kbd>j</kbd><kbd>k</kbd></span>Next or previous idea</div>
+    <div class="shortcut"><span class="keys"><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd></span>Shortlist, park, drop</div>
+    <div class="shortcut"><span class="keys"><kbd>c</kbd></span>Comment on the current idea</div>
+    <div class="shortcut"><span class="keys"><kbd>/</kbd></span>Focus the verdict filter</div>
+    <div class="shortcut"><span class="keys"><kbd>Esc</kbd></span>Close composer or panel</div>
+    <div class="shortcut"><span class="keys"><kbd>?</kbd></span>Show or hide this panel</div>
+  </div>
+</div>
+
+<main class="wrap" id="root"></main>
+
+<script src="../page.js"></script>
+<script src="../diagrams.js"></script>
+<script>
+  /*
+  DATA shape:
+  {
+    question:      string,  // the tension the brainstorm answers, shown in the tldr
+    constraint:    string,  // a hard limit on every idea below, shown in the Note callout
+    priorityTitle?: string, // one-sentence conclusion for the impact/effort quadrant's title
+    themes: [
+      {
+        name: string,      // theme heading
+        ideas: [
+          {
+            slug:    string,  // unique; becomes the anchor idea-<slug>
+            title:   string,  // the idea in one line
+            tension: string,  // what it resolves
+            cost:    string,  // short cost tag text
+            effort:  string,  // short effort tag text
+            impact?: number,  // 1-5; with effort below, plots this idea on the quadrant
+            effortScore?: number,  // 1-5; needs at least 2 ideas scored to draw the quadrant
+          }, ...
+        ],
+      }, ...
+    ],
+  }
+  */
+  const DATA = /*SAMPLE*/ {
+    question: "cc-arsenal ships 54 Claude-Code-first skills; mgiovani/skills already targets multiple agent CLIs. How do we fold them into one agent-agnostic repo without breaking either audience?",
+    constraint: "Whatever we pick has to keep working with the existing gates, make check, make validate-structure and make validate-plugins, and with skills.sh.json as the single source every catalog regenerates from. A merge that adds a second manual list to keep in sync repeats the bug commit def6a6f just fixed.",
+    priorityTitle: "The shared manifest and the single-directory merge cluster high-impact and high-effort; the frontmatter and changelog ideas stay cheap.",
+    themes: [
+      {
+        name: "Repo structure",
+        ideas: [
+          {
+            slug: "single-skills-dir-merge-both-repos",
+            title: "One skills/ directory, both repos merged and deduped by name",
+            tension: "Two repos means two places to add a skill, and they already drift: a fix in one rarely lands in the other.",
+            cost: "High",
+            effort: "2 to 3 weeks",
+            impact: 5,
+            effortScore: 5,
+          },
+          {
+            slug: "mirror-mgiovani-skills-via-symlink",
+            title: "Keep mgiovani/skills as a generated mirror of cc-arsenal's skills/",
+            tension: "Same drift problem, without a one-time migration; mgiovani/skills becomes read-only and CI-published, not hand-edited.",
+            cost: "Medium",
+            effort: "1 week, plus a recurring CI job",
+            impact: 3,
+            effortScore: 3,
+          },
+          {
+            slug: "deprecate-mgiovani-skills-redirect",
+            title: "Deprecate mgiovani/skills, point installs at cc-arsenal",
+            tension: "Removes the duplication outright, but breaks every scripted npx skills add mgiovani/skills a user already runs.",
+            cost: "Low to build",
+            effort: "1 day, plus support load after",
+            impact: 4,
+            effortScore: 1,
+          },
+        ],
+      },
+      {
+        name: "Distribution and tooling",
+        ideas: [
+          {
+            slug: "one-agents-md-both-install-paths",
+            title: "Document both install paths in one AGENTS.md per repo",
+            tension: "CLAUDE.md already imports AGENTS.md as the Claude Code bridge; the same pattern documents the skills.sh install and the plugin marketplace side by side.",
+            cost: "Low",
+            effort: "A few hours",
+            impact: 2,
+            effortScore: 1,
+          },
+          {
+            slug: "shared-skills-sh-json-manifest",
+            title: "Extend skills.sh.json into the one manifest both installers read",
+            tension: "skills.sh.json is already the single source of truth for grouping; teaching the plugin marketplace and skills.sh to read the same file removes the second list that drifted before.",
+            cost: "Medium",
+            effort: "1 week",
+            impact: 4,
+            effortScore: 3,
+          },
+          {
+            slug: "ci-job-copies-skills-across-repos",
+            title: "Nightly CI job that copies skill directories between repos",
+            tension: "Keeps two repos in sync without merging them, but it is a new job to babysit and a new place for a silent failure to hide, exactly the class of bug commit def6a6f closed.",
+            cost: "Medium to build, high to maintain",
+            effort: "3 days, then ongoing",
+          },
+        ],
+      },
+      {
+        name: "Skill format",
+        ideas: [
+          {
+            slug: "keep-cc-only-frontmatter-optional",
+            title: "Keep Claude-Code-only frontmatter as an optional layer, unchanged",
+            tension: "The Portability convention already says other tools ignore unknown keys safely; a merge needs no format change at all.",
+            cost: "None",
+            effort: "0",
+            impact: 1,
+            effortScore: 1,
+          },
+          {
+            slug: "per-skill-cc-overlay-file",
+            title: "Split every skill's CC-only keys into a sibling overlay file",
+            tension: "Cleaner separation between tool-neutral and Claude-Code content, at the cost of doubling the file count across all 54 skills.",
+            cost: "High",
+            effort: "2 weeks",
+          },
+        ],
+      },
+      {
+        name: "Governance",
+        ideas: [
+          {
+            slug: "single-changelog-release-cadence",
+            title: "One CHANGELOG.md and one release cadence for the merged repo",
+            tension: "cc-arsenal's own version-bump checklist already lists 5 spots that have to move together; one repo means one checklist instead of two.",
+            cost: "Low",
+            effort: "A few hours to set up",
+            impact: 2,
+            effortScore: 1,
+          },
+          {
+            slug: "separate-changelogs-cross-linked",
+            title: "Keep separate CHANGELOGs per repo, cross-link each release",
+            tension: "Preserves each repo's own history, but a reader following only one changelog misses half of what shipped.",
+            cost: "Low",
+            effort: "A few hours",
+          },
+        ],
+      },
+    ],
+  } /*SAMPLE*/;
+
+  // Mirrors the verdicts pre-filled in the #state script tag above; the count
+  // that resolves to neither shortlist, park nor drop is treated as undecided.
+  const VERDICT_COUNTS = { shortlist: 5, park: 2, drop: 2 };
+
+  const VERDICTS = ["shortlist", "park", "drop"];
+
+  function allIdeas(themes) {
+    return (themes || []).flatMap((theme) => theme.ideas || []);
+  }
+
+  function emptyBlock(title, text) {
+    return `<div class="empty"><p class="title">${Render.esc(title)}</p><p class="text">${Render.esc(text)}</p></div>`;
+  }
+
+  function renderPageHead(data, themes) {
+    const ideaCount = allIdeas(themes).length;
+    const themeCount = (themes || []).length;
+    return `<header class="page-head">
+      <h1>Merging cc-arsenal and mgiovani/skills</h1>
+      <p class="meta">${ideaCount} idea${ideaCount === 1 ? "" : "s"} across ${themeCount} theme${themeCount === 1 ? "" : "s"}. Verdicts: shortlist, park, drop.</p>
+    </header>`;
+  }
+
+  function renderGlance(data) {
+    return `<section class="section" id="glance" data-section="At a glance">
+      <h2>At a glance</h2>
+      <p class="tldr">${Render.esc(data.question)}</p>
+    </section>`;
+  }
+
+  function ideaCard(idea, themeName) {
+    const anchor = `idea-${idea.slug}`;
+    const html = (
+      `<span class="title">${Render.esc(idea.title)}</span>`
+      + `<p class="text">${Render.esc(idea.tension)}</p>`
+      + `<span class="meta">${Render.esc(themeName)}</span>`
+      + `<span><span class="tag">Cost: ${Render.esc(idea.cost)}</span> <span class="tag">Effort: ${Render.esc(idea.effort)}</span></span>`
+      + Render.verdict(anchor)
+    );
+    return Render.anchored({ anchor, label: idea.title, cls: "idea", verdict: false, html });
+  }
+
+  function renderTheme(theme) {
+    const ideas = theme.ideas || [];
+    const id = Render.slug(theme.name);
+    const body = ideas.length
+      ? `<div class="ideas">${ideas.map((idea) => ideaCard(idea, theme.name)).join("")}</div>`
+      : emptyBlock(`No ideas yet under ${theme.name}`, "Add ideas under this theme, or drop the heading until there are some.");
+    return `<section class="section" id="${id}" data-section="${Render.esc(theme.name)}">
+      <div class="section-head"><h2>${Render.esc(theme.name)}</h2><span class="meta">${ideas.length} idea${ideas.length === 1 ? "" : "s"}</span></div>
+      ${body}
+    </section>`;
+  }
+
+  function renderThemes(themes) {
+    if (!themes || !themes.length) {
+      return `<section class="section" id="ideas" data-section="Ideas">
+        <h2>Ideas</h2>
+        ${emptyBlock("No ideas yet", "Bring ideas from a discussion, a research pass or an existing notes file. Six to fifteen, grouped by theme, is the range that reads well.")}
+      </section>`;
+    }
+    return themes.map(renderTheme).join("");
+  }
+
+  function renderTally(themes) {
+    const total = allIdeas(themes).length;
+    if (!total) {
+      return `<section class="section" id="tally" data-section="Tally">
+        <h2>Tally</h2>
+        ${emptyBlock("Nothing to tally", "The tally fills in once at least one idea carries a verdict.")}
+      </section>`;
+    }
+    const { shortlist, park, drop } = VERDICT_COUNTS;
+    const undecided = Math.max(0, total - shortlist - park - drop);
+    return `<section class="section" id="tally" data-section="Tally">
+      <h2>Tally</h2>
+      <div class="tally" role="group" aria-label="Ideas by verdict">
+        <dl class="tally-counts">
+          <div class="s1"><dt>Shortlist</dt><dd>${shortlist}</dd></div>
+          <div class="s2"><dt>Park</dt><dd>${park}</dd></div>
+          <div class="s3"><dt>Drop</dt><dd>${drop}</dd></div>
+          <div class="s0"><dt>Undecided</dt><dd>${undecided}</dd></div>
+        </dl>
+        <div class="tally-bar" aria-hidden="true">
+          <i class="s1" style="--v:${shortlist}"></i><i class="s2" style="--v:${park}"></i><i class="s3" style="--v:${drop}"></i><i class="s0" style="--v:${undecided}"></i>
+        </div>
+      </div>
+    </section>`;
+  }
+
+  function scoredIdeas(themes) {
+    return allIdeas(themes).filter((i) => Number.isInteger(i.impact) && Number.isInteger(i.effortScore));
+  }
+
+  function renderPriority(data, themes) {
+    const scored = scoredIdeas(themes);
+    if (scored.length < 2) {
+      return `<section class="section" id="priority" data-section="Impact vs. effort">
+        <h2>Impact vs. effort</h2>
+        ${emptyBlock("Not enough scored ideas", "Score at least 2 ideas with impact and effortScore (1 to 5 each) to plot them here.")}
+      </section>`;
+    }
+    const items = scored.map((idea) => ({
+      label: idea.title,
+      x: (idea.effortScore - 1) / 4,
+      y: (idea.impact - 1) / 4,
+      key: idea.impact >= 4 && idea.effortScore <= 2,
+    }));
+    const diagram = Render.diagram.quadrant({
+      anchor: "diagram-impact-effort",
+      title: data.priorityTitle || `${scored.length} ideas plotted by impact and effort.`,
+      x: { label: "Effort", low: "Low", high: "High" },
+      y: { label: "Impact", low: "Low", high: "High" },
+      items,
+    });
+    return `<section class="section" id="priority" data-section="Impact vs. effort">
+      <h2>Impact vs. effort</h2>
+      ${diagram}
+    </section>`;
+  }
+
+  function renderConstraint(data) {
+    return `<section class="section" id="constraint" data-section="Constraint">
+      <h2>Constraint</h2>
+      <aside class="callout" data-kind="note">
+        <span class="callout-label">Note</span>
+        <p>${Render.esc(data.constraint)}</p>
+      </aside>
+    </section>`;
+  }
+
+  function mount() {
+    const root = document.getElementById("root");
+    const themes = DATA.themes || [];
+    root.innerHTML = [
+      renderPageHead(DATA, themes),
+      renderGlance(DATA),
+      renderThemes(themes),
+      renderPriority(DATA, themes),
+      renderTally(themes),
+      renderConstraint(DATA),
+    ].join("");
+  }
+
+  mount();
+  if (window.Render) {
+    Render.init({
+      verdicts: VERDICTS,
+      file: "brainstorm-cc-arsenal-skills-merge-2026-09-23.html",
+      title: "Merging cc-arsenal and mgiovani/skills",
+    });
+  }
+</script>

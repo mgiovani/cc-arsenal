@@ -1,0 +1,608 @@
+<title>Render Block Gallery</title>
+<!-- impeccable-disable overused-font -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="page.css">
+<link rel="stylesheet" href="diagrams.css">
+
+<script id="state" type="application/json">{"v":1,"page":{"matrix-pick":"shipped"},"verdicts":{},"comments":[]}</script>
+
+<header class="toolbar">
+  <div class="toolbar-row">
+    <span class="toolbar-title">Render block gallery</span>
+    <div class="counts" aria-label="Counts"></div>
+    <span class="spacer"></span>
+    <div class="seg" role="group" aria-label="Theme" data-theme-toggle>
+      <button type="button" data-value="auto" aria-pressed="true">Auto</button>
+      <button type="button" data-value="light" aria-pressed="false">Light</button>
+      <button type="button" data-value="dark" aria-pressed="false">Dark</button>
+    </div>
+    <div class="toolbar-group">
+      <button type="button" class="btn" data-action="digest">Copy digest</button>
+      <button type="button" class="btn btn-icon" data-action="shortcuts" aria-label="Keyboard shortcuts" aria-expanded="false" aria-controls="shortcuts">?</button>
+      <button type="button" class="btn btn-primary" data-action="save">Save</button>
+    </div>
+  </div>
+  <div class="filterbar">
+    <div class="seg" data-filter="verdict" role="group" aria-label="Filter by verdict"></div>
+    <div class="seg" role="group" aria-label="Filter by severity" data-filter="severity">
+      <button type="button" data-value="all" aria-pressed="true">All</button>
+      <button type="button" data-value="critical" aria-pressed="false">Critical</button>
+      <button type="button" data-value="high" aria-pressed="false">High</button>
+      <button type="button" data-value="medium" aria-pressed="false">Medium</button>
+      <button type="button" data-value="low" aria-pressed="false">Low</button>
+    </div>
+  </div>
+</header>
+
+<div id="shortcuts" class="shortcuts" hidden>
+  <div class="shortcuts-inner">
+    <h2>Keyboard</h2>
+    <div class="shortcut"><span class="keys"><kbd>j</kbd><kbd>k</kbd></span>Next or previous item</div>
+    <div class="shortcut"><span class="keys"><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd></span>Keep, change, drop</div>
+    <div class="shortcut"><span class="keys"><kbd>c</kbd></span>Comment on the current item</div>
+    <div class="shortcut"><span class="keys"><kbd>/</kbd></span>Focus the verdict filter</div>
+    <div class="shortcut"><span class="keys"><kbd>Esc</kbd></span>Close composer or panel</div>
+    <div class="shortcut"><span class="keys"><kbd>?</kbd></span>Show or hide this panel</div>
+  </div>
+</div>
+
+<main class="wrap wrap-wide" id="root">
+  <nav class="toc" aria-label="On this page">
+    <h2>On this page</h2>
+    <ol>
+      <li><a href="#glance" aria-current="true">At a glance</a></li>
+      <li><a href="#findings">Findings</a></li>
+      <li><a href="#ideas">Ideas and checklist</a></li>
+      <li><a href="#code-blocks">Code</a></li>
+      <li><a href="#data-blocks">Data</a></li>
+      <li><a href="#structure">Structure</a></li>
+      <li><a href="#frame">Frame</a></li>
+      <li><a href="#primitives">Primitives</a></li>
+    </ol>
+  </nav>
+
+  <header class="page-head">
+    <h1>Render block gallery</h1>
+    <p class="meta">Every block in <span class="mono">skills/render/assets/page.css</span>, shown once with content from this repository. The review below is commit <span class="mono">def6a6f</span>.</p>
+  </header>
+
+  <section class="section" id="glance" data-section="At a glance">
+    <h2>At a glance</h2>
+    <p class="tldr">The skill docs generator had two silent data-loss paths. Commit def6a6f closes both and pins them with regression tests that fail on the old code.</p>
+
+    <dl class="facts">
+      <div><dt>Commit</dt><dd class="mono">def6a6f</dd></div>
+      <div><dt>Date</dt><dd>2026-09-16</dd></div>
+      <div><dt>Files changed</dt><dd>8</dd></div>
+      <div><dt>Lines</dt><dd>+155 / -30</dd></div>
+      <div><dt>Main file</dt><dd class="mono">gen_skill_docs.py</dd></div>
+    </dl>
+
+    <div class="tally" role="group" aria-label="Lines changed in def6a6f by area">
+      <dl class="tally-counts">
+        <div class="s1"><dt>Tests</dt><dd>107</dd></div>
+        <div class="s2"><dt>Generator</dt><dd>62</dd></div>
+        <div class="s3"><dt>Docs</dt><dd>10</dd></div>
+        <div class="s0"><dt>Skills and config</dt><dd>6</dd></div>
+      </dl>
+      <div class="tally-bar" aria-hidden="true">
+        <i class="s1" style="--v:107"></i><i class="s2" style="--v:62"></i><i class="s3" style="--v:10"></i><i class="s0" style="--v:6"></i>
+      </div>
+    </div>
+
+    <aside class="callout" data-kind="risk">
+      <span class="callout-label">Risk</span>
+      <p>A corrupted count becomes the next run's baseline, so the generator never flags the same rewrite twice. Both bugs would have stayed silent.</p>
+    </aside>
+    <aside class="callout" data-kind="decision">
+      <span class="callout-label">Decision</span>
+      <p>Match group headings by shape with <span class="mono">GROUP_HEADING_RE</span>, not by "is a heading". A skill body may carry its own <span class="mono">### Usage</span>.</p>
+    </aside>
+    <aside class="callout" data-kind="note">
+      <span class="callout-label">Note</span>
+      <p>Both regression tests were verified to fail against the pre-fix code before the fix landed.</p>
+    </aside>
+  </section>
+
+  <section class="section" id="findings" data-section="Findings">
+    <div class="section-head"><h2>Findings</h2><span class="meta">4 items</span></div>
+
+    <div class="list">
+      <article class="anchored finding" data-anchor="finding-scripts-gen-skill-docs-py-apply-counts-rewrote-preserved-prose" data-label="apply_counts rewrote numbers inside preserved prose" data-facet-severity="critical">
+        <button class="mark" type="button" aria-label="Comment on apply_counts rewrote numbers inside preserved prose">+</button>
+        <div class="body">
+          <div class="head">
+            <span class="tag-crit">Critical</span>
+            <span class="title">apply_counts rewrote numbers inside preserved prose</span>
+            <span class="meta">gen_skill_docs.py:327</span>
+            <div class="verdict seg" role="group" aria-label="Verdict"><button type="button" data-v="keep" aria-pressed="false">Keep</button><button type="button" data-v="change" aria-pressed="false">Change</button><button type="button" data-v="drop" aria-pressed="false">Drop</button></div>
+          </div>
+          <p class="text">It ran over the whole file before the generated block was replaced, so "one of 12 supported skill toolchains" in a hand-written <span class="mono">docs/features.md</span> body became the skill total. It now runs only outside the block.</p>
+        </div>
+      </article>
+
+      <article class="anchored finding" data-anchor="finding-scripts-gen-skill-docs-py-278-split-truncated-at-any-heading" data-label="split_feature_bodies truncated a body at any heading" data-facet-severity="high">
+        <button class="mark" type="button" aria-label="Comment on split_feature_bodies truncated a body at any heading">+</button>
+        <div class="body">
+          <div class="head">
+            <span class="tag-high">High</span>
+            <span class="title">split_feature_bodies truncated a body at any heading</span>
+            <span class="meta">gen_skill_docs.py:278</span>
+            <div class="verdict seg" role="group" aria-label="Verdict"><button type="button" data-v="keep" aria-pressed="false">Keep</button><button type="button" data-v="change" aria-pressed="false">Change</button><button type="button" data-v="drop" aria-pressed="false">Drop</button></div>
+          </div>
+          <p class="text">A skill body with its own <span class="mono">### Usage</span> section lost everything after it on the next run.</p>
+          <figure class="code">
+            <figcaption><span class="path">scripts/gen_skill_docs.py</span><span class="meta">L275-280</span></figcaption>
+            <div class="lines">
+              <span class="ln" data-n="275">        # Matched by group-heading shape, not by "is a heading": a skill body may</span>
+              <span class="ln" data-n="276">        # legitimately contain its own ### subheading, and truncating there would</span>
+              <span class="ln" data-n="277">        # delete hand-written prose permanently on the next run.</span>
+              <span class="ln hl" data-n="278">        heading = GROUP_HEADING_RE.search(body)</span>
+              <span class="ln" data-n="279">        if heading is not None:</span>
+              <span class="ln" data-n="280">            body = body[: heading.start()]</span>
+            </div>
+          </figure>
+        </div>
+      </article>
+
+      <article class="anchored finding" data-anchor="finding-scripts-gen-skill-docs-py-121-empty-description-rendered-none" data-label="Empty description rendered the string None" data-facet-severity="medium">
+        <button class="mark" type="button" aria-label="Comment on Empty description rendered the string None">+</button>
+        <div class="body">
+          <div class="head">
+            <span class="tag">Medium</span>
+            <span class="title">An empty description rendered the literal string "None"</span>
+            <span class="meta">gen_skill_docs.py:121</span>
+            <div class="verdict seg" role="group" aria-label="Verdict"><button type="button" data-v="keep" aria-pressed="false">Keep</button><button type="button" data-v="change" aria-pressed="false">Change</button><button type="button" data-v="drop" aria-pressed="false">Drop</button></div>
+          </div>
+          <p class="text">It reached all three catalogs. A present-but-empty <span class="mono">description:</span> now fails loudly instead.</p>
+        </div>
+      </article>
+
+      <article class="anchored row" data-anchor="finding-contributing-md-stale-skill-count" data-label="CONTRIBUTING.md still said 45 skills" data-facet-severity="low">
+        <button class="mark" type="button" aria-label="Comment on CONTRIBUTING.md still said 45 skills">+</button>
+        <div class="body">
+          <div class="head">
+            <span class="tag">Low</span>
+            <span class="title">CONTRIBUTING.md still said 45 skills</span>
+            <span class="meta">CONTRIBUTING.md</span>
+            <div class="verdict seg" role="group" aria-label="Verdict"><button type="button" data-v="keep" aria-pressed="false">Keep</button><button type="button" data-v="change" aria-pressed="false">Change</button><button type="button" data-v="drop" aria-pressed="false">Drop</button></div>
+          </div>
+          <p class="text">It is now in <span class="mono">COUNT_FILES</span>, so the count is rewritten with every other catalog.</p>
+          <cite class="source"><a href="https://github.com/mgiovani/cc-arsenal/commit/def6a6f">def6a6f</a> scripts/gen_skill_docs.py:37</cite>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="section" id="ideas" data-section="Ideas">
+    <div class="section-head"><h2>Ideas and checklist</h2><span class="meta">4 ideas</span></div>
+    <div class="ideas">
+      <article class="anchored idea" data-anchor="idea-ship-page-css" data-label="Ship the stylesheet instead of describing it">
+        <button class="mark" type="button" aria-label="Comment on Ship the stylesheet instead of describing it">+</button>
+        <div class="body">
+          <span class="title">Ship the stylesheet instead of describing it</span>
+          <p class="text">Every v1.0 run invented its own CSS, so no two pages looked alike.</p>
+          <span class="meta">assets/page.css</span>
+          <div class="verdict seg" role="group" aria-label="Verdict"><button type="button" data-v="keep" aria-pressed="false">Keep</button><button type="button" data-v="change" aria-pressed="false">Change</button><button type="button" data-v="drop" aria-pressed="false">Drop</button></div>
+        </div>
+      </article>
+      <article class="anchored idea" data-anchor="idea-gate-hue-in-assemble" data-label="Gate hue with a script, not a checklist">
+        <button class="mark" type="button" aria-label="Comment on Gate hue with a script, not a checklist">+</button>
+        <div class="body">
+          <span class="title">Gate hue with a script, not a checklist</span>
+          <p class="text">"Count the hues before publishing" was a manual step nobody ran.</p>
+          <span class="meta">scripts/assemble.py</span>
+          <div class="verdict seg" role="group" aria-label="Verdict"><button type="button" data-v="keep" aria-pressed="false">Keep</button><button type="button" data-v="change" aria-pressed="false">Change</button><button type="button" data-v="drop" aria-pressed="false">Drop</button></div>
+        </div>
+      </article>
+      <article class="anchored idea" data-anchor="idea-template-per-mode" data-label="One template per mode">
+        <button class="mark" type="button" aria-label="Comment on One template per mode">+</button>
+        <div class="body">
+          <span class="title">One template per mode</span>
+          <p class="text">A plan and a review need different shapes, not the same list restyled.</p>
+          <span class="meta">assets/templates/</span>
+          <div class="verdict seg" role="group" aria-label="Verdict"><button type="button" data-v="keep" aria-pressed="false">Keep</button><button type="button" data-v="change" aria-pressed="false">Change</button><button type="button" data-v="drop" aria-pressed="false">Drop</button></div>
+        </div>
+      </article>
+      <article class="anchored idea" data-anchor="idea-keyboard-triage" data-label="Keyboard triage with j, k and 1 to 3">
+        <button class="mark" type="button" aria-label="Comment on Keyboard triage with j, k and 1 to 3">+</button>
+        <div class="body">
+          <span class="title">Keyboard triage with j, k and 1 to 3</span>
+          <p class="text">Eighty findings should not take eighty mouse trips.</p>
+          <span class="meta">assets/page.js</span>
+          <div class="verdict seg" role="group" aria-label="Verdict"><button type="button" data-v="keep" aria-pressed="false">Keep</button><button type="button" data-v="change" aria-pressed="false">Change</button><button type="button" data-v="drop" aria-pressed="false">Drop</button></div>
+        </div>
+      </article>
+    </div>
+
+    <h3>Verification before merge</h3>
+    <ul class="checklist">
+      <li class="done"><span class="box" aria-hidden="true"></span><span>Stylesheet written with the eight neutral tokens only</span></li>
+      <li class="done"><span class="box" aria-hidden="true"></span><span>Gallery shows every block once</span></li>
+      <li><span class="box" aria-hidden="true"></span><span><span class="mono">assemble.py</span> passes on the gallery and all twelve templates</span></li>
+      <li><span class="box" aria-hidden="true"></span><span><span class="mono">impeccable detect skills/render</span> returns 0 findings</span></li>
+    </ul>
+  </section>
+
+  <section class="section" id="code-blocks" data-section="Code">
+    <h2>Code</h2>
+
+    <h3>Code excerpt</h3>
+    <figure class="code">
+      <figcaption><span class="path">scripts/gen_skill_docs.py</span><span class="meta">L119-124</span></figcaption>
+      <div class="lines">
+        <span class="ln" data-n="119">                f'does not match directory {dir_name!r}'</span>
+        <span class="ln" data-n="120">            )</span>
+        <span class="ln hl" data-n="121">        description = data.get('description')</span>
+        <span class="ln hl" data-n="122">        if not isinstance(description, str) or not description.strip():</span>
+        <span class="ln hl" data-n="123">            raise SystemExit(f'error: {path}: frontmatter needs a non-empty description')</span>
+        <span class="ln" data-n="124">        metadata = data.get('metadata') or {}</span>
+      </div>
+    </figure>
+
+    <h3>Diff</h3>
+    <div class="tabs" role="tablist" aria-label="Diff view">
+      <button type="button" role="tab" id="tab-unified" aria-selected="true" aria-controls="panel-unified">Unified</button>
+      <button type="button" role="tab" id="tab-split" aria-selected="false" aria-controls="panel-split" tabindex="-1">Split</button>
+    </div>
+    <div role="tabpanel" id="panel-unified" aria-labelledby="tab-unified">
+      <figure class="diff">
+        <figcaption><span class="path">scripts/gen_skill_docs.py</span><span class="diff-stat">+4 -1</span></figcaption>
+        <div class="lines">
+          <span class="ln hunk" data-n="">@@ -115,13 +118,16 @@ def load_skills() -&gt; dict[str, Skill]:</span>
+          <span class="ln" data-n="120">             )</span>
+          <span class="ln add" data-n="121">+        description = data.get('description')</span>
+          <span class="ln add" data-n="122">+        if not isinstance(description, str) or not description.strip():</span>
+          <span class="ln add" data-n="123">+            raise SystemExit(f'error: {path}: frontmatter needs a non-empty description')</span>
+          <span class="ln" data-n="124">         metadata = data.get('metadata') or {}</span>
+          <span class="ln" data-n="129">             name=dir_name,</span>
+          <span class="ln del" data-n="124">-            summary=summarize(str(data.get('description', '')), override),</span>
+          <span class="ln add" data-n="130">+            summary=summarize(description, override),</span>
+          <span class="ln" data-n="131">             manual=bool(data.get('disable-model-invocation')),</span>
+        </div>
+      </figure>
+    </div>
+    <div role="tabpanel" id="panel-split" aria-labelledby="tab-split" hidden>
+      <figure class="diff">
+        <figcaption><span class="path">scripts/gen_skill_docs.py</span><span class="diff-stat">+1 -1</span></figcaption>
+        <div class="diff-split">
+          <div>
+            <h4>Before</h4>
+            <div class="lines">
+              <span class="ln" data-n="266">         body = block[match.end() : end]</span>
+              <span class="ln" data-n="267">         # A group heading sitting between two skills belongs to the next group</span>
+              <span class="ln del" data-n="269">-        heading = re.search(r'^#{2,3} ', body, re.M)</span>
+              <span class="ln" data-n="270">         if heading is not None:</span>
+            </div>
+          </div>
+          <div>
+            <h4>After</h4>
+            <div class="lines">
+              <span class="ln" data-n="272">         body = block[match.end() : end]</span>
+              <span class="ln" data-n="273">         # A group heading sitting between two skills belongs to the next group</span>
+              <span class="ln add" data-n="278">+        heading = GROUP_HEADING_RE.search(body)</span>
+              <span class="ln" data-n="279">         if heading is not None:</span>
+            </div>
+          </div>
+        </div>
+      </figure>
+    </div>
+
+    <h3>Annotated code</h3>
+    <article class="anchored" data-anchor="annot-gen-skill-docs-count-regexes" data-label="The two regexes that decide what counts as a skill count">
+      <button class="mark" type="button" aria-label="Comment on The two regexes that decide what counts as a skill count">+</button>
+      <div class="body">
+        <div class="annot">
+          <figure class="code">
+            <figcaption><span class="path">scripts/gen_skill_docs.py</span><span class="meta">L32-36</span></figcaption>
+            <div class="lines">
+              <span class="ln" data-n="32"># The gap excludes / and " so a digit inside a JSON path like "./skills/x-10/"</span>
+              <span class="ln" data-n="33"># is never mistaken for a count of skills.</span>
+              <span class="ln hl" data-n="34">SKILL_COUNT_RE = re.compile(r'\b\d{2,3}\b(?=[^\n\"/]{0,30}?\bskills?\b)', re.I)<span class="pin">1</span></span>
+              <span class="ln" data-n="35"># A group heading, not just any heading, see split_feature_bodies.</span>
+              <span class="ln hl" data-n="36">GROUP_HEADING_RE = re.compile(r'^#{2,3} .+\(\d+ skills?\)\s*$', re.M)<span class="pin">2</span></span>
+            </div>
+          </figure>
+          <ol class="notes">
+            <li><span class="pin">1</span><span><b>Two or three digits, then "skill" within 30 characters.</b> The lookahead excludes <span class="mono">/</span> and quotes so a path like <span class="mono">./skills/x-10/</span> is never counted.</span></li>
+            <li><span class="pin">2</span><span><b>Only a heading ending in "(N skills)" is a group heading.</b> This is the fix: a skill's own <span class="mono">### Usage</span> no longer ends its body.</span></li>
+          </ol>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <section class="section" id="data-blocks" data-section="Data">
+    <h2>Data</h2>
+
+    <h3>Table</h3>
+    <div class="table-scroll">
+      <table class="table">
+        <thead><tr><th>Group</th><th>First skill</th><th class="num">Skills</th></tr></thead>
+        <tbody>
+          <tr><td>Review</td><td class="mono">i18n-check</td><td class="num">8</td></tr>
+          <tr><td>AI Workflow Tools</td><td class="mono">agent-browser</td><td class="num">7</td></tr>
+          <tr><td>Docs</td><td class="mono">docs-adr</td><td class="num">6</td></tr>
+          <tr><td>Project setup</td><td class="mono">ci-generate</td><td class="num">6</td></tr>
+          <tr><td>Build</td><td class="mono">clotho-research</td><td class="num">5</td></tr>
+          <tr><td>Git</td><td class="mono">git-commit</td><td class="num">4</td></tr>
+          <tr><td>GitHub</td><td class="mono">gh-daily</td><td class="num">4</td></tr>
+          <tr><td>Art &amp; Images</td><td class="mono">codex-imagegen</td><td class="num">3</td></tr>
+          <tr><td>Design</td><td class="mono">product-design-spec</td><td class="num">3</td></tr>
+          <tr><td>Jira</td><td class="mono">jira-cli</td><td class="num">3</td></tr>
+          <tr><td>Product</td><td class="mono">prd-to-issues</td><td class="num">3</td></tr>
+          <tr><td>Multi-agent</td><td class="mono">orchestrate</td><td class="num">2</td></tr>
+        </tbody>
+        <tfoot><tr><td>Total</td><td></td><td class="num">54</td></tr></tfoot>
+      </table>
+    </div>
+
+    <h3>Bars</h3>
+    <p class="meta">Lines changed per file in <span class="mono">0d6e629</span>, the commit that grouped the 54 skills.</p>
+    <ol class="bars">
+      <li><span class="label mono">docs/features.md</span><span class="bar"><i style="--v:1"></i></span><span class="value">440</span></li>
+      <li><span class="label mono">scripts/gen_skill_docs.py</span><span class="bar"><i style="--v:.9"></i></span><span class="value">396</span></li>
+      <li><span class="label mono">AGENTS.md</span><span class="bar"><i style="--v:.477"></i></span><span class="value">210</span></li>
+      <li><span class="label mono">test_gen_skill_docs.py</span><span class="bar"><i style="--v:.475"></i></span><span class="value">209</span></li>
+      <li><span class="label mono">README.md</span><span class="bar"><i style="--v:.368"></i></span><span class="value">162</span></li>
+      <li><span class="label mono">skills.sh.json</span><span class="bar"><i style="--v:.298"></i></span><span class="value">131</span></li>
+      <li><span class="label mono">Makefile</span><span class="bar dim"><i style="--v:.027"></i></span><span class="value">12</span></li>
+    </ol>
+
+    <h3>Matrix</h3>
+    <article class="anchored" data-anchor="matrix-page-styling-source" data-label="Where a render page gets its styling">
+      <button class="mark" type="button" aria-label="Comment on Where a render page gets its styling">+</button>
+      <div class="body">
+        <div class="table-scroll">
+          <table class="matrix">
+            <thead><tr>
+              <th>Criterion</th>
+              <th>Prose guidance (v1.0)<br><button type="button" class="btn pick" data-page-key="matrix-pick" data-page-value="prose" aria-pressed="false">Pick</button></th>
+              <th class="win">Shipped page.css (v1.1)<br><button type="button" class="btn pick" data-page-key="matrix-pick" data-page-value="shipped" aria-pressed="false">Pick</button></th>
+            </tr></thead>
+            <tbody>
+              <tr>
+                <th>Consistent across runs<span class="meta">weight 3</span></th>
+                <td><span class="score"><span class="pips" aria-label="1 of 5"><i class="on"></i><i></i><i></i><i></i><i></i></span>1</span><span class="text">The one v1.0 page on disk mixes about 40 hexes and 5 radii.</span></td>
+                <td class="win"><span class="score"><span class="pips" aria-label="5 of 5"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span>5</span><span class="text">Every page links the same stylesheet.</span></td>
+              </tr>
+              <tr>
+                <th>Checkable by script<span class="meta">weight 2</span></th>
+                <td><span class="score"><span class="pips" aria-label="1 of 5"><i class="on"></i><i></i><i></i><i></i><i></i></span>1</span><span class="text">"Count the hues" is a manual step.</span></td>
+                <td class="win"><span class="score"><span class="pips" aria-label="5 of 5"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span>5</span><span class="text"><span class="mono">assemble.py</span> exits nonzero with file:line.</span></td>
+              </tr>
+              <tr>
+                <th>Room for a one-off layout<span class="meta">weight 1</span></th>
+                <td><span class="score"><span class="pips" aria-label="4 of 5"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span>4</span><span class="text">Anything goes, which is the problem.</span></td>
+                <td class="win"><span class="score"><span class="pips" aria-label="3 of 5"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span>3</span><span class="text">A page may add a style block on top of the kit.</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </article>
+
+    <h3>Heat</h3>
+    <div class="heat-scroll">
+      <table class="heat">
+        <caption class="meta">Lines changed per file and commit, from <span class="mono">git log --numstat</span>.</caption>
+        <thead><tr><th>File</th><th class="mono">f4a7570</th><th class="mono">0d6e629</th><th class="mono">def6a6f</th><th class="mono">a406e53</th></tr></thead>
+        <tbody>
+          <tr><th>docs/features.md</th><td data-h="2">13</td><td data-h="5">440</td><td data-h="0">0</td><td data-h="0">0</td></tr>
+          <tr><th>scripts/gen_skill_docs.py</th><td data-h="0">0</td><td data-h="5">396</td><td data-h="3">62</td><td data-h="0">0</td></tr>
+          <tr><th>AGENTS.md</th><td data-h="2">12</td><td data-h="4">210</td><td data-h="1">4</td><td data-h="0">0</td></tr>
+          <tr><th>test_gen_skill_docs.py</th><td data-h="0">0</td><td data-h="4">209</td><td data-h="3">107</td><td data-h="0">0</td></tr>
+          <tr><th>README.md</th><td data-h="1">8</td><td data-h="4">162</td><td data-h="1">4</td><td data-h="0">0</td></tr>
+          <tr><th>CONTRIBUTING.md</th><td data-h="0">0</td><td data-h="0">0</td><td data-h="1">2</td><td data-h="2">10</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="heat-legend" aria-hidden="true"><span>0</span><i data-h="0"></i><i data-h="1"></i><i data-h="2"></i><i data-h="3"></i><i data-h="4"></i><i data-h="5"></i><span>300+</span></div>
+  </section>
+
+  <section class="section" id="structure" data-section="Structure">
+    <h2>Structure</h2>
+
+    <h3>Steps</h3>
+    <ol class="steps">
+      <li class="anchored" data-anchor="step-foundation" data-label="Foundation: stylesheet, runtime, gate">
+        <button class="mark" type="button" aria-label="Comment on Foundation">+</button>
+        <div class="body step" data-state="done">
+          <span class="step-n">1</span>
+          <div class="step-c"><span class="title">Foundation: stylesheet, runtime, gate</span><p class="text">One design agent owns <span class="mono">page.css</span>, the gallery and <span class="mono">blocks.md</span>; one runtime agent owns <span class="mono">page.js</span> and <span class="mono">assemble.py</span>.</p></div>
+        </div>
+      </li>
+      <li class="anchored" data-anchor="step-compose-mode-templates" data-label="Compose twelve mode templates">
+        <button class="mark" type="button" aria-label="Comment on Compose twelve mode templates">+</button>
+        <div class="body step">
+          <span class="step-n">2</span>
+          <div class="step-c"><span class="title">Compose twelve mode templates</span><p class="text">Each mode agent builds one template from blocks and must pass <span class="mono">assemble.py --allow-sample</span>.</p></div>
+        </div>
+      </li>
+      <li class="anchored" data-anchor="step-verify-gates" data-label="Verify: gates and screenshots">
+        <button class="mark" type="button" aria-label="Comment on Verify">+</button>
+        <div class="body step" data-state="todo">
+          <span class="step-n">3</span>
+          <div class="step-c"><span class="title">Verify: gates and screenshots</span><p class="text">Gallery plus four templates at desktop light, desktop dark and 390px.</p></div>
+        </div>
+      </li>
+      <li class="anchored" data-anchor="step-review-full-diff" data-label="Review the full diff">
+        <button class="mark" type="button" aria-label="Comment on Review the full diff">+</button>
+        <div class="body step" data-state="todo">
+          <span class="step-n">4</span>
+          <div class="step-c"><span class="title">Review the full diff</span><p class="text">Run <span class="mono">review-code</span>, dispatch fixes by file owner, rerun every gate once.</p></div>
+        </div>
+      </li>
+    </ol>
+
+    <h3>Timeline</h3>
+    <ol class="timeline">
+      <li class="event"><time datetime="2026-09-16T17:56">2026-09-16 17:56</time><div class="what"><span class="title">Point CONTRIBUTING.md at the skill-catalog workflow</span><span class="meta mono">a406e53</span></div></li>
+      <li class="event"><time datetime="2026-09-16T16:13">2026-09-16 16:13</time><div class="what"><span class="title">Close two latent data-loss paths in the docs generator</span><span class="meta mono">def6a6f</span></div></li>
+      <li class="event"><time datetime="2026-09-16T16:03">2026-09-16 16:03</time><div class="what"><span class="title">Group the 54 skills and generate every catalog from one source</span><span class="meta mono">0d6e629</span></div></li>
+      <li class="event" data-state="minor"><time datetime="2026-09-09T01:22">2026-09-09 01:22</time><div class="what"><span class="title">Add the project-illustrator skill</span><span class="meta mono">f4a7570</span></div></li>
+      <li class="event" data-state="minor"><time datetime="2026-09-09T01:01">2026-09-09 01:01</time><div class="what"><span class="title">Refresh ai-arsenal branding</span><span class="meta mono">c08dd14</span></div></li>
+    </ol>
+
+    <h3>Flow</h3>
+    <ol class="flow" aria-label="How gen_skill_docs.py builds the catalogs">
+      <li class="stage"><span class="title">Load skills</span><span class="meta mono" title="load_skills()">load_skills()</span></li>
+      <li class="stage"><span class="title">Group them</span><span class="meta mono" title="load_groups()">load_groups()</span></li>
+      <li class="stage"><span class="title">Check manifests</span><span class="meta mono" title="validate_marketplace()">validate_marketplace()</span></li>
+      <li class="stage"><span class="title">Replace blocks</span><span class="meta mono" title="replace_block()">replace_block()</span></li>
+      <li class="stage key"><span class="title">Fix counts outside</span><span class="meta mono" title="apply_counts()">apply_counts()</span></li>
+    </ol>
+
+    <h3>Diagram</h3>
+    <div id="gallery-diagram"></div>
+    <p class="meta">All 18 types, each drawn once with real content, are in <span class="mono">diagram-gallery.html</span>; the catalog is <span class="mono">references/diagrams.md</span>.</p>
+
+    <h3>Layers</h3>
+    <ol class="layers">
+      <li><span class="layer-name">Mode templates<span class="meta">12 files</span></span><span class="layer-items"><span class="tag mono">plan.html</span><span class="tag mono">review.html</span><span class="tag mono">compare.html</span><span class="tag mono">diff.html</span><span class="tag mono">report.html</span></span></li>
+      <li><span class="layer-name">Block library<span class="meta">references/blocks.md</span></span><span class="layer-items"><span class="tag">row</span><span class="tag">finding</span><span class="tag">diff</span><span class="tag">matrix</span><span class="tag">steps</span><span class="tag">diagram</span></span></li>
+      <li class="key"><span class="layer-name">Runtime and tokens<span class="meta">page.js, page.css</span></span><span class="layer-items"><span class="tag">verdicts</span><span class="tag">comments</span><span class="tag">filters</span><span class="tag">keyboard</span><span class="tag">theme</span></span></li>
+      <li><span class="layer-name">Gate<span class="meta">scripts/assemble.py</span></span><span class="layer-items"><span class="tag">zero hue</span><span class="tag">radius 0</span><span class="tag">no shadow</span><span class="tag">no sample data</span></span></li>
+    </ol>
+
+    <h3>Tree</h3>
+    <ul class="tree" aria-label="Files touched in skills/render">
+      <li class="dir"><span class="name">skills/render/</span>
+        <ul>
+          <li data-touch="mod"><span class="name">SKILL.md</span><span class="touch">M</span></li>
+          <li class="dir"><span class="name">assets/</span>
+            <ul>
+              <li data-touch="add"><span class="name">page.css</span><span class="touch">A</span><span class="note">tokens and every block</span></li>
+              <li data-touch="add"><span class="name">page.js</span><span class="touch">A</span></li>
+              <li data-touch="add"><span class="name">gallery.html</span><span class="touch">A</span></li>
+              <li class="dir"><span class="name">templates/</span><span class="note">12 files</span></li>
+            </ul>
+          </li>
+          <li class="dir"><span class="name">references/</span>
+            <ul>
+              <li data-touch="add"><span class="name">blocks.md</span><span class="touch">A</span></li>
+              <li data-touch="mod"><span class="name">page-kit.md</span><span class="touch">M</span></li>
+              <li data-touch="mod"><span class="name">feedback-loop.md</span><span class="touch">M</span></li>
+              <li><span class="name">explain.md</span></li>
+            </ul>
+          </li>
+          <li class="dir"><span class="name">scripts/</span>
+            <ul><li data-touch="add"><span class="name">assemble.py</span><span class="touch">A</span></li></ul>
+          </li>
+        </ul>
+      </li>
+    </ul>
+
+    <h3>Split</h3>
+    <div class="split">
+      <div class="side before">
+        <h4 class="side-h">Before, v1.0</h4>
+        <ul>
+          <li>Prose guidance only; every run writes its own CSS</li>
+          <li>Teal, ochre and red verdict tints</li>
+          <li>Radii of 3, 4, 5, 6 and 8px on one page</li>
+        </ul>
+      </div>
+      <div class="side after">
+        <h4 class="side-h">After, v1.1</h4>
+        <ul>
+          <li>One shipped stylesheet and runtime, inlined by a script</li>
+          <li>Verdicts read from the position of an ink fill</li>
+          <li>Square corners, checked by the same script</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="frame" data-section="Frame">
+    <h2>Frame</h2>
+
+    <h3>Disclosure</h3>
+    <div>
+      <details class="disclosure">
+        <summary>Why anchors come from content, not position<span class="meta">feedback-loop.md</span></summary>
+        <div class="disclosure-body">
+          <p class="text">A position-derived anchor like <span class="mono">step-3</span> still resolves after a step is inserted above it, so a comment silently moves to different work. Deriving it from the content's own identifier breaks loudly instead.</p>
+        </div>
+      </details>
+      <details class="disclosure">
+        <summary>Why the page never serializes the live DOM</summary>
+        <div class="disclosure-body">
+          <p class="text">The runtime captures the document source before any render, then swaps only the state block into it. Rendered rows never leak into the saved file.</p>
+        </div>
+      </details>
+    </div>
+
+    <h3>Empty</h3>
+    <div class="empty">
+      <p class="title">No orphaned comments</p>
+      <p class="text">Every comment on this page still resolves to its anchor. Leave one with the + beside any block, or press <kbd>c</kbd> on the current item.</p>
+    </div>
+  </section>
+
+  <section class="section" id="primitives" data-section="Primitives">
+    <h2>Primitives</h2>
+    <div class="specimen">
+      <div class="specimen-row">
+        <button type="button" class="btn">Copy digest</button>
+        <button type="button" class="btn btn-primary">Save</button>
+        <button type="button" class="btn btn-primary is-dirty">Save</button>
+        <button type="button" class="btn" disabled>Publishing</button>
+        <button type="button" class="btn btn-icon" aria-label="Keyboard shortcuts">?</button>
+      </div>
+      <div class="specimen-row">
+        <div class="seg" role="group" aria-label="Example filter"><button type="button" aria-pressed="true">All</button><button type="button" aria-pressed="false">Undecided</button><button type="button" aria-pressed="false">Keep</button></div>
+        <div class="verdict seg" role="group" aria-label="Example verdict"><button type="button" aria-pressed="false">Fix</button><button type="button" aria-pressed="true">Won't fix</button><button type="button" aria-pressed="false">Discuss</button></div>
+      </div>
+      <div class="specimen-row">
+        <span class="tag-crit">Critical</span><span class="tag-high">High</span><span class="tag">Medium</span><span class="tag">Low</span><span class="tag mono">gen_skill_docs.py</span>
+        <span><kbd>j</kbd> <kbd>k</kbd> <kbd>Esc</kbd></span>
+        <cite class="source"><a href="https://github.com/mgiovani/cc-arsenal/commit/0d6e629">0d6e629</a> skills.sh.json</cite>
+      </div>
+      <div class="panel">
+        <div class="comments">
+          <div class="comment">
+            <div class="comment-meta"><time datetime="2026-09-16T16:20">2026-09-16 16:20</time><button type="button" class="btn-link">Delete</button></div>
+            <p class="comment-text">Also add CONTRIBUTING.md to COUNT_FILES so this cannot drift again.</p>
+          </div>
+        </div>
+        <div class="composer">
+          <textarea aria-label="Comment" placeholder="Comment on apply_counts rewrote numbers inside preserved prose"></textarea>
+          <div class="composer-actions"><span class="meta"><kbd>Esc</kbd> to cancel</span><button type="button" class="btn">Cancel</button><button type="button" class="btn btn-primary">Comment</button></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script src="page.js"></script>
+<script src="diagrams.js"></script>
+<script>
+  if (window.Render) {
+    document.getElementById('gallery-diagram').outerHTML = Render.diagram.dependency({
+      anchor: 'diagram-render-assembly',
+      title: 'Every page runs SKILL.md to a mode template, links both asset pairs, and leaves assemble.py as one gated file.',
+      nodes: [
+        { id: 'skill', label: 'SKILL.md' },
+        { id: 'mode', label: 'references/<mode>.md' },
+        { id: 'tmpl', label: 'templates/<mode>.html', key: true },
+        { id: 'kit', label: 'page.css + page.js', sunk: true },
+        { id: 'dg', label: 'diagrams.css + diagrams.js', sunk: true },
+        { id: 'asm', label: 'assemble.py', key: true },
+        { id: 'out', label: 'page.html', sub: 'inlined, gated', key: true },
+      ],
+      edges: [
+        { from: 'skill', to: 'mode', label: 'picks a mode' },
+        { from: 'mode', to: 'tmpl' },
+        { from: 'tmpl', to: 'kit', label: 'links' },
+        { from: 'tmpl', to: 'dg', label: 'links' },
+        { from: 'kit', to: 'asm' },
+        { from: 'dg', to: 'asm' },
+        { from: 'asm', to: 'out', label: 'inlines and gates', key: true },
+      ],
+    });
+    Render.init({ verdicts: ['keep', 'change', 'drop'], file: 'gallery-render-blocks-2026-09-23.html', title: 'Render block gallery' });
+  }
+</script>

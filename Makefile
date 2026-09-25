@@ -1,4 +1,4 @@
-.PHONY: help install configure dev test lint format type-check check coverage clean pre-commit-install pre-commit-run slop dry-run info validate-structure validate-plugins install-statusline uninstall-statusline bump-version
+.PHONY: help install configure dev test lint format type-check check coverage clean pre-commit-install pre-commit-run slop dry-run info validate-structure validate-plugins install-statusline uninstall-statusline bump-version docs docs-check
 
 # Default commands
 UV := uv
@@ -91,7 +91,15 @@ type-check: dev ## Run type checking
 	@echo "$(BLUE)Running type checks...$(RESET)"
 	$(UV) run pyright scripts/
 
-check: lint type-check ## Run all code quality checks
+docs: dev ## Regenerate skill lists from skills.sh.json
+	@echo "$(BLUE)Regenerating skill docs...$(RESET)"
+	$(UV) run python -m scripts.gen_skill_docs
+
+docs-check: dev ## Fail if generated skill docs are out of date
+	@echo "$(BLUE)Checking skill docs...$(RESET)"
+	$(UV) run python -m scripts.gen_skill_docs --check
+
+check: lint type-check docs-check ## Run all code quality checks
 	@echo "$(GREEN)All checks passed!$(RESET)"
 
 # ============================================================================

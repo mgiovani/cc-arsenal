@@ -1,0 +1,360 @@
+<title>Render Tour: assemble.py</title>
+<!-- impeccable-disable overused-font -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../page.css">
+
+<script id="state" type="application/json">{"v":1,"verdicts":{},"comments":[]}</script>
+
+<header class="toolbar">
+  <div class="toolbar-row">
+    <span class="toolbar-title">Tour: assemble.py</span>
+    <div class="counts" aria-label="Counts"></div>
+    <span class="spacer"></span>
+    <div class="seg" role="group" aria-label="Theme" data-theme-toggle>
+      <button type="button" data-value="auto" aria-pressed="true">Auto</button>
+      <button type="button" data-value="light" aria-pressed="false">Light</button>
+      <button type="button" data-value="dark" aria-pressed="false">Dark</button>
+    </div>
+    <div class="toolbar-group">
+      <button type="button" class="btn" data-action="digest">Copy digest</button>
+      <button type="button" class="btn btn-icon" data-action="shortcuts" aria-label="Keyboard shortcuts" aria-expanded="false" aria-controls="shortcuts">?</button>
+      <button type="button" class="btn btn-primary" data-action="save">Save</button>
+    </div>
+  </div>
+</header>
+
+<div id="shortcuts" class="shortcuts" hidden>
+  <div class="shortcuts-inner">
+    <h2>Keyboard</h2>
+    <div class="shortcut"><span class="keys"><kbd>j</kbd><kbd>k</kbd></span>Next or previous stop</div>
+    <div class="shortcut"><span class="keys"><kbd>c</kbd></span>Comment on the current stop</div>
+    <div class="shortcut"><span class="keys"><kbd>Esc</kbd></span>Close composer or panel</div>
+    <div class="shortcut"><span class="keys"><kbd>?</kbd></span>Show or hide this panel</div>
+  </div>
+</div>
+
+<main class="wrap wrap-wide" id="root"></main>
+
+<script src="../page.js"></script>
+<script>
+  // DATA shape (replace wholesale for a new tour):
+  // {
+  //   title:     string,           // the tour's own title; keep <title> and .toolbar-title in sync with it
+  //   file:      string,           // the main file this tour walks, shown under the title
+  //   fileLines: number,           // that file's line count, shown next to it
+  //   tldr:      string,           // one or two sentences: what this tour covers and where it ends
+  //   stops: [{
+  //     id:         string,          // unique kebab-case id; becomes the section id and comment anchor
+  //     title:      string,          // the stop's heading
+  //     shortTitle: string,          // optional, shorter label for the flow overview and the TOC
+  //     path:       string,          // file the excerpt is from
+  //     lineRange:  string,          // e.g. "L303-308", shown in the code figcaption
+  //     symbol:     string,          // the function or method the excerpt sits inside
+  //     key:        boolean,         // optional; marks the one stop the flow overview highlights
+  //     code: [{ n: number, text: string, hl: boolean, pin: number }],  // hl and pin are optional
+  //     notes: [{ pin: number, claim: string, detail: string }],
+  //     why: string,                 // one line: why this stop matters
+  //   }],
+  //   files: [{ name: string, dir: boolean, note: string, children: [...] }],  // note and children optional
+  // }
+
+  const DATA = /*SAMPLE*/{
+    title: 'How assemble.py builds a render page',
+    file: 'scripts/assemble.py',
+    fileLines: 332,
+    tldr: 'This tour follows scripts/assemble.py end to end: how it reads a mode template, inlines page.css and page.js into it, and refuses to write a page.html that breaks the monochrome, square-corner contract. It ends at the exit code a CI check would read, not at a return statement.',
+    stops: [
+      {
+        id: 'assemble-py-main-reads-template',
+        title: 'Read the template',
+        shortTitle: 'Read the template',
+        path: 'scripts/assemble.py',
+        lineRange: 'L303-308',
+        symbol: 'main()',
+        code: [
+          { n: 303, text: `    if not args.input.is_file():` },
+          { n: 304, text: `        raise SystemExit(f'error: input not found: {args.input}')` },
+          { n: 305, text: `    html = args.input.read_text(encoding='utf-8')`, hl: true, pin: 1 },
+          { n: 306, text: `` },
+          { n: 307, text: `    try:` },
+          { n: 308, text: `        assembled = inline_assets(html, args.input.resolve().parent)`, hl: true, pin: 2 },
+        ],
+        notes: [
+          { pin: 1, claim: 'The template is read as plain text, never parsed.', detail: 'Every substitution downstream is a string or regex operation, not a DOM edit, all the way through the final write.' },
+          { pin: 2, claim: `inline_assets() gets the template's own directory, not the working directory.`, detail: `args.input.resolve().parent, so a relative ../page.css inside the template resolves against where that template file actually sits.` },
+        ],
+        why: 'Nothing about a template gets assembled until this read succeeds. Every error message and exit code further down traces back to this one call.',
+      },
+      {
+        id: 'assemble-py-repl-link-inlines-stylesheet',
+        title: 'Inline the stylesheet',
+        shortTitle: 'Inline the stylesheet',
+        path: 'scripts/assemble.py',
+        lineRange: 'L121-129',
+        symbol: 'repl_link()',
+        code: [
+          { n: 121, text: `    def repl_link(match: re.Match[str]) -> str:` },
+          { n: 122, text: `        attrs = _parse_attrs(match.group(1))` },
+          { n: 123, text: `        href = attrs.get('href', '')` },
+          { n: 124, text: `        if attrs.get('rel', '').lower() != 'stylesheet' or not _is_local(href):` },
+          { n: 125, text: `            return match.group(0)` },
+          { n: 126, text: `        css = _read_local(base_dir, href, 'stylesheet')`, hl: true, pin: 1 },
+          { n: 127, text: `        if '</style' in css.lower():` },
+          { n: 128, text: `            raise ValueError(f'{href}: inlined CSS contains a literal "</style"')` },
+          { n: 129, text: `        return f'<style>{css}</style>'`, hl: true, pin: 2 },
+        ],
+        notes: [
+          { pin: 1, claim: 'Only a local, stylesheet-rel link is touched.', detail: `attrs.get('rel', '').lower() != 'stylesheet' or not _is_local(href) leaves the tag alone, so a Google Fonts link for Geist survives as a real network request.` },
+          { pin: 2, claim: 'The guard on the line above runs before this substitution.', detail: `A literal </style inside the stylesheet's own text would otherwise close the tag early and leave the rest of page.css sitting as raw text in the page body.` },
+        ],
+        why: 'This is the one place page.css itself physically becomes part of the page, so the stylesheet is subject to the same substitution risk the gate exists to catch.',
+      },
+      {
+        id: 'assemble-py-repl-script-inlines-runtime',
+        title: 'Inline the script',
+        shortTitle: 'Inline the script',
+        path: 'scripts/assemble.py',
+        lineRange: 'L131-139',
+        symbol: 'repl_script()',
+        code: [
+          { n: 131, text: `    def repl_script(match: re.Match[str]) -> str:` },
+          { n: 132, text: `        attrs = _parse_attrs(match.group(1))` },
+          { n: 133, text: `        src = attrs.get('src', '')` },
+          { n: 134, text: `        if not _is_local(src):` },
+          { n: 135, text: `            return match.group(0)` },
+          { n: 136, text: `        js = _read_local(base_dir, src, 'script')`, hl: true, pin: 1 },
+          { n: 137, text: `        if '<\/script' in js.lower():` },
+          { n: 138, text: `            raise ValueError(f'{src}: inlined JS contains a literal "<\/script"')` },
+          { n: 139, text: `        return f'<script>{js}<\/script>'`, hl: true, pin: 2 },
+        ],
+        notes: [
+          { pin: 1, claim: 'The same _read_local helper backs both substitutions.', detail: 'One function serves the stylesheet and the script, so a missing file raises the same FileNotFoundError either way, just with a different href or src in its message.' },
+          { pin: 2, claim: 'page.js lands as an inline script, no src attribute left behind.', detail: 'That is what makes the assembled file self-contained: the runtime the toolbar depends on is the exact text sitting inside this tag, not a link that can fail to load later.' },
+        ],
+        why: 'The same substitution for page.js is what lets RAW, captured as the very first statement in page.js itself, see the fully inlined document rather than the three separate files sitting on disk.',
+      },
+      {
+        id: 'assemble-py-check-scans-css-regions',
+        title: 'Scan every CSS region',
+        shortTitle: 'Scan CSS regions',
+        path: 'scripts/assemble.py',
+        lineRange: 'L253-260',
+        symbol: 'check()',
+        code: [
+          { n: 253, text: `def check(html: str) -> list[Violation]:` },
+          { n: 254, text: `    """Gate an assembled render page; pure, the whole document in, violations out."""` },
+          { n: 255, text: `    violations: list[Violation] = []` },
+          { n: 256, text: `` },
+          { n: 257, text: `    for text, offset in _css_regions(html):`, hl: true, pin: 1 },
+          { n: 258, text: `        violations += _hex_violations(html, text, offset)` },
+          { n: 259, text: `        violations += _color_function_violations(html, text, offset)` },
+          { n: 260, text: `        violations += _css_declaration_violations(html, text, offset)`, hl: true, pin: 2 },
+        ],
+        notes: [
+          { pin: 1, claim: '_css_regions() is the only place check() looks for CSS.', detail: 'It walks every style block and every style attribute; a color set through an external stylesheet or added by JS after load sits outside what this gate can see.' },
+          { pin: 2, claim: '_css_declaration_violations does the radius and shadow checks, not this loop.', detail: 'This line only calls it per region. The actual rule, stop 5, lives one function away from where the CSS text was found.' },
+        ],
+        why: 'Style blocks and style attributes are the entire surface check() inspects. Anything outside that surface is a hue or a rounded corner that ships unnoticed.',
+      },
+      {
+        id: 'assemble-py-radius-and-shadow-rule',
+        title: 'Check radius and shadow',
+        shortTitle: 'Check radius and shadow',
+        path: 'scripts/assemble.py',
+        lineRange: 'L238-248',
+        symbol: '_css_declaration_violations()',
+        key: true,
+        code: [
+          { n: 238, text: `        if _is_radius_prop(prop) and not _is_all_zero(value):`, hl: true, pin: 1 },
+          { n: 239, text: `            out.append(` },
+          { n: 240, text: `                Violation(` },
+          { n: 241, text: `                    _line_at(html, value_offset), 'radius', f'{prop}: {value.strip()}'` },
+          { n: 242, text: `                )` },
+          { n: 243, text: `            )` },
+          { n: 244, text: `        if prop in SHADOW_PROPS and not _shadow_ok(prop, value):`, hl: true, pin: 2 },
+          { n: 245, text: `            out.append(` },
+          { n: 246, text: `                Violation(` },
+          { n: 247, text: `                    _line_at(html, value_offset), 'shadow', f'{prop}: {value.strip()}'` },
+          { n: 248, text: `                )` },
+        ],
+        notes: [
+          { pin: 1, claim: '_is_radius_prop covers border-radius and every border-*-radius longhand.', detail: '_is_all_zero then requires every space-separated token in the value to be exactly 0 or 0px, so border-top-left-radius: 4px 0 0 0 still fails on its first token.' },
+          { pin: 2, claim: '_shadow_ok is the only place a box-shadow can pass.', detail: 'It accepts none, or, per comma-separated part, exactly inset 0 0 0 1px var(--x). A second value or a real offset fails the same check.' },
+        ],
+        why: 'This pair of conditions is the whole square-corner, no-shadow rule in the file. Loosen either one and a rounded button or a drop shadow ships without a warning.',
+      },
+      {
+        id: 'assemble-py-main-reports-or-writes',
+        title: 'Report or write the page',
+        shortTitle: 'Report or write',
+        path: 'scripts/assemble.py',
+        lineRange: 'L312-321',
+        symbol: 'main()',
+        code: [
+          { n: 312, text: `    violations = [` },
+          { n: 313, text: `        v for v in check(assembled) if not (args.allow_sample and v.rule == 'sample')` },
+          { n: 314, text: `    ]` },
+          { n: 315, text: `    if violations:`, hl: true, pin: 1 },
+          { n: 316, text: `        report_path = args.output if args.output else args.input` },
+          { n: 317, text: `        for v in violations:` },
+          { n: 318, text: `            print(  # noqa: T201 -- CLI script, stdlib-only by design` },
+          { n: 319, text: `                f'{report_path}:{v.line}: {v.rule}: {v.snippet}', file=sys.stderr`, hl: true, pin: 2 },
+          { n: 320, text: `            )` },
+          { n: 321, text: `        return 1`, hl: true },
+        ],
+        notes: [
+          { pin: 1, claim: 'Any violation at all skips writing output entirely.', detail: 'There is no partial write: main() either prints every violation and returns 1, or writes the whole assembled page. Never both.' },
+          { pin: 2, claim: 'The printed line is file, line, rule, snippet, the shape a linter uses.', detail: 'That is what lets an editor or a CI log jump straight to the violation instead of re-reading the whole page to find it.' },
+        ],
+        why: 'The exit code is what makes the gate mechanical. A shell or CI step reads 1, not prose, and can act on it without a human reading the output first.',
+      },
+    ],
+    files: [
+      {
+        name: 'skills/render/', dir: true, children: [
+          {
+            name: 'assets/', dir: true, children: [
+              { name: 'gallery.html', note: 'the template main() reads at stop 1' },
+              { name: 'page.css', note: 'inlined by repl_link at stop 2' },
+              { name: 'page.js', note: 'inlined by repl_script at stop 3' },
+            ],
+          },
+          {
+            name: 'scripts/', dir: true, children: [
+              { name: 'assemble.py', note: 'every other stop lives here, 332 lines' },
+            ],
+          },
+        ],
+      },
+    ],
+  }/*SAMPLE*/;
+
+  function codeLineHtml(line) {
+    const cls = 'ln' + (line.hl ? ' hl' : '');
+    const pin = line.pin ? `<span class="pin">${line.pin}</span>` : '';
+    return `<span class="${cls}" data-n="${line.n}">${Render.esc(line.text)}${pin}</span>`;
+  }
+
+  function annotHtml(stop) {
+    const lines = stop.code.map(codeLineHtml).join('');
+    const notes = stop.notes.map((n) => (
+      `<li><span class="pin">${n.pin}</span><span><b>${Render.esc(n.claim)}</b> ${Render.esc(n.detail)}</span></li>`
+    )).join('');
+    return (
+      '<div class="annot">'
+      + `<figure class="code"><figcaption><span class="path">${Render.path(stop.path)}</span>`
+      + `<span class="meta">${Render.esc(stop.lineRange)}</span></figcaption>`
+      + `<div class="lines">${lines}</div></figure>`
+      + `<ol class="notes">${notes}</ol>`
+      + '</div>'
+    );
+  }
+
+  function stopSectionHtml(stop, index, stops) {
+    const next = stops[index + 1];
+    const nextLine = next
+      ? `<p class="meta"><a href="#stop-${next.id}">Next: ${Render.esc(next.title)}</a></p>`
+      : '<p class="meta">Last stop. The exit code is the whole answer: 0 means the page shipped, 1 means it did not.</p>';
+    const body = (
+      annotHtml(stop)
+      + `<p class="text"><b>Why it matters.</b> ${Render.esc(stop.why)}</p>`
+      + nextLine
+    );
+    const anchor = 'stop-' + stop.id;
+    return (
+      `<section class="section" id="${anchor}" data-section="Stop ${index + 1}: ${Render.esc(stop.title)}">`
+      + `<div class="section-head"><h2>${index + 1}. ${Render.esc(stop.title)}</h2>`
+      + `<span class="meta mono">${Render.path(stop.path)}, ${Render.esc(stop.symbol)}</span></div>`
+      + Render.anchored({ anchor, label: stop.title, verdict: false, html: body })
+      + '</section>'
+    );
+  }
+
+  function stopsHtml(stops) {
+    if (!stops.length) {
+      return (
+        '<section class="section" id="stops" data-section="Stops">'
+        + '<h2>Stops</h2>'
+        + '<div class="empty"><p class="title">No stops recorded</p>'
+        + '<p class="text">Trace the call chain first, then add one stop per real step it takes.</p></div>'
+        + '</section>'
+      );
+    }
+    return stops.map((s, i) => stopSectionHtml(s, i, stops)).join('');
+  }
+
+  function flowHtml(stops) {
+    if (!stops.length) {
+      return '<div class="empty"><p class="title">No stops yet</p><p class="text">This tour has no route to preview.</p></div>';
+    }
+    const items = stops.map((s, i) => (
+      `<li class="stage${s.key ? ' key' : ''}"><span class="title">${i + 1}. ${Render.esc(s.shortTitle || s.title)}</span>`
+      + `<span class="meta mono" title="${Render.esc(s.path + ' ' + s.symbol)}">${Render.esc(s.symbol)}</span></li>`
+    )).join('');
+    return `<ol class="flow" aria-label="Stops in this tour">${items}</ol>`;
+  }
+
+  function glanceHtml(data) {
+    return (
+      '<section class="section" id="glance" data-section="At a glance">'
+      + '<h2>At a glance</h2>'
+      + `<p class="tldr">${Render.esc(data.tldr)}</p>`
+      + flowHtml(data.stops)
+      + '</section>'
+    );
+  }
+
+  function treeNodeHtml(node) {
+    const label = (
+      `<span class="name">${Render.path(node.name)}</span>`
+      + (node.note ? `<span class="note">${Render.esc(node.note)}</span>` : '')
+    );
+    if (node.dir) {
+      return `<li class="dir">${label}<ul>${(node.children || []).map(treeNodeHtml).join('')}</ul></li>`;
+    }
+    return `<li>${label}</li>`;
+  }
+
+  function filesSectionHtml(files) {
+    const body = (files && files.length)
+      ? `<ul class="tree" aria-label="Files this tour reads">${files.map(treeNodeHtml).join('')}</ul>`
+      : '<div class="empty"><p class="title">No files recorded</p><p class="text">This tour has not traced which files it visits yet.</p></div>';
+    return `<section class="section" id="files" data-section="Files visited"><h2>Files visited</h2>${body}</section>`;
+  }
+
+  function tocHtml(data) {
+    const stopLinks = data.stops.map((s, i) => (
+      `<li><a href="#stop-${s.id}">${i + 1}. ${Render.esc(s.shortTitle || s.title)}</a></li>`
+    )).join('');
+    return (
+      '<nav class="toc" aria-label="On this page"><h2>On this page</h2><ol>'
+      + '<li><a href="#glance" aria-current="true">At a glance</a></li>'
+      + stopLinks
+      + '<li><a href="#files">Files visited</a></li>'
+      + '</ol></nav>'
+    );
+  }
+
+  function pageHtml(data) {
+    return (
+      tocHtml(data)
+      + `<header class="page-head"><h1>${Render.esc(data.title)}</h1>`
+      + `<p class="meta">Traced from <span class="mono">${Render.path(data.file)}</span> (${data.fileLines} lines) `
+      + `in this repository. ${data.stops.length} stops, ending at the exit code a CI job would read.</p></header>`
+      + glanceHtml(data)
+      + stopsHtml(data.stops)
+      + filesSectionHtml(data.files)
+    );
+  }
+
+  function mount() {
+    document.getElementById('root').innerHTML = pageHtml(DATA);
+  }
+  mount();
+
+  if (window.Render) {
+    Render.init({ verdicts: null, file: 'tour-' + Render.slug(DATA.title) + '-2026-09-23.html', title: DATA.title });
+  }
+</script>

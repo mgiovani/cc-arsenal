@@ -1,0 +1,315 @@
+<title>Render Plan</title>
+<!-- impeccable-disable overused-font -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../page.css">
+<link rel="stylesheet" href="../diagrams.css">
+
+<script id="state" type="application/json">{"v":1,"verdicts":{},"comments":[]}</script>
+
+<header class="toolbar">
+  <div class="toolbar-row">
+    <span class="toolbar-title">Plan</span>
+    <div class="counts" aria-label="Counts"></div>
+    <span class="spacer"></span>
+    <div class="seg" role="group" aria-label="Theme" data-theme-toggle>
+      <button type="button" data-value="auto" aria-pressed="true">Auto</button>
+      <button type="button" data-value="light" aria-pressed="false">Light</button>
+      <button type="button" data-value="dark" aria-pressed="false">Dark</button>
+    </div>
+    <div class="toolbar-group">
+      <button type="button" class="btn" data-action="digest">Copy digest</button>
+      <button type="button" class="btn btn-icon" data-action="shortcuts" aria-label="Keyboard shortcuts" aria-expanded="false" aria-controls="shortcuts">?</button>
+      <button type="button" class="btn btn-primary" data-action="save">Save</button>
+    </div>
+  </div>
+  <div class="filterbar">
+    <div class="seg" data-filter="verdict" role="group" aria-label="Filter by verdict"></div>
+  </div>
+</header>
+
+<div id="shortcuts" class="shortcuts" hidden>
+  <div class="shortcuts-inner">
+    <h2>Keyboard</h2>
+    <div class="shortcut"><span class="keys"><kbd>j</kbd><kbd>k</kbd></span>Next or previous step</div>
+    <div class="shortcut"><span class="keys"><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd></span>Approve, rework, cut</div>
+    <div class="shortcut"><span class="keys"><kbd>c</kbd></span>Comment on the current step</div>
+    <div class="shortcut"><span class="keys"><kbd>/</kbd></span>Focus the verdict filter</div>
+    <div class="shortcut"><span class="keys"><kbd>Esc</kbd></span>Close composer or panel</div>
+    <div class="shortcut"><span class="keys"><kbd>?</kbd></span>Show or hide this panel</div>
+  </div>
+</div>
+
+<main class="wrap" id="root"></main>
+
+<script src="../page.js"></script>
+<script src="../diagrams.js"></script>
+<script>
+/*
+ * DATA shape (replace wholesale):
+ * {
+ *   title: string,                 // the plan's own name, becomes <h1> and the toolbar title
+ *   goal: string,                  // one or two sentences, the tldr
+ *   risk: string,                  // one sentence, the single Risk callout
+ *   critical: string,              // one-sentence conclusion for the critical-path diagram's title
+ *   facts: [{ label: string, value: string, mono?: boolean }],
+ *   steps: [{
+ *     id: string,                  // slug used for the anchor, step-<id>
+ *     title: string,
+ *     does: string,                // what the step does, up to 3 lines
+ *     deps: [string],              // ids of steps this depends on, [] if none
+ *     files: [
+ *       { name: string, touch: "add"|"mod" } |
+ *       { name: string, dir: true, note?: string }
+ *     ],
+ *     filesNote?: string,          // shown instead of an empty file tree
+ *     verify: string|null,         // how the step is checked, null if the plan does not say
+ *   }],
+ *   questions: [{
+ *     id: string,                  // slug used for the anchor, question-<id>
+ *     label: string,               // short, becomes data-label
+ *     text: string,                // the gap or ambiguity itself
+ *     changes: string,             // what the answer changes
+ *   }],
+ * }
+ */
+const DATA = /*SAMPLE*/{
+  title: "docs-check: score staleness per directory, not just per repo",
+  goal: "docs-check returns one staleness score for the whole repository today. Split it into one score per top-level directory (skills, integrations, scripts, docs) plus the existing repo-wide rollup, so a stale skill cannot hide behind a fresh one.",
+  risk: "scoring-criteria.md's weights assume a single flat doc tree. Splitting by directory risks double-counting root files like AGENTS.md and CLAUDE.md, which are referenced from every directory's own docs but live outside all four buckets.",
+  critical: "Auditing the scorer and surveying directory boundaries both feed the bucket implementation, which flows through the report and eval updates to a final rollup check.",
+  facts: [
+    { label: "Steps", value: "6" },
+    { label: "Directories scored", value: "4" },
+    { label: "Existing score inputs", value: "2" },
+    { label: "Target skill", value: "skills/docs-check", mono: true },
+  ],
+  steps: [
+    {
+      id: "audit-scoring",
+      title: "Audit the current scorer",
+      does: "Read scoring-criteria.md and verification-patterns.md end to end and list every input the single repo-wide score already reads, so the split reuses the same signals instead of inventing new ones.",
+      deps: [],
+      files: [],
+      filesNote: "Read-only: references/scoring-criteria.md, references/verification-patterns.md.",
+      verify: "A checklist of every scoring input, cross-checked against both reference files line by line.",
+    },
+    {
+      id: "survey-boundaries",
+      title: "Survey the directory boundaries",
+      does: "Enumerate the repo's top-level directories (skills, integrations, scripts, docs) and decide which files fall in which bucket, including root files like AGENTS.md that do not belong to any one directory.",
+      deps: [],
+      files: [],
+      filesNote: "No files touched; produces a boundary list only.",
+      verify: "The boundary list is checked against a full repo tree listing so no directory is missed.",
+    },
+    {
+      id: "add-buckets",
+      title: "Add per-directory buckets to the scorer",
+      does: "Change the scoring logic in SKILL.md to compute one score per bucket from the prior step, keeping the existing single-repo formula as the rollup across all buckets.",
+      deps: ["audit-scoring", "survey-boundaries"],
+      files: [
+        { name: "skills/docs-check/SKILL.md", touch: "mod" },
+        { name: "skills/docs-check/references/scoring-criteria.md", touch: "mod" },
+      ],
+      verify: "Running the scorer against this repo today, before any doc changes, returns a rollup equal to the current single score within rounding.",
+    },
+    {
+      id: "update-report",
+      title: "Update the report format",
+      does: "Change the output table to show one row per directory plus a final rollup row, instead of a single number.",
+      deps: ["add-buckets"],
+      files: [
+        { name: "skills/docs-check/references/verification-patterns.md", touch: "mod" },
+      ],
+      verify: "A sample run's output table has one row per directory, and the rollup row matches the sum documented in scoring-criteria.md.",
+    },
+    {
+      id: "update-evals",
+      title: "Update evals",
+      does: "Add a scenario to evals.json that asserts a per-directory breakdown appears in the output.",
+      deps: ["update-report"],
+      files: [
+        { name: "skills/docs-check/evals/evals.json", touch: "mod" },
+      ],
+      verify: "The new eval scenario passes against the updated scorer.",
+    },
+    {
+      id: "verify",
+      title: "Verify the rollup matches today's score",
+      does: "Re-run docs-check on cc-arsenal itself and confirm the rollup number is unchanged from before the split, so it reads as a pure decomposition, not a scoring change.",
+      deps: ["update-evals"],
+      files: [],
+      filesNote: "Verification only, no files touched.",
+      verify: "The rollup score before and after the split matches exactly.",
+    },
+  ],
+  questions: [
+    {
+      id: "boundary-config",
+      label: "Directory boundaries: fixed list or auto-detected",
+      text: "This plan hardcodes skills, integrations, scripts and docs as the four buckets. A fork of this repo could rename or add a top-level directory, and the scorer would silently skip it.",
+      changes: "Whether the bucket list comes from a small config the scorer reads, or the scorer discovers top-level directories automatically instead of hardcoding four names.",
+    },
+    {
+      id: "shared-root-docs",
+      label: "Where AGENTS.md and CLAUDE.md count",
+      text: "Root files like AGENTS.md and CLAUDE.md are referenced from every directory's own docs, but they physically live at the repo root, outside all four buckets.",
+      changes: "Whether root docs get their own bucket, count toward every bucket that cites them, or stay out of the per-directory scores and only affect the rollup.",
+    },
+    {
+      id: "rollup-formula",
+      label: "Rollup: today's formula, unchanged, or a derived average",
+      text: "The verify step's bar is that the rollup number is unchanged from today, but the plan does not say whether that means recomputing the original flat formula in parallel, or deriving the rollup by averaging the four new bucket scores.",
+      changes: "Whether the rollup keeps running the original flat calculation, or becomes a derived average of the per-directory scores, which would not always match.",
+    },
+  ],
+}/*SAMPLE*/;
+
+const VERDICTS = ["approve", "rework", "cut"];
+
+function renderHead(data) {
+  return (
+    `<header class="page-head"><h1>${Render.esc(data.title)}</h1>` +
+    `<p class="meta">${data.steps.length} steps, ${data.questions.length} open questions</p></header>`
+  );
+}
+
+function renderGlance(data) {
+  if (!data.goal && !data.facts.length) {
+    return (
+      `<section class="section" id="glance" data-section="At a glance"><h2>At a glance</h2>` +
+      `<div class="empty"><p class="title">No summary yet</p><p class="text">This plan has no goal sentence and no facts.</p></div></section>`
+    );
+  }
+  const facts = data.facts
+    .map((f) => `<div><dt>${Render.esc(f.label)}</dt><dd${f.mono ? ' class="mono"' : ""}>${f.mono ? Render.path(f.value) : Render.esc(f.value)}</dd></div>`)
+    .join("");
+  return (
+    `<section class="section" id="glance" data-section="At a glance"><h2>At a glance</h2>` +
+    `<p class="tldr">${Render.esc(data.goal)}</p>` +
+    `<dl class="facts">${facts}</dl>` +
+    `<aside class="callout" data-kind="risk"><span class="callout-label">Risk</span><p>${Render.esc(data.risk)}</p></aside>` +
+    `</section>`
+  );
+}
+
+function renderGraph(data) {
+  const edges = data.steps.flatMap((s) => s.deps.map((d) => ({ from: d, to: s.id })));
+  if (!edges.length) {
+    return (
+      `<section class="section" id="path" data-section="Critical path"><h2>Critical path</h2>` +
+      `<div class="empty"><p class="title">No dependencies declared</p>` +
+      `<p class="text">Every step here lists no dependencies, so a diagram would draw ${data.steps.length} disconnected boxes and nothing more.</p></div></section>`
+    );
+  }
+  const nodes = data.steps.map((s) => ({ id: s.id, label: s.title }));
+  const diagram = Render.diagram.dependency({
+    anchor: `diagram-critical-path-${Render.slug(data.title)}`,
+    title: data.critical,
+    dir: "LR",
+    critical: true,
+    nodes,
+    edges,
+  });
+  return `<section class="section" id="path" data-section="Critical path"><h2>Critical path</h2>${diagram}</section>`;
+}
+
+function fileTree(step) {
+  if (!step.files.length) return `<p class="text">${Render.esc(step.filesNote || "No files touched.")}</p>`;
+  const items = step.files
+    .map((f) => {
+      if (f.dir) {
+        return `<li class="dir"><span class="name">${Render.path(f.name)}</span>${f.note ? `<span class="note">${Render.esc(f.note)}</span>` : ""}</li>`;
+      }
+      const mark = f.touch === "add" ? "A" : "M";
+      return `<li data-touch="${f.touch}"><span class="name">${Render.path(f.name)}</span><span class="touch">${mark}</span>${f.note ? `<span class="note">${Render.esc(f.note)}</span>` : ""}</li>`;
+    })
+    .join("");
+  return `<ul class="tree">${items}</ul>`;
+}
+
+function depsMeta(step, byId) {
+  if (!step.deps.length) return "no dependencies";
+  return "depends on: " + step.deps.map((id) => byId[id]?.title || id).join(", ");
+}
+
+function renderSteps(data) {
+  if (!data.steps.length) {
+    return (
+      `<section class="section" id="steps" data-section="Steps"><h2>Steps</h2>` +
+      `<div class="empty"><p class="title">No steps</p><p class="text">This plan has no steps yet.</p></div></section>`
+    );
+  }
+  const byId = Object.fromEntries(data.steps.map((s) => [s.id, s]));
+  const items = data.steps
+    .map((s, i) => {
+      const anchor = `step-${s.id}`;
+      const verify = s.verify
+        ? `<p class="text"><span class="tag">Verified</span> ${Render.esc(s.verify)}</p>`
+        : `<p class="text"><span class="tag">No verification</span> This step has no check named in the plan.</p>`;
+      return (
+        `<li class="anchored" data-anchor="${Render.esc(anchor)}" data-label="${Render.esc(s.title)}">` +
+        `<button class="mark" type="button" aria-label="Comment on ${Render.esc(s.title)}">+</button>` +
+        `<div class="body step"><span class="step-n">${i + 1}</span><div class="step-c">` +
+        `<div class="head"><span class="title">${Render.esc(s.title)}</span>${Render.verdict(anchor)}</div>` +
+        `<p class="meta">${Render.esc(depsMeta(s, byId))}</p>` +
+        `<p class="text">${Render.esc(s.does)}</p>` +
+        fileTree(s) +
+        verify +
+        `</div></div></li>`
+      );
+    })
+    .join("");
+  return (
+    `<section class="section" id="steps" data-section="Steps">` +
+    `<div class="section-head"><h2>Steps</h2><span class="meta">${data.steps.length} steps</span></div>` +
+    `<ol class="steps">${items}</ol></section>`
+  );
+}
+
+function renderQuestions(data) {
+  if (!data.questions.length) {
+    return (
+      `<section class="section" id="questions" data-section="Open questions"><h2>Open questions</h2>` +
+      `<div class="empty"><p class="title">No open questions</p><p class="text">Nothing in this plan is left unsettled.</p></div></section>`
+    );
+  }
+  const items = data.questions
+    .map((q) =>
+      Render.anchored({
+        anchor: `question-${q.id}`,
+        label: q.label,
+        cls: "row",
+        verdict: false,
+        html:
+          `<div class="head"><span class="title">${Render.esc(q.label)}</span></div>` +
+          `<p class="text">${Render.esc(q.text)}</p>` +
+          `<p class="text"><span class="tag">If answered</span> ${Render.esc(q.changes)}</p>`,
+      })
+    )
+    .join("");
+  return (
+    `<section class="section" id="questions" data-section="Open questions">` +
+    `<div class="section-head"><h2>Open questions</h2><span class="meta">${data.questions.length} open</span></div>` +
+    `<div class="list">${items}</div></section>`
+  );
+}
+
+function mount(data) {
+  document.getElementById("root").innerHTML =
+    renderHead(data) + renderGlance(data) + renderGraph(data) + renderSteps(data) + renderQuestions(data);
+  document.querySelector(".toolbar-title").textContent = data.title;
+}
+
+mount(DATA);
+
+if (window.Render) {
+  Render.init({
+    verdicts: VERDICTS,
+    file: `plan-${Render.slug(DATA.title)}-2026-09-23.html`,
+    title: DATA.title,
+  });
+}
+</script>

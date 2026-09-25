@@ -8,6 +8,7 @@ description: Read-only audit of documentation against the current codebase, flag
   onboarding/release. Reports only, never edits files, for actually fixing or
   regenerating docs use docs-update instead.
 metadata:
+  summary: "Documentation validation and health scoring"
   author: mgiovani
   version: 2.0.0
 argument-hint: '[focus]'

@@ -10,6 +10,7 @@ description: Inject compressed framework-specific best practices and docs into
   only framework-doc-injection skill in this toolkit, don't look for a
   Next.js-specific variant.
 metadata:
+  summary: "Inject compressed framework-specific best practices and docs into CLAUDE.md/AGENTS.md"
   author: mgiovani
   version: 1.0.0
 disable-model-invocation: true

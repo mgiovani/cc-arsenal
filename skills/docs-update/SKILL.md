@@ -8,6 +8,7 @@ description: Refresh existing docs (architecture, onboarding, data-model, deploy
   Not for creating docs that don't exist yet (use docs-init) or scoring/auditing doc
   health without editing (use docs-check).
 metadata:
+  summary: "Documentation sync with codebase state"
   author: mgiovani
   version: 1.1.0
 disable-model-invocation: true

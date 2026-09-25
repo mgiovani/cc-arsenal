@@ -9,6 +9,7 @@ description: Break a large or ambiguous project into a dependency-ordered task
   does not diagram existing code (use docs-diagram for architecture diagrams
   of what already exists).
 metadata:
+  summary: "Break down large projects into dependency-aware tasks with Mermaid visualization"
   author: mgiovani
   version: 2.1.0
 argument-hint: <project_description>

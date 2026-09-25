@@ -10,6 +10,8 @@ hooks:
       - type: agent
         prompt: "Run the Phase 4 Quality Gates Checklist from SKILL.md against the current diff and the test/lint/type-check commands discovered in Phase 0 (fall back to CLAUDE.md or project files if Phase 0 wasn't run). If any item fails, return decision: block with the specific failing item named. Only allow stopping when every item passes."
         timeout: 180
+metadata:
+  summary: "Restructure existing code without changing behavior, verified against the full test suite at each step"
 ---
 
 # Refactor

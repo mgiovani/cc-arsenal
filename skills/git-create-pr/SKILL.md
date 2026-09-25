@@ -2,6 +2,7 @@
 name: git-create-pr
 description: Create a GitHub Pull Request from the current branch, following conventional commit format and pre-filling the repo's PR template. Activates on "create a PR", "open a pull request", "push this for review", or similar. Use after commits are made and pushed is not yet done; for the commits themselves use git-commit, for release/hotfix branch PRs use gitflow, and for the full review-then-commit-then-PR pipeline in one go use ship.
 metadata:
+  summary: "Pull request creation with standardized formats"
   author: mgiovani
   version: 2.1.0
 disable-model-invocation: false
