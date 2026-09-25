@@ -157,6 +157,12 @@ warn_unreachable = true
 strict_equality = true
 extra_checks = true
 
+[tool.pyright]
+# scripts/tests/test_optimize_ai_setup.py imports optimize_ai_setup by adding
+# its scripts/ dir to sys.path at test time (see that file); tell pyright
+# about the same path so it can resolve the import statically.
+extraPaths = ["skills/optimize-ai-setup/scripts"]
+
 [tool.pytest.ini_options]
 testpaths = ["scripts/tests"]
 python_files = ["test_*.py", "*_test.py"]
