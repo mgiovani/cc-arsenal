@@ -61,9 +61,11 @@ Semantic versioning. The current version lives in your project manifest (`packag
 
 ## Merge methods (they differ by target, on purpose)
 
-- **Feature/fix PR into `dev`**: squash merge (one clean commit per PR with the `(#NNN)` suffix). This keeps `dev` history readable.
-- **`release/*` or `hotfix/*` into `main`**: merge commit (`--no-ff`). This preserves the release as a first-parent merge so the break-glass revert (`git revert -m 1`) is clean.
-- **Back-merge `release/*` or `hotfix/*` into `dev`**: merge commit.
+| Merge | Method |
+|-------|--------|
+| Feature/fix PR into `dev` | Squash merge (one clean commit per PR with the `(#NNN)` suffix). This keeps `dev` history readable. |
+| `release/*` or `hotfix/*` into `main` | Merge commit (`--no-ff`). This preserves the release as a first-parent merge so the break-glass revert (`git revert -m 1`) is clean. |
+| Back-merge `release/*` or `hotfix/*` into `dev` | Merge commit. |
 
 Delete short-lived branches yourself once they are merged everywhere they need to go.
 

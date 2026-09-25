@@ -8,9 +8,11 @@ Based on [Semantic Versioning 2.0.0](https://semver.org/).
 MAJOR.MINOR.PATCH
 ```
 
-- **MAJOR**: Incompatible API changes (breaking changes)
-- **MINOR**: New functionality in a backward-compatible manner
-- **PATCH**: Backward-compatible bug fixes
+| Segment | Meaning |
+|---------|---------|
+| MAJOR | Incompatible API changes (breaking changes) |
+| MINOR | New functionality in a backward-compatible manner |
+| PATCH | Backward-compatible bug fixes |
 
 ## Conventional commit → semver mapping
 
@@ -33,16 +35,16 @@ MAJOR.MINOR.PATCH
 ## Pre-1.0 versions (0.x.y)
 
 Before version 1.0.0, the public API is not considered stable:
-- **0.MINOR.PATCH**: Minor may include breaking changes
+- 0.MINOR.PATCH: minor may include breaking changes
 - Initial development uses `0.x.y` versions
 - Anything may change at any time
 
 ## Version precedence
 
 When multiple bump types are detected in a single release:
-1. **MAJOR** wins over all (any breaking change)
-2. **MINOR** wins over PATCH (any feature addition)
-3. **PATCH** is the default (only fixes and maintenance)
+1. MAJOR wins over all (any breaking change)
+2. MINOR wins over PATCH (any feature addition)
+3. PATCH is the default (only fixes and maintenance)
 
 ## Breaking change detection
 

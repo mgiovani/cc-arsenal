@@ -1,12 +1,12 @@
-# CLAUDE.md - FastAPI Project
+# CLAUDE.md - FastAPI project
 
 This file provides guidance to Claude Code (claude.ai/code) when working with this FastAPI project.
 
-## Project Architecture
+## Project architecture
 
-This is a **FastAPI application** with a clean architecture pattern, using modern Python development practices and tools.
+This is a FastAPI application with a clean architecture pattern, using modern Python development practices and tools.
 
-### Project Structure
+### Project structure
 ```
 project/
 ├── src/
@@ -33,9 +33,9 @@ project/
 └── pyproject.toml       # Project configuration
 ```
 
-## Development Commands
+## Development commands
 
-### Environment Setup
+### Environment setup
 ```bash
 # Create virtual environment and install dependencies
 uv venv
@@ -46,7 +46,7 @@ uv sync
 uv sync --dev
 ```
 
-### Development Server
+### Development server
 ```bash
 # Run development server with hot reload
 uvicorn src.main:app --reload --host 0.0.0.0 --port 8000
@@ -55,7 +55,7 @@ uvicorn src.main:app --reload --host 0.0.0.0 --port 8000
 gunicorn src.main:app -w 4 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000
 ```
 
-### Database Operations
+### Database operations
 ```bash
 # Generate migration
 alembic revision --autogenerate -m "description"
@@ -85,7 +85,7 @@ pytest tests/test_users.py
 pytest -m "not slow"
 ```
 
-### Code Quality
+### Code quality
 ```bash
 # Format code
 black src/ tests/
@@ -99,34 +99,29 @@ mypy src/
 black --check src/ tests/ && isort --check src/ tests/ && ruff check src/ tests/ && mypy src/
 ```
 
-## Technology Stack
+## Technology stack
 
-### Core Framework
-- **FastAPI**: Modern, fast web framework for building APIs
-- **Pydantic**: Data validation using Python type annotations
-- **SQLAlchemy**: SQL toolkit and ORM
-- **Alembic**: Database migration tool
+| Category | Tool | Purpose |
+|---|---|---|
+| Core framework | `FastAPI` | Modern, fast web framework for building APIs |
+| Core framework | `Pydantic` | Data validation using Python type annotations |
+| Core framework | `SQLAlchemy` | SQL toolkit and ORM |
+| Core framework | `Alembic` | Database migration tool |
+| Database | `PostgreSQL` | Primary database (asyncpg driver) |
+| Database | `Redis` | Caching and session storage |
+| Database | `SQLModel` | SQLAlchemy models with Pydantic validation |
+| Authentication & security | `python-jose` | JWT token handling |
+| Authentication & security | `passlib` | Password hashing |
+| Authentication & security | `python-multipart` | Form data parsing |
+| Development tools | `pytest` | Testing framework |
+| Development tools | `black` | Code formatter |
+| Development tools | `isort` | Import sorter |
+| Development tools | `ruff` | Fast Python linter |
+| Development tools | `mypy` | Static type checker |
 
-### Database
-- **PostgreSQL**: Primary database (asyncpg driver)
-- **Redis**: Caching and session storage
-- **SQLModel**: SQLAlchemy models with Pydantic validation
+## API conventions
 
-### Authentication & Security
-- **python-jose**: JWT token handling
-- **passlib**: Password hashing
-- **python-multipart**: Form data parsing
-
-### Development Tools
-- **pytest**: Testing framework
-- **black**: Code formatter
-- **isort**: Import sorter
-- **ruff**: Fast Python linter
-- **mypy**: Static type checker
-
-## API Conventions
-
-### Response Format
+### Response format
 ```python
 # Success response
 {
@@ -146,13 +141,13 @@ black --check src/ tests/ && isort --check src/ tests/ && ruff check src/ tests/
 }
 ```
 
-### Route Organization
+### Route organization
 - Use APIRouter for organizing routes
 - Group related endpoints in modules
 - Use dependency injection for common functionality
 - Implement proper HTTP status codes
 
-### Example Route Structure
+### Example route structure
 ```python
 from fastapi import APIRouter, Depends
 from src.api.dependencies import get_current_user
@@ -169,9 +164,9 @@ async def create_user(
     return await user_service.create_user(user_data)
 ```
 
-## Common Patterns
+## Common patterns
 
-### Database Session Management
+### Database session management
 ```python
 # src/core/database.py
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
@@ -185,7 +180,7 @@ async def get_db():
         yield session
 ```
 
-### Service Layer Pattern
+### Service layer pattern
 ```python
 # src/services/base.py
 from abc import ABC, abstractmethod
@@ -202,7 +197,7 @@ class BaseService(ABC):
         await self.db.rollback()
 ```
 
-### Error Handling
+### Error handling
 ```python
 # src/core/exceptions.py
 from fastapi import HTTPException
@@ -222,9 +217,9 @@ class ValidationError(HTTPException):
         )
 ```
 
-## Environment Configuration
+## Environment configuration
 
-### Required Environment Variables
+### Required environment variables
 ```bash
 # Database
 DATABASE_URL=postgresql+asyncpg://user:password@localhost/dbname
@@ -241,7 +236,7 @@ DEBUG=True
 API_V1_STR=/api/v1
 ```
 
-### Settings Management
+### Settings management
 ```python
 # src/core/config.py
 from pydantic_settings import BaseSettings
@@ -273,7 +268,7 @@ COPY src/ ./src/
 CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]
 ```
 
-### Health Checks
+### Health checks
 ```python
 @app.get("/health")
 async def health_check():

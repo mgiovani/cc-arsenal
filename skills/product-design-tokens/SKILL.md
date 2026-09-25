@@ -23,8 +23,8 @@ allowed-tools: Read, Write, Edit, Grep, Glob, Bash(git *), Bash(gh *), Bash(pyth
 
 # Product Design Tokens
 
-Produce the *token contract* a themed UI is built from: a valid, WCAG-checked **DTCG 2025.10 JSON
-file** that stays the single source of truth. This skill **writes no application code** and never
+Produce the *token contract* a themed UI is built from: a valid, WCAG-checked DTCG 2025.10 JSON
+file that stays the single source of truth. This skill writes no application code and never
 draws assets; it authors and validates the tokens. Output lands under `docs/specs/design/tokens/`.
 
 ## Input
@@ -37,37 +37,37 @@ also emits the optional alpha DESIGN.md prose layer.
 
 ## Prerequisites & fallback
 
-Sibling skills are invoked via the `Skill` tool where available; **with no `Skill` tool, apply the
-named sibling's documented rules inline** (each delegation below states the fallback in-sentence).
-Design-system detection uses the `Task` tool with an `Explore`/haiku subagent; **no `Task` tool?**
+Sibling skills are invoked via the `Skill` tool where available; with no `Skill` tool, apply the
+named sibling's documented rules inline (each delegation below states the fallback in-sentence).
+Design-system detection uses the `Task` tool with an `Explore`/haiku subagent; no `Task` tool?
 Run the detection inline, sequentially, with Grep/Glob/Read. The optional `@google/design.md` CLI is
-**probed at runtime, never assumed**: the DTCG JSON is emitted whether or not it runs.
+probed at runtime, never assumed: the DTCG JSON is emitted whether or not it runs.
 
 ## Lean by default
 
-**Default to a single `docs/specs/design/tokens/tokens.dtcg.json`.** Split a layer (semantic,
+Default to a single `docs/specs/design/tokens/tokens.dtcg.json`. Split a layer (semantic,
 component) into its own file only when it outgrows the single file. `contrast-report.md` sits
 alongside it; DESIGN.md only when asked.
 
-- **Cost stop-condition:** if the request implies a large tree (multi-brand × multi-theme ×
-  per-component tokens for dozens of components), **stop and ask** before emitting it: scope it
-  down or confirm the tree first. Never auto-generate a 30-file token set.
+If the request implies a large tree (multi-brand × multi-theme × per-component tokens for dozens
+of components), stop and ask before emitting it: scope it down or confirm the tree first. Never
+auto-generate a 30-file token set.
 
 ## Reuse first (top of the ladder)
 
-Inventing a brand from scratch is the **last resort, greenfield-only**. Before writing any token:
+Inventing a brand from scratch is the last resort, greenfield-only. Before writing any token:
 
-1. **Detect an existing design system**: scan for `tailwind.config.*`, shadcn (`components.json`,
+1. Detect an existing design system: scan for `tailwind.config.*`, shadcn (`components.json`,
    `@/components/ui`), MUI theme, CSS custom properties, or a native platform system.
-2. **Adopt / extend it**: express the existing values as DTCG tokens (alias into them; add only
-   what the change needs). Do not replace a working system with a new invented palette.
+2. Adopt or extend it by expressing the existing values as DTCG tokens (alias into them; add only
+   what the change needs), rather than replacing a working system with a new invented palette.
 3. Only with genuinely no system present do you seed a new core palette.
 
 State which path you took in one line.
 
 ## Workflow
 
-Four phases: **Detect → Draft → Validate → Hand off.**
+Four phases carry the work: Detect, Draft, Validate, Hand off.
 
 ### Phase: Detect
 
@@ -79,7 +79,7 @@ ui dir, MUI theme, CSS custom properties (:root { --... }), or a native platform
 tool, the token values found (colour/spacing/radius/type), and the file paths, invent nothing."
 ```
 
-Decide **reuse vs. greenfield** from what you find. If a spec from `product-design-spec` is present,
+Decide reuse vs. greenfield from what you find. If a spec from `product-design-spec` is present,
 read its screen inventory so the semantic tokens cover what the screens actually render.
 
 ### Phase: Draft
@@ -90,19 +90,19 @@ Create the single canonical file from the skeleton and fill it:
 cp skills/product-design-tokens/assets/templates/tokens.dtcg.json docs/specs/design/tokens/tokens.dtcg.json
 ```
 
-- **DTCG 2025.10 shape** (full detail: `references/standards.md`): a token is any object with a
+- DTCG 2025.10 shape, full detail in `references/standards.md`: a token is any object with a
   `$value`; groups carry an inheritable `$type`; aliases are `{group.token.path}`. Pin to
-  **https://www.designtokens.org/tr/2025.10/**: **never `/tr/drafts/`**.
-- **Layer the colours:** a primitive `base` palette, then a `semantic` layer that aliases it
-  (UI consumes semantic). OKLCH is fine for *exploration*, but export an sRGB/hex-compatible value.
-- **Status colours are never colour-alone** (WCAG 1.4.1): annotate each to pair with an icon/label.
-- **Brand art that informs the palette** goes to `codex-imagegen` (produce the prompt; don't draw
-  the asset here: via the `Skill` tool where available, else write the prompt for the user to run).
-- **DESIGN.md is optional and derived.** Only with `--with-design-md`: probe the CLI at runtime,
-  pin the alpha version in its frontmatter, add the ALPHA banner, and **always** keep
+  https://www.designtokens.org/tr/2025.10/, never `/tr/drafts/`.
+- Layer the colours as a primitive `base` palette, then a `semantic` layer that aliases it (UI
+  consumes semantic). OKLCH is fine for *exploration*, but export an sRGB/hex-compatible value.
+- Status colours never rely on colour alone (WCAG 1.4.1): annotate each to pair with an icon/label.
+- Brand art that informs the palette goes to `codex-imagegen`: produce the prompt, don't draw the
+  asset here (via the `Skill` tool where available, else write the prompt for the user to run).
+- DESIGN.md is optional and derived. Only with `--with-design-md`: probe the CLI at runtime,
+  pin the alpha version in its frontmatter, add the ALPHA banner, and always keep
   `tokens.dtcg.json` alongside as canonical (template: `assets/templates/DESIGN.md`).
-- **Platform tokens:** motion → **Material 3 Expressive** spring (stiffness/damping), not fixed
-  duration+easing; translucency → **Apple Liquid Glass** with a mandatory contrast check. See
+- Platform tokens follow suit: motion uses Material 3 Expressive spring (stiffness/damping), not
+  fixed duration+easing; translucency uses Apple Liquid Glass with a mandatory contrast check. See
   `references/standards.md`.
 
 ### Phase: Validate
@@ -112,32 +112,32 @@ python skills/product-design-tokens/scripts/dtcg_validate.py --tokens docs/specs
 python skills/product-design-tokens/scripts/contrast.py       --tokens docs/specs/design/tokens/tokens.dtcg.json
 ```
 
-- `dtcg_validate.py` must print **VALID** (every token has a resolvable `$type`, every alias
-  resolves, no cycles). Fix any error before proceeding.
-- `contrast.py` writes the contrast table: **0 failing pairs is the gate.** A pair below its AA
-  threshold is a **blocker**: darken/lighten a token and re-run; never approve a failing or a
-  colour-alone palette. Save its output to `docs/specs/design/tokens/contrast-report.md`.
-- **In-context accessibility sign-off** (the palette rendered in real screens) goes to
-  `review-design` for the WCAG 2.2 AA audit (via the `Skill` tool where available, otherwise apply
-  its WCAG 2.2 AA checklist, the 9 criteria new since 2.1 in `references/standards.md`, inline).
+`dtcg_validate.py` must print VALID (every token has a resolvable `$type`, every alias resolves, no
+cycles); fix any error before proceeding. `contrast.py` writes the contrast table, and 0 failing
+pairs is the gate: a pair below its AA threshold is a blocker, so darken/lighten the token and
+re-run rather than approving a failing or colour-alone palette. Save its output to
+`docs/specs/design/tokens/contrast-report.md`. In-context accessibility sign-off, the palette
+rendered in real screens, goes to `review-design` for the WCAG 2.2 AA audit (via the `Skill` tool
+where available, otherwise apply its WCAG 2.2 AA checklist, the 9 criteria new since 2.1 in
+`references/standards.md`, inline).
 
 ### Phase: Hand off
 
-- State the single readiness verdict: DTCG **VALID**, contrast **0 failures**, reuse-vs-greenfield
-  path, and whether a DESIGN.md/alpha layer was produced.
-- Report the written path(s). Recommend the **live pipeline** (Figma Code Connect → Dev Mode MCP →
-  AI editor → human polish) reconciled against the versioned `tokens.dtcg.json`, not a one-shot
-  handoff export. Name the downstream consumer: `implement-feature` builds the themed UI from these.
+State the single readiness verdict: DTCG VALID, contrast 0 failures, the reuse-vs-greenfield path,
+and whether a DESIGN.md/alpha layer was produced. Report the written path(s), and recommend the
+live pipeline (Figma Code Connect → Dev Mode MCP → AI editor → human polish) reconciled against the
+versioned `tokens.dtcg.json`, rather than a one-shot handoff export. Name the downstream consumer:
+`implement-feature` builds the themed UI from these.
 
 ## Anti-hallucination
 
-- **Reuse before invent:** scan for an existing design system before proposing any new brand token.
-- Pin DTCG to **`/tr/2025.10/`**, never `/tr/drafts/`; the DTCG JSON is **always** the canonical
-  source: DESIGN.md is never the sole record.
+- Reuse before invent: scan for an existing design system before proposing any new brand token.
+- Pin DTCG to `/tr/2025.10/`, never `/tr/drafts/`; the DTCG JSON is always the canonical
+  source, and DESIGN.md is never the sole record.
 - Never invent colour-psychology claims or approve a palette that fails contrast or carries meaning
   by colour alone. Run `contrast.py` before declaring done.
-- Target **WCAG 2.2 AA** explicitly; do **not** introduce WCAG 3.0 / APCA.
-- The `@google/design.md` CLI and its subcommands are **probed at runtime**, never assumed; pin the
+- Target WCAG 2.2 AA explicitly; do not introduce WCAG 3.0 / APCA.
+- The `@google/design.md` CLI and its subcommands are probed at runtime, never assumed; pin the
   version you generated against.
 
 ## References

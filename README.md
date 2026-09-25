@@ -44,7 +44,7 @@ make -C integrations/claude-code/claude-hi standard # Schedule 5-hour windows
 **49 Skills** organized by category:
 
 <details>
-<summary><b>AI Workflow Tools</b> (8) — Tools that work on your AI agent itself, not on your codebase.</summary>
+<summary><b>AI Workflow Tools</b> (8): Tools that work on your AI agent itself, not on your codebase.</summary>
 
 | Skill | What it does |
 |---|---|
@@ -60,7 +60,7 @@ make -C integrations/claude-code/claude-hi standard # Schedule 5-hour windows
 </details>
 
 <details>
-<summary><b>Art & Images</b> (2) — Mascots, logos, hero images, and social cards for a project.</summary>
+<summary><b>Art & Images</b> (2): Mascots and logos, plus hero images and social cards for a project.</summary>
 
 | Skill | What it does |
 |---|---|
@@ -70,11 +70,11 @@ make -C integrations/claude-code/claude-hi standard # Schedule 5-hour windows
 </details>
 
 <details>
-<summary><b>Build</b> (5) — Write the feature, fix the bug, restructure the code, cover it with tests.</summary>
+<summary><b>Build</b> (5): Feature work and bug fixes, plus refactors and test coverage for code you already have.</summary>
 
 | Skill | What it does |
 |---|---|
-| [`clotho-research`](skills/clotho-research/) | Find what a change will actually touch before planning it: the code, the prior art, and the risks |
+| [`clotho-research`](skills/clotho-research/) | Find what a change will actually touch before planning it: the code and prior art it meets, and the risks it carries |
 | [`fix-bug`](skills/fix-bug/) | Test-driven debugging with strict sequential task chain and dependency enforcement |
 | [`implement-feature`](skills/implement-feature/) | Feature implementation with senior staff engineer best practices and parallel subagent orchestration where available |
 | [`refactor`](skills/refactor/) | Restructure existing code without changing behavior, verified against the full test suite at each step |
@@ -83,18 +83,18 @@ make -C integrations/claude-code/claude-hi standard # Schedule 5-hour windows
 </details>
 
 <details>
-<summary><b>Design</b> (3) — Screens, flows, and design tokens, plus an accessibility-grade UX audit.</summary>
+<summary><b>Design</b> (3): Screens and flows, alongside design tokens and an accessibility-grade UX audit.</summary>
 
 | Skill | What it does |
 |---|---|
 | [`product-design-spec`](skills/product-design-spec/) | Information architecture, user flows, screen inventory and per-screen states for an approved PRD |
 | [`product-design-tokens`](skills/product-design-tokens/) | A durable W3C DTCG design-token contract, reusing your design system and enforcing WCAG 2.2 AA contrast |
-| [`review-design`](skills/review-design/) | UX/UI/design quality audit mapped to WCAG 2.2 AA, Material Design 3, and Apple HIG |
+| [`review-design`](skills/review-design/) | UX/UI/design quality audit mapped to WCAG 2.2 AA plus the Material Design 3 and Apple HIG guidelines |
 
 </details>
 
 <details>
-<summary><b>Docs</b> (6) — Architecture records, RFCs, diagrams, and keeping docs honest about the code.</summary>
+<summary><b>Docs</b> (6): Architecture records and RFCs, plus diagrams and keeping docs honest about the code.</summary>
 
 | Skill | What it does |
 |---|---|
@@ -108,7 +108,7 @@ make -C integrations/claude-code/claude-hi standard # Schedule 5-hour windows
 </details>
 
 <details>
-<summary><b>Git</b> (4) — Branch, commit, merge, and tag versions in your own repository.</summary>
+<summary><b>Git</b> (4): Branching and committing, plus merging and tagging versions in your own repository.</summary>
 
 | Skill | What it does |
 |---|---|
@@ -120,7 +120,7 @@ make -C integrations/claude-code/claude-hi standard # Schedule 5-hour windows
 </details>
 
 <details>
-<summary><b>GitHub</b> (3) — Open pull requests, drive a branch to merged, and take a project public.</summary>
+<summary><b>GitHub</b> (3): Pull requests and merges, then taking a project public.</summary>
 
 | Skill | What it does |
 |---|---|
@@ -131,7 +131,7 @@ make -C integrations/claude-code/claude-hi standard # Schedule 5-hour windows
 </details>
 
 <details>
-<summary><b>Jira</b> (1) — Jira from the command line.</summary>
+<summary><b>Jira</b> (1): Jira from the command line.</summary>
 
 | Skill | What it does |
 |---|---|
@@ -140,7 +140,7 @@ make -C integrations/claude-code/claude-hi standard # Schedule 5-hour windows
 </details>
 
 <details>
-<summary><b>Multi-agent</b> (1) — Fan a large task out across parallel agents.</summary>
+<summary><b>Multi-agent</b> (1): Fan a large task out across parallel agents.</summary>
 
 | Skill | What it does |
 |---|---|
@@ -149,7 +149,7 @@ make -C integrations/claude-code/claude-hi standard # Schedule 5-hour windows
 </details>
 
 <details>
-<summary><b>Product</b> (3) — Decide what to build and turn it into tracked, dependency-ordered work.</summary>
+<summary><b>Product</b> (3): Decide what to build and turn it into tracked, dependency-ordered work.</summary>
 
 | Skill | What it does |
 |---|---|
@@ -160,13 +160,13 @@ make -C integrations/claude-code/claude-hi standard # Schedule 5-hour windows
 </details>
 
 <details>
-<summary><b>Project setup</b> (6) — Containers, environment variables, database migrations, CI pipelines, framework docs.</summary>
+<summary><b>Project setup</b> (6): Containers and environment variables, database migrations and CI pipelines, as well as framework docs.</summary>
 
 | Skill | What it does |
 |---|---|
 | [`ci-generate`](skills/ci-generate/) | Generate a production-ready CI/CD pipeline config (GitHub Actions, GitLab CI, CircleCI, Jenkins) |
 | [`ci-local`](skills/ci-local/) | Run the checks a GitHub Actions workflow would run, locally, when Actions is unavailable |
-| [`db-migrate`](skills/db-migrate/) | Create, validate, and manage database migrations across any framework |
+| [`db-migrate`](skills/db-migrate/) | Create and validate database migrations, then manage them across any framework |
 | [`docker-init`](skills/docker-init/) | Generate Dockerfiles and docker-compose.yml with auto-detected services and security hardening |
 | [`env-setup`](skills/env-setup/) | Scan a codebase for env var usage, sync .env.example, and detect leaked secrets |
 | [`inject-docs`](skills/inject-docs/) | Inject compressed framework-specific best practices and docs into CLAUDE.md/AGENTS.md |
@@ -174,12 +174,12 @@ make -C integrations/claude-code/claude-hi standard # Schedule 5-hour windows
 </details>
 
 <details>
-<summary><b>Review</b> (7) — Catch problems before they ship: code, plans, security, dependencies, performance, visual regressions, translations.</summary>
+<summary><b>Review</b> (7): Code and plans, security and dependencies, performance and visual regressions, and translations.</summary>
 
 | Skill | What it does |
 |---|---|
 | [`i18n-check`](skills/i18n-check/) | i18n completeness checker, detects the project's i18n framework and diffs locale files |
-| [`review-code`](skills/review-code/) | Multi-agent code review across correctness, performance, style, tests, and error handling |
+| [`review-code`](skills/review-code/) | Multi-agent code review across six dimensions, from correctness and performance to tests and error handling |
 | [`review-deps`](skills/review-deps/) | Audit dependencies for vulnerabilities, license risk, and staleness |
 | [`review-perf`](skills/review-perf/) | Deep-dive performance audit of queries, algorithmic complexity, and resource leaks |
 | [`review-plan`](skills/review-plan/) | Adversarially review an implementation plan against the actual repository before any code is written |

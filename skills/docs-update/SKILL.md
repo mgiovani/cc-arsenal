@@ -22,7 +22,7 @@ agent: general-purpose
 
 Synchronize documentation with the current codebase state: one file, a category, or everything in `docs/`.
 
-## Anti-Hallucination Guidelines
+## Anti-hallucination guidelines
 
 Every statement written must trace back to a file read or grepped this run:
 1. Verify each claim before writing it, read the actual source, don't recall it

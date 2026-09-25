@@ -23,7 +23,7 @@ agent: general-purpose
 
 Bootstrap a `docs/` structure for a project with little or no existing documentation. Only generate what the codebase actually evidences.
 
-## Anti-Hallucination Guidelines
+## Anti-hallucination guidelines
 
 Every claim in generated docs must trace to something read or grepped in this run:
 
@@ -45,7 +45,7 @@ Verify every finding before using it: read the package manifest, read the model 
 
 ### 2. Detect project characteristics
 
-From the exploration, determine: language/framework stack, project type (web app, CLI, library, service), whether a database/ORM is present, and whether infrastructure/deployment configs exist.
+From the exploration, determine: language/framework stack, project type (web app, CLI, library, service), whether a database/ORM is present, and whether infrastructure/deployment configs exist. These characteristics drive which doc types Phase 3 decides to generate.
 
 ### 3. Decide which docs to generate
 

@@ -25,10 +25,13 @@ Take a skill that already exists and bring it up to the current authoring standa
 
 ## Ground rules
 
-- **Snapshot before you touch anything, and never touch the snapshot again.** Once `skill-snapshot/` exists for a skill, it is read-only for the rest of the run: every later step (rewrite, iteration, feedback pass) reads it for comparison and never writes to it. If a later step wants to "fix" the baseline to make a comparison look better, that is overfitting to the eval, not improving the skill: refuse and explain why.
-- **Never edit an eval's prompt or assertions to make a failing run pass.** If a rewritten skill fails an assertion, fix the skill (SKILL.md, references, description). If the assertion itself was wrong when it was written, say so explicitly and get the user's sign-off before changing it. Silently loosening an assertion after seeing it fail is the one move that makes every later benchmark meaningless.
-- **Judgment, not rewrite-for-rewrite's-sake.** A skill that's already close to the rubric gets a small diff, not a fresh draft. Read it fully before deciding what's actually deficient: most of the value here is in the delta, not the word count changed.
-- **This skill never commits, pushes, or force-updates anything.** Its output is a modified skill directory plus a benchmark report. When the user is ready to save the change, they invoke `git-commit` or `ship` separately: do not run `git commit` yourself even if the user says "looks good, ship it," because that phrase in this context is about the skill quality, not a request to commit.
+The snapshot is write-once. Once `skill-snapshot/` exists for a skill, it is read-only for the rest of the run: every later step (rewrite, iteration, feedback pass) reads it for comparison and never writes to it. If a later step wants to "fix" the baseline to make a comparison look better, that is overfitting to the eval, not improving the skill, so refuse and explain why.
+
+Eval prompts and assertions are frozen the same way, so never edit one just to make a failing run pass. If a rewritten skill fails an assertion, fix the skill (SKILL.md, references, description). If the assertion itself was wrong when it was written, say so explicitly and get the user's sign-off before changing it: silently loosening an assertion after seeing it fail is the one move that makes every later benchmark meaningless.
+
+Match the edit to the actual gap. A skill that's already close to the rubric gets a small diff, not a fresh draft: read it fully before deciding what's actually deficient, since most of the value here is in the delta, not the word count changed.
+
+This skill touches no git state: it never commits or pushes, and it never force-updates anything. Its output is a modified skill directory plus a benchmark report. When the user is ready to save, they invoke `git-commit` or `ship` separately, so don't run `git commit` yourself even if the user says "looks good, ship it," because that phrase in this context is about the skill's quality, not a request to commit.
 
 ## Workflow
 
@@ -51,13 +54,11 @@ Verify the copy landed (`diff -rq skills/<name> <workspace>/<name>/skill-snapsho
 
 Read the full current `SKILL.md` plus every file it references. Rewrite against the rubric in [references/rubric.md](references/rubric.md), load it now:
 
-- Description: use-case-first, third person, WHAT + WHEN, trigger phrases, one "Not for X (use sibling)" clause per real overlap, ≤1024 chars.
-- Body: <500 lines, lean imperative, WHY only at hard boundaries, CAPS reserved for true invariants. Heavy detail moves to `references/<topic>.md` behind an inline link and a one-line "load when..." condition. 3-5 worked examples only where output format matters, plus an anti-hallucination floor. The core stays tool-neutral, with any subagent/orchestration mechanics called out as an enhancement carrying an explicit sequential fallback.
-- If the skill mutates user state (installs, file edits, history rewrite, deploys), it must stop and ask before any destructive/irreversible step: the request that triggered the skill is not itself the confirmation.
+The description must be use-case-first and third person, cover WHAT + WHEN with trigger phrases, and carry one "Not for X (use sibling)" clause per real overlap, all within 1024 characters. The body stays under 500 lines with lean imperative phrasing, reserves WHY for hard boundaries, and keeps CAPS for true invariants. Heavy detail moves to `references/<topic>.md` behind an inline link and a one-line "load when..." condition, with 3-5 worked examples only where output format matters, plus an anti-hallucination floor. The core stays tool-neutral, with any subagent/orchestration mechanics called out as an enhancement carrying an explicit sequential fallback. If the skill mutates user state (installs, file edits, history rewrite, deploys), it must stop and ask before any destructive/irreversible step, since the request that triggered the skill is not itself the confirmation.
 
 **In the same pass**, author or upgrade `evals/evals.json` and `evals/trigger-eval.json` per [references/eval-design.md](references/eval-design.md), load it now. Evals encode the intended post-rewrite behavior; writing them after the fact, once you already know what the rewrite does, produces evals that only confirm what you built instead of testing it.
 
-**Restraint gate: decide per dimension before editing.** Go through the rubric dimensions (description, body length/tone, references split, CAPS discipline, examples, portability, anti-hallucination) and mark each `compliant` or `deficient` from your full read. You may only rewrite the `deficient` ones. A dimension you judged `compliant` stays byte-for-byte unless fixing a `deficient` one forces a change through it: do not reword prose, add new sections, or expand the body on a dimension you already called compliant. If your rewrite grows the line count while your own analysis said the skill was already close, that is the over-rewrite failure this skill exists to avoid: stop and cut back to the actual delta. Report the compliant/deficient verdict per dimension and the specific gaps you closed: a near-compliant skill should show a small diff, not a fresh draft.
+Before editing, go through the rubric dimensions (description, body length/tone, references split, CAPS discipline, examples, portability, anti-hallucination) and mark each one from your full read as `compliant` or `deficient`; that verdict is the restraint gate, and only the dimensions marked `deficient` get rewritten. Anything already `compliant` stays byte-for-byte unless fixing a deficient dimension forces a change through it: your own read already said that part of the skill was fine, so leave its prose, sections, and length untouched. A rewrite that grows the line count despite a compliant verdict means you touched something you shouldn't have; that's the over-rewrite failure this gate exists to catch, and the fix is cutting back to the actual delta. The final report needs the per-dimension verdict alongside the specific gaps closed, because a near-compliant skill should show a small diff, not a fresh draft.
 
 ### 4. Validate
 
@@ -92,12 +93,12 @@ If the user gives feedback after reviewing the report, generalize the underlying
 
 ## Anti-hallucination
 
-- Every pass/fail, score, or "better than baseline" claim in the report must come from a validator invocation or a grading pass you actually ran this session: never infer a result from how a similar skill behaved before.
-- Never invent file paths, tool names, or sibling-skill descriptions when writing the "Not for X" disambiguation clause: read the sibling's actual frontmatter description first.
-- If `quick_validate.py` reports a warning you don't understand (e.g. an unfamiliar frontmatter key), read what the key means before deciding whether to keep or remove it: don't guess.
+Every pass/fail, score, or "better than baseline" claim in the report must come from a validator invocation or a grading pass you actually ran this session; never infer a result from how a similar skill behaved before. Writing the "Not for X" disambiguation clause means reading the sibling's actual frontmatter description first, not inventing file paths, tool names, or sibling-skill descriptions. When `quick_validate.py` reports a warning you don't understand (e.g. an unfamiliar frontmatter key), read what the key means before deciding whether to keep or remove it rather than guessing.
 
 ## Reference files
 
-- [references/rubric.md](references/rubric.md): the full authoring rubric (description shape, body constraints, portability, anti-hallucination floor). Load in step 3, every rewrite.
-- [references/eval-design.md](references/eval-design.md): eval-authoring rules, the `grading.json` schema with the required `summary` block, and the anti-overfit invariants. Load in steps 3 and 5.
-- [references/orchestration.md](references/orchestration.md): Claude-Code-only enhancement, running steps 2-6 as parallel subagents across a batch of skills with per-stage model tiers and strict per-skill directory ownership. Load only when improving more than one skill at once and a `Task` (or equivalent parallel subagent) tool is available; otherwise steps 2-7 above already describe the full sequential path.
+| Reference | Covers | Load when |
+|---|---|---|
+| [references/rubric.md](references/rubric.md) | the full authoring rubric (description shape, body constraints, portability, anti-hallucination floor) | step 3, every rewrite |
+| [references/eval-design.md](references/eval-design.md) | eval-authoring rules, the `grading.json` schema with the required `summary` block, and the anti-overfit invariants | steps 3 and 5 |
+| [references/orchestration.md](references/orchestration.md) | Claude-Code-only enhancement: running steps 2-6 as parallel subagents across a batch of skills with per-stage model tiers and strict per-skill directory ownership | improving more than one skill at once with a `Task` (or equivalent parallel subagent) tool available; otherwise steps 2-7 above already describe the full sequential path |

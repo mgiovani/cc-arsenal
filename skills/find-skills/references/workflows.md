@@ -85,7 +85,7 @@ npx skills add owner/repo --skill code-review -a claude-code -g
 npx skills add owner/repo --skill nextjs-patterns -a claude-code
 ```
 
-### Single agent vs multi-Agent
+### Single agent vs multi-agent
 
 Install to a single agent when only using one AI coding tool:
 
@@ -106,7 +106,7 @@ npx skills add owner/repo --skill my-skill
 # The CLI auto-detects installed agents and prompts for selection
 ```
 
-### Non-Interactive installation (CI/CD)
+### Non-interactive installation (CI/CD)
 
 For automated setups or scripts:
 
@@ -132,11 +132,11 @@ npx skills add owner/repo --all
 
 ### Review checklist
 
-1. **Check the source repository**: Verify the repository is from a trusted author or organization
-2. **List skills first**: Use `--list` to see what will be installed
-3. **Read the SKILL.md**: Review the actual instructions before installing
-4. **Check for scripts**: Look for `scripts/` directories that contain executable code
-5. **Review references**: Check `references/` for any suspicious content
+1. Check the source repository: verify it's from a trusted author or organization.
+2. List skills first: use `--list` to see what will be installed.
+3. Read the SKILL.md: review the actual instructions before installing.
+4. Check for scripts: look for `scripts/` directories that contain executable code.
+5. Review references: check `references/` for any suspicious content.
 
 ```bash
 # Step 1: List available skills

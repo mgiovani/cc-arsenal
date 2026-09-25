@@ -407,23 +407,29 @@ jira me
 
 When in interactive UI:
 
-**Movement:**
-- **Arrow keys** or **j,k,h,l** - Navigate through list
-- **g** - Jump to top
-- **G** - Jump to bottom
-- **CTRL+f** - Scroll page down
-- **CTRL+b** - Scroll page up
+### Movement
 
-**Actions:**
-- **v** - View selected issue details
-- **m** - Transition the selected issue
-- **CTRL+r** or **F5** - Refresh the list
-- **ENTER** - Open selected issue in browser
-- **c** - Copy issue URL to clipboard (requires xclip/xsel on Linux)
-- **CTRL+k** - Copy issue key to clipboard
-- **w** or **TAB** - Toggle focus between sidebar and content
-- **q** / **ESC** / **CTRL+c** - Quit
-- **?** - Show help window
+| Key | Action |
+|---|---|
+| Arrow keys or `j`,`k`,`h`,`l` | Navigate through list |
+| `g` | Jump to top |
+| `G` | Jump to bottom |
+| `CTRL+f` | Scroll page down |
+| `CTRL+b` | Scroll page up |
+
+### Actions
+
+| Key | Action |
+|---|---|
+| `v` | View selected issue details |
+| `m` | Transition the selected issue |
+| `CTRL+r` or `F5` | Refresh the list |
+| `ENTER` | Open selected issue in browser |
+| `c` | Copy issue URL to clipboard (requires xclip/xsel on Linux) |
+| `CTRL+k` | Copy issue key to clipboard |
+| `w` or `TAB` | Toggle focus between sidebar and content |
+| `q` / `ESC` / `CTRL+c` | Quit |
+| `?` | Show help window |
 
 ## Output formats and options
 

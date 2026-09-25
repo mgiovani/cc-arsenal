@@ -82,8 +82,8 @@ multiple focused views rather than cramming everything into one.
 
 Load `assets/templates/<type>.md` (`er` → `data-model.md`, `arch` →
 `architecture.md`, `deployment` → `deployment.md`, `security` → `security.md`).
-Replace `{{PROJECT_NAME}}`, `{{DATE}}`, the diagram placeholder, and the
-entity/component list placeholders with the verified content from steps 3-4.
+Replace `{{PROJECT_NAME}}` and `{{DATE}}`, plus the diagram placeholder and
+the entity/component list placeholders, with the verified content from steps 3-4.
 
 ### 6. Write the output
 
@@ -93,10 +93,10 @@ before overwriting, and preserve any hand-written sections you can identify
 
 ### 7. Report results
 
-State the diagram type, the output file, and the actual counts detected (e.g.
-"4 entities, 6 relationships"), these must be the numbers from step 3's
-commands, not a summary written from memory. Suggest regenerating when the
-diagrammed subsystem changes.
+State the diagram type and the output file, then report the actual counts
+detected (e.g. "4 entities, 6 relationships"). These must be the numbers from
+step 3's commands, not a summary written from memory. Suggest regenerating
+when the diagrammed subsystem changes.
 
 ## Worked Examples
 

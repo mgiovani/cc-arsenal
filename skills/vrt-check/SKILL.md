@@ -26,12 +26,14 @@ Run visual regression tests, then triage every failure by eye before touching a 
 
 Never assume a command. Different repos wire VRT through different tools. Look for, in order:
 
-1. **Task runner targets**: `just --list` or `grep -E 'visual|screenshot|chromatic|snapshot' justfile Makefile` for targets like `visual-diff`, `visual-update`, `test:visual`.
-2. **package.json scripts**: `grep -A2 '"scripts"' package.json` for `chromatic`, `test:visual`, `storybook:test`, `playwright test.*visual`.
-3. **Storybook test-runner**: presence of `.storybook/test-runner.ts` or `@storybook/test-runner` in `package.json`.
-4. **Playwright screenshot tests**: `toHaveScreenshot(` calls in `*.spec.ts`, or a `playwright.config.*` with `snapshotDir`/`toMatchSnapshot` settings.
-5. **Chromatic**: `chromatic.config.json` or a `chromatic` devDependency; these run in CI and produce a web UI, not local diff images, say so and point the user there instead of trying to fake a local diff.
-6. **Loki**: `.loki` config or `loki` devDependency.
+| Order | Tool | Look for |
+| --- | --- | --- |
+| 1 | Task runner targets | `just --list` or `grep -E 'visual|screenshot|chromatic|snapshot' justfile Makefile` for targets like `visual-diff`, `visual-update`, `test:visual` |
+| 2 | package.json scripts | `grep -A2 '"scripts"' package.json` for `chromatic`, `test:visual`, `storybook:test`, `playwright test.*visual` |
+| 3 | Storybook test-runner | Presence of `.storybook/test-runner.ts` or `@storybook/test-runner` in `package.json` |
+| 4 | Playwright screenshot tests | `toHaveScreenshot(` calls in `*.spec.ts`, or a `playwright.config.*` with `snapshotDir`/`toMatchSnapshot` settings |
+| 5 | Chromatic | `chromatic.config.json` or a `chromatic` devDependency; these run in CI and produce a web UI, not local diff images. Say so and point the user there instead of trying to fake a local diff. |
+| 6 | Loki | `.loki` config or `loki` devDependency |
 
 Base each check on the actual output of the command you ran (`ls`, `grep`, `just --list`), never assert a file is absent without having listed the directory. If two of these are present, ask the user which one is authoritative rather than running both. If none are found, stop and say so, do not invent a screenshot workflow.
 
@@ -39,7 +41,7 @@ For an unfamiliar repo, where a subagent/Task tool is available, delegate this d
 
 ## Step 2: Run the diff
 
-Run the discovered **diff** target, not the **update** target, even if the user asked to "fix the visual tests", you need to see what changed before deciding anything should be updated.
+Run the discovered `diff` target, not the `update` target, even if the user asked to "fix the visual tests": you need to see what changed before deciding anything should be updated.
 
 ```bash
 just visual-diff        # or whatever Step 1 found
@@ -59,13 +61,12 @@ Fill "Changed on this branch?" from ground truth, not from the diff tool's own a
 
 Classify each row:
 
-**Real regression**: the diff shows something nobody meant to change: wrong color, shifted layout, overlapping text, a broken icon, on a component whose files are NOT the ones the branch's intended change targets. Root cause is usually a shared style/layout/theme file the branch also touched.
-
-**Intended change**: the diff matches a change the branch is actually making, AND the component's files show up in the branch's changed-file list. Both must hold: the visual diff looks like the described change, and git shows this component's source was edited.
-
-**Flaky/non-deterministic**: a few pixels of anti-aliasing, a font-rendering difference, or a mid-frame animation capture, with no corresponding file in the branch's changed-file list. Note it as flaky; don't silently update over it, a flaky baseline hides real regressions later.
-
-**Needs human review**: the diff, the commit history, or the component ownership is ambiguous even after checking git. Use `AskUserQuestion` or say so plainly. Never default an ambiguous row to "approved", snapshot updates are hard to undo once merged.
+| Classification | Definition |
+| --- | --- |
+| Real regression | The diff shows something nobody meant to change: wrong color, shifted layout, overlapping text, a broken icon, on a component whose files are NOT the ones the branch's intended change targets. Root cause is usually a shared style/layout/theme file the branch also touched. |
+| Intended change | The diff matches a change the branch is actually making, AND the component's files show up in the branch's changed-file list. Both must hold: the visual diff looks like the described change, and git shows this component's source was edited. |
+| Flaky/non-deterministic | A few pixels of anti-aliasing, a font-rendering difference, or a mid-frame animation capture, with no corresponding file in the branch's changed-file list. Note it as flaky; don't silently update over it, since a flaky baseline hides real regressions later. |
+| Needs human review | The diff, the commit history, or the component ownership is ambiguous even after checking git. Use `AskUserQuestion` or say so plainly. Never default an ambiguous row to "approved": snapshot updates are hard to undo once merged. |
 
 Build the table top to bottom, once, per failure, not as a single batch judgment on the whole run (a branch that legitimately redesigns the button can still introduce an unrelated regression in the header). If evidence gathered later changes a row's classification, edit that row in place. Never draft a second, competing triage table or report later in the same run: two analyses of the same diff report means the model is negotiating with itself, and whichever draft comes last can silently overwrite a correct earlier finding as the final answer. There is exactly one triage table per run, and it is the one Step 5 reports.
 

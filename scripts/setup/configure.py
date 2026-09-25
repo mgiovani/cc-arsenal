@@ -173,7 +173,6 @@ def main(dry_run: bool) -> None:
         console.print('Create it first or run with `make install` for full installation')
         sys.exit(1)
 
-    # Discover available components
     console.print('🔍 Discovering available components...')
     discovery = FileDiscovery(config)
     all_items = discovery.discover_installable_files()
@@ -208,14 +207,12 @@ def main(dry_run: bool) -> None:
         console.print('Installation cancelled')
         return
 
-    # Handle conflicts
     conflict_manager = ConflictManager(config)
     conflicts = conflict_manager.analyze_conflicts(selected_items)
     resolutions = conflict_manager.resolve_conflicts_interactive(
         conflicts['existing_files']
     )
 
-    # Install selected components
     console.print('\n🚀 Installing selected components...')
     symlink_manager = SymlinkManager(config)
     try:

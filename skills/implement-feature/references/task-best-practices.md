@@ -126,7 +126,7 @@ ambiguous, report back and ask for clarification instead of guessing.
 
 ## Dependency pattern diagrams
 
-### Sequential chain (Most common)
+### Sequential chain (most common)
 
 Every phase depends on the previous one:
 ```

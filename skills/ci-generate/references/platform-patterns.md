@@ -6,6 +6,8 @@ Detailed YAML structure and patterns for each supported CI/CD platform. Use thes
 
 ### Standard Node.js pipeline
 
+Four parallel jobs, lint, test, build, security, gated behind a single concurrency group so superseded runs on the same ref get cancelled automatically.
+
 ```yaml
 name: CI
 
@@ -100,6 +102,8 @@ jobs:
 
 ### Standard Python pipeline
 
+Same shape as the Node.js pipeline above, swapped to `uv` (falls back to `pip` where noted) for dependency management.
+
 ```yaml
 name: CI
 
@@ -156,6 +160,8 @@ jobs:
 
 ### Matrix testing pattern
 
+Drop this in place of a single `test` job to run it across several Python versions; `fail-fast: false` keeps every version reporting even after one fails.
+
 ```yaml
   test:
     name: Test (Python ${{ matrix.python-version }})
@@ -174,6 +180,8 @@ jobs:
 ```
 
 ### Docker build & push pattern
+
+Note the `image` output: downstream deploy jobs must consume it rather than re-deriving their own tag, or they risk shipping an image that doesn't match what was just built.
 
 ```yaml
   docker:
@@ -208,6 +216,8 @@ jobs:
 
 ### Vercel deployment pattern
 
+Runs after `build`, deploys straight to production on a push to `main`.
+
 ```yaml
   deploy:
     name: Deploy to Vercel
@@ -233,6 +243,8 @@ jobs:
 ```
 
 ### AWS deployment pattern (ECS)
+
+Needs the `docker` job's image output to render the task definition; it deliberately does not restart the service blind.
 
 ```yaml
   deploy:
@@ -263,6 +275,8 @@ jobs:
 ```
 
 ### Monorepo path filter pattern
+
+Only runs the `frontend`/`backend` jobs when their own paths changed, so an unrelated change doesn't rebuild the whole repo.
 
 ```yaml
 on:
@@ -312,6 +326,8 @@ jobs:
 ## GitLab CI
 
 ### Standard Node.js pipeline
+
+GitLab's `rules:` blocks stand in for GitHub's `on:` triggers; each job runs on merge requests and on pushes to the default branch.
 
 ```yaml
 stages:
@@ -383,6 +399,8 @@ security:
 
 ### Standard Python pipeline
 
+No `deploy` stage here (add one if the project needs it); the `uv` cache is keyed on the branch slug so a branch's dependency install stays warm across runs.
+
 ```yaml
 stages:
   - lint
@@ -441,6 +459,8 @@ security:
 
 ### GitLab Docker build pattern
 
+Uses docker-in-docker (`dind`) as a service rather than the host's daemon, GitLab's usual sandboxing model for building images inside a runner.
+
 ```yaml
 docker:
   stage: build
@@ -463,6 +483,8 @@ docker:
 ## CircleCI
 
 ### Standard Node.js pipeline
+
+CircleCI's own `node` orb handles install and caching, so the jobs below only need to declare the commands.
 
 ```yaml
 version: 2.1
@@ -537,6 +559,8 @@ workflows:
 
 ### Standard Python pipeline
 
+No `python` orb dependency step here, `uv` is installed directly since it's faster than the orb's pip-based install.
+
 ```yaml
 version: 2.1
 
@@ -599,6 +623,8 @@ workflows:
 ## Jenkins
 
 ### Declarative pipeline (Node.js)
+
+Jenkinsfiles are Groovy, not YAML; a `docker` agent pins the toolchain image the same way `runs-on`/`image:` does elsewhere.
 
 ```groovy
 pipeline {
@@ -693,6 +719,8 @@ pipeline {
 
 ### Declarative pipeline (Python)
 
+Lint, format, and type-check run as parallel branches of the same `Quality` stage rather than sequential steps.
+
 ```groovy
 pipeline {
     agent {
@@ -762,7 +790,7 @@ pipeline {
 
 ---
 
-## Common patterns (Cross-Platform)
+## Common patterns (cross-platform)
 
 ### Caching strategies
 
@@ -810,7 +838,7 @@ release/* branches:
   - Full pipeline including deploy to staging
 ```
 
-### Environment-Based deployment
+### Environment-based deployment
 
 ```
 PR → lint + test + build (no deploy)

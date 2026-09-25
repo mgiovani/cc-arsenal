@@ -27,6 +27,8 @@ rot silently in a generated file.
 
 ## Health check patterns per service
 
+Drop the matching command straight into the service's `healthcheck.test` in `docker-compose.yml`. Most of these ship inside the image already, so no extra package install is needed.
+
 | Service | Health Check |
 |---------|-------------|
 | Postgres | `pg_isready -U ${USER}` |

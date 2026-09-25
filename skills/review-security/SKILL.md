@@ -23,23 +23,25 @@ agent: general-purpose
 # Security Review
 
 Static security analysis targeting OWASP Top 10 vulnerabilities and common language-specific
-security patterns. Analysis only: identifies vulnerabilities, explains findings, and
-suggests fix approaches without making code changes.
+security patterns. This skill only analyzes: it identifies vulnerabilities, explains why each
+one matters, and suggests fix approaches, all without touching the code.
 
 OWASP renumbers and re-titles its Top 10 categories periodically. Before labeling any finding
 with a category code (A01, A02, ...), do a quick web check against owasp.org/Top10/ to confirm
 the codes below are still current; if they've shifted, use the current codes and note the
 change in the report instead of silently reusing stale labels.
 
-## Anti-Hallucination Guidelines
+## Anti-hallucination guidelines
 
-1. **Read before claiming**: never report a vulnerability in code that hasn't been read.
-2. **Evidence-based findings**: every finding references a specific file path and line number.
-3. **Pattern matching**: use Grep to find actual vulnerable patterns, not hypothetical ones.
-4. **No invented CVEs**: only reference real vulnerabilities when providing context.
-5. **Quantifiable results**: statistics come from counting actual matches, never estimates.
-6. **No false positives**: verify each finding matches a documented vulnerability pattern.
-7. **Scope verification**: only scan files within the specified scope (PR/commit/all).
+| Rule | Detail |
+| --- | --- |
+| Read before claiming | Never report a vulnerability in code that hasn't been read |
+| Evidence-based findings | Every finding references a specific file path and line number |
+| Pattern matching | Use Grep to find actual vulnerable patterns, not hypothetical ones |
+| No invented CVEs | Only reference real vulnerabilities when providing context |
+| Quantifiable results | Statistics come from counting actual matches, never estimates |
+| No false positives | Verify each finding matches a documented vulnerability pattern |
+| Scope verification | Only scan files within the specified scope (PR/commit/all) |
 
 ## Scan Workflow
 
@@ -68,8 +70,8 @@ Use an Explore agent (`model: haiku`) to identify the stack: languages/framework
 package.json/pyproject.toml/pom.xml/go.mod, existing security tooling
 (.pre-commit-config.yaml, SAST steps in .github/workflows), web framework, DB/ORM patterns,
 auth patterns (JWT/OAuth/sessions), and any SECURITY.md. Return a stack summary with the
-vulnerability categories to prioritize. No Task tool available? Skip the agent, read those
-same files and grep those same paths yourself, inline, and note the stack directly.
+vulnerability categories to prioritize. No Task tool available? Skip the agent: read those
+same files and grep those same paths yourself, inline, then note the stack directly.
 
 ### Phase 2: Initialize Progress Tracking
 
@@ -124,15 +126,19 @@ review-deps instead of reporting them here.
 
 After scanning completes:
 
-1. **Collect all findings** from every agent/category pass.
-2. **Deduplicate**: remove duplicate findings across categories.
-3. **Prioritize by severity**: Critical (RCE, SQLi, auth bypass, hardcoded secrets) > High
-   (XSS, CSRF, broken access control, weak crypto) > Medium (info disclosure, missing
-   logging, insecure design) > Low (minor security-adjacent code quality).
-4. **Categorize by OWASP category** (confirm codes are current per the note at the top of
-   this file before tagging).
-5. **Statistics**: total vulnerabilities, counts by severity/category, files scanned vs.
-   files with issues, all counted from actual findings, never estimated.
+1. Collect all findings from every agent/category pass.
+2. Deduplicate: remove duplicate findings across categories.
+3. Prioritize by severity, using this table:
+
+   | Severity | Examples |
+   | --- | --- |
+   | Critical | RCE, SQLi, auth bypass, hardcoded secrets |
+   | High | XSS, CSRF, broken access control, weak crypto |
+   | Medium | Info disclosure, missing logging, insecure design |
+   | Low | Minor security-adjacent code quality |
+
+4. Categorize by OWASP category (confirm codes are current per the note at the top of this file before tagging).
+5. Compute statistics: total vulnerabilities, counts by severity/category, files scanned vs. files with issues, all counted from actual findings, never estimated.
 
 ### Phase 5: Generate Security Report
 
@@ -192,10 +198,10 @@ aren't in the `api` scope's list.
 
 ## What This Skill Does NOT Do
 
-- Does not modify code, auto-fix vulnerabilities, or commit changes
+- Does not modify code or auto-fix vulnerabilities, and never commits changes
 - Does not run dynamic security testing (DAST) or penetration testing
 - Does not audit dependency CVEs, versions, or licenses (use review-deps)
-- Does not guarantee 100% detection, static, pattern-based analysis only
+- Does not guarantee 100% detection: static, pattern-based analysis only
 
 ## OWASP References
 

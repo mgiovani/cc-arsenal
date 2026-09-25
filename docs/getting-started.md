@@ -10,17 +10,17 @@ Claude Code Arsenal is a professional collection of 49 skills designed to enhanc
 
 Before you begin, ensure you have:
 
-- **Claude Code** (Anthropic's official Claude CLI)
-- **Git** (for version control)
+- Claude Code (Anthropic's official Claude CLI)
+- Git (for version control)
 
 Everything below only applies if you plan to contribute to cc-arsenal itself:
 
-- **Python 3.12+**
-- **UV** (fast Python package management): `curl -LsSf https://astral.sh/uv/install.sh | sh`
+- Python 3.12+
+- UV (fast Python package management): `curl -LsSf https://astral.sh/uv/install.sh | sh`
 
 ## Installation
 
-### Plugin marketplace (Recommended)
+### Plugin marketplace (recommended)
 
 This is the primary installation method for all users. Register the repository as a Claude Code plugin marketplace, then install the variant you want:
 
@@ -41,7 +41,7 @@ Or pick a focused variant instead of the full toolkit, see [Features](features.m
 /plugin install cc-arsenal-review@cc-arsenal-marketplace  # Code review and quality skills
 ```
 
-**Team configuration:** add to `.claude/settings.json` so every team member auto-installs the marketplace on trust:
+Team configuration: add to `.claude/settings.json` so every team member auto-installs the marketplace on trust:
 
 ```json
 {
@@ -94,8 +94,8 @@ make validate-structure
 
 Claude Code Arsenal ships 49 skills, split between:
 
-- **User-invoked** skills: explicit slash commands (e.g. `/docs-adr`, `/git-commit`)
-- **Model-invoked** skills: Claude loads them automatically when the request matches (e.g. `agent-browser`, `create-skill`, `test-suite`)
+- User-invoked skills: explicit slash commands (e.g. `/docs-adr`, `/git-commit`)
+- Model-invoked skills: Claude loads them automatically when the request matches (e.g. `agent-browser`, `create-skill`, `test-suite`)
 
 Skills use progressive disclosure: Claude reads only the frontmatter until a skill is relevant, then loads its full body and bundled resources (`scripts/`, `references/`, `assets/`, `evals/`) as needed. See [Features](features.md) for the complete, categorized list.
 
@@ -129,9 +129,9 @@ Configuration for a symlink install is managed through the interactive `make con
 
 Your enhanced workflow includes:
 
-1. **Documentation automation**: `/docs-adr`, `/docs-rfc`, `/docs-diagram`, `/docs-update`, `/docs-check`, `/docs-init`
-2. **Git automation**: `/git-commit`, `/git-create-pr`, `/git-release`, `/ship`
-3. **Specialized skills**: Claude automatically invokes relevant model-invoked skills when needed
+1. Documentation automation: `/docs-adr`, `/docs-rfc`, `/docs-diagram`, `/docs-update`, `/docs-check`, `/docs-init`
+2. Git automation: `/git-commit`, `/git-create-pr`, `/git-release`, `/ship`
+3. Specialized skills: Claude automatically invokes relevant model-invoked skills when needed
 
 ### Code review process (Contributors)
 
@@ -159,15 +159,15 @@ make validate-structure
 
 ## Next steps
 
-1. **Create Custom Skills**: Use the `create-skill` skill to build specialized capabilities
-2. **Set Up Team Workflows**: Share the plugin marketplace config across your team
-3. **Enhanced Statusline**: Track token usage and session costs with `make install-statusline`
+1. Create custom skills: use the `create-skill` skill to build specialized capabilities
+2. Set up team workflows: share the plugin marketplace config across your team
+3. Enhanced statusline: track token usage and session costs with `make install-statusline`
 
 ### Community and support
 
-- **Documentation**: Browse `docs/` for detailed guides
-- **Issues**: Report bugs at https://github.com/mgiovani/cc-arsenal/issues
-- **Discussions**: Ask questions at https://github.com/mgiovani/cc-arsenal/discussions
+- Documentation: browse `docs/` for detailed guides
+- Issues: report bugs at https://github.com/mgiovani/cc-arsenal/issues
+- Discussions: ask questions at https://github.com/mgiovani/cc-arsenal/discussions
 
 ### Stay updated
 

@@ -17,17 +17,19 @@ disable-model-invocation: true
 
 # Performance Review
 
-Comprehensive performance analysis targeting database query inefficiencies, algorithmic complexity issues, frontend bottlenecks, and resource leaks. **Analysis only** - identifies problems and suggests optimizations without making code changes.
+Comprehensive performance analysis targeting database query inefficiencies, algorithmic complexity issues, frontend bottlenecks, and resource leaks. This skill only analyzes: it identifies problems and suggests optimizations without making code changes.
 
 ## Constraints
 
-- **Analysis only** - never modifies, fixes, or commits code, even if asked to "also fix these" mid-run; report the findings and stop
-- **Static analysis** - no runtime profiling, no benchmarking, no load testing
-- **Pattern-based** - Big O and impact estimates are approximate; may miss context-specific issues a profiler would catch
-- **Not exhaustive** - does not guarantee 100% detection; profiling is recommended before acting on critical findings
-- **Read before claiming** - never report a finding in a file that has not actually been read; every finding cites the specific file path and line number it came from
-- **No invented numbers** - counts, query-multiplication estimates, and Big O claims must trace back to code actually read, not generic examples copied from the report template
-- **Diff-scope confinement** - for a PR or commit review, never grep or read a file the diff didn't touch, and never let a pre-existing issue in a touched file masquerade as a PR finding; see Phase 0/2
+| Constraint | Detail |
+| --- | --- |
+| Analysis only | Never modifies, fixes, or commits code, even if asked to "also fix these" mid-run; report the findings and stop |
+| Static analysis | No runtime profiling, no benchmarking, no load testing |
+| Pattern-based | Big O and impact estimates are approximate; may miss context-specific issues a profiler would catch |
+| Not exhaustive | Does not guarantee 100% detection; profiling is recommended before acting on critical findings |
+| Read before claiming | Never report a finding in a file that has not actually been read; every finding cites the specific file path and line number it came from |
+| No invented numbers | Counts, query-multiplication estimates, and Big O claims must trace back to code actually read, not generic examples copied from the report template |
+| Diff-scope confinement | For a PR or commit review, never grep or read a file the diff didn't touch, and never let a pre-existing issue in a touched file masquerade as a PR finding; see Phase 0/2 |
 
 ## Scan Workflow
 
@@ -51,8 +53,8 @@ git diff-tree -p <commit_sha>
 ```
 
 From that diff, extract two things and carry both into Phase 2:
-1. **Changed-file list**: the paths after each `+++ b/` line.
-2. **Hunk ranges per file**: each `@@ -a,b +c,d @@` header gives the new-file line range `c` to `c+d-1` for that hunk. A file can have multiple hunks.
+1. Changed-file list: the paths after each `+++ b/` line.
+2. Hunk ranges per file: each `@@ -a,b +c,d @@` header gives the new-file line range `c` to `c+d-1` for that hunk. A file can have multiple hunks.
 
 `--all` or no args skips this entirely - there's no diff to confine to, the whole codebase is in scope.
 
@@ -64,10 +66,12 @@ Explore the codebase to identify the stack (language, ORM, framework) - it deter
 
 Four scan categories, each with its own grep patterns and reporting format in [references/agent-prompts.md](references/agent-prompts.md):
 
-- **Database**: N+1 queries, missing indexes, connection management
-- **Algorithm**: quadratic+ complexity, inefficient data structures, unnecessary recomputation
-- **Frontend**: bundle size, rendering (React re-renders, layout thrashing), network waterfalls
-- **Resources**: memory leaks, connection/file-handle leaks, thread/process leaks
+| Category | Covers |
+| --- | --- |
+| Database | N+1 queries, missing indexes, connection management |
+| Algorithm | Quadratic+ complexity, inefficient data structures, unnecessary recomputation |
+| Frontend | Bundle size, rendering (React re-renders, layout thrashing), network waterfalls |
+| Resources | Memory leaks, connection/file-handle leaks, thread/process leaks |
 
 Spawn only the category matching `--scope`; spawn all 4 for `--all`, no scope, or `--scope backend` (database + algorithm + resources).
 
@@ -91,10 +95,12 @@ Each category, agent or inline:
 1. Collect findings from all categories scanned; deduplicate anything two categories both flagged
 2. On a PR/commit review, keep the pre-existing-issues bucket separate from the main findings throughout - it never enters the severity tally below
 3. Sort by severity:
-   - **Critical**: N+1 in loops, O(n²+) on large datasets, memory leaks in long-running processes, unbounded resource allocation
-   - **High**: missing indexes, sync blocking in async contexts, large bundle imports, connection pool exhaustion
-   - **Medium**: suboptimal queries, unnecessary re-renders, missing caching, inefficient data structures
-   - **Low**: minor optimizations, marginal-impact style preferences
+   | Severity | Criteria |
+   | --- | --- |
+   | Critical | N+1 in loops, O(n²+) on large datasets, memory leaks in long-running processes, unbounded resource allocation |
+   | High | Missing indexes, sync blocking in async contexts, large bundle imports, connection pool exhaustion |
+   | Medium | Suboptimal queries, unnecessary re-renders, missing caching, inefficient data structures |
+   | Low | Minor optimizations, marginal-impact style preferences |
 4. Group by domain (Database/Algorithm/Frontend/Resources) and compute stats: total issues, by severity, by category, files scanned vs. files with issues
 
 ### Phase 4: Generate Report

@@ -15,7 +15,7 @@ git diff --name-only HEAD@{7.days.ago}..HEAD 2>/dev/null | grep -E "\.(py|ts|js|
 git log --since="7 days ago" --diff-filter=A --name-only --pretty=format: | sort -u | head -20
 ```
 
-## Per-Document freshness check
+## Per-document freshness check
 
 ```bash
 # When was this specific doc last modified? (empty output = untracked or doesn't exist yet)

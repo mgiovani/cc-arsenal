@@ -10,14 +10,14 @@ description: Runs a comprehensive multi-agent code review of a PR, commit, or th
   design critique (use review-design), or a deep performance-only investigation with
   profiling and query-level analysis (use review-perf).
 metadata:
-  summary: "Multi-agent code review across correctness, performance, style, tests, and error handling"
+  summary: "Multi-agent code review across six dimensions, from correctness and performance to tests and error handling"
   author: mgiovani
   version: 1.1.0
 ---
 
 # Code Review
 
-Multi-agent code review across correctness, performance, code style, test coverage gaps, and error handling. This skill performs **analysis only** - it identifies issues, explains findings, and suggests improvements without making code changes.
+Multi-agent code review spanning six dimensions: correctness, performance, code style, test coverage gaps, error handling, and simplicity/over-engineering. This skill performs analysis only. It surfaces issues, explains why they matter, and suggests fixes, but never touches the code itself.
 
 Every finding must cite a `file:line` you actually read: no hypothetical issues, no estimated counts. Only review files within the determined scope, and only flag style deviations from the project's own conventions, not personal preference.
 
@@ -47,11 +47,11 @@ git diff-tree --no-commit-id --name-only -r <commit_sha>
 git show <commit_sha>
 ```
 
-**Important**: When reviewing a PR or commit, always retrieve the full diff. The diff context is essential for understanding what changed vs. what was already there. Agents should focus findings on **changed lines** while using surrounding code for context.
+When reviewing a PR or commit, always retrieve the full diff: the diff context is essential for understanding what changed versus what was already there. Agents should focus findings on the changed lines while using surrounding code for context.
 
 ### Phase 1: Project Discovery
 
-Explore the codebase to understand the project's technology stack, conventions, and quality standards:
+Explore the codebase to understand its technology stack and conventions, plus whatever quality standards it already holds itself to:
 
 ### Phase 2: Initialize Progress Tracking (optional)
 
@@ -59,16 +59,19 @@ If TodoWrite is available, use it to track review progress across the specialist
 
 ### Phase 3: Parallel Specialist Review
 
-Spawn 5 parallel Explore agents for comprehensive code review. Each agent specializes in a specific review dimension. For detailed agent prompts and patterns, see [references/agent-prompts.md](references/agent-prompts.md).
+Spawn 6 parallel Explore agents for comprehensive code review (5 below, plus Agent 6 from the simplicity/over-engineering module later in this file). Each agent specializes in a specific review dimension. For detailed agent prompts and patterns, see [references/agent-prompts.md](references/agent-prompts.md).
 
-**Agent assignments:**
-- **Agent 1**: Correctness & Logic: bugs, race conditions, off-by-one errors, null safety, type mismatches
-- **Agent 2**: Performance: algorithmic complexity, unnecessary allocations, N+1 queries, missing caching, memory leaks
-- **Agent 3**: Code Style & Patterns: naming, structure, DRY violations, SOLID adherence, framework idioms
-- **Agent 4**: Test Coverage Gaps: untested code paths, missing edge case tests, weak assertions, test quality
-- **Agent 5**: Error Handling & Edge Cases: unhandled exceptions, missing validation, boundary conditions, graceful degradation
+Agent assignments:
 
-**No Task/Explore tool available**: run the same six specialist prompts (Agents 1-6, full text in [references/agent-prompts.md](references/agent-prompts.md)) as sequential Grep+Read passes instead of parallel subagents. Take one dimension at a time, in the same order, each following the same steps below, then merge all six dimensions' findings into one list before Phase 4.
+| Agent | Dimension | Focus |
+|-------|-----------|-------|
+| 1 | Correctness & Logic | bugs, race conditions, off-by-one errors, null safety, type mismatches |
+| 2 | Performance | algorithmic complexity, unnecessary allocations, N+1 queries, missing caching, memory leaks |
+| 3 | Code Style & Patterns | naming, structure, DRY violations, SOLID adherence, framework idioms |
+| 4 | Test Coverage Gaps | untested code paths, missing edge case tests, weak assertions, test quality |
+| 5 | Error Handling & Edge Cases | unhandled exceptions, missing validation, boundary conditions, graceful degradation |
+
+No Task/Explore tool available: run the same six specialist prompts (Agents 1-6, full text in [references/agent-prompts.md](references/agent-prompts.md)) as sequential Grep+Read passes instead of parallel subagents. Take one dimension at a time, in the same order, each following the same steps below, then merge all six dimensions' findings into one list before Phase 4.
 
 Each agent must:
 1. Grep for issue patterns across files in scope
@@ -78,35 +81,34 @@ Each agent must:
 5. Classify severity (Critical/Major/Minor/Nit)
 6. Provide a concrete fix suggestion with code example
 
-**Severity Definitions:**
-- **Critical**: Bugs that cause data loss, crashes, security holes, or incorrect business logic
-- **Major**: Significant issues affecting reliability, performance degradation, or maintainability risks
-- **Minor**: Improvements for readability, consistency, or minor inefficiencies
-- **Nit**: Style preferences, cosmetic suggestions, optional improvements
+Severity definitions:
+
+| Severity | Meaning |
+|----------|---------|
+| Critical | Bugs that cause data loss, crashes, security holes, or incorrect business logic |
+| Major | Significant issues that hurt reliability or performance, or create a maintainability risk |
+| Minor | Improvements to readability and consistency, plus minor inefficiencies worth flagging |
+| Nit | Style preferences, cosmetic suggestions, optional improvements |
 
 ### Phase 4: Consolidate & Analyze Findings
 
 After all agents complete:
 
-1. **Collect all findings** from the 5 parallel agents
-2. **Deduplicate** - Remove duplicate findings across agents (e.g., the same function flagged by both correctness and error handling agents)
-3. **Prioritize by severity**:
- - **Critical**: Data corruption, crashes, security implications, broken business logic
- - **Major**: Performance bottlenecks, reliability issues, test gaps for critical paths
- - **Minor**: Code readability, minor inefficiencies, style inconsistencies
- - **Nit**: Naming preferences, optional simplifications, cosmetic changes
-4. **Categorize by dimension**: Group findings under the 5 specialist categories
-5. **Cross-reference**: Note findings that span multiple dimensions (e.g., a missing null check is both a correctness and error handling issue)
-6. **Statistics**: Count total findings by severity, by dimension, files reviewed vs. files with issues
+1. Collect all findings from the 6 parallel agents.
+2. Deduplicate: remove duplicate findings across agents (e.g., the same function flagged by both correctness and error handling agents).
+3. Prioritize by severity, using the same scale as above: Critical (data corruption, crashes, security implications, broken business logic), Major (performance bottlenecks, reliability issues, test gaps for critical paths), Minor (code readability, minor inefficiencies, style inconsistencies), Nit (naming preferences, optional simplifications, cosmetic changes).
+4. Categorize by dimension: group findings under the 6 specialist categories.
+5. Cross-reference findings that span multiple dimensions (e.g., a missing null check is both a correctness and error handling issue).
+6. Compute statistics: total findings by severity, by dimension, files reviewed vs. files with issues.
 
 ### Phase 5: Generate Review Report
 
 Generate a comprehensive markdown report following the template in [references/report-template.md](references/report-template.md).
 
-**Report sections:**
+Report sections:
 1. Executive summary with overall code quality assessment
 2. Severity breakdown with counts
-3. Findings organized by dimension, each with file:line, code snippet, explanation, and fix suggestion
+3. Findings organized by dimension: each one carries a file:line, a code snippet, an explanation, and a fix suggestion
 4. Prioritized action items (Critical first, then Major)
 5. Positive observations - highlight well-written code, good patterns, thorough tests
 
@@ -151,18 +153,18 @@ If no focus specified, perform comprehensive review across all dimensions.
 
 ## Limitations
 
-- **Static, pattern-based analysis**: cannot measure actual runtime/performance impact or detect runtime-only issues; some findings may turn out to be intentional design choices
-- **Language support**: grep patterns in [references/agent-prompts.md](references/agent-prompts.md) are written for C-like and Python syntax; adapt them for other languages before relying on pattern coverage
-- Does not modify code, run tests/benchmarks, or perform security-specific analysis (use review-security for that)
+- Static, pattern-based analysis: cannot measure actual runtime/performance impact or detect runtime-only issues; some findings may turn out to be intentional design choices
+- Language support: grep patterns in [references/agent-prompts.md](references/agent-prompts.md) are written for C-like and Python syntax, so adapt them for other languages before relying on pattern coverage
+- Does not modify code or run tests/benchmarks, and skips security-specific analysis entirely (use review-security for that)
 
-## Simplicity & Over-Engineering Lens (Claude Code enhancement)
+## Simplicity & Over-engineering lens (Claude Code enhancement)
 
 LLM-written code tends to over-engineer: interfaces built for one implementation, factories for one product, wrapper layers that just forward a call. None of that shows up as a bug, so the five specialists in Phase 3 don't catch it: it needs its own lens. This module adds a 6th parallel specialist and a matching report dimension.
 
-### Agent 6: Simplicity & Over-Engineering
+### Agent 6: Simplicity & Over-engineering
 
 Spawn this agent alongside Agents 1-5 in Phase 3, in the same parallel batch. Full prompt and tag definitions: [references/agent-prompts.md](references/agent-prompts.md#agent-6---simplicity--over-engineering).
 
-**Routing out of scope**: when Agent 6 flags something that Phase 4 consolidation determines is actually a correctness, security, or performance issue, move it into the matching dimension (`CL-`, `PF-`, or `EH-` prefix) instead of reporting it as an OE finding. An over-engineered function that also happens to be buggy is a bug first.
+Routing out of scope: when Agent 6 flags something that Phase 4 consolidation determines is actually a correctness, security, or performance issue, move it into the matching dimension (`CL-`, `PF-`, or `EH-` prefix) instead of reporting it as an OE finding. An over-engineered function that also happens to be buggy is a bug first.
 
 Add its dimension (`OE-` prefix, Minor/Nit by default) to Phase 4/5 output: full report-addendum spec in [references/agent-prompts.md](references/agent-prompts.md#agent-6---simplicity--over-engineering).

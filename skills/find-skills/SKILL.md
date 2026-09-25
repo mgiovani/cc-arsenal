@@ -8,7 +8,7 @@ metadata:
 
 # Find Skills
 
-Discover and install agent skills from the open Agent Skills ecosystem powered by skills.sh.
+Discover and install third-party agent skills from the open Agent Skills ecosystem powered by skills.sh.
 
 ## Overview
 
@@ -149,7 +149,9 @@ For discovery patterns and best practices, load: [references/workflows.md](./ref
 
 ## Resources
 
-- **Directory**: https://skills.sh
-- **CLI Repository**: https://github.com/vercel-labs/skills
-- **Open Specification**: https://agentskills.io
-- **Anthropic Skills Docs**: https://code.claude.com/docs/en/skills
+| Resource | Link |
+|---|---|
+| Directory | https://skills.sh |
+| CLI repository | https://github.com/vercel-labs/skills |
+| Open specification | https://agentskills.io |
+| Anthropic Skills docs | https://code.claude.com/docs/en/skills |

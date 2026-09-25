@@ -28,11 +28,12 @@ $ARGUMENTS
 
 ## Step 0: Is orchestration warranted?
 
-Before decomposing anything, check: does this genuinely split into 2+ independent
-pieces of real work? A task that touches one file, needs one command, or has one
-obvious fix does NOT need a plan or a subagent: do it directly and say so in one line.
-Spawning, tracking, and merging subagents costs more than the work itself below that
-bar, and a fabricated multi-phase plan for a one-line change is worse than no plan.
+Before decomposing anything, check whether the task genuinely splits into 2+
+independent pieces of real work. A task confined to one file, needing just one
+command, or with a single obvious fix, doesn't need a plan or a subagent: do it
+directly and say so in one line. Below that bar, spawning, tracking, and merging
+subagents costs more than the work itself, and a fabricated multi-phase plan for a
+one-line change is worse than no plan.
 
 If it passes this bar, continue to Step 1.
 
@@ -41,10 +42,12 @@ If it passes this bar, continue to Step 1.
 Break the task into subtasks. For each, state its concrete input, its expected output,
 and classify it as one of:
 
-- **research**: exploration, search, reading, gathering information; no code written
-- **implementation**: writing or editing code, config, or content
-- **planning**: architecture/design decisions, non-trivial trade-off calls
-- **synthesis**: merging multiple subagents' outputs into one final deliverable
+| Classification | Covers |
+|---|---|
+| research | exploration, search, reading, gathering information; no code written |
+| implementation | writing or editing code, config, or content |
+| planning | architecture/design decisions, non-trivial trade-off calls |
+| synthesis | merging multiple subagents' outputs into one final deliverable |
 
 ## Step 2: Model table (`model` is required, never inherited)
 

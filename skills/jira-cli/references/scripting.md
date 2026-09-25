@@ -74,7 +74,7 @@ for issue in $issues; do
 done
 ```
 
-### Auto-Label based on summary
+### Auto-label based on summary
 
 ```bash
 #!/usr/bin/env bash
@@ -290,7 +290,7 @@ fi
 
 ## Automation helpers
 
-### Auto-Transition based on PR status
+### Auto-transition based on PR status
 
 ```bash
 #!/usr/bin/env bash

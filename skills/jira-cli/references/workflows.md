@@ -198,7 +198,7 @@ for issue in $(jira issue list -ax --created-before -12w --plain --columns key -
 done
 ```
 
-## Cross-Team coordination
+## Cross-team coordination
 
 Working across teams:
 
@@ -268,10 +268,10 @@ done
 ### Keyboard shortcuts in interactive mode
 
 Master the interactive UI for speed:
-- Use **j/k** instead of arrows for Vim-like navigation
-- Press **v** to quickly view details without leaving the list
-- Press **m** to transition without navigating to browser
-- Use **c** and **CTRL+k** to quickly copy links/keys for sharing
+- Use `j`/`k` instead of arrows for Vim-like navigation
+- Press `v` to quickly view details without leaving the list
+- Press `m` to transition without navigating to browser
+- Use `c` and `CTRL+k` to quickly copy links/keys for sharing
 
 ### Output formatting for different needs
 

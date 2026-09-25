@@ -12,7 +12,7 @@ Use this template when injecting FastAPI documentation:
 
 ### Project structure
 
-**Use domain-driven organization** (by feature), not file-type organization.
+Use domain-driven organization (by feature), not file-type organization.
 
 ```
 src/
@@ -42,14 +42,14 @@ src/
 └── main.py                # App initialization
 ```
 
-**Benefits**:
+Benefits:
 - Each domain is self-contained and independently testable
 - Scales better than monolithic file-type organization
 - Clear boundaries reduce coupling between domains
 
 ### Async patterns
 
-**Critical async rules**:
+Critical async rules:
 - Do: Use `async def` for non-blocking I/O (database queries, HTTP calls, file operations)
 - Do: Use `def` for blocking operations (FastAPI automatically runs in threadpool)
 - Do: Use `await asyncio.sleep()` for delays
@@ -57,7 +57,7 @@ src/
 - Don't: use `time.sleep()` in an async function, ever (it blocks the entire event loop)
 - Don't: run CPU-intensive work inline; it needs multiprocessing or Celery (threads don't help, because of the GIL)
 
-**Example**:
+Example:
 ```python
 # ✅ Good - non-blocking
 @router.get("/users/{user_id}")
@@ -80,7 +80,7 @@ async def bad_endpoint():
 
 ### Import discipline
 
-**Use explicit imports with module names** to avoid hidden coupling:
+Use explicit imports with module names to avoid hidden coupling:
 
 ```python
 # ✅ Good - explicit and clear
@@ -93,7 +93,7 @@ from src.auth.constants import *
 from src.auth.service import authenticate_user
 ```
 
-**Benefits**:
+Benefits:
 - Clear dependencies between modules
 - Easier to refactor and maintain
 - Prevents naming conflicts
@@ -101,7 +101,7 @@ from src.auth.service import authenticate_user
 
 ### Validation & dependencies
 
-**Leverage Pydantic's rich built-in validation**:
+Leverage Pydantic's rich built-in validation:
 
 ```python
 from pydantic import BaseModel, EmailStr, Field, validator
@@ -118,7 +118,7 @@ class UserCreate(BaseModel):
         return v
 ```
 
-**Use dependencies for business logic validation**:
+Use dependencies for business logic validation:
 
 ```python
 # Dependencies are not just for injection - use for validation too
@@ -140,7 +140,7 @@ async def get_user_posts(
     return await posts_service.get_by_user(db, user.id)
 ```
 
-**Remember**: Dependencies cache within request scope - chain them to avoid redundant computations:
+Remember: Dependencies cache within request scope - chain them to avoid redundant computations:
 
 ```python
 # ✅ Good - get_current_user calls get_token, both cached
@@ -168,7 +168,7 @@ async def endpoint2(authorization: str = Header(...), db: AsyncSession = Depends
 
 ### Response serialization
 
-**Always use `response_model` parameter** for type safety and OpenAPI documentation:
+Always use `response_model` parameter for type safety and OpenAPI documentation:
 
 ```python
 from typing import List
@@ -179,7 +179,7 @@ async def list_users(db: AsyncSession = Depends(get_db)):
     return users.scalars().all()  # Auto-serialized to UserResponse
 ```
 
-**Create custom encoders for special types**:
+Create custom encoders for special types:
 
 ```python
 from pydantic import BaseModel
@@ -199,7 +199,7 @@ class CustomModel(BaseModel):
 
 ### Error handling
 
-**Define module-specific exception classes**:
+Define module-specific exception classes:
 
 ```python
 # src/auth/exceptions.py
@@ -236,7 +236,7 @@ async def invalid_credentials_handler(request: Request, exc: InvalidCredentials)
     )
 ```
 
-**Use correct HTTP status codes**:
+Use correct HTTP status codes:
 - 400 Bad Request - Client error (validation failed)
 - 401 Unauthorized - Authentication required
 - 403 Forbidden - Authenticated but not authorized
@@ -246,14 +246,14 @@ async def invalid_credentials_handler(request: Request, exc: InvalidCredentials)
 
 ### Database integration
 
-**SQL-first design approach**:
+SQL-first design approach:
 
-1. **Design schema first**, then create models
-2. **Enforce naming conventions at database level** (snake_case for tables/columns)
-3. **Use Alembic for migrations** from day one
-4. **Prefer async drivers** for scalability
+1. Design schema first, then create models
+2. Enforce naming conventions at database level (snake_case for tables/columns)
+3. Use Alembic for migrations from day one
+4. Prefer async drivers for scalability
 
-**Example with SQLAlchemy 2.0+ (async)**:
+Example with SQLAlchemy 2.0+ (async):
 
 ```python
 # src/database.py
@@ -295,7 +295,7 @@ async def get_user_by_username(db: AsyncSession, username: str) -> User | None:
     return result.scalar_one_or_none()
 ```
 
-**Migration workflow** (Alembic):
+Migration workflow (Alembic):
 
 ```bash
 # Generate migration
@@ -312,7 +312,7 @@ alembic downgrade -1
 
 ### Testing
 
-**Use async test clients from day one**:
+Use async test clients from day one:
 
 ```python
 # tests/conftest.py
@@ -362,14 +362,14 @@ async def test_create_user(async_client: AsyncClient):
     assert data["email"] == "test@example.com"
 ```
 
-**Test at multiple levels**:
-- **Unit tests**: Test service layer logic in isolation
-- **Integration tests**: Test router + service + database
-- **End-to-end tests**: Test full request/response cycle with real dependencies
+Test at multiple levels:
+- Unit tests: Test service layer logic in isolation
+- Integration tests: Test router + service + database
+- End-to-end tests: Test full request/response cycle with real dependencies
 
 ### Code quality
 
-**Use Ruff** for linting and formatting (Python-focused, extremely fast):
+Use Ruff for linting and formatting (Python-focused, extremely fast):
 
 ```toml
 # pyproject.toml
@@ -395,7 +395,7 @@ ignore = [
 known-first-party = ["src"]
 ```
 
-**Always include type hints** for OpenAPI generation:
+Always include type hints for OpenAPI generation:
 
 ```python
 # ✅ Good - fully typed
@@ -410,7 +410,7 @@ async def create_user(user_data, db=Depends(get_db)):
     ...
 ```
 
-**Enforce strict type checking** with mypy or pyright:
+Enforce strict type checking with mypy or pyright:
 
 ```toml
 # pyproject.toml
@@ -427,7 +427,7 @@ strict = true
 ignore_missing_imports = true
 ```
 
-**Use pre-commit hooks** for quality gates:
+Use pre-commit hooks for quality gates:
 
 ```yaml
 # .pre-commit-config.yaml
@@ -448,7 +448,7 @@ repos:
 
 ### REST conventions
 
-**Use correct HTTP methods**:
+Use correct HTTP methods:
 
 | Method | Use Case | Idempotent | Safe |
 |--------|----------|------------|------|
@@ -458,7 +458,7 @@ repos:
 | PATCH | Partial update | ❌ | ❌ |
 | DELETE | Remove resource | ✅ | ❌ |
 
-**Example**:
+Example:
 
 ```python
 # ✅ Good - follows REST conventions
@@ -474,7 +474,7 @@ repos:
 @router.get("/delete-user/{id}")   # Should be DELETE
 ```
 
-**Add docstrings for OpenAPI documentation**:
+Add docstrings for OpenAPI documentation:
 
 ```python
 @router.post("/users", response_model=UserResponse, status_code=201)
@@ -494,11 +494,11 @@ async def create_user(
     return await user_service.create(db, user_data)
 ```
 
-**Leverage FastAPI's auto-generated `/docs`** as primary API documentation (OpenAPI/Swagger UI).
+Leverage FastAPI's auto-generated `/docs` as primary API documentation (OpenAPI/Swagger UI).
 
 ### Configuration management
 
-**Decouple BaseSettings by domain** (not monolithic):
+Decouple BaseSettings by domain (not monolithic):
 
 ```python
 # ✅ Good - domain-specific config classes
@@ -556,6 +556,6 @@ When building FastAPI applications:
 
 ---
 
-**Reference**: [FastAPI Best Practices by zhanymkanov](https://github.com/zhanymkanov/fastapi-best-practices)
+Reference: [FastAPI Best Practices by zhanymkanov](https://github.com/zhanymkanov/fastapi-best-practices)
 
-**Version**: Based on production-ready patterns (applicable to FastAPI 0.100+)
+Version: Based on production-ready patterns (applicable to FastAPI 0.100+)

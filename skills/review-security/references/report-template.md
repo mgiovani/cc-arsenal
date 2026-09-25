@@ -7,104 +7,82 @@ Use this template when generating the security report in Phase 5.
 ```markdown
 # Security Review Report
 
-**Scope**: [PR #123 | Commit abc123 | Entire Codebase]
-**Date**: [YYYY-MM-DD]
-**Files Scanned**: [N files]
-**Total Findings**: [N vulnerabilities]
+| Field | Value |
+| --- | --- |
+| Scope | [PR #123 \| Commit abc123 \| Entire Codebase] |
+| Date | [YYYY-MM-DD] |
+| Files Scanned | [N files] |
+| Total Findings | [N vulnerabilities] |
 
-## Executive Summary
+## Executive summary
 
 [2-3 sentence overview of security posture and critical issues]
 
-## Severity Breakdown
+## Severity breakdown
 
-- **Critical**: N findings
-- **High**: N findings
-- **Medium**: N findings
-- **Low**: N findings
+| Severity | Findings |
+| --- | --- |
+| Critical | N |
+| High | N |
+| Medium | N |
+| Low | N |
 
-## Findings by OWASP Category
+## Findings by OWASP category
 
-### A01: Broken Access Control (N findings)
+Give each OWASP category its own `### A0N: <category name> (N findings)` heading, in order (A01 through A10); omit a heading for any category with zero findings. Document every finding with this table, its code snippet, and a numbered fix list:
+
+### A01: Broken access control (N findings)
 
 #### Finding 1: [Vulnerability Title]
-- **Severity**: Critical
-- **File**: `path/to/file.py:123-130`
-- **Description**: [What is vulnerable and why]
-- **Code Snippet**:
-  ```python
-  [Actual vulnerable code]
-  ```
-- **Explanation**: [Why this is exploitable, reference CWE if applicable]
-- **Attack Scenario**: [How an attacker could exploit this]
-- **Recommended Fixes**:
-  1. **Approach 1**: [Description with code example]
-  2. **Approach 2**: [Alternative approach with code example]
-  3. **Approach 3**: [Another alternative if applicable]
 
-[Repeat for each finding...]
+| Field | Value |
+| --- | --- |
+| Severity | Critical |
+| File | `path/to/file.py:123-130` |
+| Description | [What is vulnerable and why] |
+| Explanation | [Why this is exploitable, reference CWE if applicable] |
+| Attack scenario | [How an attacker could exploit this] |
 
-### A02: Security Misconfiguration (N findings)
-[...]
+```python
+[Actual vulnerable code]
+```
 
-### A03: Software Supply Chain Failures (N findings)
-[...]
+Recommended fixes:
+1. Primary: [description with code example]
+2. Fallback: [alternative approach with code example]
+3. Fallback: [another alternative if applicable]
 
-### A04: Cryptographic Failures (N findings)
-[...]
+Add one block like this per finding. Repeat the same table + snippet + fix-list shape under each other in-scope `### A0N` heading: A02 Security Misconfiguration, A03 Software Supply Chain Failures, A04 Cryptographic Failures, A05 Injection Vulnerabilities, A06 Insecure Design, A07 Authentication Failures, A08 Data Integrity Failures, A09 Logging/Monitoring Failures, and A10 Exception Handling Issues.
 
-### A05: Injection Vulnerabilities (N findings)
-[...]
+## Bytecode security analysis
 
-### A06: Insecure Design (N findings)
-[...]
+Cover Python bytecode, JavaScript/TypeScript compilation output, and Java bytecode findings here, each under its own `### <language> findings (if applicable)` heading, using the same finding table shape as above; omit a language with nothing to report.
 
-### A07: Authentication Failures (N findings)
-[...]
+## Recommendations by priority
 
-### A08: Data Integrity Failures (N findings)
-[...]
-
-### A09: Logging/Monitoring Failures (N findings)
-[...]
-
-### A10: Exception Handling Issues (N findings)
-[...]
-
-## Bytecode Security Analysis
-
-### Python Bytecode Findings (if applicable)
-[...]
-
-### JavaScript/TypeScript Compilation Findings (if applicable)
-[...]
-
-### Java Bytecode Findings (if applicable)
-[...]
-
-## Recommendations by Priority
-
-### Immediate Action Required (Critical/High)
+### Immediate action required (Critical/High)
 1. [Finding reference] - [Brief action item]
 2. [...]
 
-### Short-term Improvements (Medium)
+### Short-term improvements (Medium)
 1. [Finding reference] - [Brief action item]
 2. [...]
 
-### Long-term Enhancements (Low)
+### Long-term enhancements (Low)
 1. [Finding reference] - [Brief action item]
 2. [...]
 
-## Security Tooling Recommendations
+## Security tooling recommendations
 
 Based on this analysis, consider adding:
 
-- **SAST**: [Tool recommendations based on tech stack]
-- **Dependency Scanning**: [Tool recommendations]
-- **Secret Detection**: [Tool recommendations]
-- **Pre-commit Hooks**: [Specific hooks to add]
-- **CI/CD Security**: [Pipeline improvements]
+| Category | Recommendation |
+| --- | --- |
+| SAST | [Tool recommendations based on tech stack] |
+| Dependency scanning | [Tool recommendations] |
+| Secret detection | [Tool recommendations] |
+| Pre-commit hooks | [Specific hooks to add] |
+| CI/CD security | [Pipeline improvements] |
 
 ## References
 
@@ -114,7 +92,7 @@ Based on this analysis, consider adding:
 
 ---
 
-**Next Steps**: Review findings, prioritize fixes, and implement recommended security controls.
+Next steps: review findings, prioritize fixes, and implement recommended security controls.
 ```
 
 ## Example output

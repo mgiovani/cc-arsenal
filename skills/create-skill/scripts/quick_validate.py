@@ -70,10 +70,8 @@ def validate_skill(skill_path: str | Path) -> tuple[bool, list[str], list[str]]:
     if not skill_md.exists():
         return False, ['SKILL.md not found'], []
 
-    # Read and parse content
     content = skill_md.read_text(encoding='utf-8')
 
-    # Extract frontmatter
     frontmatter_str, parse_error = _extract_frontmatter(content)
     if parse_error:
         return False, [parse_error], []
@@ -83,7 +81,6 @@ def validate_skill(skill_path: str | Path) -> tuple[bool, list[str], list[str]]:
     if yaml_error:
         return False, [yaml_error], []
 
-    # Validate frontmatter
     fm_errors = _validate_frontmatter(frontmatter)
     errors.extend(fm_errors)
 
@@ -95,7 +92,6 @@ def validate_skill(skill_path: str | Path) -> tuple[bool, list[str], list[str]]:
             'Consider moving detailed content to references/'
         )
 
-    # Directory structure
     dir_errors = _validate_directory_structure(skill_path)
     errors.extend(dir_errors)
 
@@ -189,7 +185,6 @@ def _validate_frontmatter(frontmatter: dict) -> list[str]:
     if 'description' not in frontmatter:
         errors.append("Missing required field: 'description'")
 
-    # Unknown keys
     unknown_keys = set(frontmatter.keys()) - ALLOWED_FRONTMATTER_KEYS
     if unknown_keys:
         errors.append(

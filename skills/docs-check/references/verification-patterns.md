@@ -2,7 +2,7 @@
 
 Detailed bash verification commands and patterns for documentation quality checking.
 
-## Section-Level verification (Single document)
+## Section-level verification (single document)
 
 When checking ONE document, spawn subagents for each logical section:
 

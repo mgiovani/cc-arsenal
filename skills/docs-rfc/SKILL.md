@@ -19,14 +19,14 @@ allowed-tools: Read, Write, Grep, Glob, Bash(git *), Task
 
 Create a new RFC document proposing and discussing a change.
 
-## Anti-Hallucination guidelines
+## Anti-hallucination guidelines
 
 RFCs propose changes to real systems, so ground every claim before writing:
 
-1. **Verify current state**: explore the codebase to understand what exists today
-2. **Reference actual code**: don't invent APIs or patterns; find real examples
-3. **Check dependencies**: confirm libraries/tools mentioned actually exist in the project
-4. **Validate assumptions**: each claim about current state must be verified
+1. Verify current state: explore the codebase to understand what exists today.
+2. Reference actual code: don't invent APIs or patterns, find real examples.
+3. Check dependencies: confirm libraries/tools mentioned actually exist in the project.
+4. Validate assumptions: each claim about current state must be verified.
 
 ## Workflow
 
@@ -62,11 +62,13 @@ the Background and Detailed Design sections in Phase 6.
 ### Phase 4: sanitize title for filename
 
 Convert the title to kebab-case, lowercase, special characters stripped.
-Example: "Add GraphQL API Support" -> `add-graphql-api-support`
+Example: "Add GraphQL API Support" -> `add-graphql-api-support`. This
+sanitized form becomes part of the filename built in Phase 7.
 
 ### Phase 5: get author information
 
 Run `git config user.name`, falling back to `"Development Team"` if empty.
+This populates the author field the template expects in Phase 6.
 
 ### Phase 6: load and populate template
 
@@ -85,13 +87,15 @@ literally in the output. The written RFC must contain zero unresolved
 
 ### Phase 7: create RFC file
 
-- Filename: `docs/rfc/RFC-XXXX-kebab-case-title.md`
+- Filename: `docs/rfc/RFC-XXXX-kebab-case-title.md`, using the number from
+  Phase 3 and the sanitized title from Phase 4
 - Ensure `docs/rfc/` exists, write populated content, set status to "Draft"
 
 ### Phase 8: report creation
 
 Show the RFC number, title, file path, and next-step guidance (share for feedback,
-update status as it progresses).
+update status as it progresses). This is the last step; nothing downstream
+consumes this report beyond the person reading it.
 
 ## Usage examples
 

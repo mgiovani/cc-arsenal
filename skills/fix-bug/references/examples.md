@@ -4,10 +4,13 @@
 
 Parse optional arguments from the command invocation:
 
-**Optional Flags**:
-- `--branch name` or `-b name`: Create fix on a specific branch (default: current branch)
-- `--interactive` or `-i`: Prompt for confirmation at each phase
-- `--test-only`: Only reproduce and analyze the bug, do not implement fix
+Optional flags:
+
+| Flag | Effect |
+|------|--------|
+| `--branch name` or `-b name` | Create fix on a specific branch (default: current branch) |
+| `--interactive` or `-i` | Prompt for confirmation at each phase |
+| `--test-only` | Only reproduce and analyze the bug, do not implement fix |
 
 ## Usage Examples
 
@@ -18,12 +21,12 @@ Parse optional arguments from the command invocation:
 ```
 
 Single file, single root cause, no task chain needed:
-1. **Phase 0**: Discover project uses `npm test` and `npm run lint`
-2. **Phase 1**: Find failing test or create one, locate routing bug
-3. **Phase 2**: Plan fix (add route configuration)
-4. **Phase 3**: Implement fix
-5. **Phase 4**: Verify all tests pass
-6. **Phase 5**: Commit `fix(routing): add profile route configuration`
+1. Phase 0: discover project uses `npm test` and `npm run lint`
+2. Phase 1: find failing test or create one, locate routing bug
+3. Phase 2: plan fix (add route configuration)
+4. Phase 3: implement fix
+5. Phase 4: verify all tests pass
+6. Phase 5: commit `fix(routing): add profile route configuration`
 
 ### Example 2: Bug with Issue Number (task chain, multi-file)
 
@@ -33,14 +36,14 @@ Single file, single root cause, no task chain needed:
 
 Webhook signature validation touches the handler, the signing util, and two
 call sites, spans multiple files, so create the six-task chain first:
-1. **Create task chain** for all 6 phases with strict sequential dependencies
-2. **Phase 0**: Fetch issue `gh issue view 789`, discover `make test` and `make lint`
-3. **Phase 1**: Reproduce failing webhook, root cause: missing signature validation
-4. **Phase 2**: Plan fix: add HMAC signature verification
-5. **Phase 3**: Implement signature validation
-6. **Phase 4**: Verify with integration tests
-7. **Phase 5**: Commit: `fix(webhooks): validate payment signatures\n\nCloses #789`
-8. **Track progress**: `TaskList` after each phase shows which task unblocked
+1. Create the task chain for all 6 phases with strict sequential dependencies
+2. Phase 0: fetch issue `gh issue view 789`, discover `make test` and `make lint`
+3. Phase 1: reproduce failing webhook, root cause: missing signature validation
+4. Phase 2: plan fix: add HMAC signature verification
+5. Phase 3: implement signature validation
+6. Phase 4: verify with integration tests
+7. Phase 5: commit: `fix(webhooks): validate payment signatures\n\nCloses #789`
+8. Track progress: `TaskList` after each phase shows which task unblocked
 
 ### Example 3: Interactive Bug Fix
 
@@ -48,7 +51,7 @@ call sites, spans multiple files, so create the six-task chain first:
 /fix-bug "Auth tokens expire too quickly" --interactive
 ```
 
-**Process**:
+Process:
 1. Prompt user after Phase 0 (confirm discovered commands)
 2. Prompt user after Phase 1 (confirm root cause analysis)
 3. Prompt user after Phase 2 (approve fix plan)
@@ -61,7 +64,7 @@ call sites, spans multiple files, so create the six-task chain first:
 /fix-bug Database query timeout in reports --test-only
 ```
 
-**Process**:
+Process:
 1. Run Phases 0-2 only
 2. Report root cause analysis
 3. Suggest fix approaches
@@ -72,11 +75,11 @@ call sites, spans multiple files, so create the six-task chain first:
 
 If the bug affects a web UI and the agent-browser skill is available:
 
-**After Phase 3 (Implementation), before Phase 4**:
+After Phase 3 (Implementation), before Phase 4:
 
-1. **Start Development Server** using discovered dev command from Phase 0
+1. Start the development server using the discovered dev command from Phase 0
 
-2. **Browser Testing** (if agent-browser skill is available):
+2. Browser testing (if the agent-browser skill is available):
 ```
 Use agent-browser skill to:
 1. Navigate to the affected page/component
@@ -86,9 +89,9 @@ Use agent-browser skill to:
 5. Take screenshots as evidence
 ```
 
-3. **Report Browser Test Results** - Include in final summary with screenshot evidence.
+3. Report browser test results: include them in the final summary with screenshot evidence.
 
-**When to Skip Browser Testing**:
+When to skip browser testing:
 - Backend-only bugs (API, database, services)
 - CLI tool bugs
 - Unit test failures (not integration/E2E)
@@ -140,7 +143,7 @@ authoritative checklist, not duplicated here.
 - Body: Explain WHY this fixes the bug
 - Footer: Reference issue numbers
 
-**Example**:
+Example:
 ```
 fix(auth): prevent token expiration on page reload
 

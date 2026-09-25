@@ -4,18 +4,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with th
 
 ## Repository architecture
 
-This is a **Claude Code template repository** that provides a professional collection of specialized AI agents, workflow automation commands, and safety hooks. The codebase is organized using a **symlink architecture** for clean installation and modular configuration.
+This is a Claude Code template repository. It packages a professional set of specialized AI agents, plus the commands and hooks that wire them into a project. The codebase uses a symlink architecture for clean installation and modular configuration.
 
 ### Core components
 
-- **Agents** (`agents/`): Specialized AI assistants organized by domain (development, architecture, product, UX, orchestration)
-- **Commands** (`commands/`): Security and quality workflow automation
-- **Hooks** (`hooks/`): Safety and validation scripts that run automatically on Claude Code events
-- **Scripts** (`scripts/`): Professional Python utilities for installation, configuration, and code generation
+| Component | Path | Purpose |
+|---|---|---|
+| Agents | `agents/` | Specialized AI assistants organized by domain (development, architecture, product, UX, orchestration) |
+| Commands | `commands/` | Security and quality workflow automation |
+| Hooks | `hooks/` | Safety and validation scripts that run automatically on Claude Code events |
+| Scripts | `scripts/` | Professional Python utilities for installation, configuration, and code generation |
 
-### Security-First integration
+### Security-first integration
 
-This repository implements **Security-First Development** through coordinated security and quality agents:
+This repository implements security-first development through coordinated security and quality agents:
 
 ```
 🔍 Security Scan → 🧪 Quality Check → 📋 Compliance Validation → ✅ Approval → 🚀 Deploy
@@ -74,25 +76,25 @@ make show-structure
 
 ## Available specialized agents
 
-### Development agents
-- **security-validator**: Authentication validation, access control, and security pattern analysis
-- **code-reviewer**: Security-focused code review, vulnerability detection, and quality analysis
-- **test-orchestrator**: Automated testing coordination with security and compliance focus
-
-### Compliance agents
-- **compliance-checker**: Regulatory compliance validation (HIPAA, SOX, GDPR)
-- **audit-enforcer**: Audit trail generation and compliance reporting
-- **data-protector**: PII/PHI detection and data protection validation
+| Category | Agent | Purpose |
+|---|---|---|
+| Development | `security-validator` | Validates authentication and access control, and analyzes security patterns |
+| Development | `code-reviewer` | Security-focused code review that also covers vulnerability detection and quality analysis |
+| Development | `test-orchestrator` | Automated testing coordination with security and compliance focus |
+| Compliance | `compliance-checker` | Regulatory compliance validation (HIPAA, SOX, GDPR) |
+| Compliance | `audit-enforcer` | Audit trail generation and compliance reporting |
+| Compliance | `data-protector` | PII/PHI detection and data protection validation |
 
 *Additional specialized agents available for enterprise users*
 
 ## Available commands
 
-### Security workflow commands
-- **security-scan**: Comprehensive security vulnerability scanning
-- **quality-check**: Code quality validation and standards enforcement
-- **compliance-audit**: Regulatory compliance checking and reporting
-- **test-runner**: Security-focused test execution and coverage analysis
+| Command | Purpose |
+|---|---|
+| `security-scan` | Comprehensive security vulnerability scanning |
+| `quality-check` | Code quality validation and standards enforcement |
+| `compliance-audit` | Regulatory compliance checking and reporting |
+| `test-runner` | Security-focused test execution and coverage analysis |
 
 Usage: `/security:scan "src/auth/"`
 
@@ -127,8 +129,11 @@ claude /compliance:audit "src/auth/"
 ```
 
 ### Technology stack
-- **Python 3.12+** with UV package management
-- **Rich CLI interfaces** with progress indicators
-- **Pydantic** for data validation and settings
-- **Type hints** required for all functions
-- **Comprehensive testing** with pytest and >90% coverage
+
+| Aspect | Detail |
+|---|---|
+| Language | Python 3.12+ with UV package management |
+| CLI | Rich CLI interfaces with progress indicators |
+| Validation | Pydantic for data validation and settings |
+| Typing | Type hints required for all functions |
+| Testing | Comprehensive testing with pytest and >90% coverage |

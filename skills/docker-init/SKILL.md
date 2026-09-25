@@ -24,11 +24,11 @@ Generate production-ready `docker-compose.yml` and `Dockerfile` with auto-detect
 ## Guardrails
 
 Only generate configs based on what the codebase actually uses:
-1. **Scan before generating**: read `package.json`, `pyproject.toml`, `requirements.txt`, etc. before proposing services.
-2. **Read existing files first**: if `docker-compose.yml` or `Dockerfile` already exist, read them fully before proposing any change, and ask the user whether to update in place or regenerate. Never overwrite an existing service definition you haven't read.
-3. **Only well-known official images**: do not invent image names or tags.
-4. **No secrets in files**: never put secrets, passwords, or API keys in compose files; use `${VAR}` references pointing at `.env`.
-5. **Read `.dockerignore` before changing it**, if it exists.
+1. Scan before generating: read `package.json`, `pyproject.toml`, `requirements.txt`, etc. before proposing services.
+2. Read existing files first: if `docker-compose.yml` or `Dockerfile` already exist, read them fully before proposing any change, and ask the user whether to update in place or regenerate. Never overwrite an existing service definition you haven't read.
+3. Only well-known official images: do not invent image names or tags.
+4. No secrets in files: never put secrets, passwords, or API keys in compose files, use `${VAR}` references pointing at `.env` instead.
+5. Read `.dockerignore` before changing it, if it exists.
 
 ## Workflow
 

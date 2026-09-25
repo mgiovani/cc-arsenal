@@ -24,7 +24,7 @@ allowed-tools:
 
 # Create Skill
 
-Create new agent skills with specification-driven generation, live documentation fetching, and interactive planning.
+Create new agent skills with specification-driven generation, backed by live documentation fetching and interactive planning.
 
 ## Writing Philosophy
 
@@ -58,8 +58,8 @@ Hold both results in context. Do not proceed until both are fetched.
 **Step 1: Mine the conversation.** Read what the user already said and extract:
 - What skill/command/workflow they want
 - Examples of triggers they mentioned
-- Tools, files, or outputs they described
-- Who will use it (personal, team, organization)
+- The tools, files, or outputs they described
+- Who will use it, whether that's personal, team-wide, or org-wide
 
 Extract answers from conversation history before asking questions: don't ask what's already there.
 
@@ -248,23 +248,25 @@ When iterating on an existing skill after seeing it in use:
 
 **Bundle repeated code.** If the skill has Claude rewriting the same logic from scratch each invocation, put it in `scripts/`. Scripts are token-efficient and deterministic.
 
-**Iterate until:** user is satisfied, feedback is empty, or there's no more measurable improvement.
+**Iterate until:** the user is satisfied, or there's no more measurable improvement left to make (empty feedback counts as satisfied).
 
-## Anti-Hallucination Guidelines
+## Anti-hallucination guidelines
 
 - Never reference files or functions that don't exist: verify with Glob/Grep first
 - Never guess at URL structure: only fetch from canonical sources in `references/specification-urls.md`
 - Read existing code before suggesting modifications
 - Confirm all internal skill references resolve before writing them
 - Only include tools in `allowed-tools` that you've verified exist in the platform spec
-- Never write a percentage, count, or score into a generated skill or report unless it came from a command actually run this session (validator stdout, eval script output, a grep count): a fabricated number in a generated skill teaches the same fabrication pattern forward into every skill it produces
+- Never write a number (a percentage, a count, a score) into a generated skill or report unless it came from a command actually run this session (validator stdout, eval script output, a grep count). A fabricated number in a generated skill teaches the same fabrication pattern forward into every skill it produces
 
 ## Reference Documentation
 
-- **`references/skill-anatomy.md`**: Deep dive: folder conventions, progressive disclosure, composition patterns
-- **`references/frontmatter-fields.md`**: Full frontmatter field reference, `$ARGUMENTS` substitution syntax, the `context: fork` isolated-subagent pattern
-- **`references/specification-urls.md`**: Canonical URLs for specs, best practices, examples
-- **`references/schemas.md`**: JSON schemas for evals.json, trigger-eval.json, grading.json, metrics.json
+| File | Contents |
+|---|---|
+| `references/skill-anatomy.md` | Deep dive: folder conventions, progressive disclosure, composition patterns |
+| `references/frontmatter-fields.md` | Full frontmatter field reference, `$ARGUMENTS` substitution syntax, the `context: fork` isolated-subagent pattern |
+| `references/specification-urls.md` | Canonical URLs for specs, best practices, examples |
+| `references/schemas.md` | JSON schemas for evals.json, trigger-eval.json, grading.json, metrics.json |
 
 ---
 

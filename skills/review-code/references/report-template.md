@@ -1,6 +1,8 @@
 # Code review - report template
 
-Use this template when generating the review report in Phase 5.
+Use this template when generating the review report in Phase 5. It's a shape to fill in, not literal text to copy: swap every bracketed placeholder for the real finding, and drop any section that ends up with zero findings in it.
+
+Every dimension shares one findings-block schema (severity, location, description, code, an extra field, suggested fix). Repeat that block once per finding, and repeat it for each dimension in the table below, swapping in that dimension's prefix, location fields, and extra field. Keep the extra field even when trimming everything else to stay terse.
 
 ## Report format
 
@@ -29,126 +31,54 @@ Use this template when generating the review report in Phase 5.
 
 ## Findings by Dimension
 
-### Correctness & Logic (N findings)
+For each dimension below with at least one finding, add a heading (`### <Dimension> (N findings)`) and repeat this block once per finding:
 
-#### Finding CL-1: [Issue Title]
-- **Severity**: Critical
-- **File**: `path/to/file.py:123-130`
-- **Description**: [What is wrong and why]
-- **Code**:
-  ```python
-  # Current code
-  [Actual problematic code]
+#### Finding <PREFIX>-N: [Issue Title]
+- Severity: [Critical | Major | Minor | Nit]
+- File: `path/to/file.ext:LINE-LINE` (Test Coverage Gaps use Source File and Test File instead, per the table below)
+- Description: [What is wrong and why]
+- Code:
   ```
-- **Impact**: [What goes wrong and when]
-- **Suggested Fix**:
-  ```python
-  # Improved code
-  [Corrected code example]
+  [Actual problematic code] (Test Coverage Gaps omit this field)
+  ```
+- [Dimension's extra field, from the table below]: [value]
+- Suggested Fix:
+  ```
+  [Corrected code example] (Test Coverage Gaps use this field for the suggested test instead)
   ```
 
-[Repeat for each finding...]
-
-### Performance (N findings)
-
-#### Finding PF-1: [Issue Title]
-- **Severity**: Major
-- **File**: `path/to/file.ts:45-60`
-- **Description**: [What is slow and why]
-- **Code**:
-  ```typescript
-  // Current code
-  [Actual code with performance issue]
-  ```
-- **Complexity**: [Current: O(n²) → Suggested: O(n)]
-- **Suggested Fix**:
-  ```typescript
-  // Optimized code
-  [Improved code example]
-  ```
-
-[Repeat for each finding...]
-
-### Code Style & Patterns (N findings)
-
-#### Finding CS-1: [Issue Title]
-- **Severity**: Minor
-- **File**: `path/to/file.go:89-105`
-- **Description**: [What violates conventions and why it matters]
-- **Code**:
-  ```go
-  // Current code
-  [Actual code with style issue]
-  ```
-- **Convention**: [Reference to project convention or industry standard]
-- **Suggested Fix**:
-  ```go
-  // Improved code
-  [Refactored code example]
-  ```
-
-[Repeat for each finding...]
-
-### Test Coverage Gaps (N findings)
-
-#### Finding TC-1: [Issue Title]
-- **Severity**: Major
-- **Source File**: `path/to/source.py:30-50`
-- **Test File**: `path/to/test_source.py` (or "Missing")
-- **Description**: [What is untested and why it matters]
-- **Missing Scenario**: [Specific test case that should exist]
-- **Suggested Test**:
-  ```python
-  def test_edge_case():
-      # Example test for the missing scenario
-      [Complete test code example]
-  ```
-
-[Repeat for each finding...]
-
-### Error Handling & Edge Cases (N findings)
-
-#### Finding EH-1: [Issue Title]
-- **Severity**: Major
-- **File**: `path/to/file.js:67-80`
-- **Description**: [What error case is unhandled]
-- **Code**:
-  ```javascript
-  // Current code
-  [Actual code with error handling gap]
-  ```
-- **Failure Scenario**: [Specific scenario that causes a problem]
-- **Suggested Fix**:
-  ```javascript
-  // With proper error handling
-  [Improved code example]
-  ```
-
-[Repeat for each finding...]
+| Dimension | Prefix | What it covers | Extra field |
+|-----------|--------|-----------------|-------------|
+| Correctness & Logic | CL | Bugs, race conditions, and logic errors, each pinned to the exact lines that misbehave | Impact: what goes wrong and when |
+| Performance | PF | Slow paths, with a before/after estimate so the payoff of fixing them is obvious | Complexity: current Big-O to suggested Big-O |
+| Code Style & Patterns | CS | Drift from this project's own conventions, not a general opinion about style | Convention: the project convention or industry standard being violated |
+| Test Coverage Gaps | TC | Untested code paths next to a concrete example of the scenario a new test would need to cover; Source File and Test File (or "Missing") replace the single File field, Code is omitted, and Suggested Fix becomes Suggested Test | Missing Scenario: the specific test case that should exist |
+| Error Handling & Edge Cases | EH | Unhandled failures and missing validation, described by the scenario that would trigger them in production | Failure Scenario: the specific scenario that causes a problem |
+| Simplicity & Over-engineering | OE | Unnecessary complexity flagged by the Agent 6 lens ([agent-prompts.md](agent-prompts.md#agent-6---simplicity--over-engineering)); default severity Minor or Nit | Tag: one of `[delete]`/`[reuse]`/`[stdlib]`/`[builtin]`/`[unneeded]`/`[simplify]`, plus lines removed |
 
 ## Positive Observations
 
 Highlight well-written code, good patterns, and strengths found during review:
 
-- **[Pattern/Area]**: [What was done well and why it's notable]
-- **[Pattern/Area]**: [Another positive observation]
+- [Pattern/Area]: [What was done well and why it's notable]
+- [Pattern/Area]: [Another positive observation]
 
 ## Action Items by Priority
 
 ### Immediate (Critical)
-1. **[CL-1]** - [Brief action item with file reference]
+1. [CL-1] - [Brief action item with file reference]
 2. [...]
 
 ### High Priority (Major)
-1. **[PF-1]** - [Brief action item with file reference]
+1. [PF-1] - [Brief action item with file reference]
 2. [...]
 
 ### When Convenient (Minor)
-1. **[CS-1]** - [Brief action item with file reference]
+1. [CS-1] - [Brief action item with file reference]
 2. [...]
 
 ### Optional (Nit)
-1. **[CS-3]** - [Brief action item with file reference]
+1. [CS-3] - [Brief action item with file reference]
 2. [...]
 
 ## Statistics
@@ -173,6 +103,7 @@ Highlight well-written code, good patterns, and strengths found during review:
 | Code Style & Patterns | N | N | N | N | N |
 | Test Coverage Gaps | N | N | N | N | N |
 | Error Handling | N | N | N | N | N |
+| Simplicity & Over-engineering | N | N | N | N | N |
 | **Total** | **N** | **N** | **N** | **N** | **N** |
 
 ---

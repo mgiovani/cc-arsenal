@@ -29,16 +29,16 @@ read-verify-write pass instead: same checklist, one document at a time.
 
 ## Per-Document-Type Checklist
 
-**Architecture**: scan for services/modules/components, identify databases/caches/queues,
+Architecture: scan for services/modules/components, identify databases/caches/queues,
 map data flow, regenerate the architecture diagram, preserve custom architecture notes.
 
-**Data Model**: find ORM models, extract entities and relationships, regenerate the ER
+Data model: find ORM models, extract entities and relationships, regenerate the ER
 diagram, document constraints, preserve custom data notes.
 
-**Deployment**: find Docker/K8s configs, map services to infrastructure, document the
+Deployment: find Docker/K8s configs, map services to infrastructure, document the
 CI/CD pipeline, update environment configs, preserve custom deployment notes.
 
-**Security**: find auth/authz code, map security boundaries, document encryption points,
+Security: find auth/authz code, map security boundaries, document encryption points,
 identify security controls, preserve custom security notes.
 
 ## Example Output: Category Update

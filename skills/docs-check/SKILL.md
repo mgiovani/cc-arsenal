@@ -21,13 +21,13 @@ agent: general-purpose
 
 Audit documentation freshness, completeness, and quality against the current codebase state. Read-only: never edit or write to any doc file.
 
-## Anti-Hallucination Detection
+## Anti-hallucination detection
 
 This skill exists to catch docs that lie. For every claim in a doc, verify it against the actual codebase rather than trusting the doc text:
-1. **Cross-reference claims**: component/service names, described relationships
-2. **Verify counts**: if a doc says "5 services", count the actual services
-3. **Check file references**: confirm every referenced path exists
-4. **Validate diagrams**: every Mermaid entity must exist in real code
+1. Cross-reference claims: component/service names, described relationships
+2. Verify counts: if a doc says "5 services", count the actual services
+3. Check file references: confirm every referenced path exists
+4. Validate diagrams: every Mermaid entity must exist in real code
 
 ## Workflow
 
@@ -65,10 +65,10 @@ See [references/verification-patterns.md](references/verification-patterns.md) f
 
 Skip numeric scoring: a 0-100 breakdown per doc implies precision this check doesn't have. Give each document one coarse rating instead:
 
-- **Good**: current, complete, no broken links or invalid diagrams
-- **Stale**: accurate but outdated (freshness or completeness gaps, no false claims)
-- **Broken**: contains hallucinations, broken links, or invalid Mermaid syntax
-- **Missing**: expected given the detected stack but doesn't exist
+- Good: current, complete, no broken links or invalid diagrams
+- Stale: accurate but outdated (freshness or completeness gaps, no false claims)
+- Broken: contains hallucinations, broken links, or invalid Mermaid syntax
+- Missing: expected given the detected stack but doesn't exist
 
 See [references/scoring-criteria.md](references/scoring-criteria.md) for the full rubric per rating.
 

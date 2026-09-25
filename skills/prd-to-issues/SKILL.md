@@ -24,30 +24,29 @@ the thinking already happened in the PRD.
 
 ## What you produce
 
-- **One issue per requirement ID.** `PRD-FR-001` becomes exactly one issue, and the ID
-  goes in the title. That ID is the only link back to the spec, and it is what makes a
-  re-run recognise its own earlier output.
-- **Dependencies between them**, taken from the PRD's own ordering and its stated
-  prerequisites, not invented.
-- **A report** of what was created, what was skipped, and what blocked.
+| Output | Description |
+|--------|--------------|
+| One issue per requirement ID | `PRD-FR-001` becomes exactly one issue, with the ID in the title. That ID is the only link back to the spec, and it's what lets a re-run recognize its own earlier output. |
+| Dependencies between issues | Taken from the PRD's own ordering and its stated prerequisites, never invented. |
+| A report | What was created, what was skipped, and what blocked. |
 
 ## Method
 
-1. **Read the whole PRD first.** Requirement IDs, non-goals, and every
+1. Read the whole PRD first, noting requirement IDs, non-goals, and every
    `[NEEDS CLARIFICATION: ...]` tag.
-2. **Stop on unresolved clarifications.** If a requirement carries one, do not file it.
-   List those separately and say the PRD is not ready for that requirement. A ticket
-   filed on a guess costs more than the one that was never filed.
-3. **Check what already exists** before creating anything, by searching for the
+2. An unresolved clarification on a requirement means it doesn't get filed. List those
+   separately and say the PRD isn't ready for that requirement yet; a ticket filed on a
+   guess costs more than the one that was never filed.
+3. Before creating anything, check what already exists by searching for the
    requirement ID:
    ```bash
    bd list --json | grep -o 'PRD-[A-Z]*-[0-9]*'      # or:
    gh issue list --search "PRD-FR-001" --state all --json number,title
    ```
-   An ID that already has an issue is skipped and reported as skipped, never
-   duplicated and never silently updated.
-4. **Create one issue per remaining requirement.** Prefer `bd`, which records
-   dependencies as a graph; fall back to `gh` when `bd` is unavailable:
+   Skip an ID that already has an issue and report it as skipped. Never duplicate it,
+   never update it silently.
+4. Create one issue per remaining requirement. Prefer `bd`, which records dependencies
+   as a graph, and fall back to `gh` when `bd` isn't available:
    ```bash
    bd create "PRD-FR-001: <requirement title>" -d "$(cat body.md)" -p 2
    bd dep add <child-id> <parent-id>                  # child needs parent first
@@ -55,28 +54,24 @@ the thinking already happened in the PRD.
    ```bash
    gh issue create --title "PRD-FR-001: <requirement title>" --body-file body.md
    ```
-   The body carries the requirement text verbatim, its Given/When/Then acceptance
-   criteria, and a line naming the PRD file. Copy the acceptance criteria unchanged:
-   rewording them is how a spec and its tickets drift apart.
-5. **Record dependencies last**, once every issue exists and has an id. A dependency
-   pointing at an issue that was skipped in step 3 is reported, not guessed around.
-6. **Report.** Created, skipped-because-existing, and blocked-on-clarification, each
-   with its requirement ID.
+   Carry the requirement text verbatim in the body, along with its Given/When/Then
+   acceptance criteria and a line naming the PRD file. Copying the acceptance criteria
+   unchanged matters, since rewording them is how a spec and its tickets drift apart.
+5. Once every issue exists and has an id, record dependencies. If one points at an
+   issue that was skipped in step 3, report that rather than guessing around it.
+6. Close with a report, tagging each requirement ID as created, skipped because it
+   already existed, or blocked on a clarification.
 
 ## Rules
 
-- **The PRD is the only source.** Every issue traces to a requirement ID in it. If work
-  seems obviously missing, say so in the report, but do not file it.
-- **Never estimate, never prioritise beyond what the PRD states.** Priority comes from
-  the PRD's own prioritisation if it has one, and is left at the tracker default if not.
-- **Never close, reopen, merge, or edit an existing issue.** This skill only creates.
-- **Idempotent by requirement ID.** Running it twice on the same PRD must create nothing
-  the second time. This is the property that makes it safe to re-run after the PRD is
-  revised, and it rests entirely on the ID being in the title.
-- **Non-goals are not issues.** They are the boundary that stops the backlog growing
-  past the spec.
-- **Say what you did not file.** A silent skip is indistinguishable from work nobody
-  noticed was missing.
+| Rule | Why |
+|------|-----|
+| The PRD is the only source | Every issue traces to a requirement ID in it. If work looks obviously missing, say so in the report, but don't file it. |
+| Never estimate or prioritize beyond the PRD | Priority follows the PRD's own prioritization when it has one, and falls back to the tracker default otherwise. |
+| Never close, reopen, merge, or edit an existing issue | This skill only creates. |
+| Idempotent by requirement ID | Running it twice on the same PRD must create nothing the second time. That's what makes a re-run safe after the PRD is revised, and it rests entirely on the ID being in the title. |
+| Non-goals are not issues | They're the boundary that keeps the backlog from growing past the spec. |
+| Say what you did not file | A silent skip is indistinguishable from work nobody noticed was missing. |
 
 ## Boundaries
 

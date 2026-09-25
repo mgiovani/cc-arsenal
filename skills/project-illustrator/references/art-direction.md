@@ -1,6 +1,6 @@
 # Art Direction
 
-Use this reference when defining prompts, reviewing options, or deriving final assets.
+Use this reference throughout the pipeline: it shapes how a prompt gets written and how options get reviewed, then guides how the final asset gets derived.
 
 ## Approved visual references
 
@@ -8,8 +8,8 @@ Inspect these images before generating when the user asks for the established CC
 
 - [Water Gate mascot](visuals/water-gate-mascot.webp) and [hero](visuals/water-gate-hero.webp): product mechanism expressed as one clear action, blue identity color within the shared print treatment.
 - [cc-wellness mascot](visuals/cc-wellness-mascot.webp) and [hero](visuals/cc-wellness-hero.webp): quiet character staging, generous space, restrained palette, and clean 3:1 hierarchy.
-- [StopSlop mascot](visuals/stopslop-mascot.webp) and [hero](visuals/stopslop-hero.webp): project-specific robot, purposeful action, and a direct one-line promise without borrowed product comparisons.
-- [AI Arsenal mascot](visuals/ai-arsenal-mascot.webp) and [hero](visuals/ai-arsenal-hero.webp): recognizable multi-tool silhouette, stable hero copy without counts, and a smaller one-line authority subline.
+- [StopSlop mascot](visuals/stopslop-mascot.webp) and [hero](visuals/stopslop-hero.webp): a project-specific robot taking one purposeful action, paired with a direct one-line promise that borrows no product comparisons.
+- [AI Arsenal mascot](visuals/ai-arsenal-mascot.webp) and [hero](visuals/ai-arsenal-hero.webp): a recognizable multi-tool silhouette with stable hero copy that skips counts, under a smaller one-line authority subline.
 
 These examples define a family resemblance rather than a fixed character. Preserve a target project's own accent color and mascot when it already has one.
 
@@ -22,7 +22,7 @@ Use this treatment when the project has no stronger established style:
 - warm gray secondary objects;
 - one project-specific accent color, with restrained magenta as a useful shared accent;
 - bold, simple silhouettes that survive a 64px circular crop;
-- editorial risograph texture: visible grain, controlled halftones, and subtle ink misregistration;
+- editorial risograph texture: visible grain and controlled halftones, with subtle ink misregistration;
 - clean negative space and one readable action.
 
 Texture should support the print character without making surfaces dirty. Keep faces and focal details quiet. Avoid all-over white speckles, random scratches, glossy 3D rendering, neon gradients, glass panels, floating particles, excessive sparkles, and piles of unrelated interface icons.
@@ -80,7 +80,7 @@ A useful prompt identifies:
 6. Exact text, when text is unavoidable.
 7. Explicit exclusions tied to likely failures.
 
-Describe visible choices, not taste labels such as “premium,” “stunning,” or “not AI-looking.”
+Describe visible choices, not taste labels such as "premium," "stunning," or "not AI-looking."
 
 ## Visual review checklist
 
@@ -89,10 +89,10 @@ Inspect the image itself at full size and at delivery size.
 - **Identity:** silhouette, colors, face, proportions, and personality match the approved mascot.
 - **Anatomy:** every limb attaches once; hands, feet, eyes, and joints have the intended count and placement.
 - **Function:** tools can be held; gates hinge; cups contain liquid; openings fit inserted objects; furniture supports its load.
-- **Contact:** feet meet the ground, hands meet props, and shadows agree with contact points.
+- **Contact:** feet meet the ground and hands meet props, with shadows agreeing at every contact point.
 - **Occlusion:** no object passes accidentally through the mascot or another object.
 - **Composition:** one focal action, balanced negative space, no accidental tangencies, safe crop margins.
-- **Texture:** grain is controlled, focal surfaces remain readable, and distress is not mistaken for extra facial features.
+- **Texture:** grain stays controlled and focal surfaces stay readable, so distress is never mistaken for extra facial features.
 - **Typography:** exact spelling, consistent font treatment, sensible hierarchy, no unwanted line break.
 - **Thumbnail:** recognizable at 64px inside a circle.
 - **Hero:** readable at desktop width and resilient to the expected responsive crop.

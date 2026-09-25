@@ -6,7 +6,7 @@ Mermaid syntax reference for each supported diagram type.
 
 Entity-Relationship diagram from database models.
 
-**Detects**: Tables and entities, columns with data types, primary keys, foreign keys, relationships, constraints.
+Detects: Tables and entities, columns with data types, primary keys, foreign keys, relationships, constraints.
 
 ```mermaid
 erDiagram
@@ -23,20 +23,15 @@ erDiagram
     }
 ```
 
-### Supported ORMs
+### Supported ORMs and what to extract
 
-**Python ORMs**: SQLAlchemy, Django, Tortoise, SQLModel, Peewee
+Python ORMs: SQLAlchemy, Django, Tortoise, SQLModel, Peewee
 
-**JS/TS ORMs**: Prisma, TypeORM, Sequelize, Mongoose
+JS/TS ORMs: Prisma, TypeORM, Sequelize, Mongoose
 
-**Other**: GORM (Go), ActiveRecord (Ruby)
+Other: GORM (Go), ActiveRecord (Ruby)
 
-### What to Extract
-
-- Tables/entities
-- Columns with types
-- Relationships (one-to-one, one-to-many, many-to-many)
-- Constraints (PK, FK, unique)
+Extract, per model: tables/entities, columns with types, relationships (one-to-one, one-to-many, many-to-many), and constraints (PK, FK, unique).
 
 ### For ER Diagrams Specifically
 
@@ -56,7 +51,7 @@ Only include entities and relationships that both agents confirm exist.
 
 System architecture and component relationships.
 
-**Detects**: Services and modules, API endpoints, databases, caches, message queues, external services.
+Detects: Services and modules, API endpoints, databases, caches, message queues, external services.
 
 ```mermaid
 graph TB
@@ -74,7 +69,7 @@ graph TB
 
 Deployment infrastructure and CI/CD.
 
-**Detects**: Docker containers, Kubernetes resources, cloud services, CI/CD pipeline stages, environment configurations.
+Detects: Docker containers, Kubernetes resources, cloud services, CI/CD pipeline stages, environment configurations.
 
 ```mermaid
 graph LR
@@ -92,7 +87,7 @@ graph LR
 
 Security architecture and data flow.
 
-**Detects**: Authentication flows, authorization boundaries, encryption points, security controls, trust boundaries.
+Detects: Authentication flows, authorization boundaries, encryption points, security controls, trust boundaries.
 
 ```mermaid
 graph TB

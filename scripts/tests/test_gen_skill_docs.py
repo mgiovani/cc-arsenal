@@ -117,7 +117,7 @@ def test_shuffled_groups_and_skills_come_back_sorted(
     assert zulu['skills'] == ['alpha', 'beta']
     agents = (tmp_path / 'AGENTS.md').read_text()
     assert agents.index('### Filler') < agents.index('### Zulu')
-    assert agents.index('**alpha**') < agents.index('**beta**')
+    assert agents.index('`alpha`') < agents.index('`beta`')
 
 
 def test_missing_marker_raises(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -160,8 +160,8 @@ def test_feature_bodies_survive_regeneration(
     features = tmp_path / 'docs' / 'features.md'
     features.write_text(
         features.read_text().replace(
-            '#### `/alpha` (auto)\nDoes alpha things',
-            '#### `/alpha` (auto)\nHand-written body.\n- a bullet',
+            '`/alpha` (auto)\nDoes alpha things',
+            '`/alpha` (auto)\nHand-written body.\n- a bullet',
         )
     )
     gen_skill_docs.main()
@@ -219,8 +219,8 @@ def test_a_count_inside_a_preserved_body_is_left_alone(
     features = tmp_path / 'docs' / 'features.md'
     features.write_text(
         features.read_text().replace(
-            '#### `/alpha` (auto)\nDoes alpha things',
-            '#### `/alpha` (auto)\nSupports 27 skill toolchains.',
+            '`/alpha` (auto)\nDoes alpha things',
+            '`/alpha` (auto)\nSupports 27 skill toolchains.',
         )
     )
     gen_skill_docs.main()
@@ -235,13 +235,33 @@ def test_a_subheading_inside_a_body_survives(
     gen_skill_docs.main()
 
     features = tmp_path / 'docs' / 'features.md'
-    body = '#### `/alpha` (auto)\nDoes alpha things.\n\n### Usage\n\nRun it like this.'
+    body = '`/alpha` (auto)\nDoes alpha things.\n\n### Usage\n\nRun it like this.'
     features.write_text(
-        features.read_text().replace('#### `/alpha` (auto)\nDoes alpha things', body)
+        features.read_text().replace('`/alpha` (auto)\nDoes alpha things', body)
     )
     gen_skill_docs.main()
 
     assert '### Usage\n\nRun it like this.' in features.read_text()
+
+
+def test_an_inline_slash_mention_inside_a_body_survives(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _setup(tmp_path, monkeypatch, _one_group(['alpha', 'beta']))
+    gen_skill_docs.main()
+
+    features = tmp_path / 'docs' / 'features.md'
+    body = (
+        '`/alpha` (auto)\nDoes alpha things.\nSee also `/beta` (manual) for that.\n'
+        '- a bullet after it'
+    )
+    features.write_text(
+        features.read_text().replace('`/alpha` (auto)\nDoes alpha things', body)
+    )
+    gen_skill_docs.main()
+
+    text = features.read_text()
+    assert 'See also `/beta` (manual) for that.\n- a bullet after it' in text
 
 
 def test_empty_description_raises(

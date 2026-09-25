@@ -4,7 +4,7 @@ Concrete examples of well-structured memory rules for different tools and scopes
 
 ## Example 1: Claude Code, simple code style rule
 
-**Command**: `/create-rule formatting "Use 2-space indentation and single quotes"`
+Command: `/create-rule formatting "Use 2-space indentation and single quotes"`
 
 Creates `.claude/rules/formatting.md`:
 
@@ -39,9 +39,9 @@ const config = {
 ```
 ```
 
-## Example 2: Claude Code, path-Specific rule
+## Example 2: Claude Code, path-specific rule
 
-**Command**: `/create-rule api-errors "Standard error handling for API routes"`
+Command: `/create-rule api-errors "Standard error handling for API routes"`
 
 Creates `.claude/rules/api-errors.md`:
 
@@ -86,9 +86,9 @@ throw new Error(err.stack); // Exposes internal details
 ```
 ```
 
-## Example 3: Claude Code, user-Level rule
+## Example 3: Claude Code, user-level rule
 
-**Command**: `/create-rule --user preferences "Personal coding preferences"`
+Command: `/create-rule --user preferences "Personal coding preferences"`
 
 Creates `~/.claude/rules/preferences.md`:
 
@@ -105,9 +105,9 @@ My personal coding preferences applied to all projects.
 - Prefer async/await over raw promises
 ```
 
-## Example 4: AGENTS.md, cross-Cutting entry
+## Example 4: AGENTS.md, cross-cutting entry
 
-**Command**: `/create-rule testing "Table-driven tests, no test interdependence"` in a repo
+Command: `/create-rule testing "Table-driven tests, no test interdependence"` in a repo
 whose only convention file is `AGENTS.md` (no `CLAUDE.md`, no `.claude/rules/`).
 
 Appends a new section to the existing `AGENTS.md` (no separate file, no frontmatter,
@@ -122,9 +122,9 @@ the format doesn't support either):
 - Name test cases by the behavior under test, not by input value.
 ```
 
-## Example 5: Cursor, path-Scoped `.mdc` rule
+## Example 5: Cursor, path-scoped `.mdc` rule
 
-**Command**: `/create-rule react-components "Function components only, typed props"` in a
+Command: `/create-rule react-components "Function components only, typed props"` in a
 Cursor repo (has `.cursor/rules/`).
 
 Creates `.cursor/rules/react-components.mdc`:
@@ -145,9 +145,9 @@ alwaysApply: false
 
 ## Writing effective rules checklist
 
-1. **BE SPECIFIC**: State exact expectations, not vague guidance.
-2. **USE IMPERATIVE LANGUAGE**: "Use X" not "You should use X".
-3. **PROVIDE EXAMPLES**: Show code snippets of correct (and, where useful, incorrect) patterns.
-4. **KEEP RULES FOCUSED**: One file per topic (AGENTS.md is the exception: it's one file, section per topic).
-5. **USE PATH RESTRICTIONS SPARINGLY**: Only when the rule truly applies to specific file types.
-6. **ORGANIZE WITH SUBDIRECTORIES**: `frontend/react.md`, `backend/api.md` (Claude Code and Cursor only).
+1. Be specific: state exact expectations, not vague guidance.
+2. Use imperative language: "Use X" not "You should use X".
+3. Provide examples: show code snippets of correct (and, where useful, incorrect) patterns.
+4. Keep rules focused: one file per topic (AGENTS.md is the exception, since it's one file with a section per topic).
+5. Use path restrictions sparingly: only when the rule truly applies to specific file types.
+6. Organize with subdirectories: `frontend/react.md`, `backend/api.md` (Claude Code and Cursor only).

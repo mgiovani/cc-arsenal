@@ -316,7 +316,7 @@ make -C integrations/claude-code/claude-hi setup
 tail ~/.claude/logs/usage.log
 ```
 
-## Component-Specific issues
+## Component-specific issues
 
 ### Smart session scheduler (Claude Hi)
 
@@ -572,18 +572,18 @@ make dry-run                   # Preview installation
 
 ## Getting help
 
-### Self-Service resources
+### Self-service resources
 
-1. **Documentation**: Check docs/ directory for detailed guides
-2. **Examples**: Review examples/ directory for working configurations
-3. **Test Suite**: Run tests to verify installation
-4. **Logs**: Check log files for error details
+1. Documentation: check docs/ directory for detailed guides
+2. Examples: review examples/ directory for working configurations
+3. Test suite: run tests to verify installation
+4. Logs: check log files for error details
 
 ### Community support
 
-1. **GitHub Issues**: https://github.com/mgiovani/cc-arsenal/issues
-2. **GitHub Discussions**: https://github.com/mgiovani/cc-arsenal/discussions
-3. **Documentation**: Browse all documentation in docs/
+1. GitHub issues: https://github.com/mgiovani/cc-arsenal/issues
+2. GitHub discussions: https://github.com/mgiovani/cc-arsenal/discussions
+3. Documentation: browse all documentation in docs/
 
 ### Reporting issues
 
@@ -654,11 +654,11 @@ git status
 
 ### Best practices
 
-1. **Regular Updates**: Keep the arsenal updated to latest stable version
-2. **Backup Configuration**: Backup ~/.claude before major changes
-3. **Test Changes**: Use dry-run before installing updates
-4. **Monitor Logs**: Regularly check logs for warnings or errors
-5. **Resource Monitoring**: Monitor system resources during heavy usage
+1. Regular updates: keep the arsenal updated to latest stable version
+2. Backup configuration: back up ~/.claude before major changes
+3. Test changes: use dry-run before installing updates
+4. Monitor logs: regularly check logs for warnings or errors
+5. Resource monitoring: monitor system resources during heavy usage
 
 ---
 

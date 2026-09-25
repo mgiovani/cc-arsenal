@@ -9,7 +9,7 @@ Compact element references that reduce context usage dramatically for AI agents.
 
 **Related**: [commands.md](commands.md) for full command reference, [SKILL.md](../SKILL.md) for quick start.
 
-## Contents
+Jump to a subsection:
 
 - [How Refs Work](#how-refs-work)
 - [Snapshot Command](#the-snapshot-command)
@@ -21,12 +21,12 @@ Compact element references that reduce context usage dramatically for AI agents.
 
 ## How Refs Work
 
-Traditional approach:
+The traditional way an AI agent drives a browser feeds it the full DOM or HTML, has it parse that down to a CSS selector, then act on it, an expensive round trip:
 ```
 Full DOM/HTML → AI parses → CSS selector → Action (~3000-5000 tokens)
 ```
 
-agent-browser approach:
+agent-browser instead assigns short `@e1`-style refs to a compact accessibility-tree snapshot and lets the agent act on those refs directly, cutting the token cost by roughly an order of magnitude:
 ```
 Compact snapshot → @refs assigned → Direct interaction (~200-400 tokens)
 ```
@@ -233,7 +233,7 @@ Capture browser automation as video for debugging, documentation, or verificatio
 
 **Related**: [commands.md](commands.md) for full command reference, [SKILL.md](../SKILL.md) for quick start.
 
-## Contents
+Jump to a subsection:
 
 - [Basic Recording](#basic-recording)
 - [Recording Commands](#recording-commands)
@@ -405,6 +405,7 @@ agent-browser record stop
 
 --- templates/authenticated-session.sh ---
 
+```bash
 #!/bin/bash
 # Template: Authenticated Session Workflow
 # Purpose: Login once, save state, reuse for subsequent runs
@@ -510,9 +511,11 @@ exit 0
 # agent-browser state save "$STATE_FILE"
 # echo "Login successful"
 # agent-browser snapshot -i
+```
 
 --- templates/capture-workflow.sh ---
 
+```bash
 #!/bin/bash
 # Template: Content Capture Workflow
 # Purpose: Extract content from web pages (text, screenshots, PDF)
@@ -582,9 +585,11 @@ agent-browser close
 echo ""
 echo "Capture complete:"
 ls -la "$OUTPUT_DIR"
+```
 
 --- templates/form-automation.sh ---
 
+```bash
 #!/bin/bash
 # Template: Form Automation Workflow
 # Purpose: Fill and submit web forms with validation
@@ -647,3 +652,4 @@ echo "Screenshot saved: /tmp/form-result.png"
 # Cleanup
 agent-browser close
 echo "Done"
+```

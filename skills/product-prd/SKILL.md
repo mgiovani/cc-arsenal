@@ -24,7 +24,7 @@ allowed-tools: Read, Write, Edit, Grep, Glob, Bash(git *), Bash(gh *), Bash(pyth
 # Product PRD
 
 Author the *right* product doc for the work (sometimes a 3-line ticket, sometimes a full PRD), never more
-than the work warrants. This skill **writes no application code**; it produces the requirements a build
+than the work warrants. This skill writes no application code; it produces the requirements a build
 (`implement-feature`) then works from. Output lands under `docs/specs/prd/`.
 
 ## Input
@@ -46,18 +46,18 @@ A trailing `--tier brief|one-pager|big` and/or `--intent validation|execution` o
 
 ## Prerequisites & fallback
 
-Parallel research and discovery use the `Task` tool with `Explore`/haiku subagents. **No `Task` tool?** Run
+Parallel research and discovery use the `Task` tool with `Explore`/haiku subagents. No `Task` tool? Run
 every research and discovery step inline, sequentially: the phase → gate → phase structure below is the
 workflow; subagents are just how it parallelizes.
 
 ## Lean by default
 
-The organizing principle. **Default to a single `docs/specs/prd/PRD.md`** and split a section into its own
+The organizing principle. Default to a single `docs/specs/prd/PRD.md` and split a section into its own
 file only when it outgrows itself. Length is not quality: a bloated PRD and a tight one get rated worlds
-apart on content alone. Cut anything not traceable to the problem, a goal, or a success metric.
+apart on content alone. Cut anything that doesn't trace back to the problem, a goal, or a success metric.
 
-- Track position with a single **`Phase: X`** line in your working notes: no per-turn counters, no resume state.
-- **Cost stop-condition:** if the work seems to want a large multi-file tree, **stop and ask** before emitting
+- Track position with a single `Phase: X` line in your working notes: no per-turn counters, no resume state.
+- Cost stop-condition: if the work seems to want a large multi-file tree, stop and ask before emitting
   it. Never auto-generate a 12- or 37-file document set. That tree exists only behind
   `scripts/scaffold.py --enterprise <tier>`, for a platform-scale program that has genuinely outgrown one file.
 
@@ -68,17 +68,17 @@ Gate-zero decides *whether* to write a doc; the tier decides *which* doc. Full d
 
 | Tier | When | Template |
 |---|---|---|
-| **brief** (small) | single feature/addition | `assets/templates/brief.md`, ticket-shaped, ~2-3 reqs, <30s read |
-| **one-pager** (medium) | a module or small app | `assets/templates/one-pager.md`, mandatory non-goals, ≤2pp |
-| **big / validation** | "should we build this?" | `assets/templates/prfaq.md`, press release + FAQ + mandatory top-3 failures |
-| **big / execution** | "we've decided; build it" | `assets/templates/prd-full.md`, numbered reqs, baseline/target/window metrics, dated changelog |
+| brief (small) | single feature/addition | `assets/templates/brief.md`, ticket-shaped, ~2-3 reqs, <30s read |
+| one-pager (medium) | a module or small app | `assets/templates/one-pager.md`, mandatory non-goals, ≤2pp |
+| big / validation | "should we build this?" | `assets/templates/prfaq.md`, press release + FAQ + mandatory top-3 failures |
+| big / execution | "we've decided; build it" | `assets/templates/prd-full.md`, numbered reqs, baseline/target/window metrics, dated changelog |
 
-**Graduating guard:** if a one-pager draft exceeds ~5-7 requirements or the scope touches more than one
-team/system, **stop and restart in `prd-full.md`** rather than bloating the one-pager in place.
+Graduating guard: if a one-pager draft exceeds ~5-7 requirements or the scope touches more than one
+team/system, stop and restart in `prd-full.md` rather than bloating the one-pager in place.
 
 ## Workflow
 
-Four phases: **Discover → Decide → ═authorization gate═ → Author → Validate.**
+Four phases: Discover → Decide → ═authorization gate═ → Author → Validate.
 
 ### Phase: Discover
 
@@ -91,11 +91,11 @@ package/build files; map major components, data model, existing capabilities, an
 under docs/. Return a structured summary, each finding tagged CONFIRMED | INFERRED | UNKNOWN."
 ```
 
-Tag every finding **CONFIRMED / INFERRED / UNKNOWN**: never present an inference as a fact. Pick the
+Tag every finding CONFIRMED / INFERRED / UNKNOWN: never present an inference as a fact. Pick the
 discovery mode by context: cold start → 3-5 lettered clarifying questions; warm start → synthesize from the
 conversation + a quick repo scan, then run a lightweight gap check.
 
-**Gate-zero: does this even need a written doc?** For a one-line change, a bug-shaped fix, or anything
+Gate-zero: does this even need a written doc? For a one-line change, a bug-shaped fix, or anything
 faster to prototype than to spec, say so and stop:
 
 > "This doesn't need a PRD. Here's a 3-line ticket: {problem / change / acceptance}, or just prototype it
@@ -105,26 +105,26 @@ Being willing to talk the user out of a doc is the point of gate-zero.
 
 ### Phase: Decide
 
-1. **Pick the tier**: assess size, then branch the big tier on intent (validation vs execution). Honor
+1. Pick the tier: assess size, then branch the big tier on intent (validation vs execution). Honor
    `--tier`/`--intent` if passed. State the choice and why in one line.
-2. **Research**: fan out one `Explore`/haiku agent per workstream the open decisions actually need
+2. Research: fan out one `Explore`/haiku agent per workstream the open decisions actually need
    (competitors, technical options, regulatory, platform, accessibility). Each returns rows
    `finding | source URL | date | confidence | implication` and invents nothing. Merge them as `finding`
-   rows in the one **decision log** (`assets/templates/decision-log.md`). Cite every externally-derived claim.
-3. **Interview**: ask the open decisions in dependency order (vision → problem → users → scope → journeys →
+   rows in the one decision log (`assets/templates/decision-log.md`). Cite every externally-derived claim.
+3. Interview: ask the open decisions in dependency order (vision → problem → users → scope → journeys →
    architecture → non-functional → metrics), each via `AskUserQuestion` with the `decision-question.md`
    template (decision, evidence, a recommendation with rationale, alternatives). Record answers as
    `decision`/`assumption`/`question` rows in the same log. Keep facts, assumptions, and recommendations
    separate: a recommendation never hardens into a requirement without an approved decision. For the
-   **users** decision, capture persona and user evidence with `product-design-spec`'s `persona.md`
+   users decision, capture persona and user evidence with `product-design-spec`'s `persona.md`
    rulebook (via the `Skill` tool where available, else read `persona.md` from
    `skills/product-design-spec/assets/templates/`) rather than duplicating persona guidance here.
-4. **Alignment gate (authorization)**: assemble the ~1-page `alignment-summary.md` and present it:
+4. Alignment gate (authorization): assemble the ~1-page `alignment-summary.md` and present it:
 
    > "Alignment summary for {product}: tier = {tier}, {N} approved decisions, {M} assumptions, {K} open. Do
    > you authorize me to author `docs/specs/prd/PRD.md`?"
 
-   **Stop here if the answer is no**: revise and re-present. Author nothing before authorization.
+   Stop here if the answer is no: revise and re-present. Author nothing before authorization.
 
 ### Phase: Author
 
@@ -134,18 +134,18 @@ Create the single file, then fill it from the tier template:
 python skills/product-prd/scripts/scaffold.py --dir docs/specs/prd   # one PRD.md
 ```
 
-- **Requirements** use `assets/templates/requirement.md`: a unique ID (`PRD-<CAT>-NNN`, six categories
-  FR/NFR/UX/SEC/DATA/DES), RFC-2119 language, **one behaviour** per requirement, a 3-field evidence block
-  (finding / evidence path / confidence), and **Given/When/Then** acceptance criteria. Rules:
+- Requirements use `assets/templates/requirement.md`: a unique ID (`PRD-<CAT>-NNN`, six categories
+  FR/NFR/UX/SEC/DATA/DES), RFC-2119 language, one behaviour per requirement, a 3-field evidence block
+  (finding / evidence path / confidence), and Given/When/Then acceptance criteria. Rules:
   `references/requirement-hygiene.md` (the shared rulebook) and `references/requirement-standards.md`.
-- **Non-goals are mandatory at medium+ and stated POSITIVELY**: say where the excluded work lives or when
+- Non-goals are mandatory at medium+ and stated POSITIVELY: say where the excluded work lives or when
   it's revisited, never a bare "we won't do X" (a downstream agent can't infer scope from omission).
-- **Tag every unresolved gap `[NEEDS CLARIFICATION: ...]`** rather than guessing: it stays greppable.
-- **Prioritization/metrics** (JTBD/Kano/MoSCoW/RICE, NSM/HEART/AARRR) are opt-in: reach for
+- Tag every unresolved gap `[NEEDS CLARIFICATION: ...]` rather than guessing: it stays greppable.
+- Prioritization/metrics (JTBD/Kano/MoSCoW/RICE, NSM/HEART/AARRR) are opt-in: reach for
   `references/frameworks.md` only when finer granularity is actually wanted.
-- **Diagrams:** delegate Mermaid to the `docs-diagram` skill (via the `Skill` tool where available,
-  otherwise apply its diagram conventions inline). **Task breakdown once requirements exist:** hand off to
-  `project-planner`. **A decision worth a permanent record:** offer `docs-adr` (made) / `docs-rfc` (proposed).
+- Diagrams: delegate Mermaid to the `docs-diagram` skill (via the `Skill` tool where available,
+  otherwise apply its diagram conventions inline). Task breakdown once requirements exist: hand off to
+  `project-planner`. A decision worth a permanent record: offer `docs-adr` (made) / `docs-rfc` (proposed).
 
 ### Phase: Validate & hand off
 
@@ -157,26 +157,27 @@ python skills/product-prd/scripts/hygiene.py  --dir docs/specs/prd   # advisory 
 Fix every CRITICAL/MAJOR (missing/duplicate IDs, ACs without Given/When/Then, missing Non-Goals, unresolved
 `[NEEDS CLARIFICATION]`, compound requirements, dangling links, leftover placeholders). Then:
 
-- **Self-grade** inline (no separate report file): does every requirement trace to a stated goal? Any vague
-  terms, missing sections, or compound requirements left? State the readiness verdict in a sentence or two.
-- **Hand off:** write the file to its repo path (report the path), or, if the user works in a tracker, offer
+- Self-grade inline (no separate report file): does every requirement trace to a stated goal? Check for
+  vague wording and missing sections, and confirm no requirement still bundles more than one behaviour.
+  State the readiness verdict in a sentence or two.
+- Hand off: write the file to its repo path (report the path), or, if the user works in a tracker, offer
   to open the ticket/issue. Name the downstream consumer: `product-design-spec` (design) and
   `implement-feature` (build).
 
 ## AI-agent-consumer mode (optional)
 
 When the PRD's downstream reader is an AI implementation agent (this repo's own `implement-feature`/`fix-bug`)
-rather than a human, switch modes. **Use headings + lists over prose; state every non-goal positively; give every
-requirement an independently-testable acceptance criterion.** Optionally emit the companion
-`assets/templates/agent-contract.md`: exact commands with flags, an Always / Ask-First / Never boundary
-list, and project conventions.
+rather than a human, switch modes. Use headings + lists over prose; state every non-goal positively; give every
+requirement an independently-testable acceptance criterion. Optionally emit the companion
+`assets/templates/agent-contract.md`. It pairs exact commands (with flags) with an Always / Ask-First /
+Never boundary list, then separately records the project's own conventions.
 
 ## Anti-hallucination
 
-- Investigate the repo and search the web **before** asking the user: don't ask what the code already answers.
+- Investigate the repo and search the web before asking the user: don't ask what the code already answers.
 - Tag every finding CONFIRMED / INFERRED / UNKNOWN; never present an inference or a recommendation as a fact
   or an approved requirement.
-- Every externally-derived claim carries a source. No fabricated counts, metrics, or competitor data.
+- Every externally-derived claim carries a source. No fabricated counts or metrics, and no invented competitor data.
 - Never invent requirement IDs that don't trace to a decision or need. Run `validate.py` before declaring done.
 - The alignment gate is real: author files only after explicit authorization.
 

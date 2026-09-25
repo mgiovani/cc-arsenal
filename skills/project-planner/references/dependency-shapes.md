@@ -37,7 +37,7 @@ TaskUpdate: { taskId: "monitor-10pct", addBlockedBy: ["deploy-10pct"] }
 TaskUpdate: { taskId: "deploy-50pct", addBlockedBy: ["monitor-10pct"] }
 ```
 
-## Multi-Team Fan-Out / Fan-In
+## Multi-team fan-out / fan-in
 ```
        A (contract)
       /|\

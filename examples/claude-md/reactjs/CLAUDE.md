@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with th
 
 ## Project architecture
 
-This is a **React.js application** built with TypeScript, using modern React patterns and a component-based architecture.
+This is a React.js application built with TypeScript, using modern React patterns and a component-based architecture.
 
 ### Project structure
 ```
@@ -121,33 +121,26 @@ npm run type-check
 
 ## Technology stack
 
-### Core framework
-- **React 18+**: Modern React with concurrent features
-- **TypeScript**: Static type checking
-- **Vite**: Fast build tool and dev server
-
-### State management
-- **Zustand**: Lightweight state management
-- **TanStack Query**: Server state management
-- **React Context**: For global app state (theme, auth)
-
-### Styling
-- **Tailwind CSS**: Utility-first CSS framework
-- **CSS Modules**: Component-scoped CSS (alternative)
-- **styled-components**: CSS-in-JS (alternative)
-
-### UI components
-- **Radix UI**: Unstyled, accessible components
-- **shadcn/ui**: Pre-built components with Tailwind
-- **Heroicons**: Beautiful hand-crafted SVG icons
-
-### Development tools
-- **Vitest**: Unit testing framework
-- **Testing Library**: React component testing utilities
-- **Playwright**: End-to-end testing
-- **ESLint**: JavaScript/TypeScript linter
-- **Prettier**: Code formatter
-- **Storybook**: Component development environment
+| Category | Package | Purpose |
+|---|---|---|
+| Core framework | `React 18+` | Modern React with concurrent features |
+| Core framework | `TypeScript` | Static type checking |
+| Core framework | `Vite` | Fast build tool and dev server |
+| State management | `Zustand` | Lightweight state management |
+| State management | `TanStack Query` | Server state management |
+| State management | `React Context` | For global app state (theme, auth) |
+| Styling | `Tailwind CSS` | Utility-first CSS framework |
+| Styling | `CSS Modules` | Component-scoped CSS (alternative) |
+| Styling | `styled-components` | CSS-in-JS (alternative) |
+| UI components | `Radix UI` | Unstyled, accessible components |
+| UI components | `shadcn/ui` | Pre-built components with Tailwind |
+| UI components | `Heroicons` | Hand-crafted SVG icons |
+| Development tools | `Vitest` | Unit testing framework |
+| Development tools | `Testing Library` | React component testing utilities |
+| Development tools | `Playwright` | End-to-end testing |
+| Development tools | `ESLint` | JavaScript/TypeScript linter |
+| Development tools | `Prettier` | Code formatter |
+| Development tools | `Storybook` | Component development environment |
 
 ## Component patterns
 
@@ -266,7 +259,7 @@ export const useAuthStore = create<AuthState>()(
 );
 ```
 
-## Routing (React router)
+## Routing (React Router)
 
 ```tsx
 // src/App.tsx
@@ -369,7 +362,7 @@ class ApiClient {
 export const apiClient = new ApiClient(API_BASE_URL);
 ```
 
-### Data fetching with TanStack query
+### Data fetching with TanStack Query
 ```tsx
 // src/services/userService.ts
 import { apiClient } from './apiClient';

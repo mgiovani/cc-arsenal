@@ -308,48 +308,64 @@ Return structured findings with:
 ## Performance Best Practices by Role
 
 ### For Developers
-1. **Profile before optimizing**: Measure actual bottlenecks, don't guess
-2. **Fix Critical/High first**: Prioritize based on measured impact
-3. **Test performance fixes**: Verify improvements with benchmarks
-4. **Consider data scale**: An O(n²) algorithm on 10 items is fine; on 10,000 items it's not
-5. **Add performance tests**: Write benchmarks to prevent regressions
+
+| Practice | Detail |
+| --- | --- |
+| Profile before optimizing | Measure actual bottlenecks, don't guess |
+| Fix Critical/High first | Prioritize based on measured impact |
+| Test performance fixes | Verify improvements with benchmarks |
+| Consider data scale | An O(n²) algorithm on 10 items is fine; on 10,000 items it's not |
+| Add performance tests | Write benchmarks to prevent regressions |
 
 ### For Frontend Engineers
-1. **Measure Core Web Vitals**: Use Lighthouse, WebPageTest, or Chrome DevTools
-2. **Bundle analysis**: Run webpack-bundle-analyzer regularly
-3. **Lazy load routes**: Code-split at route boundaries
-4. **Optimize images**: Use next/image, WebP/AVIF, responsive sizes
-5. **Minimize re-renders**: Use React DevTools Profiler to identify wasted renders
+
+| Practice | Detail |
+| --- | --- |
+| Measure Core Web Vitals | Use Lighthouse, WebPageTest, or Chrome DevTools |
+| Bundle analysis | Run webpack-bundle-analyzer regularly |
+| Lazy load routes | Code-split at route boundaries |
+| Optimize images | Use next/image, WebP/AVIF, responsive sizes |
+| Minimize re-renders | Use React DevTools Profiler to identify wasted renders |
 
 ### For Backend Engineers
-1. **Use query logging**: Enable slow query logs and EXPLAIN ANALYZE
-2. **Connection pooling**: Always use connection pools, never individual connections
-3. **Eager loading**: Use prefetch_related/select_related/include to avoid N+1
-4. **Caching strategy**: Cache expensive computations and frequent queries
-5. **Resource cleanup**: Use context managers, try/finally, or RAII patterns
+
+| Practice | Detail |
+| --- | --- |
+| Use query logging | Enable slow query logs and EXPLAIN ANALYZE |
+| Connection pooling | Always use connection pools, never individual connections |
+| Eager loading | Use prefetch_related/select_related/include to avoid N+1 |
+| Caching strategy | Cache expensive computations and frequent queries |
+| Resource cleanup | Use context managers, try/finally, or RAII patterns |
 
 ### For DevOps/SRE
-1. **APM tooling**: Deploy application performance monitoring (DataDog, New Relic, Prometheus)
-2. **Performance budgets**: Set and enforce bundle size limits in CI
-3. **Database monitoring**: Track slow queries, connection pool usage, index effectiveness
-4. **Memory monitoring**: Alert on memory growth trends, not just threshold
-5. **Load testing**: Regular load tests to identify bottlenecks under concurrency
+
+| Practice | Detail |
+| --- | --- |
+| APM tooling | Deploy application performance monitoring (DataDog, New Relic, Prometheus) |
+| Performance budgets | Set and enforce bundle size limits in CI |
+| Database monitoring | Track slow queries, connection pool usage, index effectiveness |
+| Memory monitoring | Alert on memory growth trends, not just threshold |
+| Load testing | Regular load tests to identify bottlenecks under concurrency |
 
 ## Recommended Follow-up
 
-1. **Runtime profiling**: Use language-specific profilers for actual measurements
-2. **Load testing**: Use tools like k6, Artillery, or JMeter for concurrent user testing
-3. **APM setup**: Deploy application performance monitoring for ongoing visibility
-4. **Database tuning**: Run EXPLAIN ANALYZE on flagged queries
-5. **Bundle analysis**: Run bundle analyzer for accurate size measurements
+| Action | Detail |
+| --- | --- |
+| Runtime profiling | Use language-specific profilers for actual measurements |
+| Load testing | Use tools like k6, Artillery, or JMeter for concurrent user testing |
+| APM setup | Deploy application performance monitoring for ongoing visibility |
+| Database tuning | Run EXPLAIN ANALYZE on flagged queries |
+| Bundle analysis | Run bundle analyzer for accurate size measurements |
 
 ## Profiling Tool Recommendations
 
-- **Python**: cProfile, py-spy, memory_profiler, django-debug-toolbar, SQLAlchemy logging
-- **JavaScript/Node.js**: clinic.js, 0x, node --inspect, Chrome DevTools Performance tab
-- **React**: React DevTools Profiler, why-did-you-render, @welldone-software/why-did-you-render
-- **Java**: JProfiler, VisualVM, async-profiler, Spring Boot Actuator
-- **Go**: pprof, trace, benchstat
-- **Database**: EXPLAIN ANALYZE (PostgreSQL), EXPLAIN (MySQL), MongoDB explain(), pg_stat_statements
-- **Frontend**: Lighthouse, WebPageTest, Chrome DevTools Performance, webpack-bundle-analyzer
-- **Load Testing**: k6, Artillery, JMeter, Locust
+| Stack | Tools |
+| --- | --- |
+| Python | cProfile, py-spy, memory_profiler, django-debug-toolbar, SQLAlchemy logging |
+| JavaScript/Node.js | clinic.js, 0x, node --inspect, Chrome DevTools Performance tab |
+| React | React DevTools Profiler, why-did-you-render, @welldone-software/why-did-you-render |
+| Java | JProfiler, VisualVM, async-profiler, Spring Boot Actuator |
+| Go | pprof, trace, benchstat |
+| Database | EXPLAIN ANALYZE (PostgreSQL), EXPLAIN (MySQL), MongoDB explain(), pg_stat_statements |
+| Frontend | Lighthouse, WebPageTest, Chrome DevTools Performance, webpack-bundle-analyzer |
+| Load testing | k6, Artillery, JMeter, Locust |

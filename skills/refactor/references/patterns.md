@@ -4,21 +4,17 @@
 
 ### Extract method
 
-**When to use**: A code fragment can be grouped together and given a meaningful name, or a method is doing too many things.
+Reach for this when a code fragment can be grouped together and given a meaningful name, or when a method has grown to do too many things.
 
-**Step sequence**:
 1. Identify the code to extract
-2. Create a new method with the extracted code: determine parameters from variables used in the fragment
+2. Create a new method with the extracted code, choosing parameters from the variables the fragment actually uses
 3. Run tests
 4. Replace the original code with a call to the new method
-5. Run tests
+5. Run tests again
 6. Clean up: remove any intermediate variables no longer needed
-7. Run tests
+7. Confirm the suite still passes
 
-**Risks**:
-- Variables modified inside the fragment need to be returned or passed by reference
-- Side effects (I/O, mutations) must be preserved in the exact same order
-- Exception handling scope may change
+Watch for: variables modified inside the fragment need to come back out, either returned or passed by reference; side effects (I/O, mutations) have to happen in the exact same order as before; and exception-handling scope can shift once code moves into its own method.
 
 **Example (Python)**:
 ```python
@@ -60,191 +56,154 @@ def process_order(order):
 
 ### Extract class
 
-**When to use**: A class has responsibilities that could be split into separate concerns.
+Use this when a class has taken on responsibilities that really belong to separate concerns.
 
-**Step sequence**:
-1. Identify the cohesive subset of fields and methods to extract
-2. Create the new class with the subset of fields and methods
+1. Identify the cohesive subset of fields and methods to pull out
+2. Create the new class around that subset
 3. Run tests
-4. Add a reference from the old class to the new class
-5. Delegate method calls from old class to new class
+4. Add a reference from the old class to the new one
+5. Delegate method calls from the old class to the new class
 6. Run tests
-7. Update external callers to use the new class directly (if needed)
+7. Update external callers to use the new class directly, if that's warranted
 8. Run tests
-9. Remove delegating methods from old class (if all callers updated)
-10. Run tests
+9. Once every caller has moved, remove the now-unneeded delegating methods from the old class
+10. Run the suite one more time
 
-**Risks**:
-- Shared mutable state between old and new class
-- Serialization/deserialization may break
-- Inheritance hierarchies may be affected
+Watch out for shared mutable state carried over between the old and new class. Serialization or deserialization paths may quietly break, and inheritance hierarchies could be affected by the split too.
 
-### Rename (Variable, method, class)
+### Rename (variable, method, class)
 
-**When to use**: A name does not clearly communicate purpose.
+Do this when a name no longer communicates what the thing actually does.
 
-**Step sequence**:
-1. If the language supports it, use IDE/tool rename refactoring
-2. Otherwise: add the new name alongside the old (alias, wrapper, re-export)
+1. If the language and tooling support it, use IDE/tool rename refactoring
+2. Otherwise, add the new name alongside the old one (an alias or wrapper works, so does a re-export)
 3. Run tests
-4. Update all callers to use the new name (one file at a time, testing between each)
+4. Update callers to the new name one file at a time, testing between each
 5. Run tests after each file
 6. Remove the old name
-7. Run tests
+7. Run tests one last time
 
-**Risks**:
-- Dynamic references (strings, reflection) won't be caught by search
-- External consumers may depend on the old name
-- Serialized data may contain the old name
+Dynamic references (strings, reflection) won't show up in a search, so double-check for those. External consumers may still depend on the old name, and serialized data can have the old name baked into it.
 
-### Move Function/Class
+### Move function/class
 
-**When to use**: A function/class is in the wrong module: it belongs closer to its primary consumers or related code.
+Applies when a function or class sits in the wrong module: it really belongs closer to its primary consumers or related code.
 
-**Step sequence**:
 1. Copy the function/class to the target module
-2. Add a re-export from the source module (preserves backward compatibility)
+2. Add a re-export from the source module, which keeps backward compatibility intact
 3. Run tests
 4. Update callers one at a time to import from the new location
 5. Run tests after each caller update
-6. Once all callers are updated, remove the re-export from the source
+6. Once every caller has switched over, remove the re-export from the source
 7. Run tests
 
-**Risks**:
-- Circular import/dependency issues
-- Path-dependent code (logging, error messages with module names)
-- Build system or bundler configuration may need updates
+Risks here include circular import or dependency issues, path-dependent code such as logging or error messages that embed module names, and build system or bundler configuration that may need updating.
 
 ### Simplify conditional
 
-**When to use**: Complex conditional logic is hard to understand.
+Worth doing whenever conditional logic has become hard to follow.
 
-**Step sequence**:
 1. Extract the condition into a well-named boolean variable or method
 2. Run tests
-3. Simplify the logic (De Morgan's laws, guard clauses, early returns)
+3. Simplify the logic itself: apply De Morgan's laws, reach for guard clauses, or return early
 4. Run tests
-5. If nested conditionals remain, repeat from step 1
+5. If nested conditionals remain, go back to step 1
 
-**Common simplifications**:
-- Replace nested if/else with guard clauses (early return)
-- Replace complex boolean expressions with named methods
-- Replace conditional with polymorphism (when appropriate)
-- Consolidate duplicate conditional fragments
+Common simplifications: replacing nested if/else with guard clauses (early return), replacing complex boolean expressions with named methods, swapping a conditional for polymorphism where that fits, and consolidating duplicate conditional fragments.
 
 ### Remove duplication
 
-**When to use**: The same or very similar code exists in multiple places.
+Applies when the same or very similar code shows up in multiple places.
 
-**Step sequence**:
-1. Identify the duplicated pattern across all locations
-2. Determine the minimal abstraction that captures the shared behavior
-3. Create the shared function/method/class
+1. Identify the duplicated pattern across every location it appears
+2. Work out the minimal abstraction that captures the shared behavior
+3. Create the shared function or method (a class, if that fits better)
 4. Run tests
-5. Replace the FIRST occurrence with a call to the shared code
+5. Point the first occurrence at the shared code
 6. Run tests
-7. Replace the NEXT occurrence
+7. Do the same for the next occurrence
 8. Run tests
-9. Repeat for remaining occurrences, testing after each
+9. Repeat until every occurrence is converted, testing after each one
 
-**Risks**:
-- Apparent duplication may actually have subtle differences
-- Premature abstraction: ensure there are truly 3+ occurrences before abstracting
-- The shared abstraction may need parameterization for slight variations
+Apparent duplication can turn out to hide subtle differences, so verify before abstracting. Guard against premature abstraction: make sure there are truly three or more occurrences first. The shared abstraction may also need parameterizing to absorb slight variations between call sites.
 
-### Inline Method/Variable
+### Inline method/variable
 
-**When to use**: A method body or variable is just as clear as its name, or indirection adds no value.
+Fits when a method body or variable adds no clarity beyond its own name, or when the indirection isn't earning its keep.
 
-**Step sequence**:
-1. Verify the method/variable is not overridden in subclasses
-2. Replace one call site with the method body / variable value
+1. Verify the method/variable isn't overridden in any subclass
+2. Replace one call site with the method body or variable value
 3. Run tests
-4. Repeat for remaining call sites
+4. Repeat for the remaining call sites
 5. Run tests
 6. Remove the method/variable declaration
 7. Run tests
 
-### Replace magic Numbers/Strings with constants
+### Replace magic numbers/strings with constants
 
-**When to use**: Literal values appear in code without explanation.
+Use when literal values show up in code with no explanation of what they mean.
 
-**Step sequence**:
 1. Create a named constant with the value
 2. Run tests
 3. Replace one occurrence with the constant reference
 4. Run tests
-5. Repeat for remaining occurrences
+5. Repeat for the remaining occurrences
 6. Run tests
 
 ### Decompose large function
 
-**When to use**: A function exceeds ~50 lines or has multiple levels of abstraction.
+Reach for this when a function has grown past roughly 50 lines or mixes multiple levels of abstraction.
 
-**Step sequence**:
-1. Identify logical sections within the function (often separated by comments)
-2. Apply "Extract Method" to the first section
+1. Identify the logical sections within the function, often already marked off by comments
+2. Apply "Extract method" to the first section
 3. Run tests
-4. Apply "Extract Method" to the next section
+4. Apply "Extract method" to the next section
 5. Run tests
-6. Repeat until the original function reads as a high-level summary
+6. Keep going until the original function reads as a high-level summary
 7. Run tests
 
 ## Safety practices
 
 ### The golden rule
 
-**Every refactoring step must end with passing tests.** If tests fail after a change, that change introduced a behavioral difference. Either:
-1. Revert the change and find a smaller step
-2. Fix the test ONLY if it was testing implementation details (not behavior)
+Every refactoring step must end with passing tests. If tests fail after a change, that change introduced a behavioral difference. Either revert and find a smaller step, or, only if the test was checking an implementation detail rather than behavior, fix the test itself.
 
-### Pre-Refactoring checklist
+### Pre-refactoring checklist
 
-- [ ] Read and understand ALL the target code
-- [ ] Identify ALL callers and dependents
-- [ ] Run full test suite (record baseline results)
-- [ ] Assess test coverage (add characterization tests for gaps)
-- [ ] Plan incremental steps (each independently verifiable)
-- [ ] Get approval if scope is large (>5 files, public API changes)
+- [ ] Read and understand all the target code
+- [ ] Identify all callers and dependents
+- [ ] Run the full test suite and record the baseline
+- [ ] Assess test coverage, adding characterization tests for any gaps
+- [ ] Plan incremental steps that are each independently verifiable
+- [ ] Get approval first if the scope is large (more than 5 files, or public API changes)
 
 ### When to write characterization tests
 
-Write characterization tests when:
-- The target code has no existing tests
-- Existing tests only cover the happy path
-- Error handling or edge cases are untested
-- Side effects (file I/O, database, network) are untested
-- Complex conditional logic has untested branches
+Write them when the target code has no existing tests, when existing tests only cover the happy path, or when error handling and edge cases go untested. The same goes for uncovered side effects (file I/O, database access, network calls) and for complex conditional logic with untested branches.
 
-Skip characterization tests when:
-- Existing tests thoroughly cover the target code
-- The refactoring is trivially safe (rename with search-and-replace)
-- The change is confined to a single, well-tested function
+Skip them when existing tests already cover the target code thoroughly, the refactoring is trivially safe (a plain rename via search-and-replace), or the change is confined to a single function that's already well tested.
 
 ### Characterization test naming
 
-Use a consistent prefix to distinguish characterization tests:
+Use a consistent prefix so these tests stand out from the rest of the suite:
 - Python: `test_char_<behavior_description>`
 - JavaScript: `describe('characterization: <module>')` or `it('char: <behavior>')`
 - Go: `TestChar_<BehaviorDescription>`
 
 ### When to abort a refactoring
 
-Stop and reassess if:
-- Tests keep failing and the cause is unclear
-- The change cascades to far more files than expected
-- Circular dependencies emerge that require architectural changes
-- The "refactoring" is actually a redesign (changes behavior)
-- External consumers would be affected in unknown ways
+Stop and reassess if tests keep failing for reasons that aren't clear, or if the change cascades to far more files than expected. The same applies when circular dependencies surface that would require architectural changes, when the "refactoring" has quietly turned into a redesign that changes behavior, or when external consumers would be affected in ways you can't fully predict.
 
 ### Red flags during refactoring
 
-- **Test needs changing to pass**: Likely a behavioral change, not a refactoring
-- **New test needed for new behavior**: Definitely not a refactoring, stop
-- **"While I'm here" changes**: Scope creep, resist fixing unrelated issues
-- **Performance assumptions changing**: Verify benchmarks if performance-critical
+| Signal | What it means |
+|--------|----------------|
+| A test needs changing to pass | Likely a behavioral change, not a refactoring |
+| A new test is needed for new behavior | Definitely not a refactoring: stop |
+| "While I'm here" changes creep in | Scope creep; resist fixing unrelated issues |
+| Performance assumptions are shifting | Verify benchmarks if the code is performance-critical |
 
-## Language-Specific notes
+## Language-specific notes
 
 ### Python
 - Use `pytest --tb=short` for quick feedback during incremental changes

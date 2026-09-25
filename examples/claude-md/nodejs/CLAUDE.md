@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with th
 
 ## Project Architecture
 
-This is a **Node.js application** built with TypeScript, following clean architecture principles and modern development practices.
+This is a Node.js application built with TypeScript, following clean architecture principles and modern development practices.
 
 ### Project Structure
 ```
@@ -143,29 +143,24 @@ npx prisma db push
 
 ## Technology Stack
 
-### Core Framework
-- **Express.js**: Fast, unopinionated web framework
-- **TypeScript**: Typed superset of JavaScript
-- **Node.js**: JavaScript runtime
-
-### Database & ORM
-- **Prisma**: Next-generation ORM for Node.js
-- **PostgreSQL**: Primary database
-- **Redis**: Caching and session storage
-
-### Authentication & Security
-- **jsonwebtoken**: JWT implementation
-- **bcrypt**: Password hashing
-- **helmet**: Security middleware
-- **cors**: Cross-origin resource sharing
-
-### Development Tools
-- **Jest**: Testing framework
-- **Supertest**: HTTP assertion library
-- **ESLint**: JavaScript linter
-- **Prettier**: Code formatter
-- **ts-node**: TypeScript execution
-- **nodemon**: Development server with hot reload
+| Category | Package | Purpose |
+|---|---|---|
+| Core framework | `Express.js` | Fast, unopinionated web framework |
+| Core framework | `TypeScript` | Typed superset of JavaScript |
+| Core framework | `Node.js` | JavaScript runtime |
+| Database & ORM | `Prisma` | Next-generation ORM for Node.js |
+| Database & ORM | `PostgreSQL` | Primary database |
+| Database & ORM | `Redis` | Caching and session storage |
+| Authentication & security | `jsonwebtoken` | JWT implementation |
+| Authentication & security | `bcrypt` | Password hashing |
+| Authentication & security | `helmet` | Security middleware |
+| Authentication & security | `cors` | Cross-origin resource sharing |
+| Development tools | `Jest` | Testing framework |
+| Development tools | `Supertest` | HTTP assertion library |
+| Development tools | `ESLint` | JavaScript linter |
+| Development tools | `Prettier` | Code formatter |
+| Development tools | `ts-node` | TypeScript execution |
+| Development tools | `nodemon` | Development server with hot reload |
 
 ## API Conventions
 

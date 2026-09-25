@@ -17,20 +17,16 @@ disable-model-invocation: true
 
 # CI/CD Pipeline Generator
 
-Generate a CI/CD pipeline config for the detected project stack, with stages for lint, test, build, security scan, and deploy.
+Generate a CI/CD pipeline config for the detected project stack, with stages for lint, test, build, security scan, and deploy. Start by parsing the arguments passed to this skill invocation (platform, `--deploy`, `--monorepo`): see Phase 0 below.
 
-## Pipeline to Generate
+## Anti-hallucination guidelines
 
-Parse the arguments passed to this skill invocation (platform, `--deploy`, `--monorepo`): see Phase 0 below.
-
-## Anti-Hallucination Guidelines
-
-**CRITICAL**: Pipeline configurations must match ACTUAL project tooling:
-1. **Discover before generating** - Never assume package managers, test runners, or build tools
-2. **Verify commands exist** - Check `package.json` scripts, `Makefile` targets, `pyproject.toml` scripts before referencing them
-3. **Match real versions** - Use actual language/runtime versions from project config files (`.node-version`, `.python-version`, `pyproject.toml`, etc.)
-4. **No phantom dependencies** - Only include services (Redis, PostgreSQL, etc.) confirmed in project dependencies
-5. **Platform-specific syntax** - Each CI platform has distinct YAML structure; never mix syntax between platforms
+Pipeline configurations must always match actual project tooling. This is critical:
+1. Discover before generating: never assume the project's tooling, check what it actually uses first.
+2. Verify commands exist: check the project's own config (e.g. `package.json` scripts, `Makefile` targets) before referencing them.
+3. Match real versions: use the actual language/runtime version pinned in the project's own config files, not a guess.
+4. No phantom dependencies: only include services (Redis, PostgreSQL, etc.) confirmed in project dependencies.
+5. Platform-specific syntax: each CI platform has distinct YAML structure, so never mix syntax between platforms.
 
 ## Workflow
 
@@ -83,45 +79,45 @@ Focus on:
 
 ### Phase 3: Design Pipeline Architecture
 
-Based on discovery and research, design the pipeline with these stages. For platform-specific triggers, caching, and syntax conventions, see [references/platform-patterns.md](references/platform-patterns.md).
+Based on discovery and research, design the pipeline with these stages. For platform-specific triggers and syntax conventions (caching included), see [references/platform-patterns.md](references/platform-patterns.md).
 
-**Standard Stages (always include):**
+Standard stages (always include):
 
-1. **Lint & Format Check**
- - Run linter discovered in Phase 1 (e.g., `ruff check`, `eslint`, `golangci-lint`)
+1. Lint & Format Check
+ - Run linter discovered in Phase 1 (e.g., `ruff check`, `eslint`)
  - Run formatter check if available (e.g., `ruff format --check`, `prettier --check`)
- - Run type checker if applicable (e.g., `pyright`, `tsc --noEmit`, `mypy`)
+ - Run type checker if applicable (e.g., `pyright`, `tsc --noEmit`)
 
-2. **Test**
+2. Test
  - Run test suite with discovered test command
  - Include coverage reporting if configured
  - Set up service containers if tests require databases/caches
  - Consider matrix testing for multiple runtime versions
 
-3. **Build**
+3. Build
  - Run build command if applicable (e.g., `npm run build`, `cargo build --release`)
  - Build Docker image if Dockerfile exists
  - Generate artifacts for deployment
 
-4. **Security Scan**
+4. Security Scan
  - Dependency vulnerability scanning (language-appropriate tool)
  - Static analysis if available for the language
  - Container scanning if Docker is used
  - Secret detection
 
-5. **Deploy** (if `--deploy` specified or deployment config detected)
+5. Deploy (if `--deploy` specified or deployment config detected)
  - Environment-specific deployment steps
  - Staging/production separation
  - Post-deployment health checks
- - **Thread the built artifact reference into the deploy step.** The Build stage must expose the image tag/digest it just produced (job `outputs`, `GITHUB_OUTPUT`, an artifact file, etc.), and the deploy step must consume that same reference: rendering it into a task definition, `helm upgrade --set image.tag=<ref>`, `kubectl set image deployment/<name> <container>=<ref>`, or equivalent. Never emit a blind restart (`aws ecs update-service --force-new-deployment`, `kubectl rollout restart` with no image change) as the whole deploy step: if the target pins an image tag/digest, a blind restart just re-pulls the OLD image and ships nothing new.
+ - Thread the built artifact reference into the deploy step. The Build stage must expose the image tag/digest it just produced (job `outputs`, `GITHUB_OUTPUT`, an artifact file, etc.), and the deploy step must consume that same reference: rendering it into a task definition, `helm upgrade --set image.tag=<ref>`, `kubectl set image deployment/<name> <container>=<ref>`, or equivalent. Never emit a blind restart (`aws ecs update-service --force-new-deployment`, `kubectl rollout restart` with no image change) as the whole deploy step: if the target pins an image tag/digest, a blind restart just re-pulls the OLD image and ships nothing new.
 
-**Design Decisions:**
+Design decisions:
 
-- **Parallelism**: Lint, test, and security scan run in parallel when possible
-- **Fail fast**: Lint stage runs first (fastest feedback)
-- **Caching**: Cache dependency installation for faster runs
-- **Branch strategy**: Main/master triggers deploy; PRs trigger lint+test+build
-- **Artifacts**: Build outputs passed between stages where needed
+- Parallelism: lint, test, and security scan run in parallel when possible.
+- Fail fast: lint stage runs first for the fastest feedback.
+- Caching: cache dependency installation for faster runs.
+- Branch strategy: main/master triggers deploy, while PRs trigger lint+test+build.
+- Artifacts: build outputs passed between stages where needed.
 
 ### Phase 4: Generate Pipeline Configuration
 
@@ -130,7 +126,7 @@ Generate the complete CI/CD configuration file based on the designed architectur
 For platform-specific syntax and patterns, consult:
 - [references/platform-patterns.md](references/platform-patterns.md) - Detailed YAML patterns for each platform
 
-**File Locations by Platform:**
+File locations by platform:
 
 | Platform | File Path |
 |----------|-----------|
@@ -139,7 +135,7 @@ For platform-specific syntax and patterns, consult:
 | CircleCI | `.circleci/config.yml` |
 | Jenkins | `Jenkinsfile` |
 
-**Generation Guidelines:**
+Generation guidelines:
 
 1. Use discovered commands exactly (do not invent scripts)
 2. Pin action/orb/image versions to specific tags (not `latest`)
@@ -148,7 +144,7 @@ For platform-specific syntax and patterns, consult:
 5. Use environment variables for configurable values
 6. Follow the platform's recommended project structure
 
-**If an existing CI config exists:**
+If an existing CI config exists:
 - Read the existing file first
 - Ask the user whether to replace or augment
 - Preserve any custom configuration the user has added
@@ -156,7 +152,7 @@ For platform-specific syntax and patterns, consult:
 
 ### Phase 5: Validate & Present
 
-**Step 5.1: Syntax Validation**
+#### Step 5.1: Syntax Validation
 
 Validate the generated configuration:
 
@@ -175,7 +171,7 @@ circleci config validate 2>/dev/null || python3 -c "import yaml; yaml.safe_load(
 # braces/quotes) instead of skipping validation
 ```
 
-**Step 5.2: Cross-Reference Check**
+#### Step 5.2: Cross-Reference Check
 
 Verify all referenced commands and paths exist:
 1. Every script/command in the pipeline exists in the project
@@ -184,7 +180,7 @@ Verify all referenced commands and paths exist:
 4. Environment variable names are consistent
 5. If a deploy stage exists, its deploy step references the image tag/digest (or equivalent build artifact) produced by the Build stage, not a blind restart with no reference to what was just built
 
-**Step 5.3: Present Summary**
+#### Step 5.3: Present Summary
 
 Output a summary including:
 - Pipeline architecture overview
@@ -229,9 +225,9 @@ ci-generate github --deploy k8s --monorepo
 
 ## Important Notes
 
-- **Discover first**: Never assume project tooling; always run Phase 1
-- **Pin versions**: Use specific versions for actions, orbs, images, and tools
-- **Secrets documentation**: List all required secrets so users know what to configure
-- **Existing config**: Always check for and respect existing CI configuration
-- **Security by default**: Include dependency scanning and secret detection in every pipeline
-- **Cache effectively**: Proper caching can reduce CI times by 50-80%
+- Discover first: never assume project tooling, always run Phase 1.
+- Pin versions: use specific versions for actions, orbs, images, and tools.
+- Secrets documentation: list all required secrets so users know what to configure.
+- Existing config: always check for and respect existing CI configuration.
+- Security by default: include dependency scanning and secret detection in every pipeline.
+- Cache effectively: proper caching can reduce CI times by 50-80%.

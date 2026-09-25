@@ -17,7 +17,7 @@
     },
     {
       "title": "Art & Images",
-      "description": "Mascots, logos, hero images, and social cards for a project.",
+      "description": "Mascots and logos, plus hero images and social cards for a project.",
       "skills": [
         "codex-imagegen",
         "project-illustrator"
@@ -25,7 +25,7 @@
     },
     {
       "title": "Build",
-      "description": "Write the feature, fix the bug, restructure the code, cover it with tests.",
+      "description": "Feature work and bug fixes, plus refactors and test coverage for code you already have.",
       "skills": [
         "clotho-research",
         "fix-bug",
@@ -36,7 +36,7 @@
     },
     {
       "title": "Design",
-      "description": "Screens, flows, and design tokens, plus an accessibility-grade UX audit.",
+      "description": "Screens and flows, alongside design tokens and an accessibility-grade UX audit.",
       "skills": [
         "product-design-spec",
         "product-design-tokens",
@@ -45,7 +45,7 @@
     },
     {
       "title": "Docs",
-      "description": "Architecture records, RFCs, diagrams, and keeping docs honest about the code.",
+      "description": "Architecture records and RFCs, plus diagrams and keeping docs honest about the code.",
       "skills": [
         "docs-adr",
         "docs-check",
@@ -57,7 +57,7 @@
     },
     {
       "title": "Git",
-      "description": "Branch, commit, merge, and tag versions in your own repository.",
+      "description": "Branching and committing, plus merging and tagging versions in your own repository.",
       "skills": [
         "git-commit",
         "git-release",
@@ -67,7 +67,7 @@
     },
     {
       "title": "GitHub",
-      "description": "Open pull requests, drive a branch to merged, and take a project public.",
+      "description": "Pull requests and merges, then taking a project public.",
       "skills": [
         "git-create-pr",
         "oss-launch",
@@ -99,7 +99,7 @@
     },
     {
       "title": "Project setup",
-      "description": "Containers, environment variables, database migrations, CI pipelines, framework docs.",
+      "description": "Containers and environment variables, database migrations and CI pipelines, as well as framework docs.",
       "skills": [
         "ci-generate",
         "ci-local",
@@ -111,7 +111,7 @@
     },
     {
       "title": "Review",
-      "description": "Catch problems before they ship: code, plans, security, dependencies, performance, visual regressions, translations.",
+      "description": "Code and plans, security and dependencies, performance and visual regressions, and translations.",
       "skills": [
         "i18n-check",
         "review-code",

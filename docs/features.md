@@ -15,18 +15,18 @@ Every skill is callable as `/<name>` in Claude Code. **(auto)** marks skills tha
 
 Tools that work on your AI agent itself, not on your codebase.
 
-#### `/agent-browser` (auto)
+`/agent-browser` (auto)
 AI-optimized browser automation.
 - 93% less context overhead vs Playwright
 - Snapshot + refs system
 - Web testing and automation
 
-#### `/create-rule` (auto)
+`/create-rule` (auto)
 Create memory rules for Claude Code.
 - CLAUDE.md guidelines
 - Memory patterns
 
-#### `/create-skill` (auto)
+`/create-skill` (auto)
 Specification-driven skill creation with live documentation fetching.
 - Fetches latest specifications from agentskills.io
 - Interactive clarification with user
@@ -34,43 +34,43 @@ Specification-driven skill creation with live documentation fetching.
 - User approval gates before file generation
 - Also covers what `create-command` used to (they were merged)
 
-#### `/find-skills` (manual)
+`/find-skills` (manual)
 Discover third-party skills from skills.sh.
 - Skill discovery
 - Installation automation
 - Community skills
 
-#### `/improve-skill` (auto)
+`/improve-skill` (auto)
 Improve an existing skill to the authoring standard with measured before/after evidence.
 - Snapshots the baseline, rewrites to the rubric, authors evals, benchmarks new-vs-old
 - Per-dimension restraint gate: an already-compliant skill gets a small diff, not a fresh draft
 - Reuses create-skill's validator; never commits (hands off to git-commit/ship)
 
-#### `/optimize-ai-setup` (auto)
+`/optimize-ai-setup` (auto)
 Measure token waste across installed AI coding tools and rank the fixes
 
-#### `/render` (manual)
+`/render` (manual)
 Turn a plan, PRD, review, audit, comparison, brainstorm, explanation or map into an interactive HTML page the user marks up in place.
 - Eight modes; every section carries an anchored comment affordance, so feedback returns bound to what it was left on
 - Wraps any other skill (`/render /review-code`) without that skill needing to change
 - Publishes as an Artifact where available, otherwise writes a self-contained file
 
-#### `/wtf` (auto)
+`/wtf` (auto)
 Re-explains the previous message in plain, simplified English (ASD-STE100 style).
 - Rewrites what was already said
-- No new work, research, or code
+- Adds no new work or research, and writes no new code
 
 ### Art & Images (2 skills)
 
-Mascots, logos, hero images, and social cards for a project.
+Mascots and logos, plus hero images and social cards for a project.
 
-#### `/codex-imagegen` (auto)
+`/codex-imagegen` (auto)
 The default image generator: polished raster art (logos, mascots, heroes, icons, sprites, mockups) via Codex CLI's `$imagegen`.
 - Codex `gpt-6-sol` + GPT Image 2.5 Sunburst `gpt-image-2.5-sunburst`
 - Single-quoted invocation, effort budgeting, explicit save paths
 - Chroma-key transparency handling (no-despill on pink), pixel-level QC
 
-#### `/project-illustrator` (auto)
+`/project-illustrator` (auto)
 Cohesive visual identity for a software project across mascots, heroes, social cards, thumbnails, and supporting illustrations.
 - Inspects the product and existing artwork before choosing a visual metaphor
 - Presents three meaningful mascot directions when no identity is approved
@@ -79,53 +79,53 @@ Cohesive visual identity for a software project across mascots, heroes, social c
 
 ### Build (5 skills)
 
-Write the feature, fix the bug, restructure the code, cover it with tests.
+Feature work and bug fixes, plus refactors and test coverage for code you already have.
 
-#### `/clotho-research` (manual)
+`/clotho-research` (manual)
 Find what a change will actually touch before planning it.
 - Surfaces the existing code that must change and prior art worth copying
-- Reports files, sources, and risks; never proposes an implementation or edits anything
+- Reports files and sources, plus the risks it found; never proposes an implementation or edits anything
 
-#### `/fix-bug` (auto)
+`/fix-bug` (auto)
 Test-driven debugging with fix verification.
 - Root cause analysis
 - Regression testing
 - Fix verification hook
 
-#### `/implement-feature` (auto)
+`/implement-feature` (auto)
 Feature implementation with parallel subagents and automated test verification.
 - Parallel subagent orchestration
 - Automated test verification
-- SOLID, DRY, and YAGNI principles
+- SOLID and DRY principles, plus YAGNI
 
-#### `/refactor` (auto)
+`/refactor` (auto)
 Safe codebase refactoring with characterization tests.
 - Characterization test generation
 - Safe refactoring patterns
 - Regression prevention
 
-#### `/test-suite` (auto)
+`/test-suite` (auto)
 Test generation and coverage analysis.
 - Comprehensive test generation
 - Coverage analysis and reporting
 
 ### Design (3 skills)
 
-Screens, flows, and design tokens, plus an accessibility-grade UX audit.
+Screens and flows, alongside design tokens and an accessibility-grade UX audit.
 
-#### `/product-design-spec` (manual)
+`/product-design-spec` (manual)
 Design specification for an approved PRD.
 - Information architecture, user flows, screen inventory
 - Per-screen state specs
 - Reuses the existing component library; every screen traces to a requirement ID
 
-#### `/product-design-tokens` (manual)
+`/product-design-tokens` (manual)
 Durable design-token contract for a project.
 - W3C DTCG 2025.10 JSON, plus an optional DESIGN.md
 - Reuses the project's design system
 - Enforces WCAG 2.2 AA contrast
 
-#### `/review-design` (manual)
+`/review-design` (manual)
 UX/UI design quality audit.
 - Visual and interaction critique
 - Accessibility basics
@@ -133,38 +133,38 @@ UX/UI design quality audit.
 
 ### Docs (6 skills)
 
-Architecture records, RFCs, diagrams, and keeping docs honest about the code.
+Architecture records and RFCs, plus diagrams and keeping docs honest about the code.
 
-#### `/docs-adr` (manual)
+`/docs-adr` (manual)
 Architecture Decision Records creation.
 - ADR templates (full, lightweight, Nygard)
 - Decision documentation
 - Context and consequences
 
-#### `/docs-check` (auto)
+`/docs-check` (auto)
 Documentation validation and health scoring.
 - Freshness checks
 - Completeness analysis
 - Quality scoring
 
-#### `/docs-diagram` (manual)
+`/docs-diagram` (manual)
 Architecture diagrams (Mermaid).
 - System architecture
 - Component diagrams
 - Flow diagrams
 
-#### `/docs-init` (manual)
+`/docs-init` (manual)
 Initialize comprehensive documentation structure.
 - Standard documentation templates
 - Best practices structure
 
-#### `/docs-rfc` (manual)
+`/docs-rfc` (manual)
 Request for Comments documentation.
 - RFC templates (detailed, minimal, standard)
 - Proposal structure
 - Review workflow
 
-#### `/docs-update` (manual)
+`/docs-update` (manual)
 Documentation sync with codebase.
 - Automatic update detection
 - Sync recommendations
@@ -172,47 +172,47 @@ Documentation sync with codebase.
 
 ### Git (4 skills)
 
-Branch, commit, merge, and tag versions in your own repository.
+Branching and committing, plus merging and tagging versions in your own repository.
 
-#### `/git-commit` (auto)
+`/git-commit` (auto)
 Conventional commits with automated linting.
 - Conventional Commits format
 - Pre-commit linting hook
 - Multi-language linter support
 
-#### `/git-release` (auto)
+`/git-release` (auto)
 Release management with automated changelog generation.
 - Semantic versioning
 - Automated changelog
 - Release notes generation
 
-#### `/git-sync` (auto)
+`/git-sync` (auto)
 Sync the current feature branch with its base or upstream branch.
 - Merge or rebase, with conflict detection and stash handling
 
-#### `/gitflow` (auto)
+`/gitflow` (auto)
 Manage a full gitflow branching workflow.
-- Start/finish feature, release, and hotfix branches
+- Start/finish feature and release branches, plus hotfix branches
 - Cut versioned releases with changelog generation
 - Emergency hotfix coordination
 
 ### GitHub (3 skills)
 
-Open pull requests, drive a branch to merged, and take a project public.
+Pull requests and merges, then taking a project public.
 
-#### `/git-create-pr` (auto)
+`/git-create-pr` (auto)
 PR creation with templates and test verification.
 - PR templates
 - Test verification hook
 - Automated checklist
 
-#### `/oss-launch` (auto)
+`/oss-launch` (auto)
 Take a private project to a public GitHub launch.
 - Secrets/license pre-flight, review-code fixes, branding, README/description rewrite
 - Mention scrub (presents matches, never auto-edits) and a gated history rewrite (private-only, explicit confirm, refuses on already-public repos)
 - Flips the repo public with topics set, reports a stage table of real commands
 
-#### `/ship` (auto)
+`/ship` (auto)
 Orchestrates the current branch from "code done" to "merged".
 - Runs review-code, project pre-merge checks, git-commit, then git-create-pr
 - Optionally watches CI and reports or merges on green
@@ -221,7 +221,7 @@ Orchestrates the current branch from "code done" to "merged".
 
 Jira from the command line.
 
-#### `/jira-cli` (manual)
+`/jira-cli` (manual)
 Interactive command-line tool for Jira.
 - Issue management
 - Sprint planning
@@ -231,7 +231,7 @@ Interactive command-line tool for Jira.
 
 Fan a large task out across parallel agents.
 
-#### `/orchestrate` (auto)
+`/orchestrate` (auto)
 Turn any task into a model-tiered multi-agent plan.
 - Decompose, classify, map each subtask to the right model (haiku research, opus planning, sonnet impl)
 - Parallel tracks under strict one-owner-per-file discipline; orchestrator does synthesis and git
@@ -241,18 +241,18 @@ Turn any task into a model-tiered multi-agent plan.
 
 Decide what to build and turn it into tracked, dependency-ordered work.
 
-#### `/prd-to-issues` (manual)
+`/prd-to-issues` (manual)
 Turn an approved PRD into tracked issues, one per requirement.
 - Records the dependencies between issues
 - Creates issues in beads or GitHub and reports what it created
 
-#### `/product-prd` (manual)
+`/product-prd` (manual)
 Right-sized product requirements doc, from a gate-zero check to a full PRD.
 - Gate-zero: does this idea even need a doc?
 - Brief, one-pager, PR/FAQ, or full PRD by scope
 - Mandatory non-goals and testable, traceable requirements
 
-#### `/project-planner` (auto)
+`/project-planner` (auto)
 Break down large projects into dependency-aware tasks.
 - Dependency graph generation
 - Task breakdown with estimates
@@ -260,32 +260,32 @@ Break down large projects into dependency-aware tasks.
 
 ### Project setup (6 skills)
 
-Containers, environment variables, database migrations, CI pipelines, framework docs.
+Containers and environment variables, database migrations and CI pipelines, as well as framework docs.
 
-#### `/ci-generate` (manual)
+`/ci-generate` (manual)
 CI/CD workflow generator.
 - GitHub Actions, GitLab CI, CircleCI, Jenkins
 - Best practices templates
 - Test integration
 
-#### `/ci-local` (auto)
+`/ci-local` (auto)
 Runs the checks a GitHub Actions workflow would run, locally, when Actions is unavailable or out of quota.
 - Parses `.github/workflows/*.yml` and replicates gating steps locally
 - Reports a parity table of what could/couldn't be replicated
 
-#### `/db-migrate` (auto)
+`/db-migrate` (auto)
 Create, validate, and manage database migrations across any framework.
 - Auto-detects Alembic, Prisma, Knex, Django, Flyway, Rails
 
-#### `/docker-init` (manual)
+`/docker-init` (manual)
 Generate Dockerfiles and docker-compose.yml.
 - Auto-detected services, health checks, security hardening, resource limits
 
-#### `/env-setup` (manual)
+`/env-setup` (manual)
 Scan a codebase for environment variable usage.
 - Generates/syncs `.env.example`, validates completeness, detects leaked secrets
 
-#### `/inject-docs` (manual)
+`/inject-docs` (manual)
 Framework documentation injector.
 - Next.js via agents-md
 - FastAPI via best practices
@@ -293,43 +293,43 @@ Framework documentation injector.
 
 ### Review (7 skills)
 
-Catch problems before they ship: code, plans, security, dependencies, performance, visual regressions, translations.
+Code and plans, security and dependencies, performance and visual regressions, and translations.
 
-#### `/i18n-check` (auto)
+`/i18n-check` (auto)
 i18n completeness checker.
 - Detects the project's i18n framework and diffs locale files for missing/untranslated/orphan keys
 - Scans for hardcoded user-facing strings bypassing the i18n layer
 
-#### `/review-code` (auto)
+`/review-code` (auto)
 Multi-agent PR code review with parallel specialists.
 - Specialized review agents (correctness, performance, style, tests, error handling, simplicity)
 - Comprehensive code quality analysis
 
-#### `/review-deps` (manual)
+`/review-deps` (manual)
 Dependency audit, vulnerability scanning, and upgrade planning.
 - Vulnerability detection
 - Upgrade recommendations
 - Dependency health scoring
 
-#### `/review-perf` (manual)
+`/review-perf` (manual)
 Performance analysis with parallel agents.
 - Database optimization
 - Algorithm analysis
 - Frontend performance
 - Resource optimization
 
-#### `/review-plan` (manual)
+`/review-plan` (manual)
 Adversarially review an implementation plan before any code is written.
 - Checks the plan against the actual repository, not on its own terms
 - Assumes the plan is wrong and reports findings by severity
 
-#### `/review-security` (manual)
+`/review-security` (manual)
 OWASP Top 10 2025 security analysis.
 - Automated vulnerability scanning
 - OWASP compliance checking
 - Security best practices
 
-#### `/vrt-check` (auto)
+`/vrt-check` (auto)
 Runs the project's visual regression testing workflow.
 - Auto-detects VRT tooling (Playwright, Storybook, Chromatic, Loki, Percy)
 - Triages failures as real regressions vs. intended changes
