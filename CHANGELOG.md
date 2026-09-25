@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **optimize-ai-setup**: audits the AI coding tools installed on the machine (Claude Code, Codex CLI/app, Cursor, Antigravity, Gemini CLI, Claude Desktop) for token waste and ranks the fixes. A stdlib-only script measures real session logs and configs (startup context, prompt-cache hit rate and rebuild causes, oversized CLAUDE.md/AGENTS.md, duplicate or unused skills, plugins and MCP servers, stale env settings, model and effort mix) without reading message content or secrets; the model reads only the compact report and the catalog entries for findings that fired, then applies the chosen fixes on opt-in.
+
 ## [6.0.0] - 2026-09-24
 
 One skill added and six unused ones removed, taking the catalog from 53 to 48; the removals, and the `cc-arsenal-teams` plugin variant that goes with them, are the breaking change. The catalog is now grouped on skills.sh and generated from a single source, and render ships as a real asset kit with 18 diagram types.

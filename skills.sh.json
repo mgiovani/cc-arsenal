@@ -10,6 +10,7 @@
         "create-skill",
         "find-skills",
         "improve-skill",
+        "optimize-ai-setup",
         "render",
         "wtf"
       ]

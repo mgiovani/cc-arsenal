@@ -7,11 +7,11 @@ Skills are the single component type in this repository. Each skill lives in `sk
 <!-- gen:skills-features start -->
 <!-- generated: edit skills.sh.json or SKILL.md frontmatter, then run `make docs` -->
 
-## Skills (48 total)
+## Skills (49 total)
 
 Every skill is callable as `/<name>` in Claude Code. **(auto)** marks skills that *also* trigger automatically when Claude detects a relevant task; **(manual)** marks slash-only skills (`disable-model-invocation: true`).
 
-### AI Workflow Tools (7 skills)
+### AI Workflow Tools (8 skills)
 
 Tools that work on your AI agent itself, not on your codebase.
 
@@ -45,6 +45,9 @@ Improve an existing skill to the authoring standard with measured before/after e
 - Snapshots the baseline, rewrites to the rubric, authors evals, benchmarks new-vs-old
 - Per-dimension restraint gate: an already-compliant skill gets a small diff, not a fresh draft
 - Reuses create-skill's validator; never commits (hands off to git-commit/ship)
+
+#### `/optimize-ai-setup` (auto)
+Measure token waste across installed AI coding tools and rank the fixes
 
 #### `/render` (manual)
 Turn a plan, PRD, review, audit, comparison, brainstorm, explanation or map into an interactive HTML page the user marks up in place.
@@ -385,7 +388,7 @@ make -C integrations/claude-code/claude-hi standard  # Quick 9am/2pm/7pm schedul
 
 ### Plugin Marketplace (Claude Code)
 - **Installation**: `/plugin install cc-arsenal@cc-arsenal-marketplace`
-- **Skills**: All 48 skills, or a focused variant (`cc-arsenal-dev`, `cc-arsenal-product`, `cc-arsenal-review`, `cc-arsenal-docs`, `cc-arsenal-git`, `cc-arsenal-jira`, `cc-arsenal-skills`)
+- **Skills**: All 49 skills, or a focused variant (`cc-arsenal-dev`, `cc-arsenal-product`, `cc-arsenal-review`, `cc-arsenal-docs`, `cc-arsenal-git`, `cc-arsenal-jira`, `cc-arsenal-skills`)
 - See [Getting Started](getting-started.md) for the full variant list
 
 ### Symlink Install (Contributors)

@@ -1,0 +1,22 @@
+[
+  {"query": "why is claude code eating my usage limits so fast? audit my setup", "should_trigger": true},
+  {"query": "can you check my AI coding setup for wasted tokens", "should_trigger": true},
+  {"query": "I have like 40 skills and a bunch of MCP servers installed, which ones are just bloating my context?", "should_trigger": true},
+  {"query": "my prompt cache hit rate seems bad in claude code, what am I doing wrong", "should_trigger": true},
+  {"query": "optimize my claude code and codex configuration so sessions cost less", "should_trigger": true},
+  {"query": "is my CLAUDE.md too big? what's loaded at session start that I don't need", "should_trigger": true},
+  {"query": "audit my cursor rules and mcp servers for token waste", "should_trigger": true},
+  {"query": "every new session starts at like 60k tokens before I type anything, how do I fix that", "should_trigger": true},
+  {"query": "tune my agent setup, I'm hitting the weekly limit by wednesday", "should_trigger": true},
+  {"query": "which plugins and MCP servers am I not even using? clean up my claude setup", "should_trigger": true},
+  {"query": "reduce the API cost of my python app that calls claude with a big system prompt", "should_trigger": false},
+  {"query": "add a rule to CLAUDE.md that we always use pnpm", "should_trigger": false},
+  {"query": "create a new skill that formats our changelog", "should_trigger": false},
+  {"query": "find me a skill for writing terraform", "should_trigger": false},
+  {"query": "how many tokens is this prompt file", "should_trigger": false},
+  {"query": "set up an MCP server for our postgres database", "should_trigger": false},
+  {"query": "rewrite my existing review skill so it follows the authoring standard", "should_trigger": false},
+  {"query": "profile why my web app's API endpoints are slow", "should_trigger": false},
+  {"query": "configure my claude code statusline to show the git branch", "should_trigger": false},
+  {"query": "audit our npm dependencies for vulnerabilities", "should_trigger": false}
+]

@@ -12,6 +12,7 @@ exists.
 | `review-plan` | `review` | one objection to the plan |
 | `docs-check`, `i18n-check`, `env-setup` | `audit` | one gap |
 | `review-deps` | `audit` | one package |
+| `optimize-ai-setup` | `audit` | one proposed fix, keyed by its check ID |
 | `test-suite` (its analysis pass) | `audit` | one uncovered path |
 | `vrt-check` | `review` | one changed component, with its image triptych |
 | `project-planner`, `implement-feature`, `orchestrate` | `plan` | one step |
