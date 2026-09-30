@@ -43,6 +43,7 @@ Interpret the evidence before recommending:
 - A high token-weighted cache hit rate can still hide expensive writes; judge caching by the cost-weighted share and the rebuild count.
 - Rebuilds after idle are fixed by a habit (`/compact` before a break); model or effort rebuilds by choosing both at session start; upgrade rebuilds are expected and need no fix.
 - "Unused" only means no uses inside the window. Say "no uses in the last N days" and suggest demoting (`name-only`, `user-invocable-only`) before disabling.
+- Before asking whether to demote or disable anything, list every name from each `*-UNUSED` / `*-DUP` finding's `names` list in the reply (grouped by source, e.g. plugin prefix), not only the truncated evidence line or a count. Run `--all --json` to get the full lists. Users cannot decide on items they cannot see.
 - Quote the numbers the report printed. Never invent or extrapolate numbers the script did not measure.
 - Flag any fix that trades quality for cost (lower effort, a smaller auto-compact window) with its Tradeoff line.
 
@@ -55,7 +56,7 @@ Use the `render` skill to build the proposals as one `audit` page (via the `Skil
 - the impact and, when the catalog has one, the tradeoff
 - a `fix` / `won't fix` / `discuss` verdict
 
-Group the distribution by harness and sort by severity. Put the habits in a short section with no verdicts. Deliver the page path in two lines and ask the user to mark it. When they say it's marked, read the marks back per the render skill and apply only the items marked `fix`. Without a render skill, ask with AskUserQuestion (multi-select) or a numbered list instead.
+Group the distribution by harness and sort by severity. Put the habits in a short section with no verdicts. Deliver the page path in two lines and ask the user to mark it. When they say it's marked, read the marks back per the render skill and apply only the items marked `fix`. Without a render skill, print the full name lists first (see above), then ask with AskUserQuestion (multi-select) or a numbered list.
 
 Rules for applying the chosen fixes:
 

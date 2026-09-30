@@ -140,7 +140,12 @@ def check_plugins(
     home: Path, sessions: list[SessionData]
 ) -> tuple[list[Finding], dict[str, object]]:
     settings = read_json(home / '.claude' / 'settings.json')
-    enabled_plugins = settings.get('enabledPlugins') or []
+    raw_plugins = settings.get('enabledPlugins') or []
+    enabled_plugins = (
+        [name for name, on in raw_plugins.items() if on]
+        if isinstance(raw_plugins, dict)
+        else list(raw_plugins)
+    )
     if not enabled_plugins or len(sessions) < UNUSED_MIN_SESSIONS:
         return [], {}
 

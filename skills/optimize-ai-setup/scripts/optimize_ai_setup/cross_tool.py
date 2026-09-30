@@ -25,9 +25,17 @@ def collect_cross_tool(project: Path) -> tuple[list[Finding], list[str]]:
     findings: list[Finding] = []
 
     memory_names = ('CLAUDE.md', 'AGENTS.md', 'GEMINI.md')
-    present = {
-        name: project / name for name in memory_names if (project / name).is_file()
-    }
+    present: dict[str, Path] = {}
+    seen_real: set[Path] = set()
+    for name in memory_names:
+        path = project / name
+        if not path.is_file():
+            continue
+        real = path.resolve()
+        if real in seen_real:
+            continue
+        seen_real.add(real)
+        present[name] = path
     if len(present) >= MIN_MEMORY_FILES_TO_COMPARE:
         texts = {
             name: read_text_capped(path, MAX_BYTES_PER_FILE)
