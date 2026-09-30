@@ -7,11 +7,11 @@ Skills are the single component type in this repository. Each skill lives in `sk
 <!-- gen:skills-features start -->
 <!-- generated: edit skills.sh.json or SKILL.md frontmatter, then run `make docs` -->
 
-## Skills (49 total)
+## Skills (50 total)
 
 Every skill is callable as `/<name>` in Claude Code. **(auto)** marks skills that *also* trigger automatically when Claude detects a relevant task; **(manual)** marks slash-only skills (`disable-model-invocation: true`).
 
-### AI Workflow Tools (8 skills)
+### AI Workflow Tools (9 skills)
 
 Tools that work on your AI agent itself, not on your codebase.
 
@@ -20,6 +20,14 @@ AI-optimized browser automation.
 - 93% less context overhead vs Playwright
 - Snapshot + refs system
 - Web testing and automation
+
+`/anything-to-skill` (auto)
+Turn a docs site, folder, PDF, YouTube video or channel, or a topic into a grounded, token-efficient agent skill.
+- Scripts do discovery, fetching, conversion and packing; the model reads a ~6-8k token brief and writes only the hub, best practices and evals
+- Any mix of inputs merges into one topic-based `references/` tree with an INDEX and a SOURCES provenance list
+- Polite crawling (robots.txt, per-host throttling, conditional GETs), estimate gate and tree approval before anything is written
+- Every code block and claim is verified against the corpus; an optional local Laya judge and fact-check flag weak spots
+- Evals against the generated skill are opt-in
 
 `/create-rule` (auto)
 Create memory rules for Claude Code.
@@ -388,7 +396,7 @@ make -C integrations/claude-code/claude-hi standard  # Quick 9am/2pm/7pm schedul
 
 ### Plugin Marketplace (Claude Code)
 - **Installation**: `/plugin install cc-arsenal@cc-arsenal-marketplace`
-- **Skills**: All 49 skills, or a focused variant (`cc-arsenal-dev`, `cc-arsenal-product`, `cc-arsenal-review`, `cc-arsenal-docs`, `cc-arsenal-git`, `cc-arsenal-jira`, `cc-arsenal-skills`)
+- **Skills**: All 50 skills, or a focused variant (`cc-arsenal-dev`, `cc-arsenal-product`, `cc-arsenal-review`, `cc-arsenal-docs`, `cc-arsenal-git`, `cc-arsenal-jira`, `cc-arsenal-skills`)
 - See [Getting Started](getting-started.md) for the full variant list
 
 ### Symlink Install (Contributors)

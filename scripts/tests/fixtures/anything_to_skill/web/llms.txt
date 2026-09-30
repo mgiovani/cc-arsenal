@@ -1,0 +1,13 @@
+# Acme Docs
+
+> Documentation for Acme, a fictional database.
+
+## Guides
+
+- [Getting started]({BASE}/docs/start.html): first steps
+- [Indexing](/docs/indexing.md): how indexes work
+
+## Elsewhere
+
+- [Company blog]({BASE}/blog/post.html): out of scope
+- [Logo]({BASE}/docs/logo.png): an image

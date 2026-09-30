@@ -2,8 +2,12 @@ repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.6.0
     hooks:
+      # YouTube's own auto-caption VTT has a whitespace-only line after each timing
+      # header; the fixture keeps it because the parser has to cope with the real thing.
       - id: trailing-whitespace
+        exclude: \.vtt$
       - id: end-of-file-fixer
+        exclude: \.vtt$
       - id: check-yaml
       - id: check-json
       - id: check-toml
@@ -15,7 +19,7 @@ repos:
     hooks:
       - id: editorconfig-checker
         alias: ec
-        exclude: \.(md)$
+        exclude: \.(md|vtt)$
 
   - repo: local
     hooks:
@@ -49,4 +53,4 @@ repos:
         types_or: [markdown, python]
         # Mirrors `exclude` in stopslop.toml: that key only applies when stopslop
         # walks a directory itself, and pre-commit hands it explicit paths.
-        exclude: ((^|/)assets/templates/|^docs/CODE_OF_CONDUCT\.md$)
+        exclude: ((^|/)assets/templates/|^docs/CODE_OF_CONDUCT\.md$|^scripts/tests/fixtures/)

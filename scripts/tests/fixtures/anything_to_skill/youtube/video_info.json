@@ -1,0 +1,15 @@
+{
+  "id": "aaaaaaaaaaa",
+  "title": "Postgres index deep dive",
+  "description": "0:00 Intro\n1:05 B-trees",
+  "channel": "Demo Channel",
+  "upload_date": "20260101",
+  "duration": 300,
+  "language": "en",
+  "webpage_url": "https://www.youtube.com/watch?v=aaaaaaaaaaa",
+  "formats": [{"format_id": "18", "huge": "dropped by video_info"}],
+  "chapters": [
+    {"start_time": 0.0, "end_time": 65.0, "title": "Intro"},
+    {"start_time": 65.0, "end_time": 300.0, "title": "B-trees"}
+  ]
+}

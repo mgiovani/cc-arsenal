@@ -1,0 +1,860 @@
+[
+{
+"id": "gaDdrDdczO4",
+"title": "New Skills! v1.2 brings /wait-what, /writing-for-agents, and fixes /grill-me",
+"description": "",
+"duration": 698
+},
+{
+"id": "F3lL98Pj90o",
+"title": "/wayfinder: Nothing is too big to plan anymore",
+"description": "",
+"duration": 909
+},
+{
+"id": "n0VhIVtviC0",
+"title": "Don't waste time on specs: /prototype instead",
+"description": "",
+"duration": 659
+},
+{
+"id": "M6mYodf0dJM",
+"title": "mattpocock/skills: A complete AI Coding workflow, end-to-end",
+"description": "",
+"duration": 1037
+},
+{
+"id": "A8mokin_YOs",
+"title": "New Skills! v1.1 brings /wayfinder, /research, /implement, /to-spec, /to-tickets",
+"description": "",
+"duration": 911
+},
+{
+"id": "s5T5oQJcJ6U",
+"title": "Learn anything with the /teach skill",
+"description": "",
+"duration": 785
+},
+{
+"id": "mh5XZ-L5SFQ",
+"title": "Can Cursor's HARDCORE Review Skill Stop The Slop?",
+"description": "",
+"duration": 804
+},
+{
+"id": "UzMNBN6xLLA",
+"title": "9 Things People Get Wrong With My /grill-* skills",
+"description": "",
+"duration": 808
+},
+{
+"id": "dtAJ2dOd3ko",
+"title": "/handoff is my new favourite skill",
+"description": "",
+"duration": 744
+},
+{
+"id": "6BB6exR8Zd8",
+"title": "I stopped using /grill-me for coding. Here’s what I use instead:",
+"description": "",
+"duration": 917
+},
+{
+"id": "lNOQaakmyDU",
+"title": "Anthropic's \"dedicated monthly credit\" is actually a huge cut",
+"description": "",
+"duration": 633
+},
+{
+"id": "DNqsMXH6Eog",
+"title": "New Skills! /handoff, /prototype, /review and /writing-* | Skills Changelog",
+"description": "",
+"duration": 766
+},
+{
+"id": "MzWIIlx0Gpc",
+"title": "Burn through the backlog from hell with /triage",
+"description": "",
+"duration": 617
+},
+{
+"id": "E5-QK3CDVQM",
+"title": "I Open-Sourced My Own AFK Software Factory",
+"description": "",
+"duration": 685
+},
+{
+"id": "3MP8D-mdheA",
+"title": "How To De-Slop A Codebase Ruined By AI (with one skill)",
+"description": "",
+"duration": 679
+},
+{
+"id": "9VNG0h4pLh0",
+"title": "Never Trust An LLM",
+"description": "",
+"duration": 841
+},
+{
+"id": "llwTBpPqo9A",
+"title": "Claude Code tried to improve /init... Is it any better?",
+"description": "",
+"duration": 678
+},
+{
+"id": "hX7yG1KVYhI",
+"title": "Building a REAL feature with Claude Code: every step explained",
+"description": "",
+"duration": 2656
+},
+{
+"id": "EJyuu6zlQCg",
+"title": "5 Claude Code skills I use every single day",
+"description": "",
+"duration": 1002
+},
+{
+"id": "Ah9p7v7nJWg",
+"title": "The 7 phases of AI-driven development",
+"description": "",
+"duration": 507
+},
+{
+"id": "uC44zFz7JSM",
+"title": "Your codebase is NOT ready for AI (here's how to fix it)",
+"description": "",
+"duration": 530
+},
+{
+"id": "3CSi8QAoN-s",
+"title": "How to actually force Claude Code to use the right CLI (don't use CLAUDE.md)",
+"description": "",
+"duration": 411
+},
+{
+"id": "9tmsq-Gvx6g",
+"title": "Never Run claude /init",
+"description": "",
+"duration": 637
+},
+{
+"id": "hYZdIwFIy-c",
+"title": "Red Green Refactor is OP With Claude Code",
+"description": "",
+"duration": 320
+},
+{
+"id": "yv8VZpov8bk",
+"title": "I'm using claude --worktree for everything now",
+"description": "",
+"duration": 477
+},
+{
+"id": "WNx-s-RxVxk",
+"title": "I was an AI skeptic. Then I tried plan mode",
+"description": "",
+"duration": 741
+},
+{
+"id": "pSritFeoYFo",
+"title": "Frontend is HARDER for AI than backend (here's how to fix it)",
+"description": "",
+"duration": 329
+},
+{
+"id": "_IK18goX4X8",
+"title": "Ship working code while you sleep with the Ralph Wiggum technique",
+"description": "",
+"duration": 984
+},
+{
+"id": "kZ-zzHVUrO4",
+"title": "How I use Claude Code for real engineering",
+"description": "",
+"duration": 612
+},
+{
+"id": "YCrj0E_P6ls",
+"title": "AI SDK 6 is SWEET",
+"description": "",
+"duration": 548
+},
+{
+"id": "-uW5-TaVXu4",
+"title": "Most devs don’t understand how context windows work",
+"description": "",
+"duration": 573
+},
+{
+"id": "AtYtuVTZCQU",
+"title": "Most devs don't understand what agents are",
+"description": "",
+"duration": 456
+},
+{
+"id": "nKSk_TiR8YA",
+"title": "Most devs don't understand how LLM tokens work",
+"description": "",
+"duration": 658
+},
+{
+"id": "S2GChOwivwQ",
+"title": "Effect: the unreadable library that captured my heart",
+"description": "",
+"duration": 783
+},
+{
+"id": "lraHlXpuhKs",
+"title": "6 TypeScript tips to turn you into a WIZARD",
+"description": "",
+"duration": 956
+},
+{
+"id": "hFenspfGLTk",
+"title": "Arrays, objects... now ‘composites’?",
+"description": "",
+"duration": 562
+},
+{
+"id": "e0AIkYrXAYE",
+"title": "Types vs Interfaces: What I Got Wrong In 2022",
+"description": "",
+"duration": 597
+},
+{
+"id": "xcm53k0ePmY",
+"title": "Zod 4 is out, and it is CRAZY",
+"description": "",
+"duration": 673
+},
+{
+"id": "FRogt98OF80",
+"title": "Build An MCP Server In 5 Prompts // Vibe Coding That Doesn't Suck",
+"description": "",
+"duration": 762
+},
+{
+"id": "MC2BwMGFRx4",
+"title": "Get Started With The Model Context Protocol // 2-Minute Tutorial",
+"description": "",
+"duration": 144
+},
+{
+"id": "zeNh4fuJhcA",
+"title": "TypeScript shipped a flag to disable enums",
+"description": "",
+"duration": 147
+},
+{
+"id": "mojZpktAiYQ",
+"title": "A Complete Guide To Vercel’s AI SDK // The ESSENTIAL Tool For Shipping AI Apps",
+"description": "",
+"duration": 2304
+},
+{
+"id": "0uGkjjKLCsU",
+"title": "It FINALLY happened",
+"description": "",
+"duration": 165
+},
+{
+"id": "jEeQC6I8nlY",
+"title": "Yes, we CAN make Object.assign type-safe...",
+"description": "",
+"duration": 213
+},
+{
+"id": "RV01eSRO_Zk",
+"title": "Node 23 fixes the worst thing about JavaScript",
+"description": "",
+"duration": 256
+},
+{
+"id": "Ozg5UqaD5fg",
+"title": "Going weirdly deep on console.log",
+"description": "",
+"duration": 74
+},
+{
+"id": "Zsj1UlCsuio",
+"title": "5 Things They’ll NEVER Add To TypeScript",
+"description": "",
+"duration": 442
+},
+{
+"id": "wgcfq51twe0",
+"title": "This launch took 11 MONTHS of my life",
+"description": "",
+"duration": 228
+},
+{
+"id": "sciBO_IaxTw",
+"title": "TypeScript 5.5 is a BANGER",
+"description": "",
+"duration": 556
+},
+{
+"id": "hRyU0bN7qhw",
+"title": "My \"as few deps as possible\" monorepo setup",
+"description": "",
+"duration": 243
+},
+{
+"id": "PzhxN1u6ziQ",
+"title": "Everyone's talking about gql.tada",
+"description": "",
+"duration": 306
+},
+{
+"id": "QSIXYMIJkQg",
+"title": "8 TypeScript Tips To Expand Your Mind (and improve your code)",
+"description": "",
+"duration": 654
+},
+{
+"id": "zqz-lEHjJr4",
+"title": "Most React devs don’t understand generic components",
+"description": "",
+"duration": 343
+},
+{
+"id": "0zp9bkEfaOc",
+"title": "Declaring globals isn't that hard",
+"description": "",
+"duration": 230
+},
+{
+"id": "r1L35zxZQPE",
+"title": "Most TS devs don't understand 'satisfies'",
+"description": "",
+"duration": 250
+},
+{
+"id": "-SM-xZLMj-g",
+"title": "TypeScript 5.3 is a no-brainer upgrade",
+"description": "",
+"duration": 251
+},
+{
+"id": "uiOJ5_7cB4I",
+"title": "Rethink your life choices before you do this...",
+"description": "",
+"duration": 222
+},
+{
+"id": "eJXVEju3XLM",
+"title": "The TSConfig Cheat Sheet",
+"description": "",
+"duration": 336
+},
+{
+"id": "8ORIzvgNWhU",
+"title": "'.js' files in TypeScript - why?!",
+"description": "",
+"duration": 196
+},
+{
+"id": "6_JNPmjSevo",
+"title": "Import vs Require: The Biggest JavaScript Divide",
+"description": "",
+"duration": 243
+},
+{
+"id": "h5ymIiux6NU",
+"title": "TypeScript 5.3 First Look",
+"description": "",
+"duration": 385
+},
+{
+"id": "Gxd4StCrN3g",
+"title": "Dynamic objects should NOT be this hard",
+"description": "",
+"duration": 189
+},
+{
+"id": "6M9aZzm-kEc",
+"title": "as const: the most underrated TypeScript feature",
+"description": "",
+"duration": 338
+},
+{
+"id": "795SKl70JK8",
+"title": "Everyone's talking about Valibot",
+"description": "",
+"duration": 282
+},
+{
+"id": "JuULWGuoI1A",
+"title": "Fix your useRefs with ElementRef",
+"description": "",
+"duration": 130
+},
+{
+"id": "i4-QixSfCpY",
+"title": "The empty object is TypeScript's weirdest type",
+"description": "",
+"duration": 300
+},
+{
+"id": "VLyY9UC9W80",
+"title": "Will this code error?",
+"description": "",
+"duration": 116
+},
+{
+"id": "zu-EgnbmcLY",
+"title": "Don't put your types in .d.ts files",
+"description": "",
+"duration": 234
+},
+{
+"id": "VqdVaix3Zvw",
+"title": "var, const, let... now ‘using’?",
+"description": "",
+"duration": 267
+},
+{
+"id": "PHcm4Hwot2c",
+"title": "The TS Playground has PLUGINS",
+"description": "",
+"duration": 163
+},
+{
+"id": "DTYNJjKlzFs",
+"title": "TypeScript just unblocked React Server Components",
+"description": "",
+"duration": 170
+},
+{
+"id": "q1im-hMlKhM",
+"title": "You're typing process.env wrong",
+"description": "",
+"duration": 202
+},
+{
+"id": "-_0wMxtRVqA",
+"title": "Everyone's talking about ArkType",
+"description": "",
+"duration": 168
+},
+{
+"id": "QDANnOSMCOw",
+"title": "Everyone's talking about HOTScript",
+"description": "",
+"duration": 197
+},
+{
+"id": "qA65QjWCl60",
+"title": "This TS naming convention is weird",
+"description": "",
+"duration": 241
+},
+{
+"id": "czptRA4IeCc",
+"title": "Should you still be using Redux in 2023?",
+"description": "",
+"duration": 455
+},
+{
+"id": "M3TPmOpNFCs",
+"title": "Dan Abramov asked me to help fix React",
+"description": "",
+"duration": 233
+},
+{
+"id": "5weFyMoBGN4",
+"title": "Codegen: The good, the bad and the ugly",
+"description": "",
+"duration": 397
+},
+{
+"id": "S6rcrkbsDI0",
+"title": "Learn tRPC in 5 minutes",
+"description": "",
+"duration": 364
+},
+{
+"id": "hPholNWkc7s",
+"title": "They nearly gave JavaScript types",
+"description": "",
+"duration": 297
+},
+{
+"id": "ExhQxFapKCs",
+"title": "Solving the 'any' problem is harder than you think",
+"description": "",
+"duration": 304
+},
+{
+"id": "bUts4HJJjV4",
+"title": "Does ts-reset fix TypeScript?",
+"description": "",
+"duration": 270
+},
+{
+"id": "nwSe95uFN8E",
+"title": "Should you use return types?",
+"description": "",
+"duration": 281
+},
+{
+"id": "iOTAFRFgm8I",
+"title": "TypeScript 5.0 BETA IS HERE",
+"description": "",
+"duration": 401
+},
+{
+"id": "9N50YV5NHaE",
+"title": "Zod + Generics is HEAVEN",
+"description": "",
+"duration": 281
+},
+{
+"id": "C14MSrJGGBg",
+"title": "Automate your life with TypeScript",
+"description": "",
+"duration": 211
+},
+{
+"id": "EU0TB_8KHpY",
+"title": "TypeScript's Utility Types... Blazing fast",
+"description": "",
+"duration": 189
+},
+{
+"id": "37PafxU_uzQ",
+"title": "Blazing Fast Tips: React & TypeScript",
+"description": "",
+"duration": 375
+},
+{
+"id": "eh89VE3Mk5g",
+"title": "Blazing Fast Tips: Publishing to NPM",
+"description": "",
+"duration": 217
+},
+{
+"id": "u0adKDu--cA",
+"title": "My favourite VSCode extension has 3k downloads",
+"description": "",
+"duration": 131
+},
+{
+"id": "dLPgQRbVquo",
+"title": "Generics: The most intimidating TypeScript feature",
+"description": "",
+"duration": 1099
+},
+{
+"id": "l2iVQkY6mXQ",
+"title": "I quit Vercel to make content",
+"description": "",
+"duration": 325
+},
+{
+"id": "hLZXJTm7TEk",
+"title": "Infer is easier than you think",
+"description": "",
+"duration": 818
+},
+{
+"id": "jjMbPt_H3RQ",
+"title": "Enums considered harmful",
+"description": "",
+"duration": 563
+},
+{
+"id": "hk6ZkD0Vg3w",
+"title": "Const type parameters are so powerful",
+"description": "",
+"duration": 237
+},
+{
+"id": "YmxwicpROps",
+"title": "TypeScript Speedrun: Crash Course for Beginners",
+"description": "",
+"duration": 1419
+},
+{
+"id": "CughWjaoXZw",
+"title": "The best TypeScript library just got better",
+"description": "",
+"duration": 395
+},
+{
+"id": "0tR89PcQRAc",
+"title": "Vercel wants you to fetch data like this",
+"description": "",
+"duration": 245
+},
+{
+"id": "PHvT3QShPTo",
+"title": "WASM is not ready",
+"description": "",
+"duration": 225
+},
+{
+"id": "qMmc0IwXa7U",
+"title": "Vercel's OG image service is incredible",
+"description": "",
+"duration": 106
+},
+{
+"id": "zM9UPcIyyhQ",
+"title": "[DEPRECATED] TypeScript: Should you use Types or Interfaces?",
+"description": "",
+"duration": 246
+},
+{
+"id": "fnQusZt49_Y",
+"title": "Stop using defaultProps (React 18.3 preview)",
+"description": "",
+"duration": 207
+},
+{
+"id": "Danki1DyiuI",
+"title": "TypeScript 4.9 deep dive",
+"description": "",
+"duration": 605
+},
+{
+"id": "PTU-H6Wwbh8",
+"title": "TypeScript 5.0 is coming...",
+"description": "",
+"duration": 251
+},
+{
+"id": "dg1eJZk7waw",
+"title": "Why YOU should migrate to TypeScript",
+"description": "",
+"duration": 425
+},
+{
+"id": "iNs_z-vsfVM",
+"title": "How is this a thing?! - Type Challenges #5",
+"description": "",
+"duration": 289
+},
+{
+"id": "dZWJrjzqvv8",
+"title": "Our first look at INFER - Type Challenges #4",
+"description": "",
+"duration": 516
+},
+{
+"id": "nK6qW_NsPvc",
+"title": "Transforming a TUPLE to an OBJECT - Type Challenges #3",
+"description": "",
+"duration": 447
+},
+{
+"id": "U1EygIpjAEM",
+"title": "Is \"+readonly\" really legal?! - Type Challenges #2",
+"description": "",
+"duration": 301
+},
+{
+"id": "knOgB-Aa8Pc",
+"title": "KEYOF and EXTENDS right off the bat?! - Type Challenges #1",
+"description": "",
+"duration": 368
+},
+{
+"id": "Vr1BUFw6dJM",
+"title": "OVERLOADS vs GENERICS: which is better? - Advanced TypeScript",
+"description": "",
+"duration": 83
+},
+{
+"id": "PEQn1a6xOHc",
+"title": "Fix ANNOYING OBJECT KEYS with infer and template literals",
+"description": "",
+"duration": 102
+},
+{
+"id": "plsnFfbqVEo",
+"title": "The SECRET POWER of indexed access types - Advanced TypeScript",
+"description": "",
+"duration": 79
+},
+{
+"id": "6l3Q9DjbQ7A",
+"title": "This saved me HOURS of refactoring time",
+"description": "",
+"duration": 107
+},
+{
+"id": "jxSh-RZTCws",
+"title": "Literal types are SO USEFUL in TS - Advanced TypeScript",
+"description": "",
+"duration": 119
+},
+{
+"id": "sZ6vkIQMwT8",
+"title": "Preconstruct is AMAZING for bundling TS libraries - Advanced TypeScript",
+"description": "",
+"duration": 105
+},
+{
+"id": "z7thLMrTrZs",
+"title": "DRY up your generic signatures with DEFAULT GENERICS - Advanced TypeScript",
+"description": "",
+"duration": 122
+},
+{
+"id": "8lM609lci7E",
+"title": "Master ASSERTION FUNCTIONS in TypeScript - Advanced TypeScript",
+"description": "",
+"duration": 108
+},
+{
+"id": "sswUBXaoXSI",
+"title": "Turn MODULES INTO TYPES with typeof import - Advanced TypeScript",
+"description": "",
+"duration": 125
+},
+{
+"id": "AhzjPAtzGTs",
+"title": "DEEP PARTIAL in TypeScript - Advanced TypeScript",
+"description": "",
+"duration": 116
+},
+{
+"id": "7BnoNWu2y3Y",
+"title": "CUSTOM ERRORS in TypeScript? - Advanced TypeScript",
+"description": "",
+"duration": 78
+},
+{
+"id": "-rJ2XzQg8Ek",
+"title": "Master Generic Slots in TypeScript - Advanced TypeScript",
+"description": "",
+"duration": 120
+},
+{
+"id": "vCq9QsDinvo",
+"title": "React Components with GENERICS? - Advanced TypeScript",
+"description": "",
+"duration": 82
+},
+{
+"id": "GW00zebIt0g",
+"title": "Improving OBJECT.KEYS in TypeScript - Advanced TypeScript",
+"description": "",
+"duration": 70
+},
+{
+"id": "VBsKNKEZNnY",
+"title": "Extracting React Props using CONDITIONAL TYPES - Advanced TypeScript",
+"description": "",
+"duration": 105
+},
+{
+"id": "xZ8BBBdMwQI",
+"title": "Using EXTENDS to constrain generics - Advanced TypeScript",
+"description": "",
+"duration": 68
+},
+{
+"id": "D1a8OoBWi1g",
+"title": "Master FUNCTION OVERLOADS with 'compose' - Advanced TypeScript",
+"description": "",
+"duration": 138
+},
+{
+"id": "8gDpiILuf2I",
+"title": "Decode search params with TYPESCRIPT ONLY - Advanced TypeScript",
+"description": "",
+"duration": 141
+},
+{
+"id": "byCYSXVmH6E",
+"title": "Using DECLARE GLOBAL for amazing inference - Advanced TypeScript",
+"description": "",
+"duration": 133
+},
+{
+"id": "lMfGp29Ht8c",
+"title": "WHEN should I use a Generic? - Advanced TypeScript",
+"description": "",
+"duration": 137
+},
+{
+"id": "JwZaP3pY7Zo",
+"title": "\"noUncheckedIndexedAccess\" - the BEST config option you've never heard of",
+"description": "",
+"duration": 106
+},
+{
+"id": "M4-Jl9JWGmo",
+"title": "REMOVE a member of a Union Type - Advanced TypeScript",
+"description": "",
+"duration": 113
+},
+{
+"id": "YE_3WwX-Dl8",
+"title": "Dynamic function arguments with GENERICS - Advanced TypeScript",
+"description": "",
+"duration": 111
+},
+{
+"id": "Y5ZoVXjLqLA",
+"title": "Integrating Form Libraries (in React/Vue/Svelte) with XState",
+"description": "",
+"duration": 429
+},
+{
+"id": "wykDyFwr8Lk",
+"title": "Modelling Statecharts: A step-by-step guide",
+"description": "",
+"duration": 1166
+},
+{
+"id": "2eurRx-tR-I",
+"title": "XState Docs Speedrun - 2022",
+"description": "",
+"duration": 4128
+},
+{
+"id": "RklT33R6v10",
+"title": "Checking out a new DSL for XState - Lucy!",
+"description": "",
+"duration": 4089
+},
+{
+"id": "LrF4NHMB2L8",
+"title": "Designing State Machines #3 - Video Call",
+"description": "",
+"duration": 1076
+},
+{
+"id": "BL3QQeOvqYo",
+"title": "Designing State Machines #2 - Authentication",
+"description": "",
+"duration": 853
+},
+{
+"id": "Km8QGtRr1z8",
+"title": "Designing State Machines #1 - Fetch Logic",
+"description": "",
+"duration": 655
+},
+{
+"id": "1kJcnFBrk2I",
+"title": "XState - Global state in React",
+"description": "",
+"duration": 5097
+},
+{
+"id": "nUKA0xhkZc8",
+"title": "XState Brain Teaser 2 - Async Validation",
+"description": "",
+"duration": 165
+},
+{
+"id": "EEShpJ780aU",
+"title": "Build an Express App with Sextant #1 - Getting Started",
+"description": "",
+"duration": 185
+}
+]

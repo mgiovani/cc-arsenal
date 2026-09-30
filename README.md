@@ -8,7 +8,7 @@
 [![Agent Skills compatible](https://img.shields.io/badge/Agent%20Skills-compatible-blueviolet.svg)](https://agentskills.io)
 [![Code style: ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
-49 production-grade [Agent Skills](https://agentskills.io) for real development workflows: code review, shipping, docs, git, testing, multi-agent orchestration, and more. Each is a battle-tested workflow you invoke in plain language. Works with Claude Code, Codex, Cursor, Gemini CLI, and any Agent-Skills-compatible agent.
+50 production-grade [Agent Skills](https://agentskills.io) for real development workflows: code review, shipping, docs, git, testing, multi-agent orchestration, and more. Each is a battle-tested workflow you invoke in plain language. Works with Claude Code, Codex, Cursor, Gemini CLI, and any Agent-Skills-compatible agent.
 
 ## See it work
 
@@ -41,14 +41,15 @@ make -C integrations/claude-code/claude-hi standard # Schedule 5-hour windows
 <!-- gen:skills-readme start -->
 <!-- generated: edit skills.sh.json or SKILL.md frontmatter, then run `make docs` -->
 
-**49 Skills** organized by category:
+**50 Skills** organized by category:
 
 <details>
-<summary><b>AI Workflow Tools</b> (8): Tools that work on your AI agent itself, not on your codebase.</summary>
+<summary><b>AI Workflow Tools</b> (9): Tools that work on your AI agent itself, not on your codebase.</summary>
 
 | Skill | What it does |
 |---|---|
 | [`agent-browser`](skills/agent-browser/) | AI-optimized browser automation with far less context overhead than raw Playwright/DOM tools |
+| [`anything-to-skill`](skills/anything-to-skill/) | Turn docs sites, PDFs, folders, YouTube videos or a topic into a grounded, token-efficient agent skill |
 | [`create-rule`](skills/create-rule/) | Create CLAUDE.md/AGENTS.md rules and memory guidelines |
 | [`create-skill`](skills/create-skill/) | Specification-driven skill creation with eval system and description optimization |
 | [`find-skills`](skills/find-skills/) | Discover and install third-party agent skills from skills.sh |

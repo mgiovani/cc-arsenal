@@ -4,11 +4,11 @@ This is the canonical, tool-agnostic guidance file for **cc-arsenal**. Any AGENT
 
 ## Repository Architecture
 
-cc-arsenal is a collection of **49 Agent Skills** ([agentskills.io](https://agentskills.io) open standard) for development workflow automation. `skills/` is the single canonical tier: every skill lives there once, written tool-neutral, and any tool that speaks the Agent Skills format can load it directly.
+cc-arsenal is a collection of **50 Agent Skills** ([agentskills.io](https://agentskills.io) open standard) for development workflow automation. `skills/` is the single canonical tier: every skill lives there once, written tool-neutral, and any tool that speaks the Agent Skills format can load it directly.
 
 ### Core Components
 
-- **Skills** (`skills/`): 49 skills covering development, code review, documentation, git/GitHub, jira, browser automation, project planning, product specs, multi-agent orchestration, open-source launch prep, and skill discovery/creation/improvement
+- **Skills** (`skills/`): 50 skills covering development, code review, documentation, git/GitHub, jira, browser automation, project planning, product specs, multi-agent orchestration, open-source launch prep, and skill discovery/creation/improvement
 - **Scripts** (`scripts/`): Python utilities for installation and configuration, plus code generation (Claude-Code-specific; see `CLAUDE.md`)
 - **Integrations** (`integrations/`): agent-CLI-specific tooling that doesn't fit the tool-agnostic `skills/` tier, one subdirectory per agent CLI. Today that's `integrations/claude-code/`, holding the statusline and the `claude-hi` session scheduler; future agent CLIs (Codex, Gemini CLI, ...) get sibling directories alongside it as their own tooling needs arise.
 
@@ -44,15 +44,16 @@ Do not add `uses:`/`composes:` frontmatter and do not route composition through 
 <!-- gen:skills-agents start -->
 <!-- generated: edit skills.sh.json or SKILL.md frontmatter, then run `make docs` -->
 
-## Available Skills (49 total)
+## Available Skills (50 total)
 
 All skills use progressive disclosure (SKILL.md + optional references/scripts/assets directories).
 
-### AI Workflow Tools (8 skills)
+### AI Workflow Tools (9 skills)
 
 Tools that work on your AI agent itself, not on your codebase.
 
 - `agent-browser`: AI-optimized browser automation with far less context overhead than raw Playwright/DOM tools
+- `anything-to-skill`: Turn docs sites, PDFs, folders, YouTube videos or a topic into a grounded, token-efficient agent skill
 - `create-rule`: Create CLAUDE.md/AGENTS.md rules and memory guidelines
 - `create-skill`: Specification-driven skill creation with eval system and description optimization
 - `find-skills`: Discover and install third-party agent skills from skills.sh
@@ -229,7 +230,7 @@ See `CONTRIBUTING.md` for the full development setup.
 ## File Organization
 ```
 cc-arsenal/
-├── skills/          # All 49 skills (canonical, tool-agnostic)
+├── skills/          # All 50 skills (canonical, tool-agnostic)
 │   └── <name>/          # SKILL.md + optional references/, scripts/, assets/, evals/
 ├── scripts/         # Installation and utilities (see CLAUDE.md for Claude-Code-specific ones)
 └── integrations/    # Agent-CLI-specific tooling, one subdirectory per agent CLI

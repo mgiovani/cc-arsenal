@@ -163,7 +163,7 @@ Commit types:
 cc-arsenal/
 ├── .claude-plugin/     # Plugin configuration
 │   └── marketplace.json   # Marketplace + plugin variant descriptors
-├── skills/            # All 49 skills (the only component type)
+├── skills/            # All 50 skills (the only component type)
 │   ├── create-skill/      # Specification-driven skill creation
 │   ├── jira-cli/          # Jira CLI integration
 │   └── .../                # SKILL.md + optional references/, scripts/, assets/, evals/

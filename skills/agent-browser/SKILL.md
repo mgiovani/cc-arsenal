@@ -116,6 +116,7 @@ agent-browser click @e1                                    # click
 agent-browser fill @e2 "text"                               # fill a field
 agent-browser wait --load networkidle                       # wait for load
 agent-browser get text @e3                                  # read element
+agent-browser read <url> --outline                          # page as text, no browser
 agent-browser is visible @e1                                 # verify state
 agent-browser screenshot page.png                            # capture
 agent-browser close --session "$(basename "$PWD")"          # cleanup
@@ -124,6 +125,29 @@ agent-browser close --session "$(basename "$PWD")"          # cleanup
 Full command surface (navigation, all interactions, `find` semantic
 locators, waits, screenshots/video, tabs, network, cookies, auth, MCP server,
 global flags) lives in [references/commands.md](references/commands.md).
+
+## Reading Pages as Text: `read`
+
+To get a page's content as agent-readable text, use `read` before reaching for a
+browser session. It launches nothing when given a URL.
+
+```bash
+agent-browser read https://docs.example.com/guide                 # markdown if the site serves it, else extracted text
+agent-browser read https://docs.example.com/guide --outline       # heading outline only, cheapest way to scan a page
+agent-browser read https://docs.example.com --llms index          # nearest llms.txt links
+agent-browser read https://docs.example.com --llms full --filter auth   # llms-full.txt, only matching sections
+agent-browser read                                                # no URL: the rendered DOM of the active tab
+```
+
+An explicit URL is fetched with `Accept: text/markdown`, then retried with `.md`
+appended, then the ancestor paths are searched for a matching `llms.txt`, and
+last it falls back to text extracted from the HTML. Useful flags: `--filter <text>`
+(keep matching sections), `--require-md` (fail unless the response is real
+markdown), `--raw` (body unextracted), `--max-output <chars>`, `--json`. With no
+URL, `read` needs an open page (`open <url>` and `wait --load networkidle`
+first), which makes it the way to extract a JS-rendered page after it settles.
+`--llms` and `--require-md` need an HTTP resource, so without a URL they use the
+active tab's URL.
 
 ## Verify Before You Claim
 

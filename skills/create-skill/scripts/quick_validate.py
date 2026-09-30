@@ -270,7 +270,8 @@ def _validate_internal_references(skill_path: Path, content: str) -> list[str]:
     errors: list[str] = []
 
     # Find references to bundled files (e.g., references/foo.md, scripts/bar.py)
-    ref_pattern = re.compile(r'(?:references|scripts|assets)/[\w\-./]+')
+    # Must not end on '.', or a sentence-final period lands in the captured path.
+    ref_pattern = re.compile(r'(?:references|scripts|assets)/[\w\-./]*[\w/]')
     referenced = ref_pattern.findall(content)
 
     for ref in referenced:

@@ -2,4 +2,5 @@
 
 # Skill templates ship placeholders (`[DESCRIBE]`, `<!-- fill in -->`) on purpose.
 # The Code of Conduct is the verbatim Contributor Covenant: third-party text.
-exclude = ["**/assets/templates/**", "docs/CODE_OF_CONDUCT.md"]
+# Test fixtures are deliberately crude input for the parsers under test.
+exclude = ["**/assets/templates/**", "docs/CODE_OF_CONDUCT.md", "scripts/tests/fixtures/**"]

@@ -6,6 +6,7 @@
       "description": "Tools that work on your AI agent itself, not on your codebase.",
       "skills": [
         "agent-browser",
+        "anything-to-skill",
         "create-rule",
         "create-skill",
         "find-skills",

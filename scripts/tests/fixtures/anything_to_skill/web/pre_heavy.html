@@ -1,0 +1,20 @@
+<!doctype html>
+<html>
+<head><title>Indexing Cookbook</title></head>
+<body>
+<nav><a href="/">Home</a> <a href="/docs/">Docs</a></nav>
+<main>
+<h1>Indexing Cookbook</h1>
+<p>Indexes let the planner avoid scanning every row. The recipes below show the most common shapes and when each one pays off in practice.</p>
+<h2>Single column</h2>
+<pre><code class="language-sql">CREATE INDEX idx_orders_customer ON orders (customer_id);
+ANALYZE orders;</code></pre>
+<h2>Composite</h2>
+<p>Put the equality column first, then the range column, so one index serves both predicates.</p>
+<pre><code class="language-sql">CREATE INDEX idx_orders_cust_date ON orders (customer_id, created_at);</code></pre>
+<h2>Partial</h2>
+<pre>CREATE INDEX idx_open_orders ON orders (id) WHERE status = 'open';</pre>
+</main>
+<footer>Copyright Acme</footer>
+</body>
+</html>
