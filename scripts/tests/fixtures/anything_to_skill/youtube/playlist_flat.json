@@ -1,0 +1,11 @@
+{
+  "_type": "playlist",
+  "id": "PLdemo",
+  "title": "Postgres tuning",
+  "entries": [
+    {"_type": "url", "id": "aaaaaaaaaaa", "title": "Postgres index deep dive", "url": "https://www.youtube.com/watch?v=aaaaaaaaaaa", "duration": 600},
+    {"_type": "url", "id": "bbbbbbbbbbb", "title": "My cat compilation", "url": "https://www.youtube.com/watch?v=bbbbbbbbbbb", "duration": 90},
+    {"_type": "url", "id": "ccccccccccc", "title": "Query planner and index scans", "description": "postgres planner", "url": "https://www.youtube.com/watch?v=ccccccccccc", "duration": 900},
+    {"_type": "url", "id": "aaaaaaaaaaa", "title": "Postgres index deep dive", "url": "https://www.youtube.com/watch?v=aaaaaaaaaaa"}
+  ]
+}

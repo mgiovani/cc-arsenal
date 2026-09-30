@@ -1,0 +1,12 @@
+{
+  "_type": "playlist",
+  "id": "UCdemo",
+  "entries": [
+    {"_type": "playlist", "id": "UCdemo", "title": "Demo - Videos", "entries": [
+      {"id": "vvvvvvvvvvv", "title": "Long video", "url": "https://www.youtube.com/watch?v=vvvvvvvvvvv"}
+    ]},
+    {"_type": "playlist", "id": "UCdemo", "title": "Demo - Shorts", "entries": [
+      {"id": "sssssssssss", "title": "A short", "url": "https://www.youtube.com/shorts/sssssssssss"}
+    ]}
+  ]
+}

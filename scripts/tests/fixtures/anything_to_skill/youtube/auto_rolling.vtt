@@ -1,0 +1,23 @@
+WEBVTT
+Kind: captions
+Language: en
+
+00:00:00.240 --> 00:00:03.590 align:start position:0%
+ 
+so<00:00:00.640><c> today</c><00:00:00.960><c> we</c><00:00:01.120><c> talk</c>
+
+00:00:03.590 --> 00:00:03.600 align:start position:0%
+so today we talk
+
+
+00:00:03.600 --> 00:00:06.230 align:start position:0%
+so today we talk
+about<00:00:04.000><c> indexes</c>
+
+00:00:06.230 --> 00:00:06.240 align:start position:0%
+about indexes
+
+
+00:00:06.240 --> 00:00:09.000 align:start position:0%
+about indexes
+and<00:00:06.500><c> B-trees</c>

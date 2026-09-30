@@ -1,0 +1,20 @@
+[
+  {"query": "turn the Stripe API docs into a skill my agent can use", "should_trigger": true},
+  {"query": "make a skill out of this YouTube channel, I only care about the Rust videos", "should_trigger": true},
+  {"query": "I have a PDF of a database internals book. Can you convert it into a skill with references?", "should_trigger": true},
+  {"query": "generate an agent skill from https://docs.astral.sh/uv/ so I can stop pasting docs into chats", "should_trigger": true},
+  {"query": "build me a skill on kubernetes networking best practices, search the web for good sources", "should_trigger": true},
+  {"query": "I have a folder of markdown notes on our internal architecture, package them as a skill", "should_trigger": true},
+  {"query": "make a skill from this playlist and this docs site together", "should_trigger": true},
+  {"query": "scrape https://example.com/docs into a token-efficient skill with an index", "should_trigger": true},
+  {"query": "create a skill that tells Claude to always write commit messages in past tense", "should_trigger": false},
+  {"query": "improve my existing pdf skill, its description never triggers", "should_trigger": false},
+  {"query": "find me a third-party skill for postgres on skills.sh", "should_trigger": false},
+  {"query": "summarize this YouTube video for me", "should_trigger": false},
+  {"query": "extract the text from this PDF and give me the tables", "should_trigger": false},
+  {"query": "crawl this website and save every page as markdown, no skill involved", "should_trigger": false},
+  {"query": "write a CLAUDE.md rule about using uv instead of pip", "should_trigger": false},
+  {"query": "audit my Claude Code setup for wasted tokens", "should_trigger": false},
+  {"query": "compact the skill you generated from these docs: drop the source mirror and make it a tight expert skill", "should_trigger": true},
+  {"query": "my hand-written SKILL.md is bloated, tighten it up and prove it still works", "should_trigger": false}
+]

@@ -26,6 +26,12 @@ dev = [
     "mypy>=1.8.0",
     "pyright>=1.1.350",
     "pre-commit>=3.6.0",
+    # anything-to-skill web ingest; docling, yt-dlp and laya stay out and are faked in tests
+    "curl_cffi>=0.16",
+    "trafilatura>=2.0",
+    "defusedxml>=0.7.1",
+    "html-to-markdown>=3.0",
+    "protego>=0.4",
 ]
 
 [project.scripts]
@@ -108,6 +114,7 @@ ignore = [
 [tool.ruff.lint.per-file-ignores]
 "**/tests/*.py" = ["S101"]  # Allow asserts in test files
 "skills/create-skill/scripts/*.py" = ["E501", "S607"]  # CLI scripts with template strings
+"skills/anything-to-skill/scripts/**/*.py" = ["S607", "T201", "E402", "E501", "ANN401", "PLR0913"]  # subprocess to yt-dlp/ffmpeg/agent-browser, CLI prints, shim sys.path bootstrap before package import
 "skills/product-*/scripts/*.py" = ["S101", "T201", "PLR2004", "E501", "RUF015"]  # CLI scaffolds + mandated assert-based --selftest (prints, numeric anchors, slice-indexed assertions)
 
 fixable = ["ALL"]
@@ -161,7 +168,7 @@ extra_checks = true
 # scripts/tests/test_optimize_ai_setup.py imports optimize_ai_setup by adding
 # its scripts/ dir to sys.path at test time (see that file); tell pyright
 # about the same path so it can resolve the import statically.
-extraPaths = ["skills/optimize-ai-setup/scripts"]
+extraPaths = ["skills/optimize-ai-setup/scripts", "skills/anything-to-skill/scripts"]
 
 [tool.pytest.ini_options]
 testpaths = ["scripts/tests"]
