@@ -341,6 +341,15 @@ class Store:
         )
         return rows[0]['t']
 
+    def token_max(self, source: str | None = None, exclude: Collection[int] = ()) -> int:
+        rows = self._run(
+            "SELECT COALESCE(MAX(tokens), 0) AS t FROM unit WHERE status = 'done' "
+            'AND (:source IS NULL OR source = :source) '
+            'AND id NOT IN (SELECT value FROM json_each(:dropped))',
+            {'source': source, 'dropped': json.dumps(sorted(exclude))},
+        )
+        return rows[0]['t']
+
     def log_throttle(
         self,
         host: str,

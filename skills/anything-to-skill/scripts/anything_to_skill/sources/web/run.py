@@ -141,16 +141,17 @@ class _Crawl:
 
     def fits_budget(self) -> bool:
         """False when the next page, plus those in flight, would likely pass the token budget
-        (each judged at the average size so far). With no page done yet there is no average,
-        so a single probe page runs alone first."""
+        (each judged at the largest size so far: a small first page such as a landing page
+        would otherwise let a whole wave of big ones through). With no page done yet there is
+        no estimate, so a single probe page runs alone first."""
         budget = self.ctx.token_budget
         if budget is None:
             return True
         done = self.store.counts().get('web', {}).get('done', 0) - self.dropped_web
         if not done:
             return not self.busy
-        average = self.store.token_total('web', self.dropped) / done
-        return self.spent() + (self.busy + 1) * average <= budget
+        largest = self.store.token_max('web', self.dropped)
+        return self.spent() + (self.busy + 1) * largest <= budget
 
     async def worker(self) -> None:
         while not self.stop():
