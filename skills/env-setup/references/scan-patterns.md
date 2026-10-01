@@ -2,35 +2,35 @@
 
 ## Per-language scan patterns
 
-Run only the pattern(s) matching the project's detected stack (check for `package.json`, `requirements.txt`/`pyproject.toml`, `Gemfile`, `Cargo.toml`, `pom.xml`/`build.gradle`).
+Every pattern uses `-o`, so a line's hardcoded default (e.g. `os.getenv("KEY", "sk_live_...")`) is never printed; keep `-o` on the first grep when adapting them. Run only the pattern(s) matching the project's detected stack (check for `package.json`, `requirements.txt`/`pyproject.toml`, `Gemfile`, `Cargo.toml`, `pom.xml`/`build.gradle`).
 
 Node.js / TypeScript:
 ```bash
-grep -rE "process\.env\.([A-Z_][A-Z0-9_]*)" --include="*.ts" --include="*.js" --include="*.mjs" -h . \
+grep -rhoE "process\.env\.[A-Z_][A-Z0-9_]*" --include="*.ts" --include="*.js" --include="*.mjs" . \
   | grep -oE "process\.env\.[A-Z_][A-Z0-9_]*" | sort -u
 ```
 
 Python:
 ```bash
-grep -rE 'os\.environ\[["'"'"']([A-Z_][A-Z0-9_]*)["'"'"']\]|os\.getenv\(["'"'"']([A-Z_][A-Z0-9_]*)["'"'"']' \
-  --include="*.py" -h . | grep -oE '[A-Z_][A-Z0-9_]+' | sort -u
+grep -rhoE 'os\.environ\[["'"'"'][A-Z_][A-Z0-9_]*|os\.getenv\(["'"'"'][A-Z_][A-Z0-9_]*' \
+  --include="*.py" . | grep -oE '[A-Z_][A-Z0-9_]*$' | sort -u
 ```
 
 Ruby:
 ```bash
-grep -rE 'ENV\[["'"'"']([A-Z_][A-Z0-9_]*)["'"'"']\]' --include="*.rb" -h . \
+grep -rhoE 'ENV\[["'"'"'][A-Z_][A-Z0-9_]*["'"'"']\]' --include="*.rb" . \
   | grep -oE 'ENV\["[^"]*"\]' | grep -oE '"[^"]+"' | tr -d '"' | sort -u
 ```
 
 Rust:
 ```bash
-grep -rE 'env::var\("([A-Z_][A-Z0-9_]*)"\)' --include="*.rs" -h . \
+grep -rhoE 'env::var\("[A-Z_][A-Z0-9_]*"\)' --include="*.rs" . \
   | grep -oE '"[A-Z_][A-Z0-9_]*"' | tr -d '"' | sort -u
 ```
 
 Java / Kotlin:
 ```bash
-grep -rE 'System\.getenv\("([A-Z_][A-Z0-9_]*)"\)' --include="*.java" --include="*.kt" -h . \
+grep -rhoE 'System\.getenv\("[A-Z_][A-Z0-9_]*"\)' --include="*.java" --include="*.kt" . \
   | grep -oE '"[A-Z_][A-Z0-9_]*"' | tr -d '"' | sort -u
 ```
 
@@ -42,7 +42,7 @@ Framework-specific prefixes (scan for these in config files):
 
 Docker Compose:
 ```bash
-grep -rE "^\s+- [A-Z_][A-Z0-9_]*=" docker-compose.yml docker-compose.*.yml 2>/dev/null \
+grep -rhoE "^\s+- [A-Z_][A-Z0-9_]*=" docker-compose.yml docker-compose.*.yml 2>/dev/null \
   | grep -oE "[A-Z_][A-Z0-9_]*=" | tr -d "=" | sort -u
 ```
 
