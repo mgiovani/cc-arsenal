@@ -61,7 +61,7 @@ This reference is loaded when `db-migrate` needs framework-specific commands.
 - File naming: `<timestamp>_<slug>.py` (auto-generated)
 
 ### Prisma (Node.js)
-- `prisma migrate dev` uses a shadow database to detect drift: never point to production
+- `prisma migrate dev` uses a shadow database to detect drift
 - `prisma migrate deploy` is for production (no shadow DB needed)
 - Do not edit generated SQL files after running dev migration: use `prisma migrate resolve` instead
 - For data migrations, use a separate migration with raw SQL via `$executeRaw`

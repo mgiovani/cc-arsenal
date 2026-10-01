@@ -59,6 +59,18 @@ For a large multi-doc audit (a full `docs/` tree, many ADRs, cross-referencing s
 
 **Quality**: valid Mermaid syntax, no broken internal links, no empty sections.
 
+Check Mermaid by rendering it. Needs `mmdc`: install with `npm i -g @mermaid-js/mermaid-cli`, or run it ad hoc by defining `mmdc() { npx -y -p @mermaid-js/mermaid-cli mmdc "$@"; }` first. If Chromium refuses to launch in a sandbox, add `-p` with a puppeteer config of `{"args":["--no-sandbox"]}`. Run this once over every doc found in Phase 1 (nothing it writes lands in the repo):
+
+```bash
+d=$(mktemp -d)
+for md in $(find docs -name '*.md'); do
+  awk -v out="$d/${md//\//__}" '/^```mermaid/{f=out "-" ++n ".mmd"; next} /^```/{f=""} f{print > f}' "$md"
+done
+for f in "$d"/*.mmd; do mmdc -q -i "$f" -o "${f%.mmd}.svg" || echo "FAIL $f"; done
+```
+
+Each `FAIL <name>-N.mmd` is an invalid diagram: report the doc and the Nth mermaid block as a finding with the parser error, and never edit the doc. Run it once, with no fix loop. If `mmdc` can't be installed, say so in the report and review the syntax by eye, marking those results unverified.
+
 See [references/verification-patterns.md](references/verification-patterns.md) for the exact commands.
 
 ### Phase 5: Rate each document

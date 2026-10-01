@@ -46,6 +46,18 @@ Apply these when drafting the generated skill's description and body in Phase 4:
 
 ## Workflow
 
+Copy this checklist and tick each step as you finish it. Gates say where to return or stop.
+
+```
+- [ ] 0. Fetch both live specs (fetch fails -> use bundled references/skill-anatomy.md and references/frontmatter-fields.md)
+- [ ] 1. Mine the conversation, then ask only the open questions
+- [ ] 2. Research existing patterns and composable skills
+- [ ] 3. Present the blueprint (not approved -> stop; no files written)
+- [ ] 4. Generate files, then run the self-check list
+- [ ] 5. Run quick_validate (fails -> fix and re-run, max 3 rounds, then report what still fails)
+- [ ] 6. Evals, if worthwhile: missing run transcripts -> re-run those before grading; score under 4/5 -> fix the class of problem and return to 4 (stop when no progress)
+```
+
 ### Phase 0: Fetch Live Specifications
 
 Fetch latest specs before every creation: never rely on memory or bundled docs, because specifications evolve. This is two small fetches, not a research task, call WebFetch directly rather than spawning agents for it:
@@ -53,7 +65,7 @@ Fetch latest specs before every creation: never rely on memory or bundled docs, 
 1. WebFetch `https://agentskills.io/specification.md`: frontmatter fields, `allowed-tools` syntax, directory rules
 2. WebFetch `https://platform.claude.com/docs/skills/best-practices.md`: progressive disclosure, writing style, anti-hallucination patterns. If the fetch fails, fall back to bundled `references/skill-anatomy.md` and `references/frontmatter-fields.md`
 
-Hold both results in context. Do not proceed until both are fetched.
+Hold both results in context.
 
 ### Phase 1: Understand Requirements
 
@@ -151,7 +163,7 @@ skill-name/
 
 **5. Composition Plan**: List existing skills to invoke and why, vs. reimplementing.
 
-Use ExitPlanMode to submit for user approval. Do NOT generate any files before ExitPlanMode returns.
+Use ExitPlanMode to submit for user approval. Generate no files until it returns approved; a rejection or silence stops the run.
 
 ### Phase 4: Generate Skill Files
 
@@ -162,6 +174,8 @@ Create files only after approval from Phase 3.
 Lead with what the skill does (outcome), not what it is. Structure instructions as imperative phases: "Fetch...", "Create...", "Validate...", not "You should fetch..." or "Claude will create..." Explain WHY only at hard boundaries (see Writing Philosophy above): not every step needs a justification clause.
 
 Include verification checkpoints: what does success look like mid-workflow?
+
+Apply the structure rules in `references/skill-anatomy.md` ("Structure and flow"): references one level deep with a Contents section past 100 lines, scripts for fragile steps and goals for flexible ones, a copyable checklist with gates for order-dependent flows, capped validation loops, install lines at first use of an external tool.
 
 Anti-hallucination section: what should the skill explicitly verify before assuming?
 
@@ -208,6 +222,7 @@ Eval-design rules that keep evals scoreable in a non-interactive run:
 - [ ] No allowed-tools with unknown keys
 - [ ] No TODO or placeholder text remains in generated files
 - [ ] If the skill is model-invoked, `evals/evals.json` and `evals/trigger-eval.json` were authored, not skipped
+- [ ] Every reference over 100 lines opens with a `## Contents` section; no reference links to another reference
 
 ### Phase 5: Validate and Package
 
@@ -228,7 +243,7 @@ The validator checks:
 - Internal reference integrity (referenced files exist)
 - `evals/evals.json` schema (if present)
 
-Fix all issues before proceeding.
+Fix every issue and re-run, up to 3 rounds; if issues remain, stop and report them.
 
 Optionally, package for distribution:
 ```bash
@@ -318,6 +333,8 @@ Alternatively, use the bundled eval runner scripts:
 uv run <skill-dir>/scripts/run_eval.py [SKILL_PATH]
 uv run <skill-dir>/scripts/generate_report.py [SKILL_PATH]
 ```
+
+Before grading, list which runs produced no transcript and re-run only those; a missing run is never a fail.
 
 **Improvement loop**: if score < 4/5 or assertions fail:
 1. Read the full transcripts (not just outputs): find where the skill caused unproductive patterns

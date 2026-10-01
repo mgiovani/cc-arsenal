@@ -73,54 +73,16 @@ Only ask about services the scan didn't already resolve:
 
 ### Phase 3: Generate docker-compose.yml
 
-Generate `docker-compose.yml` with no `version:` key (deprecated in modern Compose). Every service needs a health check, security hardening, and resource limits:
+Generate `docker-compose.yml` with no `version:` key (deprecated in modern Compose). Every service must meet these goals:
 
-```yaml
-services:
-  postgres:
-    image: postgres:16-alpine
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER:-app}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?required}
-      POSTGRES_DB: ${POSTGRES_DB:-app_development}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-app}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
-    restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
-    networks:
-      - db
-    deploy:
-      resources:
-        limits:
-          cpus: '1'
-          memory: 512M
-```
-
-`security_opt: [no-new-privileges:true]` applies to every service, not just Postgres.
-
-**Networks** (create as needed for segmentation):
-```yaml
-networks:
-  frontend:    # App <-> reverse proxy
-  backend:     # App <-> services
-  db:          # Services <-> databases only
-```
-
-**Volumes** at the bottom:
-```yaml
-volumes:
-  postgres_data:
-  redis_data:
-```
+- Official image with a pinned tag (see `references/service-catalog.md`), alpine/slim variant when one exists.
+- A `healthcheck` with `interval`, `timeout`, `retries` and a `start_period` sized to the service's boot time; commands are in the catalog. Dependents wait with `depends_on: condition: service_healthy`.
+- `security_opt: [no-new-privileges:true]`, on every service.
+- `deploy.resources.limits` for `cpus` and `memory`.
+- `restart: unless-stopped`.
+- Credentials as `${VAR}` references to `.env`, with `${VAR:?required}` for passwords and `${VAR:-default}` for harmless values such as user and database name.
+- Data in named volumes declared at the bottom of the file.
+- Networks only as needed for segmentation: for example `frontend` (app and reverse proxy), `backend` (app and services), `db` (services and databases only).
 
 **Kafka defaults to KRaft mode, not Zookeeper.** A Zookeeper-backed Kafka is legacy topology and adds a second container for no benefit in a dev/prod compose file. Use the single-node KRaft form unless the user explicitly asks for a Zookeeper-based cluster:
 
@@ -147,87 +109,45 @@ Health check commands for other services (Postgres, MySQL, Redis, MongoDB, Rabbi
 
 ### Phase 4: Generate Dockerfile (if `--with-dockerfile`)
 
-Generate a multi-stage `Dockerfile` for the detected stack. The runtime stage must create and switch to a non-root user:
+Write a `Dockerfile` for the detected stack that meets these goals:
 
-**Node.js**:
-```dockerfile
-FROM node:22-alpine AS builder
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci --only=production
+- Multi-stage: dependencies and build tooling in a build stage, only runtime dependencies and build output in the final stage (no compilers, dev dependencies or package-manager caches).
+- Slim or alpine base image pinned to a specific version tag, the same major version the project declares (`.nvmrc`, `engines`, `requires-python`, `go.mod`).
+- Dependency manifests copied and installed before the source, so the dependency layer caches; installs use the lockfile (`npm ci`, `uv sync --frozen`, `bundle config set deployment true`).
+- A dedicated non-root user created in the final stage and activated with `USER` before `CMD`.
+- No secrets in any layer: no `COPY .env`, no secrets in `ARG`/`ENV`; use BuildKit `--mount=type=secret` when a build needs one.
+- A `HEALTHCHECK` when the app serves HTTP or another probeable port; skip it for workers and CLIs.
+- `EXPOSE` for the real port, and exec-form `CMD`.
 
-FROM node:22-alpine AS runtime
-RUN addgroup -g 1001 -S appgroup && adduser -S appuser -u 1001 -G appgroup
-WORKDIR /app
-COPY --from=builder /app/node_modules ./node_modules
-COPY --chown=appuser:appgroup . .
-USER appuser
-EXPOSE 3000
-CMD ["node", "src/index.js"]
-```
-
-**Python**:
-```dockerfile
-FROM python:3.12-slim AS builder
-WORKDIR /app
-RUN pip install uv
-COPY pyproject.toml uv.lock ./
-RUN uv sync --frozen --no-dev
-
-FROM python:3.12-slim AS runtime
-RUN useradd -m -u 1001 appuser
-WORKDIR /app
-COPY --from=builder /app/.venv ./.venv
-COPY --chown=appuser . .
-USER appuser
-ENV PATH="/app/.venv/bin:$PATH"
-CMD ["python", "-m", "app"]
-```
-
-Also generate `.dockerignore`:
-```
-.git
-.env
-.env.*
-node_modules
-__pycache__
-*.pyc
-.pytest_cache
-.coverage
-dist/
-build/
-```
+Also write a `.dockerignore` that excludes VCS data, `.env*`, dependency directories, caches and build output, and the `Dockerfile` and compose files themselves.
 
 ### Phase 5: Generate Production Overlay (if `--prod`)
 
-Create `docker-compose.prod.yml` with production hardening: no direct port exposure, `restart: always`, tighter resource limits, bounded log files:
+Create `docker-compose.prod.yml` as an overlay that only holds the differences from the base file:
 
-```yaml
-services:
-  postgres:
-    ports: []
-    restart: always
-    deploy:
-      resources:
-        limits:
-          cpus: '2'
-          memory: 1G
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
-```
+- No host port publishing for backing services (`ports: []`).
+- `restart: always`.
+- Tighter `deploy.resources.limits` than the dev defaults.
+- Bounded `json-file` logs (`max-size`, `max-file`).
 
 ### Phase 6: Validate
 
-```bash
-docker compose config --quiet 2>&1 && echo "Valid" || echo "Errors found"
+Copy this checklist and tick each step:
+
+```
+- [ ] hadolint Dockerfile   (skip if no Dockerfile)
+- [ ] docker build -t <project>-check .   (skip if no Dockerfile)
+- [ ] docker compose config --quiet   (add -f docker-compose.yml -f docker-compose.prod.yml if --prod)
+- [ ] .dockerignore exists and .env is in .gitignore
 ```
 
-If `docker` isn't installed or the command isn't found, skip this step and tell the user to run it themselves once Docker is available: don't claim the config was validated when it wasn't.
+hadolint install: `brew install hadolint`, or without installing, `docker run --rm -i hadolint/hadolint < Dockerfile`.
 
-Check that `.dockerignore` exists (create a minimal one if missing). Remind the user to add real secrets to `.env` and verify `.env` is in `.gitignore`.
+Fix every finding, then re-run the failed step and the ones after it. Stop after 3 rounds and report what still fails. Don't suppress a hadolint rule to get green unless the reason is stated to the user.
+
+If a tool is unavailable (no `docker`, no `hadolint`), skip its steps and tell the user which checks were skipped and the commands to run once the tool is available. Never claim a check passed that was not run.
+
+Remind the user to add real secrets to `.env`.
 
 ## Argument Parsing
 

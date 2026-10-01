@@ -44,54 +44,42 @@ Use Task tool with Explore agent:
 No Task tool available: explore directly with `grep`/`glob`/`read` before writing,
 covering the same four questions (current patterns, related components, existing
 similar features, technical constraints). Either way, keep what you find: it feeds
-the Background and Detailed Design sections in Phase 6.
+the Background and Detailed Design sections in Phase 2.
 
-### Phase 2: parse arguments
+### Phase 2: fill the template
 
-1. Extract proposal title from `$ARGUMENTS`
-2. Check for a variant keyword: `minimal`, `standard`, or `detailed`
-3. If a variant is found, remove it from the title
-4. Default variant: `standard`
+Copy this checklist and tick each step:
 
-### Phase 3: determine RFC number
+```
+- [ ] Parse `$ARGUMENTS`: title, plus an optional variant keyword (`minimal`, `standard`, `detailed`); remove the keyword from the title; default `standard`
+- [ ] Number: scan `docs/rfc/` for `RFC-XXXX-*`, add 1 to the highest (start at `0001`), 4-digit padded
+- [ ] Slug: kebab-case the title, lowercase, special characters stripped ("Add GraphQL API Support" -> `add-graphql-api-support`)
+- [ ] Author: `git config user.name`, falling back to `"Development Team"` if empty
+- [ ] Load the variant template from `<skill-dir>/assets/templates/` and draft real content for every `{{PLACEHOLDER}}` from the Phase 1 findings or explicit reasoning
+- [ ] Write `docs/rfc/RFC-XXXX-kebab-case-title.md` (create `docs/rfc/` if missing) with status "Draft"
+- [ ] Run the leftover-token check below; fix and re-run until it prints nothing
+```
 
-- Scan `docs/rfc/` for existing files matching `RFC-XXXX-*`
-- Increment the highest number by 1 (start at `0001` if none exist)
-- Format as a 4-digit padded number (e.g. `0001`, `0023`)
-
-### Phase 4: sanitize title for filename
-
-Convert the title to kebab-case, lowercase, special characters stripped.
-Example: "Add GraphQL API Support" -> `add-graphql-api-support`. This
-sanitized form becomes part of the filename built in Phase 7.
-
-### Phase 5: get author information
-
-Run `git config user.name`, falling back to `"Development Team"` if empty.
-This populates the author field the template expects in Phase 6.
-
-### Phase 6: load and populate template
-
-Template location: `assets/templates/`, select based on variant:
+Variants:
 
 - `minimal` -> `minimal.md`: Summary, Motivation, Proposal, Open Questions. Use for small changes.
 - `standard` -> `standard.md` (default): adds Rationale and Alternatives, Implementation Plan, Testing Plan, Migration Strategy, Timeline. Use for most feature proposals.
 - `detailed` -> `detailed.md`: full set including Goals/Non-Goals, Security Considerations, Performance Implications, Monitoring and Metrics. Use for major/architectural changes.
 
-Draft real content for every `{{PLACEHOLDER}}` present in the selected template:
-each variant has its own set (metadata fields, body sections, risk tables,
-alternatives, review history, and so on). Base each one on the Phase 1 findings
-or on explicit reasoning about the proposal; never leave a placeholder token
-literally in the output. The written RFC must contain zero unresolved
-`{{...}}` tokens.
+Each variant has its own placeholder set (metadata fields, body sections, risk
+tables, alternatives, review history, and so on). Never leave a placeholder
+token literally in the output.
 
-### Phase 7: create RFC file
+Leftover-token check, run on the file just written:
 
-- Filename: `docs/rfc/RFC-XXXX-kebab-case-title.md`, using the number from
-  Phase 3 and the sanitized title from Phase 4
-- Ensure `docs/rfc/` exists, write populated content, set status to "Draft"
+```bash
+grep -nE '\{\{|\}\}|TODO|TBD' docs/rfc/RFC-XXXX-kebab-case-title.md
+```
 
-### Phase 8: report creation
+Every hit is an unfilled placeholder or an unfinished draft: draft the content
+and re-run. After 3 rounds, stop and report what still matches.
+
+### Phase 3: report creation
 
 Show the RFC number, title, file path, and next-step guidance (share for feedback,
 update status as it progresses). This is the last step; nothing downstream

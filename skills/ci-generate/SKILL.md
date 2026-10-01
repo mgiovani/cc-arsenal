@@ -17,7 +17,7 @@ disable-model-invocation: true
 
 # CI/CD Pipeline Generator
 
-Generate a CI/CD pipeline config for the detected project stack, with stages for lint, test, build, security scan, and deploy. Start by parsing the arguments passed to this skill invocation (platform, `--deploy`, `--monorepo`): see Phase 0 below.
+Generate a CI/CD pipeline config for the detected project stack, covering lint, test, build, security, and (when requested) deploy. Start by parsing the arguments passed to this skill invocation (platform, `--deploy`, `--monorepo`): see Phase 0 below.
 
 ## Anti-hallucination guidelines
 
@@ -79,43 +79,22 @@ Focus on:
 
 ### Phase 3: Design Pipeline Architecture
 
-Based on discovery and research, design the pipeline with these stages. For platform-specific triggers and syntax conventions (caching included), see [references/platform-patterns.md](references/platform-patterns.md).
+Based on discovery and research, derive the stages from what the repo actually uses. For platform-specific triggers and syntax conventions (caching included), see [references/platform-patterns.md](references/platform-patterns.md).
 
-Standard stages (always include):
+The generated pipeline must meet these goals. Map each to the repo's own tooling from Phase 1; skip a goal only when the repo has nothing to satisfy it, and say so in the summary:
 
-1. Lint & Format Check
- - Run linter discovered in Phase 1 (e.g., `ruff check`, `eslint`)
- - Run formatter check if available (e.g., `ruff format --check`, `prettier --check`)
- - Run type checker if applicable (e.g., `pyright`, `tsc --noEmit`)
-
-2. Test
- - Run test suite with discovered test command
- - Include coverage reporting if configured
- - Set up service containers if tests require databases/caches
- - Consider matrix testing for multiple runtime versions
-
-3. Build
- - Run build command if applicable (e.g., `npm run build`, `cargo build --release`)
- - Build Docker image if Dockerfile exists
- - Generate artifacts for deployment
-
-4. Security Scan
- - Dependency vulnerability scanning (language-appropriate tool)
- - Static analysis if available for the language
- - Container scanning if Docker is used
- - Secret detection
-
-5. Deploy (if `--deploy` specified or deployment config detected)
- - Environment-specific deployment steps
- - Staging/production separation
- - Post-deployment health checks
- - Thread the built artifact reference into the deploy step. The Build stage must expose the image tag/digest it just produced (job `outputs`, `GITHUB_OUTPUT`, an artifact file, etc.), and the deploy step must consume that same reference: rendering it into a task definition, `helm upgrade --set image.tag=<ref>`, `kubectl set image deployment/<name> <container>=<ref>`, or equivalent. Never emit a blind restart (`aws ecs update-service --force-new-deployment`, `kubectl rollout restart` with no image change) as the whole deploy step: if the target pins an image tag/digest, a blind restart just re-pulls the OLD image and ships nothing new.
+- Fails fast: lint and type checks run first or in parallel, and a failure there cancels the slow jobs.
+- Runs the test suite the repo already uses, with its real command and any service containers (database, cache) the tests need, plus coverage if configured. Use a runtime-version matrix only if the project supports several versions.
+- Builds what ships (app build, Docker image if a Dockerfile exists) and keeps the artifacts later jobs need.
+- Catches vulnerable dependencies and leaked secrets, plus static-analysis findings where the language has a standard tool. Scan the container image if one is built.
+- Caches dependency installs keyed on the lockfile.
+- Pins third-party actions, orbs and images to a SHA or exact tag, never `latest` or a moving branch.
+- Grants least-privilege permissions: a read-only token by default on GitHub Actions, widened per job only where a step needs it.
+- Deploys only when `--deploy` is given or deployment config is detected: staging and production are separate, a health check follows the deploy, and the built artifact reference is threaded into the deploy step. The Build job must expose the image tag/digest it produced (job `outputs`, `GITHUB_OUTPUT`, an artifact file, etc.), and the deploy step must consume that same reference: rendering it into a task definition, `helm upgrade --set image.tag=<ref>`, `kubectl set image deployment/<name> <container>=<ref>`, or equivalent. Never emit a blind restart (`aws ecs update-service --force-new-deployment`, `kubectl rollout restart` with no image change) as the whole deploy step: if the target pins an image tag/digest, a blind restart just re-pulls the OLD image and ships nothing new.
 
 Design decisions:
 
 - Parallelism: lint, test, and security scan run in parallel when possible.
-- Fail fast: lint stage runs first for the fastest feedback.
-- Caching: cache dependency installation for faster runs.
 - Branch strategy: main/master triggers deploy, while PRs trigger lint+test+build.
 - Artifacts: build outputs passed between stages where needed.
 
@@ -138,7 +117,7 @@ File locations by platform:
 Generation guidelines:
 
 1. Use discovered commands exactly (do not invent scripts)
-2. Pin action/orb/image versions to specific tags (not `latest`)
+2. Pin action/orb/image versions (see the pinning goal in Phase 3)
 3. Include inline comments explaining non-obvious configuration
 4. Set appropriate timeouts for each job
 5. Use environment variables for configurable values
@@ -152,24 +131,24 @@ If an existing CI config exists:
 
 ### Phase 5: Validate & Present
 
-#### Step 5.1: Syntax Validation
+#### Step 5.1: Validate, Fix, Re-validate
 
-Validate the generated configuration:
+Run the platform's validator on the generated file, fix every reported error in the file, and run it again. Stop when it is clean or after 3 rounds, then report what still fails.
+
+| Platform | Validator | Install |
+|----------|-----------|---------|
+| GitHub Actions | `actionlint <workflow_file>` | `brew install actionlint` |
+| GitLab CI | `glab ci lint` | `brew install glab` |
+| CircleCI | `circleci config validate` | `brew install circleci` |
+| Jenkins | the declarative linter, if the Jenkins instance is reachable (`curl -X POST -F "jenkinsfile=<Jenkinsfile" $JENKINS_URL/pipeline-model-converter/validate`) | none |
+
+If no validator is available, say so in the summary and do the minimum YAML parse for YAML platforms:
 
 ```bash
-# Any YAML-based platform (GitHub Actions, GitLab CI, CircleCI) — parse the generated file
-python3 -c "import yaml; yaml.safe_load(open('<config_file>'))"
-
-# GitLab CI — prefer the project's own linter if available
-gitlab-ci-lint .gitlab-ci.yml 2>/dev/null || python3 -c "import yaml; yaml.safe_load(open('.gitlab-ci.yml'))"
-
-# CircleCI — prefer the project's own CLI if available
-circleci config validate 2>/dev/null || python3 -c "import yaml; yaml.safe_load(open('.circleci/config.yml'))"
-
-# Jenkins — Jenkinsfile is Groovy, not YAML; no local parser available, so
-# just re-read the generated file for obvious syntax errors (unbalanced
-# braces/quotes) instead of skipping validation
+python3 -c 'import yaml,sys;yaml.safe_load(open(sys.argv[1]))' <config_file>
 ```
+
+A Jenkinsfile is Groovy, not YAML: without the linter, re-read it for unbalanced braces and quotes.
 
 #### Step 5.2: Cross-Reference Check
 

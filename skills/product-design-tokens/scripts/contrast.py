@@ -188,6 +188,18 @@ def build_report(doc: dict, extra_pairs: list[dict] | None = None) -> tuple[str,
     return '\n'.join(out), failures
 
 
+def pair_report(fg: str, bg: str, *, large: bool = False) -> tuple[str, bool]:
+    """One-line AA/AAA verdict for an ad-hoc pair; the bool is the AA result."""
+    ratio = contrast_ratio(fg, bg)
+    size = 'large' if large else 'normal'
+    aa, aaa = LEVELS[f'AA-{size}'][0], LEVELS[f'AAA-{size}'][0]
+    verdicts = ' '.join(
+        f'{name} {"PASS" if ratio >= need else "FAIL"} (>={need}:1)'
+        for name, need in (('AA', aa), ('AAA', aaa))
+    )
+    return f'{fg} on {bg}: {ratio:.2f}:1 ({size} text) {verdicts}', ratio >= aa
+
+
 def _selftest() -> bool:
     # Required anchors: pure black vs white == 21.0, and a mid pair.
     assert round(contrast_ratio('#000000', '#ffffff'), 4) == 21.0
@@ -255,12 +267,29 @@ def main() -> int:
     ap.add_argument('--tokens', help='path to a DTCG tokens JSON file')
     ap.add_argument('--fg', help='ad-hoc foreground hex (with --bg)')
     ap.add_argument('--bg', help='ad-hoc background hex (with --fg)')
+    ap.add_argument(
+        '--pair',
+        nargs=2,
+        metavar=('FG', 'BG'),
+        help='ad-hoc pair: print ratio and AA/AAA',
+    )
+    ap.add_argument(
+        '--large', action='store_true', help='with --pair: large-text thresholds'
+    )
     ap.add_argument('--level', default='AA-normal', choices=list(LEVELS))
     ap.add_argument('--selftest', action='store_true')
     args = ap.parse_args()
 
     if args.selftest:
         return 0 if _selftest() else 1
+
+    if args.pair:
+        try:
+            line, ok = pair_report(*args.pair, large=args.large)
+        except ValueError as exc:
+            ap.error(str(exc))
+        print(line)
+        return 0 if ok else 1
 
     if args.fg and args.bg:
         ratio = contrast_ratio(args.fg, args.bg)
@@ -273,7 +302,7 @@ def main() -> int:
         return 0 if ok else 1
 
     if not args.tokens:
-        ap.error('pass --tokens FILE, or --fg and --bg')
+        ap.error('pass --tokens FILE, --pair FG BG, or --fg and --bg')
     doc = json.loads(Path(args.tokens).read_text())
     report, failures = build_report(doc)
     print(report)

@@ -90,7 +90,26 @@ Reject and repair an asset when:
 
 Write final assets to the repository's established locations and update only real references. Preserve expected filenames when replacing existing artwork unless the user requested a rename.
 
-Derive optimized web formats from the master without deleting the master. Inspect the integrated result at its real display sizes, including the smallest thumbnail and responsive hero crop. Check both light and dark surfaces when the project supports them.
+Derive the fixed-size crops with the script rather than by hand. It needs [uv](https://docs.astral.sh/uv/) (`curl -LsSf https://astral.sh/uv/install.sh | sh`) and installs Pillow itself:
+
+```bash
+uv run <skill-dir>/scripts/derive_assets.py <master> <out-dir> [--focus 0.5,0.5] [--only thumbnail avatar]
+```
+
+It writes PNGs: `social-card` 1200×630, `thumbnail` 256×256 (circular, transparent corners), `avatar` 512×512, `favicon-32` and `apple-touch-icon` 180×180. Crops are centered unless `--focus X,Y` (fractions of the master) moves them. Derive the thumbnail, avatar and icons from the square mascot master and the social card from the hero master. If it prints `WARNING ... upscaled` and exits 1, the master is too small: regenerate a larger one instead of shipping the upscale. Without `uv`, crop and resize to the same sizes with any image tool.
+
+Then check the outputs. Copy this list and tick it:
+
+```
+- [ ] Open every derived file and confirm the pixel size matches the list above
+- [ ] Social card: title and mascot survive the crop; if not, rerun with --focus
+- [ ] Thumbnail: face and defining feature are inside the circle, corners are transparent
+- [ ] Favicon and apple-touch icon: silhouette still reads at 32px
+```
+
+If a check fails, adjust `--focus` or repair the master and rerun the script, at most 3 rounds, then report what still fails.
+
+Convert to web formats such as WebP from the derived PNGs without deleting the master. Inspect the integrated result at its real display sizes, including the smallest thumbnail and responsive hero crop. Check both light and dark surfaces when the project supports them.
 
 Report:
 

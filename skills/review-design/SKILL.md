@@ -58,7 +58,7 @@ Design reviews must be based on actual evidence, never assumptions. This is crit
 1. Observe before claiming: never report an issue without reading the code (static) or viewing the screenshot/snapshot (live)
 2. Evidence-based findings: every finding cites a file path + line number (static) OR a screenshot region + DOM ref (live)
 3. Cite a criterion: every finding maps to a criterion ID and an authoritative citation (WCAG SC, MD3 spec, etc.)
-4. Measure, don't estimate: report actual values (contrast ratio, px size, ms duration), not guesses. In static mode there is no rendered page to sample from, so compute the WCAG relative-luminance contrast ratio directly from the two hex/rgb values found in the CSS/tokens (formula in [references/agent-prompts.md](references/agent-prompts.md#computing-contrast-ratio-from-hexrgb-no-browser-needed)); never eyeball a ratio
+4. Measure, don't estimate: report actual values (contrast ratio, px size, ms duration), not guesses. In static mode there is no rendered page to sample from, so compute the contrast ratio from the two hex/rgb values found in the CSS/tokens with the sibling `product-design-tokens` skill's `scripts/contrast.py --pair FG BG` (otherwise a python3 one-liner of the WCAG relative-luminance formula, given in [references/agent-prompts.md](references/agent-prompts.md#computing-contrast-ratio-from-hexrgb-no-browser-needed)); never eyeball a ratio
 5. Applicable-only scoring: only score dimensions that apply to the target; never penalize what cannot be observed
 6. State what was NOT checked: every report ends with an explicit coverage gap section
 7. No invented standards: only reference real WCAG SCs, MD3 specs, and HIG guidance

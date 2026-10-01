@@ -56,12 +56,16 @@ If `--name <name>` is given, use it. Otherwise ask for a short, descriptive name
 
 ### Phase 3: Execute
 
+**Production guard.** Before running any command that connects to a database (`status`, autogenerate/schema-diff create, shadow-database commands like `prisma migrate dev`, or anything that applies or rolls back), check where it points: the environment name (`APP_ENV`, `RAILS_ENV`, `NODE_ENV`, `DJANGO_SETTINGS_MODULE`), the `DATABASE_URL` or framework config host, and the target named in `--env`/profile flags. If any of it looks like production (`prod`, `production`, a non-local managed-cloud host), stop and ask the user to confirm before running. Commands that only write a file offline need no check.
+
 #### create
 
 1. Check naming conventions in existing migrations (`Glob migrations/`, `db/migrate/`) and match the project's pattern.
 2. Run the framework-native create command from the reference table (use `--autogenerate` / schema-diff mode where the framework supports it, e.g. Alembic, Prisma).
 3. Read the generated file back and show it to the user: don't just report that a command succeeded.
-4. Remind the user to review the diff, add a rollback/down script if it wasn't auto-generated, and add indexes for any new foreign keys.
+4. Run the `validate` checks below on the new file, then fix what is fixable in place: add a missing `down`/reverse, add a `CREATE INDEX` for an unindexed foreign key, rename a file that breaks the naming pattern. Re-validate after each fix. Stop after 3 rounds, or sooner once clean, and report what still fails.
+5. Never auto-fix destructive operations or mixed data + schema changes: report them for the user's decision.
+6. Remind the user to review the final diff.
 
 #### status
 
@@ -69,7 +73,7 @@ Run the framework's status command and show applied migrations (with timestamps)
 
 #### validate
 
-Check the target migration file(s) for:
+Also runs automatically on a new file at the end of `create`. Check the target migration file(s) for:
 1. Rollback exists: every `up`/forward change has a matching `down`/reverse (warn if missing).
 2. Naming convention: matches the pattern already used in the migrations directory.
 3. Foreign-key indexes: `grep -iE "REFERENCES|foreign_key|FK_"` and confirm a corresponding `CREATE INDEX` exists.
@@ -87,7 +91,6 @@ Summarize using only what Phases 1–3 actually produced:
 ## Notes
 
 - Review auto-generated migrations before applying: autogenerate can include unintended changes (e.g. Alembic missing custom types).
-- Prisma dev migrations use a shadow database: confirm `DATABASE_URL` isn't pointed at production before running `prisma migrate dev`.
 - Prefer transactional DDL where the database supports it, for atomicity. MySQL auto-commits DDL: flag this to the user when detected instead of assuming a transaction wraps it.
 
 ## Worked examples
@@ -103,7 +106,7 @@ Created: migrations/versions/a1b2c3_add_users_email_index.py
   upgrade(): op.create_index('ix_users_email', 'users', ['email'])
   downgrade(): op.drop_index('ix_users_email', table_name='users')
 
-No warnings — rollback present, no destructive ops.
+Validated (round 1 of 3): rollback present, no destructive ops, no foreign keys.
 Next: `alembic upgrade head` to apply, `alembic downgrade -1` to roll back.
 ```
 

@@ -80,10 +80,25 @@ https://your-domain.atlassian.net/browse/PROJ-125
 key=$(jira issue create -tBug -s"Login redirect loop" -yHigh --no-input | grep -oE '[A-Z]+-[0-9]+$')
 ```
 
-Bulk sprint add sourced from a live filter, not a hardcoded list:
+Bulk sprint add: list the keys with a live filter, then add only the keys the user confirmed (see [Destructive operations](#destructive-operations)):
 ```bash
-jira sprint add SPRINT_ID $(jira issue list -s"Ready for Dev" --plain --columns key --no-headers | tr '\n' ' ')
+jira issue list -s"Ready for Dev" --plain --columns key,summary --no-headers
+jira sprint add SPRINT_ID PROJ-123
 ```
+
+## Destructive operations
+
+Applies to delete, bulk transition/assign/edit, removing issues from a sprint, and anything that touches more than one issue. Copy this checklist and tick it off:
+
+```
+- [ ] 1. List the exact keys with a read-only query
+- [ ] 2. Show the keys and get explicit confirmation
+- [ ] 3. Run the command once per confirmed key
+```
+
+1. Query read-only with the same filter the mutation would use, e.g. `jira issue list -s"Ready for Dev" --plain --columns key,summary --no-headers`.
+2. Show that exact list to the user and wait for an explicit yes. If the list changes or the user edits it, return to step 1. No answer means stop and report.
+3. Run the exact command for each confirmed key, e.g. `jira issue delete PROJ-123`. Never pipe the query into the mutation (`... | xargs jira issue delete`): nothing reviews what the pipe actually receives.
 
 ## How to Use This Skill
 
