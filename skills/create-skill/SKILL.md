@@ -6,20 +6,6 @@ metadata:
   author: mgiovani
   version: 3.0.0
 argument-hint: "[skill-description]"
-allowed-tools:
-  - Read
-  - Write
-  - Edit
-  - Grep
-  - Glob
-  - Bash(mkdir *)
-  - Bash(python *)
-  - Bash(uv run *)
-  - Task
-  - WebFetch
-  - AskUserQuestion
-  - EnterPlanMode
-  - ExitPlanMode
 ---
 
 # Create Skill
@@ -62,7 +48,7 @@ Copy this checklist and tick each step as you finish it. Gates say where to retu
 
 Fetch latest specs before every creation: never rely on memory or bundled docs, because specifications evolve. This is two small fetches, not a research task, call WebFetch directly rather than spawning agents for it:
 
-1. WebFetch `https://agentskills.io/specification.md`: frontmatter fields, `allowed-tools` syntax, directory rules
+1. WebFetch `https://agentskills.io/specification.md`: frontmatter fields, directory rules
 2. WebFetch `https://platform.claude.com/docs/skills/best-practices.md`: progressive disclosure, writing style, anti-hallucination patterns. If the fetch fails, fall back to bundled `references/skill-anatomy.md` and `references/frontmatter-fields.md`
 
 Hold both results in context.
@@ -136,12 +122,9 @@ name: skill-name          # kebab-case, ≤64 chars, no leading/trailing/consecu
 description: "..."        # assertive, covers multiple trigger phrasings, 50-1024 chars
 [disable-model-invocation: true]   # add only for explicit /slash-command-only skills
 [argument-hint: "[hint]"]          # add if skill accepts a positional argument
-allowed-tools:            # only list tools actually used — each has a cost
-  - Read                  # explain why each is here
-  - Write
 ```
 
-Allowed frontmatter keys: `name`, `description`, `license`, `allowed-tools`, `metadata`, `compatibility`, `disable-model-invocation`, `argument-hint`, `context`, `agent`, `hooks`. Reject anything else: unknown keys cause validation failures. Add `context: fork` + `agent: <type>` only when the skill should run isolated from conversation history (the SKILL.md content becomes the subagent's entire prompt). See `references/frontmatter-fields.md` for the full field reference and `$ARGUMENTS`/`$0`/`$1` substitution syntax.
+Allowed frontmatter keys: `name`, `description`, `license`, `allowed-tools`, `metadata`, `compatibility`, `disable-model-invocation`, `argument-hint`, `context`, `agent`, `hooks`. Reject anything else: unknown keys cause validation failures. Leave `allowed-tools` out: in Claude Code it only pre-approves tools for the turn that invokes the skill, restricts nothing, and is a permission grant every user has to vet. Add `context: fork` + `agent: <type>` only when the skill should be isolated from conversation history (the SKILL.md content becomes the subagent's entire prompt). See `references/frontmatter-fields.md` for the full field reference and `$ARGUMENTS`/`$0`/`$1` substitution syntax.
 
 If the new skill builds on an existing one, follow the **Skill composition** convention in `AGENTS.md`: name the sibling skill in prose and state its tool-neutral fallback in the same sentence (via the `Skill` tool where available, otherwise apply its documented steps), don't invent `uses:`/`composes:` frontmatter for it.
 
@@ -218,8 +201,7 @@ Eval-design rules that keep evals scoreable in a non-interactive run:
 - [ ] No broken internal file references (every referenced file exists)
 - [ ] SKILL.md under 500 lines (move details to `references/` if needed)
 - [ ] Description is assertive, covers multiple trigger phrasings, 50-1024 chars, has a sibling disambiguation clause if one applies
-- [ ] All tools in `allowed-tools` are actually used in the workflow
-- [ ] No allowed-tools with unknown keys
+- [ ] No `allowed-tools` key in the frontmatter
 - [ ] No TODO or placeholder text remains in generated files
 - [ ] If the skill is model-invoked, `evals/evals.json` and `evals/trigger-eval.json` were authored, not skipped
 - [ ] Every reference over 100 lines opens with a `## Contents` section; no reference links to another reference
@@ -275,7 +257,6 @@ When iterating on an existing skill after seeing it in use:
 - Never guess at URL structure: only fetch from canonical sources in `references/specification-urls.md`
 - Read existing code before suggesting modifications
 - Confirm all internal skill references resolve before writing them
-- Only include tools in `allowed-tools` that you've verified exist in the platform spec
 - Never write a number (a percentage, a count, a score) into a generated skill or report unless it came from a command actually run this session (validator stdout, eval script output, a grep count). A fabricated number in a generated skill teaches the same fabrication pattern forward into every skill it produces
 
 ## Reference Documentation

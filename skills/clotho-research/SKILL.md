@@ -13,7 +13,6 @@ metadata:
   version: 1.0.0
 disable-model-invocation: true
 argument-hint: "<spec file | spec JSON>"
-allowed-tools: Read, Grep, Find, Ls
 ---
 
 # Clotho Research

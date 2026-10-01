@@ -14,15 +14,6 @@ metadata:
   version: 2.0.0
 disable-model-invocation: false
 argument-hint: <rule-name> [description]
-allowed-tools:
-- Read
-- Write
-- Edit
-- Grep
-- Glob
-- Bash(git *)
-- Bash(mkdir *)
-- AskUserQuestion
 ---
 
 # Create Rule

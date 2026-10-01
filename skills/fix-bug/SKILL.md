@@ -8,7 +8,6 @@ description: Fixes a bug through test-driven debugging, reproduces it with a fai
   with no bug involved (use refactor).
 disable-model-invocation: false
 argument-hint: "[bug_description_or_issue_id] [--branch name] [--interactive]"
-allowed-tools: Read, Write, Edit, Bash, Grep, Glob, Task, TaskCreate, TaskUpdate, TaskList, TaskGet, WebFetch, AskUserQuestion
 metadata:
   summary: "Test-driven debugging with strict sequential task chain and dependency enforcement"
 ---

@@ -14,7 +14,6 @@ metadata:
   version: 1.0.0
 disable-model-invocation: true
 argument-hint: "<plan file | plan JSON>"
-allowed-tools: Read, Grep, Glob
 ---
 
 # Review Plan

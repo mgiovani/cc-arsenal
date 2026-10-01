@@ -19,7 +19,6 @@ metadata:
   version: 1.0.0
 disable-model-invocation: false
 argument-hint: "[--no-merge] [--base branch]"
-allowed-tools: Read, Grep, Glob, Bash(git *), Bash(gh *), Bash(just *), Bash(make *), Bash(npm *), Bash(pnpm *), Bash(bun *), Bash(yarn *), Task, TodoWrite, Skill, AskUserQuestion
 ---
 
 # Ship

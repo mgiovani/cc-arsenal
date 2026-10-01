@@ -45,7 +45,7 @@ Common optional fields:
 - `metadata`: Author, version, source
 - `argument-hint`: Placeholder for skill arguments (e.g., `[skill-description]`)
 - `disable-model-invocation`: Set to `true` for user-invoked-only skills
-- `allowed-tools`: List of tools the skill can use
+- `allowed-tools`: leave it out; it only pre-approves tools for one turn in Claude Code and restricts nothing
 
 Writing style: Use third-person in description (e.g., "This skill should be used when..." instead of "Use this skill when...").
 
@@ -227,7 +227,6 @@ Path validation:
 
 Tool verification:
 ```markdown
-- Only include tools in allowed-tools that are actually used
 - Verify tool availability before including in workflow
 - Don't guess at tool syntax - reference documentation
 ```

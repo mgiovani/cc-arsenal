@@ -3,7 +3,6 @@ name: anything-to-skill
 description: Turns a docs site, local folder, PDF or book, YouTube video, playlist or channel, or a topic into a source-grounded, token-efficient agent skill (hub SKILL.md, sectioned references, INDEX, evals), and can compact it into a lean expert skill. Use for "make a skill from these docs", "turn this channel into a skill". Not for a skill from your own description (use create-skill), improving one (use improve-skill) or finding third-party skills (use find-skills).
 metadata:
   summary: "Turn docs sites, PDFs, folders, YouTube videos or a topic into a grounded, token-efficient agent skill"
-allowed-tools: Bash(uv run *anything-to-skill/scripts/*.py *), Read, Write, Edit, AskUserQuestion, Skill, Agent
 ---
 
 # Anything to Skill

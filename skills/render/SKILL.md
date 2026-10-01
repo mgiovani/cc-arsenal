@@ -17,7 +17,6 @@ metadata:
   version: 1.2.0
 disable-model-invocation: true
 argument-hint: <mode|/skill|path> [subject]
-allowed-tools: Read, Write, Edit, Grep, Glob, Bash, Task, Skill, Artifact
 ---
 
 # Render

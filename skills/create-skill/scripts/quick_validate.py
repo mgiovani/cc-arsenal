@@ -91,6 +91,11 @@ def validate_skill(skill_path: str | Path) -> tuple[bool, list[str], list[str]]:
             f'SKILL.md has {line_count} lines (>{WARN_LINE_COUNT}). '
             'Consider moving detailed content to references/'
         )
+    if 'allowed-tools' in frontmatter:
+        warnings.append(
+            'allowed-tools only pre-approves tools for the invoking turn and restricts '
+            'nothing; drop it unless the skill truly needs prompt-free access'
+        )
 
     dir_errors = _validate_directory_structure(skill_path)
     errors.extend(dir_errors)

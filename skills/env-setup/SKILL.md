@@ -7,15 +7,6 @@ metadata:
   version: 1.1.0
 disable-model-invocation: true
 argument-hint: '[scan|validate|sync] [--check-secrets]'
-allowed-tools:
-- Read
-- Write
-- Edit
-- Grep
-- Glob
-- Bash(git *)
-- Bash(grep *)
-- Bash(gitleaks *)
 ---
 
 # Env Setup

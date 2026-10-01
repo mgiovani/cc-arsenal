@@ -6,11 +6,6 @@ metadata:
   author: mgiovani
   version: 1.1.0
 argument-hint: '[--rebase] [--base main] [--upstream] [--stash]'
-allowed-tools:
-- Bash(git *)
-- Bash(gh pr view*)
-- Read
-- AskUserQuestion
 ---
 
 # Git Sync

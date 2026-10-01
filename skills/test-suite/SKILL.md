@@ -3,7 +3,6 @@ name: test-suite
 description: "Generates a test suite by analyzing coverage gaps, prioritizing critical and untested code paths, then writing tests in parallel that match the project's existing patterns. Use when the user wants to write tests, add test coverage, generate test cases, improve testing, or analyze coverage gaps. Supports pytest, vitest, jest, and all major test frameworks. Not for debugging a specific failing test (use fix-bug)."
 disable-model-invocation: false
 argument-hint: "[target_files_or_modules] [--coverage] [--framework name]"
-allowed-tools: Read, Write, Edit, Bash, Grep, Glob, Task, TaskCreate, TaskUpdate, TaskList, TaskGet, WebFetch, AskUserQuestion
 hooks:
   Stop:
     - hooks:

@@ -7,11 +7,6 @@ metadata:
   version: 2.1.0
 disable-model-invocation: false
 argument-hint: '[--base branch] [--draft]'
-allowed-tools:
-- Bash(git *)
-- Bash(gh *)
-- Read
-- Write
 ---
 
 # Create Pull Request

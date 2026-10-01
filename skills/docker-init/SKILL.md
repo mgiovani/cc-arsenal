@@ -7,15 +7,6 @@ metadata:
   version: 1.1.0
 disable-model-invocation: true
 argument-hint: '[--services postgres,redis] [--prod] [--with-dockerfile]'
-allowed-tools:
-- Read
-- Write
-- Edit
-- Grep
-- Glob
-- Bash(docker *)
-- Bash(hadolint *)
-- AskUserQuestion
 ---
 
 # Docker Init

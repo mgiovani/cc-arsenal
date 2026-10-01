@@ -9,7 +9,7 @@ Canonical URLs for skill specifications, best practices, and examples. These sho
   - Extract: Definition of skills, when to use them, anatomy overview
 
 - Specification: https://agentskills.io/specification.md
-  - Extract: YAML frontmatter fields (required vs optional), allowed-tools syntax, directory structure rules
+  - Extract: YAML frontmatter fields (required vs optional), directory structure rules
 
 ### Claude Code Best Practices
 - Official Best Practices: https://platform.claude.com/docs/skills/best-practices.md

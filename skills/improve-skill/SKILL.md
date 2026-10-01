@@ -16,7 +16,6 @@ metadata:
   summary: "Rewrite an existing skill to the authoring standard, with baseline-vs-new eval evidence"
   author: mgiovani
   version: 1.0.0
-allowed-tools: Read, Write, Edit, Grep, Glob, Bash(mkdir *), Bash(cp *), Bash(diff *), Bash(uv run *), Task, AskUserQuestion
 ---
 
 # Improve Skill

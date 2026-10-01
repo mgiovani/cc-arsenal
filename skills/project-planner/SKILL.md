@@ -13,8 +13,6 @@ metadata:
   author: mgiovani
   version: 2.1.0
 argument-hint: <project_description>
-allowed-tools: Read, Write, Grep, Glob, Task, TaskCreate, TaskUpdate, TaskList, TaskGet,
-  WebFetch, AskUserQuestion
 context: fork
 agent: general-purpose
 ---

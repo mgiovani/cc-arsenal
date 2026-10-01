@@ -5,11 +5,6 @@ metadata:
   summary: "Polished raster art (logos, mascots, heroes, sprites, mockups) via Codex CLI's $imagegen"
   author: mgiovani
   version: 1.0.0
-allowed-tools:
-  - Bash
-  - Read
-  - Glob
-  - Grep
 ---
 
 # Codex Imagegen: Illustrated Asset Generation via Codex CLI

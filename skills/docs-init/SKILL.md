@@ -14,7 +14,6 @@ metadata:
   version: 2.0.0
 disable-model-invocation: true
 argument-hint: '[context]'
-allowed-tools: Read, Write, Grep, Glob, Bash(git *), Bash(find *), Bash(mktemp *), Bash(awk *), Bash(npx *), Bash(mmdc *), Task
 context: fork
 agent: general-purpose
 ---

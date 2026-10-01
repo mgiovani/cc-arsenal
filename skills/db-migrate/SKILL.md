@@ -6,14 +6,6 @@ metadata:
   author: mgiovani
   version: 2.0.0
 argument-hint: '[create|status|validate] [--name migration_name] [--dry-run]'
-allowed-tools:
-- Bash
-- Read
-- Write
-- Edit
-- Grep
-- Glob
-- AskUserQuestion
 ---
 
 # DB Migrate

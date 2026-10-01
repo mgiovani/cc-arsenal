@@ -13,7 +13,6 @@ metadata:
   version: 1.0.0
 disable-model-invocation: true
 argument-hint: "<path to PRD.md>"
-allowed-tools: Read, Grep, Bash
 ---
 
 # PRD to Issues

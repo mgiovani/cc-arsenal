@@ -19,7 +19,6 @@ disable-model-invocation: true
 argument-hint: "<prd-path | idea | #issue | PROJ-123> [--tier small|medium|big]"
 context: fork
 agent: general-purpose
-allowed-tools: Read, Write, Edit, Grep, Glob, Bash(git *), Bash(gh *), Bash(python *), Bash(uv run *), Task, WebSearch, WebFetch, AskUserQuestion, Skill
 ---
 
 # Product Design Spec

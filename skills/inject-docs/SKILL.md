@@ -15,7 +15,6 @@ metadata:
   version: 1.0.0
 disable-model-invocation: true
 argument-hint: ''
-allowed-tools: Bash(npx *), Bash(node *), Bash(uv run *), Bash(cat *), Read, Grep, Glob, AskUserQuestion
 ---
 
 # Framework Documentation Injector

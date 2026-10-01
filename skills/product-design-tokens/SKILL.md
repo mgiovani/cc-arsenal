@@ -18,7 +18,6 @@ disable-model-invocation: true
 argument-hint: "<idea | repo path | existing tokens/config> [--with-design-md]"
 context: fork
 agent: general-purpose
-allowed-tools: Read, Write, Edit, Grep, Glob, Bash(git *), Bash(gh *), Bash(python *), Bash(uv run *), Bash(npx *), Task, WebSearch, WebFetch, Skill
 ---
 
 # Product Design Tokens

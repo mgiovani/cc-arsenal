@@ -30,7 +30,7 @@ The frozen rewrite rubric this repo's skills are held to. Apply it to every skil
 
 ## Frontmatter keys
 
-Only `name`, `description`, `license`, `allowed-tools`, `metadata`, `compatibility`, `disable-model-invocation`, `argument-hint`, `context`, `agent`, `hooks` are valid: anything else fails validation. List only tools the body actually uses in `allowed-tools`; an unused tool in the list is a stale claim about what the skill does.
+Only `name`, `description`, `license`, `allowed-tools`, `metadata`, `compatibility`, `disable-model-invocation`, `argument-hint`, `context`, `agent`, `hooks` are valid: anything else fails validation. Remove `allowed-tools`: in Claude Code it only pre-approves tools for the invoking turn, restricts nothing, and goes stale as the body changes.
 
 ## Generalize, don't overfit
 

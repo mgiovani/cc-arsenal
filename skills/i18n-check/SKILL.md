@@ -19,7 +19,6 @@ metadata:
   version: 1.0.1
 disable-model-invocation: false
 argument-hint: "[locale] [--scaffold]"
-allowed-tools: Read, Grep, Glob, Bash, Edit, Write, Task
 ---
 
 # i18n Check
