@@ -14,6 +14,8 @@ allowed-tools:
 - Grep
 - Glob
 - Bash(git *)
+- Bash(grep *)
+- Bash(gitleaks *)
 ---
 
 # Env Setup

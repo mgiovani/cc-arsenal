@@ -14,6 +14,7 @@ allowed-tools:
 - Grep
 - Glob
 - Bash(docker *)
+- Bash(hadolint *)
 - AskUserQuestion
 ---
 

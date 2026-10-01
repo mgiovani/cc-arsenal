@@ -12,7 +12,7 @@ metadata:
   author: mgiovani
   version: 2.0.0
 argument-hint: '[focus]'
-allowed-tools: Read, Grep, Glob, Bash(git *, find *), Task
+allowed-tools: Read, Grep, Glob, Bash(git *, find *), Bash(mktemp *), Bash(awk *), Bash(npx *), Bash(mmdc *), Task
 context: fork
 agent: general-purpose
 ---

@@ -7,7 +7,7 @@ metadata:
   version: 1.0.0
 disable-model-invocation: false
 argument-hint: "[--skip-brand] [--rewrite-history]"
-allowed-tools: Read, Write, Edit, Grep, Glob, Bash(git *), Bash(gh *), Task, Skill, TodoWrite, AskUserQuestion
+allowed-tools: Read, Write, Edit, Grep, Glob, Bash(git *), Bash(gh *), Bash(*oss-launch/scripts/history_rewrite.sh *), Task, Skill, TodoWrite, AskUserQuestion
 ---
 
 # OSS Launch

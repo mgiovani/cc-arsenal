@@ -16,7 +16,7 @@ metadata:
   version: 1.1.1
 disable-model-invocation: true
 argument-hint: '[url|pr_number|commit_sha|--all] [--scope dimension] [--mode live|static|both]'
-allowed-tools: Read, Grep, Glob, Bash(git *), Bash(gh *), Bash(agent-browser *), Task, TodoWrite
+allowed-tools: Read, Grep, Glob, Bash(git *), Bash(gh *), Bash(agent-browser *), Bash(python3 *), Task, TodoWrite
 context: fork
 agent: general-purpose
 ---
