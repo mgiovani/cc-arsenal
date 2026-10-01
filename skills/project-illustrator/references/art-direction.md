@@ -2,6 +2,15 @@
 
 Use this reference throughout the pipeline: it shapes how a prompt gets written and how options get reviewed, then guides how the final asset gets derived.
 
+## Contents
+
+- [Approved visual references](#approved-visual-references)
+- [Default visual language](#default-visual-language)
+- [Identity sheet](#identity-sheet)
+- [Composition specifications](#composition-specifications)
+- [Prompt ingredients](#prompt-ingredients)
+- [Visual review checklist](#visual-review-checklist)
+
 ## Approved visual references
 
 Inspect these images before generating when the user asks for the established CC Arsenal project-art style. Supply the most relevant references to the image generator. Use them for finish, palette discipline, proportions, spacing, and typography; do not copy one project's mascot into another.

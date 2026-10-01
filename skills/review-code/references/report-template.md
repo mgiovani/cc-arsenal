@@ -2,6 +2,10 @@
 
 Use this template when generating the review report in Phase 5. It's a shape to fill in, not literal text to copy: swap every bracketed placeholder for the real finding, and drop any section that ends up with zero findings in it.
 
+## Contents
+
+- [Report format](#report-format): Executive Summary, Severity Breakdown, Findings by Dimension, Positive Observations, Action Items by Priority, Statistics
+
 Every dimension shares one findings-block schema (severity, location, description, code, an extra field, suggested fix). Repeat that block once per finding, and repeat it for each dimension in the table below, swapping in that dimension's prefix, location fields, and extra field. Keep the extra field even when trimming everything else to stay terse.
 
 ## Report format

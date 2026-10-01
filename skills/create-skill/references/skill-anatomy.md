@@ -2,6 +2,17 @@
 
 Deep dive into skill structure, folder conventions, progressive disclosure, and composition patterns.
 
+## Contents
+
+- [Directory Structure](#directory-structure)
+- [SKILL.md (Required)](#skillmd-required)
+- [Bundled Resources (Optional)](#bundled-resources-optional)
+- [Progressive Disclosure Design Principle](#progressive-disclosure-design-principle)
+- [Skill Composition](#skill-composition)
+- [Anti-hallucination patterns](#anti-hallucination-patterns)
+- [Writing Style Guidelines](#writing-style-guidelines)
+- [Common Pitfalls](#common-pitfalls)
+
 ## Directory Structure
 
 Every skill consists of a required SKILL.md file and optional bundled resources:

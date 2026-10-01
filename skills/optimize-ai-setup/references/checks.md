@@ -2,6 +2,40 @@
 
 One `## <ID>` section per check. Look up only the IDs the collector script fired; do not read the rest of this file.
 
+## Contents
+
+- [CC-STARTUP](#cc-startup)
+- [CC-CACHE](#cc-cache)
+- [CC-REBUILD](#cc-rebuild)
+- [CC-LONGCTX](#cc-longctx)
+- [CC-MEMORY](#cc-memory)
+- [CC-SKILL-DUP](#cc-skill-dup)
+- [CC-SKILL-LISTING](#cc-skill-listing)
+- [CC-SKILL-UNUSED](#cc-skill-unused)
+- [CC-PLUGIN-UNUSED](#cc-plugin-unused)
+- [CC-MCP-UNUSED](#cc-mcp-unused)
+- [CC-TOOLSEARCH-OFF](#cc-toolsearch-off)
+- [CC-STALE-ENV](#cc-stale-env)
+- [CC-HOOK-INJECT](#cc-hook-inject)
+- [CC-MODEL-MIX](#cc-model-mix)
+- [CC-SUBAGENT-MODEL](#cc-subagent-model)
+- [CC-EFFORT](#cc-effort)
+- [CC-PROMPT-CRUFT](#cc-prompt-cruft)
+- [CC-OBSERVABILITY](#cc-observability)
+- [CX-AGENTSMD-CAP](#cx-agentsmd-cap)
+- [CX-CACHE](#cx-cache)
+- [CX-LONGCTX](#cx-longctx)
+- [CX-MCP](#cx-mcp)
+- [CX-EFFORT](#cx-effort)
+- [CX-SKILLS](#cx-skills)
+- [CU-RULES](#cu-rules)
+- [AG-RULES](#ag-rules)
+- [GM-CONTEXT](#gm-context)
+- [CD-MCP-UNUSED](#cd-mcp-unused)
+- [X-DUP-INSTR](#x-dup-instr)
+- [X-MCP-INLINE-SECRET](#x-mcp-inline-secret)
+- [HABITS](#habits)
+
 ## CC-STARTUP
 Why: Everything loaded before the first prompt is re-sent on every turn of every session and subagent. Setups with many skills, MCP connectors and hooks commonly start at tens of thousands of tokens versus an ~8K illustrative baseline in the docs. skill_listing, deferred_tools_delta (grouped by `mcp__<server>__`), mcp_instructions_delta, and hook injections are the usual contributors.
 Fix: `disable-model-invocation: true` on skills only ever called by `/name`; `skillOverrides: "name-only"`/`"off"` for unused ones; `/mcp` to disable idle servers; run `/context` to see the current breakdown.

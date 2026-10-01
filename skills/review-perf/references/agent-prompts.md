@@ -2,6 +2,16 @@
 
 Detailed grep patterns and agent prompts for each performance category. Load this reference when running Phase 3 parallel performance scanning.
 
+## Contents
+
+- [Agent 1 - N+1 Queries & Database Performance](#agent-1---n1-queries--database-performance)
+- [Agent 2 - Algorithmic Complexity & Computational Efficiency](#agent-2---algorithmic-complexity--computational-efficiency)
+- [Agent 3 - Frontend Bottlenecks (Bundle Size, Rendering, Network)](#agent-3---frontend-bottlenecks-bundle-size-rendering-network)
+- [Agent 4 - Resource Leaks (Memory, Connections, File Handles)](#agent-4---resource-leaks-memory-connections-file-handles)
+- [Performance Best Practices by Role](#performance-best-practices-by-role)
+- [Recommended Follow-up](#recommended-follow-up)
+- [Profiling Tool Recommendations](#profiling-tool-recommendations)
+
 **On a PR/commit review, `[FILES_LIST]` is the complete and only set of files any agent may grep or read** - never follow an import, a caller, or "related-looking" file outside it, even if the anti-pattern would clearly extend there. Each file in `[FILES_LIST]` carries its Phase 0 hunk ranges; every match below gets classified against them before being written up - see the "0." step added to each agent's "For each finding" list.
 
 ## Agent 1 - N+1 Queries & Database Performance

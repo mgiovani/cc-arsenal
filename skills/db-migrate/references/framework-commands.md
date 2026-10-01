@@ -2,6 +2,23 @@
 
 This reference is loaded when `db-migrate` needs framework-specific commands.
 
+## Contents
+
+- [Detection Table](#detection-table)
+- [Rollback Commands](#rollback-commands)
+- [Per-Framework Best Practices](#per-framework-best-practices)
+  - [Alembic (Python)](#alembic-python)
+  - [Prisma (Node.js)](#prisma-nodejs)
+  - [Knex (Node.js)](#knex-nodejs)
+  - [Flyway](#flyway)
+  - [Rails ActiveRecord](#rails-activerecord)
+  - [Django](#django)
+  - [Atlas](#atlas)
+  - [TypeORM](#typeorm)
+  - [SQLx (Rust)](#sqlx-rust)
+- [Naming Conventions](#naming-conventions)
+- [Common Pitfalls](#common-pitfalls)
+
 ## Detection Table
 
 | Marker File | Framework | Create Command | Status Command | Apply Command |

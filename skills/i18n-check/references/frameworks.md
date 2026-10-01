@@ -4,6 +4,15 @@ Every framework reduces to the same three sets (missing / untranslated / orphan)
 What differs is where the default locale lives and how to flatten its file format into
 `key -> value` pairs. Pick your framework below.
 
+## Contents
+
+- [next-intl](#next-intl)
+- [i18next / react-i18next](#i18next--react-i18next)
+- [react-intl](#react-intl)
+- [vue-i18n](#vue-i18n)
+- [Django gettext](#django-gettext)
+- [Rails I18n](#rails-i18n)
+
 ## next-intl
 
 - Default locale: `defaultLocale` in `i18n/routing.ts` (or `middleware.ts` / a

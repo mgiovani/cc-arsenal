@@ -6,6 +6,16 @@ screenshot + DOM/a11y snapshot captured in Phase 3) and a **static** branch
 in `both` mode, run each agent twice (once per mode) or instruct it to do both
 and label findings by mode.
 
+## Contents
+
+- [Agent 1: Visual Hierarchy + Layout & Spacing (Dimension 1)](#agent-1-visual-hierarchy--layout--spacing-dimension-1)
+- [Agent 2: Typography (Dimension 2)](#agent-2-typography-dimension-2)
+- [Agent 3: Color + Dark Mode (Dimension 3)](#agent-3-color--dark-mode-dimension-3)
+- [Agent 4: Depth/Shadows + Components & Affordance (Dimensions 4, 5)](#agent-4-depthshadows--components--affordance-dimensions-4-5)
+- [Agent 5: Feedback & States + Motion/Microinteractions (Dimensions 6, 7)](#agent-5-feedback--states--motionmicrointeractions-dimensions-6-7)
+- [Agent 6: Accessibility (Dimension 8, WCAG 2.2 AA, cross-cutting)](#agent-6-accessibility-dimension-8-wcag-22-aa-cross-cutting)
+- [Notes on grep portability](#notes-on-grep-portability)
+
 **Shared instructions for every agent (prepend to each prompt):**
 
 ```

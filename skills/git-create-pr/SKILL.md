@@ -27,6 +27,7 @@ Every PR bullet must map to an actual commit or diff hunk: drop claims you can't
 1. **Validate preconditions (run this before anything else, including branch analysis)**
    - Check working tree is clean: `git status --porcelain`. Any output means it's dirty.
      - If dirty: **stop immediately**. Show the `git status --porcelain` output and tell the user to commit or stash their changes first, e.g. `Working tree has uncommitted changes: M README.md. Commit or stash before opening a PR.` Do not proceed to step 2, and do not touch the listed files.
+   - Requires `gh` (`brew install gh`): confirm `gh auth status` succeeds, else stop and tell the user to run `gh auth login`.
    - Get current branch: `git branch --show-current`.
      - If it's `main` or `master`: **stop immediately**. Tell the user there's no feature branch to open a PR from, e.g. `Currently on main — check out a feature branch first.` Do not proceed.
    - Check commits exist: `git log origin/<base>..HEAD --oneline`. If empty, stop and say there's nothing to open a PR for.

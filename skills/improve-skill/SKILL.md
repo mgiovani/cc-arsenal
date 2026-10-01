@@ -62,11 +62,13 @@ Before editing, go through the rubric dimensions (description, body length/tone,
 
 ### 4. Validate
 
+Requires `uv` (`brew install uv`, or see https://docs.astral.sh/uv/). `<create-skill-dir>` is the installed `create-skill` skill's directory.
+
 ```bash
-uv run skills/create-skill/scripts/quick_validate.py skills/<name>
+uv run <create-skill-dir>/scripts/quick_validate.py skills/<name>
 ```
 
-Fix every error before continuing. This is create-skill's validator, reused as-is: don't fork or reimplement it here.
+Fix every error before continuing. This is the sibling create-skill skill's validator, reused as-is: don't fork or reimplement it here. If create-skill isn't installed, apply its checks inline: frontmatter parses, `name` and `description` are present and valid, and SKILL.md is under 500 lines.
 
 ### 5. Benchmark
 

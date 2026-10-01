@@ -2,6 +2,15 @@
 
 Concrete examples of well-structured memory rules for different tools and scopes.
 
+## Contents
+
+- [Example 1: Claude Code, simple code style rule](#example-1-claude-code-simple-code-style-rule)
+- [Example 2: Claude Code, path-specific rule](#example-2-claude-code-path-specific-rule)
+- [Example 3: Claude Code, user-level rule](#example-3-claude-code-user-level-rule)
+- [Example 4: AGENTS.md, cross-cutting entry](#example-4-agentsmd-cross-cutting-entry)
+- [Example 5: Cursor, path-scoped `.mdc` rule](#example-5-cursor-path-scoped-mdc-rule)
+- [Writing effective rules checklist](#writing-effective-rules-checklist)
+
 ## Example 1: Claude Code, simple code style rule
 
 Command: `/create-rule formatting "Use 2-space indentation and single quotes"`

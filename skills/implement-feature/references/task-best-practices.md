@@ -6,6 +6,14 @@ separately-blocked work). Covers the literal `TaskCreate`/`TaskUpdate` calls for
 antipatterns. For breaking down large, multi-track projects from scratch (not this
 skill's per-feature chain), use the `project-planner` skill instead.
 
+## Contents
+
+- [The 6-Task chain: literal calls](#the-6-task-chain-literal-calls)
+- [Parallel child tasks (Phase 3)](#parallel-child-tasks-phase-3)
+- [Subagent instructions template](#subagent-instructions-template)
+- [Dependency pattern diagrams](#dependency-pattern-diagrams)
+- [Common antipatterns](#common-antipatterns)
+
 ## The 6-Task chain: literal calls
 
 Create all six phase tasks up front, wire the sequential dependency chain, then mark

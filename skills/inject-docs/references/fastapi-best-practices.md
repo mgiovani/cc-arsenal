@@ -2,6 +2,23 @@
 
 This document contains the complete FastAPI best practices content to be injected into CLAUDE.md files. Based on [zhanymkanov/fastapi-best-practices](https://github.com/zhanymkanov/fastapi-best-practices).
 
+## Contents
+
+- [Full Content Template](#full-content-template)
+- [FastAPI Best Practices](#fastapi-best-practices)
+  - [Project structure](#project-structure)
+  - [Async patterns](#async-patterns)
+  - [Import discipline](#import-discipline)
+  - [Validation & dependencies](#validation--dependencies)
+  - [Response serialization](#response-serialization)
+  - [Error handling](#error-handling)
+  - [Database integration](#database-integration)
+  - [Testing](#testing)
+  - [Code quality](#code-quality)
+  - [REST conventions](#rest-conventions)
+  - [Configuration management](#configuration-management)
+  - [Summary checklist](#summary-checklist)
+
 ## Full Content Template
 
 Use this template when injecting FastAPI documentation:

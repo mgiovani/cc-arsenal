@@ -3,6 +3,36 @@
 
 Complete reference for all agent-browser commands. For quick start and common patterns, see SKILL.md.
 
+## Contents
+
+- [Navigation](#navigation)
+- [Snapshot (page analysis)](#snapshot-page-analysis)
+- [Interactions (use @refs from snapshot)](#interactions-use-refs-from-snapshot)
+- [Get Information](#get-information)
+- [Check State](#check-state)
+- [Screenshots and PDF](#screenshots-and-pdf)
+- [Video Recording](#video-recording)
+- [Wait](#wait)
+- [Mouse Control](#mouse-control)
+- [Semantic Locators (alternative to refs)](#semantic-locators-alternative-to-refs)
+- [Browser Settings](#browser-settings)
+- [Cookies and Storage](#cookies-and-storage)
+- [Network](#network)
+- [Tabs and Windows](#tabs-and-windows)
+- [Frames](#frames)
+- [Dialogs](#dialogs)
+- [JavaScript](#javascript)
+- [Authentication and Plugins](#authentication-and-plugins)
+- [State Management](#state-management)
+- [MCP Server](#mcp-server)
+- [Global Options](#global-options)
+- [Debugging](#debugging)
+- [React / Web Vitals](#react--web-vitals)
+- [Init scripts](#init-scripts)
+- [cURL cookie import](#curl-cookie-import)
+- [Network route by resource type](#network-route-by-resource-type)
+- [Environment Variables](#environment-variables)
+
 ## Navigation
 
 ```bash

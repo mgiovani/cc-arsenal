@@ -2,6 +2,14 @@
 
 This file contains examples for automating Jira operations with scripts and integrating with CI/CD pipelines.
 
+## Contents
+
+- [Bash scripting examples](#bash-scripting-examples)
+- [CI/CD integration](#cicd-integration)
+- [Data analysis](#data-analysis)
+- [Automation helpers](#automation-helpers)
+- [Best practices for scripts](#best-practices-for-scripts)
+
 This file is for automation that isn't already a curated skill: bulk mutations, CI hooks, and metrics extraction.
 
 ## Bash scripting examples

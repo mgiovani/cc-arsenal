@@ -26,7 +26,7 @@ printf 'sk_live_XXXXXXXXXXXXXXXX==>REDACTED\n' > /tmp/replacements.txt
 git filter-repo --replace-text /tmp/replacements.txt
 ```
 
-If `git filter-repo` isn't installed, say so and ask before falling back to `filter-branch` (don't silently downgrade to the slower, riskier tool).
+If `git filter-repo` isn't installed (`brew install git-filter-repo` or `uv tool install git-filter-repo`), say so and ask before falling back to `filter-branch` (don't silently downgrade to the slower, riskier tool).
 
 ## 3. Verify before pushing
 

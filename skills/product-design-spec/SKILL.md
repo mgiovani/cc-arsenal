@@ -27,7 +27,7 @@ allowed-tools: Read, Write, Edit, Grep, Glob, Bash(git *), Bash(gh *), Bash(pyth
 Turn an approved PRD into the design half of the spec (IA, flows, a screen inventory, and per-screen
 state/interaction specs), spec'ing only as much as the work warrants. This skill writes no UI code; it
 produces the design the build (`implement-feature`) then works from. Output lands under
-`docs/specs/design/`.
+`docs/specs/design/`. `<skill-dir>` below is this skill's directory.
 
 ## Input
 
@@ -135,7 +135,7 @@ Create the single file from `assets/templates/design-spec.md`. It needs:
 |---|---|
 | IA + flows | Delegate Mermaid flow/journey diagrams to the `docs-diagram` skill (via the `Skill` tool where available, otherwise apply its diagram conventions inline). |
 | Screen inventory | Every screen is a row with a Screen ID (`SCR-NN`), a purpose, and the PRD requirement ID(s) it traces to. Fill the lightweight traceability table (requirement-ID ↔ screen-ID). |
-| Critical screen specs (2-3 only) | Use `assets/templates/screen-spec.md` (~10 fields). Enumerate the applicable subset of the ~10-state shortlist (`assets/templates/state-shortlist.md`) rather than just the happy path. Each critical screen carries an accessibility/keyboard field and a responsive field, plus acceptance criteria; for AC quality apply `product-prd`'s shared requirement-hygiene rulebook inline (via the `Skill` tool where available, else read `requirement-hygiene.md` from `skills/product-prd/references/`) rather than duplicating it here. |
+| Critical screen specs (2-3 only) | Use `assets/templates/screen-spec.md` (~10 fields). Enumerate the applicable subset of the ~10-state shortlist (`assets/templates/state-shortlist.md`) rather than just the happy path. Each critical screen carries an accessibility/keyboard field and a responsive field, plus acceptance criteria; for AC quality apply `product-prd`'s shared requirement-hygiene rulebook inline (via the `Skill` tool where available, else read `requirement-hygiene.md` from `product-prd`'s `references/`) rather than duplicating it here. |
 | Personas | Only if the PRD lacks them and they change the design: `assets/templates/persona.md`, ~6 fields, evidence-labeled, no invented demographics. |
 
 Tag every unresolved gap `[NEEDS CLARIFICATION: ...]` rather than guessing, so it stays greppable.
@@ -143,7 +143,7 @@ Tag every unresolved gap `[NEEDS CLARIFICATION: ...]` rather than guessing, so i
 ### Phase: Validate & hand off
 
 ```bash
-python skills/product-design-spec/scripts/screen-states.py --dir docs/specs/design   # gate: 0 MAJOR
+python <skill-dir>/scripts/screen-states.py --dir docs/specs/design   # gate: 0 MAJOR
 ```
 
 Fix every MAJOR (a critical screen missing its empty/error/permission states, or missing an
@@ -176,7 +176,7 @@ a11y-keyboard / responsive / acceptance-criteria field, or a screen that traces 
 ## References
 
 - `references/design-workflow.md`: the four phases, thin-slice rule, tiers, the component-reuse ladder, the source-of-truth hierarchy, the ~10-state shortlist, WCAG 2.2 AA scope (delegated to review-design), Material 3 Expressive / Apple Liquid Glass
-- `product-prd`'s shared **requirement-hygiene** rulebook: RFC-2119, the vague blocklist, INVEST, GWT; referenced inline for screen-level acceptance criteria, not duplicated. Read it from `skills/product-prd/references/` (its `requirement-hygiene.md`).
+- `product-prd`'s shared **requirement-hygiene** rulebook: RFC-2119, the vague blocklist, INVEST, GWT; referenced inline for screen-level acceptance criteria, not duplicated. Read it from `product-prd`'s `references/` (its `requirement-hygiene.md`).
 - `assets/templates/`: design-spec, screen-spec, state-shortlist, persona
 - `scripts/screen-states.py`: critical-screen state/field/traceability linter
 

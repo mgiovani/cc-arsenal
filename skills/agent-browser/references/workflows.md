@@ -2,6 +2,23 @@
 
 The snapshot + refs model in depth, and video recording workflows.
 
+## Contents
+
+- [How Refs Work](#how-refs-work)
+- [The Snapshot Command](#the-snapshot-command)
+- [Using Refs](#using-refs)
+- [Ref Lifecycle](#ref-lifecycle)
+- [Best Practices](#best-practices)
+- [Ref Notation Details](#ref-notation-details)
+- [Iframes](#iframes)
+- [Troubleshooting](#troubleshooting)
+- [Basic Recording](#basic-recording)
+- [Recording Commands](#recording-commands)
+- [Use Cases](#use-cases)
+- [Best Practices](#best-practices-1)
+- [Output Format](#output-format)
+- [Limitations](#limitations)
+
 
 # Snapshot and Refs
 

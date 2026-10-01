@@ -2,6 +2,10 @@
 
 Use this template when generating the dependency report in Phase 5.
 
+## Contents
+
+- [Report Format](#report-format): Executive Summary, Severity Summary, 1. Vulnerability Findings, 2. License Compliance Findings, 3. Staleness & Upgrade Planning, 4. Prioritized Action Plan, 5. Ecosystem-Specific Notes, Tooling Recommendations, Audit Tool Output Summary
+
 ## Report Format
 
 ```markdown

@@ -14,7 +14,7 @@ Canonical URLs for skill specifications, best practices, and examples. These sho
 ### Claude Code Best Practices
 - Official Best Practices: https://platform.claude.com/docs/skills/best-practices.md
   - Extract: Progressive disclosure, writing style, tool selection, anti-hallucination patterns
-  - Fallback: If URL fails, use bundled `skills/create-skill/references/skill-anatomy.md`
+  - Fallback: If URL fails, use bundled `<skill-dir>/references/skill-anatomy.md`
 
 ## Example Sources
 
@@ -42,10 +42,10 @@ Canonical URLs for skill specifications, best practices, and examples. These sho
 
 If WebFetch fails for any URL, use bundled fallback documentation:
 
-- Frontmatter Fields: `skills/create-skill/references/frontmatter-fields.md`
+- Frontmatter Fields: `<skill-dir>/references/frontmatter-fields.md`
   - Complete list of frontmatter fields, argument substitution, and the `context: fork` pattern
 
-- Skill Anatomy: `skills/create-skill/references/skill-anatomy.md`
+- Skill Anatomy: `<skill-dir>/references/skill-anatomy.md`
   - Folder conventions and composition patterns
 
 ## Fetch Strategy

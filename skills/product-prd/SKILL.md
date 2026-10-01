@@ -25,7 +25,7 @@ allowed-tools: Read, Write, Edit, Grep, Glob, Bash(git *), Bash(gh *), Bash(pyth
 
 Author the *right* product doc for the work (sometimes a 3-line ticket, sometimes a full PRD), never more
 than the work warrants. This skill writes no application code; it produces the requirements a build
-(`implement-feature`) then works from. Output lands under `docs/specs/prd/`.
+(`implement-feature`) then works from. Output lands under `docs/specs/prd/`. `<skill-dir>` below is this skill's directory.
 
 ## Input
 
@@ -59,7 +59,7 @@ apart on content alone. Cut anything that doesn't trace back to the problem, a g
 - Track position with a single `Phase: X` line in your working notes: no per-turn counters, no resume state.
 - Cost stop-condition: if the work seems to want a large multi-file tree, stop and ask before emitting
   it. Never auto-generate a 12- or 37-file document set. That tree exists only behind
-  `scripts/scaffold.py --enterprise <tier>`, for a platform-scale program that has genuinely outgrown one file.
+  `<skill-dir>/scripts/scaffold.py --enterprise <tier>`, for a platform-scale program that has genuinely outgrown one file.
 
 ## Tiers: size AND intent
 
@@ -118,7 +118,7 @@ Being willing to talk the user out of a doc is the point of gate-zero.
    separate: a recommendation never hardens into a requirement without an approved decision. For the
    users decision, capture persona and user evidence with `product-design-spec`'s `persona.md`
    rulebook (via the `Skill` tool where available, else read `persona.md` from
-   `skills/product-design-spec/assets/templates/`) rather than duplicating persona guidance here.
+   `product-design-spec`'s `assets/templates/`) rather than duplicating persona guidance here.
 4. Alignment gate (authorization): assemble the ~1-page `alignment-summary.md` and present it:
 
    > "Alignment summary for {product}: tier = {tier}, {N} approved decisions, {M} assumptions, {K} open. Do
@@ -131,7 +131,7 @@ Being willing to talk the user out of a doc is the point of gate-zero.
 Create the single file, then fill it from the tier template:
 
 ```bash
-python skills/product-prd/scripts/scaffold.py --dir docs/specs/prd   # one PRD.md
+python <skill-dir>/scripts/scaffold.py --dir docs/specs/prd   # one PRD.md
 ```
 
 - Requirements use `assets/templates/requirement.md`: a unique ID (`PRD-<CAT>-NNN`, six categories
@@ -150,8 +150,8 @@ python skills/product-prd/scripts/scaffold.py --dir docs/specs/prd   # one PRD.m
 ### Phase: Validate & hand off
 
 ```bash
-python skills/product-prd/scripts/validate.py --dir docs/specs/prd   # gate: 0 CRITICAL, 0 MAJOR
-python skills/product-prd/scripts/hygiene.py  --dir docs/specs/prd   # advisory INVEST/EARS lints
+python <skill-dir>/scripts/validate.py --dir docs/specs/prd   # gate: 0 CRITICAL, 0 MAJOR
+python <skill-dir>/scripts/hygiene.py  --dir docs/specs/prd   # advisory INVEST/EARS lints
 ```
 
 Fix every CRITICAL/MAJOR (missing/duplicate IDs, ACs without Given/When/Then, missing Non-Goals, unresolved

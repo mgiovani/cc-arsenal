@@ -46,7 +46,7 @@ the thinking already happened in the PRD.
    Skip an ID that already has an issue and report it as skipped. Never duplicate it,
    never update it silently.
 4. Create one issue per remaining requirement. Prefer `bd`, which records dependencies
-   as a graph, and fall back to `gh` when `bd` isn't available:
+   as a graph, and fall back to `gh` when `bd` isn't available (`brew install beads`, then `bd init`):
    ```bash
    bd create "PRD-FR-001: <requirement title>" -d "$(cat body.md)" -p 2
    bd dep add <child-id> <parent-id>                  # child needs parent first

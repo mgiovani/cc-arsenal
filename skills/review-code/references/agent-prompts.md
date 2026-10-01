@@ -2,6 +2,16 @@
 
 Detailed grep patterns and agent prompts for each review dimension. Load this reference when running Phase 3 parallel specialist review.
 
+## Contents
+
+- [Agent 1 - Correctness & Logic](#agent-1---correctness--logic)
+- [Agent 2 - Performance](#agent-2---performance)
+- [Agent 3 - Code Style & Patterns](#agent-3---code-style--patterns)
+- [Agent 4 - Test Coverage Gaps](#agent-4---test-coverage-gaps)
+- [Agent 5 - Error Handling & Edge Cases](#agent-5---error-handling--edge-cases)
+- [Agent 6 - Simplicity & Over-engineering](#agent-6---simplicity--over-engineering)
+- [Review Best Practices by Audience](#review-best-practices-by-audience)
+
 ## Agent 1 - Correctness & Logic
 
 ```

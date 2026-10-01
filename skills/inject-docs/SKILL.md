@@ -65,7 +65,7 @@ Before running anything, auto-detect the framework and verify prerequisites:
 
 #### Option A: Next.js Projects
 
-Execute the Vercel codemod with the `--output` flag, in the project root:
+Execute the Vercel codemod with the `--output` flag, in the project root. Requires Node.js (`npx` ships with it; install via `fnm install --lts` or `brew install node`):
 
 ```bash
 npx @next/codemod@canary agents-md --output <TARGET_FILE>
@@ -88,7 +88,7 @@ Where `<TARGET_FILE>` is the file detected in Phase 0 (e.g., `CLAUDE.md` or `AGE
 
 #### Option B: FastAPI Projects
 
-Run the bundled injection script using this skill's own absolute directory path, not `$(dirname "$0")`. That trick resolves against the *shell's* path when run through the Bash tool, not this SKILL.md's location, so it silently points at the wrong (or a nonexistent) script. Use the directory this SKILL.md was loaded from instead:
+Requires `uv` (`curl -LsSf https://astral.sh/uv/install.sh | sh` or `brew install uv`). Run the bundled injection script using this skill's own absolute directory path, not `$(dirname "$0")`. That trick resolves against the *shell's* path when run through the Bash tool, not this SKILL.md's location, so it silently points at the wrong (or a nonexistent) script. Use the directory this SKILL.md was loaded from instead:
 
 ```bash
 uv run <absolute-path-to-this-skill-dir>/scripts/inject_fastapi_docs.py

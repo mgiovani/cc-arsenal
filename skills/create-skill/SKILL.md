@@ -26,6 +26,8 @@ allowed-tools:
 
 Create new agent skills with specification-driven generation, backed by live documentation fetching and interactive planning.
 
+`<skill-dir>` below is this skill's directory.
+
 ## Writing Philosophy
 
 Apply these when drafting the generated skill's description and body in Phase 4: they make the difference between a skill that works once vs. one that works reliably across varied inputs:
@@ -209,10 +211,12 @@ Eval-design rules that keep evals scoreable in a non-interactive run:
 
 ### Phase 5: Validate and Package
 
+Requires `uv` (`brew install uv`, or see https://docs.astral.sh/uv/).
+
 Run the bundled validator to catch common errors: it catches frontmatter key typos that silently break skill loading, descriptions that are too short or too long, and broken internal references:
 
 ```bash
-uv run skills/create-skill/scripts/quick_validate.py [SKILL_PATH]
+uv run <skill-dir>/scripts/quick_validate.py [SKILL_PATH]
 ```
 
 The validator checks:
@@ -228,7 +232,7 @@ Fix all issues before proceeding.
 
 Optionally, package for distribution:
 ```bash
-uv run skills/create-skill/scripts/package_skill.py [SKILL_PATH]
+uv run <skill-dir>/scripts/package_skill.py [SKILL_PATH]
 ```
 
 **Next steps:**
@@ -311,8 +315,8 @@ For each eval_id in evals/evals.json:
 
 Alternatively, use the bundled eval runner scripts:
 ```bash
-uv run skills/create-skill/scripts/run_eval.py [SKILL_PATH]
-uv run skills/create-skill/scripts/generate_report.py [SKILL_PATH]
+uv run <skill-dir>/scripts/run_eval.py [SKILL_PATH]
+uv run <skill-dir>/scripts/generate_report.py [SKILL_PATH]
 ```
 
 **Improvement loop**: if score < 4/5 or assertions fail:
@@ -328,12 +332,12 @@ For model-invoked skills, the description is the trigger mechanism. Optimizing i
 
 Use the description optimizer: it generates should/should-not-trigger queries, iterates the description against a train split via `claude -p`, then validates on a held-out test split to avoid overfitting (see the script's own docstring for the full algorithm):
 ```bash
-uv run skills/create-skill/scripts/improve_description.py [SKILL_PATH]
+uv run <skill-dir>/scripts/improve_description.py [SKILL_PATH]
 ```
 
 Then package for distribution:
 ```bash
-uv run skills/create-skill/scripts/package_skill.py [SKILL_PATH]
+uv run <skill-dir>/scripts/package_skill.py [SKILL_PATH]
 ```
 
 ## Eval Reference Files

@@ -43,6 +43,7 @@ If the intent is ambiguous (e.g. "ship the settings fix"), ask one question: is 
 
 These apply to every flow. They exist because `main` is live production and a mistake here is user-visible, so the cost of a shortcut is real.
 
+- **Requires `gh`** (`brew install gh`) for PRs, merges, and releases. Confirm `gh auth status` succeeds before the first PR; if not, stop and tell the user to run `gh auth login`.
 - **`main` is a deploy button.** Never merge to `main` while any CI check is not green. The full Definition-of-Done gate runs on a PR to `main`; wait for all of it. Poll CI every few minutes rather than tight-looping, to keep token cost sane. No CI pipeline configured on the repo? Skip the wait-for-green step and say so explicitly before merging.
 - **Always update `CHANGELOG.md`** during a release and a hotfix (never per-feature; the changelog is assembled at ship time). See `references/changelog.md` for the format.
 - **Conventional Commits.** Follow the [Conventional Commits](https://www.conventionalcommits.org/) spec. Keep commit messages, PR titles, PR bodies, the changelog, and release notes clean and professional.

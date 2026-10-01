@@ -49,6 +49,7 @@ Track progress with `TodoWrite` (one line per step above) so the user sees where
 
 - `git branch --show-current`: refuse to run on `main`/`master`/`dev` directly (nothing to ship from a target branch).
 - `git status --porcelain`: if dirty, use `AskUserQuestion` (or ask in plain text if that tool isn't available) whether to include the changes or stop.
+- Requires `gh` (`brew install gh`): confirm `gh auth status` succeeds, else stop and tell the user to run `gh auth login`.
 - Determine base branch: use `--base` if given, else `gh repo view --json defaultBranchRef -q .defaultBranchRef.name`, else `main`.
 - `git log <base>..HEAD --oneline`: if empty, there's nothing to ship; stop and say so.
 

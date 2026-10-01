@@ -3,6 +3,14 @@
 Every AI coding tool has its own place for standing project instructions. Detect which
 one the project uses (see SKILL.md step 2) before writing anything.
 
+## Contents
+
+- [Claude Code](#claude-code)
+- [AGENTS.md-style tools (Codex, Cursor, Copilot, Gemini CLI, OpenCode, ...)](#agentsmd-style-tools-codex-cursor-copilot-gemini-cli-opencode-)
+- [Cursor native rules](#cursor-native-rules)
+- [Glob pattern reference (Claude Code `paths` / Cursor `globs`)](#glob-pattern-reference-claude-code-paths--cursor-globs)
+- [Category organization (Claude Code `.claude/rules/`, Cursor `.cursor/rules/`)](#category-organization-claude-code-clauderules-cursor-cursorrules)
+
 ## Claude Code
 
 Loads memory from multiple locations, most specific wins:

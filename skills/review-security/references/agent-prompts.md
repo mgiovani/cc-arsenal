@@ -2,6 +2,13 @@
 
 Detailed grep patterns and agent prompts for each OWASP vulnerability category. Load this reference when running Phase 3 parallel vulnerability scanning.
 
+## Contents
+
+- Scanning agents: [Access Control & Authentication](#agent-1---access-control--authentication-a01-a07), [Configuration & Design](#agent-2---configuration--design-a02-a06), [Injection & Data Integrity](#agent-3---injection--data-integrity-a05-a08), [Cryptography & Supply Chain](#agent-4---cryptography--supply-chain-a04-a03), [Bytecode & Compiled Code Security](#agent-5---bytecode--compiled-code-security), [Logging, Monitoring & Exception Handling](#agent-6---logging-monitoring--exception-handling-a09-a10)
+- [Security Best Practices by Role](#security-best-practices-by-role)
+- [Recommended Follow-up](#recommended-follow-up)
+- [Tool Recommendations](#tool-recommendations)
+
 ## Agent 1 - Access Control & Authentication (A01, A07)
 
 ```

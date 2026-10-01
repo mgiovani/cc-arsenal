@@ -2,6 +2,17 @@
 
 Detailed bash verification commands and patterns for documentation quality checking.
 
+## Contents
+
+- [Section-level verification (single document)](#section-level-verification-single-document)
+- [Missing documentation detection](#missing-documentation-detection)
+- [Stale documentation detection](#stale-documentation-detection)
+- [Freshness check commands](#freshness-check-commands)
+- [Placeholder check](#placeholder-check)
+- [Broken links check](#broken-links-check)
+- [Hallucination report format](#hallucination-report-format)
+- [Inferring categories from what's present](#inferring-categories-from-whats-present)
+
 ## Section-level verification (single document)
 
 When checking ONE document, spawn subagents for each logical section:

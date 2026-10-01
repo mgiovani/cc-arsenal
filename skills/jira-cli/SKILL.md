@@ -12,6 +12,8 @@ Command reference and scripting patterns for `jira-cli`, the command-line tool f
 
 ## Prerequisites
 
+Install with `brew install ankitpokhrel/jira-cli/jira-cli`, then run `jira init` once to authenticate.
+
 These references assume `jira` on `PATH` is [ankitpokhrel/jira-cli](https://github.com/ankitpokhrel/jira-cli): a different tool can claim the same binary name. Before trusting any command below, run `jira version` once per session and confirm the output looks like this project (e.g. `jira version 1.x.x` with a `Homepage: https://github.com/ankitpokhrel/jira-cli` line). If it doesn't, stop and check `which jira` instead of guessing at flags.
 
 For AI use, always add `--plain` (and usually `--no-headers`) to get parseable text output instead of the interactive table.

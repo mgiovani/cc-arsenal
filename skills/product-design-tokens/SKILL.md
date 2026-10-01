@@ -25,7 +25,7 @@ allowed-tools: Read, Write, Edit, Grep, Glob, Bash(git *), Bash(gh *), Bash(pyth
 
 Produce the *token contract* a themed UI is built from: a valid, WCAG-checked DTCG 2025.10 JSON
 file that stays the single source of truth. This skill writes no application code and never
-draws assets; it authors and validates the tokens. Output lands under `docs/specs/design/tokens/`.
+draws assets; it authors and validates the tokens. Output lands under `docs/specs/design/tokens/`. `<skill-dir>` below is this skill's directory.
 
 ## Input
 
@@ -87,7 +87,7 @@ read its screen inventory so the semantic tokens cover what the screens actually
 Create the single canonical file from the skeleton and fill it:
 
 ```bash
-cp skills/product-design-tokens/assets/templates/tokens.dtcg.json docs/specs/design/tokens/tokens.dtcg.json
+cp <skill-dir>/assets/templates/tokens.dtcg.json docs/specs/design/tokens/tokens.dtcg.json
 ```
 
 - DTCG 2025.10 shape, full detail in `references/standards.md`: a token is any object with a
@@ -108,8 +108,8 @@ cp skills/product-design-tokens/assets/templates/tokens.dtcg.json docs/specs/des
 ### Phase: Validate
 
 ```bash
-python skills/product-design-tokens/scripts/dtcg_validate.py --tokens docs/specs/design/tokens/tokens.dtcg.json
-python skills/product-design-tokens/scripts/contrast.py       --tokens docs/specs/design/tokens/tokens.dtcg.json
+python <skill-dir>/scripts/dtcg_validate.py --tokens docs/specs/design/tokens/tokens.dtcg.json
+python <skill-dir>/scripts/contrast.py       --tokens docs/specs/design/tokens/tokens.dtcg.json
 ```
 
 `dtcg_validate.py` must print VALID (every token has a resolvable `$type`, every alias resolves, no

@@ -2,6 +2,16 @@
 
 Framework-specific patterns for test generation. Use these as reference when writing tests to match idiomatic patterns for each framework.
 
+## Contents
+
+- [Python: pytest](#python-pytest)
+- [JavaScript/TypeScript: Vitest](#javascripttypescript-vitest)
+- [JavaScript: Jest](#javascript-jest)
+- [Go: testing](#go-testing)
+- [Rust: cargo test](#rust-cargo-test)
+- [Common anti-patterns to avoid](#common-anti-patterns-to-avoid)
+- [Edge cases to always test](#edge-cases-to-always-test)
+
 ## Python: pytest
 
 ### File structure & naming

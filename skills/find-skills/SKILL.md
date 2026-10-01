@@ -29,6 +29,8 @@ If a source can't be verified (repo doesn't exist, network/auth error), report t
 
 ## Quick Start
 
+Requires Node.js for `npx` (`fnm install --lts` or `brew install node`).
+
 ### 1. Find Skills
 
 ```bash
