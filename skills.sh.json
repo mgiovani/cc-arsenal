@@ -18,9 +18,10 @@
     },
     {
       "title": "Art & Images",
-      "description": "Mascots and logos, plus hero images and social cards for a project.",
+      "description": "Mascots and logos, hero images and social cards, plus motion videos rendered from code.",
       "skills": [
         "codex-imagegen",
+        "motion-studio",
         "project-illustrator"
       ]
     },

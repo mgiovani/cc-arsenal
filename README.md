@@ -8,7 +8,7 @@
 [![Agent Skills compatible](https://img.shields.io/badge/Agent%20Skills-compatible-blueviolet.svg)](https://agentskills.io)
 [![Code style: ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
-50 production-grade [Agent Skills](https://agentskills.io) for real development workflows: code review, shipping, docs, git, testing, multi-agent orchestration, and more. Each is a battle-tested workflow you invoke in plain language. Works with Claude Code, Codex, Cursor, Gemini CLI, and any Agent-Skills-compatible agent.
+51 production-grade [Agent Skills](https://agentskills.io) for real development workflows: code review, shipping, docs, git, testing, multi-agent orchestration, and more. Each is a battle-tested workflow you invoke in plain language. Works with Claude Code, Codex, Cursor, Gemini CLI, and any Agent-Skills-compatible agent.
 
 ## See it work
 
@@ -41,7 +41,7 @@ make -C integrations/claude-code/claude-hi standard # Schedule 5-hour windows
 <!-- gen:skills-readme start -->
 <!-- generated: edit skills.sh.json or SKILL.md frontmatter, then run `make docs` -->
 
-**50 Skills** organized by category:
+**51 Skills** organized by category:
 
 <details>
 <summary><b>AI Workflow Tools</b> (9): Tools that work on your AI agent itself, not on your codebase.</summary>
@@ -61,11 +61,12 @@ make -C integrations/claude-code/claude-hi standard # Schedule 5-hour windows
 </details>
 
 <details>
-<summary><b>Art & Images</b> (2): Mascots and logos, plus hero images and social cards for a project.</summary>
+<summary><b>Art & Images</b> (3): Mascots and logos, hero images and social cards, plus motion videos rendered from code.</summary>
 
 | Skill | What it does |
 |---|---|
 | [`codex-imagegen`](skills/codex-imagegen/) | Polished raster art (logos, mascots, heroes, sprites, mockups) via Codex CLI's $imagegen |
+| [`motion-studio`](skills/motion-studio/) | Motion videos rendered from code: seek(t) engine, springs, beat-synced sound, critique loop, styles, HyperFrames and Remotion |
 | [`project-illustrator`](skills/project-illustrator/) | A cohesive art system for a project: mascot, heroes, social cards and thumbnails with one character |
 
 </details>

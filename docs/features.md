@@ -7,7 +7,7 @@ Skills are the single component type in this repository. Each skill lives in `sk
 <!-- gen:skills-features start -->
 <!-- generated: edit skills.sh.json or SKILL.md frontmatter, then run `make docs` -->
 
-## Skills (50 total)
+## Skills (51 total)
 
 Every skill is callable as `/<name>` in Claude Code. **(auto)** marks skills that *also* trigger automatically when Claude detects a relevant task; **(manual)** marks slash-only skills (`disable-model-invocation: true`).
 
@@ -68,15 +68,18 @@ Re-explains the previous message in plain, simplified English (ASD-STE100 style)
 - Rewrites what was already said
 - Adds no new work or research, and writes no new code
 
-### Art & Images (2 skills)
+### Art & Images (3 skills)
 
-Mascots and logos, plus hero images and social cards for a project.
+Mascots and logos, hero images and social cards, plus motion videos rendered from code.
 
 `/codex-imagegen` (auto)
 The default image generator: polished raster art (logos, mascots, heroes, icons, sprites, mockups) via Codex CLI's `$imagegen`.
 - Codex `gpt-6-sol` + GPT Image 2.5 Sunburst `gpt-image-2.5-sunburst`
 - Single-quoted invocation, effort budgeting, explicit save paths
 - Chroma-key transparency handling (no-despill on pink), pixel-level QC
+
+`/motion-studio` (auto)
+Motion videos rendered from code: seek(t) engine, springs, beat-synced sound, critique loop, styles, HyperFrames and Remotion
 
 `/project-illustrator` (auto)
 Cohesive visual identity for a software project across mascots, heroes, social cards, thumbnails, and supporting illustrations.
@@ -396,7 +399,7 @@ make -C integrations/claude-code/claude-hi standard  # Quick 9am/2pm/7pm schedul
 
 ### Plugin Marketplace (Claude Code)
 - **Installation**: `/plugin install cc-arsenal@cc-arsenal-marketplace`
-- **Skills**: All 50 skills, or a focused variant (`cc-arsenal-dev`, `cc-arsenal-product`, `cc-arsenal-review`, `cc-arsenal-docs`, `cc-arsenal-git`, `cc-arsenal-jira`, `cc-arsenal-skills`)
+- **Skills**: All 51 skills, or a focused variant (`cc-arsenal-dev`, `cc-arsenal-product`, `cc-arsenal-review`, `cc-arsenal-docs`, `cc-arsenal-git`, `cc-arsenal-jira`, `cc-arsenal-skills`)
 - See [Getting Started](getting-started.md) for the full variant list
 
 ### Symlink Install (Contributors)

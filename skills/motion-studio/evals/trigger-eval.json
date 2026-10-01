@@ -1,0 +1,17 @@
+[
+  {"query": "make a 20 second launch video for my SaaS from its URL, rendered in code", "should_trigger": true},
+  {"query": "have Claude make a showreel style motion graphics video that shows off what it can do", "should_trigger": true},
+  {"query": "build a UI morph product film where one button turns into a slider, a chart and a command palette, looping", "should_trigger": true},
+  {"query": "animate Clawd the Claude mascot for a 30s cartoon about debugging", "should_trigger": true},
+  {"query": "set up a seek(t) canvas renderer with playwright and ffmpeg for animations", "should_trigger": true},
+  {"query": "turn this song into a music video made entirely in JavaScript", "should_trigger": true},
+  {"query": "use hyperframes to make a 45 second pitch video with kinetic captions", "should_trigger": true},
+  {"query": "my code-generated motion video looks generic, centered text on a gradient. how do I make it look designed?", "should_trigger": true},
+  {"query": "cut my podcast recording in Premiere and add lower thirds", "should_trigger": false},
+  {"query": "generate a 5 second clip of a dog surfing with Veo", "should_trigger": false},
+  {"query": "add a CSS hover animation to the pricing button on my website", "should_trigger": false},
+  {"query": "record a GIF of my terminal running the CLI for the README", "should_trigger": false},
+  {"query": "design a logo and mascot for my project", "should_trigger": false},
+  {"query": "make a slide deck about our Q3 roadmap", "should_trigger": false},
+  {"query": "fix the React Native screen transition animation that stutters on Android", "should_trigger": false}
+]

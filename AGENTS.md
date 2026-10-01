@@ -4,11 +4,11 @@ This is the canonical, tool-agnostic guidance file for **cc-arsenal**. Any AGENT
 
 ## Repository Architecture
 
-cc-arsenal is a collection of **50 Agent Skills** ([agentskills.io](https://agentskills.io) open standard) for development workflow automation. `skills/` is the single canonical tier: every skill lives there once, written tool-neutral, and any tool that speaks the Agent Skills format can load it directly.
+cc-arsenal is a collection of **51 Agent Skills** ([agentskills.io](https://agentskills.io) open standard) for development workflow automation. `skills/` is the single canonical tier: every skill lives there once, written tool-neutral, and any tool that speaks the Agent Skills format can load it directly.
 
 ### Core Components
 
-- **Skills** (`skills/`): 50 skills covering development, code review, documentation, git/GitHub, jira, browser automation, project planning, product specs, multi-agent orchestration, open-source launch prep, and skill discovery/creation/improvement
+- **Skills** (`skills/`): 51 skills covering development, code review, documentation, git/GitHub, jira, browser automation, project planning, product specs, multi-agent orchestration, open-source launch prep, and skill discovery/creation/improvement
 - **Scripts** (`scripts/`): Python utilities for installation and configuration, plus code generation (Claude-Code-specific; see `CLAUDE.md`)
 - **Integrations** (`integrations/`): agent-CLI-specific tooling that doesn't fit the tool-agnostic `skills/` tier, one subdirectory per agent CLI. Today that's `integrations/claude-code/`, holding the statusline and the `claude-hi` session scheduler; future agent CLIs (Codex, Gemini CLI, ...) get sibling directories alongside it as their own tooling needs arise.
 
@@ -44,7 +44,7 @@ Do not add `uses:`/`composes:` frontmatter and do not route composition through 
 <!-- gen:skills-agents start -->
 <!-- generated: edit skills.sh.json or SKILL.md frontmatter, then run `make docs` -->
 
-## Available Skills (50 total)
+## Available Skills (51 total)
 
 All skills use progressive disclosure (SKILL.md + optional references/scripts/assets directories).
 
@@ -62,11 +62,12 @@ Tools that work on your AI agent itself, not on your codebase.
 - `render`: Turn any output into an interactive HTML page you mark up in place, then read the marks back
 - `wtf`: Re-explain your own previous message in plain, simplified English (ASD-STE100 style) when the user didn't understand it
 
-### Art & Images (2 skills)
+### Art & Images (3 skills)
 
-Mascots and logos, plus hero images and social cards for a project.
+Mascots and logos, hero images and social cards, plus motion videos rendered from code.
 
 - `codex-imagegen`: Polished raster art (logos, mascots, heroes, sprites, mockups) via Codex CLI's $imagegen
+- `motion-studio`: Motion videos rendered from code: seek(t) engine, springs, beat-synced sound, critique loop, styles, HyperFrames and Remotion
 - `project-illustrator`: A cohesive art system for a project: mascot, heroes, social cards and thumbnails with one character
 
 ### Build (5 skills)
@@ -230,7 +231,7 @@ See `CONTRIBUTING.md` for the full development setup.
 ## File Organization
 ```
 cc-arsenal/
-├── skills/          # All 50 skills (canonical, tool-agnostic)
+├── skills/          # All 51 skills (canonical, tool-agnostic)
 │   └── <name>/          # SKILL.md + optional references/, scripts/, assets/, evals/
 ├── scripts/         # Installation and utilities (see CLAUDE.md for Claude-Code-specific ones)
 └── integrations/    # Agent-CLI-specific tooling, one subdirectory per agent CLI

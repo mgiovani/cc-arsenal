@@ -1,0 +1,68 @@
+{
+  "skill": "motion-studio",
+  "evals": [
+    {
+      "id": "render-pipeline-settings",
+      "prompt": "I want Claude Code to render a 15 second vertical 1080x1920 motion graphics video at 60 fps from a single canvas page, no framework. How should the page and the render script work, and what encode and motion blur settings should I use?",
+      "assertions": [
+        "The page exposes a window.seek(t) (or draw(t)) function that paints the frame for time t, with no timers, CSS transitions or requestAnimationFrame during the render",
+        "Randomness is seeded (e.g. mulberry32), never Math.random",
+        "Encodes with libx264 / H.264, yuv420p pixel format, CRF 16",
+        "Motion blur by rendering 4 subframes per frame and blending them (ffmpeg tmix)",
+        "Waits for fonts to load (document.fonts.ready) before capturing canvas text"
+      ]
+    },
+    {
+      "id": "spring-retarget",
+      "prompt": "In my code-rendered UI morph video the cursor and the container width change target several times and the motion jumps whenever I restart the spring. The tab indicator also looks stiff. How do I fix this while keeping the render deterministic?",
+      "assertions": [
+        "Do not restart the spring: sum one closed-form spring per target change, each starting at its own time (a track() over [time, value] keys)",
+        "Keeps the value a pure function of time, so any frame can be rendered without simulating earlier frames",
+        "Tab indicator stretches by putting its leading and trailing edges on different springs, the leading edge stiffer",
+        "For a loop, the last frame must equal the first, including cursor position and velocity"
+      ]
+    },
+    {
+      "id": "clawd-mascot-rules",
+      "prompt": "Make me a 30 second cartoon starring Clawd, the Claude mascot, finding a lost sandwich. Before you write code, what rules will you follow for how it looks and moves?",
+      "assertions": [
+        "No text: no captions, titles, signs or speech-bubble words; reactions are painted marks such as !, ?, sweat or hearts",
+        "Everything is flat 2D painted with p5.brush (paint()/inkLine()); never project 3D or rotate in perspective, turns use drawn key views",
+        "Every seam gets a transition (brush wipe, iris, match cut, cut on action and so on); never start on a hard frame or just stop",
+        "Clawd is big: about 20-28 u in a medium shot, 40-70 in close-ups",
+        "Writes a storyboard before any scene code"
+      ]
+    },
+    {
+      "id": "critique-loop",
+      "prompt": "My Opus-made launch video looks a bit mid. What exact steps should Claude run to review and improve the render before I post it?",
+      "assertions": [
+        "Renders a contact sheet with ffmpeg (fps=2, tiled 6x5) plus a strip around fast actions and a phone-size test at 360 px wide",
+        "Scores each review 1-10 on criteria such as hook in the first 2 s, readability at phone size, motion quality, variety, brand accuracy and sound sync",
+        "Fixes the 3 worst problems and repeats until every score is 8 or higher",
+        "Hunts named failures: overlapping text during swaps, sliding instead of easing, corner labels and frame borders, centered-on-gradient shots, blurry scaled text, a dead beat, a stutter at the loop seam",
+        "Re-renders only the affected seconds after fixes"
+      ]
+    },
+    {
+      "id": "hyperframes-or-remotion",
+      "prompt": "Should I use HyperFrames or Remotion for agent-made product videos, and if HyperFrames, how do I set it up for Claude Code?",
+      "assertions": [
+        "Installs the HyperFrames agent skills with npx skills add heygen-com/hyperframes (choosing Core Skills), or npx hyperframes skills update for non-interactive/CI",
+        "Starts a fresh agent chat after install and asks it to use /hyperframes",
+        "Remotion fits teams already writing React (components, design system, typed inputs); HyperFrames needs no React or build step and is Apache 2.0",
+        "Notes Opus defaults to a zero-dependency index.html + Playwright + ffmpeg route and skips frameworks unless explicitly asked"
+      ]
+    },
+    {
+      "id": "sound-design",
+      "prompt": "My code-rendered product reel has no music track supplied. How should the audio be made and synced to the picture?",
+      "assertions": [
+        "Synthesizes the score and SFX in code on the same timeline as the picture",
+        "When a track is supplied, measures it with librosa into a beats.json with bpm, beats, downbeats (every 4th beat) and onset hits",
+        "State changes land on beats, big moments on downbeats, SFX on hits",
+        "Targets a loudness of -14 LUFS for the final mix"
+      ]
+    }
+  ]
+}
