@@ -10,6 +10,7 @@ Deep dive into skill structure, folder conventions, progressive disclosure, and 
 - [Progressive Disclosure Design Principle](#progressive-disclosure-design-principle)
 - [Skill Composition](#skill-composition)
 - [Anti-hallucination patterns](#anti-hallucination-patterns)
+- [Structure and flow](#structure-and-flow)
 - [Writing Style Guidelines](#writing-style-guidelines)
 - [Common Pitfalls](#common-pitfalls)
 
@@ -230,6 +231,16 @@ Tool verification:
 - Verify tool availability before including in workflow
 - Don't guess at tool syntax - reference documentation
 ```
+
+## Structure and flow
+
+- References over 100 lines start with a `## Contents` section of anchor links to their H2s.
+- References sit one level deep from SKILL.md: link each directly, no reference-to-reference chains.
+- Degrees of freedom: fragile, exact operations become a script the skill runs; flexible judgment is written as goals and criteria, not a snippet to paste.
+- Order-dependent flows get a copyable fenced `- [ ]` checklist with gates ("if X fails, return to step N", "stop and report"); replace the equivalent prose ordering instead of repeating it.
+- Validation is a loop: exact command, fix, re-validate, capped (e.g. 3 rounds, then report what still fails).
+- Put the install line next to the first use of each external tool.
+- Test the skill on several models (e.g. Haiku, Sonnet, Opus); guidance enough for one may not be for another.
 
 ## Writing Style Guidelines
 

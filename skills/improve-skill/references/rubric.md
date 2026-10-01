@@ -19,6 +19,15 @@ The frozen rewrite rubric this repo's skills are held to. Apply it to every skil
 - **Portability**: the body itself must be tool-neutral: usable by any agent that can read files and run shell commands. Claude-Code-only mechanics (subagent/Task orchestration, parallel workflows, `AskUserQuestion`, plan-mode gates) are enhancements layered on top, each with an explicit sequential/inline fallback described in the body itself, not assumed. A reader on a tool with no subagent primitive should be able to follow the same workflow one step at a time and reach the same result, just slower.
 - **Destructive/irreversible steps stop and ask first**, for any skill that mutates user state: installs, file edits beyond the skill's own declared scope, history rewrites, deploys, deletions. The user's original request is not itself the confirmation for the specific destructive action; a generic "improve this" or "clean this up" does not authorize a force-push or an unreviewed delete.
 
+## Structure and flow
+
+- Reference contents and depth: a reference over 100 lines starts with a `## Contents` section of anchor links to its H2s. References sit one level deep from SKILL.md: link each directly, never reference-to-reference chains.
+- Degrees of freedom: fragile, exact operations (byte-exact diffs, history rewrites, contrast math) become a script the skill runs; flexible judgment (what a Dockerfile or pipeline should achieve) is stated as goals and criteria, not a snippet to paste.
+- Checklists and gates: an order-dependent flow gets a copyable fenced checklist of `- [ ]` steps with explicit gates ("if X fails, return to step N", "stop and report"). Replace the equivalent prose ordering rather than duplicating it.
+- Validation loops: validate, fix, re-validate, with the exact command and a cap (e.g. 3 rounds, then report what still fails).
+- Install lines: put the install command next to the first use of each external tool.
+- Multi-model testing: run the skill on several models (e.g. Haiku, Sonnet, Opus); guidance that is enough for one may not be for another.
+
 ## Frontmatter keys
 
 Only `name`, `description`, `license`, `allowed-tools`, `metadata`, `compatibility`, `disable-model-invocation`, `argument-hint`, `context`, `agent`, `hooks` are valid: anything else fails validation. List only tools the body actually uses in `allowed-tools`; an unused tool in the list is a stale claim about what the skill does.
