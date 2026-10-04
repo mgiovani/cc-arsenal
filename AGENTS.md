@@ -4,11 +4,11 @@ This is the canonical, tool-agnostic guidance file for **cc-arsenal**. Any AGENT
 
 ## Repository Architecture
 
-cc-arsenal is a collection of **51 Agent Skills** ([agentskills.io](https://agentskills.io) open standard) for development workflow automation. `skills/` is the single canonical tier: every skill lives there once, written tool-neutral, and any tool that speaks the Agent Skills format can load it directly.
+cc-arsenal is a collection of **52 Agent Skills** ([agentskills.io](https://agentskills.io) open standard) for development workflow automation. `skills/` is the single canonical tier: every skill lives there once, written tool-neutral, and any tool that speaks the Agent Skills format can load it directly.
 
 ### Core Components
 
-- **Skills** (`skills/`): 51 skills covering development, code review, documentation, git/GitHub, jira, browser automation, project planning, product specs, multi-agent orchestration, open-source launch prep, and skill discovery/creation/improvement
+- **Skills** (`skills/`): 52 skills covering development, code review, documentation, git/GitHub, jira, browser automation, project planning, product specs, multi-agent orchestration, open-source launch prep, and skill discovery/creation/improvement
 - **Scripts** (`scripts/`): Python utilities for installation and configuration, plus code generation (Claude-Code-specific; see `CLAUDE.md`)
 - **Integrations** (`integrations/`): agent-CLI-specific tooling that doesn't fit the tool-agnostic `skills/` tier, one subdirectory per agent CLI. Today that's `integrations/claude-code/`, holding the statusline and the `claude-hi` session scheduler; future agent CLIs (Codex, Gemini CLI, ...) get sibling directories alongside it as their own tooling needs arise.
 
@@ -45,7 +45,7 @@ Do not add `uses:`/`composes:` frontmatter and do not route composition through 
 <!-- gen:skills-agents start -->
 <!-- generated: edit skills.sh.json or SKILL.md frontmatter, then run `make docs` -->
 
-## Available Skills (51 total)
+## Available Skills (52 total)
 
 All skills use progressive disclosure (SKILL.md + optional references/scripts/assets directories).
 
@@ -148,7 +148,7 @@ Containers and environment variables, database migrations and CI pipelines, as w
 - `env-setup`: Scan a codebase for env var usage, sync .env.example, and detect leaked secrets
 - `inject-docs`: Inject compressed framework-specific best practices and docs into CLAUDE.md/AGENTS.md
 
-### Review (7 skills)
+### Review (8 skills)
 
 Code and plans, security and dependencies, performance and visual regressions, and translations.
 
@@ -158,6 +158,7 @@ Code and plans, security and dependencies, performance and visual regressions, a
 - `review-perf`: Deep-dive performance audit of queries, algorithmic complexity, and resource leaks
 - `review-plan`: Adversarially review an implementation plan against the actual repository before any code is written
 - `review-security`: OWASP Top 10 2025 security analysis with parallel scanning agents where available
+- `stopslop`: Install stopslop, run a full all-rules AI-slop report, and render it as a markable page
 - `vrt-check`: Runs the project's visual regression testing workflow, whatever tooling the repo actually uses
 <!-- gen:skills-agents end -->
 
@@ -232,7 +233,7 @@ See `CONTRIBUTING.md` for the full development setup.
 ## File Organization
 ```
 cc-arsenal/
-├── skills/          # All 51 skills (canonical, tool-agnostic)
+├── skills/          # All 52 skills (canonical, tool-agnostic)
 │   └── <name>/          # SKILL.md + optional references/, scripts/, assets/, evals/
 ├── scripts/         # Installation and utilities (see CLAUDE.md for Claude-Code-specific ones)
 └── integrations/    # Agent-CLI-specific tooling, one subdirectory per agent CLI

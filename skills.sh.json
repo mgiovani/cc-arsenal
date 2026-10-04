@@ -121,6 +121,7 @@
         "review-perf",
         "review-plan",
         "review-security",
+        "stopslop",
         "vrt-check"
       ]
     }

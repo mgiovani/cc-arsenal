@@ -7,7 +7,7 @@ Skills are the single component type in this repository. Each skill lives in `sk
 <!-- gen:skills-features start -->
 <!-- generated: edit skills.sh.json or SKILL.md frontmatter, then run `make docs` -->
 
-## Skills (51 total)
+## Skills (52 total)
 
 Every skill is callable as `/<name>` in Claude Code. **(auto)** marks skills that *also* trigger automatically when Claude detects a relevant task; **(manual)** marks slash-only skills (`disable-model-invocation: true`).
 
@@ -302,7 +302,7 @@ Framework documentation injector.
 - FastAPI via best practices
 - Framework-specific patterns
 
-### Review (7 skills)
+### Review (8 skills)
 
 Code and plans, security and dependencies, performance and visual regressions, and translations.
 
@@ -339,6 +339,9 @@ OWASP Top 10 2025 security analysis.
 - Automated vulnerability scanning
 - OWASP compliance checking
 - Security best practices
+
+`/stopslop` (auto)
+Install stopslop, run a full all-rules AI-slop report, and render it as a markable page
 
 `/vrt-check` (auto)
 Runs the project's visual regression testing workflow.
@@ -399,7 +402,7 @@ make -C integrations/claude-code/claude-hi standard  # Quick 9am/2pm/7pm schedul
 
 ### Plugin Marketplace (Claude Code)
 - **Installation**: `/plugin install cc-arsenal@cc-arsenal-marketplace`
-- **Skills**: All 51 skills, or a focused variant (`cc-arsenal-dev`, `cc-arsenal-product`, `cc-arsenal-review`, `cc-arsenal-docs`, `cc-arsenal-git`, `cc-arsenal-jira`, `cc-arsenal-skills`)
+- **Skills**: All 52 skills, or a focused variant (`cc-arsenal-dev`, `cc-arsenal-product`, `cc-arsenal-review`, `cc-arsenal-docs`, `cc-arsenal-git`, `cc-arsenal-jira`, `cc-arsenal-skills`)
 - See [Getting Started](getting-started.md) for the full variant list
 
 ### Symlink Install (Contributors)

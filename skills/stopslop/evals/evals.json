@@ -1,0 +1,38 @@
+{
+  "skill": "stopslop",
+  "evals": [
+    {
+      "id": "full-report-docs",
+      "prompt": "Run a full stopslop report on docs/ and tell me where the slop is concentrated.",
+      "assertions": [
+        "Runs stopslop with --select ALL and --check-imports and --fail-on-tier C and --format json --stats on docs/",
+        "Treats exit code 1 as expected findings, not as a failure of the run",
+        "Groups the summary by tier, and names the top rules and top files",
+        "Every count in the answer appears in the JSON the run produced",
+        "Rule names come from stopslop --list-rules or the JSON, none invented",
+        "Does not say the docs are clean based on exit 0 alone"
+      ]
+    },
+    {
+      "id": "render-and-apply-marks",
+      "prompt": "Render the stopslop report for src/ so I can mark findings, then fix the ones I mark.",
+      "assertions": [
+        "Invokes the render skill in audit mode (render audit, or its steps inline) on the saved JSON findings",
+        "Every anchored item uses an anchor of the form finding-<path-slug>-<line>-<code> and no two anchors are equal",
+        "Offers verdicts fix, won't fix, and discuss",
+        "Writes the page under .cc-arsenal/renders/ and asks the user to mark and save it before editing any source file",
+        "Edits only findings marked fix, then re-runs stopslop on the touched files"
+      ]
+    },
+    {
+      "id": "not-installed-no-cargo",
+      "prompt": "Run stopslop on this repo. (Assume stopslop and cargo are both not installed.)",
+      "assertions": [
+        "Checks stopslop --version and finds it missing",
+        "Prints the rustup install line from rustup.rs and stops",
+        "Does not try pip, npm, brew, or any other installer",
+        "Writes no files and edits no source"
+      ]
+    }
+  ]
+}

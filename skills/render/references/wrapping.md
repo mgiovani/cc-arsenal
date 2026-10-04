@@ -12,6 +12,7 @@ exists.
 | `review-plan` | `review` | one objection to the plan |
 | `docs-check`, `i18n-check`, `env-setup` | `audit` | one gap |
 | `review-deps` | `audit` | one package |
+| `stopslop` | `audit` | one finding, anchored `finding-<path-slug>-<line>-<code>` |
 | `optimize-ai-setup` | `audit` | one proposed fix, keyed by its check ID |
 | `test-suite` (its analysis pass) | `audit` | one uncovered path |
 | `vrt-check` | `review` | one changed component, with its image triptych |
