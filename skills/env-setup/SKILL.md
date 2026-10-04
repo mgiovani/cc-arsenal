@@ -110,7 +110,7 @@ Grep checks, which also work without gitleaks:
 
 ```bash
 # Secret-looking assignments in .env: line:NAME
-grep -inE "(password|secret|api_key|private_key|token|auth_key)\s*=\s*['\"]?[A-Za-z0-9+/_.=-]{16,}" .env 2>/dev/null | cut -d= -f1
+grep -inE "(password|secret|api_key|private_key|token|auth_key)[A-Za-z0-9_]*\s*=\s*['\"]?[A-Za-z0-9+/_.=-]{16,}" .env 2>/dev/null | cut -d= -f1
 
 # Known key formats hardcoded in files: file:line
 grep -rnIE "(AKIA[0-9A-Z]{16}|sk_live_[A-Za-z0-9]+|xox[abp]-[A-Za-z0-9-]+|gh[pousr]_[A-Za-z0-9]{36})" . --exclude-dir=.git --exclude-dir=node_modules 2>/dev/null | cut -d: -f1,2

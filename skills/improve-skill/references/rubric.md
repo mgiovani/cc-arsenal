@@ -21,6 +21,8 @@ The frozen rewrite rubric this repo's skills are held to. Apply it to every skil
 
 ## Structure and flow
 
+Mark one of these deficient only when the skill shows the problem: a step that fails or drifts when run, an ordering mistake, a long reference agents skim past. A working prose step that could have been a script is compliant; leave it alone.
+
 - Reference contents and depth: a reference over 100 lines starts with a `## Contents` section of anchor links to its H2s. References sit one level deep from SKILL.md: link each directly, never reference-to-reference chains.
 - Degrees of freedom: fragile, exact operations (byte-exact diffs, history rewrites, contrast math) become a script the skill runs; flexible judgment (what a Dockerfile or pipeline should achieve) is stated as goals and criteria, not a snippet to paste.
 - Checklists and gates: an order-dependent flow gets a copyable fenced checklist of `- [ ]` steps with explicit gates ("if X fails, return to step N", "stop and report"). Replace the equivalent prose ordering rather than duplicating it.
