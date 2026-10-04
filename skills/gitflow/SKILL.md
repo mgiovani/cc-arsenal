@@ -37,7 +37,7 @@ Read the matching reference in full and follow it step by step. Each one is self
 | Get an urgent fix into production now, can't wait for a release   | Hotfix  | `references/hotfix.md`    |
 | Build a new feature or a fix that will ride the next release      | Feature | `references/feature.md`   |
 
-If the intent is ambiguous (e.g. "ship the settings fix"), ask one question: is this urgent enough to go straight to production (hotfix), or does it ride the next release (feature now, release later)?
+If the intent is ambiguous (e.g. "ship the settings fix"), ask one question: is this urgent enough to go straight to production (hotfix), or does it ride the next release (feature now, release later)? Then stop and wait for the answer. Don't pick a flow, name a branch, run a command or propose a version until the user replies.
 
 ## Universal rails
 
