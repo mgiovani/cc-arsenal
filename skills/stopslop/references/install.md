@@ -18,7 +18,13 @@ Latest unreleased main:
 cargo install --git https://github.com/mgiovani/stopslop
 ```
 
-Without `cargo`, print the rustup install line from https://rustup.rs and stop. Do not try other installers.
+Without `cargo`, print this line and stop:
+
+```bash
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+```
+
+Then re-run `cargo install stopslop`. Do not try other installers.
 
 Update only when the user asks: `cargo install stopslop --force`.
 

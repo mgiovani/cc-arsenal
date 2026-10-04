@@ -18,7 +18,7 @@
       "prompt": "Render the stopslop report for src/ so I can mark findings, then fix the ones I mark.",
       "assertions": [
         "Invokes the render skill in audit mode (render audit, or its steps inline) on the saved JSON findings",
-        "Every anchored item uses an anchor of the form finding-<path-slug>-<line>-<code> and no two anchors are equal",
+        "Fills the render audit template's DATA with one finding per stopslop finding, each title carrying code, path and line, so no two anchors are equal, and passes assemble.py",
         "Offers verdicts fix, won't fix, and discuss",
         "Writes the page under .cc-arsenal/renders/ and asks the user to mark and save it before editing any source file",
         "Edits only findings marked fix, then re-runs stopslop on the touched files"
@@ -31,7 +31,7 @@
         "Checks stopslop --version and finds it missing",
         "Prints the rustup install line from rustup.rs and stops",
         "Does not try pip, npm, brew, or any other installer",
-        "Writes no files and edits no source"
+        "Writes no files other than the run transcript and edits no source"
       ]
     }
   ]
