@@ -1,9 +1,10 @@
 # Code Review - Agent Prompts & Patterns
 
-Detailed grep patterns and agent prompts for each review dimension. Load this reference when running Phase 3 parallel specialist review.
+Detailed grep patterns and agent prompts for each review dimension. Load this reference when fanning out the core agents. Agent 7 (architecture) lives in `architecture-patterns.md`.
 
 ## Contents
 
+- [Shared preamble](#shared-preamble)
 - [Agent 1 - Correctness & Logic](#agent-1---correctness--logic)
 - [Agent 2 - Performance](#agent-2---performance)
 - [Agent 3 - Code Style & Patterns](#agent-3---code-style--patterns)
@@ -11,6 +12,23 @@ Detailed grep patterns and agent prompts for each review dimension. Load this re
 - [Agent 5 - Error Handling & Edge Cases](#agent-5---error-handling--edge-cases)
 - [Agent 6 - Simplicity & Over-engineering](#agent-6---simplicity--over-engineering)
 - [Review Best Practices by Audience](#review-best-practices-by-audience)
+
+## Shared preamble
+
+Prepend this block to every agent prompt below, filling the bracketed values. Every Agent call also sets `model` explicitly (all lanes here use `sonnet`). `[LANE]` is the lane name; each core agent uses its own `core-<prefix>` (`core-cl`, `core-pf`, `core-cs`, `core-tc`, `core-eh`, `core-oe`) so parallel agents never write the same file.
+
+```
+Project rules (numbered checklist extracted from AGENTS.md / CLAUDE.md / .claude/skills):
+[RULES_CHECKLIST]
+A violation of a numbered rule is a finding, cited by rule number. Report every violation, Nit included. Do not silently pass anything.
+
+Diff hunks (from the base...HEAD diff): [HUNK_RANGES]
+A hunk header @@ -a,b +c,d @@ covers new-file lines c..c+d-1. A finding whose line falls outside every hunk of its file is preexisting: true. Otherwise preexisting: false.
+
+Output: write [SCRATCH]/findings/[LANE].json as {"lane": "[LANE]", "findings": [...]}, one object per finding:
+{"id": "<PREFIX>-001", "path": "...", "line": 12, "side": "RIGHT", "severity": "Critical|Major|Minor|Nit", "dimension": "<PREFIX>", "title": "...", "body": "problem, then fix, with a short snippet", "preexisting": false, "verdict": null, "reason": null}
+Use the file path relative to the repo root and a new-file line number. IDs count up per prefix. Leave verdict and reason null; the verification step sets them.
+```
 
 ## Agent 1 - Correctness & Logic
 
@@ -57,6 +75,13 @@ Use Grep to search for:
 - Same variable assigned twice without use between
 - Identical branches in conditional logic
 
+*State, routing and lifecycle (CL):*
+- Module-level mutable latches: a top-level let/var or singleton flag set once and never reset (leaks across users, tests and hot reloads)
+- map[code] ?? 'fallback' (or dict.get(code, default)) that routes an unknown error code to the wrong UI state or handler; unknown input should hit an explicit unknown branch
+- Stringly-typed state allowing impossible combinations (status: string plus nullable data and error); suggest a discriminated union
+- Cache or query client not fully cleared on identity change, 401, or sign-out (shared-workstation data leak); check queryClient.clear/removeQueries, store resets, and persisted storage
+- Production config silently falling back to dev endpoints or dev keys when an env var is missing; prod should fail fast
+
 For each finding:
 1. Read the file to verify the issue in context
 2. Determine if the pattern is actually a bug (not an intentional design choice)
@@ -67,6 +92,7 @@ For each finding:
 
 Return structured findings with file path, line numbers, severity, code snippet, explanation, and fix suggestion."
 - subagent_type: "Explore"
+- model: "sonnet"
 ```
 
 ## Agent 2 - Performance
@@ -128,6 +154,7 @@ For each finding:
 
 Return structured findings with file path, line numbers, severity, code snippet, explanation, and optimized code."
 - subagent_type: "Explore"
+- model: "sonnet"
 ```
 
 ## Agent 3 - Code Style & Patterns
@@ -180,16 +207,32 @@ Use Grep to search for:
 - Unreachable branches
 - TODO/FIXME/HACK comments older than the review scope
 
+*Code smell catalog (refactoring.guru):*
+Map each smell to its named fix technique and cite the URL in the finding. Report every smell you can anchor to a line, Nit included.
+- Long Method, Large Class, Primitive Obsession, Long Parameter List, Data Clumps: Extract Method (https://refactoring.guru/extract-method), Extract Class (https://refactoring.guru/extract-class), Introduce Parameter Object (https://refactoring.guru/introduce-parameter-object), Replace Primitive with Object
+- Switch Statements, repeated type-code conditionals: Replace Conditional with Polymorphism (https://refactoring.guru/replace-conditional-with-polymorphism)
+- Duplicate Code: Extract Method, Pull Up Method (https://refactoring.guru/smells/duplicate-code)
+- Feature Envy, Message Chains, Middle Man: Move Method (https://refactoring.guru/move-method), Hide Delegate, Remove Middle Man
+- Temporary Field, Speculative Generality, Dead Code, Lazy Class: Remove or inline (https://refactoring.guru/smells/speculative-generality)
+- Comments that restate code or explain a confusing block: Extract Method, Rename Method
+- Cross-file smells (read the callers and siblings, not just the changed file):
+  - Shotgun Surgery: one logical change forces edits in many files (https://refactoring.guru/smells/shotgun-surgery); fix with Move Method / Inline Class
+  - Divergent Change: one module changes for unrelated reasons (https://refactoring.guru/smells/divergent-change); fix with Extract Class
+  - Parallel tables for one concept: two or more maps, enums or switch statements keyed by the same set of values that must be edited together; fold into one table or a polymorphic object
+  - Inappropriate Intimacy: one module reaching into another's internals, for example a hook that exposes or leaks setState (https://refactoring.guru/smells/inappropriate-intimacy); fix with Move Method or Hide Delegate
+
 For each finding:
 1. Read the file to verify the issue in context
 2. Check if the pattern matches the project's conventions (do not flag intentional choices)
 3. Extract exact code snippet (5-10 lines) with file:line reference
 4. Explain why the pattern is problematic for maintainability
-5. Classify severity: Critical (architectural issue), Major (significant maintainability risk), Minor (readability improvement), Nit (style preference)
-6. Provide a refactored alternative with code example
+5. For a smell, name it and the fix technique, and include its refactoring.guru URL
+6. Classify severity: Critical (architectural issue), Major (significant maintainability risk), Minor (readability improvement), Nit (style preference)
+7. Provide a refactored alternative with code example
 
 Return structured findings with file path, line numbers, severity, code snippet, explanation, and suggested improvement."
 - subagent_type: "Explore"
+- model: "sonnet"
 ```
 
 ## Agent 4 - Test Coverage Gaps
@@ -234,6 +277,9 @@ Use Grep and Read to check for:
 - Excessive mocking that tests implementation rather than behavior
 - Tests that test the framework rather than the application code
 - Flaky indicators: setTimeout, sleep, retry in tests
+- Vacuous absence assertions: expect(...).not.toBeInTheDocument / queryBy* / toBeNull / not.toHaveBeenCalled that runs before the async work resolves, so it passes whether or not the code works; require awaiting the settled state first (waitFor, findBy*, flushPromises) or asserting the positive outcome
+- Class-name or CSS-selector assertions (toHaveClass, querySelector('.x')) that test implementation rather than behavior or accessible output
+- Safety validators (sanitizers, allowlists, URL or path checks) tested only against a hard-coded probe list; require property-style or adversarial cases (encodings, case variants, nested and boundary inputs)
 
 *Coverage gaps for common patterns:*
 - Public API methods without tests
@@ -251,6 +297,7 @@ For each finding:
 
 Return structured findings with source file:line reference, missing test scenario description, severity, and example test code."
 - subagent_type: "Explore"
+- model: "sonnet"
 ```
 
 ## Agent 5 - Error Handling & Edge Cases
@@ -314,12 +361,13 @@ For each finding:
 
 Return structured findings with file path, line numbers, severity, code snippet, failure scenario, and fix code."
 - subagent_type: "Explore"
+- model: "sonnet"
 ```
 
 ## Agent 6 - Simplicity & Over-engineering
 
 ```
-Agent 6 - Simplicity & Over-Engineering (Explore, Haiku):
+Agent 6 - Simplicity & Over-Engineering (Explore, Sonnet):
   prompt: "Review [SCOPE] for unnecessary complexity — code that does more than the
     current, concrete requirement needs.
 
@@ -358,8 +406,10 @@ Agent 6 - Simplicity & Over-Engineering (Explore, Haiku):
        the code in question, you may cite it — otherwise say nothing about
        performance impact."
   subagent_type: "Explore"
-  model: "haiku"
+  model: "sonnet"
 ```
+
+Counter-check with Agent 7: Agent 7 (`architecture-patterns.md`) may suggest adding a pattern, Agent 6 may suggest removing an abstraction. Both use the same tag vocabulary above so the consolidator can spot a clash. Agent 7 must not recommend a pattern for code Agent 6 tags [delete], [unneeded] or [simplify], and Agent 6 must not tag [simplify] on an Adapter, State or Strategy that Agent 7 justifies by a concrete pain in the diff. When both flag the same lines, keep one finding and prefer the removal unless the pain is demonstrated in code.
 
 Report Addendum (Phase 4/5): add a sixth dimension, Simplicity & Over-engineering, finding prefix `OE-`, default severity Minor or Nit (escalate to Major only when the complexity itself causes a reliability/maintainability failure, not merely because it exists). Per-finding fields: severity, `file:line`, the single tag, description, suggested deletion/replacement, lines-removed. Report the aggregate separately:
 

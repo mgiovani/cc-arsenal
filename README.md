@@ -181,7 +181,7 @@ make -C integrations/claude-code/claude-hi standard # Schedule 5-hour windows
 | Skill | What it does |
 |---|---|
 | [`i18n-check`](skills/i18n-check/) | i18n completeness checker, detects the project's i18n framework and diffs locale files |
-| [`review-code`](skills/review-code/) | Multi-agent code review across six dimensions, from correctness and performance to tests and error handling |
+| [`review-code`](skills/review-code/) | Adaptive multi-agent code review: core dimensions plus architecture, security, deps, perf and design lanes picked from the diff, with adversarial verification |
 | [`review-deps`](skills/review-deps/) | Audit dependencies for vulnerabilities, license risk, and staleness |
 | [`review-perf`](skills/review-perf/) | Deep-dive performance audit of queries, algorithmic complexity, and resource leaks |
 | [`review-plan`](skills/review-plan/) | Adversarially review an implementation plan against the actual repository before any code is written |
