@@ -19,8 +19,8 @@ Claude Code Arsenal is a professional collection of workflow automation skills b
 │  └────────────────────────────────────────────────────────┘ │
 │  ┌────────────────────────────────────────────────────────┐ │
 │  │ Tier 2: Claude Code layer (optional, additive)          │ │
-│  │ - CC-only frontmatter (allowed-tools, hooks, context,   │ │
-│  │   agent, disable-model-invocation) inline in SKILL.md   │ │
+│  │ - CC-only frontmatter (hooks, context, agent,           │ │
+│  │   disable-model-invocation) inline in SKILL.md          │ │
 │  │ - .claude-plugin/marketplace.json plugin variants       │ │
 │  │ - Statusline, Claude Hi scheduler, subagent (Task tool) │ │
 │  │   orchestration                                         │ │
@@ -40,7 +40,7 @@ Claude Code Arsenal is a professional collection of workflow automation skills b
 
 #### Claude Code layer (Tier 2, optional)
 
-- CC-only frontmatter keys (`allowed-tools`, `disable-model-invocation`, `hooks`, `context`, `agent`) live inline in the same `SKILL.md`: other tools ignore them safely
+- CC-only frontmatter keys (`disable-model-invocation`, `hooks`, `context`, `agent`) live inline in the same `SKILL.md`: other tools ignore them safely
 - Subagents (Task tool) for parallel work, advanced context management, quality-gate hooks
 - Plugin variants declared in `.claude-plugin/marketplace.json`, installed via `/plugin marketplace add mgiovani/cc-arsenal`
 - Optional features: statusline, Claude Hi scheduler

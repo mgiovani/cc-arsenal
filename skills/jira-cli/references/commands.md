@@ -2,6 +2,16 @@
 
 This file contains detailed command syntax, options, and examples for all jira-cli operations.
 
+## Contents
+
+- [Issue management](#issue-management)
+- [Epic management](#epic-management)
+- [Sprint management](#sprint-management)
+- [Release management](#release-management)
+- [Other commands](#other-commands)
+- [Navigation and interaction](#navigation-and-interaction)
+- [Output formats and options](#output-formats-and-options)
+
 ## Issue management
 
 ### Listing issues

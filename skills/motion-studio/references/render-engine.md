@@ -2,6 +2,13 @@
 
 Read this to build or repair the default route: one `index.html` that paints any moment on demand, Playwright capturing frames, ffmpeg encoding.
 
+## Contents
+
+- [Contract](#contract)
+- [Setup](#setup)
+- [The page](#the-page)
+- [The renderer](#the-renderer)
+
 ## Contract
 
 The model cannot emit an MP4. It writes a program; a headless browser calls `window.seek(t)` once per frame, screenshots the canvas, and ffmpeg stitches the frames. A 15 s film at 60 fps is 900 frames (3600 captures with 4 subframes).

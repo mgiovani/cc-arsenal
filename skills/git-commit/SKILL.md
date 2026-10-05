@@ -10,11 +10,6 @@ metadata:
   version: 1.0.0
 disable-model-invocation: false
 argument-hint: ''
-allowed-tools:
-- Bash(git *)
-- Read
-- Edit
-- Write
 hooks:
   PreToolUse:
   - matcher: Bash(git commit*)

@@ -19,7 +19,6 @@ metadata:
   version: 1.0.1
 disable-model-invocation: false
 argument-hint: "[locale] [--scaffold]"
-allowed-tools: Read, Grep, Glob, Bash, Edit, Write, Task
 ---
 
 # i18n Check
@@ -54,23 +53,35 @@ format differs.
 
 ## Step 2: Diff every locale against the default
 
-For each non-default locale file, flatten both it and the default locale to `key ->
-value` pairs and compute:
+Run the bundled script rather than comparing by eye:
+
+```bash
+uv run <skill-dir>/scripts/i18n_diff.py messages/en.json messages/pt-BR.json messages/de.json
+```
+
+`uv` runs it with PyYAML resolved from the script header (install uv with
+`curl -LsSf https://astral.sh/uv/install.sh | sh`). JSON-only projects can run it with
+plain `python3` instead. It takes the default locale file first, then any number of
+other locale files (JSON nested or flat, YAML), and prints per locale:
 
 - Missing: key exists in the default locale, absent here.
-- Untranslated: key exists in both, and the value is byte-identical to the default
+- Untranslated: key exists in both, and the value is identical to the default
   locale's value.
 - Orphan: key exists here, absent from the default locale (usually a rename or
   deletion that didn't propagate).
+
+It exits 1 if any key is missing or a locale file can't be read. For `.po` catalogs and
+frameworks with one file per namespace, use `references/frameworks.md` and run the
+script once per namespace pair where the files are JSON or YAML.
 
 Do not filter out short or single-word identical matches. The bug class this skill
 exists for is exactly that: a one-word label like "Developer" left untranslated because
 it looked like it might legitimately be the same in both languages. Report every
 identical match and let a human judge which ones are real bugs: a "smart" filter that
 suppresses single words or short strings will suppress the real bugs along with the
-noise. If you want to make the noise easier to scan, put clearly-fine matches (numbers,
-URLs, brand names you can identify from context) in a separate "likely fine" bucket in
-the report: do not drop them.
+noise. The script already files numbers, URLs and placeholder-only values under a
+separate "likely fine" bucket instead of "untranslated"; keep that bucket in the report,
+and move brand names you can identify from context into it too: do not drop them.
 
 ## Step 3: Scan for hardcoded strings
 
@@ -121,6 +132,13 @@ gettext, add the `msgid`/`msgstr ""` pair (empty `msgstr` is the standard gettex
 convention for untranslated). Preserve the file's existing key ordering and formatting
 style: read a few existing entries first and match indentation/quote style before
 writing.
+
+Then close the loop: re-run the Step 2 command on the same files.
+
+- [ ] Missing is empty for every locale (exit code 0).
+- [ ] The scaffolded keys now appear under "Untranslated", which is the expected state.
+- [ ] If anything is still missing, fix the insertion and re-run. After 3 rounds, stop
+  and report what is still missing.
 
 ## Notes
 

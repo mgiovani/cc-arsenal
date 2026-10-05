@@ -12,7 +12,6 @@ description: Turn any task into a model-tiered multi-agent plan, decompose it in
   project-planner).
 disable-model-invocation: false
 argument-hint: "<task_description>"
-allowed-tools: Read, Write, Edit, Bash, Grep, Glob, Task, TaskCreate, TaskUpdate, TaskList, TaskGet
 metadata:
   summary: "Decompose a task, map each part to the right model, run independent tracks in parallel, then synthesize"
 ---

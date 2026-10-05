@@ -15,7 +15,6 @@ metadata:
   version: 1.1.0
 disable-model-invocation: true
 argument-hint: '[pr_number|commit_sha|--all] [--scope scope]'
-allowed-tools: Read, Grep, Glob, Bash(git *), Bash(gh *), Task, TodoWrite, AskUserQuestion
 context: fork
 agent: general-purpose
 ---

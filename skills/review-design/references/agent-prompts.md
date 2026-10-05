@@ -6,6 +6,16 @@ screenshot + DOM/a11y snapshot captured in Phase 3) and a **static** branch
 in `both` mode, run each agent twice (once per mode) or instruct it to do both
 and label findings by mode.
 
+## Contents
+
+- [Agent 1: Visual Hierarchy + Layout & Spacing (Dimension 1)](#agent-1-visual-hierarchy--layout--spacing-dimension-1)
+- [Agent 2: Typography (Dimension 2)](#agent-2-typography-dimension-2)
+- [Agent 3: Color + Dark Mode (Dimension 3)](#agent-3-color--dark-mode-dimension-3)
+- [Agent 4: Depth/Shadows + Components & Affordance (Dimensions 4, 5)](#agent-4-depthshadows--components--affordance-dimensions-4-5)
+- [Agent 5: Feedback & States + Motion/Microinteractions (Dimensions 6, 7)](#agent-5-feedback--states--motionmicrointeractions-dimensions-6-7)
+- [Agent 6: Accessibility (Dimension 8, WCAG 2.2 AA, cross-cutting)](#agent-6-accessibility-dimension-8-wcag-22-aa-cross-cutting)
+- [Notes on grep portability](#notes-on-grep-portability)
+
 **Shared instructions for every agent (prepend to each prompt):**
 
 ```
@@ -38,14 +48,15 @@ region+ref), measured_value, citation, description, fix}.
 
 ### Computing contrast ratio from hex/rgb (no browser needed)
 
-Static mode has no rendered page to sample, so compute the WCAG relative-luminance
-contrast ratio directly from the two color values found in the CSS/tokens:
+Static mode has no rendered page to sample, so compute the ratio from the two color
+values found in the CSS/tokens. Run the sibling `product-design-tokens` skill's
+`scripts/contrast.py --pair FG BG [--large]` (add `--large` for text >= 24px, or >= 18.66px
+bold), which prints the ratio and the AA/AAA verdict; with no access to that skill, compute
+the WCAG relative-luminance ratio inline with this one-liner (6-digit hex):
 
-1. For each channel (R, G, B in 0-255), normalize `c = channel / 255`.
-2. Linearize: if `c <= 0.03928`, `c_lin = c / 12.92`; else `c_lin = ((c + 0.055) / 1.055) ^ 2.4`.
-3. Relative luminance `L = 0.2126*R_lin + 0.7152*G_lin + 0.0722*B_lin`.
-4. Contrast ratio `= (L_lighter + 0.05) / (L_darker + 0.05)`, using the two colors'
-   luminances (lighter on top so the ratio is >= 1).
+```bash
+python3 -c "import sys;f=lambda h:[int(h.lstrip('#')[i:i+2],16)/255 for i in(0,2,4)];l=lambda h:sum(w*(c/12.92 if c<=.03928 else((c+.055)/1.055)**2.4)for w,c in zip((.2126,.7152,.0722),f(h)));a,b=sorted((l(sys.argv[1]),l(sys.argv[2])),reverse=True);print(round((a+.05)/(b+.05),2))" '#999999' '#ffffff'
+```
 
 Report the ratio to two decimal places as the measured value. If a color comes from a
 CSS variable/token, resolve it to its concrete hex value first (grep the token definition)

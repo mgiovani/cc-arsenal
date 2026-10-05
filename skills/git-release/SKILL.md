@@ -52,6 +52,7 @@ Release operations are high-consequence and irreversible once pushed:
  - On the expected branch (main/master or release branch)
  - Remote is up to date: `git fetch origin && git log HEAD..origin/$(git branch --show-current) --oneline`
  - If there are no commits since the last tag, abort with a clear message
+ - Unless `--no-github` or `--changelog-only`, `gh auth status` must pass; if it fails, stop and ask the user to fix it. Requires `gh` (`brew install gh`, then `gh auth login`).
 
 ### Phase 2: Auto-detect version bump
 
@@ -132,13 +133,13 @@ Release operations are high-consequence and irreversible once pushed:
  - If CHANGELOG.md exists, insert the entry after the `# Changelog` header, preserving existing entries below it
  - If CHANGELOG.md does not exist, this entry becomes the file's first entry under a new `# Changelog` header
  - Maintain a blank line between the header and first entry, and between entries
- - The actual file write happens in Phase 5 step 2, or Phase 3b step 2 for changelog-only mode: both reuse this same logic
+ - The actual file write happens in Phase 5 item 3, or Phase 3b step 2 for changelog-only mode: both reuse this same logic
 
 6. Verify the write (same call sites as step 5): after writing the file, re-read it and confirm the new version heading (`## [<new-version>]`) is present and that at least one section under it has a real bullet line, not just an empty `### Heading` with nothing below. A narrated changelog is not evidence the write succeeded, check the file on disk, e.g.:
  ```bash
  grep -A2 "## \[<new-version>\]" CHANGELOG.md
  ```
- If the heading is missing, or every section under it is empty, abort before creating the release commit: "CHANGELOG.md write produced empty sections, release aborted, no commit created." Do not proceed to Phase 5 step 3 (or, in changelog-only mode, report success) on a failed verification.
+ If the heading is missing, or every section under it is empty, abort before creating the release commit: "CHANGELOG.md write produced empty sections, release aborted, no commit created." Do not proceed to Phase 5 item 4 (or, in changelog-only mode, report success) on a failed verification.
 
 ### Phase 3b: Changelog-only mode (if `--changelog-only`)
 
@@ -204,50 +205,35 @@ git-release --changelog-only
 
 ### Phase 5: Execute Release
 
-Execute all release actions in strict order. Stop immediately if any step fails and report which step failed and what manual cleanup may be needed.
+Copy this checklist into your reply and tick each item only after its check passes. Do the items in order. If a gate fails, stop, report which item failed and what manual cleanup may be needed, and do not continue past it.
 
-1. Update version files (detect and update all that exist):
- - `package.json`: Update `"version": "x.y.z"` field
- - `package-lock.json`: Update `"version": "x.y.z"` at root level
- - `pyproject.toml`: Update `version = "x.y.z"` under `[project]` or `[tool.poetry]`
- - `Cargo.toml`: Update `version = "x.y.z"` under `[package]`
- - `VERSION` or `VERSION.txt`: Replace entire file content
- - `setup.cfg`: Update `version = x.y.z` under `[metadata]`
- - `build.gradle` / `build.gradle.kts`: Update `version = "x.y.z"`
- - Other version files: Skip unknown formats, notify user
+```markdown
+- [ ] 1. Bump every version file that exists: `package.json`, `package-lock.json` (root `"version"`), `pyproject.toml` (`[project]` or `[tool.poetry]`), `Cargo.toml` (`[package]`), `VERSION` / `VERSION.txt` (whole file), `setup.cfg` (`[metadata]`), `build.gradle` / `build.gradle.kts`. Skip unknown formats and tell the user.
+- [ ] 2. Re-parse each bumped manifest and confirm it prints `<new-version>`. Gate: any mismatch, return to item 1.
+- [ ] 3. Write CHANGELOG.md (Phase 3 step 5 logic) and run the Phase 3 step 6 verification. Gate: verification fails, stop, no commit.
+- [ ] 4. Stage by explicit path: `git add CHANGELOG.md <each bumped manifest>`, then check `git diff --cached --name-only` lists only those files. Gate: any other file staged, run `git reset -q <path>` on it (or stop and ask), never continue with extras.
+- [ ] 5. `git commit -m "chore(release): v<new-version>"`. Gate: a hook fails, fix the cause and return to item 4, never `--no-verify`.
+- [ ] 6. `git tag -a v<new-version> -m "Release v<new-version>"`. Gate: tag exists, stop (see Edge Cases).
+- [ ] 7. `git push origin $(git branch --show-current)`, then `git push origin v<new-version>`. Gate: either push fails, stop and report; nothing is released until the tag is pushed.
+- [ ] 8. Unless `--no-github`: `notes_file=$(mktemp "${TMPDIR:-/tmp}/release-notes.XXXXXX")`, write the changelog entry without its `## [version]` header to it, run `gh release create v<new-version> --title "v<new-version>" --notes-file "$notes_file" --latest`, then `rm -f "$notes_file"`. Gate: it fails, follow the recovery note below.
+- [ ] 9. Show the completion summary.
+```
 
-2. Write CHANGELOG.md using the Phase 3 step 5 insertion logic, including its step 6 verification (abort before step 3 below if verification fails).
+Manifest re-parse commands (`jq` is `brew install jq`; without it use `python3 -c "import json;print(json.load(open('package.json'))['version'])"`):
 
-3. Create release commit:
- ```bash
- git add -A
- git commit -m "chore(release): v<new-version>"
- ```
+```bash
+jq -r .version package.json package-lock.json
+python3 -c "import tomllib;d=tomllib.load(open('pyproject.toml','rb'));print(d.get('project',{}).get('version') or d['tool']['poetry']['version'])"
+python3 -c "import tomllib;print(tomllib.load(open('Cargo.toml','rb'))['package']['version'])"
+cat VERSION
+grep -E '^version' setup.cfg build.gradle build.gradle.kts
+```
 
-4. Create annotated tag:
- ```bash
- git tag -a v<new-version> -m "Release v<new-version>"
- ```
+Use `mktemp` with an explicit `XXXXXX` template (bare `mktemp -t name` fails on GNU): a fixed path (e.g. `/tmp/release-notes.md`) can collide across concurrent or repeated runs.
 
-5. Push commit and tag:
- ```bash
- git push origin $(git branch --show-current)
- git push origin v<new-version>
- ```
+Recovery: tag pushed but `gh release create` fails. The release is half done, do not re-tag or re-commit. Fix the cause (`gh auth status`, network, permissions) and re-run only `gh release create` for the existing tag. Delete the remote tag (`git push origin :refs/tags/v<new-version>`) only if the user explicitly confirms.
 
-6. Create GitHub release (unless `--no-github` flag is set):
- ```bash
- notes_file=$(mktemp -t release-notes)
- # write the changelog entry (without the "## [version]" header) to $notes_file
- gh release create v<new-version> \
-   --title "v<new-version>" \
-   --notes-file "$notes_file" \
-   --latest
- rm -f "$notes_file"
- ```
- A fixed path (e.g. `/tmp/release-notes.md`) can collide across concurrent or repeated runs: `mktemp` guarantees a unique file.
-
-7. Display completion summary:
+Completion summary (item 9):
  ```
  Release v1.3.0 completed successfully!
 
@@ -286,7 +272,7 @@ When force flags conflict (e.g., `--major --minor`), use the highest: major > mi
 - CHANGELOG Format: Follows [Keep a Changelog](https://keepachangelog.com/) conventions
 - Semver: Follows [Semantic Versioning 2.0.0](https://semver.org/)
 - Never skip hooks: Never pass `--no-verify` on the release commit
-- No inline execution: Nothing in Phase 1-4 writes to the working tree, the first mutation is Phase 5 step 1, after approval
+- No inline execution: Nothing in Phase 1-4 writes to the working tree, the first mutation is Phase 5 item 1, after approval
 
 ## Examples
 

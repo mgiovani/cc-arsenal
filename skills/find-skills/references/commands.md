@@ -2,9 +2,16 @@
 
 Reference for the `npx skills` CLI tool (npm package: `skills`, maintained by Vercel Labs). This is a third-party tool this repo doesn't control. If a flag below doesn't behave as documented, run `npx skills <command> --help` and trust that output over this file.
 
+## Contents
+
+- [Installation](#installation)
+- [Commands](#commands)
+- [Installation Paths (Claude Code)](#installation-paths-claude-code)
+- [Troubleshooting](#troubleshooting)
+
 ## Installation
 
-The CLI requires no installation. Run it directly via `npx`:
+The CLI requires no installation, only Node.js (`fnm install --lts` or `brew install node`). Run it directly via `npx`:
 
 ```bash
 npx skills <command> [options]

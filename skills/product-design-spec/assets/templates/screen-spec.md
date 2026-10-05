@@ -35,7 +35,7 @@ anything the `review-design` audit should check on this screen.
 **Responsive**: behaviour across breakpoints (mobile / tablet / desktop) or platform size classes.
 
 **Acceptance criteria**: Given/When/Then, testable. Apply the shared rulebook
-`skills/product-prd/references/requirement-hygiene.md` (via the `Skill` tool where available, else read it).
+`product-prd`'s `references/requirement-hygiene.md` (via the `Skill` tool where available, else read it).
 
 1. Given {{GIVEN}}, when {{WHEN}}, then {{THEN}}.
 

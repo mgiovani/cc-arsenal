@@ -2,6 +2,12 @@
 
 Prompts for grader agents used in the eval system. Load this reference when running Phase 6 eval execution.
 
+## Contents
+
+- [Grader Agent](#grader-agent)
+- [Batch Grader Prompt](#batch-grader-prompt)
+- [Description Improvement Prompt](#description-improvement-prompt)
+
 ## Grader Agent
 
 Used to score eval results with blind comparison. Receives both outputs (labeled A and B, not "with-skill" and "baseline") to prevent bias.

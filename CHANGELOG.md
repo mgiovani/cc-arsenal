@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+- `env-setup`: the secret scan prints variable names and file:line only, never values, and runs `gitleaks --redact` when installed.
+- `git-release`: the release commit stages the bumped manifests and the changelog by path instead of `git add -A`.
+
+### Changed
+- `review-code` 2.0.0: lanes are picked from the diff. Six core dimensions plus an architecture/design-patterns lane always run, and security, dependency, deep-performance and design/motion lanes join when the change touches their area by composing the sibling review skills. Project rules from AGENTS.md/CLAUDE.md become a checklist, pre-existing issues get their own bucket, and an adversarial verifier drops false Critical/Major findings. Posting one GitHub review is opt-in (`--comment`), backed by `scripts/merge_findings.py` for dedup and diff anchoring.
+- Skills follow Anthropic's updated authoring practices. Every `references/` file over 100 lines opens with a Contents section, skills call their own scripts as `<skill-dir>/scripts/...` instead of repo-relative paths that break once installed, and external CLIs get an install line at first use.
+- Order-dependent flows are copyable checklists with return/stop gates: `git-release`, `gitflow` release and hotfix, `ship` (red CI loops back to the pre-merge checks, capped at 3 rounds), `test-suite` (subagent boilerplate moved to `references/subagent-template.md`), `create-skill`, `improve-skill`, `jira-cli` destructive operations.
+- Checks loop until clean: Mermaid via `mmdc` in `docs-diagram`, `docs-init` and `docs-check`; `actionlint`/`glab ci lint`/`circleci config validate` in `ci-generate`; `hadolint` plus a build in `docker-init`; auto-validation after create in `db-migrate`; a leftover-placeholder grep in `docs-rfc`. `ci-generate` and `docker-init` state goals instead of fixed snippets.
+- Fragile steps are scripts: `i18n-check/scripts/i18n_diff.py`, `project-illustrator/scripts/derive_assets.py`, `oss-launch/scripts/history_rewrite.sh`, and `contrast.py --pair` in `product-design-tokens`, which `review-design` now uses.
+- Removed `allowed-tools` from every skill. In Claude Code it only pre-approves tools for the turn that invokes the skill and restricts nothing, so it was a self-granted permission without a safety benefit; add allow rules to your own settings to skip prompts. `create-skill` and the `improve-skill` rubric now leave it out, and `quick_validate.py` warns when a skill declares it.
+- The `improve-skill` rubric and `create-skill` anatomy include the new rules, and `make validate-structure` fails on a long reference without Contents or a reference-to-reference link.
+
 ### Fixed
 - `anything-to-skill` compaction gate: evals are frozen (`evals-freeze`, or the first `compact-brief`) and copied verbatim into `compact/`, and `compact-verify` hard-fails on any changed, dropped or added eval, so compact is graded on the same set as the full skill and no skill. Assertions about file reads or paths are warned by `verify` and rejected by `compact-verify`; the eval rules now demand answer-content assertions on source-specific knowledge, and a no-skill pass rate above 0.8 means the evals get strengthened before comparing. `verify_laya.py --compact` runs `compact-verify` with the Laya fact-check.
 

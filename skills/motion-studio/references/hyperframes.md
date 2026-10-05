@@ -2,9 +2,20 @@
 
 Read this when the user wants a framework instead of the zero-dependency canvas route, thinks in web pages, needs captions, voiceover, templates or Studio editing, or says "HyperFrames" or "/hyperframes". Opus skips frameworks unless told, so say so explicitly. For the Remotion comparison and port see `remotion.md`.
 
+## Contents
+
+- [Install the agent skills (ask the user first)](#install-the-agent-skills-ask-the-user-first)
+- [Router (input to workflow)](#router-input-to-workflow)
+- [Minimal composition](#minimal-composition)
+- [Determinism rules](#determinism-rules)
+- [Prompting HyperFrames](#prompting-hyperframes)
+- [Verify and render](#verify-and-render)
+
 HyperFrames (Apache 2.0, no React, no build step) renders video from HTML. A composition is an HTML file whose DOM declares timing with `data-*` attributes, whose animation runtime is seekable (GSAP by default; CSS, Anime.js, Lottie, Three.js and Web Animations are also seeked), and whose media playback the framework owns. The renderer asks the project for each exact frame, so a slow machine drops nothing.
 
 ## Install the agent skills (ask the user first)
+
+Requires Node.js (`fnm install --lts` or `brew install node`).
 
 ```bash
 npx skills add heygen-com/hyperframes

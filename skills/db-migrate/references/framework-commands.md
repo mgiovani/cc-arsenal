@@ -2,6 +2,23 @@
 
 This reference is loaded when `db-migrate` needs framework-specific commands.
 
+## Contents
+
+- [Detection Table](#detection-table)
+- [Rollback Commands](#rollback-commands)
+- [Per-Framework Best Practices](#per-framework-best-practices)
+  - [Alembic (Python)](#alembic-python)
+  - [Prisma (Node.js)](#prisma-nodejs)
+  - [Knex (Node.js)](#knex-nodejs)
+  - [Flyway](#flyway)
+  - [Rails ActiveRecord](#rails-activerecord)
+  - [Django](#django)
+  - [Atlas](#atlas)
+  - [TypeORM](#typeorm)
+  - [SQLx (Rust)](#sqlx-rust)
+- [Naming Conventions](#naming-conventions)
+- [Common Pitfalls](#common-pitfalls)
+
 ## Detection Table
 
 | Marker File | Framework | Create Command | Status Command | Apply Command |
@@ -44,7 +61,7 @@ This reference is loaded when `db-migrate` needs framework-specific commands.
 - File naming: `<timestamp>_<slug>.py` (auto-generated)
 
 ### Prisma (Node.js)
-- `prisma migrate dev` uses a shadow database to detect drift: never point to production
+- `prisma migrate dev` uses a shadow database to detect drift
 - `prisma migrate deploy` is for production (no shadow DB needed)
 - Do not edit generated SQL files after running dev migration: use `prisma migrate resolve` instead
 - For data migrations, use a separate migration with raw SQL via `$executeRaw`

@@ -17,7 +17,6 @@ metadata:
   version: 1.2.0
 disable-model-invocation: true
 argument-hint: <mode|/skill|path> [subject]
-allowed-tools: Read, Write, Edit, Grep, Glob, Bash, Task, Skill, Artifact
 ---
 
 # Render
@@ -123,8 +122,8 @@ Building means:
    checks and the reader receives, and let it gate the result against the
    design contract. A real page never passes `--allow-sample`: a leftover
    `/*SAMPLE*/` marker is a gate failure, not a warning.
-6. Run `npx impeccable detect` on the assembled file and fix whatever it flags
-   before delivering.
+6. Run `npx impeccable detect` on the assembled file (needs Node.js: `fnm install --lts` or
+   `brew install node`) and fix whatever it flags before delivering.
 
 Anchors and the comment affordance are specified in
 [references/feedback-loop.md](references/feedback-loop.md), and every mode

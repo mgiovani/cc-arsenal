@@ -4,6 +4,13 @@ Two templates: a live report (`design-report-live.md`) and a static report
 (`design-report-static.md`). They share structure; the difference is the evidence type
 (screenshot region + DOM ref vs. file:line) and the header metadata.
 
+## Contents
+
+- [Live report template](#live-report-template)
+- [Static report template](#static-report-template)
+- [Scoring rule (applicable-only)](#scoring-rule-applicable-only)
+- [Note on thresholds](#note-on-thresholds)
+
 Every finding MUST have: criterion ID, evidence, measured value (where applicable),
 citation, severity, and a concrete fix. No placeholder text.
 

@@ -2,6 +2,15 @@
 
 Patterns for finding, evaluating, installing, and managing skills from outside this repo.
 
+## Contents
+
+- [Discovery patterns](#discovery-patterns)
+- [Installation strategies](#installation-strategies)
+- [Security review](#security-review)
+- [Combining external skills with cc-arsenal](#combining-external-skills-with-cc-arsenal)
+- [Managing updates and versions](#managing-updates-and-versions)
+- [Publishing skills to skills.sh](#publishing-skills-to-skillssh)
+
 ---
 
 ## Discovery patterns

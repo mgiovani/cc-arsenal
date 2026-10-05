@@ -6,25 +6,13 @@ metadata:
   author: mgiovani
   version: 3.0.0
 argument-hint: "[skill-description]"
-allowed-tools:
-  - Read
-  - Write
-  - Edit
-  - Grep
-  - Glob
-  - Bash(mkdir *)
-  - Bash(python *)
-  - Bash(uv run *)
-  - Task
-  - WebFetch
-  - AskUserQuestion
-  - EnterPlanMode
-  - ExitPlanMode
 ---
 
 # Create Skill
 
 Create new agent skills with specification-driven generation, backed by live documentation fetching and interactive planning.
+
+`<skill-dir>` below is this skill's directory.
 
 ## Writing Philosophy
 
@@ -44,14 +32,26 @@ Apply these when drafting the generated skill's description and body in Phase 4:
 
 ## Workflow
 
+Copy this checklist and tick each step as you finish it. Gates say where to return or stop.
+
+```
+- [ ] 0. Fetch both live specs (fetch fails -> use bundled references/skill-anatomy.md and references/frontmatter-fields.md)
+- [ ] 1. Mine the conversation, then ask only the open questions
+- [ ] 2. Research existing patterns and composable skills
+- [ ] 3. Present the blueprint (not approved -> stop; no files written)
+- [ ] 4. Generate files, then run the self-check list
+- [ ] 5. Run quick_validate (fails -> fix and re-run, max 3 rounds, then report what still fails)
+- [ ] 6. Evals, if worthwhile: missing run transcripts -> re-run those before grading; score under 4/5 -> fix the class of problem and return to 4 (stop when no progress)
+```
+
 ### Phase 0: Fetch Live Specifications
 
 Fetch latest specs before every creation: never rely on memory or bundled docs, because specifications evolve. This is two small fetches, not a research task, call WebFetch directly rather than spawning agents for it:
 
-1. WebFetch `https://agentskills.io/specification.md`: frontmatter fields, `allowed-tools` syntax, directory rules
+1. WebFetch `https://agentskills.io/specification.md`: frontmatter fields, directory rules
 2. WebFetch `https://platform.claude.com/docs/skills/best-practices.md`: progressive disclosure, writing style, anti-hallucination patterns. If the fetch fails, fall back to bundled `references/skill-anatomy.md` and `references/frontmatter-fields.md`
 
-Hold both results in context. Do not proceed until both are fetched.
+Hold both results in context.
 
 ### Phase 1: Understand Requirements
 
@@ -122,12 +122,9 @@ name: skill-name          # kebab-case, ≤64 chars, no leading/trailing/consecu
 description: "..."        # assertive, covers multiple trigger phrasings, 50-1024 chars
 [disable-model-invocation: true]   # add only for explicit /slash-command-only skills
 [argument-hint: "[hint]"]          # add if skill accepts a positional argument
-allowed-tools:            # only list tools actually used — each has a cost
-  - Read                  # explain why each is here
-  - Write
 ```
 
-Allowed frontmatter keys: `name`, `description`, `license`, `allowed-tools`, `metadata`, `compatibility`, `disable-model-invocation`, `argument-hint`, `context`, `agent`, `hooks`. Reject anything else: unknown keys cause validation failures. Add `context: fork` + `agent: <type>` only when the skill should run isolated from conversation history (the SKILL.md content becomes the subagent's entire prompt). See `references/frontmatter-fields.md` for the full field reference and `$ARGUMENTS`/`$0`/`$1` substitution syntax.
+Allowed frontmatter keys: `name`, `description`, `license`, `allowed-tools`, `metadata`, `compatibility`, `disable-model-invocation`, `argument-hint`, `context`, `agent`, `hooks`. Reject anything else: unknown keys cause validation failures. Leave `allowed-tools` out: in Claude Code it only pre-approves tools for the turn that invokes the skill, restricts nothing, and is a permission grant every user has to vet. Add `context: fork` + `agent: <type>` only when the skill should be isolated from conversation history (the SKILL.md content becomes the subagent's entire prompt). See `references/frontmatter-fields.md` for the full field reference and `$ARGUMENTS`/`$0`/`$1` substitution syntax.
 
 If the new skill builds on an existing one, follow the **Skill composition** convention in `AGENTS.md`: name the sibling skill in prose and state its tool-neutral fallback in the same sentence (via the `Skill` tool where available, otherwise apply its documented steps), don't invent `uses:`/`composes:` frontmatter for it.
 
@@ -149,7 +146,7 @@ skill-name/
 
 **5. Composition Plan**: List existing skills to invoke and why, vs. reimplementing.
 
-Use ExitPlanMode to submit for user approval. Do NOT generate any files before ExitPlanMode returns.
+Use ExitPlanMode to submit for user approval. Generate no files until it returns approved; a rejection or silence stops the run.
 
 ### Phase 4: Generate Skill Files
 
@@ -160,6 +157,8 @@ Create files only after approval from Phase 3.
 Lead with what the skill does (outcome), not what it is. Structure instructions as imperative phases: "Fetch...", "Create...", "Validate...", not "You should fetch..." or "Claude will create..." Explain WHY only at hard boundaries (see Writing Philosophy above): not every step needs a justification clause.
 
 Include verification checkpoints: what does success look like mid-workflow?
+
+Apply the structure rules in `references/skill-anatomy.md` ("Structure and flow"): references one level deep with a Contents section past 100 lines, scripts for fragile steps and goals for flexible ones, a copyable checklist with gates for order-dependent flows, capped validation loops, install lines at first use of an external tool.
 
 Anti-hallucination section: what should the skill explicitly verify before assuming?
 
@@ -202,17 +201,19 @@ Eval-design rules that keep evals scoreable in a non-interactive run:
 - [ ] No broken internal file references (every referenced file exists)
 - [ ] SKILL.md under 500 lines (move details to `references/` if needed)
 - [ ] Description is assertive, covers multiple trigger phrasings, 50-1024 chars, has a sibling disambiguation clause if one applies
-- [ ] All tools in `allowed-tools` are actually used in the workflow
-- [ ] No allowed-tools with unknown keys
+- [ ] No `allowed-tools` key in the frontmatter
 - [ ] No TODO or placeholder text remains in generated files
 - [ ] If the skill is model-invoked, `evals/evals.json` and `evals/trigger-eval.json` were authored, not skipped
+- [ ] Every reference over 100 lines opens with a `## Contents` section; no reference links to another reference
 
 ### Phase 5: Validate and Package
+
+Requires `uv` (`brew install uv`, or see https://docs.astral.sh/uv/).
 
 Run the bundled validator to catch common errors: it catches frontmatter key typos that silently break skill loading, descriptions that are too short or too long, and broken internal references:
 
 ```bash
-uv run skills/create-skill/scripts/quick_validate.py [SKILL_PATH]
+uv run <skill-dir>/scripts/quick_validate.py [SKILL_PATH]
 ```
 
 The validator checks:
@@ -224,11 +225,11 @@ The validator checks:
 - Internal reference integrity (referenced files exist)
 - `evals/evals.json` schema (if present)
 
-Fix all issues before proceeding.
+Fix every issue and re-run, up to 3 rounds; if issues remain, stop and report them.
 
 Optionally, package for distribution:
 ```bash
-uv run skills/create-skill/scripts/package_skill.py [SKILL_PATH]
+uv run <skill-dir>/scripts/package_skill.py [SKILL_PATH]
 ```
 
 **Next steps:**
@@ -256,7 +257,6 @@ When iterating on an existing skill after seeing it in use:
 - Never guess at URL structure: only fetch from canonical sources in `references/specification-urls.md`
 - Read existing code before suggesting modifications
 - Confirm all internal skill references resolve before writing them
-- Only include tools in `allowed-tools` that you've verified exist in the platform spec
 - Never write a number (a percentage, a count, a score) into a generated skill or report unless it came from a command actually run this session (validator stdout, eval script output, a grep count). A fabricated number in a generated skill teaches the same fabrication pattern forward into every skill it produces
 
 ## Reference Documentation
@@ -311,9 +311,11 @@ For each eval_id in evals/evals.json:
 
 Alternatively, use the bundled eval runner scripts:
 ```bash
-uv run skills/create-skill/scripts/run_eval.py [SKILL_PATH]
-uv run skills/create-skill/scripts/generate_report.py [SKILL_PATH]
+uv run <skill-dir>/scripts/run_eval.py [SKILL_PATH]
+uv run <skill-dir>/scripts/generate_report.py [SKILL_PATH]
 ```
+
+Before grading, list which runs produced no transcript and re-run only those; a missing run is never a fail.
 
 **Improvement loop**: if score < 4/5 or assertions fail:
 1. Read the full transcripts (not just outputs): find where the skill caused unproductive patterns
@@ -328,12 +330,12 @@ For model-invoked skills, the description is the trigger mechanism. Optimizing i
 
 Use the description optimizer: it generates should/should-not-trigger queries, iterates the description against a train split via `claude -p`, then validates on a held-out test split to avoid overfitting (see the script's own docstring for the full algorithm):
 ```bash
-uv run skills/create-skill/scripts/improve_description.py [SKILL_PATH]
+uv run <skill-dir>/scripts/improve_description.py [SKILL_PATH]
 ```
 
 Then package for distribution:
 ```bash
-uv run skills/create-skill/scripts/package_skill.py [SKILL_PATH]
+uv run <skill-dir>/scripts/package_skill.py [SKILL_PATH]
 ```
 
 ## Eval Reference Files

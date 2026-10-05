@@ -19,7 +19,6 @@ metadata:
   version: 1.0.0
 disable-model-invocation: false
 argument-hint: "[--no-merge] [--base branch]"
-allowed-tools: Read, Grep, Glob, Bash(git *), Bash(gh *), Bash(just *), Bash(make *), Bash(npm *), Bash(pnpm *), Bash(bun *), Bash(yarn *), Task, TodoWrite, Skill, AskUserQuestion
 ---
 
 # Ship
@@ -32,23 +31,28 @@ Every stage's reported result must quote the actual command you ran and its actu
 
 ## The train
 
-Run these in order. Stop at the first red gate and report it, do not skip a step or push through a failure.
+Copy this checklist, tick each step as it passes, and follow the gates. Stop at the first gate that exhausts its rounds and report it; do not skip a step or push through a failure.
 
-| # | Step | How |
-|---|------|-----|
-| 1 | Pre-flight | Confirm there's a diff to ship, working tree state, target base branch |
-| 2 | Code review | Invoke the `review-code` skill on the current diff |
-| 3 | Pre-merge checks | Auto-detect and run project checks (tests, lint, visual diff) |
-| 4 | Commit | Invoke the `git-commit` skill's conventions |
-| 5 | PR | Invoke the `git-create-pr` skill's conventions |
-| 6 | CI + merge | Watch CI (optional), report or merge on green |
+```
+- [ ] 1. Pre-flight: a diff exists, working tree state known, base branch chosen
+- [ ] 2. Code review (review-code on the diff vs base)
+      Critical/High finding: fix it (or user accepts the risk), then re-run step 2
+- [ ] 3. Pre-merge checks (auto-detected project gates)
+      Any check red: fix it, then re-run step 3
+- [ ] 4. Commit (git-commit conventions)
+- [ ] 5. PR (git-create-pr conventions)
+- [ ] 6. CI + merge (optional)
+      CI red: fix, return to step 3 to re-run local checks, then push and re-watch
+      Cap: 3 fix rounds per gate, then stop and report what still fails
+```
 
-Track progress with `TodoWrite` (one line per step above) so the user sees where the train is if a gate stops it.
+Each step's details are in its section below. `TodoWrite` can hold the same lines so the user sees where the train is if a gate stops it.
 
 ## Step 1: Pre-flight
 
 - `git branch --show-current`: refuse to run on `main`/`master`/`dev` directly (nothing to ship from a target branch).
 - `git status --porcelain`: if dirty, use `AskUserQuestion` (or ask in plain text if that tool isn't available) whether to include the changes or stop.
+- Requires `gh` (`brew install gh`): confirm `gh auth status` succeeds, else stop and tell the user to run `gh auth login`.
 - Determine base branch: use `--base` if given, else `gh repo view --json defaultBranchRef -q .defaultBranchRef.name`, else `main`.
 - `git log <base>..HEAD --oneline`: if empty, there's nothing to ship; stop and say so.
 
@@ -56,7 +60,7 @@ Track progress with `TodoWrite` (one line per step above) so the user sees where
 
 Invoke the `review-code` skill (via the `Skill` tool where available, otherwise apply its review dimensions inline) scoped to the diff against the base branch. This is analysis only: it does not touch files.
 
-- Any **Critical/High** finding: stop, report it with file:line, and let the user decide (fix and re-run, or explicitly accept the risk). Do not proceed silently.
+- Any **Critical/High** finding: report it with file:line, then fix it and re-run this step, or let the user explicitly accept the risk. Do not proceed silently. After 3 rounds with a finding still open, stop and report it.
 - Medium/Low findings: report them but continue, they don't block the train.
 
 ## Step 3: Pre-merge checks (auto-detected)
@@ -81,7 +85,7 @@ Task tool with Explore agent:
 
 No `Task` tool available: run the same detection inline: `just --list` (or read the justfile), `grep` the Makefile's target names, `cat` `package.json`'s `scripts` block, then run whatever it finds directly.
 
-Run every command found. Any non-zero exit: stop, show the failing output, do not proceed to commit. This includes visual regression diffs: a passing test suite with a failing visual diff is still a red gate.
+Run every command found. Any non-zero exit: show the failing output, fix it, and re-run the check; do not commit until it is green. After 3 rounds still red, stop and report what fails. This includes visual regression diffs: a passing test suite with a failing visual diff is still a red gate.
 
 ## Step 4: Commit
 
@@ -95,7 +99,7 @@ Follow the `git-create-pr` skill's conventions (invoke it if available, otherwis
 
 - If `--no-merge` was passed, or the user only asked to get the PR open, stop here and report the PR URL.
 - Otherwise watch CI: `gh pr checks <number> --watch` or poll `gh pr checks <number>` every couple of minutes, don't tight-loop.
-- **Red CI**: stop, show the failing check name and a log excerpt, do not merge, do not retry blindly.
+- **Red CI**: show the failing check name and a log excerpt, do not merge. Fix the cause (never retry blindly), re-run the local checks from Step 3, then push and re-watch. After 3 rounds still red, stop and report.
 - **Green CI**: only merge if the user asked to get this merged (e.g. "get this merged", "merge when green") or confirms when asked. Otherwise just report green and let the user merge themselves.
 - When merging, use squash unless the repo's own convention says otherwise (check for a CONTRIBUTING.md or existing merge history via `gh pr list --state merged --limit 5`). Never force-push, never bypass hooks or required checks to get a merge through.
 

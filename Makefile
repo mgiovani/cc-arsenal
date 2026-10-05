@@ -156,6 +156,20 @@ validate-structure: ## Validate repository structure
 			errors=$$((errors + 1)); \
 		fi; \
 	done; \
+	for ref in $$(find skills/*/references -name '*.md'); do \
+		skill=$${ref%%/references/*}; \
+		if [ $$(wc -l < "$$ref") -gt 100 ] && ! head -40 "$$ref" | grep -qiE '^#+ *(table of )?contents'; then \
+			echo "$(RED)Reference over 100 lines without a Contents section in its first 40 lines: $$ref$(RESET)"; \
+			errors=$$((errors + 1)); \
+		fi; \
+		for target in $$(grep -oE '\]\([a-zA-Z0-9_./-]+\.md\)' "$$ref" | sed -E 's/^\]\(|\)$$//g' | sed 's|^\./||'); do \
+			name=$${target##*/}; \
+			if [ "$$name" != SKILL.md ] && [ -f "$$(dirname $$ref)/$$target" -o -f "$$skill/$$target" ] && ! grep -qF "$$name" "$$skill/SKILL.md"; then \
+				echo "$(RED)Nested reference (link it from SKILL.md instead): $$ref -> $$target$(RESET)"; \
+				errors=$$((errors + 1)); \
+			fi; \
+		done; \
+	done; \
 	if [ $$errors -eq 0 ]; then \
 		echo "$(GREEN)Repository structure is valid$(RESET)"; \
 	else \

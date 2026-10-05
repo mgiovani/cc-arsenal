@@ -2,6 +2,21 @@
 
 This file contains practical workflow examples for common Jira use cases and team collaboration scenarios.
 
+## Contents
+
+- [Daily standup preparation](#daily-standup-preparation)
+- [Sprint planning](#sprint-planning)
+- [Code review workflow](#code-review-workflow)
+- [Bug triage](#bug-triage)
+- [Epic management workflow](#epic-management-workflow)
+- [Release management](#release-management)
+- [Team collaboration](#team-collaboration)
+- [Incident response](#incident-response)
+- [Backlog grooming](#backlog-grooming)
+- [Cross-team coordination](#cross-team-coordination)
+- [Personal productivity](#personal-productivity)
+- [Best practices](#best-practices)
+
 ## Daily standup preparation
 
 Get quick answers for your daily standup:

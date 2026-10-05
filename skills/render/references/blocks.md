@@ -4,6 +4,20 @@ The building blocks every render page is composed from. Styles live in
 `assets/page.css`, and `assets/gallery.html` shows each one once with real
 content. Open the gallery before composing a page: it is the visual contract.
 
+## Contents
+
+- [Content shape to block](#content-shape-to-block)
+- [Page frame](#page-frame)
+- [Render API](#render-api)
+- [Anchored blocks](#anchored-blocks)
+- [At a glance](#at-a-glance)
+- [Items](#items)
+- [Code](#code)
+- [Data](#data)
+- [Structure](#structure)
+- [Frame blocks](#frame-blocks)
+- [Primitives](#primitives)
+
 Blocks exist to replace walls of text. When content has a shape (an order, a
 comparison, a before and after, a number per item), a block shows that shape and
 a paragraph hides it. Prefer a block whenever content has a shape, and keep

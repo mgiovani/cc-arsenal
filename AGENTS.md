@@ -28,7 +28,8 @@ Using Claude Code? See `CLAUDE.md` for the plugin marketplace install and plugin
 Skills in this repo are written **tool-neutral first**:
 
 - Only `name` and `description` frontmatter are required for a skill to work anywhere.
-- Claude-Code-only frontmatter keys (`allowed-tools`, `disable-model-invocation`, `hooks`, `context`, `agent`) are enhancement layers. Other tools ignore unknown frontmatter keys safely: a skill's correctness must never depend on them being honored.
+- Claude-Code-only frontmatter keys (`disable-model-invocation`, `hooks`, `context`, `agent`) are enhancement layers. Other tools ignore unknown frontmatter keys safely: a skill's correctness must never depend on them being honored.
+- No skill declares `allowed-tools`: in Claude Code it only pre-approves tools for the turn that invokes the skill and restricts nothing, so it adds a permission grant users must vet without making anything safer. Users who want fewer prompts add allow rules to their own settings.
 - Orchestration skills (those that spawn subagents/parallel tasks in Claude Code) degrade gracefully to sequential inline execution when no subagent/task tool exists. The instructions describe the sequential fallback explicitly rather than assuming Task/Agent tools are always present.
 - Paths and shell commands referenced inside a skill must be real, tool-independent commands (e.g. `git`, `gh`, `make`): never a Claude-Code-only tool name used as if it were a shell command.
 
@@ -152,7 +153,7 @@ Containers and environment variables, database migrations and CI pipelines, as w
 Code and plans, security and dependencies, performance and visual regressions, and translations.
 
 - `i18n-check`: i18n completeness checker, detects the project's i18n framework and diffs locale files
-- `review-code`: Multi-agent code review across six dimensions, from correctness and performance to tests and error handling
+- `review-code`: Adaptive multi-agent code review: core dimensions plus architecture, security, deps, perf and design lanes picked from the diff, with adversarial verification
 - `review-deps`: Audit dependencies for vulnerabilities, license risk, and staleness
 - `review-perf`: Deep-dive performance audit of queries, algorithmic complexity, and resource leaks
 - `review-plan`: Adversarially review an implementation plan against the actual repository before any code is written

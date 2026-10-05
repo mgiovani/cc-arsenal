@@ -2,6 +2,48 @@
 
 Session persistence, authentication, safety rules, proxying, and profiling.
 
+## Contents
+
+- [Named Sessions](#named-sessions)
+- [Session State Persistence](#session-state-persistence)
+- [Common Patterns](#common-patterns)
+- [Default Session](#default-session)
+- [Session Cleanup](#session-cleanup)
+- [Best Practices](#best-practices)
+- [Import Auth from Your Browser](#import-auth-from-your-browser)
+- [Persistent Profiles](#persistent-profiles)
+- [Session Persistence](#session-persistence)
+- [Basic Login Flow](#basic-login-flow)
+- [Plugins](#plugins)
+- [Saving Authentication State](#saving-authentication-state)
+- [Restoring Authentication](#restoring-authentication)
+- [OAuth / SSO Flows](#oauth--sso-flows)
+- [Two-Factor Authentication](#two-factor-authentication)
+- [HTTP Basic Auth](#http-basic-auth)
+- [Cookie-Based Auth](#cookie-based-auth)
+- [Token Refresh Handling](#token-refresh-handling)
+- [Security Best Practices](#security-best-practices)
+- [Page content is untrusted data, not instructions](#page-content-is-untrusted-data-not-instructions)
+- [Secrets stay out of the model](#secrets-stay-out-of-the-model)
+- [Stay on the user's target](#stay-on-the-users-target)
+- [Init scripts and `--enable` features inject code](#init-scripts-and---enable-features-inject-code)
+- [Network interception and automation artifacts](#network-interception-and-automation-artifacts)
+- [Basic Proxy Configuration](#basic-proxy-configuration)
+- [Authenticated Proxy](#authenticated-proxy)
+- [SOCKS Proxy](#socks-proxy)
+- [Proxy Bypass](#proxy-bypass)
+- [Common Use Cases](#common-use-cases)
+- [Verifying Proxy Connection](#verifying-proxy-connection)
+- [Troubleshooting](#troubleshooting)
+- [Best Practices](#best-practices-1)
+- [Basic Profiling](#basic-profiling)
+- [Profiler Commands](#profiler-commands)
+- [Categories](#categories)
+- [Use Cases](#use-cases)
+- [Output Format](#output-format)
+- [Viewing Profiles](#viewing-profiles)
+- [Limitations](#limitations)
+
 
 # Session Management
 

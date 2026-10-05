@@ -2,6 +2,14 @@
 
 Mermaid syntax reference for each supported diagram type.
 
+## Contents
+
+- [ER Diagram (`er`)](#er-diagram-er)
+- [Architecture Diagram (`arch`)](#architecture-diagram-arch)
+- [Deployment Diagram (`deployment`)](#deployment-diagram-deployment)
+- [Security Diagram (`security`)](#security-diagram-security)
+- [Example Output](#example-output)
+
 ## ER Diagram (`er`)
 
 Entity-Relationship diagram from database models.

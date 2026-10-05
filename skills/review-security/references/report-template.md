@@ -2,6 +2,11 @@
 
 Use this template when generating the security report in Phase 5.
 
+## Contents
+
+- [Report format](#report-format): Executive summary, Severity breakdown, Findings by OWASP category, Bytecode security analysis, Recommendations by priority, Security tooling recommendations, References
+- [Example output](#example-output)
+
 ## Report format
 
 ```markdown

@@ -2,6 +2,14 @@
 
 JSON schemas for eval system output formats. Use these when creating or validating eval files.
 
+## Contents
+
+- [evals/evals.json](#evalsevalsjson)
+- [evals/trigger-eval.json](#evalstrigger-evaljson)
+- [evals/results/{eval_id}/grading.json](#evalsresultsevalidgradingjson)
+- [evals/metrics.json](#evalsmetricsjson)
+- [evals/benchmark.json](#evalsbenchmarkjson)
+
 ## evals/evals.json
 
 The evaluation definition file. Created during Phase 4 of skill creation.

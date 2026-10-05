@@ -32,7 +32,7 @@ contract below wins.
 Google Labs `design.md` (github.com/google-labs-code/design.md, Apache-2.0) is alpha; its authors
 warn the format will change. Support it only as an optional prose layer:
 
-1. Probe the CLI at runtime (`npx @google/design.md --version` or equivalent); never assume it is
+1. Probe the CLI at runtime (`npx @google/design.md --version` or equivalent; needs Node.js); never assume it is
    installed or that any subcommand name is stable.
 2. Pin the spec/CLI version you generated against, in the DESIGN.md frontmatter.
 3. Always emit `tokens.dtcg.json` alongside it, since DESIGN.md is never the sole durable record.

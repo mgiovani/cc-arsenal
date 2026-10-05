@@ -19,7 +19,7 @@ Both open a real browser, draw each frame and encode. What differs is what you w
 
 ## Starting Remotion
 
-`npx create-video@latest --yes --blank --no-tailwind my-video`, `npm i`, then run your coding agent in the folder. Install the agent skills with `npx skills add remotion-dev/skills` (gives `/remotion-create`, `/remotion-render` and others), e.g. `/remotion-create a 20s 9:16 launch film for PRODUCT, springs only, one accent color`. Preview with `npx remotion studio`; render with `npx remotion render <CompositionId> out/launch.mp4`.
+Needs Node.js (`fnm install --lts` or `brew install node`). `npx create-video@latest --yes --blank --no-tailwind my-video`, `npm i`, then run your coding agent in the folder. Install the agent skills with `npx skills add remotion-dev/skills` (gives `/remotion-create`, `/remotion-render` and others), e.g. `/remotion-create a 20s 9:16 launch film for PRODUCT, springs only, one accent color`. Preview with `npx remotion studio`; render with `npx remotion render <CompositionId> out/launch.mp4`.
 
 Rules that matter:
 

@@ -14,7 +14,6 @@ metadata:
   version: 2.0.0
 disable-model-invocation: true
 argument-hint: '[context]'
-allowed-tools: Read, Write, Grep, Glob, Bash(git *), Bash(find *), Task
 context: fork
 agent: general-purpose
 ---
@@ -88,9 +87,25 @@ Map each to a verified finding: `{{TECHNOLOGY_STACK}}` becomes "Python 3.12, Fas
 
 Create `docs/` (and `docs/adr/`, `docs/rfc/` if needed). Write each file that isn't being skipped.
 
-### 7. Report
+### 7. Validate the diagrams render
 
-List what was created, what was skipped (already existed), and next steps.
+Skip if none of the files you wrote has a ```` ```mermaid ```` block. Otherwise you need `mmdc`: install with `npm i -g @mermaid-js/mermaid-cli`, or run it ad hoc by defining `mmdc() { npx -y -p @mermaid-js/mermaid-cli mmdc "$@"; }` first. If Chromium refuses to launch in a sandbox, add `-p` with a puppeteer config of `{"args":["--no-sandbox"]}`.
+
+Run this on the files you wrote; each `FAIL <name>-N.mmd` names the doc and the Nth mermaid block in it:
+
+```bash
+d=$(mktemp -d)
+for md in <the docs/ files you wrote>; do
+  awk -v out="$d/${md//\//__}" '/^```mermaid/{f=out "-" ++n ".mmd"; next} /^```/{f=""} f{print > f}' "$md"
+done
+for f in "$d"/*.mmd; do mmdc -q -i "$f" -o "${f%.mmd}.svg" || echo "FAIL $f"; done
+```
+
+Fix each failing block using its parser error, then re-run until nothing prints `FAIL`. Cap at 3 rounds, then report the blocks that still fail. If `mmdc` can't be installed (no Node, offline), say so in the report and fall back to a careful syntax review of each diagram.
+
+### 8. Report
+
+List what was created, what was skipped (already existed), diagram validation result (rendered, or still failing, or unvalidated), and next steps.
 
 ## Template Reference
 

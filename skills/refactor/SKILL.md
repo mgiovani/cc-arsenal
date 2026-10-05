@@ -3,7 +3,6 @@ name: refactor
 description: "Restructures existing code without changing its behavior: maps callers and test coverage, adds characterization tests where coverage is thin, then applies the change in small steps verified against the full test suite after each one. Use when the user wants to refactor, extract a method or class, simplify logic, reduce duplication, improve naming, restructure modules, or pay down technical debt in code that already works. Not for adding new functionality (use implement-feature) or fixing broken behavior (use fix-bug)."
 disable-model-invocation: false
 argument-hint: "<refactoring_description> [--scope file|module|project] [--interactive]"
-allowed-tools: Read, Write, Edit, Bash, Grep, Glob, Task, TaskCreate, TaskUpdate, TaskList, TaskGet, WebFetch, AskUserQuestion
 hooks:
   Stop:
     - hooks:

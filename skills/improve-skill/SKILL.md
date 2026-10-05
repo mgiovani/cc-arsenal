@@ -16,7 +16,6 @@ metadata:
   summary: "Rewrite an existing skill to the authoring standard, with baseline-vs-new eval evidence"
   author: mgiovani
   version: 1.0.0
-allowed-tools: Read, Write, Edit, Grep, Glob, Bash(mkdir *), Bash(cp *), Bash(diff *), Bash(uv run *), Task, AskUserQuestion
 ---
 
 # Improve Skill
@@ -35,6 +34,19 @@ This skill touches no git state: it never commits or pushes, and it never force-
 
 ## Workflow
 
+Copy this checklist and tick each step as you finish it. Gates say where to return or stop.
+
+```
+- [ ] 1. Scope: every target has skills/<name>/SKILL.md (missing -> stop and say so)
+- [ ] 2. Snapshot: diff -rq against the original reports no differences (differs -> re-copy)
+- [ ] 3. Rewrite: per-dimension verdict first, then edit only deficient dimensions
+- [ ] 4. Validate: quick_validate passes (errors -> fix and re-run, max 3 rounds, then report what still fails)
+- [ ] 5. Benchmark: grading.json for every (eval, config) pair (new_skill worse than old_skill on any eval -> return to 3)
+- [ ] 6. Missing runs: re-run absent pairs before aggregating (never score absent as 0)
+- [ ] 7. Report: every number traces to a validator run or grading result from this session
+- [ ] 8. Feedback: user feedback -> back to 3, max 2 rounds per skill (3 if flagged weak)
+```
+
 ### 1. Scope
 
 Identify which skill(s) to improve: a name the user gave, a path, or "audit all skills" (if a repo-wide audit workflow already exists here, e.g. `.claude/workflows/arsenal-audit.js`, its per-skill findings are a good prioritized starting list; don't re-derive that scoring yourself, just read its output). For each target, confirm `skills/<name>/SKILL.md` exists: if it doesn't, stop and say so; this skill only improves skills that already exist (a brand-new skill is `create-skill`'s job).
@@ -48,7 +60,7 @@ mkdir -p <workspace>/<name>/skill-snapshot
 cp -R skills/<name>/. <workspace>/<name>/skill-snapshot/
 ```
 
-Verify the copy landed (`diff -rq skills/<name> <workspace>/<name>/skill-snapshot` should report no differences) before moving on. This is the only write this skill ever makes to `skill-snapshot/`: see Ground rules.
+Verify the copy landed with `diff -rq skills/<name> <workspace>/<name>/skill-snapshot`. This is the only write this skill ever makes to `skill-snapshot/`: see Ground rules.
 
 ### 3. Rewrite
 
@@ -58,15 +70,17 @@ The description must be use-case-first and third person, cover WHAT + WHEN with 
 
 **In the same pass**, author or upgrade `evals/evals.json` and `evals/trigger-eval.json` per [references/eval-design.md](references/eval-design.md), load it now. Evals encode the intended post-rewrite behavior; writing them after the fact, once you already know what the rewrite does, produces evals that only confirm what you built instead of testing it.
 
-Before editing, go through the rubric dimensions (description, body length/tone, references split, CAPS discipline, examples, portability, anti-hallucination) and mark each one from your full read as `compliant` or `deficient`; that verdict is the restraint gate, and only the dimensions marked `deficient` get rewritten. Anything already `compliant` stays byte-for-byte unless fixing a deficient dimension forces a change through it: your own read already said that part of the skill was fine, so leave its prose, sections, and length untouched. A rewrite that grows the line count despite a compliant verdict means you touched something you shouldn't have; that's the over-rewrite failure this gate exists to catch, and the fix is cutting back to the actual delta. The final report needs the per-dimension verdict alongside the specific gaps closed, because a near-compliant skill should show a small diff, not a fresh draft.
+Before editing, go through the rubric dimensions (description, body length/tone, references split, reference depth and contents, degrees of freedom, checklists and gates, validation loops, install lines, multi-model testing, CAPS discipline, examples, portability, anti-hallucination). Mark each one from your full read as `compliant` or `deficient`; that verdict is the restraint gate, and only the dimensions marked `deficient` get rewritten. Anything already `compliant` stays byte-for-byte unless fixing a deficient dimension forces a change through it: your own read already said that part of the skill was fine, so leave its prose, sections, and length untouched. A rewrite that grows the line count despite a compliant verdict means you touched something you shouldn't have; that's the over-rewrite failure this gate exists to catch, and the fix is cutting back to the actual delta. The final report needs the per-dimension verdict alongside the specific gaps closed, because a near-compliant skill should show a small diff, not a fresh draft.
 
 ### 4. Validate
 
+Requires `uv` (`brew install uv`, or see https://docs.astral.sh/uv/). `<create-skill-dir>` is the installed `create-skill` skill's directory.
+
 ```bash
-uv run skills/create-skill/scripts/quick_validate.py skills/<name>
+uv run <create-skill-dir>/scripts/quick_validate.py skills/<name>
 ```
 
-Fix every error before continuing. This is create-skill's validator, reused as-is: don't fork or reimplement it here.
+Fix every error and re-run, up to 3 rounds; if errors remain, stop and report them. This is the sibling create-skill skill's validator, reused as-is: don't fork or reimplement it here. If create-skill isn't installed, apply its checks inline: frontmatter parses, `name` and `description` are present and valid, and SKILL.md is under 500 lines.
 
 ### 5. Benchmark
 
@@ -75,13 +89,13 @@ Run the evals from `evals/evals.json` against both configurations and compare: t
 - **`new_skill`**: the rewritten skill in `skills/<name>/`.
 - **`old_skill`**: the frozen copy in `<workspace>/<name>/skill-snapshot/`.
 
-Grade each eval's assertions per-config, deterministically: read the actual output/transcript/file state, never take a run's self-report on faith. Record results as `grading.json` per eval per [references/eval-design.md](references/eval-design.md), including the required `summary` block.
+If `new_skill` scores below `old_skill` on any eval, return to step 3 and fix the skill, not the eval. Grade each eval's assertions per-config, deterministically: read the actual output/transcript/file state, never take a run's self-report on faith. Record results as `grading.json` per eval per [references/eval-design.md](references/eval-design.md), including the required `summary` block.
 
 **No subagent/parallel-task tool available**: skip the old-vs-new comparison, running two full sandboxed configurations sequentially for every eval isn't worth the wall-clock cost. Instead run each `evals/evals.json` prompt once, inline, against the rewritten skill only, grade its assertions yourself, and say plainly in the report that this was a single-configuration check, not a baseline comparison, and why (no comparison tooling in this environment).
 
 ### 6. Scan for missing runs
 
-Before aggregating scored results, confirm every `(eval, config)` pair actually produced a `grading.json`: a small fraction of sandboxed runs silently write nothing. Re-run just the missing ones rather than treating an absent result as a 0.
+Before aggregating, list which `(eval, config)` pairs have no `grading.json`: a small fraction of sandboxed runs silently write nothing. Re-run just those pairs; an absent result is never a 0.
 
 ### 7. Aggregate and report
 
@@ -89,7 +103,7 @@ Summarize per skill: validator status, per-eval pass/fail for both configs (or t
 
 ### 8. Iterate from feedback
 
-If the user gives feedback after reviewing the report, generalize the underlying pattern rather than patching the one failing case: a fix that only works for the exact prompt that failed isn't a real fix (see `references/rubric.md`'s "generalize, don't overfit" note). Cap iteration at 2 rounds per skill (3 for a skill the user flags as still weak after round 2); after the cap, hand back to the user rather than looping indefinitely. Every iteration still obeys the Ground rules above: snapshot stays frozen, eval prompts/assertions stay frozen unless the user explicitly signs off on changing one because it was wrong.
+If the user gives feedback after reviewing the report, generalize the underlying pattern rather than patching the one failing case: a fix that only works for the exact prompt that failed isn't a real fix (see `references/rubric.md`'s "generalize, don't overfit" note). After the 2-round cap (3 for a skill the user flags as still weak), hand back to the user rather than looping. Every iteration still obeys the Ground rules above: snapshot stays frozen, eval prompts/assertions stay frozen unless the user explicitly signs off on changing one because it was wrong.
 
 ## Anti-hallucination
 

@@ -5,11 +5,6 @@ metadata:
   summary: "Polished raster art (logos, mascots, heroes, sprites, mockups) via Codex CLI's $imagegen"
   author: mgiovani
   version: 1.0.0
-allowed-tools:
-  - Bash
-  - Read
-  - Glob
-  - Grep
 ---
 
 # Codex Imagegen: Illustrated Asset Generation via Codex CLI
@@ -37,7 +32,7 @@ This skill wraps a multi-minute, credit-billed Codex run and is the default hand
 codex --version
 ```
 
-- Not found → tell the user to install Codex CLI and stop.
+- Not found → tell the user to install Codex CLI (`npm i -g @openai/codex` or `brew install codex`, then `codex login`) and stop.
 - `codex exec` rejects the model or auth → see [references/troubleshooting.md](references/troubleshooting.md).
 - Run from the target repo's root so codex's relative move-file paths land in the right workspace.
 

@@ -2,6 +2,15 @@
 
 How the create-skill eval system works, when to use it, and platform-specific notes.
 
+## Contents
+
+- [Overview](#overview)
+- [When to use evals](#when-to-use-evals)
+- [How eval execution works](#how-eval-execution-works)
+- [Description optimization](#description-optimization)
+- [Platform-specific notes](#platform-specific-notes)
+- [File structure after running evals](#file-structure-after-running-evals)
+
 ## Overview
 
 The eval system measures skill quality by comparing outputs with and without the skill active. This is more rigorous than manual inspection because:

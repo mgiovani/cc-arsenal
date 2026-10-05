@@ -29,7 +29,7 @@ Every video here is a program. Claude writes code that paints a frame for any mo
 
 Opus defaults to route A (one `index.html`, Playwright, ffmpeg, zero dependencies) and skips Remotion and HyperFrames even when installed. If the user wants a framework, say so explicitly in the brief.
 
-HyperFrames setup (ask the user first): run `npx skills add heygen-com/hyperframes` and choose Core Skills; for CI or non-interactive refresh run `npx hyperframes skills update`. Start a fresh chat afterwards and ask it to use `/hyperframes`. HyperFrames needs no React or build step and is Apache 2.0; Remotion fits teams already writing React (components, design system, typed inputs).
+HyperFrames setup (ask the user first; needs Node.js: `fnm install --lts` or `brew install node`): run `npx skills add heygen-com/hyperframes` and choose Core Skills; for CI or non-interactive refresh run `npx hyperframes skills update`. Start a fresh chat afterwards and ask it to use `/hyperframes`. HyperFrames needs no React or build step and is Apache 2.0; Remotion fits teams already writing React (components, design system, typed inputs).
 
 ## Core workflow
 

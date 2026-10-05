@@ -11,7 +11,6 @@ description: Implements a new feature end-to-end as a senior staff engineer woul
   (use orchestrate).
 disable-model-invocation: false
 argument-hint: "<feature_description>"
-allowed-tools: Read, Write, Edit, Bash, Grep, Glob, Task, TaskCreate, TaskUpdate, TaskList, TaskGet, WebFetch, EnterPlanMode, AskUserQuestion, ExitPlanMode
 metadata:
   summary: "Feature implementation with senior staff engineer best practices and parallel subagent orchestration where available"
 ---

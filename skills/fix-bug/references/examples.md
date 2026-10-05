@@ -1,5 +1,14 @@
 # Fix Bug - Examples & Reference
 
+## Contents
+
+- [Argument Parsing](#argument-parsing)
+- [Usage Examples](#usage-examples)
+- [Browser Testing Integration (Optional)](#browser-testing-integration-optional)
+- [Error Handling](#error-handling)
+- [Quality Checklist](#quality-checklist)
+- [Commit Message Guidelines](#commit-message-guidelines)
+
 ## Argument Parsing
 
 Parse optional arguments from the command invocation:

@@ -2,6 +2,14 @@
 
 Detailed YAML structure and patterns for each supported CI/CD platform. Use these as reference templates, adapting commands and versions to match the actual project stack discovered in Phase 1.
 
+## Contents
+
+- [GitHub Actions](#github-actions)
+- [GitLab CI](#gitlab-ci)
+- [CircleCI](#circleci)
+- [Jenkins](#jenkins)
+- [Common patterns (cross-platform)](#common-patterns-cross-platform)
+
 ## GitHub Actions
 
 ### Standard Node.js pipeline

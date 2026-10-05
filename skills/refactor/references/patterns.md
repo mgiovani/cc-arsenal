@@ -1,5 +1,31 @@
 # Refactoring patterns & safety practices
 
+## Contents
+
+- [Refactoring catalog](#refactoring-catalog)
+  - [Extract method](#extract-method)
+  - [Extract class](#extract-class)
+  - [Rename (variable, method, class)](#rename-variable-method-class)
+  - [Move function/class](#move-functionclass)
+  - [Simplify conditional](#simplify-conditional)
+  - [Remove duplication](#remove-duplication)
+  - [Inline method/variable](#inline-methodvariable)
+  - [Replace magic numbers/strings with constants](#replace-magic-numbersstrings-with-constants)
+  - [Decompose large function](#decompose-large-function)
+- [Safety practices](#safety-practices)
+  - [The golden rule](#the-golden-rule)
+  - [Pre-refactoring checklist](#pre-refactoring-checklist)
+  - [When to write characterization tests](#when-to-write-characterization-tests)
+  - [Characterization test naming](#characterization-test-naming)
+  - [When to abort a refactoring](#when-to-abort-a-refactoring)
+  - [Red flags during refactoring](#red-flags-during-refactoring)
+- [Language-specific notes](#language-specific-notes)
+  - [Python](#python)
+  - [JavaScript/TypeScript](#javascripttypescript)
+  - [Go](#go)
+  - [Java/Kotlin](#javakotlin)
+- [Commit message examples](#commit-message-examples)
+
 ## Refactoring catalog
 
 ### Extract method

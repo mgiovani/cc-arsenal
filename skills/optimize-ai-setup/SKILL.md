@@ -3,7 +3,6 @@ name: optimize-ai-setup
 description: Audits the AI coding setup on this machine (Claude Code, Codex CLI and app, Cursor, Antigravity, Gemini CLI, Claude Desktop) for token waste and quality drag, then ranks the fixes. A deterministic local script measures real session logs and configs (startup context size, prompt-cache hit rate and rebuilds, oversized CLAUDE.md/AGENTS.md, duplicate or unused skills, plugins and MCP servers, stale env settings, model and effort mix) without reading message content or secrets, so the audit itself costs few tokens. Use when the user asks why Claude Code or Codex burns through their limits, wants to cut the token usage or cost of their agent setup, audit their MCP servers or skills, fix prompt-cache misses, or optimize their AI setup. Not for cutting the cost of their own Claude API application code (use the claude-api skill's cost-optimize), and not for writing new memory rules (use create-rule).
 metadata:
   summary: "Measure token waste across installed AI coding tools and rank the fixes"
-allowed-tools: Bash(uv run *), Bash(python3 *), Bash(awk *), Bash(cp *), Read, Write, Edit, AskUserQuestion, Skill
 ---
 
 # Optimize AI Setup

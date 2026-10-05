@@ -2,6 +2,11 @@
 
 Use this template when generating the performance report in Phase 5.
 
+## Contents
+
+- [Report Format](#report-format): Executive Summary, Severity Breakdown, Findings by Performance Category, Pre-existing Issues Noticed in Touched Files (outside this PR's changes), Performance Impact Summary, Recommendations by Priority, Quick Wins, Profiling Recommendations, Monitoring Recommendations
+- [Example Output](#example-output)
+
 ## Report Format
 
 ```markdown

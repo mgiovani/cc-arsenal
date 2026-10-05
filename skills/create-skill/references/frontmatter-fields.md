@@ -10,7 +10,6 @@ name: my-skill                     # kebab-case, becomes /slash-command
 description: "What it does..."     # when Claude should use it — the trigger mechanism
 disable-model-invocation: true     # user-invoked only; skip for skills with side effects
 argument-hint: "[args]"            # shown in autocomplete
-allowed-tools: Read, Write, Bash   # only list tools actually used
 license: MIT                       # optional
 compatibility: ...                 # optional, rarely used
 metadata:                          # optional: author, version, source
@@ -25,7 +24,7 @@ hooks:                             # lifecycle hooks scoped to this skill
 ---
 ```
 
-Validate against `scripts/quick_validate.py`: it enforces this exact key set and rejects anything else, since unknown keys silently break skill loading.
+Validate against `scripts/quick_validate.py`: it enforces this exact key set and rejects anything else, since unknown keys silently break skill loading. `allowed-tools` is also valid but left out on purpose: in Claude Code it only pre-approves the listed tools for the invoking turn and never restricts the others.
 
 ## `context: fork` (Isolated subagent pattern)
 

@@ -421,7 +421,7 @@ npx skills add mgiovani/cc-arsenal
 
 **Claude Code-only features** (ignored by other tools, since they read only `name`/`description`):
 - Plugin variants via `/plugin marketplace add mgiovani/cc-arsenal` (`.claude-plugin/marketplace.json`)
-- `hooks`, `allowed-tools`, `disable-model-invocation`, `context`, `agent` frontmatter keys
+- `hooks`, `disable-model-invocation`, `context`, `agent` frontmatter keys
 - Statusline and Claude Hi scheduler (see Optional Features above)
 - Subagent (Task tool) orchestration used by skills like `implement-feature` and `review-code`
 

@@ -3,6 +3,16 @@
 Companion to `SKILL.md`. The SKILL.md body is the source of truth for the flow; this file carries the detail
 that would bloat it.
 
+## Contents
+
+- [The four phases](#the-four-phases)
+- [Tiers](#tiers)
+- [Reuse the existing component library first (the ladder)](#reuse-the-existing-component-library-first-the-ladder)
+- [Source-of-truth hierarchy](#source-of-truth-hierarchy)
+- [The ~10-state shortlist](#the-10-state-shortlist)
+- [Accessibility scope: delegated, not hand-rolled](#accessibility-scope-delegated-not-hand-rolled)
+- [Platform currency](#platform-currency)
+
 ## The four phases
 
 1. Discover: read the approved PRD, harvest every `PRD-<CAT>-NNN` id, detect the component library, pick

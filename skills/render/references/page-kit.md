@@ -3,6 +3,8 @@
 The document skeleton, where the file goes, and how it gets published. Shared by
 all twelve modes.
 
+## Contents
+
 - [Output path](#output-path)
 - [The two delivery paths](#the-two-delivery-paths)
 - [Document skeleton](#document-skeleton)
@@ -101,12 +103,15 @@ a page is copy, fill, assemble, check:
 2. Run `scripts/assemble.py` on that same path, in place, `-o` pointing at the
    input it just read. The file goes from linked template to a single gated
    page in one command.
-3. Run `npx impeccable detect` on the result and fix whatever it flags.
+3. Run `npx impeccable detect` on the result (needs Node.js: `fnm install --lts` or
+   `brew install node`) and fix whatever it flags.
+
+`<skill-dir>` below is this skill's directory.
 
 ```bash
-cp skills/render/assets/templates/plan.html .cc-arsenal/renders/plan-auth-rework-2026-09-23.html
+cp <skill-dir>/assets/templates/plan.html .cc-arsenal/renders/plan-auth-rework-2026-09-23.html
 # edit .cc-arsenal/renders/plan-auth-rework-2026-09-23.html: replace /*SAMPLE*/ DATA, compose extra sections
-python3 skills/render/scripts/assemble.py .cc-arsenal/renders/plan-auth-rework-2026-09-23.html \
+python3 <skill-dir>/scripts/assemble.py .cc-arsenal/renders/plan-auth-rework-2026-09-23.html \
   -o .cc-arsenal/renders/plan-auth-rework-2026-09-23.html
 npx impeccable detect .cc-arsenal/renders/plan-auth-rework-2026-09-23.html
 ```
@@ -116,7 +121,7 @@ None of these calls takes `--allow-sample` for a real page: a leftover
 assembled file later, without rewriting it:
 
 ```bash
-python3 skills/render/scripts/assemble.py .cc-arsenal/renders/plan-auth-rework-2026-09-23.html --check-only
+python3 <skill-dir>/scripts/assemble.py .cc-arsenal/renders/plan-auth-rework-2026-09-23.html --check-only
 ```
 
 Order still matters inside the template: the state block comes before the

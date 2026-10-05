@@ -14,7 +14,6 @@ metadata:
   version: 1.1.1
 disable-model-invocation: true
 argument-hint: <type> [context]
-allowed-tools: Read, Write, Grep, Glob, Task
 context: fork
 agent: general-purpose
 ---
@@ -91,7 +90,23 @@ Write to the file in `docs/` named in the table above. If it already exists, ask
 before overwriting, and preserve any hand-written sections you can identify
 (anything outside the placeholder fields).
 
-### 7. Report results
+### 7. Validate the diagram renders
+
+Needs `mmdc`: install with `npm i -g @mermaid-js/mermaid-cli`, or run it ad hoc by defining `mmdc() { npx -y -p @mermaid-js/mermaid-cli mmdc "$@"; }` first. If Chromium refuses to launch in a sandbox, add `-p` with a puppeteer config of `{"args":["--no-sandbox"]}`.
+
+Run this on the file you wrote; each `FAIL <name>-N.mmd` names the doc and the Nth mermaid block in it:
+
+```bash
+d=$(mktemp -d)
+for md in docs/<file>.md; do
+  awk -v out="$d/${md//\//__}" '/^```mermaid/{f=out "-" ++n ".mmd"; next} /^```/{f=""} f{print > f}' "$md"
+done
+for f in "$d"/*.mmd; do mmdc -q -i "$f" -o "${f%.mmd}.svg" || echo "FAIL $f"; done
+```
+
+Fix each failing block using its parser error, then re-run until nothing prints `FAIL`. Cap at 3 rounds, then report the blocks that still fail. An unreplaced `{{PLACEHOLDER}}` in a block also fails here. If `mmdc` can't be installed (no Node or no network), say so in the report and fall back to a careful syntax review against [references/mermaid-patterns.md](references/mermaid-patterns.md).
+
+### 8. Report results
 
 State the diagram type and the output file, then report the actual counts
 detected (e.g. "4 entities, 6 relationships"). These must be the numbers from

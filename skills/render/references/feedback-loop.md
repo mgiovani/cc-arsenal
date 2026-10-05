@@ -4,6 +4,18 @@ Every page this skill builds carries the same mechanic: the user marks things,
 saves, and the marks come back bound to what they were left on. This file
 specifies that mechanic. It is shared by all twelve modes.
 
+## Contents
+
+- [The two kinds of feedback](#the-two-kinds-of-feedback)
+- [Anchors](#anchors)
+- [State shape](#state-shape)
+- [The affordance](#the-affordance)
+- [Wiring](#wiring)
+- [Saving](#saving)
+- [Re-rendering an existing page](#re-rendering-an-existing-page)
+- [Reading the marks back](#reading-the-marks-back)
+- [The escape hatch](#the-escape-hatch)
+
 ## The two kinds of feedback
 
 **Verdicts** are a small fixed choice on a page's primary items: keep, change,

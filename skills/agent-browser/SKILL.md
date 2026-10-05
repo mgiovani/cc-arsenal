@@ -258,7 +258,7 @@ file for the split points).
 
 - GitHub: https://github.com/vercel-labs/agent-browser
 - AGENTS.md: AI agent integration guide, bundled with the CLI
-- CLI source: `npx opensrc vercel-labs/agent-browser` (fetches the actual source for reference: there is no vendored copy in this skill)
+- CLI source: `npx opensrc vercel-labs/agent-browser` (needs Node.js: `fnm install --lts` or `brew install node`; fetches the actual source for reference: there is no vendored copy in this skill)
 
 ### Environment Variables
 

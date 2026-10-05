@@ -4,6 +4,12 @@ Load this when a refactoring actually needs the full Phase 0-6 task chain (see
 "When to Use the Full Task Chain" in SKILL.md): for skip-eligible refactors,
 ignore this file entirely.
 
+## Contents
+
+- [Creating the task chain](#creating-the-task-chain)
+- [Phase 0: discovery agent prompt](#phase-0-discovery-agent-prompt)
+- [Phase 1: scope analysis agents](#phase-1-scope-analysis-agents)
+
 ## Creating the task chain
 
 `TaskCreate` returns the real ID of the task it just made, capture each one

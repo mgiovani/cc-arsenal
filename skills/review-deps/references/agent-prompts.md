@@ -2,6 +2,13 @@
 
 Detailed analysis steps for the three dependency-review dimensions used in Phase 3: vulnerabilities, licenses, staleness. Load this reference before starting Phase 3.
 
+## Contents
+
+- [vulnerability analysis (CVE/GHSA triage)](#dimension-1-vulnerability-analysis-cveghsa-triage)
+- [license compliance analysis](#dimension-2-license-compliance-analysis)
+- [staleness & upgrade complexity analysis](#dimension-3-staleness--upgrade-complexity-analysis)
+- [Recommended follow-up](#recommended-follow-up)
+
 Each section below is written as a self-contained prompt. Use it two ways:
 - Default, single pass: work through all three sections yourself, in order, against the Phase 2 output already in context.
 - Large-output fan-out: when the audit output is too large to reason about in one pass (e.g. a multi-ecosystem monorepo), spawn one `Explore` agent per section, pasting that section's prompt verbatim plus the relevant Phase 2 output.

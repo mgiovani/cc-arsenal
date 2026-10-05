@@ -14,7 +14,6 @@ description: Run the checks a GitHub Actions workflow would run, locally, when A
   produces the local stand-in when the real thing isn't reachable.
 disable-model-invocation: false
 argument-hint: "[workflow-file] [--job name]"
-allowed-tools: Read, Grep, Glob, Bash, Task
 metadata:
   summary: "Run the checks a GitHub Actions workflow would run, locally, when Actions is unavailable"
 ---

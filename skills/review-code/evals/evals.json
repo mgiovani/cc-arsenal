@@ -5,7 +5,7 @@
       "id": "over-engineered-single-impl-interface",
       "prompt": "/review-code --all",
       "assertions": [
-        "Spawns 6 parallel specialist agents in Phase 3 (or, absent a Task/Explore tool, runs the same 6 prompts as sequential Grep+Read passes), including the Simplicity & Over-Engineering agent",
+        "Spawns 7 parallel specialist agents in the fan-out phase (the six core agents including Simplicity & Over-Engineering, plus the Architecture agent) in one batch, or, absent a Task/Explore tool, runs the same 7 prompts as sequential Grep+Read passes",
         "Reports at least one OE- finding, each carrying exactly one tag from [delete]/[reuse]/[stdlib]/[builtin]/[unneeded]/[simplify]",
         "Includes a line reading 'Estimated lines removable (static count, not a benchmark): ~N'",
         "Does not state or imply a percentage, runtime, token, or bundle-size saving anywhere in the report",
@@ -40,6 +40,102 @@
         "Still maps source files to test files, flags untested business logic as Critical/Major, and cites file:line for each gap",
         "TodoWrite tracking, if unavailable or skipped, does not block the review from proceeding to Phase 4/5",
         "The final report format matches the standard template (severity breakdown, TC- prefixed findings, statistics) even though it was produced sequentially rather than via parallel agents"
+      ]
+    },
+    {
+      "id": "lanes-auth-pr-all-conditional-lanes",
+      "prompt": "/review-code 55\n\nSANDBOX SETUP: PR 55 'Add session auth' changes 9 files: server/auth/session.py (new login and token refresh endpoints), server/config/settings.py (cookie flags), web/src/components/LoginForm.tsx and web/src/styles/login.css (new UI), web/src/lib/authStorage.ts (stores a token in localStorage), package.json and bun.lock (adds the dependency 'jsonwebtoken'). `gh pr diff 55` works. No CLAUDE.md rules.",
+      "assertions": [
+        "Prints a lane-selection line before fan-out that lists the chosen lanes, each with a one-line reason tied to the changed paths",
+        "Selects both a frontend security lane and a backend/infra security lane, a dependency lane, and a design/motion lane, in addition to the core lanes and the Architecture lane",
+        "Launches all selected lanes in ONE parallel batch, not one lane at a time",
+        "Every subagent call states an explicit model (sonnet for review/research/verify, opus for planning) and none is left to inherit or set to haiku",
+        "A lane that is not selected, if any, is listed with a reason for being skipped",
+        "Findings carry the lane prefixes SEC-, DEP- or DM- where those lanes produce them, and the localStorage token is reported as a security finding with file:line"
+      ]
+    },
+    {
+      "id": "lanes-backend-only-skips-design",
+      "prompt": "/review-code 61\n\nSANDBOX SETUP: PR 61 'Speed up invoice export' changes only server/billing/export.py (batches a query loop) and tests/test_export.py. No UI, CSS, manifest or lockfile files changed. `gh pr diff 61` works. No CLAUDE.md rules.",
+      "assertions": [
+        "Prints a lane-selection line and does not run a design/motion lane",
+        "States why the design/motion lane was skipped (no UI, CSS or component files changed)",
+        "Does not run a dependency lane and says why (no manifest or lockfile changed)",
+        "Still runs the core lanes and the Architecture lane",
+        "No finding uses a DM- or DEP- prefix"
+      ]
+    },
+    {
+      "id": "scope-diff-too-large-fallback",
+      "prompt": "/review-code 77\n\nSANDBOX SETUP: Current branch is feature/export, base is main. `gh pr diff 77` fails with 'HTTP 406: diff exceeded the maximum number of lines (20000)'. `git fetch origin main` succeeds. The three-dot diff `git diff origin/main...HEAD` touches src/export.py (adds `def run(items): return items[0]` with no empty check). The working tree is dirty: src/scratch.py has uncommitted edits containing an obvious bug (`x = 1/0`).",
+      "assertions": [
+        "After `gh pr diff` fails, falls back to fetching the base and reading `git diff origin/main...HEAD` instead of giving up",
+        "Does not review the uncommitted working tree: no finding cites src/scratch.py",
+        "Reports the empty-list indexing risk in src/export.py with file and line",
+        "Does not modify any file, commit or push"
+      ]
+    },
+    {
+      "id": "tests-vacuous-async-absence",
+      "prompt": "/review-code 82\n\nSANDBOX SETUP: PR 82 adds web/src/Toast.test.tsx with this test:\n```\nit('does not show an error', async () => {\n  render(<Form />);\n  fireEvent.click(screen.getByText('Save'));\n  expect(screen.queryByText('Failed')).toBeNull();\n});\n```\nForm's save handler awaits a fetch before it can render 'Failed'. The test does not await anything after the click. `gh pr diff 82` works.",
+      "assertions": [
+        "Reports the absence assertion as a Test Coverage finding with a TC- prefix and file:line",
+        "Explains that the assertion runs before the async save resolves, so it passes vacuously",
+        "Suggests awaiting the async work first (for example waitFor or findBy before asserting absence) or asserting on a resolved state",
+        "Does not praise the test as coverage of the error path"
+      ]
+    },
+    {
+      "id": "architecture-adapter-vs-trivial-if",
+      "prompt": "/review-code 90\n\nSANDBOX SETUP: PR 90 changes two files. (1) domain/orders.py imports `stripe` directly and calls `stripe.Charge.create(...)` and catches `stripe.error.CardError` inside the order-placement function, in the domain layer. (2) utils/label.py adds `def label(n): return 'many' if n > 1 else 'one'`. `gh pr diff 90` works. Python repo.",
+      "assertions": [
+        "Reports an AP- finding that the vendor SDK leaks into the domain layer, naming the Adapter (or Facade) pattern and a refactoring.guru URL",
+        "The finding sketches a target shape in Python (a port or adapter class wrapping the SDK) and mentions dependency direction",
+        "Does not recommend Strategy, State or any other pattern for the two-branch `if` in utils/label.py",
+        "Does not tag the same code with both an add-a-pattern finding and a remove-abstraction OE- finding"
+      ]
+    },
+    {
+      "id": "verifier-rejects-false-major-keeps-user-bug",
+      "prompt": "/review-code 95\n\nSANDBOX SETUP: PR 95 changes src/cache.py. Fixture facts: (a) `get(key)` returns `self._d[key]` and a first-pass agent flags it as a Major KeyError, but the only caller (src/api.py line 12) always calls `has(key)` first in the same lock, so the error cannot occur. (b) `evict()` pops the wrong index, an off-by-one the PR author says in the PR body they reproduced in staging ('we saw entries disappear in staging'). A first-pass agent rates it Minor. `gh pr diff 95` works.",
+      "assertions": [
+        "Runs an adversarial verification pass over Critical/Major findings that tries to disprove each one",
+        "The KeyError finding in get() is rejected or dropped from the final findings, and the report does not list it as Major",
+        "The evict() off-by-one is kept and its severity is raised to or stays at Major or higher because the user reported observing it",
+        "Surviving Critical/Major findings carry a verification line with a verdict of CONFIRMED or PLAUSIBLE and a short reason",
+        "No code is modified while verifying"
+      ]
+    },
+    {
+      "id": "project-rules-and-preexisting-bucket",
+      "prompt": "/review-code 101\n\nSANDBOX SETUP: Repo CLAUDE.md says: '1. No comments that restate code. 2. Every function has a type annotation on all params. 3. Files stay under 300 lines.' PR 101 changes src/util.py: the diff adds line 40 `# increment i` above `i += 1` and line 52 `def parse(raw):` (no annotations). The same file already has, unchanged and outside the diff, line 10 `# loop over items` above a for loop. `gh pr diff 101` works.",
+      "assertions": [
+        "Extracts the CLAUDE.md rules into a numbered checklist and applies them to the diff",
+        "Reports the restating comment at line 40 and the unannotated parse() at line 52 as violations, citing the rule",
+        "Puts the comment at line 10 in a Pre-existing bucket, not in the main findings for this PR",
+        "Does not report any 300-line violation since the file is under the limit"
+      ]
+    },
+    {
+      "id": "report-stays-in-chat-by-default",
+      "prompt": "Review PR 42.\n\nSANDBOX SETUP: PR 42 changes src/total.py, adding `def total(xs): return sum(xs) / len(xs)` which divides by zero on an empty list. `gh pr diff 42` works. `gh` is authenticated with write access to the repo.",
+      "assertions": [
+        "Delivers the full severity-ranked report in the chat response",
+        "Reports the division by zero with file:line and a fix suggestion",
+        "Runs no `gh api`, `gh pr review` or `gh pr comment` write command; the recorded commands contain only reads",
+        "Does not post, and does not offer to have already posted, anything to GitHub; it may offer to post on request"
+      ]
+    },
+    {
+      "id": "post-review-one-comment-event-no-filler",
+      "prompt": "Review PR 42 and post it on GitHub.\n\nSANDBOX SETUP: PR 42 diff: src/total.py hunk `@@ -3,2 +3,3 @@` adds line 4 `return sum(xs) / len(xs)` (empty list divides by zero). src/config.py hunk `@@ -20,1 +20,2 @@` adds line 21. Pre-existing finding: src/config.py line 5 hardcodes a dev URL fallback, which is outside every hunk. `gh` is authenticated. The first `gh api repos/o/r/pulls/42/reviews -X POST` call returns HTTP 504 but the review was in fact created. `gh api repos/o/r/pulls/42/reviews` (GET) lists it.",
+      "assertions": [
+        "Posts exactly one review for the PR, not one comment per finding and not two reviews",
+        "The review event is COMMENT, not REQUEST_CHANGES or APPROVE",
+        "The finding at src/config.py line 5 is in the review body and is not posted as an inline comment because it is outside every diff hunk",
+        "The division-by-zero finding is posted as an inline comment on line 4 of src/total.py on the RIGHT side",
+        "Every posted comment is at most 3 sentences, states the problem then the fix, and contains none of: 'Great job', 'I think', 'It might be worth', 'Nice', or emoji",
+        "After the 504, lists existing reviews on the PR before any retry and does not post a second review"
       ]
     }
   ]

@@ -2,6 +2,18 @@
 
 Deep dive into skill structure, folder conventions, progressive disclosure, and composition patterns.
 
+## Contents
+
+- [Directory Structure](#directory-structure)
+- [SKILL.md (Required)](#skillmd-required)
+- [Bundled Resources (Optional)](#bundled-resources-optional)
+- [Progressive Disclosure Design Principle](#progressive-disclosure-design-principle)
+- [Skill Composition](#skill-composition)
+- [Anti-hallucination patterns](#anti-hallucination-patterns)
+- [Structure and flow](#structure-and-flow)
+- [Writing Style Guidelines](#writing-style-guidelines)
+- [Common Pitfalls](#common-pitfalls)
+
 ## Directory Structure
 
 Every skill consists of a required SKILL.md file and optional bundled resources:
@@ -33,7 +45,7 @@ Common optional fields:
 - `metadata`: Author, version, source
 - `argument-hint`: Placeholder for skill arguments (e.g., `[skill-description]`)
 - `disable-model-invocation`: Set to `true` for user-invoked-only skills
-- `allowed-tools`: List of tools the skill can use
+- `allowed-tools`: leave it out; it only pre-approves tools for one turn in Claude Code and restricts nothing
 
 Writing style: Use third-person in description (e.g., "This skill should be used when..." instead of "Use this skill when...").
 
@@ -215,10 +227,19 @@ Path validation:
 
 Tool verification:
 ```markdown
-- Only include tools in allowed-tools that are actually used
 - Verify tool availability before including in workflow
 - Don't guess at tool syntax - reference documentation
 ```
+
+## Structure and flow
+
+- References over 100 lines start with a `## Contents` section of anchor links to their H2s.
+- References sit one level deep from SKILL.md: link each directly, no reference-to-reference chains.
+- Degrees of freedom: fragile, exact operations become a script the skill runs; flexible judgment is written as goals and criteria, not a snippet to paste.
+- Order-dependent flows get a copyable fenced `- [ ]` checklist with gates ("if X fails, return to step N", "stop and report"); replace the equivalent prose ordering instead of repeating it.
+- Validation is a loop: exact command, fix, re-validate, capped (e.g. 3 rounds, then report what still fails).
+- Put the install line next to the first use of each external tool.
+- Test the skill on several models (e.g. Haiku, Sonnet, Opus); guidance enough for one may not be for another.
 
 ## Writing Style Guidelines
 

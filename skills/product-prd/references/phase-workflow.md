@@ -4,6 +4,16 @@ The detail the SKILL.md body defers. `product-prd` runs four phases; a single
 `Phase: X` line in the working notes tracks where a run is (no counters, no
 resume machinery).
 
+## Contents
+
+- [The four phases](#the-four-phases)
+- [Gate-zero: does this need a written doc at all?](#gate-zero-does-this-need-a-written-doc-at-all)
+- [Tier = size AND intent](#tier--size-and-intent)
+- [Discovery mode: pick by context](#discovery-mode-pick-by-context)
+- [Research fan-out](#research-fan-out)
+- [Gate discipline](#gate-discipline)
+- [Knowledge categories: keep them separate](#knowledge-categories-keep-them-separate)
+
 ## The four phases
 
 ```
