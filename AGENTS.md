@@ -153,7 +153,7 @@ Containers and environment variables, database migrations and CI pipelines, as w
 Code and plans, security and dependencies, performance and visual regressions, and translations.
 
 - `i18n-check`: i18n completeness checker, detects the project's i18n framework and diffs locale files
-- `review-code`: Multi-agent code review across six dimensions, from correctness and performance to tests and error handling
+- `review-code`: Adaptive multi-agent code review: core dimensions plus architecture, security, deps, perf and design lanes picked from the diff, with adversarial verification
 - `review-deps`: Audit dependencies for vulnerabilities, license risk, and staleness
 - `review-perf`: Deep-dive performance audit of queries, algorithmic complexity, and resource leaks
 - `review-plan`: Adversarially review an implementation plan against the actual repository before any code is written

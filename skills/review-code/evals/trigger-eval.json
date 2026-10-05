@@ -20,5 +20,7 @@
   {"query": "write a commit message summarizing these changes", "should_trigger": false},
   {"query": "review the wireframes for the new onboarding flow", "should_trigger": false},
   {"query": "do a deep performance audit of this endpoint with query-level analysis", "should_trigger": false},
-  {"query": "spin up the full multi-agent review team for this security-sensitive PR", "should_trigger": false}
+  {"query": "spin up the full multi-agent review team for this security-sensitive PR", "should_trigger": true},
+  {"query": "run npm audit and tell me which dependencies are vulnerable or outdated", "should_trigger": false},
+  {"query": "address the review comments on my PR", "should_trigger": false}
 ]
