@@ -8,7 +8,7 @@
 [![Agent Skills compatible](https://img.shields.io/badge/Agent%20Skills-compatible-blueviolet.svg)](https://agentskills.io)
 [![Code style: ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
-51 production-grade [Agent Skills](https://agentskills.io) for real development workflows: code review, shipping, docs, git, testing, multi-agent orchestration, and more. Each is a battle-tested workflow you invoke in plain language. Works with Claude Code, Codex, Cursor, Gemini CLI, and any Agent-Skills-compatible agent.
+52 production-grade [Agent Skills](https://agentskills.io) for real development workflows: code review, shipping, docs, git, testing, multi-agent orchestration, and more. Each is a battle-tested workflow you invoke in plain language. Works with Claude Code, Codex, Cursor, Gemini CLI, and any Agent-Skills-compatible agent.
 
 ## See it work
 
@@ -41,7 +41,7 @@ make -C integrations/claude-code/claude-hi standard # Schedule 5-hour windows
 <!-- gen:skills-readme start -->
 <!-- generated: edit skills.sh.json or SKILL.md frontmatter, then run `make docs` -->
 
-**51 Skills** organized by category:
+**52 Skills** organized by category:
 
 <details>
 <summary><b>AI Workflow Tools</b> (9): Tools that work on your AI agent itself, not on your codebase.</summary>
@@ -176,7 +176,7 @@ make -C integrations/claude-code/claude-hi standard # Schedule 5-hour windows
 </details>
 
 <details>
-<summary><b>Review</b> (7): Code and plans, security and dependencies, performance and visual regressions, and translations.</summary>
+<summary><b>Review</b> (8): Code and plans, security and dependencies, performance and visual regressions, and translations.</summary>
 
 | Skill | What it does |
 |---|---|
@@ -186,6 +186,7 @@ make -C integrations/claude-code/claude-hi standard # Schedule 5-hour windows
 | [`review-perf`](skills/review-perf/) | Deep-dive performance audit of queries, algorithmic complexity, and resource leaks |
 | [`review-plan`](skills/review-plan/) | Adversarially review an implementation plan against the actual repository before any code is written |
 | [`review-security`](skills/review-security/) | OWASP Top 10 2025 security analysis with parallel scanning agents where available |
+| [`stopslop`](skills/stopslop/) | Install stopslop, run a full all-rules AI-slop report, and render it as a markable page |
 | [`vrt-check`](skills/vrt-check/) | Runs the project's visual regression testing workflow, whatever tooling the repo actually uses |
 
 </details>

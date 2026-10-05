@@ -1,0 +1,38 @@
+{
+  "skill": "stopslop",
+  "evals": [
+    {
+      "id": "full-report-docs",
+      "prompt": "Fixture: a git repo containing docs/guide.md with the lines \"Certainly! Here's the updated guide you asked for.\" and \"In today's fast-paced world, it's important to note that this tool is a game-changer. It's not just a linter — it's a revolution.\", and docs/faq.md with \"Q: Does it work? A: Absolutely! Great question.\"\n\nRun a full stopslop report on docs/ and tell me where the slop is concentrated.",
+      "assertions": [
+        "Runs stopslop with --select ALL and --check-imports and --fail-on-tier C and --format json --stats on docs/",
+        "Treats exit code 1 as expected findings, not as a failure of the run",
+        "Groups the summary by tier, and names the top rules and top files",
+        "Every count in the answer appears in the JSON the run produced",
+        "Rule names come from stopslop --list-rules or the JSON, none invented",
+        "Does not say the docs are clean based on exit 0 alone"
+      ]
+    },
+    {
+      "id": "render-and-apply-marks",
+      "prompt": "Fixture: a git repo containing src/app.py:\n```python\ndef load(path):\n    try:\n        return open(path).read()\n    except Exception:\n        pass\n\n\ndef save(path, data):\n    # ... rest of the implementation unchanged\n    raise NotImplementedError\n```\n\nRender the stopslop report for src/ so I can mark findings, then fix the ones I mark.",
+      "assertions": [
+        "Invokes the render skill in audit mode (render audit, or its steps inline) on the saved JSON findings",
+        "Fills the render audit template's DATA with one finding per stopslop finding, each title carrying code, path and line, so no two anchors are equal, and passes assemble.py",
+        "Offers verdicts fix, won't fix, and discuss",
+        "Writes the page under .cc-arsenal/renders/ and asks the user to mark and save it before editing any source file",
+        "Edits only findings marked fix, then re-runs stopslop on the touched files"
+      ]
+    },
+    {
+      "id": "not-installed-no-cargo",
+      "prompt": "Run stopslop on this repo. Environment: PATH is stripped, so `stopslop --version` and `cargo --version` both fail with \"command not found\" (exit 127).",
+      "assertions": [
+        "Checks stopslop --version and finds it missing",
+        "Prints the rustup install line from rustup.rs and stops",
+        "Does not try pip, npm, brew, or any other installer",
+        "Writes no files other than the run transcript and edits no source"
+      ]
+    }
+  ]
+}

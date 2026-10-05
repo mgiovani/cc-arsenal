@@ -1,0 +1,20 @@
+[
+  {"query": "run stopslop on this repo", "should_trigger": true},
+  {"query": "give me a full slop report for docs/", "should_trigger": true},
+  {"query": "check this branch for AI slop", "should_trigger": true},
+  {"query": "stopslop report on my staged files", "should_trigger": true},
+  {"query": "I want every stopslop rule enabled, including the off-by-default ones, and a summary by tier", "should_trigger": true},
+  {"query": "render the stopslop findings so I can mark which to fix", "should_trigger": true},
+  {"query": "lint the README for AI slop with stopslop and show me the worst files", "should_trigger": true},
+  {"query": "is my changelog full of LLM filler? run stopslop on it", "should_trigger": true},
+  {"query": "install stopslop and scan src/ for slop", "should_trigger": true},
+  {"query": "review this PR for bugs and performance problems", "should_trigger": false},
+  {"query": "are the docs still accurate against the code?", "should_trigger": false},
+  {"query": "commit my changes with a good message", "should_trigger": false},
+  {"query": "render this plan as a page I can comment on", "should_trigger": false},
+  {"query": "check which env vars are missing from .env.example", "should_trigger": false},
+  {"query": "audit my dependencies for vulnerabilities", "should_trigger": false},
+  {"query": "rewrite this paragraph to sound less robotic", "should_trigger": false},
+  {"query": "make the pre-commit hooks run ruff", "should_trigger": false},
+  {"query": "simplify the over-engineered parts of this module", "should_trigger": false}
+]
