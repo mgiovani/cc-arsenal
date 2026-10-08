@@ -45,7 +45,7 @@ Return structured findings with:
 - Explanation
 - Fix recommendations (2-3 approaches)"
 - subagent_type: "Explore"
-- model: "haiku"
+- model: "sonnet"
 ```
 
 ## Agent 2 - Configuration & Design (A02, A06)
@@ -77,7 +77,7 @@ For each finding:
 
 Return structured findings with remediation priority and multiple fix approaches."
 - subagent_type: "Explore"
-- model: "haiku"
+- model: "sonnet"
 ```
 
 ## Agent 3 - Injection & Data Integrity (A05, A08)
@@ -128,7 +128,7 @@ Return findings with:
 - Example exploit payload
 - Multiple remediation approaches (parameterized queries, input validation, escaping)"
 - subagent_type: "Explore"
-- model: "haiku"
+- model: "sonnet"
 ```
 
 ## Agent 4 - Cryptography & Supply Chain (A04, A03)
@@ -179,7 +179,7 @@ Return findings with:
 - SRI hash generation instructions
 - If dependency CVEs/staleness come up during scanning, note them separately and point the user to review-deps instead of detailing them here"
 - subagent_type: "Explore"
-- model: "haiku"
+- model: "sonnet"
 ```
 
 ## Agent 5 - Bytecode & Compiled Code Security
@@ -215,7 +215,7 @@ For each finding:
 
 Return findings focusing on detection evasion risks and compilation-level vulnerabilities."
 - subagent_type: "Explore"
-- model: "haiku"
+- model: "sonnet"
 ```
 
 ## Agent 6 - Logging, Monitoring & Exception Handling (A09, A10)
@@ -247,7 +247,7 @@ Return findings with:
 - Exception handling best practices
 - Monitoring/alerting recommendations"
 - subagent_type: "Explore"
-- model: "haiku"
+- model: "sonnet"
 ```
 
 ## Security Best Practices by Role
