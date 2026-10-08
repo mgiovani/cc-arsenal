@@ -2,7 +2,7 @@
 name: orchestrate
 description: Turn any task into a model-tiered multi-agent plan, decompose it into
   subtasks, classify each as research, implementation, planning, or synthesis, map every
-  subtask to the right subagent and model (haiku for research/exploration, opus for
+  subtask to the right subagent and model (haiku for research/exploration/finding, opus for
   planning, sonnet for everything else), then run independent tracks in parallel under
   strict one-owner-per-file discipline before synthesizing the result yourself. Use for
   "act as orchestrator", "spawn subagents for this", "delegate this with the right
@@ -43,7 +43,7 @@ and classify it as one of:
 
 | Classification | Covers |
 |---|---|
-| research | exploration, search, reading, gathering information; no code written |
+| research | exploration, search, finding code or facts, reading, gathering information; no code written |
 | implementation | writing or editing code, config, or content |
 | planning | architecture/design decisions, non-trivial trade-off calls |
 | synthesis | merging multiple subagents' outputs into one final deliverable |
@@ -52,7 +52,7 @@ and classify it as one of:
 
 | Classification | subagent_type | model | Why |
 |---|---|---|---|
-| research | Explore | haiku | cheap, good at search/read |
+| research | Explore | haiku | cheap, good at search/find/read; use haiku for every research subtask, even if spawned as general-purpose |
 | planning | Plan | opus | best reasoning for architecture/trade-offs |
 | implementation | general-purpose (or the repo's own agent) | sonnet | balance of cost and capability |
 | synthesis | n/a (orchestrator itself) | n/a | never delegate the final merge |
