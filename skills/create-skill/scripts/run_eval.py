@@ -16,7 +16,7 @@ Usage:
     uv run python skills/create-skill/scripts/run_eval.py <skill_path>
     uv run python skills/create-skill/scripts/run_eval.py <skill_path> --eval eval-1
     uv run python skills/create-skill/scripts/run_eval.py <skill_path> \\
-        --model claude-haiku-4-5-20251001
+        --model claude-haiku-5-5
 
 Exit codes:
     0 - all evals ran successfully
@@ -45,7 +45,7 @@ from rich.table import Table
 
 console = Console()
 
-DEFAULT_MODEL = 'claude-haiku-4-5-20251001'
+DEFAULT_MODEL = 'claude-haiku-5-5'
 MAX_WORKERS = 4
 
 

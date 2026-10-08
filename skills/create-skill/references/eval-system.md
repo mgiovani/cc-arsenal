@@ -54,7 +54,7 @@ Baseline run: No skill loaded. The same eval prompt is sent.
 
 The `run_eval.py` script handles this via `subprocess` + `claude -p --model haiku`:
 ```
-claude -p "[PROMPT]" --model claude-haiku-4-5-20251001
+claude -p "[PROMPT]" --model claude-haiku-5-5
 ```
 
 Results are saved to `evals/results/{eval_id}/`:
@@ -122,7 +122,7 @@ Requirements:
 - The eval scripts use `claude -p` (print mode) for non-interactive runs
 
 Model selection:
-- `run_eval.py` uses `claude-haiku-4-5-20251001` by default (fast, cheap)
+- `run_eval.py` uses `claude-haiku-5-5` by default (fast, cheap)
 - Grading uses sonnet (better reasoning for nuanced comparisons)
 - Override with `--model` flag
 

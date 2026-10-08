@@ -104,7 +104,7 @@ def save_skill_description(skill_path: Path, new_description: str) -> None:
 def generate_queries(
     _skill_path: Path,
     description: str,
-    model: str = 'claude-haiku-4-5-20251001',
+    model: str = 'claude-haiku-5-5',
 ) -> tuple[list[str], list[str]]:
     """Generate should-trigger and should-not-trigger queries via claude -p.
 
@@ -194,7 +194,7 @@ def split_train_test(
 def test_description(
     description: str,
     query_set: list[tuple[str, bool]],
-    model: str = 'claude-haiku-4-5-20251001',  # noqa: PT028
+    model: str = 'claude-haiku-5-5',  # noqa: PT028
 ) -> tuple[float, list[dict]]:
     """Test a description against a set of queries.
 
@@ -263,7 +263,7 @@ User request: "{query}"
 def improve_description(
     current_description: str,
     failures: list[dict],
-    model: str = 'claude-haiku-4-5-20251001',
+    model: str = 'claude-haiku-5-5',
 ) -> str:
     """Generate an improved description based on failures."""
     failed_should_trigger = [
@@ -389,7 +389,7 @@ def save_benchmark(skill_path: Path, benchmark_data: dict) -> None:
 @click.command()
 @click.argument('skill_path', type=click.Path(exists=True, path_type=Path))
 @click.option('--iterations', default=MAX_ITERATIONS, help='Max improvement iterations')
-@click.option('--model', default='claude-haiku-4-5-20251001', help='Claude model to use')
+@click.option('--model', default='claude-haiku-5-5', help='Claude model to use')
 @click.option('--dry-run', is_flag=True, help='Run without saving changes')
 @click.option('--seed', default=42, help='Random seed for train/test split')
 def main(
