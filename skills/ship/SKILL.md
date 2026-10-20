@@ -38,7 +38,7 @@ Copy this checklist, tick each step as it passes, and follow the gates. Stop at 
 - [ ] 2. Code review (review-code on the diff vs base)
       Critical/High finding: fix it (or user accepts the risk), then re-run step 2
 - [ ] 3. Pre-merge checks (auto-detected project gates)
-      Any check red: fix it, then re-run step 3
+      Any check red: fix it, then re-run step 3 (checks the repo's git hooks already run on commit/push are skipped)
 - [ ] 4. Commit (git-commit conventions)
 - [ ] 5. PR (git-create-pr conventions)
 - [ ] 6. CI + merge (optional)
@@ -72,6 +72,8 @@ The project's own gates matter more than a generic test run. Detect what's actua
 3. `package.json`: look at `scripts` for `test`, `lint`, `typecheck`, `e2e`.
 4. Framework-native fallback (`pytest`, `cargo test`, etc.) only if none of the above exist.
 
+Before running any command, check whether the repo's git hooks (`lefthook.yml`, `.husky/`, `.pre-commit-config.yaml`, `.git/hooks/pre-push`) already run it on commit/push. If they do, skip it here: the commit and push in the next steps run it, so fix whatever the hook reports. Do the same for CI-only checks such as visual regression: if CI runs them on the PR, don't run them locally. Report each skipped check as **SKIPPED: run by <hook/CI>**.
+
 A Haiku `Explore` subagent is the cheap way to do this detection without burning main-thread context:
 
 ```
@@ -85,7 +87,7 @@ Task tool with Explore agent:
 
 No `Task` tool available: run the same detection inline: `just --list` (or read the justfile), `grep` the Makefile's target names, `cat` `package.json`'s `scripts` block, then run whatever it finds directly.
 
-Run every command found. Any non-zero exit: show the failing output, fix it, and re-run the check; do not commit until it is green. After 3 rounds still red, stop and report what fails. This includes visual regression diffs: a passing test suite with a failing visual diff is still a red gate.
+Run every remaining command found. Any non-zero exit: show the failing output, fix it, and re-run the check; do not commit until it is green. After 3 rounds still red, stop and report what fails. This includes visual regression diffs that run locally: a passing test suite with a failing visual diff is still a red gate.
 
 ## Step 4: Commit
 
