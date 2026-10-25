@@ -200,7 +200,7 @@ function renderMatrix(data) {
   }).join('');
   return `<section class="section" id="matrix" data-section="Matrix">
     <div class="section-head"><h2>Matrix</h2><span class="meta">${data.options.length} options, ${data.criteria.length} criteria</span></div>
-    <div class="table-scroll">
+    <div class="table-scroll flat">
       <table class="matrix">
         <thead><tr><th>Criterion</th>${head}</tr></thead>
         <tbody>${rows}</tbody>
@@ -211,7 +211,6 @@ function renderMatrix(data) {
 
 function renderOption(o) {
   const head = `<div class="head"><h3 class="title">${Render.esc(o.label)}</h3>`
-    + `<button type="button" class="btn pick" data-page-key="winner" data-page-value="option-${Render.esc(o.slug)}" aria-pressed="false">Pick</button>`
     + `${o.win ? '<span class="tag">Recommended</span>' : ''}</div>`;
   const strengths = `<div class="side before"><h4 class="side-h">Strengths</h4><ul>${o.strengths.map((s) => `<li>${Render.esc(s)}</li>`).join('')}</ul></div>`;
   const costs = `<div class="side after"><h4 class="side-h">Costs</h4><ul>${o.costs.map((s) => `<li>${Render.esc(s)}</li>`).join('')}</ul></div>`;

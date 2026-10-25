@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+- `render`: pages fill the screen in every mode. The 960/1200px caps are gone; prose, leads, bullets and checklists flow into ~40ch columns, and the new `.pair` row puts text beside its visual. The kit is visual first: each section leads with a block or diagram, with at most three short paragraphs beside it. The polish pass covered hover gating for touch, an instant press-in with an eased release, no smooth scrolling on keyboard navigation, a fade-in for the comment composer, matrices that no longer clip, overflow cues on wide diagrams, and leads that no longer split across columns.
+
+### Added
+- `render`: 12 diagram types, 30 in total: `mindmap`, `tree`, `radar`, `slope`, `scatter`, `pyramid`, `sankey`, `journey`, `venn`, `wardley`, `blueprint` and `delta`. Each one has an honest budget, refusals, a text alternative, a gallery demo and tests. `diagrams.md` also gains a "pick a diagram by the question" table.
+
 ## [6.1.0] - 2026-10-06
 
 ### Security

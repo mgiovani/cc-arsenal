@@ -20,11 +20,18 @@
   --plot-h: 320px;
   --plot-min: 560px;
   --lane-head: var(--col-sm);
+  --sk-h: 240px;
+  --sk-bar: var(--space-6);
+  --jr-h: 160px;
+  --vn-h: 440px;
+  --wd-h: 480px;
 }
 
 /* Frame */
 .dg { display: block; }
 .dg-scroll { overflow-x: auto; scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
+.dg-scroll.is-scrollable { border-inline-end: var(--stroke-key) solid var(--ink); }
+.dg:has(.is-scrollable) .dg-cap::after { content: " (scrolls sideways)"; color: var(--soft); }
 .dg-canvas {
   /* the channel a rank gap opens must fit every wire routed through it:
     tracks+1 slots of --route, plus room for up to --tracks labels
@@ -43,8 +50,8 @@
     calc((var(--tracks, 0) + 1) * (var(--route) + var(--marker)) + var(--labeled, 0) * var(--tracks, 0) * (var(--text) * var(--leading-tight) + 3 * var(--label-gap)))
   );
   position: relative;
-  width: max-content;
-  min-width: 100%;
+  width: 100%;
+  min-width: min-content;
   display: grid;
   grid-template-columns: repeat(var(--cols), minmax(var(--node-min), var(--node-max)));
   grid-auto-rows: min-content;
@@ -712,6 +719,8 @@
   font-size: var(--text);
   color: var(--mute);
 }
+/* A slope chart's lines and series names crowd both edges, so its y values sit at mid-width where lines are furthest from their labels. */
+.dg-line .dg-ln-plot.is-slope .dg-ln-tick { left: 50%; transform: translate(-50%, -100%); background: var(--bg); padding: 0 var(--space-1); }
 /* Only a slope chart puts series names in the left gutter; elsewhere the
   y values go there so they never sit on the first data point. */
 .dg-line .dg-ln-plot:not(.is-slope) .dg-ln-tick { left: auto; right: calc(100% + var(--space-2)); transform: translateY(-50%); }
@@ -738,3 +747,302 @@
 .dg-line .dg-edge.is-ln-dash-1 .dg-line { stroke-dasharray: var(--space-1) var(--space-1); }
 .dg-line .dg-edge.is-ln-dash-2 .dg-line { stroke-dasharray: var(--space-2) var(--space-1); }
 .dg-line .dg-edge.is-ln-dash-3 .dg-line { stroke-dasharray: var(--space-0-5) var(--space-2); }
+
+/* Hierarchy and compare */
+
+/* mindmap: five columns (leaf, branch, centre, branch, leaf); each node picks
+  its column with --c and spans --s rows, so a branch centres on its leaves. */
+.dg-mindmap .dg-canvas {
+  grid-template-columns: repeat(5, auto);
+  gap: var(--space-3) var(--node-gap);
+  align-items: center;
+}
+.dg-mindmap .dg-node { grid-row: var(--r) / span var(--s, 1); align-self: center; }
+
+/* tree: one grid row per level, a node spans the leaf columns under it. */
+.dg-tree .dg-canvas { padding-right: calc(var(--canvas-pad) + var(--esc, 0) * var(--route) * 2); }
+.dg-tree .dg-node { grid-column: var(--c) / span var(--s, 1); justify-self: center; }
+
+/* radar: axis labels are placed by draw() through unitless --lx/--ly; the
+  is-rd-* classes pick which corner of the label sits on that point. */
+.dg-radar .dg-rd-plot { position: relative; height: var(--plot-h); min-width: var(--plot-min); }
+.dg-radar .dg-rd-axis {
+  position: absolute;
+  left: calc(var(--lx, 0) * var(--hair));
+  top: calc(var(--ly, 0) * var(--hair));
+  font-size: var(--text);
+  color: var(--ink);
+  white-space: nowrap;
+  --tx: -50%;
+  --ty: -50%;
+  transform: translate(var(--tx), var(--ty));
+}
+.dg-radar .dg-rd-axis.is-rd-r { --tx: 0%; }
+.dg-radar .dg-rd-axis.is-rd-l { --tx: -100%; }
+.dg-radar .dg-rd-axis.is-rd-t { --ty: -100%; }
+.dg-radar .dg-rd-axis.is-rd-b { --ty: 0%; }
+.dg-radar .dg-rd-ring { fill: none; stroke: var(--line); stroke-width: var(--hair); shape-rendering: crispEdges; }
+.dg-radar .dg-rd-poly .dg-line { fill: color-mix(in srgb, var(--ink) 4%, transparent); }
+.dg-radar .dg-rd-poly.is-key .dg-line { fill: color-mix(in srgb, var(--ink) 12%, transparent); }
+.dg-radar .dg-edge.is-rd-dash-1 .dg-line { stroke-dasharray: var(--space-1) var(--space-1); }
+.dg-radar .dg-edge.is-rd-dash-2 .dg-line { stroke-dasharray: var(--space-2) var(--space-1); }
+.dg-radar .dg-rd-legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-6);
+  font-size: var(--text);
+  color: var(--ink);
+}
+.dg-radar .dg-rd-legend li { display: flex; align-items: center; gap: var(--space-2); }
+.dg-radar .dg-rd-legend .dg-rd-scale { color: var(--mute); }
+.dg-radar .dg-rd-swatch { width: var(--space-6); border-top: var(--hair) solid var(--mute); }
+.dg-radar .dg-rd-swatch.is-rd-key { border-top: var(--stroke-key) solid var(--ink); }
+.dg-radar .dg-rd-swatch.is-rd-dash-1 { border-top-style: dashed; }
+.dg-radar .dg-rd-swatch.is-rd-dash-2 { border-top-style: dotted; }
+
+/* scatter: HTML plot box, points placed by --x/--y fractions; draw() flips a
+  label to the left of its mark near the right edge and nudges overlaps. */
+.dg-scatter .dg-canvas { display: block; padding-left: calc(var(--canvas-pad) + var(--space-8)); padding-bottom: calc(var(--canvas-pad) + var(--space-8)); }
+.dg-scatter .dg-sc-plot {
+  position: relative;
+  min-width: var(--plot-min);
+  min-height: var(--plot-h);
+  border: var(--hair) solid var(--line-strong);
+}
+.dg-scatter .dg-sc-grid { position: absolute; background: var(--line); }
+.dg-scatter .dg-sc-grid.is-x { left: calc(var(--p) * 100%); top: 0; bottom: 0; width: var(--hair); }
+.dg-scatter .dg-sc-grid.is-y { bottom: calc(var(--p) * 100%); left: 0; right: 0; height: var(--hair); }
+.dg-scatter .dg-sc-tick { position: absolute; font-family: var(--mono); font-size: var(--text); color: var(--mute); white-space: nowrap; }
+.dg-scatter .dg-sc-grid.is-x .dg-sc-tick { top: 100%; left: 0; padding-top: var(--space-1); transform: translateX(-50%); }
+.dg-scatter .dg-sc-grid.is-y .dg-sc-tick { right: 100%; top: 0; padding-right: var(--space-2); transform: translateY(-50%); }
+.dg-scatter .dg-sc-ref { position: absolute; border: 0 dashed var(--ink); }
+.dg-scatter .dg-sc-ref.is-x { left: calc(var(--p) * 100%); top: 0; bottom: 0; border-left-width: var(--hair); }
+.dg-scatter .dg-sc-ref.is-y { bottom: calc(var(--p) * 100%); left: 0; right: 0; border-top-width: var(--hair); }
+.dg-scatter .dg-sc-ref-label { position: absolute; font-size: var(--text); color: var(--mute); white-space: nowrap; background: var(--bg); padding: 0 var(--space-1); }
+.dg-scatter .dg-sc-ref.is-x .dg-sc-ref-label { top: 0; left: var(--space-1); }
+.dg-scatter .dg-sc-ref.is-y .dg-sc-ref-label { right: var(--space-1); bottom: var(--space-0-5); }
+.dg-scatter .dg-sc-axis { position: absolute; font-size: var(--text); font-weight: 500; color: var(--mute); }
+.dg-scatter .dg-sc-axis.is-x { top: calc(100% + var(--space-8)); left: 50%; transform: translateX(-50%); }
+.dg-scatter .dg-sc-axis.is-y { top: 50%; right: calc(100% + var(--space-12)); transform: translateY(-50%) rotate(-90deg); white-space: nowrap; }
+.dg-scatter .dg-sc-pt {
+  position: absolute;
+  left: calc(var(--x) * 100%);
+  bottom: calc(var(--y) * 100%);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  transform: translate(calc(var(--marker) / -2), 50%);
+}
+.dg-scatter .dg-sc-pt.is-sc-left { flex-direction: row-reverse; transform: translate(calc(-100% + var(--marker) / 2), 50%); }
+.dg-scatter .dg-sc-mark { flex: none; width: var(--marker); height: var(--marker); background: color-mix(in srgb, var(--ink) 55%, var(--panel)); }
+.dg-scatter .dg-sc-pt.is-key .dg-sc-mark { background: var(--ink); outline: var(--stroke-key) solid var(--ink); outline-offset: var(--space-0-5); }
+.dg-scatter .dg-sc-label {
+  font-size: var(--text);
+  color: var(--mute);
+  white-space: nowrap;
+  transform: translateY(calc(var(--dy, 0) * var(--hair)));
+}
+.dg-scatter .dg-sc-pt.is-key .dg-sc-label { color: var(--ink); font-weight: 600; }
+
+/* pyramid: pure CSS; bar width = tier value / widest tier, bars butt up
+  against each other (hairline gap) so the stack reads as one silhouette. */
+.dg-pyramid .dg-py-plot { display: flex; flex-direction: column; gap: var(--hair); min-width: var(--plot-min); }
+.dg-pyramid .dg-py-row { display: grid; grid-template-columns: 3fr 2fr; align-items: stretch; gap: var(--space-6); min-height: calc(var(--control) * 2); }
+.dg-pyramid .dg-py-track { display: flex; justify-content: center; }
+.dg-pyramid .dg-py-bar {
+  width: calc(var(--v) * 100%);
+  min-width: var(--space-6);
+  background: color-mix(in srgb, var(--ink) 10%, var(--panel));
+  border: var(--hair) solid var(--line-strong);
+}
+.dg-pyramid .dg-py-row.is-key .dg-py-bar { background: var(--ink); border-color: var(--ink); }
+.dg-pyramid .dg-py-text { display: grid; align-content: center; }
+.dg-pyramid .dg-py-text .title { font-weight: 500; color: var(--ink); }
+.dg-pyramid .dg-py-val { font-family: var(--mono); color: var(--mute); }
+
+/* Flow and strategy */
+
+/* sankey: bar height = amount over the largest column total (--v), so one
+  scale holds across every column; draw() paints the bands between bars. */
+.dg-sankey .dg-canvas { display: block; }
+.dg-sankey .dg-sk-plot {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: var(--col-sm);
+  justify-content: space-between;
+  align-items: center;
+  min-width: var(--plot-min);
+}
+.dg-sankey .dg-sk-col { display: grid; gap: var(--space-4); }
+.dg-sankey .dg-sk-node { display: grid; gap: var(--space-1); }
+.dg-sankey .is-sk-first .dg-sk-node { justify-items: end; text-align: end; }
+.dg-sankey .is-sk-mid .dg-sk-node { justify-items: center; text-align: center; }
+.dg-sankey .is-sk-last .dg-sk-node { justify-items: start; text-align: start; }
+.dg-sankey .dg-sk-label { display: grid; }
+.dg-sankey .dg-sk-label .title { font-weight: 500; color: var(--ink); }
+.dg-sankey .dg-sk-val { font-family: var(--mono); color: var(--mute); }
+.dg-sankey .dg-sk-bar { width: var(--sk-bar); height: calc(var(--v) * var(--sk-h)); background: var(--ink); }
+.dg-sankey .dg-sk-band {
+  fill: color-mix(in srgb, var(--ink) 10%, transparent);
+  stroke: var(--line-strong);
+  stroke-width: var(--hair);
+}
+.dg-sankey .dg-sk-flow.is-key .dg-sk-band { fill: color-mix(in srgb, var(--ink) 80%, transparent); stroke: var(--ink); }
+
+/* journey: stage headers, step cards, then a sentiment plot whose points
+  draw() places at each card's column centre; pain and opportunity rows
+  sit under the plot, spanning their stage. */
+.dg-journey .dg-canvas {
+  width: auto;
+  min-width: calc(var(--col-xs) + var(--n) * var(--col-md));
+  grid-template-columns: var(--col-xs) repeat(var(--n), minmax(var(--col-sm), 1fr));
+  grid-template-rows: auto auto var(--jr-h);
+  grid-auto-rows: auto;
+  gap: var(--space-3) var(--space-4);
+}
+.dg-journey .dg-jr-stage {
+  grid-column: var(--c) / span var(--k);
+  grid-row: 1;
+  padding-bottom: var(--space-2);
+  border-bottom: var(--stroke-key) solid var(--ink);
+}
+.dg-journey .dg-jr-stage .title { font-weight: 600; color: var(--ink); }
+.dg-journey .dg-jr-step { min-width: 0; align-content: start; }
+.dg-journey .dg-jr-axis { grid-column: 1; grid-row: 3; position: relative; }
+.dg-journey .dg-jr-tick {
+  position: absolute;
+  top: calc(var(--p) * 100%);
+  right: 0;
+  transform: translateY(calc(var(--p) * -100%));
+  font-size: var(--text);
+  color: var(--mute);
+}
+.dg-journey .dg-jr-plot { grid-column: 2 / -1; grid-row: 3; position: relative; border: var(--hair) solid var(--line-strong); }
+.dg-journey .dg-jr-grid {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(var(--p) * 100%);
+  border-top: var(--hair) solid var(--line);
+}
+.dg-journey .dg-jr-grid.is-mid { border-top: var(--hair) dashed var(--soft); }
+.dg-journey .dg-jr-sep { fill: none; stroke: var(--line-strong); stroke-width: var(--hair); stroke-dasharray: var(--space-1) var(--space-1); }
+.dg-journey .dg-jr-point { fill: var(--mute); }
+.dg-journey .dg-jr-point.is-key { fill: var(--ink); }
+.dg-journey .dg-jr-rowhead { grid-column: 1; grid-row: var(--r); padding-top: var(--space-2); font-family: var(--mono); color: var(--mute); text-align: end; }
+.dg-journey .dg-jr-note {
+  grid-column: var(--c) / span var(--k);
+  grid-row: var(--r);
+  padding-top: var(--space-2);
+  border-top: var(--hair) solid var(--line-strong);
+  color: var(--ink);
+}
+
+/* venn: circles are SVG (a CSS circle would need a radius); region and set
+  labels are HTML placed by draw() through unitless --lx/--ly/--lw. */
+.dg-venn .dg-canvas { display: block; }
+.dg-venn .dg-vn-plot { position: relative; height: var(--vn-h); min-width: calc(var(--col-lg) * 3); }
+.dg-venn .dg-vn-circle { fill: color-mix(in srgb, var(--ink) 5%, transparent); stroke: var(--ink); stroke-width: var(--hair); }
+.dg-venn .dg-vn-region {
+  position: absolute;
+  left: calc(var(--lx, 0) * var(--hair));
+  top: calc(var(--ly, 0) * var(--hair));
+  width: calc(var(--lw, 0) * var(--hair));
+  transform: translate(-50%, -50%);
+  display: grid;
+  justify-items: center;
+  text-align: center;
+  color: var(--mute);
+}
+.dg-venn .dg-vn-region .title { color: var(--mute); }
+.dg-venn .dg-vn-count { font-family: var(--mono); color: var(--mute); }
+.dg-venn .dg-vn-region.is-key { background: var(--panel); border: var(--stroke-key) solid var(--ink); padding: var(--space-1); }
+.dg-venn .dg-vn-region.is-key .title, .dg-venn .dg-vn-region.is-key .dg-vn-count { color: var(--ink); font-weight: 600; }
+.dg-venn .dg-vn-name {
+  position: absolute;
+  left: calc(var(--lx, 0) * var(--hair));
+  top: calc(var(--ly, 0) * var(--hair));
+  max-width: var(--col-md);
+  font-weight: 500;
+  color: var(--ink);
+  --tx: -50%;
+  --ty: -50%;
+  transform: translate(var(--tx), var(--ty));
+}
+.dg-venn .dg-vn-name.is-vn-rb { --tx: -100%; --ty: -100%; text-align: end; }
+.dg-venn .dg-vn-name.is-vn-lb { --tx: 0%; --ty: -100%; }
+.dg-venn .dg-vn-name.is-vn-ct { --tx: -50%; --ty: 0%; text-align: center; }
+
+/* wardley: components sit at --x (evolution) and --y (visibility) fractions
+  of the plot; a ghost is the same component at its target evolution. */
+.dg-wardley .dg-canvas { display: block; }
+.dg-wardley .dg-wd-frame {
+  display: grid;
+  grid-template-columns: var(--col-xs) 1fr;
+  min-width: calc(var(--col-lg) * 3);
+}
+.dg-wardley .dg-wd-bands {
+  grid-column: 2;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  padding-bottom: var(--space-2);
+  font-family: var(--mono);
+  color: var(--mute);
+}
+.dg-wardley .dg-wd-bands span { padding-inline: var(--space-2); }
+.dg-wardley .dg-wd-y { grid-column: 1; display: flex; flex-direction: column; justify-content: space-between; padding-right: var(--space-3); color: var(--mute); text-align: end; }
+.dg-wardley .dg-wd-plot { position: relative; height: var(--wd-h); border: var(--hair) solid var(--line-strong); }
+.dg-wardley .dg-wd-div { position: absolute; top: 0; bottom: 0; left: calc(var(--p) * 100%); border-left: var(--hair) dashed var(--soft); }
+.dg-wardley .dg-node.dg-wd-pt {
+  position: absolute;
+  left: calc(var(--x) * 100%);
+  top: calc(var(--y) * 100%);
+  transform: translate(-50%, -50%);
+  width: var(--col-md);
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+/* blueprint: phases are columns, lanes are rows; the visibility line is its
+  own grid row so nothing else can share it. Lane bands sit under the steps. */
+.dg-blueprint .dg-canvas {
+  --node-gap: var(--space-16);
+  width: auto;
+  min-width: calc(var(--lane-head) + var(--n) * (var(--node-min) + var(--node-gap)));
+  grid-template-columns: var(--lane-head) repeat(var(--n), minmax(var(--node-min), 1fr));
+  grid-template-rows: auto repeat(2, minmax(var(--control), auto)) auto repeat(2, minmax(var(--control), auto));
+  gap: 0 var(--node-gap);
+}
+.dg-blueprint .dg-bp-phase { grid-column: var(--c); grid-row: 1; padding-bottom: var(--space-2); }
+.dg-blueprint .dg-bp-phase .title { font-weight: 600; color: var(--ink); }
+.dg-blueprint .dg-bp-band { grid-column: 1 / -1; grid-row: var(--r); border-top: var(--hair) solid var(--line-strong); }
+.dg-blueprint .dg-bp-head { grid-column: 1; grid-row: var(--r); align-self: center; font-weight: 500; color: var(--ink); }
+.dg-blueprint .dg-bp-step { margin-block: var(--space-4); align-self: center; z-index: 1; }
+.dg-blueprint .dg-bp-rule { grid-column: 1 / -1; grid-row: 4; display: flex; align-items: center; gap: var(--space-3); }
+.dg-blueprint .dg-bp-rule::after { content: ""; flex: 1; border-top: var(--stroke-key) dashed var(--ink); }
+.dg-blueprint .dg-bp-rule-label { order: -1; font-family: var(--mono); color: var(--ink); padding-block: var(--space-1); }
+
+/* delta: three grid columns (before, changes, after), one grid row per id,
+  so a node sits level with its counterpart; removed is struck and dashed,
+  added carries the ink border. */
+.dg-delta .dg-canvas {
+  width: auto;
+  min-width: var(--plot-min);
+  display: grid;
+  grid-template-columns: minmax(var(--node-min), 1fr) minmax(var(--col-md), 1.2fr) minmax(var(--node-min), 1fr);
+  gap: var(--space-3) var(--space-6);
+  align-items: stretch;
+}
+.dg-delta .dg-dl-head { grid-column: var(--c); grid-row: 1; font-family: var(--mono); color: var(--mute); padding-bottom: var(--space-2); border-bottom: var(--hair) solid var(--line-strong); }
+.dg-delta .dg-dl-node { grid-column: var(--c); }
+.dg-delta .dg-dl-node.is-dl-same .title { color: var(--mute); font-weight: 400; }
+.dg-delta .dg-dl-node.is-dl-removed .title { text-decoration: line-through; }
+.dg-delta .dg-dl-none { grid-column: var(--c); grid-row: var(--r); min-height: var(--control); border: var(--hair) dashed var(--line); }
+.dg-delta .dg-dl-led { grid-column: 2; grid-row: var(--r); display: grid; align-content: center; gap: var(--space-0-5); }
+.dg-delta .dg-dl-kind { font-family: var(--mono); color: var(--mute); }
+.dg-delta .dg-dl-kind.is-dl-added { color: var(--ink); font-weight: 600; }
+.dg-delta .dg-dl-kind.is-dl-removed { color: var(--soft); }
+.dg-delta .dg-dl-what { color: var(--ink); }

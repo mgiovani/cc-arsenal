@@ -510,6 +510,149 @@ const results = {};
       x: { ticks: [1, 2, 3], label: 'X' }, y: {},
       series: [{ label: 'S1', values: [1, 2, 3] }],
     })],
+    ['mindmap-one-branch', () => diag.mindmap({
+      anchor: 'diagram-mm-bad', title: 'One branch',
+      center: { label: 'Topic' }, branches: [{ label: 'B1' }],
+    })],
+    ['mindmap-ok', () => diag.mindmap({
+      anchor: 'diagram-mm-ok', title: 'Two branches',
+      center: { label: 'Topic' },
+      branches: [{ label: 'B1', children: [{ label: 'L1' }] }, { label: 'B2' }],
+    })],
+    ['tree-two-roots', () => diag.tree({
+      anchor: 'diagram-tr-bad', title: 'Two roots',
+      nodes: [{ id: 'a', label: 'A' }, { id: 'b', label: 'B' }],
+    })],
+    ['tree-ok', () => diag.tree({
+      anchor: 'diagram-tr-ok', title: 'One root',
+      nodes: [
+        { id: 'a', label: 'A' }, { id: 'b', label: 'B', parent: 'a' },
+        { id: 'c', label: 'C', parent: 'a' },
+      ],
+      escalations: [{ from: 'b', to: 'a' }],
+    })],
+    ['radar-value-out-of-range', () => diag.radar({
+      anchor: 'diagram-rd-bad', title: 'Out of range', axes: ['A', 'B', 'C'], max: 5,
+      entities: [{ label: 'E1', values: [1, 2, 9] }],
+    })],
+    ['radar-ok', () => diag.radar({
+      anchor: 'diagram-rd-ok', title: 'In range', axes: ['A', 'B', 'C'], max: 5,
+      entities: [
+        { label: 'E1', values: [1, 2, 3], key: true }, { label: 'E2', values: [3, 2, 1] },
+      ],
+    })],
+    ['slope-three-columns', () => diag.slope({
+      anchor: 'diagram-sl-bad', title: 'Three columns', columns: ['a', 'b', 'c'],
+      items: [{ label: 'I1', from: 1, to: 2 }, { label: 'I2', from: 2, to: 1 }],
+    })],
+    ['slope-ok', () => diag.slope({
+      anchor: 'diagram-sl-ok', title: 'Two columns', columns: ['before', 'after'],
+      items: [
+        { label: 'I1', from: 1, to: 2, key: true }, { label: 'I2', from: 2, to: 1 },
+      ],
+    })],
+    ['scatter-point-outside-axis', () => diag.scatter({
+      anchor: 'diagram-sc-bad', title: 'Outside',
+      x: { label: 'X', min: 0, max: 10 }, y: { label: 'Y', min: 0, max: 10 },
+      points: [{ label: 'P', x: 11, y: 5 }],
+    })],
+    ['scatter-ok', () => diag.scatter({
+      anchor: 'diagram-sc-ok', title: 'Inside',
+      x: { label: 'X', min: 0, max: 10, ref: { value: 5, label: 'mid' } },
+      y: { label: 'Y', min: 0, max: 10 },
+      points: [{ label: 'P', x: 4, y: 5 }],
+    })],
+    ['pyramid-narrows-in-middle', () => diag.pyramid({
+      anchor: 'diagram-py-bad', title: 'Not a pyramid',
+      tiers: [
+        { label: 'T1', value: 10 }, { label: 'T2', value: 4 }, { label: 'T3', value: 30 },
+      ],
+    })],
+    ['pyramid-ok', () => diag.pyramid({
+      anchor: 'diagram-py-ok', title: 'Pyramid',
+      tiers: [
+        { label: 'T1', value: 2 }, { label: 'T2', value: 4 }, { label: 'T3', value: 30 },
+      ],
+    })],
+    ['sankey-unbalanced-stage', () => diag.sankey({
+      anchor: 'diagram-sk-bad', title: 'Leaks',
+      nodes: [{ id: 'a', label: 'A' }, { id: 'm', label: 'M' }, { id: 'z', label: 'Z' }],
+      links: [{ from: 'a', to: 'm', value: 10 }, { from: 'm', to: 'z', value: 7 }],
+    })],
+    ['sankey-ok', () => diag.sankey({
+      anchor: 'diagram-sk-ok', title: 'Balanced',
+      nodes: [
+        { id: 'a', label: 'A' }, { id: 'm', label: 'M' },
+        { id: 'z', label: 'Z' }, { id: 'y', label: 'Y' },
+      ],
+      links: [
+        { from: 'a', to: 'm', value: 10, key: true },
+        { from: 'm', to: 'z', value: 6 }, { from: 'm', to: 'y', value: 4 },
+      ],
+    })],
+    ['journey-score-out-of-range', () => diag.journey({
+      anchor: 'diagram-jr-bad', title: 'Off scale',
+      stages: [
+        { label: 'S1', steps: [{ label: 'a', score: 3 }] },
+        { label: 'S2', steps: [{ label: 'b', score: 0 }] },
+      ],
+    })],
+    ['journey-ok', () => diag.journey({
+      anchor: 'diagram-jr-ok', title: 'On scale',
+      stages: [
+        { label: 'S1', steps: [{ label: 'a', score: -2, key: true }], pain: 'p' },
+        { label: 'S2', steps: [{ label: 'b', score: 2 }, { label: 'c', score: 0 }] },
+      ],
+    })],
+    ['venn-four-sets', () => diag.venn({
+      anchor: 'diagram-vn-bad', title: 'Too many',
+      sets: ['a', 'b', 'c', 'd'].map((id) => ({ id, label: id })),
+      regions: [],
+    })],
+    ['venn-ok', () => diag.venn({
+      anchor: 'diagram-vn-ok', title: 'Two sets',
+      sets: [{ id: 'a', label: 'A' }, { id: 'b', label: 'B' }],
+      regions: [{ sets: ['a'], label: 'x' }, { sets: ['a', 'b'], label: 'y', count: 2 }],
+    })],
+    ['wardley-components-collide', () => diag.wardley({
+      anchor: 'diagram-wd-bad', title: 'Stacked',
+      components: [
+        { id: 'a', label: 'A', visibility: 0.5, evolution: 0.5 },
+        { id: 'b', label: 'B', visibility: 0.55, evolution: 0.6 },
+      ],
+    })],
+    ['wardley-ok', () => diag.wardley({
+      anchor: 'diagram-wd-ok', title: 'Apart',
+      components: [
+        { id: 'a', label: 'A', visibility: 0.9, evolution: 0.2 },
+        { id: 'b', label: 'B', visibility: 0.3, evolution: 0.3 },
+      ],
+      edges: [{ from: 'a', to: 'b' }],
+      evolves: [{ id: 'a', to: 0.6 }],
+    })],
+    ['blueprint-no-backstage', () => diag.blueprint({
+      anchor: 'diagram-bp-bad', title: 'One side',
+      columns: ['c1', 'c2'],
+      steps: [{ id: 'a', lane: 'frontstage', col: 'c1', label: 'A' }],
+    })],
+    ['blueprint-ok', () => diag.blueprint({
+      anchor: 'diagram-bp-ok', title: 'Both sides',
+      columns: ['c1', 'c2'],
+      steps: [
+        { id: 'a', lane: 'frontstage', col: 'c1', label: 'A' },
+        { id: 'b', lane: 'backstage', col: 'c1', label: 'B' },
+      ],
+      edges: [{ from: 'a', to: 'b' }],
+    })],
+    ['delta-identical', () => diag.delta({
+      anchor: 'diagram-dl-bad', title: 'Nothing moved',
+      before: [{ id: 'a', label: 'A' }], after: [{ id: 'a', label: 'A' }],
+    })],
+    ['delta-ok', () => diag.delta({
+      anchor: 'diagram-dl-ok', title: 'Moved',
+      before: [{ id: 'a', label: 'A' }, { id: 'b', label: 'B' }],
+      after: [{ id: 'a', label: 'A2' }, { id: 'c', label: 'C' }],
+    })],
   ];
 
   results.diagramCases = {};
@@ -719,6 +862,30 @@ DIAGRAM_CASE_EXPECTATIONS: dict[str, bool] = {
     'funnel-ok': False,
     'line-length-mismatch': True,
     'line-ok': False,
+    'mindmap-one-branch': True,
+    'mindmap-ok': False,
+    'tree-two-roots': True,
+    'tree-ok': False,
+    'radar-value-out-of-range': True,
+    'radar-ok': False,
+    'slope-three-columns': True,
+    'slope-ok': False,
+    'scatter-point-outside-axis': True,
+    'scatter-ok': False,
+    'pyramid-narrows-in-middle': True,
+    'pyramid-ok': False,
+    'sankey-unbalanced-stage': True,
+    'sankey-ok': False,
+    'journey-score-out-of-range': True,
+    'journey-ok': False,
+    'venn-four-sets': True,
+    'venn-ok': False,
+    'wardley-components-collide': True,
+    'wardley-ok': False,
+    'blueprint-no-backstage': True,
+    'blueprint-ok': False,
+    'delta-identical': True,
+    'delta-ok': False,
 }
 
 

@@ -73,7 +73,8 @@ with dates is `timeline` only if the dates are the point; otherwise `steps`.
 ## Page frame
 
 Every page follows the skeleton in [page-kit.md](page-kit.md): toolbar, optional
-shortcuts panel, then `<main class="wrap" id="root">` holding sections. Wide
+shortcuts panel, then `<main class="wrap" id="root">` holding sections; the
+shell fills the viewport in every mode. Wide
 modes use `<main class="wrap wrap-wide">` with a `toc` rail. Every template
 carries the same waiver comment right after `<title>` (see `gallery.html`),
 exactly this line, because Geist is the typeface the brief mandates and a
@@ -175,7 +176,7 @@ Don't: derive an anchor from position (`step-3`), or leave `data-label` off.
 
 ### tldr
 
-The page's answer in one or two sentences, 20px. It replaces any hero.
+The page's answer in one or two sentences, 17px; longer text flows into columns. It replaces any hero.
 Markup: `<p class="tldr">...</p>`. Modes: explain, report, review, audit, tour.
 Don't: add a label or kicker above it; the sentence is the heading.
 
@@ -199,6 +200,19 @@ segments or show a bar without its counts.
 A Note, Risk or Decision the reader must not miss, set off by a 1px ink rule.
 Markup: `<aside class="callout" data-kind="risk|decision|note"><span class="callout-label">Risk</span><p>...</p></aside>`.
 Modes: all. Don't: stack more than three in a row or use one for ordinary prose.
+
+### pair, cols, prose
+
+Layout for text next to its visual. `<div class="pair"><div class="pt">text</div><div class="pv">block or diagram</div></div>`:
+the visual takes the larger share and the text wraps under it on a narrow
+screen; `.pv.lg` gives the visual more room. `.cols` flows any children into
+`--col-read` columns; `.prose` is `.cols` for paragraphs. Modes: all. Don't:
+use `.pair` to hold two paragraphs, or put prose in a `.pair` with no visual.
+
+**Visual first, prose last (hard rule).** Every section leads with a block or a
+diagram. Prose is at most about three short paragraphs per section, placed in a
+`.pair` beside its visual. Reach for facts, bars, steps, flow or a diagram
+before a paragraph.
 
 ## Items
 

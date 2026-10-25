@@ -70,8 +70,6 @@
 
   <section class="section" id="glance" data-section="At a glance">
     <h2>At a glance</h2>
-    <p class="tldr">The skill docs generator had two silent data-loss paths. Commit def6a6f closes both and pins them with regression tests that fail on the old code.</p>
-
     <dl class="facts">
       <div><dt>Commit</dt><dd class="mono">def6a6f</dd></div>
       <div><dt>Date</dt><dd>2026-09-16</dd></div>
@@ -80,15 +78,22 @@
       <div><dt>Main file</dt><dd class="mono">gen_skill_docs.py</dd></div>
     </dl>
 
-    <div class="tally" role="group" aria-label="Lines changed in def6a6f by area">
-      <dl class="tally-counts">
-        <div class="s1"><dt>Tests</dt><dd>107</dd></div>
-        <div class="s2"><dt>Generator</dt><dd>62</dd></div>
-        <div class="s3"><dt>Docs</dt><dd>10</dd></div>
-        <div class="s0"><dt>Skills and config</dt><dd>6</dd></div>
-      </dl>
-      <div class="tally-bar" aria-hidden="true">
-        <i class="s1" style="--v:107"></i><i class="s2" style="--v:62"></i><i class="s3" style="--v:10"></i><i class="s0" style="--v:6"></i>
+    <div class="pair">
+      <div class="pt">
+      <p class="tldr">The skill docs generator had two silent data-loss paths. Commit def6a6f closes both and pins them with regression tests that fail on the old code.</p>
+      </div>
+      <div class="pv">
+      <div class="tally" role="group" aria-label="Lines changed in def6a6f by area">
+        <dl class="tally-counts">
+          <div class="s1"><dt>Tests</dt><dd>107</dd></div>
+          <div class="s2"><dt>Generator</dt><dd>62</dd></div>
+          <div class="s3"><dt>Docs</dt><dd>10</dd></div>
+          <div class="s0"><dt>Skills and config</dt><dd>6</dd></div>
+        </dl>
+        <div class="tally-bar" aria-hidden="true">
+          <i class="s1" style="--v:107"></i><i class="s2" style="--v:62"></i><i class="s3" style="--v:10"></i><i class="s0" style="--v:6"></i>
+        </div>
+      </div>
       </div>
     </div>
 
@@ -518,6 +523,23 @@
 
   <section class="section" id="frame" data-section="Frame">
     <h2>Frame</h2>
+
+    <h3>Layout: pair, cols, prose</h3>
+    <div class="pair">
+      <div class="pt">
+        <div class="prose">
+          <p>Each section leads with a visual. The text that explains it sits beside it in a <span class="mono">.pair</span>, and wraps under it on a narrow screen.</p>
+          <p>Long text flows into <span class="mono">--col-read</span> columns instead of one stretched line, so the page fills the viewport without hurting readability.</p>
+        </div>
+      </div>
+      <div class="pv">
+        <ol class="bars">
+          <li><span class="label">Visual first</span><span class="bar"><i style="--v:1"></i></span><span class="value">3</span></li>
+          <li><span class="label">Prose beside it</span><span class="bar"><i style="--v:0.66"></i></span><span class="value">2</span></li>
+          <li><span class="label">Prose alone</span><span class="bar dim"><i style="--v:0.33"></i></span><span class="value">1</span></li>
+        </ol>
+      </div>
+    </div>
 
     <h3>Disclosure</h3>
     <div>

@@ -299,7 +299,7 @@ function renderQuestions(data) {
 
 function mount(data) {
   document.getElementById("root").innerHTML =
-    renderHead(data) + renderGlance(data) + renderGraph(data) + renderSteps(data) + renderQuestions(data);
+    renderHead(data) + renderGraph(data) + renderGlance(data) + renderSteps(data) + renderQuestions(data);
   document.querySelector(".toolbar-title").textContent = data.title;
 }
 

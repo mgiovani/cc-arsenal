@@ -263,9 +263,9 @@ function renderGlance() {
     + '</dl>'
   );
   return (
-    `<p class="tldr">${Render.esc(DATA.tldr)}</p>`
-    + facts
-    + renderTally()
+    facts
+    + `<div class="pair"><div class="pt"><p class="tldr">${Render.esc(DATA.tldr)}</p></div><div class="pv">${renderTally()}</div></div>`
+    + `<h3>Area by severity</h3>${renderHeat()}`
     + '<h3>Checked</h3>'
     + renderChecked()
     + '<aside class="callout" data-kind="risk"><span class="callout-label">Risk</span>'
@@ -338,7 +338,6 @@ function mount() {
     + '</section>'
     + '<section class="section" id="distribution" data-section="Distribution">'
     + '<div class="section-head"><h2>Distribution</h2><span class="meta">The map, before the findings</span></div>'
-    + `<h3>Area by severity</h3>${renderHeat()}`
     + `<h3>Findings per area</h3>${renderBars()}`
     + '</section>'
     + areas

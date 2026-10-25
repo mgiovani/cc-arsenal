@@ -176,11 +176,12 @@ Nothing hand-writes a raw length outside this block; `scripts/assemble.py`'s
 | Type | `--text` `--text-lg` `--text-xl` `--text-2xl` | 15px / 17px / 20px / 30px |
 | Leading | `--leading` `--leading-tight` `--leading-code` | 1.55 / 1.25 / 24px |
 | Tracking | `--tracking` `--tracking-tight` | -0.01em / -0.02em |
-| Measure | `--measure` `--digits` | 62ch / 5ch |
+| Measure | `--measure` `--col-read` `--lede` `--pair-text` `--digits` | `calc(var(--col-read) * 2)` / 40ch / 60ch / 46ch / 5ch |
 | Space | `--space-0-5` … `--space-24` | 2px, 4px, 6px, 8px, 10px, 12px, 16px, 20px, 24px, 32px, 40px, 48px, 64px, 96px (multiples of 4px) |
 | Stroke | `--hair` `--stroke-key` | 1px / 2px |
 | Controls | `--control` `--control-sm` `--icon` `--pin`, plus `--bar` `--gutter` | 32px / 24px / 14px / 22px, 52px / 40px |
-| Widths | `--page` `--page-wide` `--col-xs` `--col-sm` `--col-md` `--col-lg` | 960px / 1200px / 88px / 120px / 168px / 260px |
+| Widths | `--col-xs` `--col-sm` `--col-md` `--col-lg` `--col-text` `--col-wide` `--v-md` `--v-lg` | 88px / 120px / 168px / 260px / 16ch / 22ch / 600px / 900px |
+| Display | `--display` `--h2-sm` `--leading-prose` | `calc(var(--text-2xl) * 1.4)` / `calc(var(--text-xl) * 1.2)` / 1.65 |
 | Heights | `--scroll-max` `--toc-max` | 70vh / `calc(100vh - var(--bar) - var(--space-16))` |
 
 **Breakpoints stay literal**: 600px, 720px, 860px, 1100px. A `@media`/`@container`
@@ -318,8 +319,9 @@ Brand lives in precision, and the interface should disappear into the task.
   (15 / 17 / 20 / 30px).** `--text` carries body text, UI labels, buttons,
   filters, tags, meta, mono identifiers and paths, code excerpts, kbd, line
   numbers, legends, heat and matrix values, and SVG node labels. `--text-lg` is
-  `h3` and sub-section headings. `--text-xl` is `h2` and the `.tldr` statement.
-  `--text-2xl` is `h1`, tracked at `--tracking-tight`. Hierarchy within the
+  `h3` and sub-section headings. `--text-xl` is `h3` and a facts value; `.tldr` is
+  `--text-lg`. `--text-2xl` is `h2`, tracked at `--tracking-tight`; the page `h1`
+  is `--display`. Hierarchy within the
   `--text` layer comes from weight (400/500/600) and color
   (`--ink`/`--mute`/`--soft`), the way Linear does it, never from shrinking
   text further. Line-height: `--leading` for body, `--leading-tight` for UI
@@ -328,7 +330,16 @@ Brand lives in precision, and the interface should disappear into the task.
   `.mark` comment gutter are `--control` tall; tags and `kbd` are
   `--control-sm`; the toolbar row is `--bar`. Row padding scales off the
   `--space-*` ramp to keep the rhythm.
-- **Prose measure `--measure` (62ch).** Data and dense rows can run wider.
+- **Width model: the page fills the viewport.** `.wrap` has no `max-width`, only
+  `--space-10` side gutters (`--space-4` on a phone). At 1100px and up,
+  `.wrap-wide` adds a `--col-md` TOC rail and a fluid content track; below it
+  the rail hides. No template caps the shell. Readability comes from columns,
+  not a page cap: `.prose`, `.tldr`, `.bullets`, `.checklist` and `.cols` flow
+  into `--col-read` (40ch) columns, a lone paragraph tops out at `--measure`
+  (two columns wide), and `.pair` puts text (`.pt`, `--pair-text` basis) beside
+  its visual (`.pv`, `--v-md` basis, `.pv.lg` for `--v-lg`), wrapping the text
+  under the visual on a narrow screen. Tables restack into labelled blocks at
+  600px and below (give each `td` a `data-label`).
 - **Wide content scrolls inside its own container** with `overflow-x: auto`, so
   the body never scrolls sideways.
 - **Layout does the spacing.** Flex or grid with `gap`, never per-element
