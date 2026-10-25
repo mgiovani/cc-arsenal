@@ -665,6 +665,223 @@
     ],
   },
 });
+// Hierarchy and compare group examples.
+(() => {
+  const push = (type, blurb, spec) => (window.DG_EXAMPLES ||= []).push({ group: 'hierarchy', type, blurb, spec });
+
+  push('mindmap', 'What the render skill is made of, one branch per part, two levels deep.', {
+    anchor: 'diagram-mindmap-render-skill',
+    title: 'The render skill is five parts: assets, scripts, references, templates and evals.',
+    center: { label: 'render skill' },
+    branches: [
+      { label: 'assets', children: [{ label: 'page.css, page.js' }, { label: 'diagrams.css, diagrams.js' }, { label: 'gallery pages' }] },
+      { label: 'scripts', children: [{ label: 'assemble.py' }, { label: 'the gate' }] },
+      { label: 'references', children: [{ label: 'blocks.md' }, { label: 'diagrams.md' }] },
+      { label: 'templates', children: [{ label: 'one page per mode' }] },
+      { label: 'evals', children: [{ label: 'evals.json' }, { label: 'trigger-eval.json' }] },
+    ],
+  });
+
+  push('tree', 'An illustrative ownership tree for this repo, with the one escalation path a blocked review takes.', {
+    anchor: 'diagram-tree-ownership',
+    title: 'Every skill change reaches the maintainer through a skill owner; a stuck review escalates straight to them.',
+    nodes: [
+      { id: 'maint', label: 'Maintainer', sub: 'merges', key: true },
+      { id: 'skills', label: 'Skills owner', sub: 'skills/', parent: 'maint' },
+      { id: 'tools', label: 'Tooling owner', sub: 'scripts/', parent: 'maint' },
+      { id: 'render', label: 'render', parent: 'skills' },
+      { id: 'review', label: 'review-code', parent: 'skills' },
+      { id: 'gate', label: 'assemble.py', parent: 'tools' },
+    ],
+    escalations: [{ from: 'render', to: 'maint', label: 'blocked review' }],
+  });
+
+  push('radar', 'Three ways to ship the diagram engine, with illustrative scores from 0 to 5 on five axes.', {
+    anchor: 'diagram-radar-engine-options',
+    title: 'The in-page engine scores highest overall; a server renderer wins only on fidelity.',
+    axes: ['Offline use', 'Fidelity', 'Setup cost', 'Accessibility', 'Editability'],
+    max: 5,
+    entities: [
+      { label: 'In-page engine (chosen)', key: true, values: [5, 4, 5, 4, 4] },
+      { label: 'Server renderer', values: [2, 5, 2, 3, 2] },
+      { label: 'Static images', values: [5, 3, 4, 1, 1] },
+    ],
+  });
+
+  push('slope', 'The same raw-length counts as the waterfall above, but read as a before and after per rule category.', {
+    anchor: 'diagram-slope-raw-length',
+    title: 'Every category dropped to zero; spacing fell furthest.',
+    columns: ['pre-token kit', 'token kit'],
+    items: [
+      { label: 'spacing', from: 175, to: 0, key: true },
+      { label: 'typography', from: 70, to: 0 },
+      { label: 'sizing', from: 69, to: 0 },
+      { label: 'border', from: 66, to: 0 },
+      { label: 'other', from: 23, to: 0 },
+    ],
+  });
+
+  push('scatter', 'Four shipped skills plotted by how many files each ships against how many eval scenarios cover it.', {
+    anchor: 'diagram-scatter-skill-size',
+    title: 'render ships the most files, yet review-code has nearly as many evals with a quarter of the files.',
+    x: { label: 'Files shipped', min: 0, max: 40, ref: { value: 20, label: 'large skill' } },
+    y: { label: 'Eval scenarios', min: 0, max: 20 },
+    points: [
+      { label: 'render', x: 40, y: 16, key: true },
+      { label: 'create-skill', x: 20, y: 3 },
+      { label: 'review-code', x: 11, y: 13 },
+      { label: 'git-commit', x: 4, y: 3 },
+    ],
+  });
+
+  push('pyramid', 'The 52 skills ranked by how many files each ships, fewest at the top.', {
+    anchor: 'diagram-pyramid-skill-size',
+    title: 'Most skills are a SKILL.md and a few files; only five ship 20 or more.',
+    tiers: [
+      { label: '20 or more files', value: 5, sub: 'render, create-skill', key: true },
+      { label: '6 to 19 files', value: 19 },
+      { label: '5 files or fewer', value: 28 },
+    ],
+  });
+})();
+// Flow and strategy group examples.
+(() => {
+  const push = (type, blurb, spec) => (window.DG_EXAMPLES ||= []).push({ group: 'strategy', type, blurb, spec });
+
+  push('sankey', 'Illustrative numbers: where the tokens of one code review go, from what was fed in to what survived as findings.', {
+    anchor: 'diagram-sankey-review-tokens',
+    title: 'Reading files is most of the input, and only 15k of the 100k ends up as findings.',
+    unit: 'k',
+    nodes: [
+      { id: 'prompt', label: 'Prompt' },
+      { id: 'files', label: 'Files read' },
+      { id: 'tools', label: 'Tool output' },
+      { id: 'ctx', label: 'Context' },
+      { id: 'findings', label: 'Findings' },
+      { id: 'cached', label: 'Cache reads' },
+      { id: 'dropped', label: 'Never used' },
+    ],
+    links: [
+      { from: 'prompt', to: 'ctx', value: 20 },
+      { from: 'files', to: 'ctx', value: 60, key: true },
+      { from: 'tools', to: 'ctx', value: 20 },
+      { from: 'ctx', to: 'findings', value: 15 },
+      { from: 'ctx', to: 'cached', value: 55 },
+      { from: 'ctx', to: 'dropped', value: 30 },
+    ],
+  });
+
+  push('journey', 'Illustrative scores for a first-time user of the plugin: the one real sore spot, a stale marketplace cache, is the key moment.', {
+    anchor: 'diagram-journey-first-install',
+    title: 'The journey dips at install, when a local marketplace serves a stale manifest, and recovers on the first page.',
+    stages: [
+      { label: 'Discover', steps: [{ label: 'Read the README', score: 1 }] },
+      {
+        label: 'Install',
+        steps: [{ label: 'Add the marketplace', score: 0 }, { label: 'Hit a stale cache', score: -2, key: true }],
+        pain: 'Local marketplaces cache marketplace.json and never refresh it.',
+        opportunity: 'Print the cache path and the one command that clears it.',
+      },
+      {
+        label: 'Use',
+        steps: [{ label: 'Render a first page', score: 2 }, { label: 'Mark up a finding', score: 1 }],
+      },
+      { label: 'Share', steps: [{ label: 'Save the HTML', score: 1 }], opportunity: 'Offer a one-click copy of the digest.' },
+    ],
+  });
+
+  push('venn', 'Illustrative placement of seven skills by three traits; the overlaps are the point, not the exact membership.', {
+    anchor: 'diagram-venn-skill-traits',
+    title: 'Most skills have one trait; only one is pictured with all three.',
+    sets: [
+      { id: 'agents', label: 'Spawns subagents' },
+      { id: 'scripts', label: 'Bundles scripts' },
+      { id: 'evals', label: 'Ships evals' },
+    ],
+    regions: [
+      { sets: ['agents'], label: 'orchestrate' },
+      { sets: ['scripts'], label: 'agent-browser' },
+      { sets: ['evals'], label: 'wtf' },
+      { sets: ['agents', 'scripts'], label: 'review-code' },
+      { sets: ['agents', 'evals'], label: 'fix-bug' },
+      { sets: ['scripts', 'evals'], label: 'render' },
+      { sets: ['agents', 'scripts', 'evals'], label: 'ship', key: true },
+    ],
+  });
+
+  push('wardley', 'The render skill as a value chain, top the part a reader sees; the positions are a judgement call, not a measurement.', {
+    anchor: 'diagram-wardley-render-chain',
+    title: 'Everything below the page is stable plumbing; only the diagram engine is still moving toward a product.',
+    components: [
+      { id: 'page', label: 'Rendered page', visibility: 0.95, evolution: 0.6 },
+      { id: 'markup', label: 'Markup and comments', visibility: 0.72, evolution: 0.2 },
+      { id: 'engine', label: 'Diagram engine', visibility: 0.72, evolution: 0.58, key: true },
+      { id: 'gate', label: 'The assemble gate', visibility: 0.45, evolution: 0.33 },
+      { id: 'tokens', label: 'Design tokens', visibility: 0.45, evolution: 0.7 },
+      { id: 'browser', label: 'The browser', visibility: 0.15, evolution: 0.92 },
+    ],
+    edges: [
+      { from: 'page', to: 'markup' },
+      { from: 'page', to: 'engine' },
+      { from: 'engine', to: 'gate' },
+      { from: 'engine', to: 'tokens' },
+      { from: 'gate', to: 'browser' },
+      { from: 'tokens', to: 'browser' },
+    ],
+    evolves: [{ id: 'engine', to: 0.9 }],
+  });
+
+  push('blueprint', 'Saving a rendered page, from the reader’s click to the file on disk; the dashed rule is what the reader can and cannot see.', {
+    anchor: 'diagram-blueprint-render-save',
+    title: 'The assemble gate sits backstage: the reader never sees it, yet nothing reaches them without passing it.',
+    columns: ['Ask', 'Draft', 'Review', 'Save'],
+    steps: [
+      { id: 'ask', lane: 'customer', col: 'Ask', label: 'Describe the page' },
+      { id: 'mark', lane: 'customer', col: 'Review', label: 'Mark up findings' },
+      { id: 'click', lane: 'customer', col: 'Save', label: 'Click Save' },
+      { id: 'pick', lane: 'frontstage', col: 'Ask', label: 'Agent picks a mode' },
+      { id: 'write', lane: 'frontstage', col: 'Draft', label: 'Agent writes the page' },
+      { id: 'open', lane: 'frontstage', col: 'Review', label: 'Page opens' },
+      { id: 'saved', lane: 'frontstage', col: 'Save', label: 'File downloads' },
+      { id: 'gate', lane: 'backstage', col: 'Draft', label: 'assemble.py gate', key: true },
+      { id: 'state', lane: 'backstage', col: 'Save', label: 'State embedded' },
+      { id: 'tpl', lane: 'support', col: 'Draft', label: 'Templates and diagrams.js' },
+      { id: 'disk', lane: 'support', col: 'Save', label: 'HTML on disk' },
+    ],
+    edges: [
+      { from: 'ask', to: 'pick' },
+      { from: 'pick', to: 'write' },
+      { from: 'write', to: 'gate' },
+      { from: 'gate', to: 'open' },
+      { from: 'open', to: 'mark' },
+      { from: 'mark', to: 'click' },
+      { from: 'click', to: 'saved' },
+      { from: 'saved', to: 'state' },
+      { from: 'state', to: 'disk' },
+    ],
+  });
+
+  push('delta', 'The full-width layout change to page.css, from the plan behind it: what the page shell was, what it became, and what the ledger says moved.', {
+    anchor: 'diagram-delta-full-width',
+    title: 'Four layout rules changed, one cap was removed and one row layout was added; the typeface stayed.',
+    before: [
+      { id: 'wrap', label: '.wrap', sub: 'max-width: --page' },
+      { id: 'wide', label: '.wrap-wide', sub: 'max-width: --page-wide' },
+      { id: 'toc', label: 'TOC rail', sub: 'beside a fixed column' },
+      { id: 'prose', label: 'Prose', sub: 'one long column' },
+      { id: 'cap', label: '--page cap' },
+      { id: 'type', label: 'Geist, square corners' },
+    ],
+    after: [
+      { id: 'wrap', label: '.wrap', sub: 'fills the viewport' },
+      { id: 'wide', label: '.wrap-wide', sub: 'no cap' },
+      { id: 'toc', label: 'TOC rail', sub: 'beside a fluid track' },
+      { id: 'prose', label: 'Prose', sub: 'columns of 40ch' },
+      { id: 'pair', label: '.pair', sub: 'text beside its visual' },
+      { id: 'type', label: 'Geist, square corners' },
+    ],
+  });
+})();
 </script>
 <script>
 const GROUPS = [
@@ -673,6 +890,8 @@ const GROUPS = [
   ['flow', 'Flow and behavior'],
   ['planning', 'Planning'],
   ['data', 'Analysis and data'],
+  ['hierarchy', 'Hierarchy and compare'],
+  ['strategy', 'Flow and strategy'],
 ];
 
 function emptyGroup(id) {

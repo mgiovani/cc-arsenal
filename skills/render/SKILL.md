@@ -113,16 +113,20 @@ Building means:
    library in [references/blocks.md](references/blocks.md): prefer a block
    whenever the content has a shape (a sequence, a comparison, a magnitude, a
    before/after, a hierarchy) over writing another paragraph.
-4. Never hand-write a new CSS color or a raw length. Every value already comes
+4. **Visual first, prose last.** Every section leads with a block or a diagram.
+   Prose is at most about three short paragraphs per section, placed in a
+   `.pair` beside its visual. Prefer facts, bars, steps, flow or a diagram over
+   a paragraph. The shell fills the viewport; never add a max-width.
+5. Never hand-write a new CSS color or a raw length. Every value already comes
    from a token in `assets/page.css`. A diagram comes from
    `Render.diagram.<type>(spec)`, never hand-drawn SVG; see
    [references/diagrams.md](references/diagrams.md) for the type catalog.
-5. Run `scripts/assemble.py` on that same path, in place (`-o` pointing at the
+6. Run `scripts/assemble.py` on that same path, in place (`-o` pointing at the
    input), to inline `page.css` and `page.js` into the single file the gate
    checks and the reader receives, and let it gate the result against the
    design contract. A real page never passes `--allow-sample`: a leftover
    `/*SAMPLE*/` marker is a gate failure, not a warning.
-6. Run `npx impeccable detect` on the assembled file (needs Node.js: `fnm install --lts` or
+7. Run `npx impeccable detect` on the assembled file (needs Node.js: `fnm install --lts` or
    `brew install node`) and fix whatever it flags before delivering.
 
 Anchors and the comment affordance are specified in

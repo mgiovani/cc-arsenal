@@ -259,14 +259,14 @@ function mount(data) {
       <h1>cc-arsenal weekly status</h1>
       <p class="meta">${Render.esc(data.meta.period)}, comments only, no verdicts on this page.</p>
     </header>
-    <p class="text">${Render.esc(data.meta.subtitle)}</p>
 
     <section class="section" id="glance" data-section="At a glance">
       <h2>At a glance</h2>
-      ${renderTldr(data.tldr)}
       ${renderFacts(data.facts)}
-      ${renderTally(data.tally)}
-      ${renderRisks(data.risks)}
+      <div class="pair">
+        <div class="pt">${renderTldr(data.tldr)}<p class="text">${Render.esc(data.meta.subtitle)}</p></div>
+        <div class="pv">${renderTally(data.tally)}${renderRisks(data.risks)}</div>
+      </div>
     </section>
 
     <section class="section" id="work" data-section="Work by area">

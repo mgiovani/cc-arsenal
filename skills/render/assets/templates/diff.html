@@ -256,8 +256,8 @@ function renderGlance(data) {
   );
   return (
     '<section class="section" id="glance" data-section="At a glance"><h2>At a glance</h2>'
-    + `<p class="tldr">${Render.esc(data.meta.tldr)}</p>`
-    + facts + tally
+    + facts
+    + `<div class="pair"><div class="pt"><p class="tldr">${Render.esc(data.meta.tldr)}</p></div><div class="pv">${tally}</div></div>`
     + '</section>'
   );
 }

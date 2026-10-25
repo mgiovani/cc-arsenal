@@ -1,8 +1,8 @@
 // diagrams.js: core engine for Render.diagram.*. Loads after page.js (needs
 // window.Render for esc/anchored) and before any per-group fragment.
 //
-// File layout once every group lands: this core IIFE, then one IIFE per
-// group (flow, structure, planning, data) that destructures Render.diagram._
+// File layout: this core IIFE, then one IIFE per group (flow, structure,
+// planning, analysis and data, hierarchy and compare, flow and strategy) that destructures Render.diagram._
 // and does Object.assign(Render.diagram, {...}). Merging fragments is a
 // plain concatenation; nothing here should need to change for a group to
 // land.
@@ -33,6 +33,18 @@
     treemap: { cells: 8 },
     funnel: { stages: 6 },
     line: { series: 4, points: 12, slopeSeries: 8 },
+    mindmap: { branches: 6, children: 3 },
+    tree: { nodes: 9, levels: 4, escalations: 3 },
+    radar: { entities: 5, axes: 6 },
+    slope: { items: 8 },
+    scatter: { points: 12 },
+    pyramid: { tiers: 6 },
+    sankey: { nodes: 9, links: 12, stages: 3 },
+    journey: { stages: 5, steps: 10, perStage: 3 },
+    venn: { sets: 3, regions: 7 },
+    wardley: { components: 9, edges: 12, evolves: 3 },
+    blueprint: { columns: 6, steps: 12, edges: 12, gapEdges: 3 },
+    delta: { before: 9, after: 9, rows: 12 },
   };
 
   // -- token reader ----------------------------------------------------------
@@ -92,11 +104,36 @@
     pendingRaf.set(el, id);
   }
 
+  // A figure wider than its column scrolls inside .dg-scroll; the class lets CSS show that it does.
+  function markScrollable(el) {
+    const sc = el.querySelector('.dg-scroll');
+    if (!sc) return;
+    const over = sc.scrollWidth > sc.clientWidth + 1;
+    sc.classList.toggle('is-scrollable', over);
+    if (over) {
+      sc.tabIndex = 0;
+      sc.setAttribute('role', 'region');
+      sc.setAttribute('aria-label', el.querySelector('.dg-cap')?.textContent?.trim() || 'Diagram');
+    } else {
+      sc.removeAttribute('tabindex');
+      sc.removeAttribute('role');
+      sc.removeAttribute('aria-label');
+    }
+  }
+
+  let hiddenWatch = null;
+  // A draw that thins ticks flips [hidden] itself; discard those records so the observer doesn't treat them as a tab opening.
+  function drawFigure(el, draw) {
+    draw(el);
+    markScrollable(el);
+    hiddenWatch?.takeRecords();
+  }
+
   function wireFigure(el) {
     const draw = registry.get(el.dataset.dg);
     if (!draw) return;
     wiredEls.add(el);
-    const run = () => { if (isVisible(el)) draw(el); };
+    const run = () => { if (isVisible(el)) drawFigure(el, draw); };
     if ('ResizeObserver' in window) {
       const ro = new ResizeObserver(() => scheduleRedraw(el, run));
       ro.observe(el.querySelector('.dg-canvas'));
@@ -112,7 +149,7 @@
       if (!wiredEls.has(el)) { wireFigure(el); continue; }
       if (isVisible(el)) {
         const draw = registry.get(el.dataset.dg);
-        if (draw) scheduleRedraw(el, () => draw(el));
+        if (draw) scheduleRedraw(el, () => drawFigure(el, draw));
       }
     }
   }
@@ -128,7 +165,8 @@
   // only drawn once its ancestor's [hidden] is lifted. This one observer
   // covers every figure instead of each caller wiring its own.
   if (typeof MutationObserver !== 'undefined' && document.documentElement) {
-    new MutationObserver(sweep).observe(document.documentElement, {
+    hiddenWatch = new MutationObserver(sweep);
+    hiddenWatch.observe(document.documentElement, {
       attributes: true, attributeFilter: ['hidden'], subtree: true,
     });
   }
@@ -2768,7 +2806,8 @@
         for (const cell of fig.querySelectorAll('.dg-tm-cell')) {
           const sub = cell.querySelector('.dg-tm-sub');
           if (!sub) continue;
-          sub.hidden = cell.getBoundingClientRect().height < 72;
+          const next = cell.getBoundingClientRect().height < 72;
+          if (sub.hidden !== next) sub.hidden = next;
         }
       },
     });
@@ -2830,7 +2869,7 @@
     if (reason) return fail(anchor, title, reason);
 
     const badLen = series.find((s) => (s.values || []).length !== tickCount);
-    if (badLen) return fail(anchor, title, `"${badLen.label}" has ${badLen.values.length} values; there are ${tickCount} x-axis ticks.`);
+    if (badLen) return fail(anchor, title, `"${badLen.label}" has ${(badLen.values || []).length} values; there are ${tickCount} x-axis ticks.`);
     const badVal = series.find((s) => s.values.some((v) => !Number.isFinite(v)));
     if (badVal) return fail(anchor, title, `"${badVal.label}" has a non-finite value.`);
 
@@ -2851,11 +2890,15 @@
       const groups = new Map();
       series.forEach((s, si) => {
         const yAt = round(points[si][i].y);
-        groups.set(yAt, [...(groups.get(yAt) || []), s.label]);
+        groups.set(yAt, [...(groups.get(yAt) || []), s]);
       });
-      return [...groups].map(([yAt, names]) => (
-        `<span class="dg-ln-end-label ${pos}${names.length > 1 ? ' is-ln-group' : ''}" style="--y:${yAt}">${esc(names.join(', '))}</span>`
-      )).join('');
+      // endVals (slope only): series meeting at one y share one value, printed once beside the names.
+      return [...groups].map(([yAt, members]) => {
+        const val = [...new Set(members.map((m) => m.endVals?.[i ? 1 : 0]).filter((v) => v != null))].join(' / ');
+        const names = members.map((m) => m.label).join(', ');
+        const text = !val ? names : (pos === 'is-ln-start' ? `${names} ${val}` : `${val} ${names}`);
+        return `<span class="dg-ln-end-label ${pos}${members.length > 1 ? ' is-ln-group' : ''}" style="--y:${yAt}">${esc(text)}</span>`;
+      }).join('');
     };
     const labelsHtml = (isSlope ? labelsAt(0, 'is-ln-start') : '') + labelsAt(tickCount - 1, 'is-ln-end');
 
@@ -2918,5 +2961,961 @@
 
   Object.assign(window.Render.diagram, {
     fishbone, waterfall, treemap, funnel, line,
+  });
+})();
+
+// Hierarchy and compare: mindmap, tree, radar, slope, scatter, pyramid.
+//
+// Class prefixes: dg-mm-/dg-tr-/dg-rd-/dg-sc-/dg-py-. A slope chart is the
+// line builder at two ticks, so it has no prefix of its own.
+(() => {
+  'use strict';
+
+  const { esc } = window.Render;
+  const {
+    frame, fail, check, node, wires, px, round,
+  } = window.Render.diagram._;
+
+  // -- mindmap -----------------------------------------------------------
+
+  function mindmap(data = {}) {
+    const { anchor, title = '', center = {}, branches = [] } = data;
+    const reason = check('mindmap', data, {
+      branches: branches.length,
+      children: branches.reduce((m, b) => Math.max(m, (b.children || []).length), 0),
+    });
+    if (reason) return fail(anchor, title, reason);
+    if (!center.label) return fail(anchor, title, 'A mind map needs a central topic with a label.');
+    if (branches.length < 2) return fail(anchor, title, `${branches.length} branches passed; a mind map needs at least 2.`);
+
+    const rightCount = Math.ceil(branches.length / 2);
+    const sides = [branches.slice(0, rightCount), branches.slice(rightCount)];
+    const rowsOf = (b) => Math.max(1, (b.children || []).length);
+    const total = Math.max(...sides.map((side) => side.reduce((n, b) => n + rowsOf(b), 0)));
+    const edges = [];
+    let html = node(
+      { id: 'center', label: center.label, sub: center.sub, key: true },
+      '',
+      ` style="--c:3;--r:1;--s:${total}"`,
+    );
+
+    sides.forEach((side, si) => {
+      const dir = si === 0 ? 1 : -1;
+      const used = side.reduce((n, b) => n + rowsOf(b), 0);
+      let row = 1 + Math.floor((total - used) / 2);
+      side.forEach((b, bi) => {
+        const bid = `b${si}-${bi}`;
+        html += node({ ...b, id: bid }, '', ` style="--c:${3 + dir};--r:${row};--s:${rowsOf(b)}"`);
+        edges.push(['center', bid]);
+        (b.children || []).forEach((c, ci) => {
+          const cid = `${bid}-${ci}`;
+          html += node({ ...c, id: cid, sunk: true }, '', ` style="--c:${3 + 2 * dir};--r:${row + ci};--s:1"`);
+          edges.push([bid, cid]);
+        });
+        row += rowsOf(b);
+      });
+    });
+
+    const sr = (
+      `<p>${esc(center.label)}</p><ul>${branches.map((b) => (
+        `<li>${esc(b.label)}${(b.children || []).length ? `: ${b.children.map((c) => esc(c.label)).join(', ')}` : ''}</li>`
+      )).join('')}</ul>`
+    );
+
+    return frame({
+      type: 'mindmap',
+      anchor,
+      title,
+      html,
+      sr,
+      draw(fig) {
+        const w = wires(fig);
+        w.clear();
+        const boxes = new Map([...fig.querySelectorAll('.dg-node')].map((el) => [el.dataset.id, w.box(el)]));
+        for (const [from, to] of edges) {
+          const s = boxes.get(from); const t = boxes.get(to);
+          const right = t.x > s.x;
+          const sx = right ? s.x + s.w : s.x;
+          const tx = right ? t.x : t.x + t.w;
+          const mid = (sx + tx) / 2;
+          const sy = s.y + s.h / 2; const ty = t.y + t.h / 2;
+          w.wire([{ x: sx, y: sy }, { x: mid, y: sy }, { x: mid, y: ty }, { x: tx, y: ty }], { from, to, head: 'none' });
+        }
+      },
+    });
+  }
+
+  // -- tree --------------------------------------------------------------
+
+  function tree(data = {}) {
+    const { anchor, title = '', nodes = [], escalations = [] } = data;
+    const reason = check('tree', data, {
+      nodes: nodes.length, escalations: escalations.length, ids: nodes.map((n) => n.id),
+    });
+    if (reason) return fail(anchor, title, reason);
+    const byId = new Map(nodes.map((n) => [n.id, n]));
+    const roots = nodes.filter((n) => n.parent == null);
+    if (roots.length !== 1) return fail(anchor, title, `${roots.length} root nodes passed; a tree has exactly one (the node with no parent).`);
+    const orphan = nodes.find((n) => n.parent != null && !byId.has(n.parent));
+    if (orphan) return fail(anchor, title, `"${orphan.label}" names an unknown parent "${orphan.parent}".`);
+
+    const kids = new Map(nodes.map((n) => [n.id, nodes.filter((c) => c.parent === n.id)]));
+    const level = new Map();
+    const place = new Map();
+    let leaf = 0;
+    const walk = (n, depth) => {
+      level.set(n.id, depth);
+      const cs = kids.get(n.id);
+      if (!cs.length) { place.set(n.id, { c: leaf + 1, s: 1 }); leaf += 1; return; }
+      cs.forEach((c) => walk(c, depth + 1));
+      const first = place.get(cs[0].id); const last = place.get(cs[cs.length - 1].id);
+      place.set(n.id, { c: first.c, s: last.c + last.s - first.c });
+    };
+    walk(roots[0], 1);
+    if (level.size !== nodes.length) return fail(anchor, title, 'Some nodes are not reachable from the root; the parents form a cycle.');
+    const levels = Math.max(...level.values());
+    const reasonLevels = check('tree', data, { levels });
+    if (reasonLevels) return fail(anchor, title, reasonLevels);
+    for (const e of escalations) {
+      if (!byId.has(e.from) || !byId.has(e.to)) return fail(anchor, title, `An escalation names an unknown id (${e.from} to ${e.to}).`);
+      if (level.get(e.from) === level.get(e.to)) return fail(anchor, title, `Escalation ${e.from} to ${e.to} stays on one level; escalate up or down the chain.`);
+    }
+
+    const html = nodes.map((n) => {
+      const p = place.get(n.id);
+      return node(n, '', ` style="--c:${p.c};--r:${level.get(n.id)};--s:${p.s}"`);
+    }).join('');
+
+    const sr = (
+      `<ul>${nodes.map((n) => `<li>${esc(n.label)}${n.parent != null ? `, reports to ${esc(byId.get(n.parent).label)}` : ', the root'}</li>`).join('')}</ul>`
+      + (escalations.length ? `<p>Escalation: ${escalations.map((e) => `${esc(byId.get(e.from).label)} to ${esc(byId.get(e.to).label)}${e.label ? ` (${esc(e.label)})` : ''}`).join('; ')}.</p>` : '')
+    );
+
+    return frame({
+      type: 'tree',
+      anchor,
+      title,
+      styleAttr: ` style="--cols:${leaf};--esc:${escalations.length}"`,
+      html,
+      sr,
+      draw(fig) {
+        const w = wires(fig);
+        w.clear();
+        const boxes = new Map([...fig.querySelectorAll('.dg-node')].map((el) => [el.dataset.id, w.box(el)]));
+        for (const n of nodes) {
+          const cs = kids.get(n.id);
+          if (!cs.length) continue;
+          const p = boxes.get(n.id);
+          const bottom = p.y + p.h;
+          const busY = bottom + (Math.min(...cs.map((c) => boxes.get(c.id).y)) - bottom) / 2;
+          for (const c of cs) {
+            const b = boxes.get(c.id);
+            w.wire(
+              [{ x: p.x + p.w / 2, y: bottom }, { x: p.x + p.w / 2, y: busY }, { x: b.x + b.w / 2, y: busY }, { x: b.x + b.w / 2, y: b.y }],
+              { from: n.id, to: c.id, head: 'none', key: Boolean(c.key) },
+            );
+          }
+        }
+        // Escalations leave through the gap above or below a row and run in
+        // the right-hand gutter, so they never cross a node box.
+        const lane = px('--rank-gap') / 4;
+        const gutter = Math.max(...[...boxes.values()].map((b) => b.x + b.w));
+        escalations.forEach((e, k) => {
+          const a = boxes.get(e.from); const b = boxes.get(e.to);
+          const down = b.y > a.y;
+          const ax = a.x + a.w * 0.75; const bx = b.x + b.w * 0.75;
+          const ay = down ? a.y + a.h : a.y;
+          const by = down ? b.y : b.y + b.h;
+          const gx = gutter + px('--route') * (k + 1);
+          const laneA = ay + (down ? lane : -lane);
+          const laneB = by + (down ? -lane : lane);
+          w.wire(
+            [{ x: ax, y: ay }, { x: ax, y: laneA }, { x: gx, y: laneA }, { x: gx, y: laneB }, { x: bx, y: laneB }, { x: bx, y: by }],
+            { from: e.from, to: e.to, soft: true },
+          );
+        });
+      },
+    });
+  }
+
+  // -- radar -------------------------------------------------------------
+
+  function radar(data = {}) {
+    const {
+      anchor, title = '', axes = [], entities = [], max = 5,
+    } = data;
+    const reason = check('radar', data, { entities: entities.length, axes: axes.length, ids: entities.map((e) => e.label) });
+    if (reason) return fail(anchor, title, reason);
+    if (axes.length < 3) return fail(anchor, title, `${axes.length} axes passed; a radar needs at least 3.`);
+    if (entities.length < 1) return fail(anchor, title, 'A radar needs at least one entity to score.');
+    if (!(max > 0)) return fail(anchor, title, `max is ${max}; the scale ceiling must be positive.`);
+    for (const e of entities) {
+      if ((e.values || []).length !== axes.length) return fail(anchor, title, `"${e.label}" has ${(e.values || []).length} values for ${axes.length} axes.`);
+      const at = e.values.findIndex((v) => !(Number.isFinite(v) && v >= 0 && v <= max));
+      if (at >= 0) return fail(anchor, title, `"${e.label}" has a score of ${e.values[at]}, outside 0..${max}.`);
+    }
+    if (entities.filter((e) => e.key).length > 1) return fail(anchor, title, 'Only one entity may be the key (emphasized) one.');
+
+    const angle = (i) => -Math.PI / 2 + (2 * Math.PI * i) / axes.length;
+    const labels = axes.map((a, i) => {
+      const c = Math.cos(angle(i)); const s = Math.sin(angle(i));
+      const h = c > 0.3 ? 'is-rd-r' : c < -0.3 ? 'is-rd-l' : 'is-rd-c';
+      const v = s < -0.3 ? 'is-rd-t' : s > 0.3 ? 'is-rd-b' : 'is-rd-m';
+      return `<span class="dg-rd-axis ${h} ${v}" data-axis="${i}">${esc(a)}</span>`;
+    }).join('');
+    const swatch = (e, i) => (e.key ? 'is-rd-key' : `is-rd-dash-${i % 3}`);
+    const legend = entities.map((e, i) => (
+      `<li><span class="dg-rd-swatch ${swatch(e, i)}"></span>${esc(e.label)}</li>`
+    )).join('');
+
+    const sr = (
+      `<table><caption>${esc(title || 'Radar')} (scores 0 to ${max})</caption>`
+      + `<thead><tr><th></th>${axes.map((a) => `<th>${esc(a)}</th>`).join('')}</tr></thead><tbody>`
+      + entities.map((e) => `<tr><td>${esc(e.label)}</td>${e.values.map((v) => `<td>${v}</td>`).join('')}</tr>`).join('')
+      + '</tbody></table>'
+    );
+
+    return frame({
+      type: 'radar',
+      anchor,
+      title,
+      html: `<div class="dg-rd-plot">${labels}</div><ul class="dg-rd-legend">${legend}<li class="dg-rd-scale">Scale 0 to ${esc(String(max))}</li></ul>`,
+      sr,
+      draw(fig) {
+        const w = wires(fig);
+        w.clear();
+        const plot = fig.querySelector('.dg-rd-plot');
+        const b = w.box(plot);
+        const R = Math.max(40, Math.min(b.h * 0.38, (b.w - 2 * px('--col-md')) / 2));
+        const cx = b.x + b.w / 2; const cy = b.y + b.h / 2;
+        const at = (i, f) => ({ x: cx + Math.cos(angle(i)) * R * f, y: cy + Math.sin(angle(i)) * R * f });
+        const poly = (f) => `M ${axes.map((_, i) => { const p = at(i, f); return `${round(p.x)} ${round(p.y)}`; }).join(' L ')} Z`;
+        let svg = [1, 0.75, 0.5, 0.25].map((f) => `<path class="dg-rd-ring" d="${poly(f)}"/>`).join('');
+        svg += axes.map((_, i) => { const p = at(i, 1); return `<path class="dg-rd-ring" d="M ${round(cx)} ${round(cy)} L ${round(p.x)} ${round(p.y)}"/>`; }).join('');
+        const order = entities.map((e, i) => i).sort((p, q) => Number(Boolean(entities[p].key)) - Number(Boolean(entities[q].key)));
+        const marker = px('--marker');
+        for (const i of order) {
+          const e = entities[i];
+          const pts = e.values.map((v, ai) => at(ai, v / max));
+          const d = `M ${pts.map((p) => `${round(p.x)} ${round(p.y)}`).join(' L ')} Z`;
+          const marks = e.key ? pts.map((p) => `<rect class="dg-ln-point" x="${round(p.x - marker / 2)}" y="${round(p.y - marker / 2)}" width="${round(marker)}" height="${round(marker)}"/>`).join('') : '';
+          svg += `<g class="dg-edge dg-rd-poly ${e.key ? 'is-key' : `is-rd-dash-${i % 3}`}" data-from="${esc(e.label)}" data-to="${esc(e.label)}"><path class="dg-line" d="${d}"/>${marks}</g>`;
+        }
+        w.svg.insertAdjacentHTML('beforeend', svg);
+        const gap = px('--space-2');
+        for (const el of plot.querySelectorAll('.dg-rd-axis')) {
+          const i = Number(el.dataset.axis);
+          const p = { x: cx + Math.cos(angle(i)) * (R + gap) - b.x, y: cy + Math.sin(angle(i)) * (R + gap) - b.y };
+          el.style.setProperty('--lx', String(Math.round(p.x)));
+          el.style.setProperty('--ly', String(Math.round(p.y)));
+        }
+      },
+    });
+  }
+
+  // -- slope (the line builder at two ticks, with values on both ends) ----
+
+  function slope(data = {}) {
+    const { anchor, title = '', columns = [], unit = '', items = [] } = data;
+    const reason = check('slope', data, { items: items.length, ids: items.map((it) => it.label) });
+    if (reason) return fail(anchor, title, reason);
+    if (columns.length !== 2) return fail(anchor, title, `${columns.length} columns passed; a slope chart compares exactly 2.`);
+    if (items.length < 2) return fail(anchor, title, `${items.length} items passed; a slope chart needs at least 2.`);
+    const bad = items.find((it) => !Number.isFinite(it.from) || !Number.isFinite(it.to));
+    if (bad) return fail(anchor, title, `"${bad.label}" needs a finite from and to value.`);
+    return window.Render.diagram.line({
+      anchor,
+      title,
+      x: { label: '', ticks: columns },
+      y: { unit },
+      series: items.map((it) => ({
+        label: it.label,
+        key: it.key,
+        values: [it.from, it.to],
+        endVals: [`${it.from}${unit}`, `${it.to}${unit}`],
+      })),
+    });
+  }
+
+  // -- scatter -----------------------------------------------------------
+
+  function scatter(data = {}) {
+    const { anchor, title = '', x = {}, y = {}, points = [] } = data;
+    const reason = check('scatter', data, { points: points.length, ids: points.map((p) => p.label) });
+    if (reason) return fail(anchor, title, reason);
+    for (const [name, ax] of [['x', x], ['y', y]]) {
+      if (!ax.label || !Number.isFinite(ax.min) || !Number.isFinite(ax.max) || !(ax.min < ax.max)) {
+        return fail(anchor, title, `The ${name} axis needs a label and min < max.`);
+      }
+      if (ax.ref && !(Number.isFinite(ax.ref.value) && ax.ref.value >= ax.min && ax.ref.value <= ax.max)) {
+        return fail(anchor, title, `The ${name} reference line (${ax.ref.value}) is outside ${ax.min}..${ax.max}.`);
+      }
+    }
+    for (const p of points) {
+      if (!(Number.isFinite(p.x) && p.x >= x.min && p.x <= x.max) || !(Number.isFinite(p.y) && p.y >= y.min && p.y <= y.max)) {
+        return fail(anchor, title, `"${p.label}" (${p.x}, ${p.y}) is outside the axis ranges.`);
+      }
+    }
+    const fx = (v) => round((v - x.min) / (x.max - x.min));
+    const fy = (v) => round((v - y.min) / (y.max - y.min));
+    const fracs = [0, 0.25, 0.5, 0.75, 1];
+    const grid = fracs.map((f) => (
+      `<span class="dg-sc-grid is-x" style="--p:${f}"><span class="dg-sc-tick">${round(x.min + (x.max - x.min) * f)}</span></span>`
+      + `<span class="dg-sc-grid is-y" style="--p:${f}"><span class="dg-sc-tick">${round(y.min + (y.max - y.min) * f)}</span></span>`
+    )).join('');
+    const refs = [['x', x], ['y', y]].filter(([, ax]) => ax.ref).map(([name, ax]) => (
+      `<span class="dg-sc-ref is-${name}" style="--p:${name === 'x' ? fx(ax.ref.value) : fy(ax.ref.value)}">`
+      + `${ax.ref.label ? `<span class="dg-sc-ref-label">${esc(ax.ref.label)}</span>` : ''}</span>`
+    )).join('');
+    const pts = points.map((p) => (
+      `<div class="dg-sc-pt${p.key ? ' is-key' : ''}" style="--x:${fx(p.x)};--y:${fy(p.y)}">`
+      + `<span class="dg-sc-mark"></span><span class="dg-sc-label">${esc(p.label)}</span></div>`
+    )).join('');
+
+    const sr = (
+      `<table><caption>${esc(title || 'Scatter')}</caption><thead><tr><th></th><th>${esc(x.label)}</th><th>${esc(y.label)}</th></tr></thead><tbody>`
+      + points.map((p) => `<tr><td>${esc(p.label)}</td><td>${p.x}</td><td>${p.y}</td></tr>`).join('')
+      + '</tbody></table>'
+      + [['x', x], ['y', y]].filter(([, ax]) => ax.ref).map(([name, ax]) => `<p>${name} reference line at ${ax.ref.value}${ax.ref.label ? `: ${esc(ax.ref.label)}` : ''}.</p>`).join('')
+    );
+
+    return frame({
+      type: 'scatter',
+      anchor,
+      title,
+      html: (
+        `<div class="dg-sc-plot">${grid}${refs}${pts}`
+        + `<span class="dg-sc-axis is-x">${esc(x.label)}</span><span class="dg-sc-axis is-y">${esc(y.label)}</span></div>`
+      ),
+      sr,
+      draw(fig) {
+        const canvasRect = fig.querySelector('.dg-canvas').getBoundingClientRect();
+        const limit = canvasRect.right - px('--canvas-pad');
+        const labels = [...fig.querySelectorAll('.dg-sc-label')];
+        for (const l of labels) { l.closest('.dg-sc-pt').classList.remove('is-sc-left'); l.style.setProperty('--dy', '0'); }
+        const flip = labels.map((l) => l.getBoundingClientRect().right > limit);
+        labels.forEach((l, i) => l.closest('.dg-sc-pt').classList.toggle('is-sc-left', flip[i]));
+        // Spread only labels that collide in both axes; nudge() would also push apart
+        // labels that merely share a y, which drifts them off their marks.
+        const rects = new Map(labels.map((l) => [l, l.getBoundingClientRect()]));
+        const placed = [];
+        const dys = new Map();
+        for (const l of [...labels].sort((x, y) => rects.get(x).top - rects.get(y).top)) {
+          const r = rects.get(l);
+          let dy = 0;
+          for (const o of placed) {
+            const hit = r.left < o.right && r.right > o.left && r.top + dy < o.bottom && r.bottom + dy > o.top;
+            if (hit) dy = o.bottom - r.top;
+          }
+          dys.set(l, dy);
+          placed.push({
+            left: r.left, right: r.right, top: r.top + dy, bottom: r.bottom + dy,
+          });
+        }
+        for (const [l, dy] of dys) l.style.setProperty('--dy', String(Math.round(dy)));
+      },
+    });
+  }
+
+  // -- pyramid -----------------------------------------------------------
+
+  function pyramid(data = {}) {
+    const { anchor, title = '', tiers = [] } = data;
+    const reason = check('pyramid', data, { tiers: tiers.length });
+    if (reason) return fail(anchor, title, reason);
+    if (tiers.length < 3) return fail(anchor, title, `${tiers.length} tiers passed; a pyramid needs at least 3.`);
+    const bad = tiers.find((t) => !(Number.isFinite(t.value) && t.value > 0));
+    if (bad) return fail(anchor, title, `"${bad.label}" has a value of ${bad.value}; every tier must be positive.`);
+    for (let i = 1; i < tiers.length; i += 1) {
+      if (tiers[i].value < tiers[i - 1].value) {
+        return fail(anchor, title, `"${tiers[i].label}" (${tiers[i].value}) is smaller than "${tiers[i - 1].label}" (${tiers[i - 1].value}) above it; that is not a pyramid.`);
+      }
+    }
+    const widest = tiers[tiers.length - 1].value;
+    const rows = tiers.map((t) => (
+      `<div class="dg-py-row${t.key ? ' is-key' : ''}">`
+      + `<span class="dg-py-track"><span class="dg-py-bar" style="--v:${round(t.value / widest)}"></span></span>`
+      + `<span class="dg-py-text"><span class="title">${esc(t.label)}</span><span class="dg-py-val">${t.value}${t.sub ? ` · ${esc(t.sub)}` : ''}</span></span></div>`
+    )).join('');
+    const sr = `<ol>${tiers.map((t) => `<li>${esc(t.label)}: ${t.value}${t.sub ? `, ${esc(t.sub)}` : ''}</li>`).join('')}</ol>`;
+    return frame({ type: 'pyramid', anchor, title, html: `<div class="dg-py-plot">${rows}</div>`, sr });
+  }
+
+  Object.assign(window.Render.diagram, {
+    mindmap, tree, radar, slope, scatter, pyramid,
+  });
+})();
+
+// Flow and strategy: sankey, journey, venn, wardley, blueprint, delta.
+//
+// Class prefixes: dg-sk-/dg-jr-/dg-vn-/dg-wd-/dg-bp-/dg-dl-.
+(() => {
+  'use strict';
+
+  const { esc } = window.Render;
+  const {
+    frame, fail, check, node, wires, px, round,
+  } = window.Render.diagram._;
+
+  // -- sankey --------------------------------------------------------------
+
+  function sankey(data = {}) {
+    const { anchor, title = '', unit = '', nodes = [], links = [] } = data;
+    const reason = check('sankey', data, { nodes: nodes.length, links: links.length, ids: nodes.map((n) => n.id) });
+    if (reason) return fail(anchor, title, reason);
+    if (!links.length) return fail(anchor, title, 'A sankey needs at least one link.');
+    const byId = new Map(nodes.map((n) => [n.id, n]));
+    for (const l of links) {
+      if (!byId.has(l.from) || !byId.has(l.to)) return fail(anchor, title, `A link names an unknown id (${l.from} to ${l.to}).`);
+      if (!(Number.isFinite(l.value) && l.value > 0)) return fail(anchor, title, `The link ${l.from} to ${l.to} has a value of ${l.value}; every flow must be positive.`);
+    }
+    if (links.filter((l) => l.key).length > 1) return fail(anchor, title, 'Only one link may be the key (emphasized) flow.');
+
+    const sum = (list) => list.reduce((n, l) => n + l.value, 0);
+    const inOf = (id) => sum(links.filter((l) => l.to === id));
+    const outOf = (id) => sum(links.filter((l) => l.from === id));
+    const total = new Map();
+    for (const n of nodes) {
+      const i = inOf(n.id); const o = outOf(n.id);
+      if (!i && !o) return fail(anchor, title, `"${n.label}" has no links; drop it or connect it.`);
+      if (i && o && Math.abs(i - o) > 1e-9) return fail(anchor, title, `"${n.label}" receives ${i} but sends ${o}; a flow stage must pass on exactly what it takes in.`);
+      const t = Math.max(i, o);
+      if (n.value != null && Math.abs(n.value - t) > 1e-9) return fail(anchor, title, `"${n.label}" declares ${n.value} but its links sum to ${t}.`);
+      total.set(n.id, t);
+    }
+
+    const stage = new Map(nodes.map((n) => [n.id, 0]));
+    let moved = true;
+    for (let pass = 0; moved && pass <= nodes.length; pass += 1) {
+      moved = false;
+      for (const l of links) {
+        if (stage.get(l.to) < stage.get(l.from) + 1) { stage.set(l.to, stage.get(l.from) + 1); moved = true; }
+      }
+    }
+    if (moved) return fail(anchor, title, 'The links form a cycle; a sankey flows one way.');
+    const last = Math.max(...stage.values());
+    const stageOver = check('sankey', data, { stages: last + 1 });
+    if (stageOver) return fail(anchor, title, `${stageOver} A sankey draws sources, one optional middle stage and sinks.`);
+    const skip = links.find((l) => stage.get(l.to) !== stage.get(l.from) + 1);
+    if (skip) return fail(anchor, title, `The link ${skip.from} to ${skip.to} skips a stage; route it through the middle stage.`);
+
+    const cols = Array.from({ length: last + 1 }, (_, s) => nodes.filter((n) => stage.get(n.id) === s));
+    const scale = Math.max(...cols.map((c) => c.reduce((n, x) => n + total.get(x.id), 0)));
+    const tiny = links.find((l) => l.value / scale < 0.02);
+    if (tiny) return fail(anchor, title, `The link ${tiny.from} to ${tiny.to} is under 2% of the total and would draw as a hairline; fold it into another flow.`);
+
+    const idx = new Map(nodes.map((n, i) => [n.id, i]));
+    const outOff = new Map(); const inOff = new Map();
+    for (const n of nodes) {
+      let o = 0;
+      for (const l of links.filter((x) => x.from === n.id).sort((a, b) => idx.get(a.to) - idx.get(b.to))) { outOff.set(l, o); o += l.value; }
+      let i = 0;
+      for (const l of links.filter((x) => x.to === n.id).sort((a, b) => idx.get(a.from) - idx.get(b.from))) { inOff.set(l, i); i += l.value; }
+    }
+
+    const pos = (s) => (s === 0 ? 'is-sk-first' : s === last ? 'is-sk-last' : 'is-sk-mid');
+    const html = `<div class="dg-sk-plot">${cols.map((c, s) => (
+      `<div class="dg-sk-col ${pos(s)}">${c.map((n) => (
+        `<div class="dg-sk-node" data-id="${esc(n.id)}"><span class="dg-sk-label"><span class="title">${esc(n.label)}</span>`
+        + `<span class="dg-sk-val">${total.get(n.id)}${esc(unit)}</span></span>`
+        + `<span class="dg-sk-bar" style="--v:${round(total.get(n.id) / scale)}"></span></div>`
+      )).join('')}</div>`
+    )).join('')}</div>`;
+
+    const sr = (
+      `<table><caption>${esc(title || 'Flows')}</caption><thead><tr><th>From</th><th>To</th><th>Amount${unit ? ` (${esc(unit.trim())})` : ''}</th></tr></thead><tbody>`
+      + links.map((l) => `<tr><td>${esc(byId.get(l.from).label)}</td><td>${esc(byId.get(l.to).label)}</td><td>${l.value}</td></tr>`).join('')
+      + '</tbody></table>'
+    );
+
+    return frame({
+      type: 'sankey',
+      anchor,
+      title,
+      html,
+      sr,
+      draw(fig) {
+        const w = wires(fig);
+        w.clear();
+        const bars = new Map([...fig.querySelectorAll('.dg-sk-node')].map((el) => [el.dataset.id, w.box(el.querySelector('.dg-sk-bar'))]));
+        let svg = '';
+        const marks = [];
+        for (const l of links) {
+          const a = bars.get(l.from); const b = bars.get(l.to);
+          const ka = a.h / total.get(l.from); const kb = b.h / total.get(l.to);
+          const sy0 = a.y + outOff.get(l) * ka; const sy1 = sy0 + l.value * ka;
+          const ty0 = b.y + inOff.get(l) * kb; const ty1 = ty0 + l.value * kb;
+          const x0 = a.x + a.w; const x1 = b.x; const xm = (x0 + x1) / 2;
+          const d = `M ${round(x0)} ${round(sy0)} C ${round(xm)} ${round(sy0)} ${round(xm)} ${round(ty0)} ${round(x1)} ${round(ty0)} `
+            + `L ${round(x1)} ${round(ty1)} C ${round(xm)} ${round(ty1)} ${round(xm)} ${round(sy1)} ${round(x0)} ${round(sy1)} Z`;
+          svg += `<g class="dg-edge dg-sk-flow${l.key ? ' is-key' : ''}" data-from="${esc(l.from)}" data-to="${esc(l.to)}"><path class="dg-sk-band" d="${d}"/></g>`;
+          marks.push({
+            l, x: xm, y: (sy0 + sy1 + ty0 + ty1) / 4, s: stage.get(l.from),
+          });
+        }
+        // Value labels sit on each band's midpoint; where two bands are thinner
+        // than a line, the later label steps down so no two labels overlap.
+        const lh = px('--text') * px('--leading-tight') + px('--label-gap');
+        for (let s = 0; s < last; s += 1) {
+          let floor = -Infinity;
+          for (const m of marks.filter((k) => k.s === s).sort((p, q) => p.y - q.y)) {
+            m.y = Math.max(m.y, floor);
+            floor = m.y + lh;
+          }
+        }
+        for (const m of marks) {
+          const text = `${m.l.value}${unit}`;
+          const r = w.labelRect({ x: m.x, y: m.y }, w.measureLabel(text));
+          svg += `<g class="dg-edge${m.l.key ? ' is-key' : ''}"><rect class="dg-label" x="${round(r.left)}" y="${round(r.top)}" width="${round(r.right - r.left)}" height="${round(r.bottom - r.top)}"/>`
+            + `<text class="dg-label-text" x="${round(m.x)}" y="${round(m.y)}" text-anchor="middle" dominant-baseline="central">${esc(text)}</text></g>`;
+        }
+        w.svg.insertAdjacentHTML('beforeend', svg);
+      },
+    });
+  }
+
+  // -- journey -------------------------------------------------------------
+
+  function journey(data = {}) {
+    const { anchor, title = '', stages = [] } = data;
+    const steps = stages.flatMap((s) => s.steps || []);
+    const reason = check('journey', data, {
+      stages: stages.length,
+      steps: steps.length,
+      perStage: stages.reduce((m, s) => Math.max(m, (s.steps || []).length), 0),
+      ids: stages.map((s) => s.label),
+    });
+    if (reason) return fail(anchor, title, reason);
+    if (stages.length < 2) return fail(anchor, title, `${stages.length} stages passed; a journey needs at least 2.`);
+    const empty = stages.find((s) => !(s.steps || []).length);
+    if (empty) return fail(anchor, title, `Stage "${empty.label}" has no steps.`);
+    const bad = steps.find((st) => !(Number.isFinite(st.score) && st.score >= -2 && st.score <= 2));
+    if (bad) return fail(anchor, title, `"${bad.label}" has a score of ${bad.score}, outside -2..2.`);
+    if (steps.filter((st) => st.key).length > 1) return fail(anchor, title, 'Only one step may be the key (emphasized) moment.');
+
+    let col = 2;
+    let html = '';
+    const spans = [];
+    const rule = (p, text) => `<span class="dg-jr-tick" style="--p:${p}">${text}</span>`;
+    stages.forEach((s, si) => {
+      const k = s.steps.length;
+      html += `<div class="dg-jr-stage" style="--c:${col};--k:${k}"><span class="title">${esc(s.label)}</span></div>`;
+      s.steps.forEach((st, j) => {
+        html += node({ id: `s${si}-${j}`, label: st.label, sub: st.sub, key: st.key }, 'dg-jr-step', ` style="--c:${col + j};--r:2"`);
+      });
+      spans.push(k);
+      col += k;
+    });
+    html += `<div class="dg-jr-axis">${rule(0, 'Delighted')}${rule(0.5, 'Neutral')}${rule(1, 'Frustrated')}</div>`;
+    html += '<div class="dg-jr-plot">'
+      + [0, 0.25, 0.5, 0.75, 1].map((p) => `<span class="dg-jr-grid${p === 0.5 ? ' is-mid' : ''}" style="--p:${p}"></span>`).join('')
+      + '</div>';
+    let row = 4;
+    for (const [field, label] of [['pain', 'Pain'], ['opportunity', 'Opportunity']]) {
+      if (!stages.some((s) => s[field])) continue;
+      html += `<div class="dg-jr-rowhead" style="--r:${row}">${label}</div>`;
+      let c = 2;
+      stages.forEach((s) => {
+        if (s[field]) html += `<div class="dg-jr-note" style="--c:${c};--k:${s.steps.length};--r:${row}">${esc(s[field])}</div>`;
+        c += s.steps.length;
+      });
+      row += 1;
+    }
+
+    const sr = (
+      `<ol>${stages.map((s) => (
+        `<li>${esc(s.label)}: ${s.steps.map((st) => `${esc(st.label)} (sentiment ${st.score})`).join('; ')}`
+        + `${s.pain ? `. Pain: ${esc(s.pain)}` : ''}${s.opportunity ? `. Opportunity: ${esc(s.opportunity)}` : ''}</li>`
+      )).join('')}</ol>`
+    );
+
+    return frame({
+      type: 'journey',
+      anchor,
+      title,
+      styleAttr: ` style="--n:${steps.length}"`,
+      html,
+      sr,
+      draw(fig) {
+        const w = wires(fig);
+        w.clear();
+        const plot = w.box(fig.querySelector('.dg-jr-plot'));
+        const boxes = [...fig.querySelectorAll('.dg-jr-step')].map((el) => w.box(el));
+        const inset = px('--space-4');
+        const pts = boxes.map((b, i) => ({
+          x: b.x + b.w / 2,
+          y: plot.y + inset + ((2 - steps[i].score) / 4) * (plot.h - 2 * inset),
+          key: Boolean(steps[i].key),
+        }));
+        let svg = '';
+        let at = 0;
+        for (const k of spans.slice(0, -1)) {
+          at += k;
+          const x = (boxes[at - 1].x + boxes[at - 1].w + boxes[at].x) / 2;
+          svg += `<path class="dg-jr-sep" d="M ${round(x)} ${round(plot.y)} V ${round(plot.y + plot.h)}"/>`;
+        }
+        svg += `<g class="dg-edge"><path class="dg-line" d="M ${pts.map((p) => `${round(p.x)} ${round(p.y)}`).join(' L ')}"/></g>`;
+        const m = px('--marker');
+        svg += pts.map((p) => (
+          `<rect class="dg-jr-point${p.key ? ' is-key' : ''}" x="${round(p.x - m / 2)}" y="${round(p.y - m / 2)}" width="${round(m)}" height="${round(m)}"/>`
+        )).join('');
+        w.svg.insertAdjacentHTML('beforeend', svg);
+      },
+    });
+  }
+
+  // -- venn ----------------------------------------------------------------
+
+  function venn(data = {}) {
+    const { anchor, title = '', sets = [], regions = [] } = data;
+    const reason = check('venn', data, { sets: sets.length, regions: regions.length, ids: sets.map((s) => s.id) });
+    if (reason) return fail(anchor, title, reason);
+    if (sets.length < 2) return fail(anchor, title, `${sets.length} sets passed; a venn diagram needs 2 or 3.`);
+    const order = new Map(sets.map((s, i) => [s.id, i]));
+    const seen = new Set();
+    for (const r of regions) {
+      const ids = r.sets || [];
+      if (!ids.length || new Set(ids).size !== ids.length || ids.some((id) => !order.has(id))) {
+        return fail(anchor, title, `A region names ${ids.length ? 'an unknown or repeated set' : 'no sets'} (${ids.join(', ')}).`);
+      }
+      if (!r.label && r.count == null) return fail(anchor, title, `The region ${ids.join(' + ')} has neither a label nor a count.`);
+      const k = [...ids].sort((a, b) => order.get(a) - order.get(b)).join('+');
+      if (seen.has(k)) return fail(anchor, title, `The region ${k} is given twice.`);
+      seen.add(k);
+    }
+    if (regions.filter((r) => r.key).length > 1) return fail(anchor, title, 'Only one region may be the key (emphasized) one.');
+
+    const n = sets.length;
+    const keyOf = (r) => [...r.sets].sort((a, b) => order.get(a) - order.get(b)).join('+');
+    const nameOf = new Map(sets.map((s) => [s.id, s.label]));
+    const regionsHtml = regions.map((r, i) => (
+      `<div class="dg-vn-region${r.key ? ' is-key' : ''}" data-r="${i}">`
+      + `${r.label ? `<span class="title">${esc(r.label)}</span>` : ''}${r.count != null ? `<span class="dg-vn-count">${esc(String(r.count))}</span>` : ''}</div>`
+    )).join('');
+    const namesHtml = sets.map((s, i) => `<span class="dg-vn-name" data-set="${i}">${esc(s.label)}</span>`).join('');
+
+    const sr = (
+      `<ul>${regions.map((r) => (
+        `<li>${r.sets.length === sets.length && n > 1 ? 'In all of' : r.sets.length === 1 ? 'Only in' : 'In both'} ${r.sets.map((id) => esc(nameOf.get(id))).join(' and ')}: `
+        + `${esc(r.label || '')}${r.count != null ? ` (${esc(String(r.count))})` : ''}</li>`
+      )).join('')}</ul>`
+    );
+
+    return frame({
+      type: 'venn',
+      anchor,
+      title,
+      html: `<div class="dg-vn-plot">${namesHtml}${regionsHtml}</div>`,
+      sr,
+      draw(fig) {
+        const w = wires(fig);
+        w.clear();
+        const plot = fig.querySelector('.dg-vn-plot');
+        const b = w.box(plot);
+        const nameH = px('--text') * px('--leading-tight') * 2 + px('--space-2');
+        const side = px('--col-md');
+        const k3 = Math.sqrt(3) / 2;
+        const R = Math.max(40, Math.min(
+          (b.h - 2 * nameH) / (n === 3 ? 2 + k3 : 2),
+          (b.w / 2 - side) / (n === 3 ? 1.4 : 1.6),
+        ));
+        const cx = b.x + b.w / 2;
+        const cy = n === 3 ? b.y + nameH + R * (1 + k3 / 3) + (b.h - 2 * nameH - R * (2 + k3)) / 2 : b.y + b.h / 2;
+        const G = { x: cx, y: cy };
+        const centers = n === 2
+          ? [{ x: cx - R / 2, y: cy }, { x: cx + R / 2, y: cy }]
+          : [{ x: cx - R / 2, y: cy - R * k3 / 3 }, { x: cx + R / 2, y: cy - R * k3 / 3 }, { x: cx, y: cy + R * k3 * 2 / 3 }];
+        const dirs = n === 2
+          ? [{ x: -Math.SQRT1_2, y: -Math.SQRT1_2, h: 'r', v: 'b' }, { x: Math.SQRT1_2, y: -Math.SQRT1_2, h: 'l', v: 'b' }]
+          : [{ x: -k3, y: -0.5, h: 'r', v: 'b' }, { x: k3, y: -0.5, h: 'l', v: 'b' }, { x: 0, y: 1, h: 'c', v: 't' }];
+        w.svg.insertAdjacentHTML('beforeend', centers.map((c) => `<circle class="dg-vn-circle" cx="${round(c.x)}" cy="${round(c.y)}" r="${round(R)}"/>`).join(''));
+        const gap = px('--space-2');
+        for (const el of plot.querySelectorAll('.dg-vn-name')) {
+          const i = Number(el.dataset.set);
+          const c = centers[i]; const u = dirs[i];
+          el.className = `dg-vn-name is-vn-${u.h}${u.v}`;
+          el.style.setProperty('--lx', String(Math.round(c.x + u.x * (R + gap) - b.x)));
+          el.style.setProperty('--ly', String(Math.round(c.y + u.y * (R + gap) - b.y)));
+        }
+        const at = (key) => {
+          const ids = key.split('+').map((id) => order.get(id));
+          if (n === 2) return ids.length === 2 ? { ...G, wd: 0.8 } : { x: cx + (ids[0] === 0 ? -R : R), y: cy, wd: 0.9 };
+          if (ids.length === 3) return { ...G, wd: 0.45 };
+          if (ids.length === 1) {
+            const u = dirs[ids[0]];
+            return { x: G.x + u.x * 1.08 * R, y: G.y + u.y * 1.08 * R, wd: 0.9 };
+          }
+          const miss = [0, 1, 2].find((i) => !ids.includes(i));
+          const u = dirs[miss];
+          return { x: G.x - u.x * 0.79 * R, y: G.y - u.y * 0.79 * R, wd: 0.7 };
+        };
+        for (const el of plot.querySelectorAll('.dg-vn-region')) {
+          const p = at(keyOf(regions[Number(el.dataset.r)]));
+          el.style.setProperty('--lx', String(Math.round(p.x - b.x)));
+          el.style.setProperty('--ly', String(Math.round(p.y - b.y)));
+          el.style.setProperty('--lw', String(Math.round(R * p.wd)));
+        }
+      },
+    });
+  }
+
+  // -- wardley ---------------------------------------------------------------
+
+  const WD_BANDS = ['Genesis', 'Custom', 'Product', 'Commodity'];
+  const wdX = (e) => round(0.12 + 0.76 * e);
+  const wdY = (v) => round(0.12 + 0.76 * (1 - v));
+
+  function wardley(data = {}) {
+    const { anchor, title = '', components = [], edges = [], evolves = [] } = data;
+    const reason = check('wardley', data, {
+      components: components.length, edges: edges.length, evolves: evolves.length, ids: components.map((c) => c.id),
+    });
+    if (reason) return fail(anchor, title, reason);
+    if (components.length < 2) return fail(anchor, title, `${components.length} components passed; a map needs at least 2.`);
+    const byId = new Map(components.map((c) => [c.id, c]));
+    const unit = (v) => Number.isFinite(v) && v >= 0 && v <= 1;
+    const badPos = components.find((c) => !unit(c.visibility) || !unit(c.evolution));
+    if (badPos) return fail(anchor, title, `"${badPos.label}" needs visibility and evolution between 0 and 1.`);
+    for (const e of edges) {
+      if (!byId.has(e.from) || !byId.has(e.to) || e.from === e.to) return fail(anchor, title, `An edge names an unknown id or loops on one (${e.from} to ${e.to}).`);
+    }
+    const ghosts = [];
+    for (const ev of evolves) {
+      const c = byId.get(ev.id);
+      if (!c) return fail(anchor, title, `An evolve arrow names an unknown id "${ev.id}".`);
+      if (!unit(ev.to) || ev.to < c.evolution + 0.3 - 1e-9) return fail(anchor, title, `"${c.label}" must evolve at least 0.3 to the right (to ${ev.to}); a shorter move would draw on top of itself.`);
+      if (ghosts.some((g) => g.id === `${c.id}~to`)) return fail(anchor, title, `"${c.label}" has more than one evolve arrow; give it one.`);
+      ghosts.push({ ...c, id: `${c.id}~to`, evolution: ev.to, key: false, ghost: true });
+    }
+    if (components.filter((c) => c.key).length > 1) return fail(anchor, title, 'Only one component may be the key (emphasized) one.');
+    const all = [...components, ...ghosts];
+    for (let i = 0; i < all.length; i += 1) {
+      for (let j = i + 1; j < all.length; j += 1) {
+        const a = all[i]; const b = all[j];
+        if (Math.abs(a.evolution - b.evolution) < 0.3 - 1e-9 && Math.abs(a.visibility - b.visibility) < 0.2 - 1e-9) {
+          return fail(anchor, title, `"${a.label}" and "${b.label}" would sit on top of each other; move them 0.3 apart in evolution or 0.2 in visibility.`);
+        }
+      }
+    }
+
+    const pt = (c) => node(
+      { ...c, soft: c.ghost },
+      `dg-wd-pt${c.ghost ? ' is-wd-ghost' : ''}`,
+      ` style="--x:${wdX(c.evolution)};--y:${wdY(c.visibility)}"${c.ghost ? ' aria-hidden="true"' : ''}`,
+    );
+    const html = (
+      `<div class="dg-wd-frame"><div class="dg-wd-bands">${WD_BANDS.map((b) => `<span>${b}</span>`).join('')}</div>`
+      + '<div class="dg-wd-y"><span>Visible to the user</span><span>Invisible</span></div>'
+      + `<div class="dg-wd-plot">${[0.25, 0.5, 0.75].map((p) => `<span class="dg-wd-div" style="--p:${p}"></span>`).join('')}${all.map(pt).join('')}</div></div>`
+    );
+    const band = (e) => WD_BANDS[Math.min(3, Math.floor(e * 4))];
+    const sr = (
+      `<table><caption>${esc(title || 'Value chain')}</caption><thead><tr><th>Component</th><th>Visibility</th><th>Evolution</th></tr></thead><tbody>`
+      + components.map((c) => `<tr><td>${esc(c.label)}</td><td>${c.visibility}</td><td>${band(c.evolution)} (${c.evolution})</td></tr>`).join('')
+      + '</tbody></table>'
+      + (edges.length ? `<p>Depends on: ${edges.map((e) => `${esc(byId.get(e.from).label)} needs ${esc(byId.get(e.to).label)}`).join('; ')}.</p>` : '')
+      + (evolves.length ? `<p>Expected to evolve: ${evolves.map((e) => `${esc(byId.get(e.id).label)} to ${band(e.to)}`).join('; ')}.</p>` : '')
+    );
+
+    return frame({
+      type: 'wardley',
+      anchor,
+      title,
+      html,
+      sr,
+      draw(fig) {
+        const w = wires(fig);
+        w.clear();
+        const boxes = new Map([...fig.querySelectorAll('.dg-wd-pt')].map((el, i) => [all[i].id, w.box(el)]));
+        for (const e of edges) {
+          let a = boxes.get(e.from); let t = boxes.get(e.to);
+          if (a.y > t.y) [a, t] = [t, a];
+          let pts;
+          if (a.y + a.h < t.y) {
+            const ax = a.x + a.w / 2; const tx = t.x + t.w / 2;
+            const my = (a.y + a.h + t.y) / 2;
+            pts = [{ x: ax, y: a.y + a.h }, { x: ax, y: my }, { x: tx, y: my }, { x: tx, y: t.y }];
+          } else {
+            const right = t.x > a.x;
+            const sx = right ? a.x + a.w : a.x; const tx = right ? t.x : t.x + t.w;
+            const ay = a.y + a.h / 2; const ty = t.y + t.h / 2;
+            const mx = (sx + tx) / 2;
+            pts = [{ x: sx, y: ay }, { x: mx, y: ay }, { x: mx, y: ty }, { x: tx, y: ty }];
+          }
+          w.wire(pts, { from: e.from, to: e.to, head: 'none' });
+        }
+        for (const ev of evolves) {
+          const a = boxes.get(ev.id); const g = boxes.get(`${ev.id}~to`);
+          const y = a.y + a.h / 2;
+          w.wire([{ x: a.x + a.w, y }, { x: g.x, y }], { from: ev.id, to: `${ev.id}~to`, soft: true });
+        }
+      },
+    });
+  }
+
+  // -- blueprint ---------------------------------------------------------------
+
+  const BP_LANES = [
+    ['customer', 'Customer actions'], ['frontstage', 'Frontstage'], ['backstage', 'Backstage'], ['support', 'Support processes'],
+  ];
+  const BP_ROW = { customer: 2, frontstage: 3, backstage: 5, support: 6 };
+
+  function blueprint(data = {}) {
+    const { anchor, title = '', columns = [], steps = [], edges = [] } = data;
+    const reason = check('blueprint', data, {
+      columns: columns.length, steps: steps.length, edges: edges.length, ids: steps.map((s) => s.id),
+    });
+    if (reason) return fail(anchor, title, reason);
+    if (columns.length < 2) return fail(anchor, title, `${columns.length} columns passed; a blueprint needs at least 2 phases.`);
+    if (new Set(columns).size !== columns.length) return fail(anchor, title, 'Duplicate column. Every phase name must be unique.');
+    const cell = new Map();
+    for (const s of steps) {
+      if (!Object.hasOwn(BP_ROW, s.lane)) return fail(anchor, title, `"${s.label}" names an unknown lane "${s.lane}"; use customer, frontstage, backstage or support.`);
+      if (!columns.includes(s.col)) return fail(anchor, title, `"${s.label}" names an unknown column "${s.col}".`);
+      const k = `${s.lane}|${s.col}`;
+      if (cell.has(k)) return fail(anchor, title, `"${s.label}" and "${cell.get(k).label}" share the ${s.lane} cell of "${s.col}"; a blueprint holds one step per lane and column.`);
+      cell.set(k, s);
+    }
+    for (const lane of ['frontstage', 'backstage']) {
+      if (!steps.some((s) => s.lane === lane)) return fail(anchor, title, `No ${lane} step; a blueprint needs at least one on each side of the line of visibility.`);
+    }
+    if (steps.filter((s) => s.key).length > 1) return fail(anchor, title, 'Only one step may be the key (emphasized) one.');
+    const byId = new Map(steps.map((s) => [s.id, s]));
+    const ci = (s) => columns.indexOf(s.col);
+    const li = (s) => BP_LANES.findIndex(([id]) => id === s.lane);
+    const gapEdges = new Map();
+    for (const e of edges) {
+      const a = byId.get(e.from); const b = byId.get(e.to);
+      if (!a || !b) return fail(anchor, title, `An edge names an unknown id (${e.from} to ${e.to}).`);
+      if (ci(b) < ci(a)) return fail(anchor, title, `The edge ${e.from} to ${e.to} runs right to left; a blueprint reads left to right.`);
+      if (a.lane === b.lane) {
+        for (let c = ci(a) + 1; c < ci(b); c += 1) {
+          if (cell.has(`${a.lane}|${columns[c]}`)) return fail(anchor, title, `The edge ${e.from} to ${e.to} would run through "${cell.get(`${a.lane}|${columns[c]}`).label}".`);
+        }
+        if (a === b) return fail(anchor, title, `The edge ${e.from} to ${e.to} loops on one step.`);
+      } else if (ci(a) === ci(b)) {
+        const [lo, hi] = [li(a), li(b)].sort((x, y) => x - y);
+        for (let l = lo + 1; l < hi; l += 1) {
+          if (cell.has(`${BP_LANES[l][0]}|${a.col}`)) return fail(anchor, title, `The edge ${e.from} to ${e.to} would run through "${cell.get(`${BP_LANES[l][0]}|${a.col}`).label}".`);
+        }
+      } else {
+        if (ci(b) - ci(a) > 1) return fail(anchor, title, `The edge ${e.from} to ${e.to} crosses lanes and skips a column; link adjacent columns.`);
+        const g = ci(a);
+        gapEdges.set(g, (gapEdges.get(g) || 0) + 1);
+      }
+    }
+    const over = check('blueprint', data, { gapEdges: Math.max(0, ...gapEdges.values()) });
+    if (over) return fail(anchor, title, over);
+
+    let html = columns.map((c, i) => `<div class="dg-bp-phase" style="--c:${i + 2}"><span class="title">${esc(c)}</span></div>`).join('');
+    html += BP_LANES.map(([id, label]) => (
+      `<div class="dg-bp-band" style="--r:${BP_ROW[id]}"></div><div class="dg-bp-head" style="--r:${BP_ROW[id]}">${label}</div>`
+    )).join('');
+    html += '<div class="dg-bp-rule"><span class="dg-bp-rule-label">Line of visibility</span></div>';
+    html += steps.map((s) => node(s, 'dg-bp-step', ` style="--c:${ci(s) + 2};--r:${BP_ROW[s.lane]}"`)).join('');
+
+    const sr = (
+      `<ul>${BP_LANES.map(([id, label]) => {
+        const here = steps.filter((s) => s.lane === id).sort((a, b) => ci(a) - ci(b));
+        return here.length ? `<li>${label}${id === 'backstage' ? ', below the line of visibility' : ''}: ${here.map((s) => `${esc(s.col)}, ${esc(s.label)}`).join('; ')}</li>` : '';
+      }).join('')}</ul>`
+      + (edges.length ? `<p>Flow: ${edges.map((e) => `${esc(byId.get(e.from).label)} to ${esc(byId.get(e.to).label)}`).join('; ')}.</p>` : '')
+    );
+
+    return frame({
+      type: 'blueprint',
+      anchor,
+      title,
+      styleAttr: ` style="--n:${columns.length}"`,
+      html,
+      sr,
+      draw(fig) {
+        const w = wires(fig);
+        w.clear();
+        const boxes = new Map([...fig.querySelectorAll('.dg-bp-step')].map((el) => [el.dataset.id, w.box(el)]));
+        const route = px('--route');
+        const seen = new Map();
+        for (const e of edges) {
+          const a = byId.get(e.from); const b = byId.get(e.to);
+          const s = boxes.get(e.from); const t = boxes.get(e.to);
+          let pts;
+          if (a.lane === b.lane) {
+            const y = s.y + s.h / 2;
+            pts = [{ x: s.x + s.w, y }, { x: t.x, y }];
+          } else if (ci(a) === ci(b)) {
+            const down = t.y > s.y;
+            const x = s.x + s.w / 2;
+            pts = [{ x, y: down ? s.y + s.h : s.y }, { x, y: down ? t.y : t.y + t.h }];
+          } else {
+            const g = ci(a);
+            const k = seen.get(g) || 0; seen.set(g, k + 1);
+            const mx = (s.x + s.w + t.x) / 2 + (k - (gapEdges.get(g) - 1) / 2) * route;
+            const sy = s.y + s.h / 2; const ty = t.y + t.h / 2;
+            pts = [{ x: s.x + s.w, y: sy }, { x: mx, y: sy }, { x: mx, y: ty }, { x: t.x, y: ty }];
+          }
+          w.wire(pts, { from: e.from, to: e.to });
+        }
+      },
+    });
+  }
+
+  // -- delta ---------------------------------------------------------------------
+
+  function delta(data = {}) {
+    const { anchor, title = '', before = [], after = [] } = data;
+    const reason = check('delta', data, { before: before.length, after: after.length });
+    if (reason) return fail(anchor, title, reason);
+    for (const [name, list] of [['before', before], ['after', after]]) {
+      const dup = check('delta', data, { ids: list.map((n) => n.id) });
+      if (dup) return fail(anchor, title, `In "${name}": ${dup}`);
+    }
+    const b = new Map(before.map((n) => [n.id, n]));
+    const a = new Map(after.map((n) => [n.id, n]));
+    const ids = [...b.keys(), ...after.map((n) => n.id).filter((id) => !b.has(id))];
+    const over = check('delta', data, { rows: ids.length });
+    if (over) return fail(anchor, title, over);
+    const kindOf = (id) => {
+      if (!a.has(id)) return 'removed';
+      if (!b.has(id)) return 'added';
+      const x = b.get(id); const y = a.get(id);
+      return x.label !== y.label || (x.sub || '') !== (y.sub || '') ? 'changed' : 'same';
+    };
+    if (!ids.some((id) => kindOf(id) !== 'same')) return fail(anchor, title, 'Before and after are identical; there is no change to draw.');
+
+    const detail = (id) => {
+      const x = b.get(id); const y = a.get(id);
+      const parts = [];
+      if (x.label !== y.label) parts.push(`${x.label} → ${y.label}`);
+      if ((x.sub || '') !== (y.sub || '')) parts.push(`${x.sub || 'none'} → ${y.sub || 'none'}`);
+      return parts.join('; ');
+    };
+    const verb = { added: 'Added', removed: 'Removed', changed: 'Changed' };
+    let html = '<div class="dg-dl-head" style="--c:1">Before</div><div class="dg-dl-head" style="--c:2">Changes</div><div class="dg-dl-head" style="--c:3">After</div>';
+    ids.forEach((id, i) => {
+      const r = i + 2;
+      const kind = kindOf(id);
+      const shown = (n, c, flags) => (n
+        ? node({ ...n, ...flags }, `dg-dl-node is-dl-${kind}`, ` style="--c:${c};--r:${r}"`)
+        : `<div class="dg-dl-none" style="--c:${c};--r:${r}" aria-hidden="true"></div>`);
+      const dim = kind === 'same' ? { sunk: true } : {};
+      html += shown(b.get(id), 1, kind === 'removed' ? { soft: true } : dim);
+      html += `<div class="dg-dl-led" style="--r:${r}">${kind === 'same' ? '' : (
+        `<span class="dg-dl-kind is-dl-${kind}">${verb[kind]}</span>`
+        + `<span class="dg-dl-what">${esc(kind === 'changed' ? detail(id) : (b.get(id) || a.get(id)).label)}</span>`
+      )}</div>`;
+      html += shown(a.get(id), 3, kind === 'added' ? { key: true } : dim);
+    });
+
+    const changed = ids.filter((id) => kindOf(id) !== 'same');
+    const sr = (
+      `<ul>${changed.map((id) => `<li>${verb[kindOf(id)]}: ${esc(kindOf(id) === 'changed' ? detail(id) : (b.get(id) || a.get(id)).label)}</li>`).join('')}</ul>`
+      + `<p>${ids.length - changed.length} unchanged.</p>`
+    );
+
+    return frame({ type: 'delta', anchor, title, html, sr });
+  }
+
+  Object.assign(window.Render.diagram, {
+    sankey, journey, venn, wardley, blueprint, delta,
   });
 })();

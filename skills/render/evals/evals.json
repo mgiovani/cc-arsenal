@@ -196,6 +196,37 @@
         "explain mode's one-line answer and detail-on-demand structure are preserved; the diagram supplements the mechanism section rather than replacing it",
         "the assembled output passes scripts/assemble.py with zero violations and no leftover /*SAMPLE*/ marker"
       ]
+    },
+    {
+      "id": "layout-full-width-visual-first",
+      "prompt": "Run render report on this week's CI health: 412 runs, 37 failures (19 flaky tests, 11 timeouts, 7 real regressions), median duration up from 8m to 11m, and the three slowest jobs are e2e (6m), build (3m) and lint (1m).",
+      "assertions": [
+        "the page uses the kit's full-width shell: no max-width cap on .wrap/.wrap-wide is added back, and no page-local override block widens or narrows the layout",
+        "every section opens with a block or diagram (facts, tally, bars, flow, a Render.diagram.* call) before any paragraph",
+        "explanatory prose sits in a .pair beside its visual or in a multi-column .prose block, and no section has more than three paragraphs",
+        "the failure breakdown is drawn as a visual (tally, bars, or a diagram), not described in a sentence",
+        "the assembled output passes scripts/assemble.py with zero violations and no leftover /*SAMPLE*/ marker"
+      ]
+    },
+    {
+      "id": "happy-path-sankey-token-split",
+      "prompt": "Run render explain on where my agent's 100k context tokens go: 60k from files read, 20k from the prompt, 20k from tool output; of that, 55k are cache reads, 15k end up in findings, and 30k are never used.",
+      "assertions": [
+        "the token split is drawn via Render.diagram.sankey with the three sources, a context node, and the three sinks, never hand-written SVG",
+        "link values balance: each node's inflow equals its outflow (100k in, 100k out)",
+        "the sankey carries a text alternative (.dg-sr) listing every flow with its value",
+        "the assembled output passes scripts/assemble.py with zero violations"
+      ]
+    },
+    {
+      "id": "happy-path-radar-option-compare",
+      "prompt": "Run render compare on three ways to host our docs: GitHub Pages, Vercel, and a self-hosted nginx box, scored 1-5 on cost, setup time, custom domains, preview deploys, and control.",
+      "assertions": [
+        "the scores are drawn via Render.diagram.radar with three entities and five axes, at most one entity marked key",
+        "the matrix or table with the same scores is still present for exact values; the radar is the at-a-glance view",
+        "the radar carries a text alternative (.dg-sr) with every entity's score per axis",
+        "the assembled output passes scripts/assemble.py with zero violations"
+      ]
     }
   ]
 }

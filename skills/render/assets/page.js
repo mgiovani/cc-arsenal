@@ -21,10 +21,6 @@ const RAW = document.documentElement.outerHTML;
     return s.charAt(0).toUpperCase() + s.slice(1);
   }
 
-  function prefersReducedMotion() {
-    return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
-  }
-
   function isTyping(el) {
     if (!el) return false;
     return el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable === true;
@@ -256,6 +252,7 @@ const RAW = document.documentElement.outerHTML;
     persist();
     closeComposer(block);
     renderComments(block);
+    block.querySelector(':scope > .body > .comments')?.lastElementChild?.classList.add('swap');
     paintMark(block);
     updateCounts();
   }
@@ -469,7 +466,7 @@ const RAW = document.documentElement.outerHTML;
     current?.classList.remove('is-current');
     const next = blocks[idx];
     next.classList.add('is-current');
-    next.scrollIntoView({ block: 'nearest', behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
+    next.scrollIntoView({ block: 'nearest', behavior: 'auto' });
   }
 
   function setCurrentVerdictByIndex(i) {
@@ -528,9 +525,7 @@ const RAW = document.documentElement.outerHTML;
         ta.style.opacity = '0';
         document.body.appendChild(ta);
         ta.select();
-        document.execCommand('copy');
-        ta.remove();
-        return true;
+        try { return document.execCommand('copy'); } finally { ta.remove(); }
       } catch {
         return false;
       }
@@ -538,10 +533,12 @@ const RAW = document.documentElement.outerHTML;
   }
 
   async function copyDigest(btn) {
-    const original = btn.textContent;
+    const original = btn.dataset.label || (btn.dataset.label = btn.textContent);
+    btn.style.minWidth = `${btn.offsetWidth}px`;
     const ok = await copyText(buildDigest());
-    btn.textContent = ok ? 'Copied' : original;
-    setTimeout(() => { btn.textContent = original; }, 1500);
+    btn.textContent = ok ? 'Copied' : 'Copy failed';
+    clearTimeout(btn._reset);
+    btn._reset = setTimeout(() => { btn.textContent = original; }, 1500);
   }
 
   // -- save --------------------------------------------------------------------
