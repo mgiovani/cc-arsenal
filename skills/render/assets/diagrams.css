@@ -805,7 +805,7 @@
 
 /* scatter: HTML plot box, points placed by --x/--y fractions; draw() flips a
   label to the left of its mark near the right edge and nudges overlaps. */
-.dg-scatter .dg-canvas { display: block; padding-left: calc(var(--canvas-pad) + var(--space-8)); padding-bottom: calc(var(--canvas-pad) + var(--space-8)); }
+.dg-scatter .dg-canvas { display: block; padding-left: calc(var(--canvas-pad) + var(--space-16)); padding-bottom: calc(var(--canvas-pad) + var(--space-8)); }
 .dg-scatter .dg-sc-plot {
   position: relative;
   min-width: var(--plot-min);
@@ -826,7 +826,7 @@
 .dg-scatter .dg-sc-ref.is-y .dg-sc-ref-label { right: var(--space-1); bottom: var(--space-0-5); }
 .dg-scatter .dg-sc-axis { position: absolute; font-size: var(--text); font-weight: 500; color: var(--mute); }
 .dg-scatter .dg-sc-axis.is-x { top: calc(100% + var(--space-8)); left: 50%; transform: translateX(-50%); }
-.dg-scatter .dg-sc-axis.is-y { top: 50%; right: calc(100% + var(--space-12)); transform: translateY(-50%) rotate(-90deg); white-space: nowrap; }
+.dg-scatter .dg-sc-axis.is-y { top: 50%; left: calc(-1 * var(--space-12)); transform: translate(-50%, -50%) rotate(-90deg); white-space: nowrap; }
 .dg-scatter .dg-sc-pt {
   position: absolute;
   left: calc(var(--x) * 100%);
@@ -988,13 +988,14 @@
   grid-column: 2;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
+  margin-inline: calc(var(--col-md) / 2);
   padding-bottom: var(--space-2);
   font-family: var(--mono);
   color: var(--mute);
 }
 .dg-wardley .dg-wd-bands span { padding-inline: var(--space-2); }
 .dg-wardley .dg-wd-y { grid-column: 1; display: flex; flex-direction: column; justify-content: space-between; padding-right: var(--space-3); color: var(--mute); text-align: end; }
-.dg-wardley .dg-wd-plot { position: relative; height: var(--wd-h); border: var(--hair) solid var(--line-strong); }
+.dg-wardley .dg-wd-plot { position: relative; margin-inline: calc(var(--col-md) / 2); height: var(--wd-h); border: var(--hair) solid var(--line-strong); }
 .dg-wardley .dg-wd-div { position: absolute; top: 0; bottom: 0; left: calc(var(--p) * 100%); border-left: var(--hair) dashed var(--soft); }
 .dg-wardley .dg-node.dg-wd-pt {
   position: absolute;

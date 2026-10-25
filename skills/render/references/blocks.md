@@ -59,7 +59,7 @@ Read the content first, name its shape, then take the block from this table.
 | A sequence where order matters | `steps` |
 | Events with dates or times | `timeline` |
 | A pipeline where each stage feeds the next | `flow` |
-| A structure that branches or merges, a process, a comparison or a plot with real data | `diagram` (18 types, see [diagrams.md](diagrams.md)) |
+| A structure that branches or merges, a process, a comparison or a plot with real data | `diagram` (see [diagrams.md](diagrams.md)) |
 | An architecture of stacked levels | `layers` |
 | Files and folders, with the ones a change touches | `tree` |
 | A before and after, or pros and cons, in prose | `split` |
@@ -338,10 +338,12 @@ branching or cyclic structure; that is `diagram`.
 
 Data-driven, not hand-drawn: call `Render.diagram.<type>({ anchor, title, ...data })`
 and it lays itself out, routes its own edges and refuses over budget instead of
-overflowing. 18 types across four groups (flow: sequence, state, flowchart,
+overflowing. 30 types in six groups. Flow: sequence, state, flowchart,
 swimlane, cycle; structure: dependency, architecture, er, containment;
-planning: gantt, kanban, storymap, quadrant; data: fishbone, waterfall,
-treemap, funnel, line), each with its own data shape, budget and Don't, all
+planning: gantt, kanban, storymap, quadrant; analysis and data: fishbone,
+waterfall, treemap, funnel, line; hierarchy and compare: mindmap, tree,
+radar, slope, scatter, pyramid; flow and strategy: sankey, journey, venn,
+wardley, blueprint, delta. Each has its own data shape, budget and Don't, all
 specified in [diagrams.md](diagrams.md). `dependency` replaces the old
 hand-drawn `graph` block. Modes: map, explain, tour, plan, brainstorm, report.
 Don't: hand-write SVG or coordinates for any of these; a diagram over budget

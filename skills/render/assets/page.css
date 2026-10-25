@@ -33,8 +33,6 @@
   --col-read: 40ch;
   --lede: 60ch;
   --pair-text: 46ch;
-  --col-text: 16ch;
-  --col-wide: 22ch;
   --leading-prose: 1.65;
   --display: calc(var(--text-2xl) * 1.4);
   --h2-sm: calc(var(--text-xl) * 1.2);
@@ -238,8 +236,7 @@ p { max-width: var(--measure); text-wrap: pretty; line-height: var(--leading-pro
   .filterbar { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
 }
 
-/* Under 600px the theme seg drops to the last row so the actions stay beside the counts. */
-@media (max-width: 600px) { .toolbar [data-theme-toggle] { order: 1; } .toolbar .toolbar-group { margin-left: auto; } }
+@media (max-width: 600px) { .toolbar .toolbar-group { margin-left: auto; } }
 
 /* Shortcuts panel */
 .shortcuts {
@@ -787,9 +784,6 @@ figcaption > .meta { margin-left: auto; font-family: var(--mono); white-space: n
 .table, .matrix, .heat { width: 100%; border-collapse: separate; border-spacing: 0; font-size: var(--text); }
 .table td.num { white-space: nowrap; }
 .table td:not(.num) { min-width: var(--col-xs); }
-.table.sticky-first tbody tr { transition: background-color var(--ease); }
-.table.sticky-first :is(th, td):first-child { position: sticky; left: 0; z-index: 1; background: var(--bg); padding-right: var(--space-4); }
-.table.sticky-first thead th:first-child { z-index: 3; }
 .table th, .matrix th, .heat th {
   position: sticky;
   top: 0;
@@ -1098,8 +1092,7 @@ figcaption > .meta { margin-left: auto; font-family: var(--mono); white-space: n
   .row > .body:hover, .finding > .body:hover { background: color-mix(in srgb, var(--sunk) 55%, var(--panel)); }
   .ideas > .anchored:hover { background: color-mix(in srgb, var(--sunk) 55%, var(--panel)); }
   .anchored:hover > .mark { opacity: 1; }
-  .table.sticky-first tbody tr:hover { background: var(--sunk); }
-}
+  }
 /* Reduced motion drops movement and height changes; opacity and colour feedback stay. */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; }

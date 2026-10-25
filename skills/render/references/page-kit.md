@@ -180,7 +180,7 @@ Nothing hand-writes a raw length outside this block; `scripts/assemble.py`'s
 | Space | `--space-0-5` … `--space-24` | 2px, 4px, 6px, 8px, 10px, 12px, 16px, 20px, 24px, 32px, 40px, 48px, 64px, 96px (multiples of 4px) |
 | Stroke | `--hair` `--stroke-key` | 1px / 2px |
 | Controls | `--control` `--control-sm` `--icon` `--pin`, plus `--bar` `--gutter` | 32px / 24px / 14px / 22px, 52px / 40px |
-| Widths | `--col-xs` `--col-sm` `--col-md` `--col-lg` `--col-text` `--col-wide` `--v-md` `--v-lg` | 88px / 120px / 168px / 260px / 16ch / 22ch / 600px / 900px |
+| Widths | `--col-xs` `--col-sm` `--col-md` `--col-lg` `--v-md` `--v-lg` | 88px / 120px / 168px / 260px / 600px / 900px |
 | Display | `--display` `--h2-sm` `--leading-prose` | `calc(var(--text-2xl) * 1.4)` / `calc(var(--text-xl) * 1.2)` / 1.65 |
 | Heights | `--scroll-max` `--toc-max` | 70vh / `calc(100vh - var(--bar) - var(--space-16))` |
 

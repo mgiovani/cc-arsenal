@@ -644,6 +644,23 @@ const results = {};
       ],
       edges: [{ from: 'a', to: 'b' }],
     })],
+    ['wardley-double-evolve', () => diag.wardley({
+      anchor: 'diagram-wd-twice', title: 'Twice',
+      components: [
+        { id: 'a', label: 'A', visibility: 0.9, evolution: 0.1 },
+        { id: 'b', label: 'B', visibility: 0.3, evolution: 0.5 },
+      ],
+      evolves: [{ id: 'a', to: 0.45 }, { id: 'a', to: 0.9 }],
+    })],
+    ['blueprint-constructor-lane', () => diag.blueprint({
+      anchor: 'diagram-bp-proto', title: 'Inherited lane',
+      columns: ['c1', 'c2'],
+      steps: [
+        { id: 'a', lane: 'constructor', col: 'c1', label: 'A' },
+        { id: 'b', lane: 'backstage', col: 'c1', label: 'B' },
+      ],
+      edges: [],
+    })],
     ['delta-identical', () => diag.delta({
       anchor: 'diagram-dl-bad', title: 'Nothing moved',
       before: [{ id: 'a', label: 'A' }], after: [{ id: 'a', label: 'A' }],
@@ -660,9 +677,15 @@ const results = {};
     try {
       const html = fn();
       const isEmptyBlock = typeof html === 'string' && html.includes('class="empty"');
-      results.diagramCases[name] = isEmptyBlock && html.includes('Not drawn');
+      results.diagramCases[name] = {
+        refused: isEmptyBlock && html.includes('Not drawn'),
+        reason: html,
+        sr: /class="dg-sr">\s*<[a-z]/.test(html),
+      };
     } catch (err) {
-      results.diagramCases[name] = `threw:${err.message}`;
+      results.diagramCases[name] = {
+        refused: `threw:${err.message}`, reason: '', sr: false,
+      };
     }
   }
 }
@@ -884,6 +907,8 @@ DIAGRAM_CASE_EXPECTATIONS: dict[str, bool] = {
     'wardley-ok': False,
     'blueprint-no-backstage': True,
     'blueprint-ok': False,
+    'wardley-double-evolve': True,
+    'blueprint-constructor-lane': True,
     'delta-identical': True,
     'delta-ok': False,
 }
@@ -895,7 +920,37 @@ DIAGRAM_CASE_EXPECTATIONS: dict[str, bool] = {
 def test_diagram_builder_refusal(
     results: dict[str, Any], case_name: str, expect_refused: bool
 ) -> None:
-    assert results['diagramCases'][case_name] is expect_refused
+    case = results['diagramCases'][case_name]
+    assert case['refused'] is expect_refused
+    # containment's nested list is its own text alternative
+    if not expect_refused and case_name != 'containment-ok':
+        assert case['sr'], f'{case_name} has no text alternative'
+
+
+DIAGRAM_REFUSAL_REASONS: dict[str, str] = {
+    'mindmap-one-branch': 'branch',
+    'tree-two-roots': 'root',
+    'radar-value-out-of-range': 'outside 0..',
+    'scatter-point-outside-axis': 'outside the axis',
+    'pyramid-narrows-in-middle': 'not a pyramid',
+    'sankey-unbalanced-stage': 'exactly what it takes',
+    'journey-score-out-of-range': 'outside -2..2',
+    'venn-four-sets': 'sets',
+    'wardley-components-collide': 'on top of each other',
+    'wardley-double-evolve': 'more than one evolve',
+    'blueprint-no-backstage': 'backstage',
+    'blueprint-constructor-lane': 'lane',
+    'delta-identical': 'identical',
+}
+
+
+@pytest.mark.parametrize(
+    ('case_name', 'fragment'), sorted(DIAGRAM_REFUSAL_REASONS.items())
+)
+def test_diagram_refusal_reason(
+    results: dict[str, Any], case_name: str, fragment: str
+) -> None:
+    assert fragment.lower() in results['diagramCases'][case_name]['reason'].lower()
 
 
 ROOT_LEFT_OVERLAP = (150, 250)

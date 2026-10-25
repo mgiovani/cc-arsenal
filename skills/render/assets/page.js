@@ -525,9 +525,7 @@ const RAW = document.documentElement.outerHTML;
         ta.style.opacity = '0';
         document.body.appendChild(ta);
         ta.select();
-        document.execCommand('copy');
-        ta.remove();
-        return true;
+        try { return document.execCommand('copy'); } finally { ta.remove(); }
       } catch {
         return false;
       }
@@ -538,7 +536,7 @@ const RAW = document.documentElement.outerHTML;
     const original = btn.dataset.label || (btn.dataset.label = btn.textContent);
     btn.style.minWidth = `${btn.offsetWidth}px`;
     const ok = await copyText(buildDigest());
-    btn.textContent = ok ? 'Copied' : original;
+    btn.textContent = ok ? 'Copied' : 'Copy failed';
     clearTimeout(btn._reset);
     btn._reset = setTimeout(() => { btn.textContent = original; }, 1500);
   }
