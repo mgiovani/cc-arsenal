@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 5
 requires-python = ">=3.12"
 
 [[package]]
@@ -54,7 +54,7 @@ wheels = [
 
 [[package]]
 name = "cc-arsenal"
-version = "6.1.0"
+version = "6.2.0"
 source = { editable = "." }
 dependencies = [
     { name = "click" },
