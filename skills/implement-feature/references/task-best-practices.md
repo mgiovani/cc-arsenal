@@ -117,7 +117,7 @@ abstractions, fix shared bugs once, never cut the never-negligent floor, use
    was asked but flag the leaner alternative in your report — do not silently
    substitute your own approach.
 3. Write comprehensive tests (unit + integration where applicable). All tests
-   MUST pass before completion.
+   must pass before completion; a failing test means the task is unfinished.
 4. Add necessary type definitions (if typed language).
 
 Project-specific commands (discovered in Phase 0):

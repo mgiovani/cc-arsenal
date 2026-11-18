@@ -9,8 +9,9 @@ description: >-
   delegated to review-design. Use for "write a design spec", "map the user
   flows", "screen inventory with states", or "IA and screen states for this
   feature". Writes no UI code. Not for a UX critique of an existing UI (use
-  review-design), the visual token system (use product-design-tokens), or
-  rendering mockups and hero images (use codex-imagegen).
+  review-design), writing the PRD itself (use product-prd), the visual token
+  system (use product-design-tokens), or rendering mockups and hero images
+  (use codex-imagegen).
 metadata:
   summary: "Information architecture, user flows, screen inventory and per-screen states for an approved PRD"
   author: mgiovani

@@ -247,6 +247,30 @@ def test_quick_validate_route_regex_ignores_the_sentence_period(tmp_path: Path) 
     ]
 
 
+def test_quick_validate_flags_name_mismatch_and_caps_emphasis(tmp_path: Path) -> None:
+    path = SCRIPTS_DIR.parents[1] / 'create-skill' / 'scripts' / 'quick_validate.py'
+    spec = importlib.util.spec_from_file_location('qv_rubric_under_test', path)
+    assert spec
+    assert spec.loader
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    skill = tmp_path / 'my-skill'
+    skill.mkdir()
+    description = (
+        'Does one thing. Use when the user asks for that one thing. Not for others.'
+    )
+    body = '# T\n\nYou MUST do it.\n\n```bash\n# NEVER inside a fence\n```\n'
+    (skill / 'SKILL.md').write_text(
+        f'---\nname: other-name\ndescription: {description}\n---\n{body}'
+    )
+    valid, errors, warnings = module.validate_skill(skill)
+    assert valid
+    assert errors == []
+    assert warnings[0] == "Name 'other-name' does not match the directory name 'my-skill'"
+    assert 'MUST' in warnings[1]
+    assert 'NEVER' not in warnings[1]
+
+
 class TestBlockquotedCode:
     def test_code_in_a_blockquoted_source_fence_verifies_as_plain_code(
         self, ws: Workspace

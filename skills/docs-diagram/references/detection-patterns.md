@@ -53,7 +53,7 @@ find . -name "Dockerfile" -o -name "docker-compose.yml" -o -name "docker-compose
 find . -name "*.k8s.yaml" -o -name "*.k8s.yml" -o -name "*deployment.yaml"
 
 # CI/CD
-find . -name ".github/workflows/*.yml" -o -name ".gitlab-ci.yml" -o -name "Jenkinsfile"
+find . -path "*/.github/workflows/*.yml" -o -name ".gitlab-ci.yml" -o -name "Jenkinsfile"
 ```
 
 ## Security Detection

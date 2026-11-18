@@ -6,8 +6,6 @@
 - [Usage Examples](#usage-examples)
 - [Browser Testing Integration (Optional)](#browser-testing-integration-optional)
 - [Error Handling](#error-handling)
-- [Quality Checklist](#quality-checklist)
-- [Commit Message Guidelines](#commit-message-guidelines)
 
 ## Argument Parsing
 
@@ -52,25 +50,11 @@ call sites, spans multiple files, so create the six-task chain first:
 
 ### Example 3: Interactive Bug Fix
 
-Invoke the skill (Claude Code: `/fix-bug "Auth tokens expire too quickly" --interactive`):
-
-Process:
-1. Prompt user after Phase 0 (confirm discovered commands)
-2. Prompt user after Phase 1 (confirm root cause analysis)
-3. Prompt user after Phase 2 (approve fix plan)
-4. Implement fix
-5. Prompt user before commit (review changes)
+Invoke the skill (Claude Code: `/fix-bug "Auth tokens expire too quickly" --interactive`). The run pauses for the user four times: after Phase 0 to confirm the discovered commands, after Phase 1 to confirm the root cause, after Phase 2 to approve the fix plan, and before the commit to review the diff.
 
 ### Example 4: Analysis Only
 
-Invoke the skill (Claude Code: `/fix-bug Database query timeout in reports --test-only`):
-
-Process:
-1. Run Phases 0-2 only
-2. Report root cause analysis
-3. Suggest fix approaches
-4. Do not implement or commit
-5. Let user decide next steps
+Invoke the skill (Claude Code: `/fix-bug Database query timeout in reports --test-only`). Only Phases 0-2 run. The report gives the root cause with its evidence and the fix approaches worth considering; nothing is implemented or committed.
 
 ## Browser Testing Integration (Optional)
 
@@ -101,59 +85,7 @@ When to skip browser testing:
 
 ## Error Handling
 
-### Test Failures After Fix
-
-1. Re-run the specific test with verbose output
-2. Analyze the new failure mode
-3. Check if the fix introduced a regression
-4. Adjust the fix or revert if necessary
-5. Never commit code with failing tests
-
-### Ambiguous Bug Description
-
-1. Ask the user with the structured question tool where one exists (`AskUserQuestion`, `question`, `ask_user`; otherwise ask in chat and wait for the answer) to clarify:
-   - Expected vs actual behavior
-   - Steps to reproduce
-   - Error messages or symptoms
-2. Do not proceed with guesses
-
-### Cannot Reproduce Bug
-
-1. Verify the correct test command is being used
-2. Check if the bug was already fixed
-3. Ask user for more details on reproduction
-4. Document findings and report inability to reproduce
-
-### Multiple Root Causes
-
-1. Identify all contributing factors
-2. Ask user which to fix first
-3. Consider if they should be fixed together or separately
-4. Plan accordingly
-
-## Quality Checklist
-
-See "Phase 4: Quality Verification" in [SKILL.md](../SKILL.md): that's the
-authoritative checklist, not duplicated here.
-
-## Commit Message Guidelines
-
-- Type: `fix:` (for bug fixes)
-- Scope: `(module)` if applicable
-- Subject: Describe WHAT was fixed (not how)
-- Body: Explain WHY this fixes the bug
-- Footer: Reference issue numbers
-
-Example:
-```
-fix(auth): prevent token expiration on page reload
-
-The authentication middleware was not refreshing tokens when
-the user reloaded the page, causing premature logouts.
-
-This fix adds token refresh logic to the middleware that
-runs on every page load, checking token expiration and
-refreshing when needed.
-
-Closes #123
-```
+- **Tests fail after the fix.** Re-run the failing test verbosely and work out whether the fix caused a regression; adjust or revert it, because a commit with a failing test hides which change broke what.
+- **The bug description is ambiguous.** Ask the user with the structured question tool where one exists (`AskUserQuestion`, `question`, `ask_user`); otherwise ask in chat and wait for the answer. Get expected versus actual behavior, the steps to reproduce, and any error text. A guess here means fixing a different bug.
+- **The bug will not reproduce.** Check the test command is the right one and whether the bug is already fixed on this branch, then ask for more reproduction detail. If it still does not reproduce, report what you tried and stop.
+- **There are several root causes.** List every contributing factor and ask the user which to fix first, and whether they belong in one change or separate ones.

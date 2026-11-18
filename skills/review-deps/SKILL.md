@@ -69,9 +69,9 @@ Whichever mode you use:
 
    | Severity | Criteria |
    | --- | --- |
-   | Critical | Known exploited CVEs (CISA KEV), RCE vulnerabilities, packages with no maintained fork |
-   | High | High-severity CVEs with public exploits, copyleft license in a proprietary project, packages 3+ major versions behind |
-   | Medium | Medium-severity CVEs without a public exploit, permissive-but-unusual licenses, packages 1-2 major versions behind |
+   | Critical | Known exploited CVEs (CISA KEV), RCE vulnerabilities, packages with no maintained fork, packages 3+ major versions behind or unmaintained |
+   | High | High-severity CVEs with public exploits, copyleft license in a proprietary project, packages 2 major versions behind |
+   | Medium | Medium-severity CVEs without a public exploit, permissive-but-unusual licenses, packages 1 major version behind |
    | Low | Low-severity CVEs, informational license notes, minor version drift |
 
 5. Group findings by action type: security patches (non-breaking), major upgrades (breaking), or replacements for abandoned packages.

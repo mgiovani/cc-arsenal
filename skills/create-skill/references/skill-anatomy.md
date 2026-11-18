@@ -71,11 +71,6 @@ Examples:
 - `scripts/parse_openapi.py` - OpenAPI spec parsing
 - `scripts/quick_validate.py` - Skill validation checks
 
-Benefits:
-- Token efficient (may be executed without loading into context)
-- Deterministic (same input → same output every time)
-- Reusable across multiple invocations
-
 Note: Scripts may still need to be read by Claude for patching or environment-specific adjustments.
 
 ### references/ - Documentation
@@ -93,18 +88,6 @@ Examples:
 - `references/policies.md` - Company-specific policies
 - `references/api_docs.md` - API endpoint specifications
 - `references/database_schema.md` - Database table structures
-
-Use cases:
-- Database schemas
-- API documentation
-- Domain knowledge
-- Company policies
-- Detailed workflow guides
-
-Benefits:
-- Keeps SKILL.md lean and focused
-- Loaded only when Claude determines it's needed (progressive disclosure)
-- Easy to update without changing core skill logic
 
 Best practices:
 - If files are large (>10k words), include grep search patterns in SKILL.md
@@ -126,18 +109,6 @@ Examples:
 - `assets/frontend-template/` - HTML/React boilerplate
 - `assets/font.ttf` - Typography files
 - `assets/api-template.md` - Documentation template
-
-Use cases:
-- Templates
-- Images and icons
-- Boilerplate code
-- Fonts
-- Sample documents
-
-Benefits:
-- Separates output resources from documentation
-- Enables Claude to use files without loading them into context
-- Provides consistent starting points for generated content
 
 ## Progressive Disclosure Design Principle
 
@@ -192,13 +163,6 @@ Conditional composition:
 ```markdown
 If security concerns are identified, recommend running `/review-security` on the affected files.
 ```
-
-### Benefits of Composition
-
-- Maintainability: Updates to composed skills benefit all consumers
-- Consistency: Ensures uniform behavior across workflows (e.g., all skills use the same commit format)
-- Token efficiency: Reference established patterns instead of repeating instructions
-- Expertise reuse: Leverage specialized skills without duplicating domain knowledge
 
 ### Composition Discovery (Phase 2)
 
@@ -256,17 +220,11 @@ Third-person descriptions:
 - Don't: "Use this skill when you want to..."
 - Don't: "You can generate documentation..."
 
-Objective tone:
-- Focus on what to do, not how Claude might feel about it
-- Avoid anthropomorphizing ("Claude understands", "Claude knows")
-- Use clear, direct instructions
-
 ## Common Pitfalls
 
 1. Monolithic SKILL.md: Move detailed docs to references/ to keep core instructions lean
 2. Unused bundled resources: Don't create scripts/ or references/ unless they're actually needed
 3. Vague descriptions: Be specific about what triggers the skill
-4. Missing verification: Always include checks to validate success
+4. Missing verification: Include checks that validate success
 5. Ignoring composition: Don't reimplement what existing skills do well
-6. Over-tooling: Only request tools actually used in the workflow
-7. Duplication: Information should live in either SKILL.md or references/, not both
+6. Duplication: Information should live in either SKILL.md or references/, not both

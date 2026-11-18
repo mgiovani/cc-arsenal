@@ -9,8 +9,6 @@ Framework-specific patterns for test generation. Use these as reference when wri
 - [JavaScript: Jest](#javascript-jest)
 - [Go: testing](#go-testing)
 - [Rust: cargo test](#rust-cargo-test)
-- [Common anti-patterns to avoid](#common-anti-patterns-to-avoid)
-- [Edge cases to always test](#edge-cases-to-always-test)
 
 ## Python: pytest
 
@@ -207,10 +205,8 @@ vitest run --coverage
 
 ## JavaScript: Jest
 
-### File structure
-Same as Vitest. Jest and Vitest share nearly identical API.
+File structure is the same as Vitest, and the API is nearly identical. The differences:
 
-### Key differences from Vitest
 - Import from `@jest/globals` or use globals
 - Mock with `jest.mock()` instead of `vi.mock()`
 - Use `jest.fn()` instead of `vi.fn()`
@@ -362,30 +358,3 @@ mod tests {
 cargo test
 cargo tarpaulin --out Html  # Coverage with tarpaulin
 ```
-
----
-
-## Common anti-patterns to avoid
-
-| Anti-pattern | Detail |
-| --- | --- |
-| Testing implementation details | Test behavior, not internal state |
-| Overly broad tests | One test checking 10 things, split into focused tests |
-| Flaky tests | Tests depending on timing, network, or random data |
-| Test duplication | Same scenario tested multiple ways without added value |
-| Missing edge cases | Only testing happy path |
-| Brittle mocks | Mocking too deeply into the dependency chain |
-| No assertion | Tests that only check "does not throw" |
-| Shared mutable state | Tests that depend on execution order |
-
-## Edge cases to always test
-
-| Category | Examples |
-| --- | --- |
-| Empty inputs | Empty strings, empty arrays, null/undefined/None |
-| Boundary values | 0, -1, MAX_INT, empty collections, single-element collections |
-| Invalid inputs | Wrong types, missing required fields, malformed data |
-| Error conditions | Network failures, file not found, permission denied |
-| Concurrency | Race conditions, deadlocks (when applicable) |
-| Unicode | Non-ASCII characters, emoji, RTL text |
-| Large inputs | Performance under load, memory limits |

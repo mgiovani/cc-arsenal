@@ -1,6 +1,6 @@
 # HyperFrames: HTML plus GSAP, authored by agents
 
-Read this when the user wants a framework instead of the zero-dependency canvas route, thinks in web pages, needs captions, voiceover, templates or Studio editing, or says "HyperFrames" or "/hyperframes". Opus skips frameworks unless told, so say so explicitly. For the Remotion comparison and port see `remotion.md`.
+Read this when the user wants a framework instead of the zero-dependency canvas route, thinks in web pages, needs captions, voiceover, templates or Studio editing, or says "HyperFrames" or "/hyperframes". Use a framework only when the user or brief names it. For the Remotion comparison and port see `remotion.md`.
 
 ## Contents
 

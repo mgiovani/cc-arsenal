@@ -67,6 +67,9 @@ done
 
 # Get list of unassigned high priority tickets
 issues=$(jira issue list -ax -yHigh -s"To Do" --plain --columns key --no-headers)
+echo "$issues"
+read -r -p "Apply to the keys above? [y/N] " ok
+[[ "$ok" == [yY] ]] || exit 1
 
 # Team members
 team=("Alice" "Bob" "Charlie")
@@ -89,7 +92,10 @@ done
 # Auto-label issues based on keywords in summary
 
 # Get issues without labels
-issues=$(jira issue list --plain --columns key,summary --no-headers)
+issues=$(jira issue list -l~x --plain --columns key,summary --no-headers)
+echo "$issues"
+read -r -p "Label the issues above? [y/N] " ok
+[[ "$ok" == [yY] ]] || exit 1
 
 echo "$issues" | while IFS=$'\t' read -r key summary; do
   # Check for keywords and add labels

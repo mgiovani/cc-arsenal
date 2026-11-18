@@ -5,9 +5,6 @@ Detailed grep patterns and agent prompts for each OWASP vulnerability category. 
 ## Contents
 
 - Scanning agents: [Access Control & Authentication](#agent-1---access-control--authentication-a01-a07), [Configuration & Design](#agent-2---configuration--design-a02-a06), [Injection & Data Integrity](#agent-3---injection--data-integrity-a05-a08), [Cryptography & Supply Chain](#agent-4---cryptography--supply-chain-a04-a03), [Bytecode & Compiled Code Security](#agent-5---bytecode--compiled-code-security), [Logging, Monitoring & Exception Handling](#agent-6---logging-monitoring--exception-handling-a09-a10)
-- [Security Best Practices by Role](#security-best-practices-by-role)
-- [Recommended Follow-up](#recommended-follow-up)
-- [Tool Recommendations](#tool-recommendations)
 
 ## Agent 1 - Access Control & Authentication (A01, A07)
 
@@ -249,54 +246,3 @@ Return findings with:
 - subagent_type: "Explore"
 - model: "sonnet"
 ```
-
-## Security Best Practices by Role
-
-### For Developers
-
-| Practice | Detail |
-| --- | --- |
-| Run before PR | Check code before creating pull requests |
-| Fix Critical/High first | Prioritize based on severity |
-| Understand, don't copy-paste | Learn why the vulnerability exists |
-| Test fixes | Verify fixes do not break functionality |
-| Add tests | Write security tests to prevent regressions |
-
-### For Security Teams
-
-| Practice | Detail |
-| --- | --- |
-| Validate findings | Verify each finding is a real vulnerability |
-| Assess risk | Consider exploitability in the specific context |
-| Prioritize | Not all findings need immediate fixes |
-| Track metrics | Monitor security trends over time |
-| Provide training | Use findings as teaching opportunities |
-
-### For DevOps/SRE
-
-| Practice | Detail |
-| --- | --- |
-| Automate | Integrate security scanning into CI/CD |
-| Gate deployments | Block deployments with Critical vulnerabilities |
-| Monitor | Set up alerts for new vulnerabilities |
-| Rotate secrets | Immediately rotate any exposed credentials |
-| Incident response | Have a plan for security incidents |
-
-## Recommended Follow-up
-
-| Action | Detail |
-| --- | --- |
-| Manual review | Security expert should review all Critical/High findings |
-| Dynamic testing | Use DAST tools (OWASP ZAP, Burp Suite) for runtime testing |
-| Penetration testing | Professional pentest for production systems |
-| Security tools | Integrate SAST/SCA tools into CI/CD pipeline |
-| Training | Educate developers on secure coding practices |
-
-## Tool Recommendations
-
-| Stack | Tools |
-| --- | --- |
-| Python | Bandit, Safety, pip-audit, Semgrep |
-| JavaScript | ESLint Security, npm audit, Snyk |
-| Java | SpotBugs + FindSecBugs, OWASP Dependency-Check |
-| Multi-language | SonarQube, Semgrep, CodeQL |

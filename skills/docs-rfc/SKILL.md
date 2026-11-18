@@ -61,9 +61,9 @@ Copy this checklist and tick each step:
 
 Variants:
 
-- `minimal` -> `minimal.md`: Summary, Motivation, Proposal, Open Questions. Use for small changes.
-- `standard` -> `standard.md` (default): adds Rationale and Alternatives, Implementation Plan, Testing Plan, Migration Strategy, Timeline. Use for most feature proposals.
-- `detailed` -> `detailed.md`: full set including Goals/Non-Goals, Security Considerations, Performance Implications, Monitoring and Metrics. Use for major/architectural changes.
+- `minimal` -> `minimal.md`: Problem, Proposed Solution, Discussion. Use for small changes.
+- `standard` -> `standard.md` (default): Summary, Problem Statement, Proposed Solution, Implementation Details (approach, timeline, resources), Alternatives Considered, Risks and Mitigation, Success Metrics, Dependencies, Open Questions. Use for most feature proposals.
+- `detailed` -> `detailed.md`: full set including Goals/Non-Goals, Security Considerations, Performance Implications, Risk Assessment, Testing Strategy, Rollout Plan, Measurement and Evaluation. Use for major/architectural changes.
 
 Each variant has its own placeholder set (metadata fields, body sections, risk
 tables, alternatives, review history, and so on). Never leave a placeholder

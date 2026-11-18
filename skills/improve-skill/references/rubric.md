@@ -6,14 +6,19 @@ The frozen rewrite rubric this repo's skills are held to. Apply it to every skil
 
 - Third person. State WHAT the skill does and WHEN to use it.
 - Lead with the key use case, then natural trigger phrases a real user would actually type, not idealized machine queries.
-- ≤1024 chars (the repo's validator cap; `quick_validate.py` enforces it).
+- ≤1024 chars (the repo's validator cap; `quick_validate.py` enforces it). `name` equals the directory name.
 - One `"Not for X (use <sibling>)"` clause per real overlap with an existing skill: read the sibling's actual description before writing the clause, never guess at what it covers. A single accurate disambiguation clause prevents more wrong triggers than three extra trigger phrases.
 
 ## Body
 
 - **Under 500 lines.** Heavy detail (tables, long templates, option lists, full schema dumps) moves to `references/<topic>.md` with an inline link from the body and a one-line "load when..." condition, so the body stays skimmable and the detail loads only when actually needed.
 - **Lean imperative.** "Run the validator." beats "You should run the validator, because..." Explain WHY only at a hard boundary: a point where an agent would otherwise plausibly do the wrong thing without the reasoning (e.g. "fetch live specs, cached docs go stale within weeks"). Everywhere else, a justification clause is noise, not guidance.
-- **CAPS (MUST/NEVER/ALWAYS) reserved for true invariants**: the handful of things that are genuinely non-negotiable. A word repeated everywhere protects nothing; it just trains the reader to skim past it.
+- **No all-caps emphasis.** Where a rule matters, state the reason instead of writing it in capitals or bold `CRITICAL`/`IMPORTANT`: newer models over-trigger on emphasis, and a reason also tells the agent what to do in the case the rule did not foresee. `quick_validate.py` warns on it. RFC 2119 keywords that are the skill's subject matter and severity labels are not emphasis.
+- **Cut what the model already knows.** For each line ask: would the agent get this wrong without it? Generic advice, definitions of common tools and restated best practice cost context and teach nothing.
+- **Every workflow says how to verify its result**, with the real test, build or validator commands discovered from the repo. "Make sure it works" is not a check.
+- **One default, not a menu.** Where several tools or approaches fit a step, name the one to use and give the escape hatch for the case it does not cover.
+- **No time-sensitive facts** (model IDs, version numbers, prices, dates) unless the skill exists for them. A correction of a mistake agents keep making goes in a Gotchas section.
+- **No contradictions** between `SKILL.md` and its references, templates or scripts: a reference command that breaks a body rule is a bug in the skill.
 - **3-5 diverse worked examples**, and only where output format actually matters (a table shape, a report template, a specific command). Don't pad with an example that just restates the prose.
 - **Anti-hallucination floor**: never instruct the skill to fabricate metrics, paths, or API names. Any number the skill reports in its own output must come from a command it actually ran this session: a validator's stdout, a grep count, an eval script's summary. This applies recursively: a skill that generates other skills or reports must carry this same floor into what it produces.
 - **Portability**: the body itself must be tool-neutral: usable by any agent that can read files and run shell commands. Claude-Code-only mechanics (subagent/Task orchestration, parallel workflows, `AskUserQuestion`, plan-mode gates) are enhancements layered on top, each with an explicit sequential/inline fallback described in the body itself, not assumed. A reader on a tool with no subagent primitive should be able to follow the same workflow one step at a time and reach the same result, just slower.

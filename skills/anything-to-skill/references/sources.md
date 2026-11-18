@@ -41,7 +41,7 @@ The crawl runs one render at a time, waits the host's normal per-host delay firs
 
 After any step the final URL must be on the fetched host and pass the same SSRF and robots.txt checks as any fetch, else the result is dropped. `--allowed-domains` refuses redirects and subresources on other hosts (a private address, a metadata endpoint).
 
-Known gap: the plan called for `--profile ~/.cache/a2s/browser-profile`, but agent-browser 0.36.0 refuses `--allowed-domains` together with `--profile` (and with `--args --user-data-dir`), so every render uses a fresh session and keeps the host pin. Cookies do not persist between renders.
+Known gap: the plan called for `--profile ~/.cache/a2s/browser-profile`, but agent-browser refuses `--allowed-domains` together with `--profile` (and with `--args --user-data-dir`), so every render uses a fresh session and keeps the host pin. Cookies do not persist between renders.
 
 Challenges, logins and paywalls are never solved: a page that is still walled after step 3 is reported as `blocked`. To skim a page by hand, `agent-browser read <url>` (with `--outline` for headings only, or `--llms index|full` for the nearest `llms.txt`) needs no browser launch.
 

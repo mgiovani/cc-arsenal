@@ -100,8 +100,8 @@ flip Status to Accepted once approved).
 | Variant | Sections | Use when |
 |---|---|---|
 | **nygard** (default) | Status, Context, Decision, Consequences | Most decisions, balanced detail |
-| **lightweight** | Status, Decision, Rationale | Simple, straightforward decisions |
-| **full** | Status, Context, Decision Drivers, Considered Options, Decision, Consequences (Positive/Negative/Neutral), Pros and Cons, Related Decisions, References | Complex, high-impact decisions |
+| **lightweight** | Status, Problem, Decision, Alternatives Considered, Consequences, Notes | Simple, straightforward decisions |
+| **full** | Status, Problem Statement, Context, Assumptions, Options Considered, Decision, Rationale, Consequences (Positive/Negative/Neutral), Implementation Plan, Success Metrics, Dependencies, Risks and Mitigation, Related ADRs, References | Complex, high-impact decisions |
 
 ## Usage Examples
 
@@ -114,12 +114,12 @@ docs-adr "Database Migration Strategy"
 docs-adr lightweight "Use Redis for Session Storage"
 ```
 -> strips "lightweight", verifies Redis is actually referenced in the repo, writes
-`docs/adr/0005-use-redis-for-session-storage.md` with just Status/Decision/Rationale.
+`docs/adr/0005-use-redis-for-session-storage.md` with the short Problem/Decision/Alternatives/Consequences layout.
 
 ```
 docs-adr full "Adopt Event-Driven Architecture"
 ```
--> writes the full variant with Considered Options and split Consequences, citing real
+-> writes the full variant with Options Considered and split Consequences, citing real
 messaging/event code found during context gathering.
 
 ## ADR Numbering & Status Lifecycle

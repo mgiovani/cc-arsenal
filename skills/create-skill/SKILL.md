@@ -1,6 +1,6 @@
 ---
 name: create-skill
-description: "Create a new agent skill (or Claude Code slash command) from a plain-language description, using live spec fetching, pattern research, and an approval-gated blueprint before any files are written. Use whenever the user wants to build, scaffold, or author a new skill, subagent capability, or slash command, including phrasings like 'make a command for X', 'create a slash command', 'turn this into a reusable skill', or 'package this workflow as a skill'. Not for editing CLAUDE.md/AGENTS.md memory rules (use create-rule) or discovering/installing existing third-party skills (use find-skills)."
+description: "Creates a new agent skill (or Claude Code slash command) from a plain-language description, using live spec fetching, pattern research, and an approval-gated blueprint before any files are written. Use whenever the user wants to build, scaffold, or author a new skill, subagent capability, or slash command, including phrasings like 'make a command for X', 'create a slash command', 'turn this into a reusable skill', or 'package this workflow as a skill'. Not for editing CLAUDE.md/AGENTS.md memory rules (use create-rule), discovering/installing existing third-party skills (use find-skills), improving an existing skill (use improve-skill), or building a skill from docs, PDFs or videos (use anything-to-skill)."
 metadata:
   summary: "Specification-driven skill creation with eval system and description optimization"
   author: mgiovani
@@ -22,7 +22,7 @@ Apply these when drafting the generated skill's description and body in Phase 4:
 
 **Explain WHY only at hard boundaries.** Add reasoning only where an agent would otherwise plausibly do the wrong thing (e.g. "fetch live specs: cached docs go stale within weeks"). Everywhere else, a plain imperative ("Run the validator.") is faster to read and no less correct. Justifying every line is noise, not guidance.
 
-**Keep it lean; reserve ALL-CAPS for true invariants.** Remove instructions that aren't pulling their weight: a 100-line skill often beats a 500-line skill diluted with edge cases that never occur. CRITICAL/MUST/ALWAYS/NEVER should mark the handful of things that really are non-negotiable; a word repeated ten times protects nothing.
+**Keep it lean, and give reasons instead of emphasis.** Remove instructions that aren't pulling their weight: a 100-line skill often beats a 500-line skill diluted with edge cases that never occur. For each line ask whether the agent would get it wrong without it. Where a rule matters, state why instead of writing it in capitals: newer models over-trigger on all-caps emphasis, and a word repeated ten times protects nothing. Give one default per step, keep model IDs and version numbers out of the body, and say how the workflow verifies its own result. The `improve-skill` skill holds the full authoring rubric; `quick_validate.py` warns on all-caps emphasis.
 
 **Generalize, don't overfit**: Skills designed only around their own test examples fail in practice. Design for the pattern, not the specific instance. Ask: "Would this instruction still apply if the user's request looked different?"
 

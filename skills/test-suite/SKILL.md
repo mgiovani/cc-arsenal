@@ -170,24 +170,16 @@ Provide a summary including:
 
 ## Test Quality Principles
 
-Generated tests must follow these principles:
+Generated tests follow the project's conventions plus one rule that is easy to get wrong:
 
 | Principle | Detail |
 | --- | --- |
-| Arrange-Act-Assert | Clear structure in every test |
-| Single responsibility | Each test verifies one behavior |
-| Descriptive names | Test name explains the scenario and expected outcome |
-| Independence | Tests do not depend on execution order or shared state |
-| Deterministic | Same result every time, no flaky tests |
-| Fast | Unit tests run quickly; minimize I/O and external calls |
-| Readable | Tests serve as documentation for the code under test |
-| Maintainable | Avoid testing implementation details; test behavior and contracts |
 | Lean coverage | Over-testing is the failure mode in the other direction. Skip trivial getters and pure pass-throughs, as well as framework-guaranteed behavior. Don't add a snapshot test or an assert-nothing test just to move a coverage number. The one exception: never skip a test for a security or validation path, or one touching data loss, just because it's tedious to set up; that risk is always worth the test. |
 
 ## Additional Resources
 
 - [references/subagent-template.md](references/subagent-template.md) - Task setup, Explore prompts and the test-writer subagent template for the Large track.
-- [references/framework-patterns.md](references/framework-patterns.md) - pytest, vitest/jest, Go, and Rust idioms (file layout, naming, fixtures, mocking, common anti-patterns). Load it when writing tests for a framework whose conventions you're not confident about, or when the Phase 0 discovery didn't surface enough existing test files to infer the pattern yourself.
+- [references/framework-patterns.md](references/framework-patterns.md) - pytest, vitest/jest, Go, and Rust idioms (file layout, naming, fixtures, mocking). Load it when writing tests for a framework whose conventions you're not confident about, or when the Phase 0 discovery didn't surface enough existing test files to infer the pattern yourself.
 
 ## Important Notes
 

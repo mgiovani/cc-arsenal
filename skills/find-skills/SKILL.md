@@ -72,6 +72,8 @@ npx skills add owner/repo --skill skill-name -a claude-code -g
 npx skills add owner/repo --all
 ```
 
+Verify afterwards: `npx skills list` (add `-g` for global scope) must show the skill, and `ls .claude/skills/<name>/SKILL.md` (or `~/.claude/skills/<name>/SKILL.md` with `-g`) must exist. If either check fails, report the failure instead of claiming success.
+
 ## Worked Examples
 
 Map the user's request to the right subcommand and scope before running anything:

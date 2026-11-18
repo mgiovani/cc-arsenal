@@ -11,8 +11,8 @@ Two templates: a live report (`design-report-live.md`) and a static report
 - [Scoring rule (applicable-only)](#scoring-rule-applicable-only)
 - [Note on thresholds](#note-on-thresholds)
 
-Every finding MUST have: criterion ID, evidence, measured value (where applicable),
-citation, severity, and a concrete fix. No placeholder text.
+Every finding needs: criterion ID, evidence, measured value (where applicable),
+citation, severity, and a concrete fix, so a reader can verify it. Leave no placeholder text.
 
 ---
 

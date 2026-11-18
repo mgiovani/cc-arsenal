@@ -13,7 +13,7 @@ metadata:
   author: mgiovani
   version: 2.0.0
 disable-model-invocation: false
-argument-hint: <rule-name> [description]
+argument-hint: "[--user] <rule-name> [description]"
 ---
 
 # Create Rule
@@ -38,8 +38,8 @@ search for existing skills to install (use `find-skills`).
 
 ## Steps
 
-1. **Parse the request**: rule name from the first word of the user's request,
-   description from the rest. If either is missing, ask the user with the structured
+1. **Parse the request**: an optional leading `--user` flag marks a user-scope (personal) rule; then rule name from the first word, description from the rest.
+   If either is missing, ask the user with the structured
    question tool where one exists (`AskUserQuestion`, `question`, `ask_user`); otherwise
    ask in chat and wait for the answer.
 2. **Detect the tool convention** by checking what's already in the repo:
@@ -53,6 +53,7 @@ search for existing skills to install (use `find-skills`).
    - AGENTS.md-style tools: append a new section to the single root `AGENTS.md`, this format has no per-topic file split or frontmatter.
    - Cursor: `.cursor/rules/<name>.mdc` with `description`/`globs`/`alwaysApply` frontmatter; scope by directory nesting for path-specific rules.
 4. **Write the rule**, following the matching template in [references/rule-examples.md](references/rule-examples.md): imperative language, specific expectations, one topic per file, code examples where useful.
+5. **Verify** the result: `git status --short` shows only the intended file (for a user-scope rule outside the repo, `ls` the file instead). For `paths`/`globs` frontmatter, confirm the pattern matches real files (`git ls-files '<glob>' | head`) and the YAML parses (opening and closing `---`, valid list syntax); re-read the new rule against the existing rules checked in step 2 for contradictions.
 
 ## Examples
 

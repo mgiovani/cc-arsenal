@@ -24,7 +24,7 @@ This reference is loaded when `db-migrate` needs framework-specific commands.
 | Marker File | Framework | Create Command | Status Command | Apply Command |
 |-------------|-----------|---------------|----------------|---------------|
 | `alembic.ini` | Alembic (Python) | `alembic revision --autogenerate -m "<name>"` | `alembic current` | `alembic upgrade head` |
-| `prisma/schema.prisma` | Prisma (Node.js) | `npx prisma migrate dev --name <name>` | `npx prisma migrate status` | `npx prisma migrate deploy` |
+| `prisma/schema.prisma` | Prisma (Node.js) | `npx prisma migrate dev --create-only --name <name>` | `npx prisma migrate status` | `npx prisma migrate deploy` |
 | `knexfile.*` | Knex (Node.js) | `npx knex migrate:make <name>` | `npx knex migrate:status` | `npx knex migrate:latest` |
 | `flyway.conf` or `flyway.toml` | Flyway | Create `sql/V{timestamp}__<name>.sql` manually | `flyway info` | `flyway migrate` |
 | `db/migrate/` (Ruby) | Rails/ActiveRecord | `rails generate migration <Name>` | `rails db:migrate:status` | `rails db:migrate` |
@@ -63,7 +63,7 @@ This reference is loaded when `db-migrate` needs framework-specific commands.
 ### Prisma (Node.js)
 - `prisma migrate dev` uses a shadow database to detect drift
 - `prisma migrate deploy` is for production (no shadow DB needed)
-- Do not edit generated SQL files after running dev migration: use `prisma migrate resolve` instead
+- `--create-only` writes the SQL without applying it, so it can be edited before `prisma migrate dev` or `deploy` applies it; once applied, do not edit it: use `prisma migrate resolve` instead
 - For data migrations, use a separate migration with raw SQL via `$executeRaw`
 - Reset caution: `prisma migrate reset` drops and re-creates the database
 

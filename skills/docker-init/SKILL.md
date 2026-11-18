@@ -81,7 +81,7 @@ Generate `docker-compose.yml` with no `version:` key (deprecated in modern Compo
 ```yaml
 services:
   kafka:
-    image: apache/kafka:latest   # pin to a specific tag (e.g. 3.8.0) before deploying to prod
+    image: apache/kafka:3.8.0
     environment:
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: broker,controller

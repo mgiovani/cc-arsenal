@@ -6,7 +6,7 @@ Read this to choose between Remotion, HyperFrames and the plain canvas route, to
 
 | Situation | Route |
 |---|---|
-| One-off film, full control, no dependencies | Canvas `seek(t)` (`render-engine.md`); this is Opus's default |
+| One-off film, full control, no dependencies | Canvas `seek(t)` (`render-engine.md`); this is the default |
 | Team already writes React: components, design system, charting libraries, typed validated inputs, series and data-driven templates, mature Lambda rendering | Remotion |
 | Web page, HTML prototype, exported design or existing browser animation (GSAP, Lottie) is the source; agent authors it; human edits in Studio; no build step | HyperFrames (`hyperframes.md`) |
 
@@ -15,7 +15,7 @@ Both open a real browser, draw each frame and encode. What differs is what you w
 - Remotion: React and TypeScript. The component reads the frame number and returns that frame's values, in frames. One pure function of the frame number, no timeline to register, no contract to get subtly wrong; simpler to hold in your head, older, more templates and tutorials, far more production history.
 - HyperFrames: HTML, CSS and JavaScript. The renderer pauses animation and seeks to an exact moment before each capture, in seconds. Needs no React, no build step, no component rewrite. Apache 2.0, so no seat count or licence review (Remotion is free for individuals and companies up to three people, paid above; check the current terms). Its rules (paused timeline, no wall clocks, no unseeded randomness) break quietly if ignored; its agent skills encode them.
 - Both ship a visual editor that saves back to source; both render on AWS Lambda; HyperFrames also renders locally, on a hosted cloud and on Google Cloud Run.
-- Opus does not reach for either unless told. Say "use Remotion" or "using /hyperframes" explicitly.
+- Use neither unless the user or brief names it ("use Remotion", "using /hyperframes").
 
 ## Starting Remotion
 

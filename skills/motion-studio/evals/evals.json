@@ -51,7 +51,7 @@
         "Installs the HyperFrames agent skills with npx skills add heygen-com/hyperframes (choosing Core Skills), or npx hyperframes skills update for non-interactive/CI",
         "Starts a fresh agent chat after install and asks it to use /hyperframes",
         "Remotion fits teams already writing React (components, design system, typed inputs); HyperFrames needs no React or build step and is Apache 2.0",
-        "Notes Opus defaults to a zero-dependency index.html + Playwright + ffmpeg route and skips frameworks unless explicitly asked"
+        "Notes the default is a zero-dependency index.html + Playwright + ffmpeg route and skips frameworks unless explicitly asked"
       ]
     },
     {

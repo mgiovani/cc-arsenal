@@ -16,7 +16,7 @@ pnpm audit --json 2>/dev/null || pnpm audit 2>&1
 
 Python (pip/uv):
 ```bash
-# pip-audit (preferred — install if missing)
+# pip-audit (preferred; report as unavailable if missing)
 pip-audit --format=json 2>/dev/null || pip-audit 2>&1
 
 # If pip-audit unavailable, use pip
@@ -65,7 +65,7 @@ gh api repos/{owner}/{repo}/dependabot/alerts --jq '.[] | {package: .security_ad
 
 ## Quick Reference Table
 
-| Ecosystem | Audit Command | JSON Output | Install |
+| Ecosystem | Audit Command | JSON Output | Install (for the report's tooling recommendations only) |
 |-----------|--------------|-------------|---------|
 | npm | `npm audit` | `--json` | Built-in |
 | yarn | `yarn audit` | `--json` | Built-in |

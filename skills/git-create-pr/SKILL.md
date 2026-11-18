@@ -25,13 +25,13 @@ Every PR bullet must map to an actual commit or diff hunk: drop claims you can't
    - Requires `gh` (`brew install gh`): confirm `gh auth status` succeeds, else stop and tell the user to run `gh auth login`.
    - Get current branch: `git branch --show-current`.
      - If it's `main` or `master`: **stop immediately**. Tell the user there's no feature branch to open a PR from, e.g. `Currently on main — check out a feature branch first.` Do not proceed.
-   - Check commits exist: `git log origin/<base>..HEAD --oneline`. If empty, stop and say there's nothing to open a PR for.
    - Extract ticket ID from branch name (e.g., `ABC-123` from `feature/ABC-123_description`)
 
 2. **Determine base branch**
    - Use `--base`/`-b` argument if provided
    - Otherwise: `gh repo view --json defaultBranchRef -q .defaultBranchRef.name`
    - Fall back to `main` if detection fails
+   - Check commits exist: `git log origin/<base>..HEAD --oneline`. If empty, stop and say there's nothing to open a PR for.
 
 3. **Analyze changes**
    - `git log origin/<base>..HEAD --format="%h %s"` for commits

@@ -171,7 +171,8 @@ validate-structure: ## Validate repository structure
 		done; \
 	done; \
 	for skill in skills/*/; do \
-		if ! out=$$($(UV) run -q python skills/create-skill/scripts/quick_validate.py "$$skill" 2>&1); then \
+		out=$$($(UV) run -q python skills/create-skill/scripts/quick_validate.py "$$skill" 2>&1); \
+		if [ $$? -ne 0 ] || echo "$$out" | grep -q WARNING; then \
 			echo "$(RED)$$skill: $$out$(RESET)"; \
 			errors=$$((errors + 1)); \
 		fi; \

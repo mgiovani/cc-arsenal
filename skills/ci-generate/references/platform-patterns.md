@@ -102,7 +102,7 @@ jobs:
       - uses: actions/checkout@v4
       - run: npm audit --audit-level=high
       # Optional: Trivy for deeper scanning
-      # - uses: aquasecurity/trivy-action@master
+      # - uses: aquasecurity/trivy-action@<version tag>
       #   with:
       #     scan-type: "fs"
       #     scan-ref: "."

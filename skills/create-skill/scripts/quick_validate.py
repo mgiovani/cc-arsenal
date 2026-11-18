@@ -8,9 +8,10 @@ Quick validation script for agent skills.
 Validates a skill directory against the Agent Skills specification:
 - YAML frontmatter structure and required fields
 - Allowed frontmatter keys (rejects unknown keys)
-- Name format: kebab-case, ≤64 chars, no invalid hyphens
+- Name format: kebab-case, ≤64 chars, no invalid hyphens, equal to the directory name
 - Description: 50-1024 chars, no angle brackets
 - SKILL.md line count warning (>500 lines)
+- All-caps emphasis warning (MUST/NEVER/ALWAYS, bold CRITICAL/IMPORTANT) outside code fences
 - Directory structure (only scripts/, references/, assets/ subdirs)
 - Internal reference integrity (referenced files exist)
 - evals/evals.json schema (if present)
@@ -53,6 +54,7 @@ MAX_NAME_LENGTH = 64
 MAX_DESCRIPTION_LENGTH = 1024
 MIN_DESCRIPTION_LENGTH = 50
 WARN_LINE_COUNT = 500
+EMPHASIS = re.compile(r'\b(?:MUST|NEVER|ALWAYS)\b|\*\*(?:CRITICAL|IMPORTANT)\*\*')
 
 
 def validate_skill(skill_path: str | Path) -> tuple[bool, list[str], list[str]]:
@@ -83,6 +85,20 @@ def validate_skill(skill_path: str | Path) -> tuple[bool, list[str], list[str]]:
 
     fm_errors = _validate_frontmatter(frontmatter)
     errors.extend(fm_errors)
+
+    name = str(frontmatter.get('name', '')).strip()
+    dir_name = skill_path.resolve().name
+    if name and name != dir_name:
+        # A warning, not an error: generators validate a skill in a staging directory
+        warnings.append(f"Name '{name}' does not match the directory name '{dir_name}'")
+
+    prose = re.sub(r'```.*?```', '', content, flags=re.DOTALL)
+    shouting = sorted(set(EMPHASIS.findall(prose)))
+    if shouting:
+        warnings.append(
+            f'All-caps emphasis ({", ".join(shouting)}): state the reason instead; '
+            'newer models over-trigger on emphasis'
+        )
 
     # Line count warning
     line_count = content.count('\n')

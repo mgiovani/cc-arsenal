@@ -29,7 +29,7 @@ ls alembic.ini prisma/schema.prisma knexfile.* flyway.conf flyway.toml \
    liquibase.properties 2>/dev/null
 ```
 
-Also check `package.json` (`knex`, `db-migrate`, `sequelize`, `typeorm`), `pyproject.toml`/`requirements.txt` (`alembic`, `sqlalchemy`), and `Gemfile` (`activerecord`) for framework dependencies when no marker file is conclusive.
+Also check `package.json` (`knex`, `db-migrate`, `sequelize`, `typeorm`), `pyproject.toml`/`requirements.txt` (`alembic`, `sqlalchemy`), `Gemfile` (`activerecord`), `Cargo.toml` (`sqlx`), and `go.mod` (`migrate`) for framework dependencies when no marker file is conclusive.
 
 If multiple frameworks are detected (e.g. a monorepo with both a Python and a Node service), ask the user which one they mean. If none is detected, ask the user to name it: don't guess a command for a framework you can't confirm.
 
@@ -53,9 +53,9 @@ If `--name <name>` is given, use it. Otherwise ask for a short, descriptive name
 #### create
 
 1. Check naming conventions in existing migrations (`Glob migrations/`, `db/migrate/`) and match the project's pattern.
-2. Run the framework-native create command from the reference table (use `--autogenerate` / schema-diff mode where the framework supports it, e.g. Alembic, Prisma).
+2. Run the framework-native create command from the reference table (use `--autogenerate` / schema-diff mode where the framework supports it, e.g. Alembic, Prisma). The table's Prisma command is `--create-only`, so nothing is applied before the fixes in step 4.
 3. Read the generated file back and show it to the user: don't just report that a command succeeded.
-4. Run the `validate` checks below on the new file, then fix what is fixable in place: add a missing `down`/reverse, add a `CREATE INDEX` for an unindexed foreign key, rename a file that breaks the naming pattern. Re-validate after each fix. Stop after 3 rounds, or sooner once clean, and report what still fails.
+4. Run the `validate` checks below on the new file, then fix what is fixable in place: add a missing `down`/reverse (not for Prisma, which has none), add a `CREATE INDEX` for an unindexed foreign key, rename a file that breaks the naming pattern. Re-validate after each fix. Stop after 3 rounds, or sooner once clean, and report what still fails.
 5. Never auto-fix destructive operations or mixed data + schema changes: report them for the user's decision.
 6. Remind the user to review the final diff.
 
