@@ -58,12 +58,12 @@ Example: "Use Redis for Caching" -> `use-redis-for-caching`.
 
 ### Phase 4: Gather Context
 
-Use the Task tool with the Explore agent, when available, to search the codebase for
+Spawn a subagent (the `Explore` agent in Claude Code), where the tool has one, to search the codebase for
 the decision topic: current implementation (if any), related config files, dependencies
 involved, and existing documentation. Ask it to return verified file paths and relevant
 snippets, not summaries it can't back up.
 
-If the Task tool isn't available, run the equivalent searches directly instead:
+If there is no subagent tool, do this step inline: run the equivalent searches directly instead:
 e.g. `grep -rn "<topic>"` across source files, `find . -name "*.config.*"` or
 `docker-compose.yml` for infra-flavored decisions, `find . -name "*schema*" -o -name
 "*models*"` for data-layer decisions. Either path, only include context you actually

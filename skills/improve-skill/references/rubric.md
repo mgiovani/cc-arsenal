@@ -28,7 +28,7 @@ Mark one of these deficient only when the skill shows the problem: a step that f
 - Checklists and gates: an order-dependent flow gets a copyable fenced checklist of `- [ ]` steps with explicit gates ("if X fails, return to step N", "stop and report"). Replace the equivalent prose ordering rather than duplicating it.
 - Validation loops: validate, fix, re-validate, with the exact command and a cap (e.g. 3 rounds, then report what still fails).
 - Install lines: put the install command next to the first use of each external tool.
-- Multi-model testing: run the skill on several models (e.g. Haiku, Sonnet, Opus); guidance that is enough for one may not be for another.
+- Multi-model testing: run the skill on several models (e.g. a fast, a balanced and a strongest-reasoning tier: `haiku`, `sonnet`, `opus` in Claude Code); guidance that is enough for one may not be for another.
 
 ## Frontmatter keys
 

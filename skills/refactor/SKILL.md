@@ -11,10 +11,6 @@ metadata:
 
 Refactor code safely: capture current behavior with characterization tests, then restructure it in small steps, running the full test suite after each one before moving to the next.
 
-## Refactoring Goal
-
-$ARGUMENTS
-
 ## Core Principle: Behavior Preservation
 
 Refactoring changes code structure WITHOUT changing behavior. Every step must be verified against existing tests. If tests break, the refactoring introduced a bug: revert and retry.
@@ -52,7 +48,7 @@ The Phase 0 scope gate below always runs, even on the skip path: it's a five-sec
 - The caller list isn't obvious from a single grep
 - Progress needs to be tracked across sessions
 
-**Task structure:** a strict sequential chain, each phase blocked on the previous, so characterization tests exist before any structural change begins. `TaskCreate` returns the real task ID to use in `addBlockedBy`; don't hardcode literal IDs like `1`-`6`, other tasks may already exist in the session. After finishing each phase, mark its task `completed` and run `TaskList` to confirm the next one unblocked: this applies at the end of every phase below. Full `TaskCreate`/`TaskUpdate` templates and the Explore-agent prompts for Phase 0 and Phase 1 are in [references/task-chain.md](references/task-chain.md), load it when actually running the full chain.
+**Task structure:** a strict sequential chain, each phase blocked on the previous, so characterization tests exist before any structural change begins. Track it with the task/todo tool where available (otherwise keep the checklist in the reply); in Claude Code, `TaskCreate` returns the real task ID to use in `addBlockedBy`, so don't hardcode literal IDs like `1`-`6`, other tasks may already exist in the session. After finishing each phase, mark its task `completed` and run `TaskList` to confirm the next one unblocked: this applies at the end of every phase below. Full `TaskCreate`/`TaskUpdate` templates and the exploration-agent prompts for Phase 0 and Phase 1 are in [references/task-chain.md](references/task-chain.md), load it when actually running the full chain.
 
 **Portability:** no `Task`/`TaskCreate` tools available? Drop the task chain and subagent fan-out: work through Phase 0-5 yourself, in order. The sequencing (characterization tests before structural change) is what matters, not the tracking mechanism.
 
@@ -65,18 +61,18 @@ The Phase 0 scope gate below always runs, even on the skip path: it's a five-sec
 1. Read the request for anything that isn't a pure structural change to existing behavior (a new option, a new endpoint, a bug fix, "while you're in there, also add..."). A rename/extract/move/inline/simplify/dedupe is refactor scope; anything that changes what the code *does* for a caller is not.
 2. If the request is mixed-scope, touch no code for the behavior-changing half, not as a draft, not because "it's small anyway."
 3. If the split is unambiguous, proceed with the refactor half only and skip to Step 0b.
-4. If it's genuinely unclear which half the user wants (e.g. the request could be read as "rename only" or "rename plus feature, your call"), use `AskUserQuestion` to ask before writing any code. Don't guess.
+4. If it's genuinely unclear which half the user wants (e.g. the request could be read as "rename only" or "rename plus feature, your call"), ask the user with the structured question tool where one exists (`AskUserQuestion`, `question`, `ask_user`), otherwise ask in chat and wait for the answer, before writing any code. Don't guess.
 5. Whichever path you took, the Phase 6 summary MUST name the deferred behavior-changing piece by name and point to `implement-feature` (or `fix-bug`). This is checked against the actual final message sent to the user, not against intent recorded earlier in the run: a run that does the refactor correctly but never says what it skipped has not passed this gate.
 
 No mixed scope detected → proceed straight to Step 0b.
 
-**Step 0b: Project discovery:** discover the project's test/lint/type-check commands (CLAUDE.md, Makefile/justfile/package.json/pyproject.toml, an Explore/Haiku agent works well here for wider projects, prompt in `references/task-chain.md`). Run the full test suite and record the baseline before touching any code. Pre-existing failures aren't yours to fix, just don't let the refactoring add new ones.
+**Step 0b: Project discovery:** discover the project's test/lint/type-check commands (AGENTS.md or CLAUDE.md, whichever exists; Makefile/justfile/package.json/pyproject.toml; for wider projects a fast-tier exploration subagent, `haiku` in Claude Code, works well here, otherwise do it inline; prompt in `references/task-chain.md`). Run the full test suite and record the baseline before touching any code. Pre-existing failures aren't yours to fix, just don't let the refactoring add new ones.
 
 ### Phase 1: Scope Analysis
 
-Map every caller and dependent of the target: grep for direct calls and imports, plus type references and any dynamic or string-based lookups that might reference it. Then map its existing test coverage: what's tested, what's a gap. For a single-file target with an obvious blast radius, do this yourself; for a wider one, two Explore agents in parallel (callers/dependencies, then test coverage) save tokens, prompts in `references/task-chain.md`.
+Map every caller and dependent of the target: grep for direct calls and imports, plus type references and any dynamic or string-based lookups that might reference it. Then map its existing test coverage: what's tested, what's a gap. For a single-file target with an obvious blast radius, do this yourself; for a wider one, two exploration subagents in parallel (callers/dependencies, then test coverage) save tokens where the tool has subagents, otherwise do both steps inline, in order; prompts in `references/task-chain.md`.
 
-If the refactoring spans more than 5 files, or changes a public API that external consumers depend on, confirm scope with `AskUserQuestion` before proceeding.
+If the refactoring spans more than 5 files, or changes a public API that external consumers depend on, confirm scope with the user (structured question tool where one exists, otherwise in chat) before proceeding.
 
 ### Phase 2: Characterization Tests
 
@@ -154,4 +150,4 @@ Tests before and after every change are non-negotiable. Refactoring changes stru
 ## Additional Resources
 
 - [references/patterns.md](references/patterns.md): refactoring catalog with step-by-step procedures per technique; load when picking the step sequence for a specific refactoring type.
-- [references/task-chain.md](references/task-chain.md): `TaskCreate`/`TaskUpdate` templates and Explore-agent prompts; load when running the full multi-file task chain (Phase 0-1).
+- [references/task-chain.md](references/task-chain.md): `TaskCreate`/`TaskUpdate` templates and exploration-agent prompts; load when running the full multi-file task chain (Phase 0-1).

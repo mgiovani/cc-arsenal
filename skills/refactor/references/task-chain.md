@@ -21,7 +21,7 @@ at 1.
 ```
 p0 = TaskCreate:
   subject: "Phase 0: Discover project workflow"
-  description: "Identify test, lint, type-check commands from CLAUDE.md and task runners"
+  description: "Identify test, lint, type-check commands from AGENTS.md or CLAUDE.md and task runners"
   activeForm: "Discovering project workflow"
 
 p1 = TaskCreate:
@@ -65,9 +65,9 @@ confirm the next one unblocked: do this at the end of every phase.
 ## Phase 0: discovery agent prompt
 
 ```
-Use Task tool with Explore agent:
+Spawn an exploration subagent where the tool has one (`Task` tool with Explore agent in Claude Code); otherwise do the step inline, in order:
 - prompt: "Discover the development workflow for this project:
-    1. Read CLAUDE.md if it exists — extract testing and quality conventions
+    1. Read AGENTS.md or CLAUDE.md (whichever exists) — extract testing and quality conventions
     2. Check for task runners: Makefile, justfile, package.json scripts, pyproject.toml scripts
     3. Identify the test command (e.g., make test, just test, npm test, pytest, bun test)
     4. Identify how to run a single test file or specific test
@@ -77,7 +77,7 @@ Use Task tool with Explore agent:
     8. Check for code coverage tooling (e.g., pytest --cov, nyc, c8)
     Return a structured summary of all available commands."
 - subagent_type: "Explore"
-- model: "haiku"
+- model: fast tier ("haiku" in Claude Code); set it explicitly where the tool allows
 ```
 
 Store the discovered commands: every later phase's test/lint/type-check runs
@@ -89,7 +89,7 @@ Run in parallel only when the refactoring spans multiple files or the caller
 list isn't obvious from one grep, otherwise just grep it yourself.
 
 ```
-Agent 1 — Dependency & Caller Analysis (Explore, Haiku):
+Agent 1 — Dependency & Caller Analysis (Explore, fast tier: `haiku` in Claude Code):
   prompt: "Analyze dependencies and callers for the refactoring target:
 
     Refactoring target: [DESCRIBE TARGET CODE]
@@ -109,9 +109,9 @@ Agent 1 — Dependency & Caller Analysis (Explore, Haiku):
     graph, public-vs-internal split, and risks (dynamic references, external
     consumers, serialization)."
   subagent_type: "Explore"
-  model: "haiku"
+  model: fast tier ("haiku")
 
-Agent 2 — Test Coverage Analysis (Explore, Haiku):
+Agent 2 — Test Coverage Analysis (Explore, fast tier):
   prompt: "Analyze test coverage for the refactoring target:
 
     Refactoring target: [DESCRIBE TARGET CODE]
@@ -128,7 +128,7 @@ Agent 2 — Test Coverage Analysis (Explore, Haiku):
     characterization tests, reusable patterns/fixtures, and risk areas
     (untested paths refactoring could break)."
   subagent_type: "Explore"
-  model: "haiku"
+  model: fast tier ("haiku")
 ```
 
 After both complete: mark which parts of the target are safe to refactor

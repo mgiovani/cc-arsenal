@@ -1,7 +1,7 @@
 # Dependency Shapes
 
 Load when a project's dependency structure isn't a plain sequential chain. Each shape is a
-building block, real plans compose several of these.
+building block, real plans compose several of these. The `TaskUpdate` lines are Claude Code's task tool; track with the task/todo tool where available, otherwise keep the same `blocked by` relations in the checklist in the reply.
 
 ## Sequential Chain
 `A → B → C → D`: each task blocks the next. Use for strict ordering (e.g. schema before code).

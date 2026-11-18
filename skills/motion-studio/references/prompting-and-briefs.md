@@ -60,7 +60,7 @@ Long briefs do not describe a video, they hire a crew. Sections, in order:
 
 Generate-then-trace: a video model renders base shots with characters and physics, then the agent redraws the whole video in JavaScript on top so the viewer sees only the code-drawn layer (hard-to-hand-code motion, consistent ownable look). Re-running one brief with your own gallery yields a completely different film.
 
-Subagents for long films: the lead writes `docs/ANIMATION_GUIDE.md` first so every subagent codes in one style, and `STORYBOARD.md` after the first pass; each chapter lives in its own file (for example `src/ch/c03_takeoff.js`), every shot a pure function of `t`, and a subagent edits only its own chapter file. Ask for both guide files by name.
+Subagents for long films (where the tool has them; otherwise do each chapter inline, in order): the lead writes `docs/ANIMATION_GUIDE.md` first so every subagent codes in one style, and `STORYBOARD.md` after the first pass. Each chapter lives in its own file (for example `src/ch/c03_takeoff.js`), every shot a pure function of `t`, and a subagent edits only its own chapter file. Ask for both guide files by name.
 
 ## Spec density and structure
 

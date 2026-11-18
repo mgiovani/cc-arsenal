@@ -40,7 +40,9 @@ subagent fan-out. That's the default; don't create tasks unless the case below a
 cause is unclear enough to need a dedicated analysis phase, or the fix will span
 multiple sessions and needs progress tracking across them. In that case, before
 Phase 0, create six tasks (Discovery, Reproduce & Analyze, Plan, Implement, Verify,
-Commit) with a strict sequential chain, each `addBlockedBy` the one before it:
+Commit) with a strict sequential chain, each `addBlockedBy` the one before it
+(track with the task/todo tool where available; otherwise keep the checklist in the reply;
+the Claude Code calls are shown as the example):
 
 ```
 TaskCreate: { subject: "Phase 0: Discover project workflow", activeForm: "Discovering project workflow" }
@@ -71,10 +73,10 @@ Claude Code tracks and parallelizes them in the multi-file case.
 Discover the project's test, lint, and type-check commands before touching anything:
 guessing wastes a cycle when the wrong command silently no-ops.
 
-If the codebase is large or unfamiliar, offload this to an Explore subagent:
+If the codebase is large or unfamiliar, offload this to an exploration subagent on the fast tier (`haiku` in Claude Code). Spawn a subagent where the tool has one; otherwise do the step inline, in order:
 
 ```
-Task tool, Explore agent, model haiku:
+Explore subagent, fast tier (`haiku`):
 "Discover the development workflow for this project:
  1. Read CLAUDE.md/AGENTS.md if present — extract debugging/testing conventions.
  2. Check task runners: Makefile, justfile, package.json scripts, pyproject.toml.
@@ -94,28 +96,29 @@ in every later phase.
 
 1. **Understand symptoms.** If given an issue ID, read it (`gh issue view`, `jira issue view`, etc.). Identify expected vs. actual behavior and any error messages.
 
-   **If the report is too vague to reproduce** (no expected/actual behavior, no repro steps, no error message, e.g. "something is broken sometimes"): stop here. Call `AskUserQuestion`; if that tool isn't available, end your turn with the specific questions in your final message instead: reproduction steps, expected vs. actual behavior, environment/error messages, and go no further. Do not infer a root cause from a code read alone or invent your own repro scaffolding to stand in for a real report. Running in an automated, sandboxed, or non-interactive context is not a reason to guess instead of asking, it's a reason to put the questions in the final message rather than wait for a reply.
+   **If the report is too vague to reproduce** (no expected/actual behavior, no repro steps, no error message, e.g. "something is broken sometimes"): stop here. Ask the user with the structured question tool where one exists (`AskUserQuestion`, `question`, `ask_user`); if none is available, end your turn with the specific questions in your final message instead: reproduction steps, expected vs. actual behavior, environment/error messages, and go no further. Do not infer a root cause from a code read alone or invent your own repro scaffolding to stand in for a real report. Running in an automated, sandboxed, or non-interactive context is not a reason to guess instead of asking, it's a reason to put the questions in the final message rather than wait for a reply.
 2. **Locate or create a failing test.** Grep for existing coverage. If none exists, write a minimal test that reproduces the bug, in the location and style the existing test suite uses.
 3. **Reproduce it: a hard gate, not prose.** Run the reproduction test against the current (unfixed) code with the discovered test command, and show the actual failing output before touching the fix. If the report names a specific symptom (e.g. "double-charges on retry"), confirm the assertion for *that* symptom is what fails, a suite with some unrelated test failing while the reported-symptom assertion already passes is not a reproduction. If the test passes pre-fix, the reproduction is wrong: stop, don't proceed to Phase 2, and rewrite the test until it actually captures the reported bug. A test that never failed proves nothing about the fix you're about to write.
-4. **Find the root cause.** For a localized bug, just grep/read the relevant file yourself. Reserve parallel subagents for bugs spanning multiple files or with unclear scope:
+4. **Find the root cause.** For a localized bug, just grep/read the relevant file yourself. Reserve parallel subagents for bugs spanning multiple files or with unclear scope (where the tool has no subagents, run these searches inline, in order):
 
 ```
-Agent 1 (Explore, haiku) — Bug Location:
+Agent 1 (Explore, fast tier) — Bug Location:
   "Find the exact bug location (file:line), read the buggy code and its
    surrounding context, explain why it produces the wrong behavior, and
    provide evidence (stack trace, variable values, control flow)."
 
-Agent 2 (Explore, haiku) — Impact Analysis:
+Agent 2 (Explore, fast tier) — Impact Analysis:
   "Search the codebase for other code affected by the same issue, similar
    patterns with the same bug, related tests that might also fail, and
    callers of the buggy code."
 
-Agent 3 (general-purpose, haiku, only if an external library is implicated):
-  "Search Context7/web for documented solutions or known issues matching
+Agent 3 (general-purpose, fast tier, only if an external library is implicated):
+  "Search Context7/the web (with whatever tool the harness offers; if none, say so
+   and continue from the repo) for documented solutions or known issues matching
    this bug in [LIBRARY_NAME]."
 ```
 
-5. **Confirm the theory.** Re-read the buggy code and check it explains every symptom, including edge cases. If still uncertain, use `AskUserQuestion` before writing a fix on an unconfirmed theory.
+5. **Confirm the theory.** Re-read the buggy code and check it explains every symptom, including edge cases. If still uncertain, ask the user with the structured question tool where one exists (`AskUserQuestion`, `question`, `ask_user`; otherwise ask in chat and wait for the answer) before writing a fix on an unconfirmed theory.
 
 ## Phase 2: Fix Planning
 
@@ -130,8 +133,7 @@ Design a fix that:
 6. Never trims validation, error/data-loss handling, or security to keep the diff small: scope is what shrinks, not the safety floor. If a full fix isn't feasible right now, ship the safe partial fix and leave `// LEAN-DEBT: <limitation>. Upgrade when <trigger>.` rather than silently shipping the gap.
 
 **Get approval for non-trivial fixes**: if the fix touches >3 files, modifies a
-public API, has performance implications, or is otherwise breaking, use
-`AskUserQuestion` to present the plan before implementing.
+public API, has performance implications, or is otherwise breaking, present the plan and wait for approval (plan mode where available) before implementing.
 
 ## Phase 3: Implementation
 

@@ -53,6 +53,9 @@ jobs:
     - name: Run code quality checks
       run: make check
 
+    - name: Validate repository structure and skills
+      run: make validate-structure
+
   statusline:
     runs-on: ubuntu-latest
 

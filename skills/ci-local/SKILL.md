@@ -38,7 +38,7 @@ or Jenkins instead, say so and stop: no translation layer exists for those yet
 2. Read each file. A job **gates merges** if its workflow triggers on `pull_request`
    or `push` to a protected branch: ignore jobs that only run on `schedule`,
    `workflow_dispatch`, or `release` unless the user asks for those specifically.
-3. For a multi-file or multi-job repo, use a haiku `Explore` subagent to read all
+3. For a multi-file or multi-job repo, use a fast-tier subagent (`haiku` in Claude Code) to read all
    workflow files in parallel and return a structured list of: job name, trigger,
    runs-on, steps (with `uses`/`run`/`env`/`working-directory`), `services:`,
    `strategy.matrix`, and any `${{ secrets.* }}` references. Keep this out of the

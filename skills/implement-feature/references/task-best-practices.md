@@ -1,5 +1,7 @@
 # Task dependency patterns & call templates
 
+The calls below are Claude Code's task tool. With no task tool, keep the same checklist in the reply.
+
 Load this when SKILL.md's size threshold is crossed (4+ files, or 3+ phases tracked as
 separately-blocked work). Covers the literal `TaskCreate`/`TaskUpdate` calls for the
 6-phase chain, the parallel-subagent pattern, dependency-pattern diagrams, and common
@@ -22,7 +24,7 @@ the first `in_progress`:
 ```
 TaskCreate:
   subject: "Phase 0: Discover project workflow"
-  description: "Identify test, lint, build, dev server commands from CLAUDE.md and task runners"
+  description: "Identify test, lint, build, dev server commands from AGENTS.md or CLAUDE.md and task runners"
   activeForm: "Discovering project workflow"
 
 TaskCreate:
@@ -97,13 +99,13 @@ TaskUpdate: { taskId: "5", addBlockedBy: ["api-task", "ui-task", "test-task"] }
 
 ## Subagent instructions template
 
-Use this for each Phase 3 subagent (`Task` tool, `subagent_type: "general-purpose"`,
-`model: "sonnet"` (required, never leave unset):
+Use this for each Phase 3 subagent (`Task` tool in Claude Code, `subagent_type: "general-purpose"`,
+balanced-tier model `model: "sonnet"` (set it explicitly where the tool allows it, never leave unset); with no subagent tool, do the step inline:
 
 ```
 Implement [specific task description].
 
-First, read the project's CLAUDE.md to understand conventions and patterns.
+First, read the project's AGENTS.md or CLAUDE.md (whichever exists) to understand conventions and patterns.
 Then trace the real flow of the code you're about to touch, end to end —
 a diff written without understanding the existing flow is a liability, not lean.
 
@@ -176,7 +178,7 @@ Use when a shared setup phase feeds multiple parallel implementations that need 
 | Antipattern | Why it's bad | Do instead |
 |---|---|---|
 | Creating tasks below the size threshold | Overhead exceeds benefit for a 2-3 file change | Skip task creation entirely; run phases sequentially |
-| Too many tasks (one per file read, per command lookup) | Overhead exceeds benefit | One task per phase (e.g. "Project Discovery" covers reading CLAUDE.md + finding commands) |
+| Too many tasks (one per file read, per command lookup) | Overhead exceeds benefit | One task per phase (e.g. "Project Discovery" covers reading AGENTS.md/CLAUDE.md + finding commands) |
 | No dependencies between tasks | Nothing enforces workflow order: implementation can start before planning | Chain phases with `addBlockedBy` |
 | Marking a task completed while its tests still fail | Misleading progress, breaks trust in the task system | Keep `in_progress` until all quality gates pass |
 | Forgetting to run `TaskList` after completing a phase | User loses visibility into progress | Run `TaskList` after every `TaskUpdate` to `completed` |

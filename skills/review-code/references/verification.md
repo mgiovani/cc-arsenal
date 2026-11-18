@@ -6,7 +6,7 @@ Run after consolidation, before the report. The verifier's job is to disprove Cr
 
 - Verify only Critical and Major findings. Minor and Nit keep `verdict: null`.
 - One verifier per batch of Critical/Major findings, grouped by file or module, batches of a handful. Launch the batches in ONE parallel call.
-- Every Agent call sets `model: sonnet`. Never leave it inherited.
+- Every subagent call sets the balanced tier explicitly where the tool allows it (`model: sonnet` in Claude Code). Never leave it inherited.
 - No subagent tool: run the same prompt yourself as a final pass, one finding at a time.
 
 ## Verifier prompt

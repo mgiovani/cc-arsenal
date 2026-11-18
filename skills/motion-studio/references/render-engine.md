@@ -25,7 +25,7 @@ Opus defaults to this zero-dependency route (one `index.html`, a seek function d
 
 ## Setup
 
-Node 22+, ffmpeg, Python with `numpy librosa soundfile` for audio analysis. Then `npm i -D playwright && npx playwright install chromium`. Put the render contract (the bullets above, encode settings, banned looks, sound and loudness rules, "look at the contact sheet before the full render") in the project `CLAUDE.md` so every film inherits it. Keep one session per brand: the renderer, synth and export pipeline get reused and the second video comes out faster.
+Node 22+, ffmpeg, Python with `numpy librosa soundfile` for audio analysis. Then `npm i -D playwright && npx playwright install chromium`. Put the render contract (the bullets above, encode settings, banned looks, sound and loudness rules, "look at the contact sheet before the full render") in the project `AGENTS.md` or `CLAUDE.md`, whichever exists, so every film inherits it. Keep one session per brand: the renderer, synth and export pipeline get reused and the second video comes out faster.
 
 ## The page
 

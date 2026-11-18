@@ -28,24 +28,22 @@ than the work warrants. This skill writes no application code; it produces the r
 
 ## Input
 
-$ARGUMENTS
-
-Parse the source (first match wins), then read it:
+Parse the user's request as the source (first match wins), then read it:
 
 | Pattern | Source | Read via |
 |---|---|---|
 | `PROJ-123` | Jira | `jira issue view PROJ-123` |
 | `#42` / `owner/repo#42` | GitHub issue | `gh issue view 42 --json title,body,labels,comments` |
 | `!123` / PR URL | GitHub PR | `gh pr view 123 --json title,body,files` |
-| existing path | file/dir | Read it (dir: README, CLAUDE.md/AGENTS.md, key files) |
-| `http(s)://` | URL | `WebFetch` |
+| existing path | file/dir | Read it (dir: README, AGENTS.md or CLAUDE.md, key files) |
+| `http(s)://` | URL | fetch it with whatever web tool the harness offers; if none, say so and continue from the repo |
 | anything else | plain text | the idea itself |
 
 A trailing `--tier brief|one-pager|big` and/or `--intent validation|execution` overrides the assessment.
 
 ## Prerequisites & fallback
 
-Parallel research and discovery use the `Task` tool with `Explore`/haiku subagents. No `Task` tool? Run
+Parallel research and discovery spawn a subagent where the tool has one: an exploration subagent on the fast tier (`haiku` in Claude Code, e.g. the `Explore` agent). Otherwise run
 every research and discovery step inline, sequentially: the phase → gate → phase structure below is the
 workflow; subagents are just how it parallelizes.
 
@@ -82,10 +80,10 @@ Four phases: Discover → Decide → ═authorization gate═ → Author → Val
 ### Phase: Discover
 
 Read the input source. If the repo is relevant (existing product), inspect it before asking the user
-anything: spawn an `Explore`/haiku agent (or do it inline):
+anything: spawn an exploration subagent on the fast tier (`haiku`), or do it inline:
 
 ```
-Task (Explore, haiku): "Discover this repo's product surface & stack: read CLAUDE.md/AGENTS.md, README,
+Subagent (exploration, fast tier): "Discover this repo's product surface & stack: read AGENTS.md or CLAUDE.md, README,
 package/build files; map major components, data model, existing capabilities, and any current PRD/specs
 under docs/. Return a structured summary, each finding tagged CONFIRMED | INFERRED | UNKNOWN."
 ```
@@ -106,13 +104,15 @@ Being willing to talk the user out of a doc is the point of gate-zero.
 
 1. Pick the tier: assess size, then branch the big tier on intent (validation vs execution). Honor
    `--tier`/`--intent` if passed. State the choice and why in one line.
-2. Research: fan out one `Explore`/haiku agent per workstream the open decisions actually need
+2. Research: fan out one exploration subagent (fast tier, `haiku`) per workstream the open decisions actually need
    (competitors, technical options, regulatory, platform, accessibility). Each returns rows
    `finding | source URL | date | confidence | implication` and invents nothing. Merge them as `finding`
    rows in the one decision log (`assets/templates/decision-log.md`). Cite every externally-derived claim.
 3. Interview: ask the open decisions in dependency order (vision → problem → users → scope → journeys →
-   architecture → non-functional → metrics), each via `AskUserQuestion` with the `decision-question.md`
-   template (decision, evidence, a recommendation with rationale, alternatives). Record answers as
+   architecture → non-functional → metrics), using the `decision-question.md`
+   template (decision, evidence, a recommendation with rationale, alternatives). Ask each with the
+   structured question tool where one exists (`AskUserQuestion`, `question`, `ask_user`); otherwise ask
+   in chat and wait for the answer. Record answers as
    `decision`/`assumption`/`question` rows in the same log. Keep facts, assumptions, and recommendations
    separate: a recommendation never hardens into a requirement without an approved decision. For the
    users decision, capture persona and user evidence with `product-design-spec`'s `persona.md`

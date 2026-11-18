@@ -80,7 +80,7 @@ daemons from accumulating across parallel agent sessions.
 agent-browser --session "$(basename "$PWD")" open https://app.com
 
 # Authenticated flows: add persistent profile (gitignored)
-agent-browser --session "$(basename "$PWD")" --profile .claude/browser-profile open https://app.com/login
+agent-browser --session "$(basename "$PWD")" --profile .agents/browser-profile open https://app.com/login
 
 # Stateless scraping/extraction: use Lightpanda instead (10x less memory)
 agent-browser --session "$(basename "$PWD")" --engine lightpanda open https://public-site.com
@@ -278,7 +278,7 @@ AGENT_BROWSER_HOME              # Installation directory
 
 - **Always pass `--session <project-name>`**: prevents stale-socket accumulation across parallel sessions (can cause daemon OOM)
 - **Never run `agent-browser close --all`** or kill the browser process globally: breaks other projects' parallel sessions
-- **Persistent profile directories (e.g. `.claude/browser-profile/`) must be in `.gitignore`**: they contain plaintext cookies and login tokens
+- **Persistent profile directories (e.g. `.agents/browser-profile/` or `.claude/browser-profile/`) must be in `.gitignore`**: they contain plaintext cookies and login tokens
 - **Omit `--profile` for stateless work**: persistent profiles accumulate browser cache; idle-timeout only reclaims RAM, not disk cache
 - **Run `agent-browser doctor --fix`** when sessions feel stuck: cleans stale sockets without killing active sessions
 - **A test-target server you started is your process to stop**: `agent-browser close` only tears down the browser session, not an app server; kill it explicitly and say so (see [Verify Before You Claim](#verify-before-you-claim))

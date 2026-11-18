@@ -75,7 +75,7 @@ Return structured findings with:
 - Code snippet
 - Estimated impact (e.g., '100 records = 101 queries instead of 2')
 - Fix recommendations (2-3 approaches with ORM-specific code examples)"
-- subagent_type: "Explore"
+- subagent_type: "Explore" (Claude Code; any read-only exploration subagent elsewhere)
 ```
 
 ## Agent 2 - Algorithmic Complexity & Computational Efficiency
@@ -145,7 +145,7 @@ Return structured findings with:
 - Severity based on data size and frequency
 - Code snippet showing the anti-pattern
 - Optimized code example with explanation"
-- subagent_type: "Explore"
+- subagent_type: "Explore" (Claude Code; any read-only exploration subagent elsewhere)
 ```
 
 ## Agent 3 - Frontend Bottlenecks (Bundle Size, Rendering, Network)
@@ -226,7 +226,7 @@ Return structured findings with:
 - Code snippet showing the anti-pattern
 - Optimized code example
 - Estimated impact on Core Web Vitals"
-- subagent_type: "Explore"
+- subagent_type: "Explore" (Claude Code; any read-only exploration subagent elsewhere)
 ```
 
 ## Agent 4 - Resource Leaks (Memory, Connections, File Handles)
@@ -312,7 +312,7 @@ Return structured findings with:
 - Severity based on runtime context and resource type
 - Code snippet showing the leak
 - Fix recommendations with proper resource management patterns (try/finally, context managers, RAII, cleanup functions)"
-- subagent_type: "Explore"
+- subagent_type: "Explore" (Claude Code; any read-only exploration subagent elsewhere)
 ```
 
 ## Performance Best Practices by Role

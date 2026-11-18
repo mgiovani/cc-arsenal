@@ -28,25 +28,21 @@ state/interaction specs), spec'ing only as much as the work warrants. This skill
 produces the design the build (`implement-feature`) then works from. Output lands under
 `docs/specs/design/`. `<skill-dir>` below is this skill's directory.
 
-## Input
-
-$ARGUMENTS
-
-Parse the source (first match wins), then read it:
+Parse the source from the user's request (first match wins), then read it:
 
 | Pattern | Source | Read via |
 |---|---|---|
 | existing `docs/specs/prd/*.md` or any path | the approved PRD / a file | Read it (grab every `PRD-<CAT>-NNN` ID) |
 | `PROJ-123` | Jira | `jira issue view PROJ-123` |
 | `#42` / `owner/repo#42` | GitHub issue | `gh issue view 42 --json title,body,labels,comments` |
-| `http(s)://` | URL | `WebFetch` |
+| `http(s)://` | URL | fetch it with whatever web tool the harness offers (`WebFetch` in Claude Code); if none, say so and continue from the repo |
 | anything else | plain text | the idea itself |
 
 A trailing `--tier small|medium|big` overrides the size assessment.
 
 ## Prerequisites & fallback
 
-Component-library detection and flow research use the `Task` tool with `Explore`/haiku subagents. No `Task`
+Component-library detection and flow research spawn fast-tier subagents (`Explore`/`haiku` in Claude Code) where the tool has them. No subagent
 tool? Run every detection and research step inline, sequentially: the phase → gate → phase structure below
 is the workflow; subagents are just how it parallelizes.
 
@@ -77,8 +73,8 @@ its own file under `docs/specs/design/screens/` only when it outgrows the invent
 
 ## Reuse the existing component library first
 
-Before specifying anything bespoke, detect and adopt what the project already ships (spawn an `Explore`/haiku
-agent or check inline):
+Before specifying anything bespoke, detect and adopt what the project already ships (spawn a fast-tier
+subagent (`haiku`), or check inline):
 
 | Marker | Library to reuse |
 |---|---|

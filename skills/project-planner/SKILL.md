@@ -2,7 +2,7 @@
 name: project-planner
 description: Break a large or ambiguous project into a dependency-ordered task
   list with a Mermaid dependency diagram and critical-path analysis, using the
-  Task tool suite (TaskCreate/TaskUpdate/TaskList). Trigger on "plan this
+  task tool where available (TaskCreate in Claude Code). Trigger on "plan this
   project", "break this into tasks", "what's the dependency order",
   "create a task breakdown", or "map out the milestones for X". Planning
   only, it does not implement code (use implement-feature for that) and it
@@ -21,10 +21,6 @@ agent: general-purpose
 
 Break a large project into tasks with explicit dependencies, then track progress and diagram the result in Mermaid.
 
-## Project to Plan
-
-$ARGUMENTS
-
 ## Planning Workflow
 
 This skill has exactly two possible outputs: a full plan (Phases 0-4), or (when the scope fails the gate in Step 0.2) clarifying questions and nothing else. Never both in the same turn.
@@ -35,12 +31,12 @@ This skill has exactly two possible outputs: a full plan (Phases 0-4), or (when 
 
 **Step 0.1: Understand Project Scope**
 
-Use a Haiku-powered Explore agent for token-efficient codebase analysis:
+Spawn a subagent where the tool has one; otherwise do the step inline, in order. Use a fast-tier (`haiku` in Claude Code) Explore agent for token-efficient codebase analysis, setting the model explicitly where the tool allows it:
 
 ```
-Use Task tool with Explore agent:
+Subagent (`Task` tool in Claude Code) with an Explore agent:
 - prompt: "Analyze the project to understand:
-    1. Read CLAUDE.md and README.md for project context
+    1. Read AGENTS.md or CLAUDE.md (whichever exists) and README.md for project context
     2. Identify project type (web app, API, CLI, library, etc.)
     3. Map out major components and modules
     4. Note technology stack and frameworks
@@ -53,9 +49,9 @@ Use Task tool with Explore agent:
 
 **Step 0.2: Scope Gate**
 
-Check whether the request names a concrete deliverable and rough boundaries (what's in, what's out). If it doesn't (e.g. "improve the app", "make things better", "plan our roadmap" with no target named), stop. End the response with 2-3 clarifying questions (via `AskUserQuestion` or plain prose) about the concrete deliverable, scope boundaries, or target outcome. Produce no task breakdown, no `TaskCreate` calls, no Mermaid diagram, and no files. Skipping the question is the costlier path: a 25-task plan built on invented scope forces the user to audit every task against what they actually meant, when answering the question up front would have taken seconds. Do not soften this into "ask, then proceed with reasonable assumptions anyway": the questions are the entire response.
+Check whether the request names a concrete deliverable and rough boundaries (what's in, what's out). If it doesn't (e.g. "improve the app", "make things better", "plan our roadmap" with no target named), stop. End the response with 2-3 clarifying questions (ask the user with the structured question tool where one exists, such as `AskUserQuestion`, `question` or `ask_user`; otherwise ask in chat and wait for the answer) about the concrete deliverable, scope boundaries, or target outcome. Produce no task breakdown, no `TaskCreate` calls, no Mermaid diagram, and no files. Skipping the question is the costlier path: a 25-task plan built on invented scope forces the user to audit every task against what they actually meant, when answering the question up front would have taken seconds. Do not soften this into "ask, then proceed with reasonable assumptions anyway": the questions are the entire response.
 
-If the deliverable and boundaries are clear but secondary details are missing (timeline, tech stack preference, team size), that's not a scope gate failure: ask about those with `AskUserQuestion`, flag the assumption you're using if the user doesn't answer, and continue to Phase 1.
+If the deliverable and boundaries are clear but secondary details are missing (timeline, tech stack preference, team size), that's not a scope gate failure. Ask about those (structured question tool where one exists, otherwise in chat), flag the assumption you're using if the user doesn't answer, and continue to Phase 1.
 
 ### Phase 1: Task Breakdown
 
@@ -117,7 +113,7 @@ Estimated Duration: [X days/weeks, only if the user gave time estimates]
 
 ### Phase 4: Progress Tracking
 
-After creating all tasks and dependencies, run `TaskList` to show the full plan (or, in a sandboxed run recording to `outputs/tasks.json`, record the intended `TaskList` call there). As implementation proceeds, update task status via `TaskUpdate` (`in_progress` → `completed`) and re-run `TaskList` to show progress. If a task becomes blocked by an external factor, record it in `TaskUpdate`'s `metadata` and use `AskUserQuestion` to surface it rather than silently stalling.
+After creating all tasks and dependencies, run `TaskList` to show the full plan (or, in a sandboxed run recording to `outputs/tasks.json`, record the intended `TaskList` call there). As implementation proceeds, update task status via `TaskUpdate` (`in_progress` → `completed`) and re-run `TaskList` to show progress. If a task becomes blocked by an external factor, record it in `TaskUpdate`'s `metadata` and ask the user with the structured question tool where one exists (otherwise in chat) to surface it rather than silently stalling.
 
 ## Output Format
 

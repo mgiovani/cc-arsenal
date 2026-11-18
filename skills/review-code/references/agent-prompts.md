@@ -15,10 +15,10 @@ Detailed grep patterns and agent prompts for each review dimension. Load this re
 
 ## Shared preamble
 
-Prepend this block to every agent prompt below, filling the bracketed values. Every Agent call also sets `model` explicitly (all lanes here use `sonnet`). `[LANE]` is the lane name; each core agent uses its own `core-<prefix>` (`core-cl`, `core-pf`, `core-cs`, `core-tc`, `core-eh`, `core-oe`) so parallel agents never write the same file.
+Prepend this block to every agent prompt below, filling the bracketed values. Every Agent call also sets `model` explicitly (all lanes here use the balanced tier, `sonnet` in Claude Code). `[LANE]` is the lane name; each core agent uses its own `core-<prefix>` (`core-cl`, `core-pf`, `core-cs`, `core-tc`, `core-eh`, `core-oe`) so parallel agents never write the same file.
 
 ```
-Project rules (numbered checklist extracted from AGENTS.md / CLAUDE.md / .claude/skills):
+Project rules (numbered checklist extracted from AGENTS.md or CLAUDE.md, whichever exists, and installed skills in .agents/skills or .claude/skills):
 [RULES_CHECKLIST]
 A violation of a numbered rule is a finding, cited by rule number. Report every violation, Nit included. Do not silently pass anything.
 

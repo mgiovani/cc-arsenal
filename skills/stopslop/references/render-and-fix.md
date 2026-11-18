@@ -4,7 +4,7 @@ Offer this after the summary. Do it only when the user wants it.
 
 ## Render
 
-Use the `render` skill to build an `audit` page. render is user-invoked only, so the `Skill` tool rejects it: follow its SKILL.md steps inline, or ask the user to run `/render audit`. Pass it the findings from the saved JSON. Start from its audit template and finish with its `scripts/assemble.py`; never hand-write the final HTML.
+Use the `render` skill to build an `audit` page. render is user-invoked only, so the `Skill` tool rejects it: follow its SKILL.md steps inline, or ask the user to invoke the skill for an audit page (`/render audit` in Claude Code). Pass it the findings from the saved JSON. Start from its audit template and finish with its `scripts/assemble.py`; never hand-write the final HTML.
 
 - Fill the audit template's `DATA` from the JSON, one entry per finding; the template derives each anchor from `area` + `title`, so never hand-build anchors:
   - `area`: the finding's top-level directory (one `areas[]` entry each).

@@ -46,7 +46,7 @@ Copy this checklist, tick each step as it passes, and follow the gates. Stop at 
       Cap: 3 fix rounds per gate, then stop and report what still fails
 ```
 
-Each step's details are in its section below. `TodoWrite` can hold the same lines so the user sees where the train is if a gate stops it.
+Each step's details are in its section below. Track with the task/todo tool where available (`TodoWrite` in Claude Code); otherwise keep the checklist in the reply, so the user sees where the train is if a gate stops it.
 
 ## Step 1: Pre-flight
 
@@ -72,18 +72,18 @@ The project's own gates matter more than a generic test run. Detect what's actua
 3. `package.json`: look at `scripts` for `test`, `lint`, `typecheck`, `e2e`.
 4. Framework-native fallback (`pytest`, `cargo test`, etc.) only if none of the above exist.
 
-A Haiku `Explore` subagent is the cheap way to do this detection without burning main-thread context:
+A fast-tier subagent (`haiku` in Claude Code) is the cheap way to do this detection without burning main-thread context:
 
 ```
-Task tool with Explore agent:
+Subagent (`Task` tool with the `Explore` agent in Claude Code):
 - prompt: "Find pre-merge check commands for this repo: look for a justfile
     (especially a visual-diff or visual regression recipe), Makefile targets,
     and package.json scripts. Return the exact commands to run, do not invent any."
 - subagent_type: "Explore"
-- model: "haiku"
+- model: fast tier (`haiku`)
 ```
 
-No `Task` tool available: run the same detection inline: `just --list` (or read the justfile), `grep` the Makefile's target names, `cat` `package.json`'s `scripts` block, then run whatever it finds directly.
+No subagent tool available: run the same detection inline: `just --list` (or read the justfile), `grep` the Makefile's target names, `cat` `package.json`'s `scripts` block, then run whatever it finds directly.
 
 Run every command found. Any non-zero exit: show the failing output, fix it, and re-run the check; do not commit until it is green. After 3 rounds still red, stop and report what fails. This includes visual regression diffs: a passing test suite with a failing visual diff is still a red gate.
 

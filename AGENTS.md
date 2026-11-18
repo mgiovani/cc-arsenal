@@ -19,7 +19,13 @@ cc-arsenal is a collection of **52 Agent Skills** ([agentskills.io](https://agen
 npx skills add mgiovani/cc-arsenal
 ```
 
-`npx skills` is the [skills.sh](https://skills.sh) CLI: it copies each skill into the target tool's own skills directory, no plugin system required.
+`npx skills` is the [skills.sh](https://skills.sh) CLI: it copies each skill into the target tool's own skills directory, no plugin system required. Pass `-a` to pick the tool; Codex, OpenCode and Antigravity all read the shared `.agents/skills` directory:
+
+```bash
+npx skills add mgiovani/cc-arsenal -a codex
+npx skills add mgiovani/cc-arsenal -a opencode
+npx skills add mgiovani/cc-arsenal -a antigravity
+```
 
 Using Claude Code? See `CLAUDE.md` for the plugin marketplace install and plugin variants, plus other Claude-Code-only extras.
 
@@ -32,6 +38,20 @@ Skills in this repo are written **tool-neutral first**:
 - No skill declares `allowed-tools`: in Claude Code it only pre-approves tools for the turn that invokes the skill and restricts nothing, so it adds a permission grant users must vet without making anything safer. Users who want fewer prompts add allow rules to their own settings.
 - Orchestration skills (those that spawn subagents/parallel tasks in Claude Code) degrade gracefully to sequential inline execution when no subagent/task tool exists. The instructions describe the sequential fallback explicitly rather than assuming Task/Agent tools are always present.
 - Paths and shell commands referenced inside a skill must be real, tool-independent commands (e.g. `git`, `gh`, `make`): never a Claude-Code-only tool name used as if it were a shell command.
+
+Skills install one at a time, so each one carries its own fallbacks; there is no shared include file. Use one wording pattern per capability:
+
+| Capability | Wording |
+|---|---|
+| Model choice | Name the tier, then the Claude alias as the example: "fast tier (`haiku` in Claude Code)", "balanced tier (`sonnet`)", "strongest-reasoning tier (`opus`)". Always set the model explicitly where the tool allows it. |
+| Ask the user | "Ask the user with the structured question tool where one exists (`AskUserQuestion`, `question`, `ask_user`); otherwise ask in chat and wait for the answer." |
+| Subagents | "Spawn a subagent where the tool has one; otherwise do the step inline, in order." |
+| Task tracking | "Track with the task/todo tool where available; otherwise keep the checklist in the reply." |
+| Web | "Search/fetch the web with whatever tool the harness offers; if none, say so and continue from the repo." |
+| Plan mode | "Present the plan and wait for approval (plan mode where available)." |
+| Project rules | "AGENTS.md or CLAUDE.md, whichever exists", never CLAUDE.md alone. |
+| Arguments | No `$ARGUMENTS`/`$1` in a skill body: Claude Code appends arguments itself and other CLIs print the placeholder literally. |
+| Invocation | "Invoke the skill", with the slash form as the Claude Code example. |
 
 ## Skill composition
 

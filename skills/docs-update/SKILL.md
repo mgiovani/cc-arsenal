@@ -52,7 +52,7 @@ Parse the invocation argument:
 - `all` or `category:<name>`: silently exclude any mapped path that isn't on disk (e.g. `find docs/*.md` and intersect with the category's paths); the run proceeds with whatever remains
 - `<doc-name>`: resolve the path, then check it with `test -f <resolved-doc-path>` (or Read). If it does not exist, STOP the entire skill run right here: do not read further, do not run Phase 2-5, do not Write or Edit that path under any pretext (not as a "special case," not with a caveat about verified content). Tell the user the doc doesn't exist yet and point them to `docs-init`, which owns creation and the canonical templates. This is the final action for that run.
 
-For a multi-doc run that passes the existence check, track progress with TodoWrite: one todo per document, marked `in_progress` while it's being worked and `completed` once written.
+For a multi-doc run that passes the existence check, track progress with the task/todo tool where available (otherwise keep the checklist in the reply): one todo per document, marked `in_progress` while it's being worked and `completed` once written.
 
 ### Phase 2: Check Freshness
 
@@ -66,7 +66,7 @@ A doc whose last update predates relevant source changes is a candidate for this
 
 ### Phase 3: Verify Against the Codebase
 
-**Single document**: read it fully, then grep the codebase for each claim it makes (component names, counts, file paths, tech stack). No subagent needed, one Explore pass funnels into one file write either way.
+**Single document**: read it fully, then grep the codebase for each claim it makes (component names, counts, file paths, tech stack). No subagent needed, one search pass funnels into one file write either way.
 
 **Multiple documents** (`all` or `category` mode): spawn one subagent per document so verification runs concurrently, see [references/update-strategies.md](references/update-strategies.md) for the per-document-type checklist and prompt pattern. If no Task/subagent tool is available, run the same read-verify-write pass for each document sequentially instead.
 

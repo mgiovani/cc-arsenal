@@ -11,7 +11,7 @@ cd <plugin dir>/skills/claude-animation && npm install
 ```
 
 ```bash
-SK=~/.claude/skills/claude-animation            # wherever this skill lives
+SK=~/.claude/skills/claude-animation            # wherever this skill lives (e.g. .agents/skills/claude-animation)
 mkdir my-film && cd my-film && cp $SK/templates/film-template.mjs film.mjs
 CLAUDE_ANIMATION_LIB=$SK/lib node film.mjs sheet 0,1,2,3,4    # look
 CLAUDE_ANIMATION_LIB=$SK/lib node film.mjs render             # out/template.mp4

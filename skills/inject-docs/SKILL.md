@@ -46,7 +46,7 @@ Before running anything, auto-detect the framework and verify prerequisites:
    - Check for `package.json` with `next` dependency → Next.js project
    - Check for `pyproject.toml` with `fastapi` dependency → FastAPI project
    - Check for `requirements.txt` containing `fastapi` → FastAPI project
-   - If multiple frameworks detected, prioritize based on arguments or ask user
+   - If multiple frameworks detected, prioritize based on the user's request, or ask the user with the structured question tool where one exists (`AskUserQuestion`, `question`, `ask_user`); otherwise ask in chat and wait for the answer
    - If no framework detected, **STOP** and inform the user: "Could not detect a supported framework (Next.js or FastAPI)."
 
 2. **Detect framework version** (if applicable):
