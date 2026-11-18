@@ -21,7 +21,7 @@ This skill wraps a multi-minute, credit-billed Codex run and is the default hand
 ## Ground rules
 
 - **Single-quote the whole prompt.** `$imagegen` must reach `codex` literally, not be shell-expanded: a double-quoted or unquoted prompt containing `$imagegen` breaks.
-- **Never fabricate a model ID.** `gpt-6-sol` (agent) and GPT Image 2.5 Sunburst (`gpt-image-2.5-sunburst`, images) are this recipe's known-good defaults at time of writing; if `codex` rejects one, check `codex --version`/`codex exec --help` for a current one rather than guessing a replacement.
+- **Never fabricate a model ID.** `gpt-6.2-sol` (agent) and GPT Image 2.5 Sunburst (`gpt-image-2.5-sunburst`, images) are this recipe's known-good defaults at time of writing; if `codex` rejects one, check `codex --version`/`codex exec --help` for a current one rather than guessing a replacement.
 - **Name the image model in the prompt.** Codex has no image-model flag (`-m` sets the agent model), so every prompt opens with `$imagegen using gpt-image-2.5-sunburst via the built-in image tool`. Codex can't report which image model the backend actually ran, so don't claim more than "requested Sunburst".
 - **Never claim chroma removal or file output succeeded without viewing the pixels.** `sips hasAlpha: yes` proves nothing; open the PNG.
 - **Stop before an expensive run and confirm** when the brief is a batch (multiple assets), a consistency-critical asset (recurring character/mascot), or explicitly says "final"/"official": this is real spend and multi-minute wall-clock time, not a free retry.
@@ -56,7 +56,7 @@ Pick `model_reasoning_effort`:
 Run from the workspace root, prompt single-quoted, non-interactive:
 
 ```bash
-codex exec --approve-for-me -m gpt-6-sol -c model_reasoning_effort="<xhigh|high>" \
+codex exec --approve-for-me -m gpt-6.2-sol -c model_reasoning_effort="<xhigh|high>" \
   '$imagegen using gpt-image-2.5-sunburst via the built-in image tool to create <asset>.
    <detailed design brief — subject, style, composition, palette, "transparent background" if needed>.
    Move the final PNGs into the workspace at these exact paths: <path1>, <path2>.'
@@ -73,7 +73,7 @@ For a consistent character across multiple images, put the *full* shared design 
 `codex exec` has no background flag, background it yourself and never pipe through `tail`/`head` (the pipe buffers everything until exit, so nothing streams while it runs):
 
 ```bash
-codex exec --approve-for-me -m gpt-6-sol -c model_reasoning_effort="high" \
+codex exec --approve-for-me -m gpt-6.2-sol -c model_reasoning_effort="high" \
   -o /tmp/codex-imagegen-final.md \
   '...' > /tmp/codex-imagegen-run.log 2>&1 &
 ```
@@ -96,7 +96,7 @@ Codex can claim chroma removal succeeded while the key color is still visibly th
 ## Notes
 
 - Chroma-key flow: the built-in `image_gen` tool has no native alpha, so the skill generates on a flat chroma-key background then strips it locally. **Never** pass `--despill`/`--spill-cleanup` on pink/magenta-family subject art: despill desaturates those colors toward gray.
-- ChatGPT-account auth rejects API-only models; if `-m gpt-6-sol` fails on an auth error, see [references/troubleshooting.md](references/troubleshooting.md).
+- ChatGPT-account auth rejects API-only models; if `-m gpt-6.2-sol` fails on an auth error, see [references/troubleshooting.md](references/troubleshooting.md).
 - Regenerating with the same output filenames is cheap; re-integrating a bad asset into the app isn't: favor a re-run over shipping a QC failure.
 - If a chroma removal comes out visibly wrong, don't just report failure: the raw generation and the fix procedure are in [references/troubleshooting.md](references/troubleshooting.md) (load it when you actually hit this).
 
@@ -107,7 +107,7 @@ Codex can claim chroma removal succeeded while the key color is still visibly th
 $ codex --version → codex-cli 0.156.1
 Effort: high (basic placeholder, single asset) — proceeding without a confirm gate.
 
-$ codex exec --approve-for-me -m gpt-6-sol -c model_reasoning_effort="high" \
+$ codex exec --approve-for-me -m gpt-6.2-sol -c model_reasoning_effort="high" \
     -o /tmp/codex-imagegen-final.md \
     '$imagegen using gpt-image-2.5-sunburst via the built-in image tool to create
      a minimalist gear icon, flat vector style, single accent color on transparent
@@ -126,7 +126,7 @@ background, 3 pose variants, saves to assets/mascot/{idle,wave,jump}.png.
 Estimated run: several minutes across 3 sequential generations. Proceed? (yes/no)
 
 [user: yes]
-$ codex exec --approve-for-me -m gpt-6-sol -c model_reasoning_effort="xhigh" \
+$ codex exec --approve-for-me -m gpt-6.2-sol -c model_reasoning_effort="xhigh" \
     -o /tmp/codex-imagegen-final.md \
     '$imagegen using gpt-image-2.5-sunburst via the built-in image tool to create
      <full shared mascot design brief>, idle pose, transparent background. Move the final PNG to assets/mascot/idle.png.' \

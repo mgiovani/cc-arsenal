@@ -74,7 +74,7 @@ Mascots and logos, hero images and social cards, plus motion videos rendered fro
 
 `/codex-imagegen` (auto)
 The default image generator: polished raster art (logos, mascots, heroes, icons, sprites, mockups) via Codex CLI's `$imagegen`.
-- Codex `gpt-6-sol` + GPT Image 2.5 Sunburst `gpt-image-2.5-sunburst`
+- Codex `gpt-6.2-sol` + GPT Image 2.5 Sunburst `gpt-image-2.5-sunburst`
 - Single-quoted invocation, effort budgeting, explicit save paths
 - Chroma-key transparency handling (no-despill on pink), pixel-level QC
 
