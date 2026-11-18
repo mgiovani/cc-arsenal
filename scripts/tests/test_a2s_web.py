@@ -1008,6 +1008,17 @@ def test_llms_txt_discovery_scope_priority_and_seed_retyped(site: Site, ctx: Ctx
     assert ctx.store.get_meta('web.scopes') == [[site.url, '/docs/', 'llms']]
 
 
+def test_seeds_on_one_origin_fetch_origin_lists_once(site: Site, ctx: Ctx) -> None:
+    site.text('/sitemap.xml', urlset('/d/a.html', '/e/b.html'), 'application/xml')
+    net = make_net()
+    for path in ('/d/a.html', '/e/b.html', '/d/c.html'):
+        seed(ctx, site.url + path)
+        run_async(discover.discover(ctx, site.url + path, None, net))
+    assert site.hit_paths().count('/sitemap.xml') == 1
+    assert site.hit_paths().count('/llms.txt') == 1
+    assert {u.kind for u in ctx.store.units(source='web')} == {'page'}
+
+
 def urlset(*locs: str, extra: str = '') -> str:
     body = ''.join(f'<url><loc>{{BASE}}{loc}</loc>{extra}</url>' for loc in locs)
     return (

@@ -243,6 +243,12 @@ async def _text(net: Net, url: str) -> str | None:
 
 
 async def _llms(net: Net, origin: str) -> list[tuple[str, str]]:
+    if ('llms', origin) not in net.origin_lists:
+        net.origin_lists['llms', origin] = await _fetch_llms(net, origin)
+    return net.origin_lists['llms', origin]
+
+
+async def _fetch_llms(net: Net, origin: str) -> list[tuple[str, str]]:
     for path in LLMS_PATHS:
         if (body := await _text(net, origin + path)) and (
             links := parse_llms(body, origin + path)
@@ -252,7 +258,15 @@ async def _llms(net: Net, origin: str) -> list[tuple[str, str]]:
 
 
 async def _sitemap_urls(net: Net, origin: str) -> tuple[list[str], dict[str, str]]:
-    """(page urls, href -> hreflang of the sitemaps' language alternates)."""
+    """(page urls, href -> hreflang of the sitemaps' language alternates), fetched once per
+    origin: a seed list of many pages on one host would otherwise re-walk the sitemap tree
+    for every seed."""
+    if ('sitemap', origin) not in net.origin_lists:
+        net.origin_lists['sitemap', origin] = await _fetch_sitemaps(net, origin)
+    return net.origin_lists['sitemap', origin]
+
+
+async def _fetch_sitemaps(net: Net, origin: str) -> tuple[list[str], dict[str, str]]:
     await net.ensure_robots(origin)
     queue = net.robots.sitemaps(origin) or [f'{origin}/sitemap.xml']
     seen, urls, alternates = set(), [], {}

@@ -208,6 +208,7 @@ class Net:
     robots: RobotsCache
     allow_private: bool = False
     _locks: dict[str, asyncio.Lock] = field(default_factory=dict)
+    origin_lists: dict[tuple[str, str], Any] = field(default_factory=dict)
 
     async def ensure_robots(self, origin: str) -> None:
         lock = self._locks.setdefault(origin, asyncio.Lock())
