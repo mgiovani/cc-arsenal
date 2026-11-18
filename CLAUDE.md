@@ -104,7 +104,7 @@ make -C integrations/claude-code/claude-hi now       # Send 'hi' immediately
 
 ## Per-skill hooks
 
-A few skills declare a `hooks` key in their SKILL.md frontmatter (e.g. `agent-browser`'s `Stop` hook that closes its browser session). This key is Claude-Code-only (other tools ignore it per the Portability convention in `AGENTS.md`), so those skills must still work correctly with the hook absent.
+Only `agent-browser` declares a `hooks` key in its SKILL.md frontmatter: a `Stop` hook that closes its browser session. This key is Claude-Code-only (other tools ignore it per the Portability convention in `AGENTS.md`), so a skill must still work correctly with the hook absent; `agent-browser`'s body tells the agent to close the session itself.
 
 ## Documentation Guidelines
 

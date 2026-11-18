@@ -3,12 +3,6 @@ name: test-suite
 description: "Generates a test suite by analyzing coverage gaps, prioritizing critical and untested code paths, then writing tests in parallel that match the project's existing patterns. Use when the user wants to write tests, add test coverage, generate test cases, improve testing, or analyze coverage gaps. Supports pytest, vitest, jest, and all major test frameworks. Not for debugging a specific failing test (use fix-bug)."
 disable-model-invocation: false
 argument-hint: "[target_files_or_modules] [--coverage] [--framework name]"
-hooks:
-  Stop:
-    - hooks:
-      - type: agent
-        prompt: "Verify test suite generation is complete and correct:\n\n1. **Run tests**: Execute the test command discovered in Phase 0. ALL tests must pass (both new and existing).\n2. **Check coverage**: If a coverage command was discovered, run it and verify coverage improved or meets target.\n3. **Run linter**: Use the lint command discovered in Phase 0. No linting errors in test files.\n\nIf any check fails, report the failure clearly and return decision: block with reason. Only allow stopping when all tests pass and no regressions exist.\n\nUse commands discovered in Phase 0. If not available, discover them now from CLAUDE.md or project files (Makefile, package.json, pyproject.toml)."
-        timeout: 180
 metadata:
   summary: "Generate test suites by analyzing coverage gaps and writing tests that match project conventions"
 ---
@@ -34,7 +28,7 @@ Test generation must be grounded in code you actually read and patterns you actu
 7. Target untested code paths; don't duplicate coverage that already exists.
 8. Any coverage percentage or baseline you report must come from a command you actually ran; the same goes for any file path. Never estimate or invent one, even under time pressure.
 
-A Stop hook re-runs the discovered test/coverage/lint commands automatically before letting the session end (see frontmatter). Phase 4 below exists only to catch failures before that automatic gate fires, not to duplicate it.
+Nothing re-checks the work after you: Phase 4 below is the final gate, and it runs the discovered test, coverage and lint commands itself.
 
 ## Scope: pick a track before starting
 
@@ -135,9 +129,9 @@ No subagent tool? Take the groups one at a time and write the tests yourself, ap
 
 ### Phase 4: Quality Verification
 
-Goal: Catch failures before the Stop hook's automatic final check.
+Goal: prove every test passes, coverage did not drop, and the new test files lint clean.
 
-Run the discovered test command once:
+Run the discovered test command:
 
 ```bash
 # Use the ACTUAL discovered command, e.g.:
@@ -149,7 +143,7 @@ bun test
 
 If a test fails, figure out whether it's a new test (fix the test, it made a wrong assumption about behavior) or an existing test (the new code introduced a side effect, investigate and fix). Re-run until everything passes, at most 3 rounds; then report what still fails instead of looping.
 
-That's it: the Stop hook already re-runs tests, coverage, and lint automatically before the session ends, so don't duplicate a full separate coverage-and-lint pass here. This step exists only so failures surface while you're still working, not at the very last gate.
+Then run the coverage command from Phase 0, if the project has one, and compare it with the Phase 1 baseline: coverage must have improved or met the target. Run the lint command on the new test files and fix what it reports. If a check still fails after the 3 rounds, say which one in the report instead of calling the suite done.
 
 ### Phase 5: Final Commit
 

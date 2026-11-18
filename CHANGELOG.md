@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Removed
+- `refactor`, `test-suite`, `git-commit`: the Claude-Code-only frontmatter hooks are gone. Each skill now runs its own final checks in the body (quality gates, tests plus coverage plus lint, lint before commit), so it behaves the same in every agent CLI. `git-commit/scripts/pre-commit-lint.sh` is deleted with its hook.
+
 ## [6.2.0] - 2026-10-25
 
 ### Changed

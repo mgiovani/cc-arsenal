@@ -3,12 +3,6 @@ name: refactor
 description: "Restructures existing code without changing its behavior: maps callers and test coverage, adds characterization tests where coverage is thin, then applies the change in small steps verified against the full test suite after each one. Use when the user wants to refactor, extract a method or class, simplify logic, reduce duplication, improve naming, restructure modules, or pay down technical debt in code that already works. Not for adding new functionality (use implement-feature) or fixing broken behavior (use fix-bug)."
 disable-model-invocation: false
 argument-hint: "<refactoring_description> [--scope file|module|project] [--interactive]"
-hooks:
-  Stop:
-    - hooks:
-      - type: agent
-        prompt: "Run the Phase 4 Quality Gates Checklist from SKILL.md against the current diff and the test/lint/type-check commands discovered in Phase 0 (fall back to CLAUDE.md or project files if Phase 0 wasn't run). If any item fails, return decision: block with the specific failing item named. Only allow stopping when every item passes."
-        timeout: 180
 metadata:
   summary: "Restructure existing code without changing behavior, verified against the full test suite at each step"
 ---
@@ -38,7 +32,7 @@ Refactoring changes code structure WITHOUT changing behavior. Every step must be
 
 ## Quality Gates
 
-A Stop hook re-runs the Phase 4 Quality Gates Checklist automatically and blocks completion if any item fails, see the hook prompt above for the exact wording.
+Phase 4's Quality Gates Checklist is your own last step before committing: run it against the current diff with the test, lint and type-check commands from Phase 0, and do not report the refactor as done while any item fails. Name the failing item instead.
 
 ## Task Management
 
