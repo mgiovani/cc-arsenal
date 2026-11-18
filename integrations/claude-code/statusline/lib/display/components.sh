@@ -386,41 +386,43 @@ get_usage_line() {
     local native_5h_percent="${1:-}" native_5h_resets="${2:-}"
     local native_7d_percent="${3:-}" native_7d_resets="${4:-}"
 
-    # No rate_limits data available
-    if [[ -z "$native_5h_percent" || "$native_5h_percent" == "null" ]]; then
+    local has_5h=false has_7d=false
+    [[ -n "$native_5h_percent" && "$native_5h_percent" != "null" ]] && has_5h=true
+    [[ -n "$native_7d_percent" && "$native_7d_percent" != "null" ]] && has_7d=true
+    # Some plans (e.g. Ultra) have no 5h window, so either window alone renders
+    if ! $has_5h && ! $has_7d; then
         return 0
     fi
 
-    # Determine display mode
     local display_mode
     display_mode=$(get_display_mode)
     local use_emoji=true
     [[ "$display_mode" == "text" || "$display_mode" == "ascii" ]] && use_emoji=false
 
-    # Round percentage to integer
-    local five_hour_pct
-    five_hour_pct=$(format_number '%.0f' "$native_5h_percent")
+    local usage_line=""
 
-    # Format 5-hour reset time (use exact epoch; Claude may reset off the hour)
-    local five_hour_display=""
-    if [[ -n "$native_5h_resets" && "$native_5h_resets" != "null" && "$native_5h_resets" != "0" ]]; then
-        five_hour_display=$(epoch_to_time_display "$native_5h_resets" "+%H:%M")
+    if $has_5h; then
+        local five_hour_pct
+        five_hour_pct=$(format_number '%.0f' "$native_5h_percent")
+
+        # Use exact epoch; Claude may reset off the hour
+        local five_hour_display=""
+        if [[ -n "$native_5h_resets" && "$native_5h_resets" != "null" && "$native_5h_resets" != "0" ]]; then
+            five_hour_display=$(epoch_to_time_display "$native_5h_resets" "+%H:%M")
+        fi
+
+        local five_hour_token
+        five_hour_token=$(colorize "$(get_usage_color "$five_hour_pct")" "${five_hour_pct}%")
+
+        if $use_emoji; then
+            usage_line="🔄 5h: ${five_hour_token}"
+        else
+            usage_line="5h: ${five_hour_token}"
+        fi
+        [[ -n "$five_hour_display" ]] && usage_line="${usage_line} → ${five_hour_display}"
     fi
 
-    # Build usage line - color the percentage by usage threshold (green/bright-green/yellow/red)
-    local five_hour_token
-    five_hour_token=$(colorize "$(get_usage_color "$five_hour_pct")" "${five_hour_pct}%")
-
-    local usage_line
-    if $use_emoji; then
-        usage_line="🔄 5h: ${five_hour_token}"
-    else
-        usage_line="5h: ${five_hour_token}"
-    fi
-    [[ -n "$five_hour_display" ]] && usage_line="${usage_line} → ${five_hour_display}"
-
-    # Add 7-day data if available
-    if [[ -n "$native_7d_percent" && "$native_7d_percent" != "null" ]]; then
+    if $has_7d; then
         local seven_day_pct
         seven_day_pct=$(format_number '%.0f' "$native_7d_percent")
 
@@ -432,12 +434,14 @@ get_usage_line() {
         local seven_day_token
         seven_day_token=$(colorize "$(get_usage_color "$seven_day_pct")" "${seven_day_pct}%")
 
+        local seven_day_part
         if $use_emoji; then
-            usage_line="${usage_line} │ 📅 7d: ${seven_day_token}"
+            seven_day_part="📅 7d: ${seven_day_token}"
         else
-            usage_line="${usage_line} │ 7d: ${seven_day_token}"
+            seven_day_part="7d: ${seven_day_token}"
         fi
-        [[ -n "$seven_day_display" ]] && usage_line="${usage_line} → ${seven_day_display}"
+        [[ -n "$seven_day_display" ]] && seven_day_part="${seven_day_part} → ${seven_day_display}"
+        usage_line="${usage_line:+${usage_line} │ }${seven_day_part}"
     fi
 
     echo "$usage_line"

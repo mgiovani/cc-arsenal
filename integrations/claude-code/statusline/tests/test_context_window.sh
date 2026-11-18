@@ -441,6 +441,30 @@ test_native_rate_limits_five_hour_only() {
     assert_contains "5h: 50%" "$output" "Native rate_limits: 5h-only percentage shown"
 }
 
+# Test native rate_limits with only 7-day window (plans without a 5h limit, e.g. Ultra)
+test_native_rate_limits_seven_day_only() {
+    echo "Testing native rate_limits with only 7d window..."
+
+    local json='{
+        "model": {"display_name": "Opus"},
+        "workspace": {"current_dir": "/test"},
+        "context_window": {"used_percentage": 5.0},
+        "rate_limits": {
+            "five_hour": null,
+            "seven_day": {
+                "used_percentage": 37,
+                "resets_at": 1738425600
+            }
+        }
+    }'
+
+    local output
+    output=$(strip_ansi "$(echo "$json" | "$STATUSLINE_SCRIPT" 2>/dev/null)")
+
+    assert_contains "7d: 37%" "$output" "Native rate_limits: 7d-only percentage shown"
+    assert_not_contains "5h:" "$output" "Native rate_limits: no 5h segment without a 5h window"
+}
+
 # Test reset time is shown exactly, without rounding up to the hour
 test_native_rate_limits_offhour_reset() {
     echo "Testing off-the-hour reset time is not rounded..."
@@ -526,6 +550,7 @@ main() {
     # Native rate_limits tests
     test_native_rate_limits_basic
     test_native_rate_limits_five_hour_only
+    test_native_rate_limits_seven_day_only
     test_native_rate_limits_offhour_reset
     test_native_rate_limits_fallback
 

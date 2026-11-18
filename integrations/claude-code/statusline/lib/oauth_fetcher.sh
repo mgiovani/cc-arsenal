@@ -248,8 +248,8 @@ fetch_oauth_with_logging() {
     fi
 
     # Check if response contains expected data structure
-    if ! echo "$response" | jq -e '.five_hour' >/dev/null 2>&1; then
-        log_oauth_error "OAuth API returned invalid JSON (missing .five_hour field)"
+    if ! echo "$response" | jq -e '.five_hour // .seven_day' >/dev/null 2>&1; then
+        log_oauth_error "OAuth API returned invalid JSON (missing .five_hour and .seven_day)"
         # Log first 200 chars of response for debugging
         local response_preview="${response:0:200}"
         log_oauth_error "Response preview: $response_preview"

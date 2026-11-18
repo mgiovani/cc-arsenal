@@ -166,7 +166,7 @@ fetch_oauth_usage() {
         -H "anthropic-beta: oauth-2025-04-20" 2>/dev/null)
 
     # Validate response and cache
-    if [[ -n "$response" ]] && echo "$response" | jq -e '.five_hour' >/dev/null 2>&1; then
+    if [[ -n "$response" ]] && echo "$response" | jq -e '.five_hour // .seven_day' >/dev/null 2>&1; then
         echo "$response" > "$OAUTH_USAGE_CACHE_FILE" 2>/dev/null
         echo "$response"
         return 0

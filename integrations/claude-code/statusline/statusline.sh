@@ -89,17 +89,19 @@ main() {
 
     # Persist rate_limits to cache file for external consumers (e.g., tmux statusbar)
     if [[ -z "${CLAUDE_CODE_OAUTH_TOKEN:-}" ]]; then
-        if check_jq && echo "$json" | jq -e '.rate_limits.five_hour' >/dev/null 2>&1; then
+        if check_jq && echo "$json" | jq -e '.rate_limits.five_hour // .rate_limits.seven_day' >/dev/null 2>&1; then
             echo "$json" | jq -c '.rate_limits // empty' > /tmp/claude_rate_limits_cache.json 2>/dev/null || true
         fi
-    elif [[ -n "${RATE_LIMIT_5H_FETCHED:-}" && -n "${RATE_LIMIT_7D_FETCHED:-}" ]]; then
+    elif [[ -n "${RATE_LIMIT_5H_FETCHED:-}" || -n "${RATE_LIMIT_7D_FETCHED:-}" ]]; then
         # Reuse the fetched values build_statusline already extracted — only
-        # write when both windows really came from the per-account cache, so
-        # the stored login's stdin numbers never land in this account's file
-        local acct
+        # write windows that really came from the per-account cache, so the
+        # stored login's stdin numbers never land in this account's file
+        # (plans without a 5h window, e.g. Ultra, write five_hour: null)
+        local acct five_hour="null" seven_day="null"
         acct=$(hash_sha256 "$CLAUDE_CODE_OAUTH_TOKEN")
-        printf '{"five_hour":{"used_percentage":%s,"resets_at":%s},"seven_day":{"used_percentage":%s,"resets_at":%s}}' \
-            "$RATE_LIMIT_5H_PERCENT" "$RATE_LIMIT_5H_RESETS" "$RATE_LIMIT_7D_PERCENT" "$RATE_LIMIT_7D_RESETS" \
+        [[ -n "${RATE_LIMIT_5H_FETCHED:-}" ]] && five_hour=$(printf '{"used_percentage":%s,"resets_at":%s}' "$RATE_LIMIT_5H_PERCENT" "$RATE_LIMIT_5H_RESETS")
+        [[ -n "${RATE_LIMIT_7D_FETCHED:-}" ]] && seven_day=$(printf '{"used_percentage":%s,"resets_at":%s}' "$RATE_LIMIT_7D_PERCENT" "$RATE_LIMIT_7D_RESETS")
+        printf '{"five_hour":%s,"seven_day":%s}' "$five_hour" "$seven_day" \
             > "/tmp/claude_rate_limits_cache.${acct}.json" 2>/dev/null || true
     fi
 
