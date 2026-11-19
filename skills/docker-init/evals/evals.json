@@ -7,7 +7,7 @@
       "assertions": [
         "docker-compose.yml has no top-level `version:` key",
         "every service in docker-compose.yml (postgres, redis, minio, and the app if present) has both a `healthcheck:` block and `security_opt: [no-new-privileges:true]`",
-        "the minio service's image tag is either a floating tag (e.g. `latest`) or is accompanied by a comment instructing to pin/check the release before deploying to prod -- it is not a bare dated `RELEASE.YYYY-MM-DD...` tag with no such comment",
+        "the minio service's image tag is a concrete pinned tag, not `latest`; a dated `RELEASE.YYYY-MM-DD...` tag is acceptable",
         "the generated Dockerfile creates a dedicated non-root user (via useradd/adduser or equivalent) and switches to it with a `USER <user>` instruction before the final CMD/ENTRYPOINT -- the runtime stage never runs as root",
         "the final response states whether `docker compose config --quiet` validation passed, or explicitly says validation was skipped because docker is unavailable -- it never asserts validation passed without having run the command"
       ]

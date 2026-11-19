@@ -6,6 +6,7 @@ import argparse
 import importlib.util
 import json
 import os
+import subprocess
 import sys
 from collections.abc import Iterator
 from pathlib import Path
@@ -231,13 +232,30 @@ class TestQuotes:
         assert [(f.rule, f.severity) for f in found] == [('quote-short', 'warn')]
 
 
-def test_quick_validate_route_regex_ignores_the_sentence_period(tmp_path: Path) -> None:
+def _load_quick_validate(name: str) -> tuple[Any, Path]:
     path = SCRIPTS_DIR.parents[1] / 'create-skill' / 'scripts' / 'quick_validate.py'
-    spec = importlib.util.spec_from_file_location('qv_under_test', path)
+    spec = importlib.util.spec_from_file_location(name, path)
     assert spec
     assert spec.loader
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
+    return module, path
+
+
+def _write_skill(root: Path, dir_name: str, name: str, body: str) -> Path:
+    skill = root / dir_name
+    skill.mkdir()
+    description = (
+        'Does one thing. Use when the user asks for that one thing. Not for others.'
+    )
+    (skill / 'SKILL.md').write_text(
+        f'---\nname: {name}\ndescription: {description}\n---\n{body}'
+    )
+    return skill
+
+
+def test_quick_validate_route_regex_ignores_the_sentence_period(tmp_path: Path) -> None:
+    module, _ = _load_quick_validate('qv_under_test')
     (tmp_path / 'references').mkdir()
     (tmp_path / 'references' / 'best-practices.md').write_text('x')
     check = module._validate_internal_references
@@ -248,27 +266,51 @@ def test_quick_validate_route_regex_ignores_the_sentence_period(tmp_path: Path) 
 
 
 def test_quick_validate_flags_name_mismatch_and_caps_emphasis(tmp_path: Path) -> None:
-    path = SCRIPTS_DIR.parents[1] / 'create-skill' / 'scripts' / 'quick_validate.py'
-    spec = importlib.util.spec_from_file_location('qv_rubric_under_test', path)
-    assert spec
-    assert spec.loader
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    skill = tmp_path / 'my-skill'
-    skill.mkdir()
-    description = (
-        'Does one thing. Use when the user asks for that one thing. Not for others.'
+    module, _ = _load_quick_validate('qv_rubric_under_test')
+    body = (
+        '# T\n\nYou MUST do it. ALWAYS. **IMPORTANT** note.\n\n'
+        '```bash\n# NEVER inside a fence\n```\n'
     )
-    body = '# T\n\nYou MUST do it.\n\n```bash\n# NEVER inside a fence\n```\n'
-    (skill / 'SKILL.md').write_text(
-        f'---\nname: other-name\ndescription: {description}\n---\n{body}'
-    )
+    skill = _write_skill(tmp_path, 'my-skill', 'other-name', body)
     valid, errors, warnings = module.validate_skill(skill)
     assert valid
     assert errors == []
-    assert warnings[0] == "Name 'other-name' does not match the directory name 'my-skill'"
-    assert 'MUST' in warnings[1]
-    assert 'NEVER' not in warnings[1]
+    assert any('does not match the directory name' in w for w in warnings)
+    emphasis = next(w for w in warnings if 'All-caps emphasis' in w)
+    assert 'MUST' in emphasis
+    assert 'ALWAYS' in emphasis
+    assert '**IMPORTANT**' in emphasis
+    assert 'NEVER' not in emphasis
+
+
+def test_quick_validate_clean_skill_has_no_warnings(tmp_path: Path) -> None:
+    module, _ = _load_quick_validate('qv_clean_under_test')
+    body = '# T\n\nYou must do it. Quote `MUST` in code.\n'
+    skill = _write_skill(tmp_path, 'my-skill', 'my-skill', body)
+    valid, errors, warnings = module.validate_skill(skill)
+    assert valid
+    assert errors == []
+    assert warnings == []
+
+
+def test_quick_validate_strict_exits_nonzero_on_warnings(tmp_path: Path) -> None:
+    _, path = _load_quick_validate('qv_strict_under_test')
+    skill = _write_skill(tmp_path, 'my-skill', 'other-name', '# T\n')
+    plain = subprocess.run(
+        [sys.executable, str(path), str(skill)],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    strict = subprocess.run(
+        [sys.executable, str(path), '--strict', str(skill)],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert plain.returncode == 0
+    assert strict.returncode == 1
+    assert 'WARNING:' in strict.stderr
 
 
 class TestBlockquotedCode:

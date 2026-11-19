@@ -145,7 +145,6 @@ For detailed command reference, load: [references/commands.md](./references/comm
 - Troubleshooting common issues
 
 For discovery patterns and best practices, load: [references/workflows.md](./references/workflows.md)
-- Discovery strategies by domain and framework
 - Global vs project installation guidance
 - Security review of skill sources
 - Combining third-party skills with ai-arsenal

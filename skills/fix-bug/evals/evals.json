@@ -10,7 +10,8 @@
         "The diff is scoped to the expiration check only — no rewrite of the discount or checkout module",
         "Existing validation and security checks (e.g. discount amount limits) remain intact and unmodified after the fix",
         "Runs the full test suite after the fix and reports the actual pass/fail result, not an assumed one",
-        "If only a safe partial fix is applied, leaves a LEAN-DEBT marker in the code naming the limitation and upgrade trigger, instead of silently shipping the gap"
+        "If only a safe partial fix is applied, leaves a LEAN-DEBT marker in the code naming the limitation and upgrade trigger, instead of silently shipping the gap",
+        "Loads code-guidelines before writing the reproduction test, announces it with a \"Using code-guidelines\" line, and lets the project's own AGENTS.md or lint config win on any disagreement"
       ]
     },
     {

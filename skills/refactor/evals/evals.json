@@ -8,7 +8,8 @@
         "Runs the full test suite before making any change to establish a baseline",
         "Consolidates the duplicated logic into a single shared function or module and deletes the duplicated copies, rather than adding a new abstraction layer on top of both",
         "The full test suite passes and matches the baseline after each incremental step",
-        "No validation or error-handling branch is dropped in the process"
+        "No validation or error-handling branch is dropped in the process",
+        "Loads code-guidelines before writing characterization tests, announces it with a \"Using code-guidelines\" line, and lets the project's own AGENTS.md or lint config win on any disagreement"
       ]
     },
     {

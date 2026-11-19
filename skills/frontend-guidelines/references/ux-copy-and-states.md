@@ -19,7 +19,7 @@ A component is unfinished until loading, empty, error, disabled and overflow are
 - Stale. Data that has gone stale announces itself, for example a disconnected strip, and resumes from the last valid point on reconnect.
 - Disabled. State why, and keep the control legible.
 
-Add loading, error and empty states only where the task asks for them, and name any you skip on purpose.
+Draw every reachable state, and name any you skip on purpose.
 
 ## Honest data
 

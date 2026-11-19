@@ -15,7 +15,7 @@
 
 Name the smell by its catalog name, find the smallest refactoring that removes it, and apply a pattern only when the pain is visible in the code. The names and the refactorings follow the refactoring.guru catalog.
 
-Run the existing tests before and after each refactoring step. A refactoring changes structure and never behaviour. To carry one out end to end, use the `refactor` skill.
+Run the existing tests before and after each refactoring step. A refactoring changes structure and never behaviour. To carry one out end to end, say "Using refactor to carry out the change" and use the `refactor` skill (via the Skill tool where available, otherwise apply its rules inline).
 
 Thresholds below are prompts to look, not gates. The project's lint caps win over them.
 

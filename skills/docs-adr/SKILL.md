@@ -101,7 +101,7 @@ flip Status to Accepted once approved).
 |---|---|---|
 | **nygard** (default) | Status, Context, Decision, Consequences | Most decisions, balanced detail |
 | **lightweight** | Status, Problem, Decision, Alternatives Considered, Consequences, Notes | Simple, straightforward decisions |
-| **full** | Status, Problem Statement, Context, Assumptions, Options Considered, Decision, Rationale, Consequences (Positive/Negative/Neutral), Implementation Plan, Success Metrics, Dependencies, Risks and Mitigation, Related ADRs, References | Complex, high-impact decisions |
+| **full** | Status, Problem Statement, Context, Assumptions, Options Considered, Decision, Rationale, Consequences (Positive/Negative/Neutral), Implementation Plan, Success Metrics, Dependencies, Risks and Mitigation, Future Considerations, Related ADRs, References | Complex, high-impact decisions |
 
 ## Usage Examples
 

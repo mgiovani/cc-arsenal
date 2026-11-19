@@ -62,10 +62,8 @@ Catalog: https://refactoring.guru/refactoring/smells. Name the smell only where 
 | Chains like `a.b().c().d()` reaching through objects | Hide Delegate, or ask the first object for the result |
 | Repeated `switch`/`if` on the same type code in several places | One map of key to handler, or polymorphism when behavior differs widely |
 | Copy-pasted block with small variations | Extract the shared part; keep the variation as a parameter |
-| Class that only forwards calls, or an abstraction with one implementation | Inline it (the Simplicity lane owns this finding) |
 | Flag argument that switches the function between two behaviors | Split into two functions |
 | Mutable shared state updated from several call sites | Encapsulate behind one writer, or make the value immutable |
-| Dead code, unused parameters, speculative hooks | Delete |
 | Comment explaining what the next lines do | Rename or extract until the comment is unnecessary |
 
 ## Over-engineering counter-check
