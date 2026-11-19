@@ -30,10 +30,6 @@ Refactoring changes code structure WITHOUT changing behavior. Every step must be
 7. When several call sites share logic, consolidate it into one place and delete the copies, rather than wrapping them in a new abstraction.
 8. Simplifying structure must never remove a validation check or an error/data-loss path, nor a security control or an accessibility branch already in place. Losing any of those counts as a behavior change, not a refactor, so stop and re-scope it separately.
 
-## Quality Gates
-
-Phase 4's Quality Gates Checklist is your own last step before committing: run it against the current diff with the test, lint and type-check commands from Phase 0, and do not report the refactor as done while any item fails. Name the failing item instead.
-
 ## Task Management
 
 Whether the ceremony below (formal task chain, subagent fan-out) is worth it depends on blast radius, not on whether the skill fired.
@@ -99,7 +95,7 @@ For multi-file changes: update the target first, then update callers one at a ti
 
 ### Phase 4: Final Verification
 
-Run every quality check the project has, against the Phase 0 baseline.
+Run every quality check the project has, against the Phase 0 baseline, using the test, lint and type-check commands from Phase 0. Do not report the refactor as done while any item fails; name the failing item instead.
 
 **Quality Gates Checklist:**
 - [ ] Full test suite passes (matches or exceeds Phase 0 baseline)

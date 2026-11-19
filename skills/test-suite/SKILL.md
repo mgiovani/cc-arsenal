@@ -28,8 +28,6 @@ Test generation must be grounded in code you actually read and patterns you actu
 7. Target untested code paths; don't duplicate coverage that already exists.
 8. Any coverage percentage or baseline you report must come from a command you actually ran; the same goes for any file path. Never estimate or invent one, even under time pressure.
 
-Nothing re-checks the work after you: Phase 4 below is the final gate, and it runs the discovered test, coverage and lint commands itself.
-
 ## Scope: pick a track before starting
 
 - Small (1-2 tests, a single file, a quick fix): skip task creation and the approval gate. Discover the test command (Phase 0), write the tests, run them, done. Don't spin up task ceremony for a two-test add.
@@ -50,7 +48,7 @@ Copy this checklist and tick it as you go:
 - [ ] Phase 3: write tests per module group
       - new tests fail for the wrong reason (import error, wrong interface) -> back to the Phase 3 writing step, re-read the source
       - existing suite breaks -> stop, find the side effect, report before going on
-- [ ] Phase 4: run the full test command (max 3 fix rounds, then report what still fails)
+- [ ] Phase 4: run tests, coverage and lint (max 3 fix rounds, then report what still fails)
 - [ ] Phase 5: commit with measured coverage numbers
 ```
 
