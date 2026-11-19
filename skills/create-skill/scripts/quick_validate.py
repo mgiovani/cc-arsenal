@@ -93,6 +93,7 @@ def validate_skill(skill_path: str | Path) -> tuple[bool, list[str], list[str]]:
         warnings.append(f"Name '{name}' does not match the directory name '{dir_name}'")
 
     prose = re.sub(r'```.*?```', '', content, flags=re.DOTALL)
+    prose = re.sub(r'`[^`\n]*`', '', prose)
     shouting = sorted(set(EMPHASIS.findall(prose)))
     if shouting:
         warnings.append(
@@ -346,11 +347,13 @@ def _validate_evals_schema(evals_file: Path) -> list[str]:
 
 
 if __name__ == '__main__':
-    if len(sys.argv) != EXPECTED_ARGS:
-        sys.stderr.write(f'Usage: {sys.argv[0]} <skill_path>\n')
+    args = [a for a in sys.argv[1:] if a != '--strict']
+    strict = len(args) != len(sys.argv) - 1
+    if len(args) != EXPECTED_ARGS - 1:
+        sys.stderr.write(f'Usage: {sys.argv[0]} [--strict] <skill_path>\n')
         sys.exit(1)
 
-    valid, errors, warnings = validate_skill(sys.argv[1])
+    valid, errors, warnings = validate_skill(args[0])
 
     for warning in warnings:
         sys.stderr.write(f'WARNING: {warning}\n')
@@ -359,7 +362,7 @@ if __name__ == '__main__':
         sys.stdout.write('OK: Skill is valid\n')
         if warnings:
             sys.stdout.write(f'({len(warnings)} warning(s))\n')
-        sys.exit(0)
+        sys.exit(1 if strict and warnings else 0)
     else:
         for error in errors:
             sys.stderr.write(f'ERROR: {error}\n')

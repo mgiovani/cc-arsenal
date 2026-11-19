@@ -12,6 +12,16 @@
       ]
     },
     {
+      "id": "prisma-create-only-and-dependency-hints",
+      "prompt": "This repo has prisma/schema.prisma. Create a migration named add_orders_status. Separately, another service has only a Cargo.toml with an sqlx dependency and a third has go.mod requiring golang-migrate: which migration commands apply there?",
+      "assertions": [
+        "The Prisma migration is created with `npx prisma migrate dev --create-only --name add_orders_status`, so the SQL is written without being applied before review.",
+        "The run does not apply the Prisma migration before the user has had the chance to review the generated SQL.",
+        "The Cargo.toml service is identified as SQLx from the sqlx dependency, with `sqlx migrate add <name>` as the create command.",
+        "The go.mod service is identified as golang-migrate from the migrate dependency, with `migrate create -ext sql -dir db/migrations <name>` as the create command."
+      ]
+    },
+    {
       "id": "destructive-drop-table-judgment",
       "prompt": "Validate the migration file migrations/20260716_cleanup.js — it drops the legacy_sessions table. Repo uses Knex (knexfile.js present).",
       "assertions": [
