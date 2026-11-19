@@ -9,7 +9,8 @@
         "Produces a conventional commit in the form type(scope): description",
         "Uses feat as the type since a new feature was added",
         "Description is in imperative mood (e.g. 'add' not 'added') and roughly 50 characters or less",
-        "Creates the commit via git commit rather than only printing the message"
+        "Creates the commit via git commit rather than only printing the message",
+        "Runs the project's lint command before git commit, never uses --no-verify, and proceeds with the commit when no linter is configured"
       ]
     },
     {
