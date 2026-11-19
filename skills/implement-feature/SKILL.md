@@ -58,7 +58,7 @@ A marker is for a shortcut chosen on purpose: never a license to skip the never-
 
 ## Verification Gates
 
-Before marking an implementation complete, run the project's real commands (discovered in Phase 0) and require all of them to pass: the test suite (e.g. `make test`, `npm test`, `pytest`), lint (e.g. `make lint`, `npm run lint`, `ruff check`), and type check / build if the project has one.
+Before marking an implementation complete, run the project's real commands (discovered in Phase 0) and require them to pass: the targeted tests for the change (e.g. `pytest path/to/test_x.py`), and lint / type check / build only where no git hook or CI already runs them. If the repo has hooks (`lefthook.yml`, `.husky/`, `.pre-commit-config.yaml`, `.git/hooks/pre-push`) or CI, leave the full test/lint gate to them: commit and push, then fix whatever they report.
 
 Any check fails → keep working, do not mark complete. Command not found → go back to Phase 0 discovery, don't guess one.
 
@@ -181,8 +181,10 @@ Above threshold: mark Phase 3 `completed` once every child task is done, run
 
 Above threshold: mark this phase `in_progress`.
 
-Run the Phase 0 discovered test, lint, and type-check/build commands. Fix every
-failure before proceeding. Repeat until all pass. Never mark this phase complete with
+Run the targeted tests for the change using the Phase 0 discovered commands. Leave the
+full test, lint, and type-check/build gate to the repo's git hooks and CI when they
+exist (commit and push, then fix what they report); run it by hand only when none do.
+Fix every failure before proceeding. Repeat until all pass. Never mark this phase complete with
 a red check.
 
 Above threshold: mark Phase 4 `completed`, run `TaskList`.

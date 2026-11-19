@@ -26,7 +26,7 @@ A fix that "should work" but was never run against a failing test is a guess, no
 1. Reproduce first: don't fix what you haven't seen fail.
 2. Test-driven: write or locate a failing test before implementing the fix; confirm it actually fails.
 3. Verify root cause: locate the bug with grep/read evidence (file path, line number), not intuition.
-4. Verify the fix: run the full test suite; all tests must pass before calling the bug fixed.
+4. Verify the fix: run the failing test plus related targeted tests. If git hooks or CI run the full suite on commit/push, leave it to them and fix what they report; otherwise run the full suite.
 5. No invented fixes: only implement solutions that address the demonstrated root cause.
 6. Reference real code: never make claims about code you haven't read.
 
@@ -68,7 +68,7 @@ Claude Code tracks and parallelizes them in the multi-file case.
 
 ## Phase 0: Project Discovery
 
-Discover the project's test, lint, and type-check commands before touching anything:
+Discover the project's test and lint commands, and its type check if it has one, before touching anything:
 guessing wastes a cycle when the wrong command silently no-ops.
 
 If the codebase is large or unfamiliar, offload this to an Explore subagent:
@@ -137,7 +137,7 @@ public API, has performance implications, or is otherwise breaking, use
 
 1. Apply the fix with Edit: minimal, focused changes.
 2. Run the specific failing test and confirm it now passes. If it doesn't, that means the root-cause theory was wrong or incomplete, go back to Phase 1, not to a bigger patch on top of the current one.
-3. Run the full test suite to check for side effects.
+3. Run the full test suite to check for side effects, unless git hooks (`lefthook.yml`, `.husky/`, `.pre-commit-config.yaml`, `.git/hooks/pre-push`) or CI already run it on commit/push: then commit, push, and fix whatever they report.
 4. If new failures appear, adjust the fix (or correct a wrongly-specified test) and repeat until everything passes.
 
 ## Phase 4: Quality Verification
@@ -146,7 +146,7 @@ Run all quality checks using the commands discovered in Phase 0, then confirm ev
 line of this checklist: it's the single authoritative copy, used at completion time:
 
 - [ ] Previously failing test now passes
-- [ ] Full test suite passes (no regressions)
+- [ ] Full test suite passes (no regressions), by hand or via the hooks/CI that run it
 - [ ] No new linting errors
 - [ ] No new type errors (if the language is typed)
 - [ ] Fix addresses the root cause only, no unrelated refactoring
@@ -174,7 +174,7 @@ Closes #[ISSUE_NUMBER]"
 ## Phase 6: Verification Summary
 
 Report to the user: bug description, root cause (file:line), the fix, files
-modified, test results (previously-failing test, full suite, lint, type-check,
+modified, test results (previously-failing test, full suite or the hook/CI that runs it, lint, type-check,
 each pulled from the command output you actually ran, never invented), commit
 info, and any `LEAN-DEBT` markers left behind.
 

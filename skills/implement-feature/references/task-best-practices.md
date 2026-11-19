@@ -123,8 +123,9 @@ Project-specific commands (discovered in Phase 0):
 - Lint command: [INSERT DISCOVERED LINT COMMAND]
 
 After implementation:
-1. Run the test suite to verify all tests pass.
-2. Run linting to ensure code quality.
+1. Run the targeted tests for your change. Leave the full suite and linting to the
+   repo's git hooks and CI when they exist.
+2. Run the full suite and linting yourself only if no hook or CI does.
 3. Report back what was implemented, any LEAN-DEBT markers left, and any leaner
    alternative you flagged (do NOT commit — the main agent handles commits).
 
