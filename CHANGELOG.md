@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+- Plugin variants (`cc-arsenal-dev`, `cc-arsenal-git` and the other five) load again. Current Claude Code rejected them with "conflicting manifests" because their marketplace entries set `strict: false` next to the shared `plugin.json`; they now set `strict: true` and load only the skills each variant lists.
+
 ## [6.2.0] - 2026-10-25
 
 ### Changed
