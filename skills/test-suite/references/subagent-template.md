@@ -43,7 +43,7 @@ At each phase boundary, mark that phase's task `completed`, run `TaskList` to co
 Phase 0. Use a fast-tier (`haiku` in Claude Code) Explore agent for token-efficient discovery:
 
 ```
-Use Task tool with Explore agent:
+Spawn an exploration subagent where the tool has one (Task tool with Explore agent in Claude Code); otherwise do the step inline:
 - prompt: "Discover the testing workflow for this project:
     1. Read AGENTS.md or CLAUDE.md (whichever exists) - extract testing conventions and commands
     2. Check for task runners: Makefile, justfile, package.json scripts, pyproject.toml scripts
@@ -77,7 +77,7 @@ Use Task tool with Explore agent:
 Phase 1, only when no coverage tooling exists:
 
 ```
-Use Task tool with Explore agent:
+Spawn an exploration subagent where the tool has one (Task tool with Explore agent in Claude Code); otherwise do the step inline:
 - prompt: "Analyze test coverage gaps for this project:
     1. List all source files/modules in the project (exclude test files, configs, migrations)
     2. List all test files

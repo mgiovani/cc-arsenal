@@ -54,7 +54,7 @@ and classify it as one of:
 | synthesis | n/a (orchestrator itself) | n/a | never delegate the final merge |
 
 The subagent types and model aliases above are the Claude Code names; in other agent
-CLIs, pick the equivalent type and tier. Every spawn call MUST set `model` explicitly
+CLIs, pick the equivalent type and tier. Set `model` explicitly on every spawn call
 where the tool allows it. An unset `model` silently inherits the
 caller (often the most expensive model available) and defeats the whole point of
 tiering. Treat a missing `model` field as an incomplete call, not a default to fill in
