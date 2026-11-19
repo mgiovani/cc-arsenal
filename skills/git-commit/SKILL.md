@@ -10,13 +10,6 @@ metadata:
   version: 1.0.0
 disable-model-invocation: false
 argument-hint: ''
-hooks:
-  PreToolUse:
-  - matcher: Bash(git commit*)
-    hooks:
-    - type: command
-      command: ${CLAUDE_PLUGIN_ROOT}/skills/git-commit/scripts/pre-commit-lint.sh
-      timeout: 60
 ---
 
 # Git Commit
@@ -33,12 +26,11 @@ Base the message only on what the diff actually shows, not assumptions:
 
 ## Pre-commit Linting
 
-In Claude Code, a `PreToolUse` hook runs before every `git commit`: it detects the project's
-linter (Node's `npm/bun/pnpm/yarn run lint`, Python's `ruff`/`flake8`, `make lint`, `rubocop`,
-`golangci-lint`) and blocks the commit if it fails. No linter configured means the commit
-proceeds unblocked. Outside Claude Code (no hook support), run the project's lint command
-yourself before committing. Never bypass a failing lint with `--no-verify`: fix the errors
-and re-run the commit instead.
+Run the project's lint command before every `git commit`. Use the first that exists: a `make lint`
+target, the `lint` script in `package.json` (through the package manager whose lockfile is present),
+`ruff check .` or `flake8` for a `pyproject.toml` project, `rubocop` with a `.rubocop.yml`,
+`golangci-lint run` with a `.golangci.yml`. For a `uv` project run `uv run ruff check .`. Skip a linter whose command is not installed. No linter configured means the commit proceeds. If lint
+fails, fix the errors and run it again; never bypass a failing lint with `--no-verify`.
 
 ## Workflow
 
