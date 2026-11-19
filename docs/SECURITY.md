@@ -58,7 +58,7 @@ When using ai-arsenal, follow these practices depending on your role:
 
 Two areas are worth understanding before you rely on ai-arsenal in a sensitive environment: automation and data handling.
 
-Automation runs with real access, so review it before you enable it: custom agents have access to your codebase, so review agent configurations, and the Claude Hi scheduler creates cron jobs, so review scheduling before setup.
+Automation runs with real access, so review it before you enable it: custom agents have access to your codebase, so review agent configurations.
 
 Data handling stays local by design: the statusline displays usage data locally with nothing sent to external services, git history is analyzed locally with no repository data leaving your machine, and all processing happens on your local system.
 

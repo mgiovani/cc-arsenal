@@ -170,8 +170,7 @@ ai-arsenal/
 ├── scripts/           # Installation and utilities
 │   ├── setup/             # install.py, configure.py
 │   ├── tests/             # pytest test files
-│   ├── claude/            # Claude Code utilities
-│   └── claude-hi/         # Session management
+│   └── claude/            # Claude Code utilities
 ├── docs/              # Documentation
 ├── .claude/           # Claude Code configuration
 ├── pyproject.toml     # Python project configuration

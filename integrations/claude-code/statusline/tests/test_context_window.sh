@@ -577,7 +577,7 @@ test_config_dir_falls_back_to_pre_rename_config() {
     echo '{}' > "$home/.claude/cc-arsenal/statusline_config.json"
     assert_equals "$home/.claude/cc-arsenal" "$(config_dir_for_home "$home")" "legacy config only: legacy dir"
 
-    mkdir -p "$home/.claude/ai-arsenal/claude-hi"
+    mkdir -p "$home/.claude/ai-arsenal/other"
     assert_equals "$home/.claude/cc-arsenal" "$(config_dir_for_home "$home")" "new dir without a config: legacy dir"
 
     echo '{}' > "$home/.claude/ai-arsenal/statusline_config.json"

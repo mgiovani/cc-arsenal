@@ -93,13 +93,6 @@ make -C integrations/claude-code/statusline help           # Show all statusline
 make -C integrations/claude-code/statusline status         # Show statusline configuration
 make -C integrations/claude-code/statusline test           # Test statusline
 make -C integrations/claude-code/statusline list-backups   # List backups
-
-# Session Scheduler (Claude Hi)
-make -C integrations/claude-code/claude-hi help      # Show all scheduler commands
-make -C integrations/claude-code/claude-hi standard  # Set up 9am/2pm/7pm schedule
-make -C integrations/claude-code/claude-hi status    # Check current schedule
-make -C integrations/claude-code/claude-hi remove    # Remove schedule
-make -C integrations/claude-code/claude-hi now       # Send 'hi' immediately
 ```
 
 ## Per-skill hooks

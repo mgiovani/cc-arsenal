@@ -22,11 +22,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 - `refactor`, `test-suite`, `git-commit`: the Claude-Code-only frontmatter hooks are gone. Each skill now runs its own final checks in the body (quality gates, tests plus coverage plus lint, lint before commit), so it behaves the same in every agent CLI. `git-commit/scripts/pre-commit-lint.sh` is deleted with its hook.
+- `claude-hi`: the session scheduler under `integrations/claude-code/claude-hi/` is gone. Remove any leftover cron entry with `crontab -e`.
 
 ### Migration
 - **Claude Code plugin users:** install the renamed plugin once, then it replaces the old one. An existing install still knows the marketplace under its old local name, so run `/plugin marketplace update cc-arsenal-marketplace` and then `/plugin install ai-arsenal@cc-arsenal-marketplace`. To get the new marketplace name too, run `/plugin marketplace remove cc-arsenal-marketplace` and add `mgiovani/ai-arsenal` again. `/plugin update` on an old plugin name reports "not found"; `marketplace.json` carries a `renames` map from each old plugin name to the new one.
 - **`npx skills add` users:** use `npx skills add mgiovani/ai-arsenal`. GitHub redirects the old repository URL, so existing clones and installs keep working.
-- **Statusline and claude-hi:** state moves from `~/.claude/cc-arsenal/` to `~/.claude/ai-arsenal/`. The statusline keeps reading the old directory until the new one exists, and `claude-hi setup` replaces cron entries that point at the old path.
+- **Statusline:** state moves from `~/.claude/cc-arsenal/` to `~/.claude/ai-arsenal/`. The statusline keeps reading the old directory until the new one exists.
 - **`anything-to-skill` and `render`:** project-local output moves from `.cc-arsenal/` to `.ai-arsenal/`. `anything-to-skill` keeps using an existing `.cc-arsenal/a2s/` workspace directory when no new one exists.
 
 

@@ -36,7 +36,6 @@ npx skills add mgiovani/ai-arsenal -a codex
 
 ```bash
 make install-statusline           # Track usage and costs
-make -C integrations/claude-code/claude-hi standard # Schedule 5-hour windows
 ```
 
 ## What's Included
@@ -203,7 +202,7 @@ make -C integrations/claude-code/claude-hi standard # Schedule 5-hour windows
 - 9 plugin variants (install just the category you need, see `CLAUDE.md`)
 - Per-skill hooks (e.g. auto-closing a browser session on stop)
 - Parallel subagent orchestration for review/team skills
-- Statusline (usage/cost tracking) and Claude Hi (5-hour window scheduling)
+- Statusline (usage/cost tracking)
 
 Every skill still works standalone in any Agent-Skills-compatible tool: the Claude Code layer is additive, never required.
 
@@ -212,7 +211,6 @@ Every skill still works standalone in any Agent-Skills-compatible tool: the Clau
 - [Getting Started](docs/getting-started.md) - Installation and setup
 - [Features](docs/features.md) - Complete skill reference
 - [Statusline Guide](integrations/claude-code/statusline/STATUSLINE.md) - Usage tracking (Claude Code)
-- [Claude Hi Guide](integrations/claude-code/claude-hi/README.md) - Session scheduling (Claude Code)
 - [Troubleshooting](docs/troubleshooting.md) - Common issues
 - [Changelog](CHANGELOG.md) - Version history
 - [AGENTS.md](AGENTS.md) - Canonical, tool-agnostic skill guidance

@@ -573,55 +573,6 @@ def main(
             console.print('⏭️  [yellow]Statusline installation skipped[/yellow]')
             console.print('You can install it later with: make install-statusline')
 
-        # Ask about claude-hi setup
-        console.print('\n🕐 [bold yellow]Claude Hi Scheduler Available[/bold yellow]')
-        console.print(
-            'Replace your cron workarounds with smart Claude session scheduling!'
-        )
-        console.print('Features:')
-        console.print(
-            "  • Automatically trigger Claude's 5-hour windows at optimal times"
-        )
-        console.print('  • Strategic timing for maximum token availability')
-        console.print('  • Multiple work patterns (early bird, night owl, heavy user)')
-        console.print('  • Clean management via Makefile commands')
-
-        if not force and Confirm.ask('\nSet up Claude Hi Scheduler?', default=True):
-            try:
-                console.print('🚀 [blue]Setting up Claude Hi Scheduler...[/blue]')
-
-                result = subprocess.run(
-                    ['/usr/bin/make', 'claude-hi-standard'],
-                    check=False,
-                    cwd=get_repo_root(),
-                    capture_output=True,
-                    text=True,
-                )
-
-                if result.returncode == 0:
-                    console.print(
-                        '✅ [bold green]Claude Hi Scheduler configured![/bold green]'
-                    )
-                    console.print('\n🎉 [blue]Ready to use:[/blue]')
-                    console.print("  • Automatic 'hi' messages at your scheduled times")
-                    console.print('  • Check status: make claude-hi-status')
-                    console.print('  • Modify schedule: make claude-hi-setup')
-                    console.print('  • Send now: make claude-hi-now')
-                else:
-                    console.print(
-                        f'⚠️  [yellow]Claude Hi setup had issues:[/yellow] {result.stderr}'
-                    )
-                    console.print('You can set up manually with: make claude-hi-setup')
-
-            except (subprocess.CalledProcessError, OSError) as e:
-                console.print(
-                    f'⚠️  [yellow]Could not set up Claude Hi automatically:[/yellow] {e}'
-                )
-                console.print('You can set up manually with: make claude-hi-setup')
-        else:
-            console.print('⏭️  [yellow]Claude Hi setup skipped[/yellow]')
-            console.print('You can set up later with: make claude-hi-setup')
-
         logger.info('Claude template installation completed successfully')
 
     except (RuntimeError, OSError, KeyboardInterrupt) as e:

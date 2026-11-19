@@ -392,24 +392,6 @@ make install-statusline
 
 **Documentation:** [Statusline Guide](../integrations/claude-code/statusline/STATUSLINE.md)
 
-### Claude Hi Scheduler
-
-Automatically start fresh 5-hour windows before your peak coding times.
-
-**Features:**
-- Preset schedules (9am/2pm/7pm standard)
-- Custom schedule creation
-- Automated window triggers
-- Peak productivity optimization
-
-**Installation:**
-```bash
-make -C integrations/claude-code/claude-hi setup     # Interactive setup
-make -C integrations/claude-code/claude-hi standard  # Quick 9am/2pm/7pm schedule
-```
-
-**Documentation:** [Claude Hi Guide](../integrations/claude-code/claude-hi/README.md)
-
 ## Installation Options
 
 ### Plugin Marketplace (Claude Code)
@@ -437,7 +419,7 @@ npx skills add mgiovani/ai-arsenal
 **Claude Code-only features** (ignored by other tools, since they read only `name`/`description`):
 - Plugin variants via `/plugin marketplace add mgiovani/ai-arsenal` (`.claude-plugin/marketplace.json`)
 - `hooks`, `disable-model-invocation`, `context`, `agent` frontmatter keys
-- Statusline and Claude Hi scheduler (see Optional Features above)
+- Statusline (see Optional Features above)
 - Subagent (Task tool) orchestration used by skills like `implement-feature` and `review-code`
 
 The same `skills/<name>/SKILL.md` files serve both the agnostic and Claude Code-enhanced use cases.
