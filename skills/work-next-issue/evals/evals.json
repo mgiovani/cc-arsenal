@@ -1,5 +1,6 @@
 {
   "skill": "work-next-issue",
+  "description": "Pick the next unblocked issue and carry it to an open PR through sibling skills",
   "evals": [
     {
       "id": "pick-order",
@@ -39,6 +40,25 @@
         "Stops and reports the failing test output as a red gate",
         "Does not start a second issue",
         "Does not merge"
+      ]
+    },
+    {
+      "id": "worktree-and-bug-routing",
+      "prompt": "work the next issue. The pick is #50, labelled bug: the export endpoint returns 500 on empty input. The repo's default branch is develop.",
+      "assertions": [
+        "Creates a new worktree off origin/develop, not the main checkout, and works only inside it",
+        "Uses fix-bug (analysis, reproduction and fix planning) instead of implement-feature for the plan",
+        "Reviews the plan with review-plan before implementing",
+        "Stops at the PR and does not merge"
+      ]
+    },
+    {
+      "id": "non-github-tracker",
+      "prompt": "work the next issue. The repo has a .beads/ directory and no GitHub remote. `bd ready --json` returns bd-7 (P1) and bd-3 (P1), neither blocked.",
+      "assertions": [
+        "Detects beads as the tracker and uses bd ready rather than gh",
+        "Takes bd-3 as the tie-break pick by lowest id and states it without asking the user",
+        "Files any out-of-scope finding with bd create, not gh issue create"
       ]
     }
   ]

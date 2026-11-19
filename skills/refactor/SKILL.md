@@ -76,6 +76,8 @@ If the refactoring spans more than 5 files, or changes a public API that externa
 
 ### Phase 2: Characterization Tests
 
+Before writing any test or code, load the guideline skills that match the files you will touch: `code-guidelines` for any code. Add `backend-guidelines` for Python, API or database work and `frontend-guidelines` for UI work. Load them via the skill tool where available, otherwise read each skill's SKILL.md and the reference it routes to for this task. Announce it with a `Using code-guidelines to <purpose>` line. The project's own AGENTS.md or CLAUDE.md and lint config win wherever they disagree, and a skill that is not installed is skipped.
+
 Where Phase 1 found coverage gaps, write tests that capture CURRENT behavior (including quirks and edge cases, not desired behavior) before changing anything. Name them so they're identifiable as characterization tests (`test_char_*` in Python, `TestChar_*` in Go, a `characterization:` describe block in JS). Run the full suite; every one must pass against the pre-refactoring code. Skip this phase entirely when the target already has thorough coverage.
 
 ```python
@@ -86,8 +88,6 @@ def test_char_calculate_total_with_discount():
 ```
 
 ### Phase 3: Incremental Refactoring
-
-Before writing code, load the guideline skills that match the files you will touch: `code-guidelines` for any code, plus `backend-guidelines` for Python, API or database work and `frontend-guidelines` for UI work (via the skill tool where available, otherwise read each skill's SKILL.md and the reference it routes to for this task). Announce it with a `Using code-guidelines to <purpose>` line. The project's own AGENTS.md or CLAUDE.md and lint config win wherever they disagree, and a skill that is not installed is skipped.
 
 Break the change into the smallest independently-verifiable steps. See [references/patterns.md](references/patterns.md) for the step sequence per technique (extract method, extract class, rename, move, simplify conditional, remove duplication, inline, decompose large function). For each step: make the change, run tests immediately.
 

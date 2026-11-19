@@ -37,7 +37,7 @@ Base rule set: `E W F I B C4 UP ARG SIM TC TID ICN Q PL RUF`. A stricter project
 ty is the type checker, run through the project's command on the package. It is young and its releases change results, so cap the range in the dev dependencies and note why.
 
 - Run it on the source package. Check the tests too only where the project does.
-- Fix the type. A cast, a wider annotation or an ignore comment is the last resort and needs a reason the owner would accept.
+- Fix the type. When only a cast or an ignore comment would silence it, stop and report it.
 - Do not add mypy or pyright beside it.
 
 ## pytest

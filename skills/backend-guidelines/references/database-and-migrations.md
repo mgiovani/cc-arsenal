@@ -9,7 +9,7 @@
 - [Row security](#row-security)
 - [Tests and slow queries](#tests-and-slow-queries)
 
-To create or run a migration, use the `db-migrate` skill. This file holds the rules a migration must follow.
+To create or run a migration, say "Using db-migrate to create the migration" and use the `db-migrate` skill (via the Skill tool where available, otherwise apply its rules inline). This file holds the rules a migration must follow.
 
 ## Models and sessions
 
@@ -23,10 +23,11 @@ Use SQLAlchemy with typed `Mapped[...]` columns for a new project. Entities live
 
 ## Migrations
 
+The general migration rules are in `code-guidelines`. These are the Alembic and Postgres specifics.
+
 A migration is appended and never edited after it merges. Its version is its position in the chain. A fix is a new revision at the end.
 
-- Autogenerate cannot see roles, grants or row policies, so add those by hand.
-- Run `upgrade head` as its own deploy step. Never run it inside the app's startup hook, where every replica races and a failure takes the API down.
+- Run `upgrade head` as a deploy step, because in the app's startup hook every replica races and a failure takes the API down.
 - Read the database URL from the settings object in `env.py`, not from an ini file.
 - Open a revision on a populated table with `SET LOCAL lock_timeout`, so it fails fast instead of queueing behind traffic and blocking everything after it.
 - Create and drop indexes on live tables with `CONCURRENTLY`. Configure the tool to run that revision without a wrapping transaction.

@@ -27,12 +27,12 @@ This is a list of known cases, not a detector for old packages.
 ## Keeping them honest
 
 - Change the manifest and the lockfile together. Never commit one without the other.
-- Use the package manager the lockfile names. Never add a second lockfile or manager. For a new project, default to `uv` for Python and `bun` for JavaScript. An existing lockfile decides.
+- Use the package manager the lockfile names. Within one toolchain root, never add a second lockfile or manager. For a new project, default to `uv` for Python and `bun` for JavaScript. An existing lockfile decides.
 - Pin a package you import directly even when it also arrives transitively. Relying on the transitive copy breaks silently.
 - Keep minimum versions as floors. Cap a tool only when its releases break the build, and write the reason beside the cap.
 - Treat a package from a git URL, a tarball or a non-default registry as a supply-chain risk, and say why you need it.
 - A major-version bump needs the matching code changes.
-- Run the project's audit command for known vulnerabilities and licence conflicts. For a full audit, use the `review-deps` skill.
+- Run the project's audit command for known vulnerabilities and licence conflicts. For a full audit, say "Using review-deps to audit the dependencies" and use the `review-deps` skill (via the Skill tool where available, otherwise apply its rules inline).
 
 ## Direction of dependencies
 

@@ -26,7 +26,7 @@ Copy this list and tick each stage. A red gate stops the run; report it instead 
 
 ## 1. Pick
 
-Detect the tracker from the repo: a `.beads/` directory means beads, a GitHub remote means `gh`, and a Linear or Jira key in branch names or the project config means that tool. If two fit, use the one the project docs name.
+Detect the tracker from the repo: a `.beads/` directory means beads, a GitHub remote means `gh`, and a Linear or Jira key in branch names or the project config means that tool. If two fit, use the one the project docs name. If none fits, report that no tracker was found and stop.
 
 | Tracker | Candidates | Blockers and in-progress |
 |---|---|---|
@@ -41,35 +41,35 @@ An issue is unblocked when every blocker is closed. Order the unblocked set:
 2. Skip anything already in progress.
 3. Then the issue that unblocks the most others, or the nearest deadline or milestone due date.
 
-State the pick in one line with its reason, for example "#42, P0, unblocks 3 issues". If the top two differ only by a tie-break, list the top candidates and ask. Ask in the question tool where one exists, otherwise in chat, and wait. If the set is empty, report what blocks the nearest issue and stop.
+State the pick in one line with its reason, for example "#42, P0, unblocks 3 issues". If the top two differ only by a tie-break, take the lowest issue number and say so, so an unattended run never waits on a question. If the set is empty, report what blocks the nearest issue and stop.
 
 ## 2. Worktree
 
 Never work in the main checkout; a failed run then leaves it untouched.
 
 ```bash
-base=$(gh repo view --json defaultBranchRef -q .defaultBranchRef.name 2>/dev/null || echo main)
+base=$(gh repo view --json defaultBranchRef -q .defaultBranchRef.name 2>/dev/null || git symbolic-ref --short refs/remotes/origin/HEAD | sed 's|^origin/||')
 git fetch origin "$base"
 git worktree add ../<repo>-<issue-id> -b <type>/<issue-id>-<slug> "origin/$base"
 ```
 
-Use the project's branch naming when it has one (the ticket key in the branch lets `git-create-pr` find it). Do all later work inside the worktree. If the project already has a worktree convention, follow that.
+Use the project's branch naming when it has one (the ticket key in the branch lets `git-create-pr` find it). If both lookups fail, stop with an error rather than guess the base. If the worktree or branch already exists, reuse it when it is clean and belongs to the same issue, and stop and report when it holds uncommitted work. Do all later work inside the worktree. If the project already has a worktree convention, follow that.
 
 ## 3. Plan
 
-Say "Using implement-feature to plan the issue", then invoke it via the skill tool where available, otherwise apply its SKILL.md steps inline. Stop after its discovery, research and planning phases. Feed it the issue body, comments and acceptance criteria. Hold the plan; do not take approval yet.
+Say "Using implement-feature to plan the issue", then invoke it via the skill tool where available, otherwise apply its SKILL.md steps inline. Stop after its discovery, research and planning phases. Feed it the issue body, comments and acceptance criteria. Stop before its approval step and hold the plan; stage 5 resumes at its Phase 3, so the earlier phases do not run twice.
 
-For a bug, plan with fix-bug's analysis and reproduction phases instead. A bug is an issue labelled `bug` or one that reports wrong behaviour of existing code.
+For a bug, plan with fix-bug's analysis, reproduction and fix planning phases (1-2) instead. A bug is an issue labelled `bug` or one that reports wrong behaviour of existing code.
 
 ## 4. Review the plan
 
 Say "Using review-plan to attack the plan against the repository", then invoke it via the skill tool where available, otherwise apply its SKILL.md steps inline. A plan has no diff for review-code to read, so review-plan is the sibling built for it. Tell the user why you chose it.
 
-Pass it the plan and the repo, not your reasoning, since it works by not seeing the author's justification. Fix every `blocker` and `gap` in the plan. Re-run review-plan after fixing. After 2 rounds with a blocker left, stop and report it. Then take the plan approval that implement-feature asks for.
+Pass it the plan and the repo, not your reasoning, since it works by not seeing the author's justification. Fix every `blocker` and `gap` in the plan. Re-run review-plan after fixing. After 2 rounds with a blocker left, stop and report it; list any leftover gap in the PR body. Then take the plan approval that implement-feature asks for.
 
 ## 5. Implement
 
-Say "Using implement-feature to build the approved plan" (fix-bug for a bug), then invoke it via the skill tool where available, otherwise apply its SKILL.md steps inline. Run the project's tests, lint and type checks as those skills direct. Failing tests are a red gate: fix them within 3 rounds, then stop and report the failure output.
+Say "Using implement-feature to build the approved plan" (fix-bug for a bug), then invoke it via the skill tool where available, otherwise apply its SKILL.md steps inline. Start at Phase 3 with the held plan and skip the earlier phases. Run the project's tests, lint and type checks as those skills direct. Failing tests are a red gate: fix them within 3 rounds, then stop and report the failure output.
 
 ## 6. Review the diff
 
@@ -77,7 +77,7 @@ Say "Using review-code to review the branch diff", then invoke it against the ba
 
 ## 7. Fix or file
 
-Fix every finding in this branch, Nit included, then re-run the affected checks and re-run step 6 once. After 2 review rounds, an unresolved Critical finding is a red gate: stop and report it.
+Fix every finding in this branch, Nit included, then re-run the affected checks and re-run step 6 once. After 2 review rounds, an unresolved Critical finding is a red gate: stop and report it, and list any unresolved Major finding in the PR body.
 
 A finding that is out of scope for the issue does not get fixed here. File it as a new issue in the same milestone, with labels, and link it from the PR:
 

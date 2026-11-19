@@ -14,7 +14,7 @@ Other rules for comments:
 
 - No docstrings on private helpers.
 - A public function or class may take a one-line note that states behaviour or a constraint, unless the project bans them.
-- Tool directives stay (shebang, `# syntax=`, `@ts-expect-error` with its reason).
+- Tool directives stay (shebang, `# syntax=`).
 - Stand-in text is a defect: "example usage", "for demonstration purposes", "replace with your actual", "logic would go here". Move demos into tests or docs.
 - Evidence belongs in the commit message or PR body: measurements, issue numbers, rejected alternatives. Code comments stay about the code.
 - A deliberate shortcut says its limit and the trigger for lifting it, in one why-comment.

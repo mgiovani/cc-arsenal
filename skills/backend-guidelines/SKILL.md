@@ -44,7 +44,7 @@ Read one reference per task. Read a second only when the task crosses both topic
 Three choices vary between the owner's repos. Use the default below, and defer to what the project's config or existing code does.
 
 - Complexity caps: set none yourself. Obey the caps the project's ruff config sets, and fix the code rather than the cap.
-- Entities: a frozen slotted dataclass inside the domain, a Pydantic model at the edge. Some projects use one `BaseModel` for entities as well. Match the module you are editing.
+- Entities: a frozen slotted dataclass inside the domain, a Pydantic model at the edge, and a SQLAlchemy `Mapped` class in `models.py` that maps to and from the domain entity. Some projects use one `BaseModel` for entities as well. Match the module you are editing.
 - Test docstrings: none by default, as code-guidelines says. Use the project's requirement marker where it has one, and a one-line id docstring only where the project does that instead.
 
 The other disagreements, such as module file names, are settled inside the references.

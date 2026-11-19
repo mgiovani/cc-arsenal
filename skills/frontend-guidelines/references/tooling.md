@@ -35,7 +35,7 @@ Add no `eslint-disable` and no `@ts-ignore`. The general suppression rule is in 
 
 - If a rule is wrong for the whole project, change it in the shared config with the reason written beside it. Ignore generated paths there as well.
 - Parse unknown data at the boundary with a schema, so the rest of the code holds real types.
-- For an upstream typing bug you cannot fix, `@ts-expect-error` with a one-line reason is the single escape. It fails once the upstream bug is fixed, which `@ts-ignore` never does.
+- For an upstream typing bug you cannot fix, stop and report it instead of suppressing it.
 - Enable `no-warning-comments` so `TODO` and `FIXME` fail the lint run.
 
 ## TypeScript

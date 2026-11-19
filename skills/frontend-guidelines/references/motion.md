@@ -46,7 +46,7 @@ Take every duration, curve, scale and distance from tokens. A literal `200ms`, a
 - A popover scales from its trigger, so set `transform-origin` there. A modal stays centered. A toast or sheet exits along the edge it entered from, using percentage offsets.
 - Prefer CSS transitions to keyframes for anything toggled quickly. A transition reverses from its current value, and a keyframe restarts from zero.
 - A hold-to-confirm fill for a destructive action runs on its own long token, linear, with a snap back on release.
-- Use springs only for drag with momentum and for gestures that can be interrupted. Keep bounce between 0.1 and 0.3. Pass the pointer through a spring for decorative follow effects.
+- Use springs only for drag with momentum and for gestures that can be interrupted. Keep bounce between 0.1 and 0.3.
 - No spinner for waits under about 300ms. Use a skeleton of the final shape for content regions and a spinner for a short action.
 - Do not drive per-frame motion by setting a custom property on a parent. Write `style.transform` on the moving element.
 

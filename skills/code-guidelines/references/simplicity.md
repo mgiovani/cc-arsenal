@@ -40,7 +40,7 @@ Extract a shared helper after the same intent appears three times, not before. A
 
 ## Planning a feature
 
-Draw the architecture before the code: the layers, the dependency direction and the pattern the problem calls for. Name each pattern and what it prevents.
+Name the layers and the dependency direction the code already has before you change it. Add a pattern only when the pain is visible in the code.
 
 Dependency inversion means the consumer declares a small port (a protocol or interface). An adapter implements it and is wired once at the composition root. The rule never instantiates the adapter itself.
 
