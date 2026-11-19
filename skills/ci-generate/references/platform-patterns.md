@@ -201,7 +201,7 @@ Note the `image` output: downstream deploy jobs must consume it rather than re-d
       contents: read
       packages: write
     outputs:
-      # Downstream deploy jobs MUST consume this, not re-derive their own tag
+      # Deploy jobs consume this tag, since re-deriving it can ship a different image
       image: ${{ steps.meta.outputs.image }}
     steps:
       - uses: actions/checkout@v4

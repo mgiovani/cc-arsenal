@@ -48,16 +48,16 @@ Classify each variable:
 
 Read existing `.env.example` (if it exists):
 
-Save the scanned names to `code-vars.txt` (one per line, sorted), then compare by key name only:
+Save the scanned names to a `mktemp` file (one per line, sorted) and compare by key name only:
 
 ```bash
-grep -oE '^[A-Za-z_][A-Za-z0-9_]*=' .env.example | tr -d '=' | sort -u > example-vars.txt
-comm -23 code-vars.txt example-vars.txt   # in code, not in .env.example (missing)
-comm -13 code-vars.txt example-vars.txt   # in .env.example, not in code (stale)
-comm -12 code-vars.txt example-vars.txt   # in both (up to date)
+code_vars=$(mktemp)   # fill with the scanned names, one per line
+ex() { grep -oE '^(export )?[A-Za-z_][A-Za-z0-9_]*=' .env.example | sed -E 's/^export //; s/=$//' | sort -u; }
+comm -23 "$code_vars" <(ex)   # in code, not in .env.example (missing)
+comm -13 "$code_vars" <(ex)   # in .env.example, not in code (stale)
+comm -12 "$code_vars" <(ex)   # in both (up to date)
+rm "$code_vars"
 ```
-
-Delete the two temp files afterwards.
 
 Report:
 - Missing vars (need to be added to `.env.example`)

@@ -209,7 +209,7 @@ jira issue list -l~x -C~x
 
 # Update stale tickets in bulk: list first, confirm the keys, then edit each
 jira issue list -ax --created-before -12w --plain --columns key --no-headers
-for issue in PROJ-1 PROJ-2; do  # the keys the user confirmed
+for issue in ISSUE-1 ISSUE-2; do  # the keys the user confirmed
   jira issue edit $issue -s"To Do" --label stale
 done
 ```
@@ -274,7 +274,7 @@ jira issue list --created today  # Created today
 ```bash
 # Add multiple issues to sprint: list first, then pass only the confirmed keys
 jira issue list -s"Ready" --plain --columns key --no-headers | head -10
-jira sprint add SPRINT_ID PROJ-1 PROJ-2
+jira sprint add SPRINT_ID ISSUE-1 ISSUE-2
 
 # Batch assign to team members
 for issue in ISSUE-1 ISSUE-2 ISSUE-3; do
