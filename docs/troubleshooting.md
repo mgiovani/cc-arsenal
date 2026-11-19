@@ -129,13 +129,13 @@ source ~/.bashrc
 # Solution: Check repository URL and access
 
 # Use HTTPS instead of SSH
-git clone https://github.com/mgiovani/cc-arsenal.git
+git clone https://github.com/mgiovani/ai-arsenal.git
 
 # Check network connectivity
 ping github.com
 
 # Try with verbose output
-git clone --verbose https://github.com/mgiovani/cc-arsenal.git
+git clone --verbose https://github.com/mgiovani/ai-arsenal.git
 ```
 
 #### Slow clone due to large repository
@@ -144,10 +144,10 @@ git clone --verbose https://github.com/mgiovani/cc-arsenal.git
 # Solution: Shallow clone
 
 # Clone only recent history
-git clone --depth 1 https://github.com/mgiovani/cc-arsenal.git
+git clone --depth 1 https://github.com/mgiovani/ai-arsenal.git
 
 # Clone specific branch
-git clone -b main --single-branch https://github.com/mgiovani/cc-arsenal.git
+git clone -b main --single-branch https://github.com/mgiovani/ai-arsenal.git
 ```
 
 ## Configuration issues
@@ -309,60 +309,11 @@ make clean
 # Check token usage
 # Enhanced statusline shows usage patterns
 
-# Use smart scheduling
-make -C integrations/claude-code/claude-hi setup
-
 # Monitor usage patterns
 tail ~/.claude/logs/usage.log
 ```
 
 ## Component-specific issues
-
-### Smart session scheduler (Claude Hi)
-
-#### Cron jobs not working
-```bash
-# Error: Hi messages not sent automatically
-# Solution: Debug cron configuration
-
-# Check cron jobs
-crontab -l | grep send_hi
-
-# Check cron service
-sudo systemctl status cron  # Linux
-# or check launchd on macOS
-
-# Test manual execution
-~/.claude/send_hi.sh
-```
-
-#### Hi messages not triggering sessions
-```bash
-# Error: Hi sent but session doesn't start
-# Solution: Check Claude Code connectivity
-
-# Test manual hi
-echo "hi" | claude
-
-# Check Claude Code authentication
-claude auth status
-
-# Verify network connectivity
-ping claude.ai
-```
-
-#### Schedule not matching expectations
-```bash
-# Error: Wrong timing for hi messages
-# Solution: Verify and adjust schedule
-
-# Check current schedule
-make -C integrations/claude-code/claude-hi status
-
-# Remove and recreate
-make -C integrations/claude-code/claude-hi remove
-make -C integrations/claude-code/claude-hi setup
-```
 
 ### Enhanced statusline
 
@@ -534,12 +485,12 @@ git checkout v1.0.0  # or latest stable tag
 
 ```bash
 # Enable verbose logging
-export CC_ARSENAL_DEBUG=1
+export AI_ARSENAL_DEBUG=1
 
 # Enable component-specific debugging
-export CC_ARSENAL_DEBUG_SKILLS=1
-export CC_ARSENAL_DEBUG_HOOKS=1
-export CC_ARSENAL_DEBUG_COMMANDS=1
+export AI_ARSENAL_DEBUG_SKILLS=1
+export AI_ARSENAL_DEBUG_HOOKS=1
+export AI_ARSENAL_DEBUG_COMMANDS=1
 ```
 
 ### Log locations
@@ -553,7 +504,6 @@ export CC_ARSENAL_DEBUG_COMMANDS=1
 # Component logs
 /tmp/claude_statusline_debug.log        # Statusline debug info (STATUSLINE_DEBUG=1)
 /tmp/statusline_live_cache/oauth_errors.log  # Statusline OAuth usage fetch errors
-~/.claude/logs/claude-hi.log    # Session scheduler log
 ~/.claude/logs/usage.log        # Token usage tracking
 ```
 
@@ -563,7 +513,6 @@ export CC_ARSENAL_DEBUG_COMMANDS=1
 # Component status
 make info                       # Overall status
 make validate-structure         # Structural validation
-make -C integrations/claude-code/claude-hi status          # Session scheduler status
 
 # Test components
 make test                      # Run test suite
@@ -581,8 +530,8 @@ make dry-run                   # Preview installation
 
 ### Community support
 
-1. GitHub issues: https://github.com/mgiovani/cc-arsenal/issues
-2. GitHub discussions: https://github.com/mgiovani/cc-arsenal/discussions
+1. GitHub issues: https://github.com/mgiovani/ai-arsenal/issues
+2. GitHub discussions: https://github.com/mgiovani/ai-arsenal/discussions
 3. Documentation: browse all documentation in docs/
 
 ### Reporting issues

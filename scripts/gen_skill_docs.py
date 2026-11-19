@@ -199,10 +199,10 @@ def validate_marketplace(skills: Mapping[str, Skill]) -> None:
                 )
             covered.add(name)
 
-    root = next(p for p in config['plugins'] if p['name'] == 'cc-arsenal')
+    root = next(p for p in config['plugins'] if p['name'] == 'ai-arsenal')
     if 'skills' in root:
         raise SystemExit(
-            f'error: {MARKETPLACE_PATH.name}: the cc-arsenal plugin must NOT have a '
+            f'error: {MARKETPLACE_PATH.name}: the ai-arsenal plugin must NOT have a '
             f'"skills" key -- unset means auto-load every skill'
         )
     uncovered = sorted(set(skills) - covered)

@@ -14,7 +14,7 @@ Use the `render` skill to build an `audit` page. render is user-invoked only, so
   - `detail`: the message, then the `fix` hint when present. `location`: `<path>:<line>`.
 - Verdicts: `fix`, `won't fix`, `discuss`.
 - Large runs: render every Tier A finding plus the top N per rule, and state the cap and the omitted total on the page.
-- Output goes to `<repo-root>/.cc-arsenal/renders/audit-<slug>-<date>.html` (create the directory). It is the only file written inside the repo; the JSON stays in scratch. Give the path and ask the user to mark and save it.
+- Output goes to `<repo-root>/.ai-arsenal/renders/audit-<slug>-<date>.html` (create the directory). It is the only file written inside the repo; the JSON stays in scratch. Give the path and ask the user to mark and save it.
 
 ## Apply
 

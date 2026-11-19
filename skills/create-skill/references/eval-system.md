@@ -118,7 +118,7 @@ Based on Anthropic's skill creator patterns:
 
 Requirements:
 - `claude` CLI must be installed and authenticated (`claude --version`)
-- Python 3.12+ with `rich` and `click` (`uv sync --extra dev` in cc-arsenal)
+- Python 3.12+ with `rich` and `click` (`uv sync --extra dev` in ai-arsenal)
 - The eval scripts use `claude -p` (print mode) for non-interactive runs
 
 Model selection:

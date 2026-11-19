@@ -16,7 +16,7 @@ class WorkspaceError(Exception):
 
 @dataclass(frozen=True)
 class Workspace:
-    """A skill build's working directory: .cc-arsenal/a2s/<slug>/ under the project."""
+    """A skill build's working directory: .ai-arsenal/a2s/<slug>/ under the project."""
 
     dir: Path
 
@@ -74,7 +74,12 @@ class Workspace:
 
     @staticmethod
     def base_dir(base: Path | None = None) -> Path:
-        return Path(base) if base else Path.cwd() / '.cc-arsenal' / 'a2s'
+        if base:
+            return Path(base)
+        current = Path.cwd() / '.ai-arsenal' / 'a2s'
+        legacy = Path.cwd() / '.cc-arsenal' / 'a2s'
+        # Workspaces started before the v7 rename stay usable where they are
+        return legacy if legacy.exists() and not current.exists() else current
 
     @classmethod
     def create(cls, slug: str, base: Path | None = None) -> 'Workspace':

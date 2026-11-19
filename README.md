@@ -2,7 +2,7 @@
   <img src="assets/social-preview.png" alt="AI Arsenal octopus mascot with developer tools" width="760">
 </p>
 
-# cc-arsenal
+# ai-arsenal
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Agent Skills compatible](https://img.shields.io/badge/Agent%20Skills-compatible-blueviolet.svg)](https://agentskills.io)
@@ -16,27 +16,26 @@
 You: ship it
 ```
 
-`cc-arsenal` runs `review-code`, then your project's pre-merge checks, writes a conventional commit, opens the PR, watches CI, and merges on green.
+`ai-arsenal` runs `review-code`, then your project's pre-merge checks, writes a conventional commit, opens the PR, watches CI, and merges on green.
 
 ## Quick Start
 
 ```bash
 # Any Agent-Skills-compatible tool (Codex, Cursor, Gemini CLI, OpenCode, ...)
-npx skills add mgiovani/cc-arsenal
+npx skills add mgiovani/ai-arsenal
 
 # One specific tool: -a codex | opencode | antigravity (all three read .agents/skills)
-npx skills add mgiovani/cc-arsenal -a codex
+npx skills add mgiovani/ai-arsenal -a codex
 
 # Claude Code: unlocks plugin variants, hooks, and subagent orchestration
-/plugin marketplace add mgiovani/cc-arsenal
-/plugin install cc-arsenal@cc-arsenal-marketplace
+/plugin marketplace add mgiovani/ai-arsenal
+/plugin install ai-arsenal@ai-arsenal-marketplace
 ```
 
 ### Optional Features (Claude Code only)
 
 ```bash
 make install-statusline           # Track usage and costs
-make -C integrations/claude-code/claude-hi standard # Schedule 5-hour windows
 ```
 
 ## What's Included
@@ -203,7 +202,7 @@ make -C integrations/claude-code/claude-hi standard # Schedule 5-hour windows
 - 9 plugin variants (install just the category you need, see `CLAUDE.md`)
 - Per-skill hooks (e.g. auto-closing a browser session on stop)
 - Parallel subagent orchestration for review/team skills
-- Statusline (usage/cost tracking) and Claude Hi (5-hour window scheduling)
+- Statusline (usage/cost tracking)
 
 Every skill still works standalone in any Agent-Skills-compatible tool: the Claude Code layer is additive, never required.
 
@@ -212,7 +211,6 @@ Every skill still works standalone in any Agent-Skills-compatible tool: the Clau
 - [Getting Started](docs/getting-started.md) - Installation and setup
 - [Features](docs/features.md) - Complete skill reference
 - [Statusline Guide](integrations/claude-code/statusline/STATUSLINE.md) - Usage tracking (Claude Code)
-- [Claude Hi Guide](integrations/claude-code/claude-hi/README.md) - Session scheduling (Claude Code)
 - [Troubleshooting](docs/troubleshooting.md) - Common issues
 - [Changelog](CHANGELOG.md) - Version history
 - [AGENTS.md](AGENTS.md) - Canonical, tool-agnostic skill guidance
@@ -229,9 +227,9 @@ Contributions welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines. Ne
 
 ## Support
 
-- [Report bugs](https://github.com/mgiovani/cc-arsenal/issues)
+- [Report bugs](https://github.com/mgiovani/ai-arsenal/issues)
 - [Security vulnerabilities](docs/SECURITY.md)
-- [Discussions](https://github.com/mgiovani/cc-arsenal/discussions)
+- [Discussions](https://github.com/mgiovani/ai-arsenal/discussions)
 
 ## License
 

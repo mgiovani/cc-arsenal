@@ -41,7 +41,7 @@
       "prompt": "This repo has GitHub Actions set up under .github/workflows/ci.yml, and I haven't run the tests locally yet. Can you open a PR for my branch?",
       "assertions": [
         "Notices the repo has .github/workflows configured and tests were not verified locally this session",
-        "Suggests running the cc-arsenal:ci-local skill before confirming PR creation, rather than silently running a test suite itself",
+        "Suggests running the ai-arsenal:ci-local skill before confirming PR creation, rather than silently running a test suite itself",
         "Does not block or auto-run tests as a hook side effect of gh pr create — the suggestion is a spoken recommendation, not an enforced gate",
         "Still proceeds to ask for the normal y/n/e confirmation after the suggestion, it does not refuse to create the PR"
       ]

@@ -73,8 +73,8 @@ install: ## Install statusline to ~/.claude (with prompts)
 	@echo
 	@echo "$(BLUE)💡 Files created:$(RESET)"
 	@echo "  • Settings: ~/.claude/settings.json"
-	@echo "  • Config: ~/.claude/cc-arsenal/statusline_config.json"
-	@echo "  • Usage data: ~/.claude/cc-arsenal/usage_tracking.json"
+	@echo "  • Config: ~/.claude/ai-arsenal/statusline_config.json"
+	@echo "  • Usage data: ~/.claude/ai-arsenal/usage_tracking.json"
 
 force-install: ## Force install without prompts (creates automatic backup)
 	@echo "$(YELLOW)Force installing statusline (no prompts)...$(RESET)"

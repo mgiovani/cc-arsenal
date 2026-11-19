@@ -4,7 +4,7 @@ How each handler behaves, which flags it takes, and what it leaves out on purpos
 
 `a2s.py detect <input>` routes an input: a YouTube URL or an existing local path scores 10, any other http(s) URL scores 1 (web is the fallback), and a bare topic string routes to nothing.
 
-Common flags on every ingest script: `--slug`, `--base` (workspaces directory, default `./.cc-arsenal/a2s`), `--max-pages N`, `--allow-private` (skip the private-network guard; use only for a local test server the user owns).
+Common flags on every ingest script: `--slug`, `--base` (workspaces directory, default `./.ai-arsenal/a2s`), `--max-pages N`, `--allow-private` (skip the private-network guard; use only for a local test server the user owns).
 
 ## Web (`ingest_web.py`, `crawl_brain.py`)
 
@@ -82,4 +82,4 @@ No code. Subagents search the web, return URLs, and the URLs go through `a2s.py 
 
 ## Units and statuses
 
-Every input becomes rows (units) in `.cc-arsenal/a2s/<slug>/state.db`. A unit's status is one of `pending`, `done`, `skipped`, `failed`, `needs_asr`, `needs_js`, `needs_convert`, `blocked`. `a2s.py status --json` reports totals per source and every throttle event.
+Every input becomes rows (units) in `.ai-arsenal/a2s/<slug>/state.db`. A unit's status is one of `pending`, `done`, `skipped`, `failed`, `needs_asr`, `needs_js`, `needs_convert`, `blocked`. `a2s.py status --json` reports totals per source and every throttle event.

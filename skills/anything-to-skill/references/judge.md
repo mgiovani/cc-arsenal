@@ -1,6 +1,6 @@
 # Judge
 
-Optional, advisory, and local. `judge.py` uses Laya, a small local model, to review each page against the goal before the deterministic plan. It runs after ingest and before `a2s.py plan`; its only output is `.cc-arsenal/a2s/<slug>/judge.json`, which `plan --overrides` consumes. If Laya is not installed or the machine is offline, the judge is skipped with a warning and the pipeline is unaffected.
+Optional, advisory, and local. `judge.py` uses Laya, a small local model, to review each page against the goal before the deterministic plan. It runs after ingest and before `a2s.py plan`; its only output is `.ai-arsenal/a2s/<slug>/judge.json`, which `plan --overrides` consumes. If Laya is not installed or the machine is offline, the judge is skipped with a warning and the pipeline is unaffected.
 
 ## Why so guarded
 

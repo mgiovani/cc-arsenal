@@ -73,7 +73,7 @@ def ws(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Workspace:
         )
         + '\n',
     )
-    workspace = Workspace.create('demo', tmp_path / '.cc-arsenal' / 'a2s')
+    workspace = Workspace.create('demo', tmp_path / '.ai-arsenal' / 'a2s')
     with workspace.open_store() as st:
         st.set_meta('goal', 'postgres indexing and vacuum')
         st.set_meta('name', 'pg-best-practices')
@@ -843,13 +843,13 @@ class TestPipeline:
             (docs / folder).mkdir(parents=True)
             for i in range(3):
                 (docs / folder / f'p{i}.md').write_text(f'{body}\nPage {folder}{i}.\n')
-        base = str(tmp_path / '.cc-arsenal' / 'a2s')
+        base = str(tmp_path / '.ai-arsenal' / 'a2s')
         out = str(tmp_path / 'out' / 'notes-skill')
         assert (
             cli.main(['init', 'n', '--base', base, '--goal', 'notes', '--out', out]) == 0
         )
         assert cli.main(['seed', '--slug', 'n', '--base', base, str(docs)]) == 0
-        ws = Workspace.find('n', tmp_path / '.cc-arsenal' / 'a2s')
+        ws = Workspace.find('n', tmp_path / '.ai-arsenal' / 'a2s')
         with ws.open_store() as st:
             summary = local_run.run(Ctx.open(ws, st), argparse.Namespace(convert=False))
         assert summary.done == 6

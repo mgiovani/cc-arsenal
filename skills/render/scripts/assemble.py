@@ -139,7 +139,7 @@ def _read_local(base_dir: Path, href: str, kind: str) -> str:
     if path.is_file():
         return path.read_text(encoding='utf-8')
     # ponytail: a filled template copied out of the skill tree (e.g. into
-    # .cc-arsenal/renders/) keeps its relative "../page.css" link, which no
+    # .ai-arsenal/renders/) keeps its relative "../page.css" link, which no
     # longer resolves. Fall back to the skill's own assets/ by basename so
     # `assemble.py OUT.html -o OUT.html` still works in place.
     fallback = ASSETS_DIR / Path(href).name

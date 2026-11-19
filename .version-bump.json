@@ -1,6 +1,7 @@
 {
   "targets": [
     { "file": ".claude-plugin/marketplace.json" },
-    { "file": ".claude-plugin/plugin.json" }
+    { "file": ".claude-plugin/plugin.json" },
+    { "file": "pyproject.toml" }
   ]
 }

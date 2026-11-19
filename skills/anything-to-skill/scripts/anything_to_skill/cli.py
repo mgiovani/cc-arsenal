@@ -34,7 +34,7 @@ LAYA_DOWNLOAD = 'Laya model (843 MB), only for the judge, --brain laya and verif
 def _workspace_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument('--slug', help='workspace name; optional when only one exists')
     parser.add_argument(
-        '--base', type=Path, help='workspaces dir (default ./.cc-arsenal/a2s)'
+        '--base', type=Path, help='workspaces dir (default ./.ai-arsenal/a2s)'
     )
 
 

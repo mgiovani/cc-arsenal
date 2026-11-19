@@ -11,7 +11,7 @@ scripts/
     └── configure.py    # Interactive configuration wizard
 ```
 
-The statusline and Claude Hi session scheduler now live under `integrations/claude-code/` (agent-CLI-specific tooling), not here.
+The statusline now lives under `integrations/claude-code/` (agent-CLI-specific tooling), not here.
 
 ## Installation
 

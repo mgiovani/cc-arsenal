@@ -31,7 +31,7 @@ Canonical URLs for skill specifications, best practices, and examples. These sho
   - Anthropic's own reference implementation for skill creation
   - Extract: workflow phases, frontmatter patterns, anti-hallucination techniques
 
-- cc-arsenal Skills: Local `skills/` directory
+- ai-arsenal Skills: Local `skills/` directory
   - See the current listing for the live count, good source for tool usage and verification patterns
 
 - mgiovani/skills: https://github.com/mgiovani/skills

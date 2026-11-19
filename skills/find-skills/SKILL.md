@@ -16,7 +16,7 @@ The **Agent Skills** format is an open standard for packaging procedural knowled
 
 **skills.sh** is the public directory and leaderboard for the ecosystem, hosting thousands of skills across categories like frontend, backend, DevOps, and more.
 
-Before installing an external skill, check `ls skills/` in this repo (or invoke this skill again after browsing; in Claude Code, `/find-skills`). cc-arsenal may already cover the same ground, and a hardcoded list here would just go stale.
+Before installing an external skill, check `ls skills/` in this repo (or invoke this skill again after browsing; in Claude Code, `/find-skills`). ai-arsenal may already cover the same ground, and a hardcoded list here would just go stale.
 
 ## Ask First, Never Mutate to "Show" Something
 
@@ -135,7 +135,7 @@ npx skills add ./my-local-skills
 |------------|-------------|
 | `vercel-labs/agent-skills` | Vercel's official skill collection (React, Next.js, design) |
 | `anthropics/skills` | Anthropic's example skills |
-| `mgiovani/cc-arsenal` | This repository; see AGENTS.md or `ls skills/` for the current catalog |
+| `mgiovani/ai-arsenal` | This repository; see AGENTS.md or `ls skills/` for the current catalog |
 
 ## Reference Files
 
@@ -147,7 +147,7 @@ For detailed command reference, load: [references/commands.md](./references/comm
 For discovery patterns and best practices, load: [references/workflows.md](./references/workflows.md)
 - Global vs project installation guidance
 - Security review of skill sources
-- Combining third-party skills with cc-arsenal
+- Combining third-party skills with ai-arsenal
 - Managing updates and versions
 
 ## Resources

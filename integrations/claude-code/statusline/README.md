@@ -5,14 +5,14 @@ A bash+jq statusline for Claude Code showing model, git status, cost, context us
 ## Example
 
 ```
-🤖 Opus │ 📊 22% │ 📁 cc-arsenal │ 🌿 main ● │ 💰 $0.043 │ ⏱️ 21m
+🤖 Opus │ 📊 22% │ 📁 ai-arsenal │ 🌿 main ● │ 💰 $0.043 │ ⏱️ 21m
 🔄 5h: 16% → 21:00 │ 📅 7d: 39% → Dec 31 21:00
 ```
 
 ## Install
 
 ```bash
-make install-statusline   # from the cc-arsenal project root
+make install-statusline   # from the ai-arsenal project root
 ```
 
 👉 **[Complete guide →](STATUSLINE.md)**: installation, configuration, every `STATUSLINE_*`/`CLAUDE_*` env var, multi-account setup, and troubleshooting.

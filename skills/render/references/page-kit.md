@@ -20,7 +20,7 @@ all twelve modes.
 
 ## Output path
 
-Default: `.cc-arsenal/renders/<mode>-<slug>-<YYYY-MM-DD>.html`, relative to the
+Default: `.ai-arsenal/renders/<mode>-<slug>-<YYYY-MM-DD>.html`, relative to the
 project root. `<slug>` comes from the subject, lowercased and hyphenated.
 
 `--out <path>` overrides it. Re-running with the same path updates that page in
@@ -94,7 +94,7 @@ so `Render.diagram.<type>` is available before any render call runs. Building
 a page is copy, fill, assemble, check:
 
 1. Copy the template straight to the real output path,
-   `.cc-arsenal/renders/<mode>-<slug>-<YYYY-MM-DD>.html`, and edit it there.
+   `.ai-arsenal/renders/<mode>-<slug>-<YYYY-MM-DD>.html`, and edit it there.
    Its sibling relative links, `../page.css` and `../page.js`, no longer
    resolve once the file has moved; that is expected, `scripts/assemble.py`
    falls back to the skill's own `assets/` directory by filename whenever the
@@ -109,11 +109,11 @@ a page is copy, fill, assemble, check:
 `<skill-dir>` below is this skill's directory.
 
 ```bash
-cp <skill-dir>/assets/templates/plan.html .cc-arsenal/renders/plan-auth-rework-2026-09-23.html
-# edit .cc-arsenal/renders/plan-auth-rework-2026-09-23.html: replace /*SAMPLE*/ DATA, compose extra sections
-python3 <skill-dir>/scripts/assemble.py .cc-arsenal/renders/plan-auth-rework-2026-09-23.html \
-  -o .cc-arsenal/renders/plan-auth-rework-2026-09-23.html
-npx impeccable detect .cc-arsenal/renders/plan-auth-rework-2026-09-23.html
+cp <skill-dir>/assets/templates/plan.html .ai-arsenal/renders/plan-auth-rework-2026-09-23.html
+# edit .ai-arsenal/renders/plan-auth-rework-2026-09-23.html: replace /*SAMPLE*/ DATA, compose extra sections
+python3 <skill-dir>/scripts/assemble.py .ai-arsenal/renders/plan-auth-rework-2026-09-23.html \
+  -o .ai-arsenal/renders/plan-auth-rework-2026-09-23.html
+npx impeccable detect .ai-arsenal/renders/plan-auth-rework-2026-09-23.html
 ```
 
 None of these calls takes `--allow-sample` for a real page: a leftover
@@ -121,7 +121,7 @@ None of these calls takes `--allow-sample` for a real page: a leftover
 assembled file later, without rewriting it:
 
 ```bash
-python3 <skill-dir>/scripts/assemble.py .cc-arsenal/renders/plan-auth-rework-2026-09-23.html --check-only
+python3 <skill-dir>/scripts/assemble.py .ai-arsenal/renders/plan-auth-rework-2026-09-23.html --check-only
 ```
 
 Order still matters inside the template: the state block comes before the

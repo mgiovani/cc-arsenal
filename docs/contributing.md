@@ -53,8 +53,8 @@ See [onboarding.md](./onboarding.md) for detailed setup instructions.
 Quick start:
 ```bash
 # Fork and clone the repository
-git clone https://github.com/YOUR-USERNAME/cc-arsenal.git
-cd cc-arsenal
+git clone https://github.com/YOUR-USERNAME/ai-arsenal.git
+cd ai-arsenal
 
 # Install dependencies
 uv sync --extra dev
@@ -86,7 +86,7 @@ When reporting a bug, include:
 - Description: clear, concise description of the issue
 - Steps to Reproduce: step-by-step instructions
   ```
-  1. Install cc-arsenal via make install
+  1. Install ai-arsenal via make install
   2. Run /git:commit command
   3. Error occurs: "..."
   ```
@@ -146,11 +146,11 @@ Enhancement suggestions are welcome! Include:
 
 ```bash
 # Fork via GitHub UI, then:
-git clone https://github.com/YOUR-USERNAME/cc-arsenal.git
-cd cc-arsenal
+git clone https://github.com/YOUR-USERNAME/ai-arsenal.git
+cd ai-arsenal
 
 # Add upstream remote
-git remote add upstream https://github.com/mgiovani/cc-arsenal.git
+git remote add upstream https://github.com/mgiovani/ai-arsenal.git
 ```
 
 #### 2. Create a Branch
@@ -616,8 +616,8 @@ Architecture documentation:
 
 - Check [onboarding.md](./onboarding.md) for setup issues
 - Check [troubleshooting.md](./troubleshooting.md) for common problems
-- Search [closed issues](https://github.com/mgiovani/cc-arsenal/issues?q=is%3Aissue+is%3Aclosed)
-- Ask in [GitHub Discussions](https://github.com/mgiovani/cc-arsenal/discussions)
+- Search [closed issues](https://github.com/mgiovani/ai-arsenal/issues?q=is%3Aissue+is%3Aclosed)
+- Ask in [GitHub Discussions](https://github.com/mgiovani/ai-arsenal/discussions)
 - Be patient and respectful when asking for help
 
 ### Recognition

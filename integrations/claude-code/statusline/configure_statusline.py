@@ -14,7 +14,8 @@ import json
 import sys
 from pathlib import Path
 
-CONFIG_PATH = Path.home() / '.claude' / 'cc-arsenal' / 'statusline_config.json'
+CONFIG_PATH = Path.home() / '.claude' / 'ai-arsenal' / 'statusline_config.json'
+LEGACY_CONFIG_PATH = Path.home() / '.claude' / 'cc-arsenal' / 'statusline_config.json'
 
 DISPLAY_MODES = {
     '1': ('emoji', 'Icons for every segment (default)'),
@@ -24,13 +25,13 @@ DISPLAY_MODES = {
 
 
 def load_config() -> dict:
-    if CONFIG_PATH.exists():
+    # The first save after the v7 rename writes a pre-rename config to CONFIG_PATH
+    path = CONFIG_PATH if CONFIG_PATH.exists() else LEGACY_CONFIG_PATH
+    if path.exists():
         try:
-            return json.loads(CONFIG_PATH.read_text())
+            return json.loads(path.read_text())
         except (json.JSONDecodeError, OSError) as exc:
-            sys.stderr.write(
-                f'Warning: could not parse {CONFIG_PATH} ({exc}); starting fresh\n'
-            )
+            sys.stderr.write(f'Warning: could not parse {path} ({exc}); starting fresh\n')
     return {}
 
 

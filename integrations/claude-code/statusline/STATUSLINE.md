@@ -18,7 +18,7 @@ The statusline renders two lines:
 
 **Line 1**: model, context, directory, git, cost, session duration:
 ```
-🤖 Opus │ 📊 22% │ 📁 cc-arsenal │ 🌿 main ● │ 💰 $0.043 │ ⏱️ 21m
+🤖 Opus │ 📊 22% │ 📁 ai-arsenal │ 🌿 main ● │ 💰 $0.043 │ ⏱️ 21m
 ```
 
 **Line 2**: usage-window details (only when rate-limit data is available):
@@ -51,7 +51,7 @@ Git/worktree data prefers the native `worktree.branch`/`worktree.name` fields Cl
 
 ### Quick install
 
-From the cc-arsenal project root:
+From the ai-arsenal project root:
 ```bash
 make install-statusline
 ```
@@ -111,13 +111,13 @@ Both files contain `{"five_hour": {...}, "seven_day": {...}}`. Treat the default
 
 ### Config file
 
-Settings live in `~/.claude/cc-arsenal/statusline_config.json`. This file is **not** auto-created on first run: create or edit it with the interactive tool:
+Settings live in `~/.claude/ai-arsenal/statusline_config.json`. This file is **not** auto-created on first run: create or edit it with the interactive tool:
 
 ```bash
 make configure   # from integrations/claude-code/statusline/
 ```
 
-which drives `configure_statusline.py` (writes directly to `~/.claude/cc-arsenal/statusline_config.json`).
+which drives `configure_statusline.py` (writes directly to `~/.claude/ai-arsenal/statusline_config.json`).
 
 The config surface is intentionally small: every key here is actually honored by the code (`lib/config.sh`, `lib/display/builder.sh`):
 
@@ -144,7 +144,7 @@ To point the script at a different config file entirely (e.g. for previewing a c
 |---|---|
 | `STATUSLINE_DISPLAY_MODE` | `emoji` (default), `text`, or `ascii`: overrides the config file's `display.display_mode` |
 | `STATUSLINE_TEXT_MODE` | Legacy boolean (`true`/`1`) forcing text mode; superseded by `STATUSLINE_DISPLAY_MODE` |
-| `STATUSLINE_CONFIG_OVERRIDE` | Path to an alternate config JSON file, used instead of `~/.claude/cc-arsenal/statusline_config.json` |
+| `STATUSLINE_CONFIG_OVERRIDE` | Path to an alternate config JSON file, used instead of `~/.claude/ai-arsenal/statusline_config.json` |
 | `STATUSLINE_SEPARATOR` | Component separator on line 1 (default `│`) |
 | `STATUSLINE_DEBUG` | `1` to log raw input JSON and context-window extraction to `/tmp/claude_statusline_debug.log` |
 | `STATUSLINE_PERF` | `1` to print `[perf] <ms>ms` to stderr after each run |
@@ -244,8 +244,8 @@ Different output for the two means you're in a worktree: the statusline detects 
 
 1. Reproduce with `STATUSLINE_DEBUG=1` (above) and check the log.
 2. If it involves usage/rate limits, also check `/tmp/statusline_live_cache/oauth_errors.log`.
-3. Open an issue on [GitHub](https://github.com/mgiovani/cc-arsenal/issues) with the debug log, your `~/.claude/settings.json` statusline entry, and steps to reproduce.
+3. Open an issue on [GitHub](https://github.com/mgiovani/ai-arsenal/issues) with the debug log, your `~/.claude/settings.json` statusline entry, and steps to reproduce.
 
 ---
 
-**Questions or issues?** Open an issue on [GitHub](https://github.com/mgiovani/cc-arsenal/issues) or check the main [cc-arsenal documentation](../../../README.md).
+**Questions or issues?** Open an issue on [GitHub](https://github.com/mgiovani/ai-arsenal/issues) or check the main [ai-arsenal documentation](../../../README.md).

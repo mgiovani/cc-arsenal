@@ -7,7 +7,7 @@ metadata:
 
 # Anything to Skill
 
-Scripts do the heavy work: discover, fetch, convert, dedupe, structure, validate. The model spends tokens only on the final authoring pass, and only on a ~6-8k token brief, never on raw pages. Every input, whatever its type, becomes units in one workspace (`.cc-arsenal/a2s/<slug>/`) and is merged into one topic-based tree.
+Scripts do the heavy work: discover, fetch, convert, dedupe, structure, validate. The model spends tokens only on the final authoring pass, and only on a ~6-8k token brief, never on raw pages. Every input, whatever its type, becomes units in one workspace (`.ai-arsenal/a2s/<slug>/`, or `.cc-arsenal/a2s/<slug>/` where a project still has that older directory and no new one: use that path in the commands below) and is merged into one topic-based tree.
 
 `<skill-dir>` below is this skill's directory. Every script is run with `uv run <skill-dir>/scripts/<name>.py` and installs its own dependencies (PEP 723). Without `uv`, stop and ask the user to install it. Every script accepts `--slug <slug>` and prints JSON or short text. `--slug` is required as soon as more than one workspace exists (it may be omitted only with a single one); the command blocks below leave it out. On `a2s.py`, put it after the subcommand (`a2s.py status --slug pg`); before it, argparse rejects it.
 
@@ -113,7 +113,7 @@ If `blocked` or `needs_js` units remain, say so and say what will be missing.
 uv run <skill-dir>/scripts/judge.py
 ```
 
-A local model reviews each page's title, path and first ~200 tokens against the goal, using only neutral two-option questions asked in both option orders. A label is kept only when both orders agree. Laya's confidence for questions with more than 10 options is uncalibrated (its checkpoint has no valid temperature there), so nothing gates on it; the router's warning about it is suppressed. It is skipped with a warning when Laya is unavailable or the machine is offline; the pipeline is fine without it. The judge output lands in `.cc-arsenal/a2s/<slug>/judge.json`. Rules, questions and guardrails: [references/judge.md](references/judge.md).
+A local model reviews each page's title, path and first ~200 tokens against the goal, using only neutral two-option questions asked in both option orders. A label is kept only when both orders agree. Laya's confidence for questions with more than 10 options is uncalibrated (its checkpoint has no valid temperature there), so nothing gates on it; the router's warning about it is suppressed. It is skipped with a warning when Laya is unavailable or the machine is offline; the pipeline is fine without it. The judge output lands in `.ai-arsenal/a2s/<slug>/judge.json`. Rules, questions and guardrails: [references/judge.md](references/judge.md).
 
 Read the result, do not trust it blindly:
 
@@ -124,10 +124,10 @@ Read the result, do not trust it blindly:
 ## Phase 4: Plan and reorganize
 
 ```bash
-uv run <skill-dir>/scripts/a2s.py plan --overrides .cc-arsenal/a2s/<slug>/judge.json
+uv run <skill-dir>/scripts/a2s.py plan --overrides .ai-arsenal/a2s/<slug>/judge.json
 ```
 
-Omit `--overrides` when no judge ran. `plan` is a pure function of the units plus the overrides: re-running it after any change (a new source, a judge result, a manual override) is the reorganize step. It writes `.cc-arsenal/a2s/<slug>/plan.json`.
+Omit `--overrides` when no judge ran. `plan` is a pure function of the units plus the overrides: re-running it after any change (a new source, a judge result, a manual override) is the reorganize step. It writes `.ai-arsenal/a2s/<slug>/plan.json`.
 
 What it does: it derives a section hint for each unit (URL path minus noise segments, file path, or heading breadcrumbs) and ranks units by llms.txt membership, shallow depth and goal keywords. Near-duplicates are dropped. Source files always live in section folders, never flat beside `INDEX.md`. Units are grouped into at most ~15 sections, and sections with the same slug merge across sources, except that two web hosts sharing a first segment each keep a host-qualified section. A section over 25 files splits by its second path segment or page-name prefix (a huge page gets its own folder), never into numbered chunks; a split page's files are named by their first `##` heading. Each video with chapters gets its own folder named by a short title slug, with one file per chapter named by the chapter title (`uncle-bob-software-fundamentals/agent-loop-dynamics.md`); a chapterless video is `videos/<title-slug>.md` unless a shared section hint groups it. File and folder names carry no channel, video id, timestamp or repeated folder word, and stay under about 40 characters. Pages that were discovered but never fetched are not "dropped": `plan.json`, the tree and `SOURCES.md` only count them per source and status. A page you `drop` is dropped whether or not it was fetched, and `estimate` and the judge skip it. Re-planning renames files, so re-plan before authoring, not after. Pages are packed into files of 1.5k-4k tokens: never over 8k, and fenced code is never split. The INDEX has one line per file, `path — summary (~Nk tok) [kind]`. Layout rules and tunables are in [the layout reference](references/generated-skill-layout.md).
 
@@ -157,9 +157,9 @@ Do not continue without explicit approval. Nothing has been written to the outpu
 uv run <skill-dir>/scripts/a2s.py brief
 ```
 
-Read `.cc-arsenal/a2s/<slug>/review.md` (~6-8k tokens) and nothing else from the corpus unless a specific unit id must be checked (`.cc-arsenal/a2s/<slug>/md/<id>.md`, read only the needed slice). It holds the plan tree, the INDEX head, judge deferrals, the opening of the top page per section, a heading inventory and ranked code-fence candidates. Sampled page text is fenced as untrusted data.
+Read `.ai-arsenal/a2s/<slug>/review.md` (~6-8k tokens) and nothing else from the corpus unless a specific unit id must be checked (`.ai-arsenal/a2s/<slug>/md/<id>.md`, read only the needed slice). It holds the plan tree, the INDEX head, judge deferrals, the opening of the top page per section, a heading inventory and ranked code-fence candidates. Sampled page text is fenced as untrusted data.
 
-Write these files into `.cc-arsenal/a2s/<slug>/authored/` (this is where they wait until emit; do not write into the output directory):
+Write these files into `.ai-arsenal/a2s/<slug>/authored/` (this is where they wait until emit; do not write into the output directory):
 
 | File | Content |
 |---|---|
@@ -194,7 +194,7 @@ uv run <skill-dir>/scripts/verify_laya.py      # optional: verify plus the advis
 
 `emit` stages the skill, then moves it into place: hub `SKILL.md` with `name` and `description` frontmatter only, the references tree (INDEX, best-practices, SOURCES, sections, examples), frames for video, filed per video and timestamp under the skill's frames folder (copied only when a page links them), and evals. `--link-claude` adds the relative `.claude/skills/<name>` symlink. It refuses to overwrite an existing path; `--replace` overwrites only a directory an earlier `emit` generated (one holding `references/SOURCES.md`), never a hand-written skill, so ask the user before removing anything else.
 
-`verify` fails hard on: invisible Unicode or prompt-injection patterns in `SKILL.md` or its frontmatter, unresolved quote markers, code not found in the corpus, and any limit breach (hub under 500 lines, file token caps, `quick_validate.py` from `create-skill`). Injection or Unicode hits in `references/` are warnings: the text is quoted third-party content. `verify_laya.py` (the same `verify`, run with the Laya model installed; plain `a2s.py verify --laya` skips the check with a notice) adds an advisory support check per claim and a routing check per SKILL.md row and INDEX line (does the file match its description?). Flags go to `.cc-arsenal/a2s/<slug>/verify.json`; Laya never removes content. A generic default description (the authored frontmatter had none) also draws a warning: write a real one and `emit --replace` again.
+`verify` fails hard on: invisible Unicode or prompt-injection patterns in `SKILL.md` or its frontmatter, unresolved quote markers, code not found in the corpus, and any limit breach (hub under 500 lines, file token caps, `quick_validate.py` from `create-skill`). Injection or Unicode hits in `references/` are warnings: the text is quoted third-party content. `verify_laya.py` (the same `verify`, run with the Laya model installed; plain `a2s.py verify --laya` skips the check with a notice) adds an advisory support check per claim and a routing check per SKILL.md row and INDEX line (does the file match its description?). Flags go to `.ai-arsenal/a2s/<slug>/verify.json`; Laya never removes content. A generic default description (the authored frontmatter had none) also draws a warning: write a real one and `emit --replace` again.
 
 Loop: on hard fails, fix `authored/`, run `emit --replace` then `verify` again (one bounded retry, then remove what still fails). Verify state for real: list the output directory, confirm the routing-table paths exist, and re-run `verify` until it reports zero hard fails.
 
@@ -211,7 +211,7 @@ Offer after phase 8. Compaction rewrites the emitted skill from a source mirror 
 ```bash
 uv run <skill-dir>/scripts/a2s.py evals-freeze [--force]     # freeze the evals: <ws>/evals.frozen.json, plus <ws>/eval-prompts.json for executors (compact-brief does it on first run)
 uv run <skill-dir>/scripts/a2s.py compact-brief              # writes compact-brief.md (~10k tokens)
-uv run <skill-dir>/scripts/a2s.py compact-verify             # checks .cc-arsenal/a2s/<slug>/compact/
+uv run <skill-dir>/scripts/a2s.py compact-verify             # checks .ai-arsenal/a2s/<slug>/compact/
 uv run <skill-dir>/scripts/verify_laya.py --compact          # the same compact-verify plus the advisory Laya fact-check
 uv run <skill-dir>/scripts/a2s.py compact-gate --none X --full Y --compact Z [--lost 'assertion' ...]   # decide the eval gate, record <ws>/compact-gate.json
 uv run <skill-dir>/scripts/a2s.py compact --apply            # backup to <slug>/full/, swap the compact skill in
@@ -219,14 +219,14 @@ uv run <skill-dir>/scripts/a2s.py compact --revert           # put the full skil
 ```
 
 1. Read `compact-brief.md` and [references/compaction.md](references/compaction.md), nothing else. The brief holds the current tree with token counts, the hub, per-page digests (headings, key code, distinctive sentences), the frozen evals and the size targets. `compact-brief` freezes the emitted skill's `evals/evals.json` and copies it verbatim into `compact/evals/`; the compactor never edits evals.
-2. Write the compact skill into `.cc-arsenal/a2s/<slug>/compact/` (hub `SKILL.md` and a few `references/<task>.md`; `evals/` is already there, leave it alone) following the rubric.
+2. Write the compact skill into `.ai-arsenal/a2s/<slug>/compact/` (hub `SKILL.md` and a few `references/<task>.md`; `evals/` is already there, leave it alone) following the rubric.
 3. Run `compact-verify`. It fails hard on source markers, mirror files, dead links, a changed `name`, extra frontmatter keys, injection or hidden Unicode in the hub and a hub over 499 lines. It also fails on any eval id, prompt or assertion that differs from the frozen set, and on any assertion that mentions a file, path or file read. It also fails on code not found in the corpus, whole or line by line; a fence marked `authored` is exempt and warned. It reports tokens before and after. Fix hard fails once more, then remove what still fails. For the advisory fact-check run `verify_laya.py --compact` instead. `a2s.py compact-verify --laya` skips it with a notice, as the stdlib driver has no Laya.
 4. Eval gate. All three configs run the same frozen prompts: no skill, the full skill (the emitted directory), and `compact/`. Executors receive only `<ws>/eval-prompts.json` (ids and prompts, no assertions or expected output) and their own skill directory, copied without its `evals/` folder. They read the skill files directly, never a saved tool output. Graders receive the frozen assertions (`<ws>/evals.frozen.json`) and the executor's answer, and mark every assertion pass or fail with an evidence quote. Run no skill first. If its pass rate is above 0.8, the evals do not measure the skill: replace the easy ones with evals on source-specific knowledge (flags, version behavior, the source's own numbers and recommendations, gotchas). Edit the full skill's evals (`authored/evals.json`, then `emit --replace`, or the emitted file directly). Then run `evals-freeze --force`, `compact-brief` and `compact-verify` again, and report that you did. Use one subagent batch per variant (via the `Agent` tool where available, otherwise run the prompts one after another inline). `create-skill`'s `run_eval.py` compares only the installed skill against none, so use it for one variant at a time. Then run `compact-gate --none X --full Y --compact Z`, passing each assertion the full skill passed and compact failed as `--lost`. The gate accepts only if pass(compact) >= pass(full) - 0.05 and pass(compact) - pass(none) >= 0.1, and records the decision in `<ws>/compact-gate.json`. Always report the lost assertions and the token savings, accepted or not. On a miss, feed the failing assertions back and restore the missing fact in the skill. Never edit an eval or assertion: `compact-verify` rejects it. Re-verify, re-run once and gate again. If it still misses, stop: keep the full skill (`compact --revert` if already applied) and say why.
 5. On acceptance, run `compact --apply` and report tokens before and after, hub lines, the gate's three pass rates on the frozen evals and the lost assertions. Show the compact tree and offer `--revert`. After applying, plain `verify` and `emit --replace` are refused; use `compact-verify`, or `--revert` first.
 
 ## Final report
 
-Keep it short: skill name and path, section and file counts, corpus vs. skill token sizes, sources used per input, judge agreement (if run), `verify` result, anything dropped, blocked or deferred, and the eval and compaction offers. Name the workspace `.cc-arsenal/a2s/<slug>/` and say it is safe to remove, or keep it to re-run `plan` after adding sources. Suggest adding `.cc-arsenal/a2s/` to `.gitignore`.
+Keep it short: skill name and path, section and file counts, corpus vs. skill token sizes, sources used per input, judge agreement (if run), `verify` result, anything dropped, blocked or deferred, and the eval and compaction offers. Name the workspace `.ai-arsenal/a2s/<slug>/` and say it is safe to remove, or keep it to re-run `plan` after adding sources. Suggest adding `.ai-arsenal/a2s/` to `.gitignore`.
 
 ## Common failures
 

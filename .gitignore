@@ -62,6 +62,7 @@ ENV/
 
 # Ignore circular symlink from installation
 scripts/claude/statusline/statusline
+.ai-arsenal/
 .cc-arsenal/
 
 # anything-to-skill workspaces (crawled third-party content and state.db)

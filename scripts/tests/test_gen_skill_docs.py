@@ -16,12 +16,12 @@ ALL_SKILLS = ('alpha', 'beta', *FILLER)
 
 def _marketplace(names: tuple[str, ...] = ALL_SKILLS) -> dict:
     return {
-        'name': 'cc-arsenal-marketplace',
+        'name': 'ai-arsenal-marketplace',
         'metadata': {'description': 'All 12 skills.'},
         'plugins': [
-            {'name': 'cc-arsenal'},
+            {'name': 'ai-arsenal'},
             {
-                'name': 'cc-arsenal-dev',
+                'name': 'ai-arsenal-dev',
                 'skills': [f'./skills/{name}/' for name in names],
             },
         ],

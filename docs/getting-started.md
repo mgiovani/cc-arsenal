@@ -13,7 +13,7 @@ Before you begin, ensure you have:
 - Claude Code (Anthropic's official Claude CLI)
 - Git (for version control)
 
-Everything below only applies if you plan to contribute to cc-arsenal itself:
+Everything below only applies if you plan to contribute to ai-arsenal itself:
 
 - Python 3.12+
 - UV (fast Python package management): `curl -LsSf https://astral.sh/uv/install.sh | sh`
@@ -25,20 +25,20 @@ Everything below only applies if you plan to contribute to cc-arsenal itself:
 This is the primary installation method for all users. Register the repository as a Claude Code plugin marketplace, then install the variant you want:
 
 ```bash
-/plugin marketplace add mgiovani/cc-arsenal
-/plugin install cc-arsenal@cc-arsenal-marketplace
+/plugin marketplace add mgiovani/ai-arsenal
+/plugin install ai-arsenal@ai-arsenal-marketplace
 ```
 
 Or pick a focused variant instead of the full toolkit, see [Features](features.md) for what each plugin includes:
 
 ```bash
-/plugin install cc-arsenal-dev@cc-arsenal-marketplace     # Development skills only
-/plugin install cc-arsenal-product@cc-arsenal-marketplace # Product and design skills only
-/plugin install cc-arsenal-docs@cc-arsenal-marketplace    # Documentation skills only
-/plugin install cc-arsenal-git@cc-arsenal-marketplace     # Git/GitHub workflow skills only
-/plugin install cc-arsenal-jira@cc-arsenal-marketplace    # Jira CLI only
-/plugin install cc-arsenal-skills@cc-arsenal-marketplace  # Specialty skills only
-/plugin install cc-arsenal-review@cc-arsenal-marketplace  # Code review and quality skills
+/plugin install ai-arsenal-dev@ai-arsenal-marketplace     # Development skills only
+/plugin install ai-arsenal-product@ai-arsenal-marketplace # Product and design skills only
+/plugin install ai-arsenal-docs@ai-arsenal-marketplace    # Documentation skills only
+/plugin install ai-arsenal-git@ai-arsenal-marketplace     # Git/GitHub workflow skills only
+/plugin install ai-arsenal-jira@ai-arsenal-marketplace    # Jira CLI only
+/plugin install ai-arsenal-skills@ai-arsenal-marketplace  # Specialty skills only
+/plugin install ai-arsenal-review@ai-arsenal-marketplace  # Code review and quality skills
 ```
 
 Team configuration: add to `.claude/settings.json` so every team member auto-installs the marketplace on trust:
@@ -46,21 +46,21 @@ Team configuration: add to `.claude/settings.json` so every team member auto-ins
 ```json
 {
   "extraKnownMarketplaces": {
-    "cc-arsenal": {
-      "source": { "source": "github", "repo": "mgiovani/cc-arsenal" }
+    "ai-arsenal": {
+      "source": { "source": "github", "repo": "mgiovani/ai-arsenal" }
     }
   },
-  "enabledPlugins": ["cc-arsenal"]
+  "enabledPlugins": ["ai-arsenal"]
 }
 ```
 
 ### Symlink install (Contributors only)
 
-Only use this if you're developing cc-arsenal itself: it creates symlinks into `~/.claude/` so file edits are reflected immediately, without a plugin reinstall:
+Only use this if you're developing ai-arsenal itself: it creates symlinks into `~/.claude/` so file edits are reflected immediately, without a plugin reinstall:
 
 ```bash
-git clone https://github.com/mgiovani/cc-arsenal.git
-cd cc-arsenal
+git clone https://github.com/mgiovani/ai-arsenal.git
+cd ai-arsenal
 
 uv sync --extra dev
 make dry-run       # preview what will be installed
@@ -100,16 +100,6 @@ Claude Code Arsenal ships 56 skills, split between:
 Skills use progressive disclosure: Claude reads only the frontmatter until a skill is relevant, then loads its full body and bundled resources (`scripts/`, `references/`, `assets/`, `evals/`) as needed. See [Features](features.md) for the complete, categorized list.
 
 ## Advanced setup
-
-### Smart session scheduling
-
-Replace manual cron workarounds with intelligent scheduling:
-
-```bash
-make -C integrations/claude-code/claude-hi setup     # Interactive setup
-make -C integrations/claude-code/claude-hi standard  # Quick 9am/2pm/7pm schedule
-make -C integrations/claude-code/claude-hi status    # Check current schedule
-```
 
 ### Enhanced statusline
 
@@ -166,15 +156,15 @@ make validate-structure
 ### Community and support
 
 - Documentation: browse `docs/` for detailed guides
-- Issues: report bugs at https://github.com/mgiovani/cc-arsenal/issues
-- Discussions: ask questions at https://github.com/mgiovani/cc-arsenal/discussions
+- Issues: report bugs at https://github.com/mgiovani/ai-arsenal/issues
+- Discussions: ask questions at https://github.com/mgiovani/ai-arsenal/discussions
 
 ### Stay updated
 
 Plugin installs update via `/plugin` → Update now. For a symlink (contributor) install:
 
 ```bash
-cd cc-arsenal
+cd ai-arsenal
 git pull origin main
 make install
 ```

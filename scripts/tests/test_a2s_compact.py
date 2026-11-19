@@ -102,7 +102,7 @@ def ws(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Workspace:
         )
         + '\n',
     )
-    workspace = Workspace.create('demo', tmp_path / '.cc-arsenal' / 'a2s')
+    workspace = Workspace.create('demo', tmp_path / '.ai-arsenal' / 'a2s')
     with workspace.open_store() as st:
         st.set_meta('goal', 'postgres indexing and vacuum')
         st.set_meta('name', 'pg-best-practices')
@@ -215,7 +215,7 @@ class TestBrief:
         capsys: pytest.CaptureFixture[str],
     ) -> None:
         monkeypatch.chdir(tmp_path)
-        empty = Workspace.create('none', tmp_path / '.cc-arsenal' / 'a2s')
+        empty = Workspace.create('none', tmp_path / '.ai-arsenal' / 'a2s')
         with empty.open_store() as st:
             st.set_meta('out', str(tmp_path / 'nowhere'))
         assert cli_run(empty, 'compact-brief') == 2

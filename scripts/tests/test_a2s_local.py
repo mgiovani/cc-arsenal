@@ -45,7 +45,7 @@ def _args(*, convert: bool = False) -> argparse.Namespace:
 
 @pytest.fixture
 def ctx(tmp_path: Path) -> Iterator[Ctx]:
-    ws = Workspace.create('t', tmp_path / '.cc-arsenal' / 'a2s')
+    ws = Workspace.create('t', tmp_path / '.ai-arsenal' / 'a2s')
     with ws.open_store() as store:
         yield Ctx.open(ws, store)
 
@@ -386,7 +386,7 @@ class TestShimEntryPoints:
     def test_run_source_ingests_and_prints_the_summary(
         self, tmp_path: Path, capsys: pytest.CaptureFixture[str]
     ) -> None:
-        ws = Workspace.create('t', tmp_path / '.cc-arsenal' / 'a2s')
+        ws = Workspace.create('t', tmp_path / '.ai-arsenal' / 'a2s')
         with ws.open_store() as store:
             store.add_unit('local', str(DOCS.resolve()), kind='seed', priority=100)
         argv = ['--slug', 't', '--base', str(ws.dir.parent), '--max-pages', '2']

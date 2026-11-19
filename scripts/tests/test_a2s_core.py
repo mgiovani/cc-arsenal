@@ -390,6 +390,18 @@ def test_workspace_layout_and_slug_validation(tmp_path: Path) -> None:
             Workspace.create(bad, tmp_path)
 
 
+def test_workspace_base_dir_falls_back_to_the_pre_rename_directory(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    assert Workspace.base_dir() == tmp_path / '.ai-arsenal' / 'a2s'
+    legacy = tmp_path / '.cc-arsenal' / 'a2s'
+    legacy.mkdir(parents=True)
+    assert Workspace.base_dir() == legacy
+    (tmp_path / '.ai-arsenal' / 'a2s').mkdir(parents=True)
+    assert Workspace.base_dir() == tmp_path / '.ai-arsenal' / 'a2s'
+
+
 def test_workspace_find_requires_slug_when_ambiguous(tmp_path: Path) -> None:
     with pytest.raises(WorkspaceError, match='no workspace'):
         Workspace.find(None, tmp_path)
@@ -471,7 +483,7 @@ def test_routing_imports_no_run_modules_or_heavy_deps() -> None:
 def test_cli_init_seed_status_estimate(
     capsys: pytest.CaptureFixture[str], tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    base = str(tmp_path / '.cc-arsenal' / 'a2s')
+    base = str(tmp_path / '.ai-arsenal' / 'a2s')
     doc = tmp_path / 'notes'
     doc.mkdir()
     code = cli.main(['init', 'pg', '--base', base, '--goal', 'psql', '--effort', 'quick'])
@@ -624,7 +636,7 @@ def test_cli_reports_missing_workspace(
 
 
 def test_cli_plan_and_verify_dispatch_on_empty_workspace(tmp_path: Path) -> None:
-    base = str(tmp_path / '.cc-arsenal' / 'a2s')
+    base = str(tmp_path / '.ai-arsenal' / 'a2s')
     cli.main(['init', 'pg', '--base', base])
     assert cli.main(['plan', '--base', base]) == 0
     assert cli.main(['verify', '--base', base]) == TWO
@@ -633,7 +645,7 @@ def test_cli_plan_and_verify_dispatch_on_empty_workspace(tmp_path: Path) -> None
 def test_cli_seed_rejects_urls_with_userinfo(
     capsys: pytest.CaptureFixture[str], tmp_path: Path
 ) -> None:
-    base = str(tmp_path / '.cc-arsenal' / 'a2s')
+    base = str(tmp_path / '.ai-arsenal' / 'a2s')
     cli.main(['init', 'pg', '--base', base])
     capsys.readouterr()
     cli.main(['seed', '--slug', 'pg', '--base', base, 'https://u:pw@docs.test/a'])

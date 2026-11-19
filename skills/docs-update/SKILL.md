@@ -73,7 +73,7 @@ A doc whose last update predates relevant source changes is a candidate for this
 ### Phase 4: Write Updates
 
 - Preserve manually added sections and any content that doesn't match the template structure: only touch parts backed by verified facts from Phase 3
-- Templates are shared with docs-init: [`../docs-init/assets/templates/`](../docs-init/assets/templates/) relative to this skill's own directory (works when both skills are installed side by side, e.g. via the cc-arsenal plugin or `npx skills add`). If docs-init isn't installed alongside this skill, fetch the same templates from the [cc-arsenal repo](https://github.com/mgiovani/cc-arsenal/tree/main/skills/docs-init/assets/templates) instead of inventing structure
+- Templates are shared with docs-init: [`../docs-init/assets/templates/`](../docs-init/assets/templates/) relative to this skill's own directory (works when both skills are installed side by side, e.g. via the ai-arsenal plugin or `npx skills add`). If docs-init isn't installed alongside this skill, fetch the same templates from the [ai-arsenal repo](https://github.com/mgiovani/ai-arsenal/tree/main/skills/docs-init/assets/templates) instead of inventing structure
 - Before filling placeholders, run `grep -oE '\{\{[A-Z_]+\}\}' <template-file>` to see the tokens that specific template actually uses: each template has its own set (architecture.md alone uses over a dozen), never assume a fixed list
 - Regenerate diagrams whose depicted components/entities changed
 - Remove claims Phase 3 could not verify

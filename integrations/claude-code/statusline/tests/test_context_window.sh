@@ -557,7 +557,33 @@ main() {
     # Native worktree tests
     test_native_worktree
 
+    test_config_dir_falls_back_to_pre_rename_config
+
     print_results "Context Window Tests"
+}
+
+config_dir_for_home() {
+    HOME="$1" bash -c 'source "$0"; echo "$CONFIG_DIR"' "$SCRIPT_DIR/../lib/config.sh"
+}
+
+test_config_dir_falls_back_to_pre_rename_config() {
+    echo "Testing config dir fallback to the pre-rename directory..."
+    local home
+    home=$(mktemp -d)
+
+    assert_equals "$home/.claude/ai-arsenal" "$(config_dir_for_home "$home")" "no config anywhere: new dir"
+
+    mkdir -p "$home/.claude/cc-arsenal"
+    echo '{}' > "$home/.claude/cc-arsenal/statusline_config.json"
+    assert_equals "$home/.claude/cc-arsenal" "$(config_dir_for_home "$home")" "legacy config only: legacy dir"
+
+    mkdir -p "$home/.claude/ai-arsenal/other"
+    assert_equals "$home/.claude/cc-arsenal" "$(config_dir_for_home "$home")" "new dir without a config: legacy dir"
+
+    echo '{}' > "$home/.claude/ai-arsenal/statusline_config.json"
+    assert_equals "$home/.claude/ai-arsenal" "$(config_dir_for_home "$home")" "both configs: new dir"
+
+    command rm -rf "$home"
 }
 
 # Execute main function if script is run directly

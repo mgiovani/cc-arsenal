@@ -66,7 +66,7 @@ def display_component_tree(
     organized: dict[str, dict[str, list[InstallationItem]]],
 ) -> None:
     """Display available components in a tree structure."""
-    table = Table(title='CC-Arsenal Components')
+    table = Table(title='AI-Arsenal Components')
     table.add_column('Category', style='cyan', no_wrap=True)
     table.add_column('Component', style='green')
     table.add_column('Count', style='yellow', justify='right')

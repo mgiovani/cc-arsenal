@@ -43,4 +43,4 @@ uv run <skill-dir>/scripts/a2s.py init <slug> --goal "..." --effort standard \
   --out <path> --name <name> --instructions "..."
 ```
 
-The slug is the workspace name under `.cc-arsenal/a2s/`. Use the skill name. Add `.cc-arsenal/` to `.gitignore` if the project is a git repository.
+The slug is the workspace name under `.ai-arsenal/a2s/`. Use the skill name. Add `.ai-arsenal/` to `.gitignore` if the project is a git repository.

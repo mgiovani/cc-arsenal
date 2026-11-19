@@ -101,7 +101,7 @@ against; `assets/templates/<mode>.html` is the composition to start from.
 Building means:
 
 1. Copy `assets/templates/<mode>.html` for the resolved mode straight to the
-   real output path, `.cc-arsenal/renders/<mode>-<slug>-<YYYY-MM-DD>.html` (see
+   real output path, `.ai-arsenal/renders/<mode>-<slug>-<YYYY-MM-DD>.html` (see
    the Document skeleton section of
    [references/page-kit.md](references/page-kit.md) for why the move is safe
    even though the template's `../page.css` and `../page.js` links are
