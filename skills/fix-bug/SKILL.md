@@ -137,6 +137,8 @@ public API, has performance implications, or is otherwise breaking, present the 
 
 ## Phase 3: Implementation
 
+Before writing code, load the guideline skills that match the files you will touch: `code-guidelines` for any code, plus `backend-guidelines` for Python, API or database work and `frontend-guidelines` for UI work (via the skill tool where available, otherwise read each skill's SKILL.md and the reference it routes to for this task). Announce it with a `Using code-guidelines to <purpose>` line. The project's own AGENTS.md or CLAUDE.md and lint config win wherever they disagree, and a skill that is not installed is skipped.
+
 1. Apply the fix with Edit: minimal, focused changes.
 2. Run the specific failing test and confirm it now passes. If it doesn't, that means the root-cause theory was wrong or incomplete, go back to Phase 1, not to a bigger patch on top of the current one.
 3. Run the full test suite to check for side effects.

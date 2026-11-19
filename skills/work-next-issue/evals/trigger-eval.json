@@ -1,0 +1,18 @@
+[
+  {"query": "work the next issue", "should_trigger": true},
+  {"query": "pick up the next ticket from the backlog and take it to a PR", "should_trigger": true},
+  {"query": "what's the next unblocked issue? start on it", "should_trigger": true},
+  {"query": "grab the highest priority open issue and build it end to end", "should_trigger": true},
+  {"query": "run bd ready and implement whatever comes up first, then open a PR", "should_trigger": true},
+  {"query": "take the next issue in the milestone through plan, review and PR", "should_trigger": true},
+  {"query": "keep me busy: next github issue, new worktree, ship a PR", "should_trigger": true},
+  {"query": "start the next ticket on the board", "should_trigger": true},
+  {"query": "implement the dark mode feature we discussed", "should_trigger": false},
+  {"query": "ship it", "should_trigger": false},
+  {"query": "turn this PRD into github issues", "should_trigger": false},
+  {"query": "fix the crash in issue #42, the login test is failing", "should_trigger": false},
+  {"query": "break this project into dependency-ordered tasks", "should_trigger": false},
+  {"query": "review my diff before I merge", "should_trigger": false},
+  {"query": "fan this migration out across parallel agents", "should_trigger": false},
+  {"query": "open a pull request for my current branch", "should_trigger": false}
+]

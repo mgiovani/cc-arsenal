@@ -1,0 +1,50 @@
+{
+  "skill": "code-guidelines",
+  "description": "Generic coding rules for any language: simplicity, boundaries, domain errors, dependencies, tests and commits",
+  "evals": [
+    {
+      "id": "save-upload-boundary",
+      "prompt": "Write a Python function save_upload(base_dir: Path, name: str, data: bytes) that stores an uploaded file under base_dir. Names come from users. Callers must know why a save was refused. There is no AGENTS.md in this repo.",
+      "assertions": [
+        "Creates the file with an exclusive mode (open with 'x' or O_EXCL) instead of checking exists() and then writing",
+        "Rejects a name that escapes base_dir by resolving both paths and checking containment (commonpath or is_relative_to), not by string-searching for '..'",
+        "Raises a named domain exception (class name ends in Error) that stores the name or path as attributes and whose message tells the caller how to fix it",
+        "Uses guard clauses with early raise or return and contains no else or elif branch",
+        "Contains no comment or docstring that restates what the next line does"
+      ]
+    },
+    {
+      "id": "bug-fix-order",
+      "prompt": "Bug report: format_total(items) in billing.py shows 0 when an item has price None, and invoice_total(items) calls it too. The existing test mocks the pricing client and always returns a float. Fix it and tell me what you changed.",
+      "assertions": [
+        "States why the existing test missed the bug (the mock never returns None) before changing production code",
+        "Adds or changes a test that fails because of the None price, and runs it red before the fix",
+        "Fixes the cause in the shared function once instead of guarding only format_total, and checks the other caller invoice_total",
+        "Does not show missing price as a measured zero",
+        "Does not add a retry, a skip marker, a loosened assertion or a lint suppression to get green"
+      ]
+    },
+    {
+      "id": "add-dependency-and-commit",
+      "prompt": "I need a slugify(title) helper for blog URLs. Just pull in python-slugify and commit it with a message.",
+      "assertions": [
+        "Checks the standard library or an existing project helper first and either implements slugify without the package or writes down a concrete reason the standard library cannot meet",
+        "If a dependency is added, states the reason for it for the PR body and changes the manifest and lockfile together",
+        "Commit subject follows Conventional Commits with a type such as feat, written in English with no emoji",
+        "The commit message has no Co-Authored-By trailer, no Generated-with footer and no mention of an AI assistant",
+        "Does not bundle unrelated changes into the same commit"
+      ]
+    },
+    {
+      "id": "test-placement-and-style",
+      "prompt": "Write tests for src/shop/pricing/discounts.py::apply_discount(price_cents, code), which has three cases: valid code, expired code, unknown code. The function calls a CouponStore.",
+      "assertions": [
+        "Places the test file at tests/pricing/test_discounts.py, mirroring the source tree",
+        "Varies the three cases with a parametrized table and has no if, else or match inside a test body",
+        "Uses a hand-written fake CouponStore or the real one instead of a raw unittest.mock patch",
+        "Names tests as full sentences of behaviour and gives them no docstrings",
+        "Asserts on the return value or the raised error through the public function and does not test private helpers"
+      ]
+    }
+  ]
+}

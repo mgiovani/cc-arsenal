@@ -62,7 +62,7 @@ Create a scratch dir with `mktemp -d` (never inside the repo) and save the diff 
 
 ### 1. Discovery
 
-Read the root and nested AGENTS.md / CLAUDE.md (whichever exist) and installed skills under `.agents/skills/*` or `.claude/skills/*`. Turn every rule into a numbered checklist (comment policy, strict typing, file-size limits, empty `__init__`, no manual memo under React Compiler, and so on). This list goes into every agent prompt. Note the languages, frameworks and test setup.
+Read the root and nested AGENTS.md / CLAUDE.md (whichever exist) and installed skills under `.agents/skills/*` or `.claude/skills/*`. Turn every rule into a numbered checklist (comment policy, strict typing, file-size limits, empty `__init__`, no manual memo under React Compiler, and so on). This list goes into every agent prompt. Note the languages, frameworks and test setup. Where the `code-guidelines`, `backend-guidelines` or `frontend-guidelines` skills are installed, add the rules of the ones that match the changed files to the same checklist (via the skill tool where available, otherwise read each skill's SKILL.md and the references it routes to). A project rule outranks a guideline rule.
 
 ### 2. Lane selection
 

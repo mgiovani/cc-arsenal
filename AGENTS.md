@@ -4,11 +4,11 @@ This is the canonical, tool-agnostic guidance file for **cc-arsenal**. Any AGENT
 
 ## Repository Architecture
 
-cc-arsenal is a collection of **52 Agent Skills** ([agentskills.io](https://agentskills.io) open standard) for development workflow automation. `skills/` is the single canonical tier: every skill lives there once, written tool-neutral, and any tool that speaks the Agent Skills format can load it directly.
+cc-arsenal is a collection of **56 Agent Skills** ([agentskills.io](https://agentskills.io) open standard) for development workflow automation. `skills/` is the single canonical tier: every skill lives there once, written tool-neutral, and any tool that speaks the Agent Skills format can load it directly.
 
 ### Core Components
 
-- **Skills** (`skills/`): 52 skills covering development, code review, documentation, git/GitHub, jira, browser automation, project planning, product specs, multi-agent orchestration, open-source launch prep, and skill discovery/creation/improvement
+- **Skills** (`skills/`): 56 skills covering development, code review, documentation, git/GitHub, jira, browser automation, project planning, product specs, multi-agent orchestration, open-source launch prep, and skill discovery/creation/improvement
 - **Scripts** (`scripts/`): Python utilities for installation and configuration, plus code generation (Claude-Code-specific; see `CLAUDE.md`)
 - **Integrations** (`integrations/`): agent-CLI-specific tooling that doesn't fit the tool-agnostic `skills/` tier, one subdirectory per agent CLI. Today that's `integrations/claude-code/`, holding the statusline and the `claude-hi` session scheduler; future agent CLIs (Codex, Gemini CLI, ...) get sibling directories alongside it as their own tooling needs arise.
 
@@ -65,7 +65,7 @@ Do not add `uses:`/`composes:` frontmatter and do not route composition through 
 <!-- gen:skills-agents start -->
 <!-- generated: edit skills.sh.json or SKILL.md frontmatter, then run `make docs` -->
 
-## Available Skills (52 total)
+## Available Skills (56 total)
 
 All skills use progressive disclosure (SKILL.md + optional references/scripts/assets directories).
 
@@ -91,12 +91,15 @@ Mascots and logos, hero images and social cards, plus motion videos rendered fro
 - `motion-studio`: Motion videos rendered from code: seek(t) engine, springs, beat-synced sound, critique loop, styles, HyperFrames and Remotion
 - `project-illustrator`: A cohesive art system for a project: mascot, heroes, social cards and thumbnails with one character
 
-### Build (5 skills)
+### Build (8 skills)
 
-Feature work and bug fixes, plus refactors and test coverage for code you already have.
+Feature work and bug fixes, refactors and test coverage, plus the coding guidelines they follow.
 
+- `backend-guidelines`: Owner's Python, FastAPI and Postgres defaults: schemas, layering, migrations, typing, workflows, agents
 - `clotho-research`: Find what a change will actually touch before planning it: the code and prior art it meets, and the risks it carries
+- `code-guidelines`: Generic coding rules for any language: simple changes, safe boundaries, tests, commits, smells
 - `fix-bug`: Test-driven debugging with strict sequential task chain and dependency enforcement
+- `frontend-guidelines`: Owner's React, TypeScript and Tailwind defaults: tokens, layering, components, motion, a11y, design review
 - `implement-feature`: Feature implementation with senior staff engineer best practices and parallel subagent orchestration where available
 - `refactor`: Restructure existing code without changing behavior, verified against the full test suite at each step
 - `test-suite`: Generate test suites by analyzing coverage gaps and writing tests that match project conventions
@@ -129,13 +132,14 @@ Branching and committing, plus merging and tagging versions in your own reposito
 - `git-sync`: Sync the current feature branch with its base/upstream via merge or rebase
 - `gitflow`: Manage a gitflow branching workflow (feature/release/hotfix branches)
 
-### GitHub (3 skills)
+### GitHub (4 skills)
 
-Pull requests and merges, then taking a project public.
+Issues and pull requests, merges, then taking a project public.
 
 - `git-create-pr`: Pull request creation with standardized formats
 - `oss-launch`: Take a private project public: secrets and license pre-flight, branding, README rewrite, then flip it
 - `ship`: Orchestrates a branch from "code done" to "merged" (runs review-code plus project-specific pre-merge checks)
+- `work-next-issue`: Pick the next unblocked issue, then plan, build, review and open the PR with sibling skills
 
 ### Jira (1 skill)
 
@@ -253,7 +257,7 @@ See `CONTRIBUTING.md` for the full development setup.
 ## File Organization
 ```
 cc-arsenal/
-├── skills/          # All 52 skills (canonical, tool-agnostic)
+├── skills/          # All 56 skills (canonical, tool-agnostic)
 │   └── <name>/          # SKILL.md + optional references/, scripts/, assets/, evals/
 ├── scripts/         # Installation and utilities (see CLAUDE.md for Claude-Code-specific ones)
 └── integrations/    # Agent-CLI-specific tooling, one subdirectory per agent CLI

@@ -1,0 +1,18 @@
+[
+  {"query": "build a React settings page with Tailwind, using our design tokens and the shared Button component", "should_trigger": true},
+  {"query": "should this component use a hex color or a semantic token?", "should_trigger": true},
+  {"query": "add a dialog entrance animation that follows our motion tokens", "should_trigger": true},
+  {"query": "set up eslint boundaries so features can't import from routes", "should_trigger": true},
+  {"query": "what's the folder structure for a new component with stories and tests?", "should_trigger": true},
+  {"query": "does this card layout look templated or AI-generated?", "should_trigger": true},
+  {"query": "which prettier settings and package manager should the new frontend use?", "should_trigger": true},
+  {"query": "write an empty state and an error state for the inbox list in our React app", "should_trigger": true},
+  {"query": "audit our live checkout page against WCAG 2.2 and Material guidelines", "should_trigger": false},
+  {"query": "generate a W3C design token JSON file with a contrast report from our brand colors", "should_trigger": false},
+  {"query": "write the information architecture and screen inventory for the approved PRD", "should_trigger": false},
+  {"query": "add a FastAPI route with a Pydantic response model and a migration", "should_trigger": false},
+  {"query": "what are the general rules for naming, comments and error handling in our code?", "should_trigger": false},
+  {"query": "review this pull request diff for bugs and over-engineering", "should_trigger": false},
+  {"query": "make a promo video animation of our app launch with beat-synced sound", "should_trigger": false},
+  {"query": "generate a logo and mascot for the project", "should_trigger": false}
+]

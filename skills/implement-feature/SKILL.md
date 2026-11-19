@@ -148,6 +148,8 @@ Above threshold: mark Phase 2 `completed`, run `TaskList`.
 
 ### Phase 3: Implementation
 
+Before writing code, load the guideline skills that match the files you will touch: `code-guidelines` for any code, plus `backend-guidelines` for Python, API or database work and `frontend-guidelines` for UI work (via the skill tool where available, otherwise read each skill's SKILL.md and the reference it routes to for this task). Announce it with a `Using code-guidelines to <purpose>` line. The project's own AGENTS.md or CLAUDE.md and lint config win wherever they disagree, and a skill that is not installed is skipped.
+
 Above threshold: mark this phase `in_progress`.
 
 For up to ~3 parallel workstreams (e.g. API + UI + tests), spawn and track subagents

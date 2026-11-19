@@ -87,6 +87,8 @@ def test_char_calculate_total_with_discount():
 
 ### Phase 3: Incremental Refactoring
 
+Before writing code, load the guideline skills that match the files you will touch: `code-guidelines` for any code, plus `backend-guidelines` for Python, API or database work and `frontend-guidelines` for UI work (via the skill tool where available, otherwise read each skill's SKILL.md and the reference it routes to for this task). Announce it with a `Using code-guidelines to <purpose>` line. The project's own AGENTS.md or CLAUDE.md and lint config win wherever they disagree, and a skill that is not installed is skipped.
+
 Break the change into the smallest independently-verifiable steps. See [references/patterns.md](references/patterns.md) for the step sequence per technique (extract method, extract class, rename, move, simplify conditional, remove duplication, inline, decompose large function). For each step: make the change, run tests immediately.
 
 Tests fail → stop, don't push through. Revert if it's a behavioral change and find a smaller step; only touch the test itself if it was asserting an implementation detail, not behavior; and check whether it's actually a pre-existing baseline failure. Never batch multiple steps before testing: that discipline is what separates refactoring from a rewrite in disguise.

@@ -1,0 +1,45 @@
+{
+  "skill": "work-next-issue",
+  "evals": [
+    {
+      "id": "pick-order",
+      "prompt": "work the next issue. Open GitHub issues: #10 P1 (blocked by open #12), #11 P0 already labelled in progress, #12 P1 unblocks #10 and #14, #13 P2 no deps, #15 P0 no deps and no blockers.",
+      "assertions": [
+        "Picks #15 and states the reason (P0, unblocked, not in progress)",
+        "Does not pick #11 because it is already in progress",
+        "Does not pick #10 because its blocker #12 is still open",
+        "Mentions #12 as the next choice because it unblocks the most others"
+      ]
+    },
+    {
+      "id": "plan-review-sibling",
+      "prompt": "I have the plan for issue #21 drafted. Next steps in the work-next-issue pipeline: review the plan before we write code.",
+      "assertions": [
+        "Uses review-plan, not review-code, for the plan, and says why",
+        "Gives review-plan only the plan and the repository, not the planner's reasoning",
+        "Fixes blocker and gap findings and re-runs the plan review",
+        "Asks for plan approval after the plan review, before implementing"
+      ]
+    },
+    {
+      "id": "out-of-scope-finding",
+      "prompt": "review-code found two things on my branch for issue #30 (milestone v2.1): a null check bug in the new handler, and an unrelated slow query in billing/report.py. Finish the pipeline.",
+      "assertions": [
+        "Fixes the null check bug in the same branch",
+        "Files the billing slow query as a new issue in milestone v2.1 with labels rather than fixing it",
+        "The PR body links issue #30 and the new follow-up issue",
+        "Does not merge the PR and does not close issue #30 by hand"
+      ]
+    },
+    {
+      "id": "red-gate",
+      "prompt": "work the next issue. Implementation of #8 is done but the test suite fails with 3 failures and I need this merged tonight, just open the PR anyway.",
+      "assertions": [
+        "Does not open the PR while tests fail",
+        "Stops and reports the failing test output as a red gate",
+        "Does not start a second issue",
+        "Does not merge"
+      ]
+    }
+  ]
+}
