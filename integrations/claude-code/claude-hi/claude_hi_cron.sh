@@ -4,7 +4,7 @@
 
 set -euo pipefail
 
-HI_SCRIPT="$HOME/.claude/cc-arsenal/claude-hi/send_hi.sh"
+HI_SCRIPT="$HOME/.claude/ai-arsenal/claude-hi/send_hi.sh"
 
 # Create the simple hi sender
 create_hi_sender() {
@@ -14,7 +14,7 @@ create_hi_sender() {
 #!/bin/bash
 # Send "hi" to Claude to trigger 5-hour window
 claude -p hi
-echo "[$(date)] hi sent to trigger Claude window" >> "$HOME/.claude/cc-arsenal/claude-hi/hi_log.txt"
+echo "[$(date)] hi sent to trigger Claude window" >> "$HOME/.claude/ai-arsenal/claude-hi/hi_log.txt"
 EOF
 
     chmod +x "$HI_SCRIPT"
@@ -41,7 +41,7 @@ setup_cron() {
     local temp_cron=$(mktemp)
 
     # Add existing crontab (excluding old claude entries)
-    crontab -l 2>/dev/null | grep -v "$HI_SCRIPT" | grep -v "# Claude Hi Triggers" > "$temp_cron" || true
+    crontab -l 2>/dev/null | grep -v "/claude-hi/send_hi.sh" | grep -v "# Claude Hi Triggers" > "$temp_cron" || true
 
     # Add our entries
     echo "" >> "$temp_cron"
@@ -59,7 +59,7 @@ setup_cron() {
 # Remove cron jobs
 remove_cron() {
     echo "Removing Claude 'hi' cron jobs..."
-    crontab -l 2>/dev/null | grep -v "$HI_SCRIPT" | grep -v "# Claude Hi Triggers" | crontab - || true
+    crontab -l 2>/dev/null | grep -v "/claude-hi/send_hi.sh" | grep -v "# Claude Hi Triggers" | crontab - || true
     echo "✅ Removed all Claude 'hi' schedules"
 }
 
@@ -72,7 +72,7 @@ show_status() {
 
     echo
     echo "Recent activity:"
-    tail -5 "$HOME/.claude/cc-arsenal/claude-hi/hi_log.txt" 2>/dev/null || echo "  No activity logged"
+    tail -5 "$HOME/.claude/ai-arsenal/claude-hi/hi_log.txt" 2>/dev/null || echo "  No activity logged"
 }
 
 # Send hi now

@@ -5,21 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [7.0.0] - 2026-11-18
+
+### Changed
+- **Breaking:** the project is now **ai-arsenal**. The repository, the marketplace (`ai-arsenal-marketplace`) and all eight plugins (`ai-arsenal`, `ai-arsenal-dev`, ...) carry the new name. The skills themselves keep their names.
+- Every skill now works the same in Claude Code, Codex, OpenCode and Antigravity. Skills name a model tier with the Claude alias as the example, ask through whatever question tool the harness has, and state the inline fallback for subagents, task tracking, web access and plan mode. `$ARGUMENTS` placeholders are gone from skill bodies, and project rules are read from AGENTS.md or CLAUDE.md, whichever exists. AGENTS.md "Portability convention" records the wording.
+- CI runs `make validate-structure`, which now also runs `quick_validate.py` on every skill.
+- Prompt refresh: all 52 skills were audited against the authoring rubric and 35 got targeted fixes. Templates and reference commands now do what `SKILL.md` says, stale model IDs and versions are out of skill bodies, all-caps emphasis is replaced by the reason for the rule, generic filler is cut, and workflows that change files say how to verify the result.
+- `quick_validate.py` warns on all-caps emphasis and on a `name` that differs from the directory; `make validate-structure` fails on any warning. The rubric in `improve-skill` and `create-skill` carries the new rules.
+- `make bump-version` now also bumps `pyproject.toml` and re-locks `uv.lock`.
 
 ### Added
 - `code-guidelines`, `backend-guidelines`, `frontend-guidelines`: house coding rules as three skills. Each `SKILL.md` is a short router to one reference per kind of work; `code-guidelines` is the base and the other two hold only what is specific to Python/FastAPI/Postgres or React/TypeScript/Tailwind. The project's own AGENTS.md, CLAUDE.md and lint config win over all three.
 - `work-next-issue`: picks the next unblocked open issue, then runs worktree, plan, plan review, implementation, code review and PR by calling the existing skills.
 - `implement-feature`, `fix-bug` and `refactor` load the matching guideline skills before writing code, and `review-code` adds their rules to its checklist. `review-code`'s architecture reference gained a smell-to-refactoring table.
 
-### Changed
-- Every skill now works the same in Claude Code, Codex, OpenCode and Antigravity. Skills name a model tier with the Claude alias as the example, ask through whatever question tool the harness has, and state the inline fallback for subagents, task tracking, web access and plan mode. `$ARGUMENTS` placeholders are gone from skill bodies, and project rules are read from AGENTS.md or CLAUDE.md, whichever exists. AGENTS.md "Portability convention" records the wording.
-- CI runs `make validate-structure`, which now also runs `quick_validate.py` on every skill.
-- Prompt refresh: all 52 skills were audited against the authoring rubric and 35 got targeted fixes. Templates and reference commands now do what `SKILL.md` says, stale model IDs and versions are out of skill bodies, all-caps emphasis is replaced by the reason for the rule, generic filler is cut, and workflows that change files say how to verify the result.
-- `quick_validate.py` warns on all-caps emphasis and on a `name` that differs from the directory; `make validate-structure` fails on any warning. The rubric in `improve-skill` and `create-skill` carries the new rules.
-
 ### Removed
 - `refactor`, `test-suite`, `git-commit`: the Claude-Code-only frontmatter hooks are gone. Each skill now runs its own final checks in the body (quality gates, tests plus coverage plus lint, lint before commit), so it behaves the same in every agent CLI. `git-commit/scripts/pre-commit-lint.sh` is deleted with its hook.
+
+### Migration
+- **Claude Code plugin users:** install the renamed plugin once, for example `/plugin install ai-arsenal@ai-arsenal-marketplace`, then remove the old one. `marketplace.json` carries a `renames` map from each old plugin name to the new one.
+- **`npx skills add` users:** use `npx skills add mgiovani/ai-arsenal`. GitHub redirects the old repository URL, so existing clones and installs keep working.
+- **Statusline and claude-hi:** state moves from `~/.claude/cc-arsenal/` to `~/.claude/ai-arsenal/`. The statusline keeps reading the old directory until the new one exists, and `claude-hi setup` replaces cron entries that point at the old path.
+- **`anything-to-skill` and `render`:** project-local output moves from `.cc-arsenal/` to `.ai-arsenal/`. `anything-to-skill` keeps using an existing `.cc-arsenal/a2s/` workspace directory when no new one exists.
+
 
 ## [6.2.0] - 2026-10-25
 

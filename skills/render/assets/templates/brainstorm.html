@@ -71,7 +71,7 @@
   }
   */
   const DATA = /*SAMPLE*/ {
-    question: "cc-arsenal ships 54 Claude-Code-first skills; mgiovani/skills already targets multiple agent CLIs. How do we fold them into one agent-agnostic repo without breaking either audience?",
+    question: "ai-arsenal ships 54 Claude-Code-first skills; mgiovani/skills already targets multiple agent CLIs. How do we fold them into one agent-agnostic repo without breaking either audience?",
     constraint: "Whatever we pick has to keep working with the existing gates, make check, make validate-structure and make validate-plugins, and with skills.sh.json as the single source every catalog regenerates from. A merge that adds a second manual list to keep in sync repeats the bug commit def6a6f just fixed.",
     priorityTitle: "The shared manifest and the single-directory merge cluster high-impact and high-effort; the frontmatter and changelog ideas stay cheap.",
     themes: [
@@ -89,7 +89,7 @@
           },
           {
             slug: "mirror-mgiovani-skills-via-symlink",
-            title: "Keep mgiovani/skills as a generated mirror of cc-arsenal's skills/",
+            title: "Keep mgiovani/skills as a generated mirror of ai-arsenal's skills/",
             tension: "Same drift problem, without a one-time migration; mgiovani/skills becomes read-only and CI-published, not hand-edited.",
             cost: "Medium",
             effort: "1 week, plus a recurring CI job",
@@ -98,7 +98,7 @@
           },
           {
             slug: "deprecate-mgiovani-skills-redirect",
-            title: "Deprecate mgiovani/skills, point installs at cc-arsenal",
+            title: "Deprecate mgiovani/skills, point installs at ai-arsenal",
             tension: "Removes the duplication outright, but breaks every scripted npx skills add mgiovani/skills a user already runs.",
             cost: "Low to build",
             effort: "1 day, plus support load after",
@@ -164,7 +164,7 @@
           {
             slug: "single-changelog-release-cadence",
             title: "One CHANGELOG.md and one release cadence for the merged repo",
-            tension: "cc-arsenal's own version-bump checklist already lists 5 spots that have to move together; one repo means one checklist instead of two.",
+            tension: "ai-arsenal's own version-bump checklist already lists 5 spots that have to move together; one repo means one checklist instead of two.",
             cost: "Low",
             effort: "A few hours to set up",
             impact: 2,
@@ -200,7 +200,7 @@
     const ideaCount = allIdeas(themes).length;
     const themeCount = (themes || []).length;
     return `<header class="page-head">
-      <h1>Merging cc-arsenal and mgiovani/skills</h1>
+      <h1>Merging ai-arsenal and mgiovani/skills</h1>
       <p class="meta">${ideaCount} idea${ideaCount === 1 ? "" : "s"} across ${themeCount} theme${themeCount === 1 ? "" : "s"}. Verdicts: shortlist, park, drop.</p>
     </header>`;
   }
@@ -330,8 +330,8 @@
   if (window.Render) {
     Render.init({
       verdicts: VERDICTS,
-      file: "brainstorm-cc-arsenal-skills-merge-2026-09-23.html",
-      title: "Merging cc-arsenal and mgiovani/skills",
+      file: "brainstorm-ai-arsenal-skills-merge-2026-09-23.html",
+      title: "Merging ai-arsenal and mgiovani/skills",
     });
   }
 </script>

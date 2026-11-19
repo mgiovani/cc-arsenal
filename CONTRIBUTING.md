@@ -24,8 +24,8 @@ We welcome contributions! Please follow these guidelines to ensure a smooth cont
 
 ```bash
 # Clone your fork
-git clone https://github.com/your-username/cc-arsenal.git
-cd cc-arsenal
+git clone https://github.com/your-username/ai-arsenal.git
+cd ai-arsenal
 
 # Set up development environment (installs dev dependencies)
 make dev
@@ -68,7 +68,7 @@ All contributions must meet these standards:
 
 ## Contributing different types of components
 
-CC-Arsenal's only component type is the skill (56 skills today, see [docs/features.md](docs/features.md) for the full, categorized list). Every workflow, whether user-invoked (a slash command like `/git-commit`) or model-invoked (auto-loaded like `review-code`), is a skill under `skills/<name>/SKILL.md`.
+AI-Arsenal's only component type is the skill (56 skills today, see [docs/features.md](docs/features.md) for the full, categorized list). Every workflow, whether user-invoked (a slash command like `/git-commit`) or model-invoked (auto-loaded like `review-code`), is a skill under `skills/<name>/SKILL.md`.
 
 ### Creating new skills
 
@@ -97,7 +97,7 @@ Skills can bundle `scripts/`, `references/`, and `assets/` in subdirectories. Ad
 
 After creating a skill:
 
-1. Assign it to exactly one group in `skills.sh.json`. That file is the single source of truth for how skills are grouped, both on [skills.sh](https://www.skills.sh/mgiovani/cc-arsenal) and in every catalog in this repo.
+1. Assign it to exactly one group in `skills.sh.json`. That file is the single source of truth for how skills are grouped, both on [skills.sh](https://www.skills.sh/mgiovani/ai-arsenal) and in every catalog in this repo.
 2. Add its path to the relevant plugin(s) in `.claude-plugin/marketplace.json`. These variants are an install-time concern and stay hand-maintained; they deliberately do not mirror the display groups.
 3. Run `make docs` to regenerate the skill lists in `README.md`, `AGENTS.md` and `docs/features.md`.
 
@@ -232,8 +232,8 @@ We follow [Semantic Versioning](https://semver.org/):
 
 ### Communication channels
 
-- Issues: [GitHub Issues](https://github.com/mgiovani/cc-arsenal/issues) for bugs and feature requests
-- Discussions: [GitHub Discussions](https://github.com/mgiovani/cc-arsenal/discussions) for questions and ideas
+- Issues: [GitHub Issues](https://github.com/mgiovani/ai-arsenal/issues) for bugs and feature requests
+- Discussions: [GitHub Discussions](https://github.com/mgiovani/ai-arsenal/discussions) for questions and ideas
 - Email: For security issues, contact e@giovani.dev
 
 ### Common issues

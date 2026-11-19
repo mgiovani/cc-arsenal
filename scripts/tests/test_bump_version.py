@@ -21,6 +21,23 @@ def _setup(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, targets: list[dict])
     return config_path
 
 
+def test_bump_updates_only_the_project_version_in_toml(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    pyproject = tmp_path / 'pyproject.toml'
+    pyproject.write_text(
+        '[project]\nname = "x"\nversion = "1.0.0"\n\n[tool.other]\nversion = "9.9.9"\n'
+    )
+    _setup(tmp_path, monkeypatch, [{'file': 'pyproject.toml'}])
+    monkeypatch.setattr('sys.argv', ['bump_version.py', '2.0.0'])
+
+    bump_version.main()
+
+    assert pyproject.read_text() == (
+        '[project]\nname = "x"\nversion = "2.0.0"\n\n[tool.other]\nversion = "9.9.9"\n'
+    )
+
+
 def test_bump_updates_all_version_fields(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

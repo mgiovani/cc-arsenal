@@ -1,6 +1,6 @@
 # Compaction rubric (phase 9)
 
-Turn the emitted skill, a source mirror with a routing hub, into a lean expert skill: what a senior practitioner would hand a colleague, not a copy of the docs. You write it into `.cc-arsenal/a2s/<slug>/compact/` from `compact-brief.md`. Scripts check the mechanics; this file is the judgment.
+Turn the emitted skill, a source mirror with a routing hub, into a lean expert skill: what a senior practitioner would hand a colleague, not a copy of the docs. You write it into `.ai-arsenal/a2s/<slug>/compact/` from `compact-brief.md`. Scripts check the mechanics; this file is the judgment.
 
 ## Output shape
 

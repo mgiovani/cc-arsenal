@@ -2,7 +2,7 @@
   <img src="assets/social-preview.png" alt="AI Arsenal octopus mascot with developer tools" width="760">
 </p>
 
-# cc-arsenal
+# ai-arsenal
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Agent Skills compatible](https://img.shields.io/badge/Agent%20Skills-compatible-blueviolet.svg)](https://agentskills.io)
@@ -16,20 +16,20 @@
 You: ship it
 ```
 
-`cc-arsenal` runs `review-code`, then your project's pre-merge checks, writes a conventional commit, opens the PR, watches CI, and merges on green.
+`ai-arsenal` runs `review-code`, then your project's pre-merge checks, writes a conventional commit, opens the PR, watches CI, and merges on green.
 
 ## Quick Start
 
 ```bash
 # Any Agent-Skills-compatible tool (Codex, Cursor, Gemini CLI, OpenCode, ...)
-npx skills add mgiovani/cc-arsenal
+npx skills add mgiovani/ai-arsenal
 
 # One specific tool: -a codex | opencode | antigravity (all three read .agents/skills)
-npx skills add mgiovani/cc-arsenal -a codex
+npx skills add mgiovani/ai-arsenal -a codex
 
 # Claude Code: unlocks plugin variants, hooks, and subagent orchestration
-/plugin marketplace add mgiovani/cc-arsenal
-/plugin install cc-arsenal@cc-arsenal-marketplace
+/plugin marketplace add mgiovani/ai-arsenal
+/plugin install ai-arsenal@ai-arsenal-marketplace
 ```
 
 ### Optional Features (Claude Code only)
@@ -229,9 +229,9 @@ Contributions welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines. Ne
 
 ## Support
 
-- [Report bugs](https://github.com/mgiovani/cc-arsenal/issues)
+- [Report bugs](https://github.com/mgiovani/ai-arsenal/issues)
 - [Security vulnerabilities](docs/SECURITY.md)
-- [Discussions](https://github.com/mgiovani/cc-arsenal/discussions)
+- [Discussions](https://github.com/mgiovani/ai-arsenal/discussions)
 
 ## License
 

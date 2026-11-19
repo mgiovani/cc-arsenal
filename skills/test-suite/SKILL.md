@@ -143,7 +143,7 @@ Then run the coverage command from Phase 0, if the project has one, and compare 
 
 ### Phase 5: Final Commit
 
-Use the `cc-arsenal:git-commit` skill to create the commit where available; otherwise create a conventional commit manually, using the actual coverage numbers from the command you ran in Phase 4/Phase 1, never an estimate:
+Use the `ai-arsenal:git-commit` skill to create the commit where available; otherwise create a conventional commit manually, using the actual coverage numbers from the command you ran in Phase 4/Phase 1, never an estimate:
 
 ```bash
 git add [test files created/modified]

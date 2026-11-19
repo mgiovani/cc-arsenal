@@ -167,7 +167,7 @@ If security concerns are identified, recommend running `/review-security` on the
 ### Composition Discovery (Phase 2)
 
 When creating a new skill, the research subagent in Phase 2 (or the inline research step) should identify potential composition opportunities:
-- Search cc-arsenal `skills/` for relevant existing skills
+- Search ai-arsenal `skills/` for relevant existing skills
 - List composable skills with descriptions of how they could be used
 - Consider whether composition is better than reimplementation
 

@@ -10,12 +10,12 @@ Claude Code Arsenal is a professional collection of workflow automation skills b
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                      cc-arsenal (this repo)                  │
+│                      ai-arsenal (this repo)                  │
 │  ┌────────────────────────────────────────────────────────┐ │
 │  │ skills/<name>/SKILL.md          (Tier 1: agnostic core) │ │
 │  │ - name + description frontmatter only, portable as-is   │ │
 │  │ - works with Claude Code, Codex, Cursor, OpenCode, ...   │ │
-│  │ - published for `npx skills add mgiovani/cc-arsenal`     │ │
+│  │ - published for `npx skills add mgiovani/ai-arsenal`     │ │
 │  └────────────────────────────────────────────────────────┘ │
 │  ┌────────────────────────────────────────────────────────┐ │
 │  │ Tier 2: Claude Code layer (optional, additive)          │ │
@@ -35,14 +35,14 @@ Claude Code Arsenal is a professional collection of workflow automation skills b
 - Standard Agent Skills format: `name` + `description` frontmatter is all any tool needs
 - Works with Claude Code, Codex, Cursor, OpenCode, Gemini CLI, and other agents that support the standard
 - Non-Claude tools simply ignore any Claude Code-specific frontmatter keys present in the same file
-- Distributed via `npx skills add mgiovani/cc-arsenal`
+- Distributed via `npx skills add mgiovani/ai-arsenal`
 - See [features.md](./features.md) for the current, categorized skill count
 
 #### Claude Code layer (Tier 2, optional)
 
 - CC-only frontmatter keys (`disable-model-invocation`, `hooks`, `context`, `agent`) live inline in the same `SKILL.md`: other tools ignore them safely
 - Subagents (Task tool) for parallel work, advanced context management, quality-gate hooks
-- Plugin variants declared in `.claude-plugin/marketplace.json`, installed via `/plugin marketplace add mgiovani/cc-arsenal`
+- Plugin variants declared in `.claude-plugin/marketplace.json`, installed via `/plugin marketplace add mgiovani/ai-arsenal`
 - Optional features: statusline, Claude Hi scheduler
 
 ## System Context
@@ -134,7 +134,7 @@ graph TB
         EventSystem[Event System]
     end
 
-    subgraph "cc-arsenal Plugin"
+    subgraph "ai-arsenal Plugin"
         PluginDesc[plugin.json<br/>Descriptor]
 
         subgraph "Commands Layer"
@@ -292,7 +292,7 @@ All skills live under `skills/<name>/`. See [features.md](./features.md) for the
 - Marketplace API: JSON-based plugin variant configuration (`.claude-plugin/marketplace.json`)
   ```json
   {
-    "name": "cc-arsenal-git",
+    "name": "ai-arsenal-git",
     "skills": ["./skills/git-commit/", "./skills/jira-cli/"]
   }
   ```
@@ -348,7 +348,7 @@ The project has no server component: its security posture is about what runs on 
 
 ## Performance and Scalability
 
-As a local CLI tool, cc-arsenal has no server-side scaling concerns.
+As a local CLI tool, ai-arsenal has no server-side scaling concerns.
 
 | Aspect | Category | Detail |
 |---|---|---|
@@ -384,17 +384,17 @@ There's no backend to keep available: reliability here means clear local error f
 Plugin installation (recommended):
 
 ```bash
-/plugin marketplace add mgiovani/cc-arsenal
+/plugin marketplace add mgiovani/ai-arsenal
 ```
 ```bash
-/plugin install cc-arsenal@cc-arsenal-marketplace
+/plugin install ai-arsenal@ai-arsenal-marketplace
 ```
 
 Alternative: direct installation:
 ```bash
 # Clone and install locally
-git clone https://github.com/mgiovani/cc-arsenal.git
-cd cc-arsenal
+git clone https://github.com/mgiovani/ai-arsenal.git
+cd ai-arsenal
 
 # Install dependencies
 uv sync
@@ -416,7 +416,7 @@ Two files drive configuration for the whole project, and both live in the reposi
 
 ### Development Workflow
 
-1. Clone Repository: Fork and clone cc-arsenal
+1. Clone Repository: Fork and clone ai-arsenal
 2. Install Dependencies: `uv sync --extra dev`
 3. Make Changes: Edit commands or skills
 4. Validate Plugin: `make validate-plugins` checks structure
@@ -474,7 +474,7 @@ Cons:
 - Requires different architecture
 - Limited to VS Code users
 
-Decision: rejected; cc-arsenal is specifically designed for Claude Code.
+Decision: rejected; ai-arsenal is specifically designed for Claude Code.
 
 ## Future Considerations
 

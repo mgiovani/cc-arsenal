@@ -237,6 +237,7 @@ validate-plugins: ## Validate both marketplace and plugin manifests
 bump-version: ## Bump all versions declared in .version-bump.json (usage: make bump-version VERSION=x.y.z)
 	@if [ -z "$(VERSION)" ]; then echo "$(RED)Error: VERSION is required, e.g. make bump-version VERSION=4.1.0$(RESET)"; exit 1; fi
 	$(UV) run python -m scripts.bump_version $(VERSION)
+	$(UV) lock
 
 # Default target
 .DEFAULT_GOAL := help

@@ -7,7 +7,12 @@ if [[ -n "${CONFIG_LOADED:-}" ]]; then
 fi
 readonly CONFIG_LOADED=1
 
-readonly CONFIG_DIR="$HOME/.claude/cc-arsenal"
+# Installs from before the v7 rename keep their config in the old directory
+if [[ ! -d "$HOME/.claude/ai-arsenal" && -d "$HOME/.claude/cc-arsenal" ]]; then
+    readonly CONFIG_DIR="$HOME/.claude/cc-arsenal"
+else
+    readonly CONFIG_DIR="$HOME/.claude/ai-arsenal"
+fi
 
 # Alternate config path override (used by configure tooling for previews);
 # falls back to the standard location

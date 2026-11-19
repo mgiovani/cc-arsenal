@@ -522,7 +522,7 @@ def main(
         console.print('\n📋 Next Steps:')
         console.print('  1. Run `make configure` to customize your setup')
         console.print('  2. Restart Claude Code to load the new configuration')
-        console.print('  3. Use skills from the cc-arsenal repository')
+        console.print('  3. Use skills from the ai-arsenal repository')
 
         # Ask about statusline installation
         console.print('\n🎨 [bold yellow]Enhanced Statusline Available[/bold yellow]')
@@ -553,10 +553,10 @@ def main(
                     console.print('\n💡 [dim]Files created:[/dim]')
                     console.print('  • Settings: ~/.claude/settings.json')
                     console.print(
-                        '  • Config: ~/.claude/cc-arsenal/statusline_config.json'
+                        '  • Config: ~/.claude/ai-arsenal/statusline_config.json'
                     )
                     console.print(
-                        '  • Usage data: ~/.claude/cc-arsenal/usage_tracking.json'
+                        '  • Usage data: ~/.claude/ai-arsenal/usage_tracking.json'
                     )
                 else:
                     console.print(

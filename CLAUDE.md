@@ -6,23 +6,23 @@ This file adds Claude-Code-only guidance on top of the tool-agnostic `AGENTS.md`
 
 Register this repository as a Claude Code Plugin marketplace:
 ```bash
-/plugin marketplace add mgiovani/cc-arsenal
+/plugin marketplace add mgiovani/ai-arsenal
 ```
 
 Then, to install a specific plugin set:
 1. Select **Browse and install plugins**
-2. Select **cc-arsenal-marketplace**
+2. Select **ai-arsenal-marketplace**
 3. Select one of the variants (see the table below)
 4. Select **Install now**
 
 Alternatively, directly install via:
 ```bash
-/plugin install cc-arsenal@cc-arsenal-marketplace
+/plugin install ai-arsenal@ai-arsenal-marketplace
 ```
 
 For local development, add a local marketplace instead:
 ```bash
-/plugin marketplace add /path/to/cc-arsenal
+/plugin marketplace add /path/to/ai-arsenal
 ```
 
 **Benefits over `npx skills add`:** managed installation, automatic updates, easy enable/disable, no system-wide symlinks, plus the extras below (subagent orchestration, hooks, plugin variants) that only work inside Claude Code.
@@ -31,29 +31,29 @@ For local development, add a local marketplace instead:
 
 | Plugin | Use Case |
 |--------|----------|
-| `cc-arsenal` | Complete toolkit: every skill |
-| `cc-arsenal-dev` | Development workflows |
-| `cc-arsenal-product` | Product specs: PRD, design spec, and design tokens |
-| `cc-arsenal-review` | Code review and quality audits |
-| `cc-arsenal-docs` | Documentation generation |
-| `cc-arsenal-git` | Git/GitHub workflow automation |
-| `cc-arsenal-jira` | Jira CLI |
-| `cc-arsenal-skills` | Specialty model-invoked capabilities |
+| `ai-arsenal` | Complete toolkit: every skill |
+| `ai-arsenal-dev` | Development workflows |
+| `ai-arsenal-product` | Product specs: PRD, design spec, and design tokens |
+| `ai-arsenal-review` | Code review and quality audits |
+| `ai-arsenal-docs` | Documentation generation |
+| `ai-arsenal-git` | Git/GitHub workflow automation |
+| `ai-arsenal-jira` | Jira CLI |
+| `ai-arsenal-skills` | Specialty model-invoked capabilities |
 
-Each variant's exact skill set is defined in [`.claude-plugin/marketplace.json`](.claude-plugin/marketplace.json), the single source of truth, so the list never drifts across docs. The `cc-arsenal` variant intentionally omits the `skills` field there: an unset `skills` means "auto-load every skill in the repo," so it never needs syncing with the others.
+Each variant's exact skill set is defined in [`.claude-plugin/marketplace.json`](.claude-plugin/marketplace.json), the single source of truth, so the list never drifts across docs. The `ai-arsenal` variant intentionally omits the `skills` field there: an unset `skills` means "auto-load every skill in the repo," so it never needs syncing with the others.
 
 **Troubleshooting plugin updates:**
 
 Local directory marketplaces (`"source": "directory"`) do NOT support auto-update or version detection: Claude Code caches `marketplace.json` on first install and local file changes don't invalidate that cache. After creating new skills or bumping versions:
 ```bash
-rm -rf ~/.claude/plugins/cache/cc-arsenal-marketplace/
+rm -rf ~/.claude/plugins/cache/ai-arsenal-marketplace/
 # Then in Claude Code: /plugin → Update now
 ```
 Use a GitHub remote marketplace instead for automatic updates in production.
 
 ### Development Installation (Symlink Method)
 
-**Only for developing cc-arsenal itself.** Regular users should use the plugin system above.
+**Only for developing ai-arsenal itself.** Regular users should use the plugin system above.
 
 ```bash
 uv sync --extra dev
@@ -74,11 +74,11 @@ For automatic marketplace + plugin installation across team members, add to `.cl
 ```json
 {
   "extraKnownMarketplaces": {
-    "cc-arsenal": {
-      "source": { "source": "github", "repo": "mgiovani/cc-arsenal" }
+    "ai-arsenal": {
+      "source": { "source": "github", "repo": "mgiovani/ai-arsenal" }
     }
   },
-  "enabledPlugins": ["cc-arsenal"]
+  "enabledPlugins": ["ai-arsenal"]
 }
 ```
 When team members trust the repository folder, Claude Code automatically installs the marketplace and plugin.

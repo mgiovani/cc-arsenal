@@ -20,7 +20,7 @@
         "Invokes the render skill in audit mode (render audit, or its steps inline) on the saved JSON findings",
         "Fills the render audit template's DATA with one finding per stopslop finding, each title carrying code, path and line, so no two anchors are equal, and passes assemble.py",
         "Offers verdicts fix, won't fix, and discuss",
-        "Writes the page under .cc-arsenal/renders/ and asks the user to mark and save it before editing any source file",
+        "Writes the page under .ai-arsenal/renders/ and asks the user to mark and save it before editing any source file",
         "Edits only findings marked fix, then re-runs stopslop on the touched files"
       ]
     },

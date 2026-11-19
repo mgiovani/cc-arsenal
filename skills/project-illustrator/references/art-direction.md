@@ -13,7 +13,7 @@ Use this reference throughout the pipeline: it shapes how a prompt gets written 
 
 ## Approved visual references
 
-Inspect these images before generating when the user asks for the established CC Arsenal project-art style. Supply the most relevant references to the image generator. Use them for finish, palette discipline, proportions, spacing, and typography; do not copy one project's mascot into another.
+Inspect these images before generating when the user asks for the established AI Arsenal project-art style. Supply the most relevant references to the image generator. Use them for finish, palette discipline, proportions, spacing, and typography; do not copy one project's mascot into another.
 
 - [Water Gate mascot](visuals/water-gate-mascot.webp) and [hero](visuals/water-gate-hero.webp): product mechanism expressed as one clear action, blue identity color within the shared print treatment.
 - [cc-wellness mascot](visuals/cc-wellness-mascot.webp) and [hero](visuals/cc-wellness-hero.webp): quiet character staging, generous space, restrained palette, and clean 3:1 hierarchy.

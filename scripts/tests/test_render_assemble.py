@@ -254,7 +254,7 @@ def test_inline_assets_falls_back_to_skill_assets_by_basename(
     tmp_path: Path,
 ) -> None:
     # An unrelated dir with no page.css of its own, linking "../page.css" the
-    # way a filled template copied to .cc-arsenal/renders/ would.
+    # way a filled template copied to .ai-arsenal/renders/ would.
     html = '<link rel="stylesheet" href="../page.css">'
 
     out = assemble.inline_assets(html, tmp_path)

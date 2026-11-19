@@ -1,4 +1,4 @@
-<title>Install cc-arsenal skills</title>
+<title>Install ai-arsenal skills</title>
 <!-- impeccable-disable overused-font -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -9,7 +9,7 @@
 
 <header class="toolbar">
   <div class="toolbar-row">
-    <span class="toolbar-title">Install cc-arsenal skills</span>
+    <span class="toolbar-title">Install ai-arsenal skills</span>
     <div class="counts" aria-label="Counts"></div>
     <span class="spacer"></span>
     <div class="seg" role="group" aria-label="Theme" data-theme-toggle>
@@ -58,9 +58,9 @@
  * }
  */
 const DATA = /*SAMPLE*/{
-  title: "Install cc-arsenal skills",
+  title: "Install ai-arsenal skills",
   byline: "Four ways to get the skill set into an agent, read against what this repo's own CLAUDE.md and AGENTS.md say about each.",
-  question: "How should someone install cc-arsenal's skills: the Claude Code plugin marketplace, the cross-tool npx skills CLI, a repo symlink install, or a manual copy. The answer decides who gets auto-updates, whether the setup works outside Claude Code, and how much it leaves behind on disk.",
+  question: "How should someone install ai-arsenal's skills: the Claude Code plugin marketplace, the cross-tool npx skills CLI, a repo symlink install, or a manual copy. The answer decides who gets auto-updates, whether the setup works outside Claude Code, and how much it leaves behind on disk.",
   criteria: [
     { slug: "auto-update", label: "Auto-update support", weight: 3 },
     { slug: "outside-claude-code", label: "Works outside Claude Code", weight: 3 },
@@ -74,8 +74,8 @@ const DATA = /*SAMPLE*/{
       cells: {
         "auto-update": { score: 4, max: 5, text: "A GitHub remote marketplace source auto-updates; a local directory source caches marketplace.json on first install and does not." },
         "outside-claude-code": { score: 1, max: 5, text: "/plugin marketplace add and /plugin install are Claude Code commands with no equivalent in another agent CLI." },
-        "setup-steps": { score: 4, max: 5, text: "One command, /plugin marketplace add mgiovani/cc-arsenal, then Browse and install plugins, or the single-line /plugin install cc-arsenal@cc-arsenal-marketplace." },
-        "selective-install": { score: 4, max: 5, text: "Nine plugin variants scope which skills load, from the full cc-arsenal set down to cc-arsenal-review alone; granularity is per variant, not per skill." },
+        "setup-steps": { score: 4, max: 5, text: "One command, /plugin marketplace add mgiovani/ai-arsenal, then Browse and install plugins, or the single-line /plugin install ai-arsenal@ai-arsenal-marketplace." },
+        "selective-install": { score: 4, max: 5, text: "Nine plugin variants scope which skills load, from the full ai-arsenal set down to ai-arsenal-review alone; granularity is per variant, not per skill." },
         "footprint": { score: 5, max: 5, text: "Managed install, no symlinks placed in the home directory; CLAUDE.md names this directly as the benefit over npx skills add." },
       },
       strengths: [
@@ -93,7 +93,7 @@ const DATA = /*SAMPLE*/{
       cells: {
         "auto-update": { score: 1, max: 5, text: "It copies each skill into the target tool's own skills directory once; nothing re-checks the source after that." },
         "outside-claude-code": { score: 5, max: 5, text: "AGENTS.md names it as the path for any Agent-Skills-compatible tool: Codex, Cursor, Gemini CLI, OpenCode." },
-        "setup-steps": { score: 5, max: 5, text: "A single command, npx skills add mgiovani/cc-arsenal, no plugin system or marketplace registration first." },
+        "setup-steps": { score: 5, max: 5, text: "A single command, npx skills add mgiovani/ai-arsenal, no plugin system or marketplace registration first." },
         "selective-install": { score: 2, max: 5, text: "Installs the skill set the skills.sh CLI resolves for the repo; this repo's docs describe no per-skill picker for it." },
         "footprint": { score: 3, max: 5, text: "Copies files into each tool's own skills directory, once per tool, with no central manifest tying the copies together." },
       },
@@ -110,7 +110,7 @@ const DATA = /*SAMPLE*/{
       slug: "symlink-install", label: "Symlink install", win: false,
       cells: {
         "auto-update": { score: 5, max: 5, text: "Creates symlinks in ~/.claude, so a local repo edit is live immediately with no separate update step." },
-        "outside-claude-code": { score: 1, max: 5, text: "The symlinks land in ~/.claude, Claude Code's own directory; CLAUDE.md marks the method for developing cc-arsenal itself." },
+        "outside-claude-code": { score: 1, max: 5, text: "The symlinks land in ~/.claude, Claude Code's own directory; CLAUDE.md marks the method for developing ai-arsenal itself." },
         "setup-steps": { score: 2, max: 5, text: "uv sync --extra dev, then uv run python -m scripts.setup.install, then optionally scripts.setup.configure." },
         "selective-install": { score: 5, max: 5, text: "make configure is interactive: it lets a developer choose exactly which skills to symlink, the finest grain of the four." },
         "footprint": { score: 2, max: 5, text: "Leaves system-wide symlinks in ~/.claude, the exact footprint CLAUDE.md says the plugin system avoids." },
@@ -120,7 +120,7 @@ const DATA = /*SAMPLE*/{
         "make configure picks specific skills interactively rather than all or nothing.",
       ],
       costs: [
-        "CLAUDE.md marks it explicitly for developing cc-arsenal itself, not for a regular user.",
+        "CLAUDE.md marks it explicitly for developing ai-arsenal itself, not for a regular user.",
         "Leaves system-wide symlinks behind, which the plugin system exists partly to replace.",
       ],
     },
@@ -145,11 +145,11 @@ const DATA = /*SAMPLE*/{
   ],
   decision: "Default to the plugin marketplace for a Claude Code user: it is the only option with managed enable and disable, and CLAUDE.md's own comparison names it the replacement for the symlink method's system-wide footprint. Reach for npx skills add instead the moment the target is Codex, Cursor, Gemini CLI or another non-Claude-Code tool, since the marketplace and the symlink method both stop at Claude Code's own directory.",
   sources: [
-    { label: "Plugin System (Recommended for Claude Code)", href: "https://github.com/mgiovani/cc-arsenal/blob/main/CLAUDE.md#plugin-system-recommended-for-claude-code", claim: "Marketplace add command, plugin variants table, and the benefits list over npx skills add." },
-    { label: "Troubleshooting plugin updates", href: "https://github.com/mgiovani/cc-arsenal/blob/main/CLAUDE.md#troubleshooting-plugin-updates", claim: "Local directory marketplaces do not support auto-update; a GitHub remote source does." },
-    { label: "Development Installation (Symlink Method)", href: "https://github.com/mgiovani/cc-arsenal/blob/main/CLAUDE.md#development-installation-symlink-method", claim: "Marked for developing cc-arsenal itself; make configure symlinks only the skills selected." },
-    { label: "Install in any agent", href: "https://github.com/mgiovani/cc-arsenal/blob/main/AGENTS.md#install-in-any-agent", claim: "npx skills add is the skills.sh CLI; it reaches Codex, Cursor, Gemini CLI and OpenCode." },
-    { label: "Repository Architecture", href: "https://github.com/mgiovani/cc-arsenal/blob/main/AGENTS.md#repository-architecture", claim: "Every skill lives once under skills/<name>/SKILL.md, so a skill is a folder a tool can copy directly." },
+    { label: "Plugin System (Recommended for Claude Code)", href: "https://github.com/mgiovani/ai-arsenal/blob/main/CLAUDE.md#plugin-system-recommended-for-claude-code", claim: "Marketplace add command, plugin variants table, and the benefits list over npx skills add." },
+    { label: "Troubleshooting plugin updates", href: "https://github.com/mgiovani/ai-arsenal/blob/main/CLAUDE.md#troubleshooting-plugin-updates", claim: "Local directory marketplaces do not support auto-update; a GitHub remote source does." },
+    { label: "Development Installation (Symlink Method)", href: "https://github.com/mgiovani/ai-arsenal/blob/main/CLAUDE.md#development-installation-symlink-method", claim: "Marked for developing ai-arsenal itself; make configure symlinks only the skills selected." },
+    { label: "Install in any agent", href: "https://github.com/mgiovani/ai-arsenal/blob/main/AGENTS.md#install-in-any-agent", claim: "npx skills add is the skills.sh CLI; it reaches Codex, Cursor, Gemini CLI and OpenCode." },
+    { label: "Repository Architecture", href: "https://github.com/mgiovani/ai-arsenal/blob/main/AGENTS.md#repository-architecture", claim: "Every skill lives once under skills/<name>/SKILL.md, so a skill is a folder a tool can copy directly." },
   ],
 }/*SAMPLE*/;
 
@@ -273,6 +273,6 @@ function mount(data) {
 
 mount(DATA);
 if (window.Render) {
-  Render.init({ verdicts: null, file: 'compare-install-cc-arsenal-skills-2026-09-23.html', title: DATA.title });
+  Render.init({ verdicts: null, file: 'compare-install-ai-arsenal-skills-2026-09-23.html', title: DATA.title });
 }
 </script>

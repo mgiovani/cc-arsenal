@@ -5,7 +5,7 @@
       "id": "happy-path-review-mode",
       "prompt": "This repo has a review report listing 12 findings across src/auth.py (3 critical), src/query.py (2 high), and src/views.py (7 low), each with a file:line reference and a described failure. Run render review on it.",
       "assertions": [
-        "an HTML file is written under .cc-arsenal/renders/ with a name starting 'review-'",
+        "an HTML file is written under .ai-arsenal/renders/ with a name starting 'review-'",
         "all 12 findings appear on the page, none invented and none dropped",
         "the severity ranking from the source report is preserved, critical before high before low",
         "each finding is inside an element carrying a data-anchor derived from its file, line and a slug of its claim, so two findings on the same line do not collide, and never from its position in the list",
@@ -59,7 +59,7 @@
     },
     {
       "id": "judgment-read-marks-back-with-orphan",
-      "prompt": "The page at .cc-arsenal/renders/prd-lachesis-2026-08-30.html was marked by the user and saved. It carries a comment anchored to req-PRD-FR-099, which no longer exists in the current requirement set. Read the marks back.",
+      "prompt": "The page at .ai-arsenal/renders/prd-lachesis-2026-08-30.html was marked by the user and saved. It carries a comment anchored to req-PRD-FR-099, which no longer exists in the current requirement set. Read the marks back.",
       "assertions": [
         "the page's state block is parsed rather than the rendered DOM being scraped",
         "results are grouped by what the user decided rather than by page order",
@@ -76,7 +76,7 @@
         "the response lists the available modes with what each one produces",
         "the response asks which mode the user wants",
         "no mode is guessed and no page is built",
-        "no file is written under .cc-arsenal/renders/ or anywhere else"
+        "no file is written under .ai-arsenal/renders/ or anywhere else"
       ]
     },
     {
@@ -91,7 +91,7 @@
     },
     {
       "id": "judgment-rerender-preserves-marks",
-      "prompt": "The page at .cc-arsenal/renders/review-auth-2026-08-30.html already carries 40 verdicts and 6 comments saved by the user. Re-run render review on the same subject after two of the findings were fixed, writing to that same path.",
+      "prompt": "The page at .ai-arsenal/renders/review-auth-2026-08-30.html already carries 40 verdicts and 6 comments saved by the user. Re-run render review on the same subject after two of the findings were fixed, writing to that same path.",
       "assertions": [
         "the existing page's state block is read and parsed before the new page is written",
         "the regenerated page embeds the carried state rather than an empty {\"verdicts\":{},\"comments\":[]} block",
@@ -115,7 +115,7 @@
       "id": "happy-path-tour-mode",
       "prompt": "Run render tour on how skills/render/scripts/assemble.py works: inline_assets() splicing in page.css/page.js, then check() gating the result through _hex_violations, _color_function_violations and _css_declaration_violations.",
       "assertions": [
-        "an HTML file is written under .cc-arsenal/renders/ with a name starting 'tour-'",
+        "an HTML file is written under .ai-arsenal/renders/ with a name starting 'tour-'",
         "the page is built by copying assets/templates/tour.html and replacing its /*SAMPLE*/ DATA object, then assembling with scripts/assemble.py, not hand-authored from a blank file",
         "tour mode carries no verdict controls, matching its 'none, comments only' row in the mode table; only the anchored comment affordance appears on each stop",
         "each stop is anchored to the real function or file it walks (inline_assets, check, main, or similar), never to its position in the list",
@@ -128,7 +128,7 @@
       "id": "happy-path-timeline-mode",
       "prompt": "Run render timeline on the render skill's own history from CHANGELOG.md: added in [5.2.0] on 2026-08-30 as one of five skills, then this release's monochrome/square/Geist redesign adding tour, timeline, diff and report.",
       "assertions": [
-        "an HTML file is written under .cc-arsenal/renders/ with a name starting 'timeline-'",
+        "an HTML file is written under .ai-arsenal/renders/ with a name starting 'timeline-'",
         "the page is built by copying assets/templates/timeline.html and replacing its /*SAMPLE*/ DATA object, then assembled with scripts/assemble.py",
         "timeline mode carries no verdict controls; each event carries only the anchored comment affordance",
         "events are rendered with the timeline block (a dated vertical rule), not as an undated steps list",
@@ -141,7 +141,7 @@
       "id": "happy-path-diff-mode",
       "prompt": "Run render diff on a proposed change to skills/render/scripts/assemble.py's _shadow_ok function: the before is the current allow-list check, the after simplifies it to a single set membership test.",
       "assertions": [
-        "an HTML file is written under .cc-arsenal/renders/ with a name starting 'diff-'",
+        "an HTML file is written under .ai-arsenal/renders/ with a name starting 'diff-'",
         "the page is built by copying assets/templates/diff.html and replacing its /*SAMPLE*/ DATA object, then assembled with scripts/assemble.py",
         "each hunk carries accept / revise / reject verdict controls, matching diff mode's row in the mode table",
         "the before and after code are both shown via the diff block, with added and removed lines distinguished by the .add/.del line classes rather than by color alone",
@@ -152,9 +152,9 @@
     },
     {
       "id": "happy-path-report-mode",
-      "prompt": "Run render report on this week's GitHub activity for the cc-arsenal repo: 3 PRs merged, 2 open review requests, 1 stale branch older than 14 days.",
+      "prompt": "Run render report on this week's GitHub activity for the ai-arsenal repo: 3 PRs merged, 2 open review requests, 1 stale branch older than 14 days.",
       "assertions": [
-        "an HTML file is written under .cc-arsenal/renders/ with a name starting 'report-'",
+        "an HTML file is written under .ai-arsenal/renders/ with a name starting 'report-'",
         "the page is built by copying assets/templates/report.html and replacing its /*SAMPLE*/ DATA object, then assembled with scripts/assemble.py",
         "report mode carries no verdict controls; metrics and status lines carry only the anchored comment affordance",
         "the tldr and facts or tally blocks are used for the counts (3 merged, 2 open reviews, 1 stale branch) rather than a hero metric or a wall of prose",
@@ -166,7 +166,7 @@
       "id": "happy-path-map-mode-diagram",
       "prompt": "Run render map on this repo's 7-module dependency graph: auth depends on db and config; api depends on auth and db; worker depends on db and config; config depends on nothing.",
       "assertions": [
-        "an HTML file is written under .cc-arsenal/renders/ with a name starting 'map-'",
+        "an HTML file is written under .ai-arsenal/renders/ with a name starting 'map-'",
         "the page is built by copying assets/templates/map.html and replacing its /*SAMPLE*/ DATA object, then assembled with scripts/assemble.py",
         "the graph is drawn via Render.diagram.dependency (or Render.diagram.architecture if the modules group into zones), never hand-written SVG",
         "the diagram call passes only nodes and edges, with no coordinate, position, x or y field anywhere in the data",
@@ -189,7 +189,7 @@
       "id": "happy-path-explain-mode-sequence",
       "prompt": "Run render explain on how a login request flows through this app: the client calls the API gateway, the gateway calls the auth service, the auth service queries the user database and returns a token, and the gateway returns the token to the client.",
       "assertions": [
-        "an HTML file is written under .cc-arsenal/renders/ with a name starting 'explain-'",
+        "an HTML file is written under .ai-arsenal/renders/ with a name starting 'explain-'",
         "the page is built by copying assets/templates/explain.html and replacing its /*SAMPLE*/ DATA object, then assembled with scripts/assemble.py",
         "the mechanism is drawn via Render.diagram.sequence with the four participants (client, gateway, auth service, user database) and the messages between them, never hand-written SVG",
         "the sequence diagram carries a text alternative (a .dg-sr list or equivalent) describing every message in order, for a reader who cannot see the diagram",

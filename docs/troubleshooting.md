@@ -129,13 +129,13 @@ source ~/.bashrc
 # Solution: Check repository URL and access
 
 # Use HTTPS instead of SSH
-git clone https://github.com/mgiovani/cc-arsenal.git
+git clone https://github.com/mgiovani/ai-arsenal.git
 
 # Check network connectivity
 ping github.com
 
 # Try with verbose output
-git clone --verbose https://github.com/mgiovani/cc-arsenal.git
+git clone --verbose https://github.com/mgiovani/ai-arsenal.git
 ```
 
 #### Slow clone due to large repository
@@ -144,10 +144,10 @@ git clone --verbose https://github.com/mgiovani/cc-arsenal.git
 # Solution: Shallow clone
 
 # Clone only recent history
-git clone --depth 1 https://github.com/mgiovani/cc-arsenal.git
+git clone --depth 1 https://github.com/mgiovani/ai-arsenal.git
 
 # Clone specific branch
-git clone -b main --single-branch https://github.com/mgiovani/cc-arsenal.git
+git clone -b main --single-branch https://github.com/mgiovani/ai-arsenal.git
 ```
 
 ## Configuration issues
@@ -534,12 +534,12 @@ git checkout v1.0.0  # or latest stable tag
 
 ```bash
 # Enable verbose logging
-export CC_ARSENAL_DEBUG=1
+export AI_ARSENAL_DEBUG=1
 
 # Enable component-specific debugging
-export CC_ARSENAL_DEBUG_SKILLS=1
-export CC_ARSENAL_DEBUG_HOOKS=1
-export CC_ARSENAL_DEBUG_COMMANDS=1
+export AI_ARSENAL_DEBUG_SKILLS=1
+export AI_ARSENAL_DEBUG_HOOKS=1
+export AI_ARSENAL_DEBUG_COMMANDS=1
 ```
 
 ### Log locations
@@ -581,8 +581,8 @@ make dry-run                   # Preview installation
 
 ### Community support
 
-1. GitHub issues: https://github.com/mgiovani/cc-arsenal/issues
-2. GitHub discussions: https://github.com/mgiovani/cc-arsenal/discussions
+1. GitHub issues: https://github.com/mgiovani/ai-arsenal/issues
+2. GitHub discussions: https://github.com/mgiovani/ai-arsenal/discussions
 3. Documentation: browse all documentation in docs/
 
 ### Reporting issues

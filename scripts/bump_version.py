@@ -17,6 +17,7 @@ import re
 from pathlib import Path
 
 VERSION_RE = re.compile(r'"version"\s*:\s*"\d+\.\d+\.\d+"')
+TOML_VERSION_RE = re.compile(r'^version = "\d+\.\d+\.\d+"$', re.MULTILINE)
 SEMVER_RE = re.compile(r'^\d+\.\d+\.\d+$')
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -51,7 +52,13 @@ def main() -> None:
         if not path.exists():
             raise SystemExit(f'error: target file not found: {rel_path}')
         text = path.read_text()
-        new_text, count = VERSION_RE.subn(f'"version": "{args.version}"', text)
+        if path.suffix == '.toml':
+            # Only the first match is [project].version; later tables may carry their own
+            new_text, count = TOML_VERSION_RE.subn(
+                f'version = "{args.version}"', text, count=1
+            )
+        else:
+            new_text, count = VERSION_RE.subn(f'"version": "{args.version}"', text)
         if count == 0:
             raise SystemExit(
                 f'error: no "version" field matched in {rel_path} -- check '

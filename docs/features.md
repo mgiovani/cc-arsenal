@@ -1,6 +1,6 @@
 # Features
 
-Complete reference for all cc-arsenal skills and optional features.
+Complete reference for all ai-arsenal skills and optional features.
 
 Skills are the single component type in this repository. Each skill lives in `skills/<name>/SKILL.md`; many bundle `references/`, `scripts/`, `assets/`, and `evals/` alongside it (see [Architecture](architecture.md) for the anatomy).
 
@@ -381,7 +381,7 @@ Real-time cost and usage tracking in your Claude Code prompt, computed fresh on 
 
 **Example:**
 ```
-🤖 Opus 5.5 │ 📊 66% │ 📁 ~/projects/cc-arsenal │ 🌿 main ● │ 💰 $3.169 │ ⏱️ 21m
+🤖 Opus 5.5 │ 📊 66% │ 📁 ~/projects/ai-arsenal │ 🌿 main ● │ 💰 $3.169 │ ⏱️ 21m
 🔄 5h: 16% → 21:00 │ 📅 7d: 39% → Dec 31 21:00
 ```
 
@@ -413,21 +413,21 @@ make -C integrations/claude-code/claude-hi standard  # Quick 9am/2pm/7pm schedul
 ## Installation Options
 
 ### Plugin Marketplace (Claude Code)
-- **Installation**: `/plugin install cc-arsenal@cc-arsenal-marketplace`
-- **Skills**: All 56 skills, or a focused variant (`cc-arsenal-dev`, `cc-arsenal-product`, `cc-arsenal-review`, `cc-arsenal-docs`, `cc-arsenal-git`, `cc-arsenal-jira`, `cc-arsenal-skills`)
+- **Installation**: `/plugin install ai-arsenal@ai-arsenal-marketplace`
+- **Skills**: All 56 skills, or a focused variant (`ai-arsenal-dev`, `ai-arsenal-product`, `ai-arsenal-review`, `ai-arsenal-docs`, `ai-arsenal-git`, `ai-arsenal-jira`, `ai-arsenal-skills`)
 - See [Getting Started](getting-started.md) for the full variant list
 
 ### Symlink Install (Contributors)
-- **Use case**: Developing cc-arsenal itself
+- **Use case**: Developing ai-arsenal itself
 - **Installation**: `make install` (or `make configure` to select specific skills)
 
 ## Using with Other Agents
 
-cc-arsenal skills follow the open [Agent Skills standard](https://agentskills.io): a `SKILL.md` with just `name` + `description` frontmatter is portable to any tool that supports it, not only Claude Code.
+ai-arsenal skills follow the open [Agent Skills standard](https://agentskills.io): a `SKILL.md` with just `name` + `description` frontmatter is portable to any tool that supports it, not only Claude Code.
 
 **Install for any agent:**
 ```bash
-npx skills add mgiovani/cc-arsenal
+npx skills add mgiovani/ai-arsenal
 ```
 
 **Per-tool install directories** (where the CLI places skill files):
@@ -435,7 +435,7 @@ npx skills add mgiovani/cc-arsenal
 - Other agents (Codex, Cursor, OpenCode, Gemini CLI, etc.): `.agents/skills/`
 
 **Claude Code-only features** (ignored by other tools, since they read only `name`/`description`):
-- Plugin variants via `/plugin marketplace add mgiovani/cc-arsenal` (`.claude-plugin/marketplace.json`)
+- Plugin variants via `/plugin marketplace add mgiovani/ai-arsenal` (`.claude-plugin/marketplace.json`)
 - `hooks`, `disable-model-invocation`, `context`, `agent` frontmatter keys
 - Statusline and Claude Hi scheduler (see Optional Features above)
 - Subagent (Task tool) orchestration used by skills like `implement-feature` and `review-code`

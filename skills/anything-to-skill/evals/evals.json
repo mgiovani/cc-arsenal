@@ -41,7 +41,7 @@
       "prompt": "The tree looks good, approved. Write the skill and verify it.",
       "assertions": [
         "Runs a2s.py brief and reads review.md instead of reading raw corpus pages",
-        "Writes the authored files under .cc-arsenal/a2s/<slug>/authored/, not directly into the output directory",
+        "Writes the authored files under .ai-arsenal/a2s/<slug>/authored/, not directly into the output directory",
         "Every code block in the authored files is copied verbatim from a unit in the corpus",
         "Every factual claim in best-practices.md carries a (src: <id> \"quote\") marker with a quote of 20 words or fewer",
         "Runs a2s.py emit then a2s.py verify and re-runs verify until there are zero hard failures, with at most one bounded fix retry",
@@ -80,7 +80,7 @@
       "assertions": [
         "Asks before compacting and says it costs a brief read, an authoring pass and three eval runs, that SOURCES.md and attribution are dropped, and that source licenses should be checked",
         "Runs a2s.py compact-brief and reads compact-brief.md and references/compaction.md instead of reading mirrored reference pages",
-        "Writes the compact skill into .cc-arsenal/a2s/<slug>/compact/ and nothing into the output directory before the gate passes",
+        "Writes the compact skill into .ai-arsenal/a2s/<slug>/compact/ and nothing into the output directory before the gate passes",
         "Runs a2s.py compact-verify and fixes hard failures once before removing what still fails",
         "Runs the evals three ways (no skill, full skill, compact skill) and applies the compaction only if the compact pass rate is at least the full skill's and above no skill",
         "Never edits an assertion to make it pass and lists every reworded assertion in the report",

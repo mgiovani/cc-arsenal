@@ -2,7 +2,7 @@
 
 ## Our commitment
 
-We take the security of cc-arsenal seriously. If you discover a security vulnerability, we appreciate your help in disclosing it to us responsibly.
+We take the security of ai-arsenal seriously. If you discover a security vulnerability, we appreciate your help in disclosing it to us responsibly.
 
 ## Supported versions
 
@@ -42,7 +42,7 @@ Include the following information in your report:
 
 ## Security best practices
 
-When using cc-arsenal, follow these practices depending on your role:
+When using ai-arsenal, follow these practices depending on your role:
 
 | Role | Practice | Detail |
 | --- | --- | --- |
@@ -56,7 +56,7 @@ When using cc-arsenal, follow these practices depending on your role:
 
 ## Known security considerations
 
-Two areas are worth understanding before you rely on cc-arsenal in a sensitive environment: automation and data handling.
+Two areas are worth understanding before you rely on ai-arsenal in a sensitive environment: automation and data handling.
 
 Automation runs with real access, so review it before you enable it: custom agents have access to your codebase, so review agent configurations, and the Claude Hi scheduler creates cron jobs, so review scheduling before setup.
 

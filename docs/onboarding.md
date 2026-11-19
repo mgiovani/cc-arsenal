@@ -56,11 +56,11 @@ flowchart TD
 
 ```bash
 # Fork the repository on GitHub first, then:
-git clone https://github.com/YOUR-USERNAME/cc-arsenal.git
-cd cc-arsenal
+git clone https://github.com/YOUR-USERNAME/ai-arsenal.git
+cd ai-arsenal
 
 # Add upstream remote
-git remote add upstream https://github.com/mgiovani/cc-arsenal.git
+git remote add upstream https://github.com/mgiovani/ai-arsenal.git
 
 # Install Python dependencies
 uv sync --extra dev
@@ -160,7 +160,7 @@ Commit types:
 ## Project Structure
 
 ```
-cc-arsenal/
+ai-arsenal/
 ├── .claude-plugin/     # Plugin configuration
 │   └── marketplace.json   # Marketplace + plugin variant descriptors
 ├── skills/            # All 56 skills (the only component type)
@@ -393,7 +393,7 @@ make install
 Solution:
 ```bash
 # Ensure you're in the correct directory
-cd cc-arsenal
+cd ai-arsenal
 
 # Reinstall dependencies
 uv sync --extra dev
@@ -416,9 +416,9 @@ make type-check
 ### Getting Help
 
 - Documentation: Check `docs/` directory for guides
-- Existing issues: Search [GitHub Issues](https://github.com/mgiovani/cc-arsenal/issues)
+- Existing issues: Search [GitHub Issues](https://github.com/mgiovani/ai-arsenal/issues)
 - Troubleshooting guide: See [troubleshooting.md](./troubleshooting.md)
-- Discussions: Ask in [GitHub Discussions](https://github.com/mgiovani/cc-arsenal/discussions)
+- Discussions: Ask in [GitHub Discussions](https://github.com/mgiovani/ai-arsenal/discussions)
 - Maintainer: Open an issue or contact via GitHub
 
 ## Resources
@@ -450,7 +450,7 @@ make type-check
 1. ✅ Complete setup: Ensure all prerequisites are installed and tests pass
 2. 🔍 Explore codebase: Browse commands and skills
 3. 🧪 Run examples: Try using existing commands in Claude Code
-4. 🎯 Pick first issue: Look for ["good first issue"](https://github.com/mgiovani/cc-arsenal/labels/good%20first%20issue) labels
+4. 🎯 Pick first issue: Look for ["good first issue"](https://github.com/mgiovani/ai-arsenal/labels/good%20first%20issue) labels
 5. 💬 Join community: Introduce yourself in GitHub Discussions
 
 ## Feedback
@@ -463,6 +463,6 @@ This onboarding guide is a living document. If you encounter issues or have sugg
 
 ---
 
-Need help? Don't hesitate to reach out by opening a [GitHub Issue](https://github.com/mgiovani/cc-arsenal/issues) or starting a [Discussion](https://github.com/mgiovani/cc-arsenal/discussions).
+Need help? Don't hesitate to reach out by opening a [GitHub Issue](https://github.com/mgiovani/ai-arsenal/issues) or starting a [Discussion](https://github.com/mgiovani/ai-arsenal/discussions).
 
 Happy developing! 🚀

@@ -7,7 +7,7 @@ Patterns for finding, evaluating, installing, and managing skills from outside t
 - [Discovery patterns](#discovery-patterns)
 - [Installation strategies](#installation-strategies)
 - [Security review](#security-review)
-- [Combining external skills with cc-arsenal](#combining-external-skills-with-cc-arsenal)
+- [Combining external skills with ai-arsenal](#combining-external-skills-with-ai-arsenal)
 - [Managing updates and versions](#managing-updates-and-versions)
 - [Publishing skills to skills.sh](#publishing-skills-to-skillssh)
 
@@ -115,7 +115,7 @@ npx skills add owner/repo --skill verified-skill -a claude-code
 
 ---
 
-## Combining external skills with cc-arsenal
+## Combining external skills with ai-arsenal
 
 ### Avoiding redundancy
 
@@ -123,7 +123,7 @@ Run `ls skills/` in this repo before installing an external equivalent. A hardco
 
 ### Complementary skills
 
-Good candidates to install alongside cc-arsenal:
+Good candidates to install alongside ai-arsenal:
 - Framework-specific skills (React, Next.js, Django, Rails patterns)
 - Language-specific skills (Rust, Go, Python best practices)
 - Design system skills (Tailwind, Material UI)
@@ -132,10 +132,10 @@ Good candidates to install alongside cc-arsenal:
 
 ### Conflict resolution
 
-If an installed skill overlaps with cc-arsenal:
-1. Prefer cc-arsenal's built-in skill (better integration, maintained by the same team)
+If an installed skill overlaps with ai-arsenal:
+1. Prefer ai-arsenal's built-in skill (better integration, maintained by the same team)
 2. Remove the duplicate: `npx skills remove <name>`
-3. If the third-party skill is superior, consider contributing improvements to cc-arsenal instead
+3. If the third-party skill is superior, consider contributing improvements to ai-arsenal instead
 
 ---
 

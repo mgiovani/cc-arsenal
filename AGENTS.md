@@ -1,10 +1,10 @@
 # AGENTS.md
 
-This is the canonical, tool-agnostic guidance file for **cc-arsenal**. Any AGENTS.md-aware tool reads it natively, including Codex, Cursor, Copilot, Gemini CLI and OpenCode. Claude Code does not read this file directly; `CLAUDE.md` imports it via `@AGENTS.md` and adds Claude-Code-only content on top.
+This is the canonical, tool-agnostic guidance file for **ai-arsenal**. Any AGENTS.md-aware tool reads it natively, including Codex, Cursor, Copilot, Gemini CLI and OpenCode. Claude Code does not read this file directly; `CLAUDE.md` imports it via `@AGENTS.md` and adds Claude-Code-only content on top.
 
 ## Repository Architecture
 
-cc-arsenal is a collection of **56 Agent Skills** ([agentskills.io](https://agentskills.io) open standard) for development workflow automation. `skills/` is the single canonical tier: every skill lives there once, written tool-neutral, and any tool that speaks the Agent Skills format can load it directly.
+ai-arsenal is a collection of **56 Agent Skills** ([agentskills.io](https://agentskills.io) open standard) for development workflow automation. `skills/` is the single canonical tier: every skill lives there once, written tool-neutral, and any tool that speaks the Agent Skills format can load it directly.
 
 ### Core Components
 
@@ -16,15 +16,15 @@ cc-arsenal is a collection of **56 Agent Skills** ([agentskills.io](https://agen
 
 ```bash
 # Any Agent-Skills-compatible tool (Codex, Cursor, Gemini CLI, OpenCode, ...)
-npx skills add mgiovani/cc-arsenal
+npx skills add mgiovani/ai-arsenal
 ```
 
 `npx skills` is the [skills.sh](https://skills.sh) CLI: it copies each skill into the target tool's own skills directory, no plugin system required. Pass `-a` to pick the tool; Codex, OpenCode and Antigravity all read the shared `.agents/skills` directory:
 
 ```bash
-npx skills add mgiovani/cc-arsenal -a codex
-npx skills add mgiovani/cc-arsenal -a opencode
-npx skills add mgiovani/cc-arsenal -a antigravity
+npx skills add mgiovani/ai-arsenal -a codex
+npx skills add mgiovani/ai-arsenal -a opencode
+npx skills add mgiovani/ai-arsenal -a antigravity
 ```
 
 Using Claude Code? See `CLAUDE.md` for the plugin marketplace install and plugin variants, plus other Claude-Code-only extras.
@@ -256,7 +256,7 @@ See `CONTRIBUTING.md` for the full development setup.
 
 ## File Organization
 ```
-cc-arsenal/
+ai-arsenal/
 ├── skills/          # All 56 skills (canonical, tool-agnostic)
 │   └── <name>/          # SKILL.md + optional references/, scripts/, assets/, evals/
 ├── scripts/         # Installation and utilities (see CLAUDE.md for Claude-Code-specific ones)
