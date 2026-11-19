@@ -13,7 +13,7 @@ argument-hint: "[--skip-brand] [--rewrite-history]"
 
 Take a private side project from "done" to a public GitHub launch in seven staged gates: pre-flight, review, brand, README, mention scrub, history rewrite (optional, hard-gated), public flip. Like `ship`, every stage reports the real command it ran and stops at the first gate that isn't met: never estimate a result, never skip a gate silently.
 
-Track progress with `TodoWrite` (one line per stage) so the user sees where the launch train is if a gate stops it.
+Track with the task/todo tool where available (`TodoWrite` in Claude Code), otherwise keep the checklist in the reply (one line per stage), so the user sees where the launch train is if a gate stops it.
 
 ## The stages
 
@@ -35,7 +35,7 @@ Track progress with `TodoWrite` (one line per stage) so the user sees where the 
 
 ## Stage 2: Review
 
-Invoke the `review-code` skill (via `Skill`, or a `Task`/`Explore`→`sonnet` subagent if that's unavailable) against the default branch. Any **Critical/High** finding stops the train: report it and let the user decide (fix and re-run, or explicitly accept the risk). Medium/Low findings are reported but don't block.
+Invoke the `review-code` skill (via the `Skill` tool where available; otherwise spawn a subagent on the balanced tier (`sonnet` in Claude Code) where the tool has one, or apply its steps inline, in order) against the default branch. Any **Critical/High** finding stops the train: report it and let the user decide (fix and re-run, or explicitly accept the risk). Medium/Low findings are reported but don't block.
 
 ## Stage 3: Brand
 

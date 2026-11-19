@@ -37,7 +37,7 @@ Full detection table and per-framework commands: [references/framework-commands.
 
 ### Phase 2: Parse the request
 
-Determine the operation from `$ARGUMENTS` or the user's phrasing:
+Determine the operation from the user's request:
 
 - `create` (default if unspecified): make a new migration file
 - `status`: show pending vs. applied migrations

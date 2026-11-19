@@ -75,7 +75,7 @@ Four scan categories, each with its own grep patterns and reporting format in [r
 
 Spawn only the category matching `--scope`; spawn all 4 for `--all`, no scope, or `--scope backend` (database + algorithm + resources).
 
-With subagent tools available: spawn one Explore agent per category in parallel, using the prompts in the reference file, and track progress with TodoWrite. Without subagent tools: run the categories sequentially inline in the same order, one grep pass and read-verify cycle per category.
+With subagent tools available: spawn one read-only exploration subagent per category in parallel (fast tier, `haiku` in Claude Code, where the tool allows setting the model), using the prompts in the reference file, and track progress with the task/todo tool where available, otherwise keep the checklist in the reply. Without subagent tools: run the categories sequentially inline in the same order, one grep pass and read-verify cycle per category.
 
 For a PR or commit review, pass the Phase 0 changed-file list to every category (agent or inline) as the *only* valid grep/read target - a file the diff didn't touch is out of bounds even if it looks relevant (e.g. a service a changed view calls into). For `--all`, there's no such restriction.
 

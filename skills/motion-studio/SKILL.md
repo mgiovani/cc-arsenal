@@ -51,9 +51,9 @@ HyperFrames setup (ask the user first; needs Node.js: `fnm install --lts` or `br
 - Ban the AI-video defaults: a title centered on a gradient, fade-in on everything, labels in the corners or borders around the frame, glowing UI chrome, stock particle bursts. One display face, one UI face, one accent. Something new on screen every 2 to 4 seconds.
 - Sound: synthesize the score and SFX on the same timeline unless a track is supplied; state changes on beats, big moments on downbeats, SFX on hits; mix at -14 LUFS.
 - Effort (Opus 5.5 defaults to medium): keep medium for tweaks and re-renders, raise to xhigh for a new film, and use max for launch pieces whose opening seconds must hook.
-- Put house rules in the project `CLAUDE.md` so every film inherits them. Keep one session per brand. API keys live in `.env`, never in a prompt.
+- Put house rules in the project `AGENTS.md` or `CLAUDE.md`, whichever exists, so every film inherits them. Keep one session per brand. API keys live in `.env`, never in a prompt.
 - Reframe type and UI per format; do not crop a 16:9 render to vertical.
-- Long films are iteration, not one shot. For long or multi-chapter films, write `docs/ANIMATION_GUIDE.md` first and have subagents code each chapter in its own file behind it.
+- Long films are iteration, not one shot. For long or multi-chapter films, write `docs/ANIMATION_GUIDE.md` first and have subagents (where the tool has them; otherwise do each chapter inline, in order) code each chapter in its own file behind it.
 
 ## Routing
 

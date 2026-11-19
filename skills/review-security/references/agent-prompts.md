@@ -1,6 +1,6 @@
 # Security Review - Agent Prompts & OWASP Patterns
 
-Detailed grep patterns and agent prompts for each OWASP vulnerability category. Load this reference when running Phase 3 parallel vulnerability scanning.
+Detailed grep patterns and agent prompts for each OWASP vulnerability category. Load this reference when running Phase 3 parallel vulnerability scanning. Each prompt block below names the balanced tier (`sonnet` in Claude Code) as its model; set it explicitly where the tool allows it, and use the harness's equivalent tier elsewhere.
 
 ## Contents
 

@@ -24,15 +24,11 @@ This skill produces exactly one of two outputs: an implemented feature (Phases 0
 below), or (when the Ambiguity Gate at the start of Phase 0 fails) 2-3 clarifying
 questions and nothing else. Never both in the same turn.
 
-## Feature to Implement
-
-$ARGUMENTS
-
 ## Anti-hallucination guidelines
 
 Before implementing anything:
 1. Discover project commands first: do not assume `bun`, `npm`, `make`, etc. exist.
-2. Read CLAUDE.md: every project has different conventions.
+2. Read AGENTS.md or CLAUDE.md, whichever exists: every project has different conventions.
 3. Verify tools exist: check for `Makefile`, `justfile`, `package.json`, `pyproject.toml`.
 4. Never guess the test command: find the one this project actually uses.
 5. Any number reported at the end (files changed, tests added, pass count) must come
@@ -64,7 +60,7 @@ Any check fails → keep working, do not mark complete. Command not found → go
 
 ## Task tracking: opt-in, not default
 
-Create Task-system entries (`TaskCreate`/`TaskUpdate`) **only** when the feature crosses
+Create task entries (`TaskCreate`/`TaskUpdate` in Claude Code, or the task/todo tool where available; otherwise keep the checklist in the reply) **only** when the feature crosses
 one of these:
 - touches **4+ files**, or
 - needs **3+ of the phases below tracked as separately-blocked work** (e.g. genuine parallel subagent workstreams).
@@ -118,10 +114,9 @@ Above the size threshold, create the 6-task chain now (see reference doc); mark 
 phase `in_progress`.
 
 Identify the project's real test, lint, type-check, build, and dev-server commands:
-read CLAUDE.md, then check for `Makefile`, `justfile`, `package.json` scripts,
-`pyproject.toml`. If a Task tool is available, delegate this to an Explore/`haiku`
-subagent (cheap, token-efficient for a read-only lookup); otherwise read the files
-yourself. Store whatever you find: every later phase uses these exact commands, never
+read AGENTS.md or CLAUDE.md (whichever exists), then check for `Makefile`, `justfile`, `package.json` scripts,
+`pyproject.toml`. Spawn a subagent where the tool has one (a fast-tier exploration subagent, `haiku` in Claude Code: cheap, token-efficient for a read-only lookup); otherwise read the files
+yourself, in order. Store whatever you find: every later phase uses these exact commands, never
 assumed ones.
 
 Above threshold: mark Phase 0 `completed`, run `TaskList` to confirm Phase 1 unblocked.
@@ -133,21 +128,21 @@ Above threshold: mark this phase `in_progress`.
 Before writing code: search the web for current best practices for the feature
 (security considerations, common pitfalls, performance notes), check Context7 for any
 library docs involved, and explore the codebase for similar existing implementations,
-conventions, and test fixtures to match. If a Task tool is available, delegate this to
-an Explore/`haiku` subagent; otherwise do it inline.
+conventions, and test fixtures to match. Spawn a subagent where the tool has one (fast-tier exploration, `haiku` in Claude Code); otherwise do it
+inline, in order.
 
 Above threshold: mark Phase 1 `completed`, run `TaskList`.
 
 ### Phase 2: Planning
 
-1. **Enter Plan Mode** (`EnterPlanMode`).
+1. **Present the plan and wait for approval** (plan mode where available; `EnterPlanMode` in Claude Code).
 2. **Plan contents**: break the feature into discrete pieces, note which can run in
    parallel, define interfaces between components, note security implications, plan
    test coverage. **Apply Lean Code to every proposed component**: state why it needs
    to exist (which concrete requirement drives it) and what it reuses instead of adding
    new code. A component that can't answer "why does this need to exist" gets cut from
    the plan before implementation starts.
-3. **Get user approval**: exit plan mode only after the user approves.
+3. **Get user approval**: exit plan mode (if used) only after the user approves.
 
 Above threshold: mark Phase 2 `completed`, run `TaskList`.
 
@@ -161,14 +156,14 @@ needs more fan-out than that (large multi-service features, many independent
 components), delegate to the `orchestrate` skill instead of re-deriving spawn/track/
 merge logic here.
 
-Give each subagent: the specific task, an instruction to read CLAUDE.md first and trace
+Give each subagent: the specific task, an instruction to read AGENTS.md or CLAUDE.md first and trace
 the real flow of code it's about to touch, the Lean Code rules above, the discovered
 test/lint commands, and an instruction to report back rather than commit.
 
-**Model selection**: always set `model` explicitly, never leave it unset:
-- `sonnet` for implementation, test writing, docs, architecture decisions.
-- `haiku` only for exploration/research subagents.
-- Never `opus` for subagent work: too expensive for this fan-out.
+**Model selection**: always set the model explicitly where the tool allows it, never leave it unset:
+- Balanced tier (`sonnet` in Claude Code) for implementation, test writing, docs, architecture decisions.
+- Fast tier (`haiku`) only for exploration/research subagents.
+- Never the strongest-reasoning tier (`opus`) for subagent work: too expensive for this fan-out.
 
 After each subagent completes: review its diff, mark its task `completed` (if
 tracking), and commit its work via the `git-commit` skill (or a manual conventional
@@ -225,8 +220,7 @@ can't be fixed report back with details. Never commit broken code.
 
 The hard stop is Step 0.0 above: this section is for smaller ambiguity that surfaces
 once the gate has already passed. Unclear secondary detail at any later phase (a design
-choice with more than one valid answer, a missing preference): use `AskUserQuestion`,
-present concrete options with trade-offs, and if there's no answer yet, state the
+choice with more than one valid answer, a missing preference): ask the user with the structured question tool where one exists (`AskUserQuestion`, `question`, `ask_user`); otherwise ask in chat and wait for the answer. Present concrete options with trade-offs, and if there's no answer yet, state the
 assumption you're proceeding with rather than blocking. Don't re-litigate the gate here:
 if a later discovery reveals the core behavior was never actually pinned down, stop
 and go back to asking, the same way Step 0.0 would have.
@@ -239,6 +233,8 @@ this summary must trace back to a command actually run this session (see
 Anti-hallucination guidelines).
 
 ## Usage
+
+Invoke the skill with the feature description (in Claude Code, `/implement-feature <description>`):
 
 ```bash
 # Implement a specific feature

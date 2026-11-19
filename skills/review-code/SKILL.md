@@ -28,10 +28,10 @@ Analysis only. Never edit code, commit, apply fixes, or run anything that mutate
 
 - Every finding cites a `file:line` you read, pointing at the offending statement itself, not the block around it. No hypothetical issues, no estimated counts.
 - Review the diff, not the uncommitted working tree. Findings on changed lines are in-diff; findings on untouched lines of touched files are `preexisting`.
-- Project rules (AGENTS.md, CLAUDE.md, `.claude/skills/*`) are the style standard. A violation is a finding. Personal preference is not.
+- Project rules (AGENTS.md or CLAUDE.md, whichever exists, plus installed skills under `.agents/skills/*` or `.claude/skills/*`) are the style standard. A violation is a finding. Personal preference is not.
 - User context such as "another session is fixing X" is information, not an exclusion, unless the user says to exclude it.
 - Strict by default: report every smell and rule violation, Nit included. Nothing is silently passed.
-- Every subagent call sets `model` explicitly: review, research and verify use `sonnet`, planning uses `opus`. Never leave it inherited, never use `haiku`.
+- Every subagent call sets `model` explicitly where the tool allows it: review, research and verify use the balanced tier (`sonnet` in Claude Code), planning uses the strongest-reasoning tier (`opus`). Never leave it inherited, never use the fast tier (`haiku`).
 
 ## Workflow
 
@@ -62,7 +62,7 @@ Create a scratch dir with `mktemp -d` (never inside the repo) and save the diff 
 
 ### 1. Discovery
 
-Read the root and nested AGENTS.md / CLAUDE.md and `.claude/skills/*`. Turn every rule into a numbered checklist (comment policy, strict typing, file-size limits, empty `__init__`, no manual memo under React Compiler, and so on). This list goes into every agent prompt. Note the languages, frameworks and test setup.
+Read the root and nested AGENTS.md / CLAUDE.md (whichever exist) and installed skills under `.agents/skills/*` or `.claude/skills/*`. Turn every rule into a numbered checklist (comment policy, strict typing, file-size limits, empty `__init__`, no manual memo under React Compiler, and so on). This list goes into every agent prompt. Note the languages, frameworks and test setup.
 
 ### 2. Lane selection
 
@@ -101,7 +101,7 @@ Run `uv run <skill-dir>/scripts/merge_findings.py --findings <scratch>/findings 
 
 ### 5. Verify
 
-Launch one adversarial verifier (`sonnet`) per batch of Critical/Major findings. It tries to disprove each, may run targeted read-only checks, and returns CONFIRMED / PLAUSIBLE / REJECTED with a corrected severity and a reason. Write each verdict, corrected severity and a new `reason` field back into the matching findings in `<scratch>/findings/*.json`, then re-run the merge script; the report and step 7 use that output (it drops REJECTED and renders `Verification: <VERDICT> (<reason>)`). A bug the user says they observed keeps its severity. Prompt, schema and rules: [references/verification.md](references/verification.md).
+Launch one adversarial verifier (balanced tier, `sonnet`) per batch of Critical/Major findings. It tries to disprove each, may run targeted read-only checks, and returns CONFIRMED / PLAUSIBLE / REJECTED with a corrected severity and a reason. Write each verdict, corrected severity and a new `reason` field back into the matching findings in `<scratch>/findings/*.json`, then re-run the merge script; the report and step 7 use that output (it drops REJECTED and renders `Verification: <VERDICT> (<reason>)`). A bug the user says they observed keeps its severity. Prompt, schema and rules: [references/verification.md](references/verification.md).
 
 ### 6. Report
 

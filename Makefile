@@ -170,6 +170,12 @@ validate-structure: ## Validate repository structure
 			fi; \
 		done; \
 	done; \
+	for skill in skills/*/; do \
+		if ! out=$$($(UV) run -q python skills/create-skill/scripts/quick_validate.py "$$skill" 2>&1); then \
+			echo "$(RED)$$skill: $$out$(RESET)"; \
+			errors=$$((errors + 1)); \
+		fi; \
+	done; \
 	if [ $$errors -eq 0 ]; then \
 		echo "$(GREEN)Repository structure is valid$(RESET)"; \
 	else \

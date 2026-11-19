@@ -38,8 +38,10 @@ search for existing skills to install (use `find-skills`).
 
 ## Steps
 
-1. **Parse arguments**: rule name from `$1` (or the first word of the arguments),
-   description from the rest: ask the user if either is missing.
+1. **Parse the request**: rule name from the first word of the user's request,
+   description from the rest. If either is missing, ask the user with the structured
+   question tool where one exists (`AskUserQuestion`, `question`, `ask_user`); otherwise
+   ask in chat and wait for the answer.
 2. **Detect the tool convention** by checking what's already in the repo:
    - `CLAUDE.md` or `.claude/rules/*.md` present → Claude Code.
    - `AGENTS.md` present (with no Claude-specific files) → Codex/Cursor/Copilot/Gemini-CLI-style tool. This repo's own `AGENTS.md` + `CLAUDE.md` pair is a live example of the pattern.
@@ -53,6 +55,8 @@ search for existing skills to install (use `find-skills`).
 4. **Write the rule**, following the matching template in [references/rule-examples.md](references/rule-examples.md): imperative language, specific expectations, one topic per file, code examples where useful.
 
 ## Examples
+
+Invoke the skill with the rule name and description; the Claude Code slash form is shown below.
 
 - `/create-rule api-errors "Standard error handling for API routes"` in a Claude Code repo → writes `.claude/rules/api-errors.md` with `paths: src/api/**/*.ts` frontmatter and concrete guidelines.
 - `/create-rule formatting "2-space indentation, single quotes"` in a Claude Code repo, no path scope needed → writes `.claude/rules/formatting.md` with no frontmatter.

@@ -28,8 +28,6 @@ draws assets; it authors and validates the tokens. Output lands under `docs/spec
 
 ## Input
 
-$ARGUMENTS
-
 Read the source first: an existing repo (scan for a design system before anything else), a design
 spec / screen inventory from `product-design-spec`, a brand brief, or a plain idea. `--with-design-md`
 also emits the optional alpha DESIGN.md prose layer.
@@ -38,8 +36,7 @@ also emits the optional alpha DESIGN.md prose layer.
 
 Sibling skills are invoked via the `Skill` tool where available; with no `Skill` tool, apply the
 named sibling's documented rules inline (each delegation below states the fallback in-sentence).
-Design-system detection uses the `Task` tool with an `Explore`/haiku subagent; no `Task` tool?
-Run the detection inline, sequentially, with Grep/Glob/Read. The optional `@google/design.md` CLI is
+Design-system detection spawns a subagent on the fast tier (`haiku` in Claude Code) where the tool has one; otherwise it runs inline, sequentially, with Grep/Glob/Read. The optional `@google/design.md` CLI is
 probed at runtime, never assumed: the DTCG JSON is emitted whether or not it runs.
 
 ## Lean by default
@@ -70,10 +67,10 @@ Four phases carry the work: Detect, Draft, Validate, Hand off.
 
 ### Phase: Detect
 
-Scan the repo for an existing design system (spawn an `Explore`/haiku agent, or do it inline):
+Scan the repo for an existing design system (spawn a fast-tier subagent where the tool has one, or do it inline):
 
 ```
-Task (Explore, haiku): "Find this repo's design system: tailwind.config.*, components.json / shadcn
+Subagent (explore, fast tier): "Find this repo's design system: tailwind.config.*, components.json / shadcn
 ui dir, MUI theme, CSS custom properties (:root { --... }), or a native platform system. Return the
 tool, the token values found (colour/spacing/radius/type), and the file paths, invent nothing."
 ```

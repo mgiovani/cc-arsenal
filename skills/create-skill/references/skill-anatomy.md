@@ -202,7 +202,7 @@ If security concerns are identified, recommend running `/review-security` on the
 
 ### Composition Discovery (Phase 2)
 
-When creating a new skill, the Explore agent in Phase 2 should identify potential composition opportunities:
+When creating a new skill, the research subagent in Phase 2 (or the inline research step) should identify potential composition opportunities:
 - Search cc-arsenal `skills/` for relevant existing skills
 - List composable skills with descriptions of how they could be used
 - Consider whether composition is better than reimplementation
@@ -239,7 +239,7 @@ Tool verification:
 - Order-dependent flows get a copyable fenced `- [ ]` checklist with gates ("if X fails, return to step N", "stop and report"); replace the equivalent prose ordering instead of repeating it.
 - Validation is a loop: exact command, fix, re-validate, capped (e.g. 3 rounds, then report what still fails).
 - Put the install line next to the first use of each external tool.
-- Test the skill on several models (e.g. Haiku, Sonnet, Opus); guidance enough for one may not be for another.
+- Test the skill on several models (e.g. fast, balanced and strongest-reasoning tiers: `haiku`, `sonnet`, `opus` in Claude Code); guidance enough for one may not be for another.
 
 ## Writing Style Guidelines
 

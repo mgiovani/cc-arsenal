@@ -60,13 +60,13 @@ Explore the codebase to discover the complete project technology stack.
 
 ### Phase 2: Research Best Practices (only if needed)
 
-`references/platform-patterns.md` already ships current, comprehensive patterns for Node/Python/matrix/Docker/deploy across all four platforms: check it first. Only reach for WebSearch when the detected stack/platform combo isn't covered there (e.g. an unusual language or a deploy target not in the reference):
+`references/platform-patterns.md` already ships current, comprehensive patterns for Node/Python/matrix/Docker/deploy across all four platforms: check it first. Only search the web (with whatever tool the harness offers; if none, say so and continue from the repo) when the detected stack/platform combo isn't covered there (e.g. an unusual language or a deploy target not in the reference):
 
 ```
-Use WebSearch:
+Web search:
 - query: "[detected platform] CI/CD best practices [detected language] [current year]"
 
-Use WebSearch:
+Web search:
 - query: "[detected platform] security scanning pipeline [detected language] [current year]"
 ```
 
@@ -125,7 +125,7 @@ Generation guidelines:
 
 If an existing CI config exists:
 - Read the existing file first
-- Ask the user whether to replace or augment
+- Ask the user whether to replace or augment (with the structured question tool where one exists, such as `AskUserQuestion`, `question`, `ask_user`; otherwise ask in chat and wait for the answer)
 - Preserve any custom configuration the user has added
 - Merge new stages with existing ones where appropriate
 

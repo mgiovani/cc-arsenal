@@ -19,11 +19,7 @@ metadata:
 # Orchestrate
 
 Turn a task into a model-tiered multi-agent plan, run it, and synthesize the result
-yourself.
-
-## Task
-
-$ARGUMENTS
+yourself. The task is the user's request.
 
 ## Step 0: Is orchestration warranted?
 
@@ -52,12 +48,14 @@ and classify it as one of:
 
 | Classification | subagent_type | model | Why |
 |---|---|---|---|
-| research | Explore | haiku | cheap, good at search/find/read; use haiku for every research subtask, even if spawned as general-purpose |
-| planning | Plan | opus | best reasoning for architecture/trade-offs |
-| implementation | general-purpose (or the repo's own agent) | sonnet | balance of cost and capability |
+| research | Explore | fast tier (`haiku` in Claude Code) | cheap, good at search/find/read; use the fast tier for every research subtask, even if spawned as general-purpose |
+| planning | Plan | strongest-reasoning tier (`opus`) | best reasoning for architecture/trade-offs |
+| implementation | general-purpose (or the repo's own agent) | balanced tier (`sonnet`) | balance of cost and capability |
 | synthesis | n/a (orchestrator itself) | n/a | never delegate the final merge |
 
-Every spawn call MUST set `model` explicitly. An unset `model` silently inherits the
+The subagent types and model aliases above are the Claude Code names; in other agent
+CLIs, pick the equivalent type and tier. Set `model` explicitly on every spawn call
+where the tool allows it. An unset `model` silently inherits the
 caller (often the most expensive model available) and defeats the whole point of
 tiering. Treat a missing `model` field as an incomplete call, not a default to fill in
 later.
@@ -70,8 +68,8 @@ files/dirs it will touch) and confirm no two tracks overlap. Two agents editing 
 file is a merge conflict you caused, not one you'll resolve later: split the map
 instead of hoping it works out.
 
-Spawn every independent track's subagent(s) in parallel: multiple `Task` calls in the
-same turn. Sequential subtasks (B depends on A's output) run one after another in the
+Spawn every independent track's subagent(s) in parallel: multiple subagent calls
+(`Task` in Claude Code) in the same turn. Sequential subtasks (B depends on A's output) run one after another in the
 same session, passing A's actual output forward, never a paraphrase of it.
 
 ## Step 4: Orchestrator does the synthesis and the git
@@ -99,27 +97,27 @@ a speed optimization, not a requirement.
 ### Research sweep (independent, parallel research tracks)
 
 Task: "Research current pricing for 4 competitors, write a comparison table."
-- 4 research subtasks (one per competitor), each `Explore`/`haiku`, no shared file:
+- 4 research subtasks (one per competitor), each `Explore`/fast tier (`haiku`), no shared file:
   spawn all 4 in the same turn.
 - Orchestrator synthesizes the 4 reports into the comparison table itself.
 
 ### Codebase-wide refactor (independent, parallel implementation tracks)
 
 Task: "Rename `Invoice` to `Bill` across models/, api/, tests/, docs/."
-- One research subtask first (`Explore`/`haiku`): grep every reference, return the
+- One research subtask first (`Explore`/fast tier): grep every reference, return the
   full list.
-- 4 implementation subtasks, one per directory, each `general-purpose`/`sonnet`,
+- 4 implementation subtasks, one per directory, each `general-purpose`/balanced tier (`sonnet`),
   ownership map = `{models/, api/, tests/, docs/}` with zero overlap.
 - Orchestrator runs the test suite, reviews all 4 diffs, commits once, alone.
 
 ### Mixed build (research → plan → parallel implementation → synthesis)
 
 Task: "Add a new payment provider integration."
-- 1 research subtask (`Explore`/`haiku`): find the existing provider abstraction and
+- 1 research subtask (`Explore`/fast tier): find the existing provider abstraction and
   its test patterns.
-- 1 planning subtask (`Plan`/`opus`): design the new provider's interface against what
+- 1 planning subtask (`Plan`/strongest-reasoning tier): design the new provider's interface against what
   research found.
-- 2-3 parallel implementation subtasks (`sonnet`) against the approved plan, one per
+- 2-3 parallel implementation subtasks (balanced tier) against the approved plan, one per
   component (client, tests, config), each with a distinct file scope.
 - Orchestrator integrates, verifies, commits.
 
@@ -131,6 +129,8 @@ warranted, say so in one line and do the work directly instead: no plan needed f
 that case.
 
 ## Usage
+
+Invoke the skill with the task as the request; in Claude Code:
 
 ```
 /orchestrate Research current pricing for 4 payment competitors and write a comparison table

@@ -93,10 +93,10 @@ git diff-tree --no-commit-id --name-only -r <commit_sha>
 
 ### Phase 1: Discovery
 
-Use an Explore agent (model: `haiku`) to detect the design system and tooling:
+Spawn a subagent on the fast tier (`haiku` in Claude Code) to detect the design system and tooling:
 
 ```
-Use Task tool with Explore agent (model: haiku):
+Subagent task (fast tier, Explore-style read-only search):
 - prompt: "Discover the project's design system and front-end stack:
     1. Detect CSS approach: Tailwind, CSS Modules, styled-components, vanilla CSS, Sass
     2. Detect component/design system: Material UI, Chakra, Radix, shadcn/ui, Ant Design, custom
@@ -105,10 +105,10 @@ Use Task tool with Explore agent (model: haiku):
     5. Detect dark-mode support: prefers-color-scheme, .dark class, data-theme
     6. List the key UI directories (components/, styles/, app/, pages/)
     Return: a stack + design-system summary with the token source of truth."
-- subagent_type: "Explore"
+- subagent_type: "Explore" (Claude Code)
 ```
 
-Without a Task tool, run this discovery yourself inline using the same 6 steps before proceeding.
+Without a subagent tool, run this discovery yourself inline using the same 6 steps before proceeding.
 
 **For live mode**, confirm the URL is reachable and `agent-browser` is installed:
 ```bash
@@ -118,7 +118,7 @@ If `agent-browser` is missing, tell the user how to install it (`npm install -g 
 
 ### Phase 2: Initialize Progress Tracking
 
-Use TodoWrite to track progress across the 8 dimensions plus capture, consolidation, and report generation. One todo per dimension. Without TodoWrite, narrate phase/dimension transitions in your responses instead.
+Track progress with the task/todo tool where available (`TodoWrite` in Claude Code) across the 8 dimensions plus capture, consolidation, and report generation. One todo per dimension. Otherwise narrate phase/dimension transitions in your responses instead.
 
 ### Phase 3: Capture, then Spawn Parallel Audit Agents
 
@@ -134,7 +134,7 @@ agent-browser screenshot /tmp/review-design/page.png --full     # full-page scre
 ```
 Capture additional viewports/pages if the user names them. Always `agent-browser close` when done.
 
-**Then spawn 6 parallel Explore agents** (model: `sonnet`) covering the 8 dimensions. For the full per-agent prompts (live screenshot/snapshot analysis AND static grep patterns), see [references/agent-prompts.md](references/agent-prompts.md). Without a Task tool, run the 6 dimension analyses sequentially inline yourself, one after another, using the same per-agent prompts and criteria references.
+**Then spawn 6 parallel read-only subagents** (balanced tier, `sonnet` in Claude Code; always set the model explicitly where the tool allows it) covering the 8 dimensions. For the full per-agent prompts (live screenshot/snapshot analysis AND static grep patterns), see [references/agent-prompts.md](references/agent-prompts.md). Without a subagent tool, run the 6 dimension analyses sequentially inline yourself, one after another, using the same per-agent prompts and criteria references.
 
 Agent assignments:
 

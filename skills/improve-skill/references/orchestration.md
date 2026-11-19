@@ -12,13 +12,13 @@ Match this repo's existing subagent policy, don't invent a different tiering per
 
 | Stage | Model | Why |
 |---|---|---|
-| Snapshot + inventory (step 2) | haiku | Pure file copy + verification, no judgment needed |
-| Rewrite (step 3) | sonnet | Needs to read the whole skill, apply the rubric, and write evals: real judgment |
-| Benchmark executors (step 5, running eval prompts) | haiku | Executing a fixed prompt against a fixed skill config is cheap, deterministic work |
-| Grading (step 5, scoring assertions) | sonnet | Judging whether an assertion actually held requires reading output, not just pattern-matching |
-| Aggregation + report synthesis (step 7) | opus (or whatever model is driving this run) | Cross-skill synthesis and the final verdict table benefit from the strongest reasoning available |
+| Snapshot + inventory (step 2) | fast tier (`haiku` in Claude Code) | Pure file copy + verification, no judgment needed |
+| Rewrite (step 3) | balanced tier (`sonnet`) | Needs to read the whole skill, apply the rubric, and write evals: real judgment |
+| Benchmark executors (step 5, running eval prompts) | fast tier (`haiku`) | Executing a fixed prompt against a fixed skill config is cheap, deterministic work |
+| Grading (step 5, scoring assertions) | balanced tier (`sonnet`) | Judging whether an assertion actually held requires reading output, not just pattern-matching |
+| Aggregation + report synthesis (step 7) | strongest-reasoning tier (`opus`, or whatever model is driving this run) | Cross-skill synthesis and the final verdict table benefit from the strongest reasoning available |
 
-`model` is a required field on every spawned agent: an unset model silently inherits the parent, defeating the tiering above.
+Set the model explicitly on every spawned agent where the tool allows it (`model` is a required field in Claude Code): an unset model silently inherits the parent, defeating the tiering above.
 
 ## Strict per-skill directory ownership
 

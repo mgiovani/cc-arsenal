@@ -158,6 +158,8 @@ Remind the user to add real secrets to `.env`.
 
 ## Examples
 
+Invoke the skill with the flags below (shown in Claude Code slash form):
+
 ```bash
 # Auto-detect and generate docker-compose.yml
 /docker-init

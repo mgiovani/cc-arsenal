@@ -223,6 +223,8 @@ npx skills init my-skill     # Create in a named subdirectory
 | Project | `.claude/skills/<skill-name>/SKILL.md` |
 | Global | `~/.claude/skills/<skill-name>/SKILL.md` |
 
+Tool-neutral equivalents: `.agents/skills/<skill-name>/SKILL.md` (project) and `~/.agents/skills/<skill-name>/SKILL.md` (global).
+
 The CLI also supports Cursor, Codex, Gemini CLI, GitHub Copilot, and other agents. It auto-detects installed agents and prompts for target selection. Run `npx skills add <source> --help` or check `npx skills --help` for the full, current agent list rather than relying on a list here, which will drift out of sync with the CLI.
 
 ---
@@ -243,7 +245,7 @@ If no skills appear, the repository may not follow the Agent Skills directory co
 
 Ensure write access to the home directory agent paths:
 ```bash
-ls -la ~/.claude/skills/
+ls -la ~/.claude/skills/ ~/.agents/skills/
 ```
 
 ### Symlink vs copy issues

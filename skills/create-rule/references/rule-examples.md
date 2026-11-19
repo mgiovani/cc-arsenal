@@ -13,7 +13,7 @@ Concrete examples of well-structured memory rules for different tools and scopes
 
 ## Example 1: Claude Code, simple code style rule
 
-Command: `/create-rule formatting "Use 2-space indentation and single quotes"`
+Invoke the skill (Claude Code: `/create-rule formatting "Use 2-space indentation and single quotes"`)
 
 Creates `.claude/rules/formatting.md`:
 
@@ -50,7 +50,7 @@ const config = {
 
 ## Example 2: Claude Code, path-specific rule
 
-Command: `/create-rule api-errors "Standard error handling for API routes"`
+Invoke the skill (Claude Code: `/create-rule api-errors "Standard error handling for API routes"`)
 
 Creates `.claude/rules/api-errors.md`:
 
@@ -97,7 +97,7 @@ throw new Error(err.stack); // Exposes internal details
 
 ## Example 3: Claude Code, user-level rule
 
-Command: `/create-rule --user preferences "Personal coding preferences"`
+Invoke the skill (Claude Code: `/create-rule --user preferences "Personal coding preferences"`)
 
 Creates `~/.claude/rules/preferences.md`:
 
@@ -116,7 +116,7 @@ My personal coding preferences applied to all projects.
 
 ## Example 4: AGENTS.md, cross-cutting entry
 
-Command: `/create-rule testing "Table-driven tests, no test interdependence"` in a repo
+Invoke the skill (Claude Code: `/create-rule testing "Table-driven tests, no test interdependence"`) in a repo
 whose only convention file is `AGENTS.md` (no `CLAUDE.md`, no `.claude/rules/`).
 
 Appends a new section to the existing `AGENTS.md` (no separate file, no frontmatter,
@@ -133,7 +133,7 @@ the format doesn't support either):
 
 ## Example 5: Cursor, path-scoped `.mdc` rule
 
-Command: `/create-rule react-components "Function components only, typed props"` in a
+Invoke the skill (Claude Code: `/create-rule react-components "Function components only, typed props"`) in a
 Cursor repo (has `.cursor/rules/`).
 
 Creates `.cursor/rules/react-components.mdc`:

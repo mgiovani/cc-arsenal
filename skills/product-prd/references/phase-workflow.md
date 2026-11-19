@@ -94,8 +94,8 @@ Pick only the workstreams the open decisions depend on. Common ones:
 | Platform conventions | HIG, Material, web standards | UX requirements |
 | Accessibility | WCAG 2.2 AA obligations | UX/DES requirements (delegated to review-design) |
 
-Fan out one `Explore`/haiku agent per workstream in a single parallel batch (or run
-the same `WebSearch` queries sequentially with no Task tool). Each returns rows
+Fan out one exploration subagent (fast tier, `haiku` in Claude Code) per workstream in a single parallel batch (or run
+the same web searches sequentially with no subagent tool, using whatever web tool the harness offers). Each returns rows
 `finding | source URL | date | confidence | implication` and invents nothing.
 Merge into the decision log as `finding` rows. Triangulate any legal/security claim
 across ≥2 independent sources before treating it as HIGH.

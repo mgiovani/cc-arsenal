@@ -11,10 +11,6 @@ metadata:
 
 Generate comprehensive test suites with coverage gap analysis and parallel test writing, following testing best practices across any project type and framework.
 
-## Target
-
-$ARGUMENTS
-
 ## Anti-hallucination guidelines
 
 Test generation must be grounded in code you actually read and patterns you actually verified: a test for a method that doesn't exist, or a coverage number you didn't measure, is worse than no test at all:
@@ -54,7 +50,7 @@ Copy this checklist and tick it as you go:
 
 ### Phase 0: Project Discovery
 
-Create the phase tasks per "Task structure" in [references/subagent-template.md](references/subagent-template.md#task-structure), then discover the test workflow with the Haiku Explore prompt in [Discovery prompt](references/subagent-template.md#discovery-prompt). Without subagent tools, read CLAUDE.md, the task runner files and 2-3 existing test files yourself.
+Create the phase tasks per "Task structure" in [references/subagent-template.md](references/subagent-template.md#task-structure), then discover the test workflow with the fast-tier (`haiku` in Claude Code) Explore prompt in [Discovery prompt](references/subagent-template.md#discovery-prompt). Without subagent tools, read AGENTS.md or CLAUDE.md (whichever exists), the task runner files and 2-3 existing test files yourself.
 
 Store the discovered test, coverage and lint commands plus the style patterns for later phases.
 
@@ -121,7 +117,7 @@ The plan should include, for each target:
 
 Goal: Write tests for each approved module group, in parallel where subagents exist.
 
-Group approved targets into logical units (module, feature area, related files). For each group, create a child task ([Parallel child tasks](references/subagent-template.md#parallel-child-tasks)) and spawn a Sonnet subagent with the [Test-writer subagent template](references/subagent-template.md#test-writer-subagent-template), spawning independent groups at once. Review each subagent's test files against project conventions as it finishes.
+Group approved targets into logical units (module, feature area, related files). For each group, create a child task ([Parallel child tasks](references/subagent-template.md#parallel-child-tasks)) and spawn a balanced-tier (`sonnet` in Claude Code) subagent with the [Test-writer subagent template](references/subagent-template.md#test-writer-subagent-template), spawning independent groups at once. Review each subagent's test files against project conventions as it finishes.
 
 No subagent tool? Take the groups one at a time and write the tests yourself, applying the same template requirements: read the source and existing tests first, follow the Test Quality Principles, run the test command after each group.
 

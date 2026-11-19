@@ -46,10 +46,10 @@ Copy this checklist and tick each step as you finish it. Gates say where to retu
 
 ### Phase 0: Fetch Live Specifications
 
-Fetch latest specs before every creation: never rely on memory or bundled docs, because specifications evolve. This is two small fetches, not a research task, call WebFetch directly rather than spawning agents for it:
+Fetch latest specs before every creation: never rely on memory or bundled docs, because specifications evolve. This is two small fetches, not a research task, fetch directly with whatever web tool the harness offers (`WebFetch` in Claude Code) rather than spawning agents for it; if none, say so and continue from the bundled references:
 
-1. WebFetch `https://agentskills.io/specification.md`: frontmatter fields, directory rules
-2. WebFetch `https://platform.claude.com/docs/skills/best-practices.md`: progressive disclosure, writing style, anti-hallucination patterns. If the fetch fails, fall back to bundled `references/skill-anatomy.md` and `references/frontmatter-fields.md`
+1. Fetch `https://agentskills.io/specification.md`: frontmatter fields, directory rules
+2. Fetch `https://platform.claude.com/docs/skills/best-practices.md`: progressive disclosure, writing style, anti-hallucination patterns. If the fetch fails, fall back to bundled `references/skill-anatomy.md` and `references/frontmatter-fields.md`
 
 Hold both results in context.
 
@@ -63,7 +63,7 @@ Hold both results in context.
 
 Extract answers from conversation history before asking questions: don't ask what's already there.
 
-**Step 2: Four key questions** (ask only what the conversation didn't already answer) using AskUserQuestion:
+**Step 2: Four key questions** (ask only what the conversation didn't already answer). Ask the user with the structured question tool where one exists (`AskUserQuestion`, `question`, `ask_user`); otherwise ask in chat and wait for the answer:
 
 1. **What does this skill do?** Focus on the outcome. "Generates ADRs in the Nygard format from a decision description" beats "helps with documentation." The more specific, the better the description will be.
 
@@ -82,9 +82,9 @@ Adapt communication style to the user. Technical users: use precise terms (front
 
 ### Phase 2: Research Existing Patterns & Composition
 
-No `Task` tool here? Do this research yourself, sequentially: read the same targets each agent below would, one after the other. The two research tracks are what matters, not the parallel dispatch.
+No subagent tool here (`Task` in Claude Code)? Do this research yourself, sequentially: read the same targets each agent below would, one after the other. The two research tracks are what matters, not the parallel dispatch.
 
-Spawn 2 parallel Explore agents (model: haiku) using the Task tool:
+Spawn 2 parallel Explore subagents on the fast tier (`haiku` in Claude Code). Set the model explicitly where the tool allows it:
 
 ```
 Agent 1 - Internal Pattern Analysis:
@@ -102,8 +102,8 @@ Agent 2 - External Example Research:
 - subagent_type: "Explore"
 - model: "haiku"
 - prompt: "Research external skill examples:
-  1. WebFetch https://skills.sh — search for skills similar to [SKILL_PURPOSE]
-  2. WebFetch https://raw.githubusercontent.com/anthropics/skills/main/skills/skill-creator/SKILL.md — extract: workflow phases, frontmatter patterns, anti-hallucination techniques used in Anthropic's own skill-creator reference implementation
+  1. Fetch https://skills.sh — search for skills similar to [SKILL_PURPOSE]
+  2. Fetch https://raw.githubusercontent.com/anthropics/skills/main/skills/skill-creator/SKILL.md — extract: workflow phases, frontmatter patterns, anti-hallucination techniques used in Anthropic's own skill-creator reference implementation
   3. Look for anti-hallucination and verification patterns
   Return: Best practices and common patterns with sources"
 ```
@@ -112,7 +112,7 @@ Consolidate into: pattern summary, composable skills list, decision rationale.
 
 ### Phase 3: Plan Skill Structure (User Approval Required)
 
-Use EnterPlanMode to require explicit user approval before generating any files. If EnterPlanMode isn't available, present the same blueprint as plain text and wait for an explicit go-ahead: do not generate files on silence or an ambiguous reply.
+Present the blueprint and wait for approval (plan mode where available, e.g. `EnterPlanMode` in Claude Code) before generating any files. If plan mode isn't available, present the same blueprint as plain text and wait for an explicit go-ahead: do not generate files on silence or an ambiguous reply.
 
 Present a complete blueprint:
 
@@ -146,7 +146,7 @@ skill-name/
 
 **5. Composition Plan**: List existing skills to invoke and why, vs. reimplementing.
 
-Use ExitPlanMode to submit for user approval. Generate no files until it returns approved; a rejection or silence stops the run.
+Submit the blueprint for user approval (`ExitPlanMode` in Claude Code). Generate no files until it returns approved; a rejection or silence stops the run.
 
 ### Phase 4: Generate Skill Files
 
@@ -283,7 +283,7 @@ Run this phase when:
 
 **Why this matters**: Model-invoked skills fire automatically based on their description. A bad description means the skill either fires when it shouldn't (annoying false positives) or misses when it should (silent failures). Evals measure this objectively.
 
-For each eval in `evals/evals.json`, spawn parallel agents then a grader:
+For each eval in `evals/evals.json`, spawn parallel subagents then a grader (where the tool has one; otherwise run the steps inline, in order). The runs use the fast tier (`haiku`) and the grader the balanced tier (`sonnet`); set the model explicitly where the tool allows it:
 
 ```
 For each eval_id in evals/evals.json:

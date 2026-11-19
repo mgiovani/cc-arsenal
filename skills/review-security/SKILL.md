@@ -65,17 +65,17 @@ git diff-tree --no-commit-id --name-only -r <commit_sha>
 
 ### Phase 1: Project Technology Discovery
 
-Use an Explore agent (`model: haiku`) to identify the stack: languages/frameworks from
+Spawn an Explore subagent on the fast tier (`haiku` in Claude Code), setting the model explicitly where the tool allows it, to identify the stack: languages/frameworks from
 package.json/pyproject.toml/pom.xml/go.mod, existing security tooling
 (.pre-commit-config.yaml, SAST steps in .github/workflows), web framework, DB/ORM patterns,
 auth patterns (JWT/OAuth/sessions), and any SECURITY.md. Return a stack summary with the
-vulnerability categories to prioritize. No Task tool available? Skip the agent: read those
+vulnerability categories to prioritize. No subagent tool available? Skip the agent: read those
 same files and grep those same paths yourself, inline, then note the stack directly.
 
 ### Phase 2: Initialize Progress Tracking
 
-Use TodoWrite to track scan progress across all OWASP categories, bytecode security, and
-report generation.
+Track scan progress across all OWASP categories, bytecode security, and report generation
+with the task/todo tool where available; otherwise keep the checklist in the reply.
 
 ### Phase 3: Vulnerability Scanning
 
@@ -110,7 +110,7 @@ Each agent must: grep for its patterns, read each match to verify context, extra
 code snippet (5-10 lines), explain why it's vulnerable, classify severity
 (Critical/High/Medium/Low), and give 2-3 fix approaches.
 
-No Task tool available? Work through each owned category inline and sequentially instead of
+No subagent tool available? Work through each owned category inline and sequentially instead of
 spawning its agent, same grep patterns from the reference file, same read-and-verify step,
 one category at a time.
 

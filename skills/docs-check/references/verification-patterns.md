@@ -15,7 +15,7 @@ Detailed bash verification commands and patterns for documentation quality check
 
 ## Section-level verification (single document)
 
-When checking ONE document, spawn subagents for each logical section:
+When checking ONE document, spawn a subagent per logical section where the tool has one (otherwise do each section inline, in order). `subagent_type: "Explore"` below is the Claude Code read-only search agent; use the fast tier (`haiku` in Claude Code) or any read-only search agent elsewhere:
 
 ```
 Example: Checking docs/architecture.md
@@ -45,47 +45,47 @@ Merge results into comprehensive verification report.
 
 ```bash
 # Check for expected docs
-!`ls -1 docs/ 2>/dev/null | grep -E "architecture|onboarding|data-model|deployment"`
+ls -1 docs/ 2>/dev/null | grep -E "architecture|onboarding|data-model|deployment"
 
 # Check for ADRs
-!`ls -1 docs/adr/*.md 2>/dev/null | wc -l`
+ls -1 docs/adr/*.md 2>/dev/null | wc -l
 
 # Check for RFCs
-!`ls -1 docs/rfc/*.md 2>/dev/null | wc -l`
+ls -1 docs/rfc/*.md 2>/dev/null | wc -l
 ```
 
 ## Stale documentation detection
 
 ```bash
 # Get last modification date of docs
-!`find docs -name "*.md" -exec stat -f "%Sm %N" -t "%Y-%m-%d" {} \; 2>/dev/null || find docs -name "*.md" -exec stat -c "%y %n" {} \;`
+find docs -name "*.md" -exec stat -f "%Sm %N" -t "%Y-%m-%d" {} \; 2>/dev/null || find docs -name "*.md" -exec stat -c "%y %n" {} \;
 
 # Get recent code changes
-!`git log --since="30 days ago" --name-only --pretty=format: | sort -u | grep -v "^$" | head -30`
+git log --since="30 days ago" --name-only --pretty=format: | sort -u | grep -v "^$" | head -30
 ```
 
 ## Freshness check commands
 
 ```bash
 # Check when files were last modified
-!`git log -1 --format="%ai" -- docs/architecture.md 2>/dev/null`
+git log -1 --format="%ai" -- docs/architecture.md 2>/dev/null
 
 # Check recent changes to codebase
-!`git log --since="7 days ago" --oneline --name-only | head -50`
+git log --since="7 days ago" --oneline --name-only | head -50
 ```
 
 ## Placeholder check
 
 ```bash
 # Find unreplaced placeholders
-!`grep -r "{{.*}}" docs/ --include="*.md" 2>/dev/null`
+grep -r "{{.*}}" docs/ --include="*.md" 2>/dev/null
 ```
 
 ## Broken links check
 
 ```bash
 # Find markdown links
-!`grep -r "\[.*\](" docs/ --include="*.md" -h | grep -o "\[.*\](.*)" | head -20`
+grep -r "\[.*\](" docs/ --include="*.md" -h | grep -o "\[.*\](.*)" | head -20
 ```
 
 ## Hallucination report format

@@ -40,7 +40,7 @@ Canonical URLs for skill specifications, best practices, and examples. These sho
 
 ## Fallback References
 
-If WebFetch fails for any URL, use bundled fallback documentation:
+If fetching fails for any URL, use bundled fallback documentation:
 
 - Frontmatter Fields: `<skill-dir>/references/frontmatter-fields.md`
   - Complete list of frontmatter fields, argument substitution, and the `context: fork` pattern
@@ -51,10 +51,10 @@ If WebFetch fails for any URL, use bundled fallback documentation:
 ## Fetch Strategy
 
 Phase 0 of create-skill should:
-1. WebFetch agentskills.io specification directly (no subagent, it's one small fetch)
-2. WebFetch platform.claude.com best practices, falling back to bundled references above if it fails
+1. Fetch the agentskills.io specification directly with whatever web tool the harness offers (`WebFetch` in Claude Code) (no subagent, it's one small fetch)
+2. Fetch platform.claude.com best practices, falling back to bundled references above if it fails
 3. Hold results in context for Phases 1-5
-4. Never proceed without fresh specifications
+4. Never proceed on memory; if fetching is impossible, tell the user and use the bundled references
 
 Why fetch every time:
 - Specifications evolve (new frontmatter fields, tool options)

@@ -69,7 +69,7 @@ Grade purely on quality relative to the assertions.
 
 ### Usage in Phase 6
 
-When spawning the grader as a Task agent:
+When spawning the grader as a subagent (where the tool has one; otherwise grade inline, in order), use the balanced tier (`sonnet` in Claude Code):
 
 ```
 Grader Agent:
@@ -108,7 +108,7 @@ Target: score ≥ 4 AND comparison = `output_a_better` (assuming with-skill = Ou
 
 ## Batch Grader Prompt
 
-For grading multiple evals in one agent call (reduces Task tool invocations):
+For grading multiple evals in one agent call (reduces subagent invocations):
 
 ```
 You are a skill quality evaluator. Grade the following {n} eval results.

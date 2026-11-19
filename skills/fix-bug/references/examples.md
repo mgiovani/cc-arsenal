@@ -11,7 +11,7 @@
 
 ## Argument Parsing
 
-Parse optional arguments from the command invocation:
+Parse optional arguments from the user's request:
 
 Optional flags:
 
@@ -25,9 +25,7 @@ Optional flags:
 
 ### Example 1: Simple Bug Fix (inline, default)
 
-```bash
-/fix-bug User profile page throws 404 on refresh
-```
+Invoke the skill (Claude Code: `/fix-bug User profile page throws 404 on refresh`):
 
 Single file, single root cause, no task chain needed:
 1. Phase 0: discover project uses `npm test` and `npm run lint`
@@ -39,9 +37,7 @@ Single file, single root cause, no task chain needed:
 
 ### Example 2: Bug with Issue Number (task chain, multi-file)
 
-```bash
-/fix-bug #789 --branch fix/payment-webhook
-```
+Invoke the skill (Claude Code: `/fix-bug #789 --branch fix/payment-webhook`):
 
 Webhook signature validation touches the handler, the signing util, and two
 call sites, spans multiple files, so create the six-task chain first:
@@ -52,13 +48,11 @@ call sites, spans multiple files, so create the six-task chain first:
 5. Phase 3: implement signature validation
 6. Phase 4: verify with integration tests
 7. Phase 5: commit: `fix(webhooks): validate payment signatures\n\nCloses #789`
-8. Track progress: `TaskList` after each phase shows which task unblocked
+8. Track progress: the task/todo tool (`TaskList` in Claude Code) after each phase shows which task unblocked; otherwise keep the checklist in the reply
 
 ### Example 3: Interactive Bug Fix
 
-```bash
-/fix-bug "Auth tokens expire too quickly" --interactive
-```
+Invoke the skill (Claude Code: `/fix-bug "Auth tokens expire too quickly" --interactive`):
 
 Process:
 1. Prompt user after Phase 0 (confirm discovered commands)
@@ -69,9 +63,7 @@ Process:
 
 ### Example 4: Analysis Only
 
-```bash
-/fix-bug Database query timeout in reports --test-only
-```
+Invoke the skill (Claude Code: `/fix-bug Database query timeout in reports --test-only`):
 
 Process:
 1. Run Phases 0-2 only
@@ -119,7 +111,7 @@ When to skip browser testing:
 
 ### Ambiguous Bug Description
 
-1. Use `AskUserQuestion` to clarify:
+1. Ask the user with the structured question tool where one exists (`AskUserQuestion`, `question`, `ask_user`; otherwise ask in chat and wait for the answer) to clarify:
    - Expected vs actual behavior
    - Steps to reproduce
    - Error messages or symptoms

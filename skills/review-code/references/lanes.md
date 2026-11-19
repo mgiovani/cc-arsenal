@@ -13,7 +13,7 @@ Lanes the review adds when the diff touches their area. Load this file at lane s
 
 ## How lanes run
 
-- Every lane agent is spawned with `model: "sonnet"` set explicitly. Never leave it inherited and never use haiku.
+- Every lane agent is spawned with `model: "sonnet"` set explicitly where the tool allows it (balanced tier, `sonnet` in Claude Code). Never leave it inherited and never use the fast tier (`haiku`).
 - A lane agent reviews only the changed files that match its triggers, plus the lines around them for context. Hunk ranges from Scope decide `preexisting`.
 - Each lane writes `<scratch>/findings/<lane>.json` as `{"lane": "<lane>", "findings": [...]}` using the finding shape in `agent-prompts.md`.
 - Composition rule: each lane borrows a sibling skill's checklist, never its workflow. The sibling's own phases (target detection, report format, follow-up) do not run here. Skip its report template and emit findings in the shared shape.
@@ -175,7 +175,7 @@ Prefix `DM-`. Findings file `design-motion.json`.
 - From `criteria-foundations.md`: **Dimension 1: Visual Hierarchy & Layout** and **Dimension 2: Typography**; add **Dimension 3: Color & Theming** only when color or theme files changed.
 - Review the code, not a screenshot. Skip the sibling's browser capture phase unless the app is already running and a quick check is cheap. Cite criterion ids (MO-02, and so on) where they apply.
 
-**Optional external skills.** Detect which of these are installed, then load each one found and apply it to the diff as extra lenses. Check the host's skill list; in a plain checkout, look for `SKILL.md` under the agent's skills directories (`~/.claude/skills`, `.claude/skills`, `~/.agents/skills`, plugin caches).
+**Optional external skills.** Detect which of these are installed, then load each one found and apply it to the diff as extra lenses. Check the host's skill list; in a plain checkout, look for `SKILL.md` under the agent's skills directories (`.agents/skills`, `~/.agents/skills`, `.claude/skills`, `~/.claude/skills`, plugin caches).
 - `emil-design-eng` (interaction and animation craft)
 - `find-animation-opportunities` (where motion would help)
 - `impeccable` (UI polish critique)

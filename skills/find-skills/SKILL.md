@@ -16,11 +16,11 @@ The **Agent Skills** format is an open standard for packaging procedural knowled
 
 **skills.sh** is the public directory and leaderboard for the ecosystem, hosting thousands of skills across categories like frontend, backend, DevOps, and more.
 
-Before installing an external skill, check `ls skills/` in this repo (or run `/find-skills` again after browsing). cc-arsenal may already cover the same ground, and a hardcoded list here would just go stale.
+Before installing an external skill, check `ls skills/` in this repo (or invoke this skill again after browsing; in Claude Code, `/find-skills`). cc-arsenal may already cover the same ground, and a hardcoded list here would just go stale.
 
 ## Ask First, Never Mutate to "Show" Something
 
-`add`, `remove`/`rm`, and `update` all touch the user's real filesystem (project `.claude/skills/` or global `~/.claude/skills/`). A wrong guess costs the user real state, not a free re-run. Two hard stops, both end the turn on a question rather than acting and reporting after:
+`add`, `remove`/`rm`, and `update` all touch the user's real filesystem (project `.claude/skills/` or `.agents/skills/`, or the global equivalents `~/.claude/skills/` or `~/.agents/skills/`). A wrong guess costs the user real state, not a free re-run. Two hard stops, both end the turn on a question rather than acting and reporting after:
 
 - **Scope or target is ambiguous.** If it isn't clear which skill/repo to install, or whether it belongs at project vs. global scope, end your response with the clarifying question. Don't run `npx skills add` first and confirm after, and don't install to a throwaway/local mock "just to show the flow", which still runs a real command against the user's real directories. Ask, stop, and install only in a later turn once the user answers.
 - **Any removal, one skill or all of them.** Removal is destructive and not undoable via the CLI. Run `npx skills list` (and `-g` if scope is unclear) to show what's actually installed, then end your response asking the user to confirm exactly what gets removed. Run `remove`/`rm`/`--all` only in a later turn, after the user replies with an explicit yes. The request is never the confirmation: "remove the foo skill, I don't use it anymore" names the action but does not green-light it. If you catch yourself reasoning "the user already confirmed by naming it", that reasoning is exactly the failure this rule exists to stop.
@@ -100,9 +100,9 @@ See "Ask First, Never Mutate to 'Show' Something" above for exactly when to end 
 
 ## Installation Scopes
 
-**Project scope** (default): Installs to `.claude/skills/` in the current project directory. Committed with the project and shared with team members.
+**Project scope** (default): Installs to the agent's project skills directory (`.claude/skills/` for Claude Code, `.agents/skills/` for tools that read it) in the current project directory. Committed with the project and shared with team members.
 
-**Global scope** (`-g` flag): Installs to `~/.claude/skills/` in the home directory. Available across all projects for the current user.
+**Global scope** (`-g` flag): Installs to the agent's skills directory in the home directory (`~/.claude/skills/` for Claude Code, `~/.agents/skills/` for tools that read it). Available across all projects for the current user.
 
 **Recommendation**: Install domain-specific skills (e.g., a framework skill) at project scope. Install general-purpose skills (e.g., code review, testing patterns) at global scope.
 

@@ -55,7 +55,7 @@ Use the `render` skill to build the proposals as one `audit` page (via the `Skil
 - the impact and, when the catalog has one, the tradeoff
 - a `fix` / `won't fix` / `discuss` verdict
 
-Group the distribution by harness and sort by severity. Put the habits in a short section with no verdicts. Deliver the page path in two lines and ask the user to mark it. When they say it's marked, read the marks back per the render skill and apply only the items marked `fix`. Without a render skill, print the full name lists first (see above), then ask with AskUserQuestion (multi-select) or a numbered list.
+Group the distribution by harness and sort by severity. Put the habits in a short section with no verdicts. Deliver the page path in two lines and ask the user to mark it. When they say it's marked, read the marks back per the render skill and apply only the items marked `fix`. Without a render skill, print the full name lists first (see above), then ask the user with the structured question tool where one exists (`AskUserQuestion`, `question`, `ask_user`; multi-select), otherwise as a numbered list in chat, and wait for the answer.
 
 Rules for applying the chosen fixes:
 

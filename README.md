@@ -24,6 +24,9 @@ You: ship it
 # Any Agent-Skills-compatible tool (Codex, Cursor, Gemini CLI, OpenCode, ...)
 npx skills add mgiovani/cc-arsenal
 
+# One specific tool: -a codex | opencode | antigravity (all three read .agents/skills)
+npx skills add mgiovani/cc-arsenal -a codex
+
 # Claude Code: unlocks plugin variants, hooks, and subagent orchestration
 /plugin marketplace add mgiovani/cc-arsenal
 /plugin install cc-arsenal@cc-arsenal-marketplace

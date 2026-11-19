@@ -1,6 +1,6 @@
 # Architecture & Design Patterns (Agent 7)
 
-Lens for the Architecture lane. Findings use the `AP-` prefix (AP-001, ...), dimension `AP`, lane `architecture`. Run on `model: sonnet`. Always on for every review.
+Lens for the Architecture lane. Findings use the `AP-` prefix (AP-001, ...), dimension `AP`, lane `architecture`. Run on the balanced tier (`model: sonnet` in Claude Code). Always on for every review.
 
 ## Contents
 

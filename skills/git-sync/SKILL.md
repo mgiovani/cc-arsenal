@@ -123,6 +123,8 @@ After a successful sync:
 
 ## Examples
 
+Invoke the skill with these flags in the user's request; the slash form below is the Claude Code example.
+
 ```bash
 # Sync with main using merge (default)
 /git-sync

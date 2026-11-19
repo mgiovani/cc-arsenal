@@ -40,12 +40,12 @@ At each phase boundary, mark that phase's task `completed`, run `TaskList` to co
 
 ## Discovery prompt
 
-Phase 0. Use a Haiku-powered Explore agent for token-efficient discovery:
+Phase 0. Use a fast-tier (`haiku` in Claude Code) Explore agent for token-efficient discovery:
 
 ```
-Use Task tool with Explore agent:
+Spawn an exploration subagent where the tool has one (Task tool with Explore agent in Claude Code); otherwise do the step inline:
 - prompt: "Discover the testing workflow for this project:
-    1. Read CLAUDE.md if it exists - extract testing conventions and commands
+    1. Read AGENTS.md or CLAUDE.md (whichever exists) - extract testing conventions and commands
     2. Check for task runners: Makefile, justfile, package.json scripts, pyproject.toml scripts
     3. Identify the test framework:
        - Python: pytest, unittest, nose2
@@ -77,7 +77,7 @@ Use Task tool with Explore agent:
 Phase 1, only when no coverage tooling exists:
 
 ```
-Use Task tool with Explore agent:
+Spawn an exploration subagent where the tool has one (Task tool with Explore agent in Claude Code); otherwise do the step inline:
 - prompt: "Analyze test coverage gaps for this project:
     1. List all source files/modules in the project (exclude test files, configs, migrations)
     2. List all test files
@@ -149,7 +149,7 @@ Do NOT commit - the main agent handles commits.
 
 ## Model selection and parallelism
 
-- Sonnet (default) for test generation: it needs code understanding and writing.
-- Haiku only for pure exploration (Phase 0 and the Phase 1 fallback), never for writing tests.
+- Balanced tier (`sonnet`, default) for test generation: it needs code understanding and writing.
+- Fast tier (`haiku`) only for pure exploration (Phase 0 and the Phase 1 fallback), never for writing tests.
 - Spawn all independent module subagents at once; give each its own files so no two write the same path.
 - Each subagent runs its tests before reporting; the main agent still runs the full suite in Phase 4.

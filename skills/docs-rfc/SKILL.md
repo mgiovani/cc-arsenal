@@ -50,7 +50,7 @@ the Background and Detailed Design sections in Phase 2.
 Copy this checklist and tick each step:
 
 ```
-- [ ] Parse `$ARGUMENTS`: title, plus an optional variant keyword (`minimal`, `standard`, `detailed`); remove the keyword from the title; default `standard`
+- [ ] Parse the user's request: title, plus an optional variant keyword (`minimal`, `standard`, `detailed`); remove the keyword from the title; default `standard`
 - [ ] Number: scan `docs/rfc/` for `RFC-XXXX-*`, add 1 to the highest (start at `0001`), 4-digit padded
 - [ ] Slug: kebab-case the title, lowercase, special characters stripped ("Add GraphQL API Support" -> `add-graphql-api-support`)
 - [ ] Author: `git config user.name`, falling back to `"Development Team"` if empty
