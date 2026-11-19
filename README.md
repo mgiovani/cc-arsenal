@@ -8,7 +8,7 @@
 [![Agent Skills compatible](https://img.shields.io/badge/Agent%20Skills-compatible-blueviolet.svg)](https://agentskills.io)
 [![Code style: ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
-52 production-grade [Agent Skills](https://agentskills.io) for real development workflows: code review, shipping, docs, git, testing, multi-agent orchestration, and more. Each is a battle-tested workflow you invoke in plain language. Works with Claude Code, Codex, Cursor, Gemini CLI, and any Agent-Skills-compatible agent.
+56 production-grade [Agent Skills](https://agentskills.io) for real development workflows: code review, shipping, docs, git, testing, multi-agent orchestration, and more. Each is a battle-tested workflow you invoke in plain language. Works with Claude Code, Codex, Cursor, Gemini CLI, and any Agent-Skills-compatible agent.
 
 ## See it work
 
@@ -44,7 +44,7 @@ make -C integrations/claude-code/claude-hi standard # Schedule 5-hour windows
 <!-- gen:skills-readme start -->
 <!-- generated: edit skills.sh.json or SKILL.md frontmatter, then run `make docs` -->
 
-**52 Skills** organized by category:
+**56 Skills** organized by category:
 
 <details>
 <summary><b>AI Workflow Tools</b> (9): Tools that work on your AI agent itself, not on your codebase.</summary>
@@ -75,12 +75,15 @@ make -C integrations/claude-code/claude-hi standard # Schedule 5-hour windows
 </details>
 
 <details>
-<summary><b>Build</b> (5): Feature work and bug fixes, plus refactors and test coverage for code you already have.</summary>
+<summary><b>Build</b> (8): Feature work and bug fixes, refactors and test coverage, plus the coding guidelines they follow.</summary>
 
 | Skill | What it does |
 |---|---|
+| [`backend-guidelines`](skills/backend-guidelines/) | Owner's Python, FastAPI and Postgres defaults: schemas, layering, migrations, typing, workflows, agents |
 | [`clotho-research`](skills/clotho-research/) | Find what a change will actually touch before planning it: the code and prior art it meets, and the risks it carries |
+| [`code-guidelines`](skills/code-guidelines/) | Generic coding rules for any language: simple changes, safe boundaries, tests, commits, smells |
 | [`fix-bug`](skills/fix-bug/) | Test-driven debugging with strict sequential task chain and dependency enforcement |
+| [`frontend-guidelines`](skills/frontend-guidelines/) | Owner's React, TypeScript and Tailwind defaults: tokens, layering, components, motion, a11y, design review |
 | [`implement-feature`](skills/implement-feature/) | Feature implementation with senior staff engineer best practices and parallel subagent orchestration where available |
 | [`refactor`](skills/refactor/) | Restructure existing code without changing behavior, verified against the full test suite at each step |
 | [`test-suite`](skills/test-suite/) | Generate test suites by analyzing coverage gaps and writing tests that match project conventions |
@@ -125,13 +128,14 @@ make -C integrations/claude-code/claude-hi standard # Schedule 5-hour windows
 </details>
 
 <details>
-<summary><b>GitHub</b> (3): Pull requests and merges, then taking a project public.</summary>
+<summary><b>GitHub</b> (4): Issues and pull requests, merges, then taking a project public.</summary>
 
 | Skill | What it does |
 |---|---|
 | [`git-create-pr`](skills/git-create-pr/) | Pull request creation with standardized formats |
 | [`oss-launch`](skills/oss-launch/) | Take a private project public: secrets and license pre-flight, branding, README rewrite, then flip it |
 | [`ship`](skills/ship/) | Orchestrates a branch from "code done" to "merged" (runs review-code plus project-specific pre-merge checks) |
+| [`work-next-issue`](skills/work-next-issue/) | Pick the next unblocked issue, then plan, build, review and open the PR with sibling skills |
 
 </details>
 

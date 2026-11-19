@@ -7,7 +7,7 @@ Skills are the single component type in this repository. Each skill lives in `sk
 <!-- gen:skills-features start -->
 <!-- generated: edit skills.sh.json or SKILL.md frontmatter, then run `make docs` -->
 
-## Skills (52 total)
+## Skills (56 total)
 
 Every skill is callable as `/<name>` in Claude Code. **(auto)** marks skills that *also* trigger automatically when Claude detects a relevant task; **(manual)** marks slash-only skills (`disable-model-invocation: true`).
 
@@ -88,20 +88,29 @@ Cohesive visual identity for a software project across mascots, heroes, social c
 - Extends the selected character through high-resolution masters and verified derivatives
 - Preserves approved compositions during local repairs and checks final art at real display sizes
 
-### Build (5 skills)
+### Build (8 skills)
 
-Feature work and bug fixes, plus refactors and test coverage for code you already have.
+Feature work and bug fixes, refactors and test coverage, plus the coding guidelines they follow.
+
+`/backend-guidelines` (auto)
+Owner's Python, FastAPI and Postgres defaults: schemas, layering, migrations, typing, workflows, agents
 
 `/clotho-research` (manual)
 Find what a change will actually touch before planning it.
 - Surfaces the existing code that must change and prior art worth copying
 - Reports files and sources, plus the risks it found; never proposes an implementation or edits anything
 
+`/code-guidelines` (auto)
+Generic coding rules for any language: simple changes, safe boundaries, tests, commits, smells
+
 `/fix-bug` (auto)
 Test-driven debugging with fix verification.
 - Root cause analysis
 - Regression testing
 - Fix verification hook
+
+`/frontend-guidelines` (auto)
+Owner's React, TypeScript and Tailwind defaults: tokens, layering, components, motion, a11y, design review
 
 `/implement-feature` (auto)
 Feature implementation with parallel subagents and automated test verification.
@@ -207,9 +216,9 @@ Manage a full gitflow branching workflow.
 - Cut versioned releases with changelog generation
 - Emergency hotfix coordination
 
-### GitHub (3 skills)
+### GitHub (4 skills)
 
-Pull requests and merges, then taking a project public.
+Issues and pull requests, merges, then taking a project public.
 
 `/git-create-pr` (auto)
 PR creation with templates and test verification.
@@ -227,6 +236,9 @@ Take a private project to a public GitHub launch.
 Orchestrates the current branch from "code done" to "merged".
 - Runs review-code, project pre-merge checks, git-commit, then git-create-pr
 - Optionally watches CI and reports or merges on green
+
+`/work-next-issue` (auto)
+Pick the next unblocked issue, then plan, build, review and open the PR with sibling skills
 
 ### Jira (1 skill)
 
@@ -402,7 +414,7 @@ make -C integrations/claude-code/claude-hi standard  # Quick 9am/2pm/7pm schedul
 
 ### Plugin Marketplace (Claude Code)
 - **Installation**: `/plugin install cc-arsenal@cc-arsenal-marketplace`
-- **Skills**: All 52 skills, or a focused variant (`cc-arsenal-dev`, `cc-arsenal-product`, `cc-arsenal-review`, `cc-arsenal-docs`, `cc-arsenal-git`, `cc-arsenal-jira`, `cc-arsenal-skills`)
+- **Skills**: All 56 skills, or a focused variant (`cc-arsenal-dev`, `cc-arsenal-product`, `cc-arsenal-review`, `cc-arsenal-docs`, `cc-arsenal-git`, `cc-arsenal-jira`, `cc-arsenal-skills`)
 - See [Getting Started](getting-started.md) for the full variant list
 
 ### Symlink Install (Contributors)

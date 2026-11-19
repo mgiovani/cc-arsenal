@@ -1,0 +1,18 @@
+[
+  {"query": "what are the coding standards I should follow for error handling in this new module?", "should_trigger": true},
+  {"query": "write a function that validates user-supplied file names, keep it clean and simple", "should_trigger": true},
+  {"query": "should I add a library for this or use the standard library?", "should_trigger": true},
+  {"query": "how should I name booleans and when is a comment actually worth writing?", "should_trigger": true},
+  {"query": "I fixed the null price bug, how should I structure the fix and its test?", "should_trigger": true},
+  {"query": "what makes a good domain exception and how should it be logged?", "should_trigger": true},
+  {"query": "this function has a long else-if ladder, what is the cleanest way to restructure the branching?", "should_trigger": true},
+  {"query": "set up the general code conventions for a new repo with no stack chosen yet", "should_trigger": true},
+  {"query": "review PR 482 and list the problems by severity", "should_trigger": false},
+  {"query": "refactor the billing module so the service layer is split out, keep behaviour identical", "should_trigger": false},
+  {"query": "how do I structure FastAPI routers, dependencies and SQLAlchemy sessions?", "should_trigger": false},
+  {"query": "build a React card component with Tailwind tokens and a loading state", "should_trigger": false},
+  {"query": "generate a commit message from my staged diff", "should_trigger": false},
+  {"query": "open a pull request for this branch", "should_trigger": false},
+  {"query": "audit our dependencies for CVEs and licence problems", "should_trigger": false},
+  {"query": "generate tests to close the coverage gaps in the payments package", "should_trigger": false}
+]

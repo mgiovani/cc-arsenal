@@ -1,0 +1,19 @@
+[
+  {"query": "add a POST endpoint to our FastAPI service with a pydantic request model and a service function behind it", "should_trigger": true},
+  {"query": "how should I structure packages in a Python backend so the domain never imports fastapi?", "should_trigger": true},
+  {"query": "set up pydantic-settings for the database url and an api key in this service", "should_trigger": true},
+  {"query": "write the SQLAlchemy model and keyset pagination query for the orders table in our Postgres api", "should_trigger": true},
+  {"query": "ty is complaining about my service module, how do I annotate this without Any or type ignore?", "should_trigger": true},
+  {"query": "make a DBOS workflow that retries an LLM call and survives restarts", "should_trigger": true},
+  {"query": "how do I wire logfire into the fastapi app and keep tokens out of logs?", "should_trigger": true},
+  {"query": "build a pydantic-ai agent with a tool that looks up a customer, and test it without hitting the model", "should_trigger": true},
+  {"query": "what ruff rules and pytest settings should a new uv-based python API start with?", "should_trigger": true},
+  {"query": "generate an alembic migration that adds a column to the visits table and run it against staging", "should_trigger": false},
+  {"query": "audit this API for OWASP issues and injection risks", "should_trigger": false},
+  {"query": "this endpoint is slow under load, profile it and find the N+1 queries", "should_trigger": false},
+  {"query": "build a React settings page with Tailwind tokens and a loading skeleton", "should_trigger": false},
+  {"query": "what are good general rules for naming, comments and error handling in any language?", "should_trigger": false},
+  {"query": "review PR 211 and list the problems by severity", "should_trigger": false},
+  {"query": "write a Dockerfile and docker-compose for the python service with postgres", "should_trigger": false},
+  {"query": "write a conventional commit message for my staged diff", "should_trigger": false}
+]

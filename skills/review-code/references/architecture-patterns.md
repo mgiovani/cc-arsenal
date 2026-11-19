@@ -7,6 +7,7 @@ Lens for the Architecture lane. Findings use the `AP-` prefix (AP-001, ...), dim
 - [Rules](#rules)
 - [Pattern catalog URLs](#pattern-catalog-urls)
 - [Pain to pattern table](#pain-to-pattern-table)
+- [Smell to refactoring table](#smell-to-refactoring-table)
 - [Over-engineering counter-check](#over-engineering-counter-check)
 - [Structure checks](#structure-checks)
 - [Finding format](#finding-format)
@@ -45,6 +46,25 @@ Name the URL for the pattern you actually cite. Do not cite a pattern you did no
 | Cross-cutting behavior (logging, caching, retry) wrapped by copy at each call | Decorator | Wrapper applied at composition |
 
 If the pain is not in this table, name the smell, not a pattern, and leave the fix to the CS lane.
+
+## Smell to refactoring table
+
+Catalog: https://refactoring.guru/refactoring/smells. Name the smell only where the changed code shows it, and propose the smallest refactoring that removes it.
+
+| Smell visible in the diff | Refactoring |
+|---|---|
+| Long function doing several jobs, with comments marking the sections | Extract Function per job; the comment becomes the name |
+| Long parameter list, or the same group of values passed together (data clump) | Introduce Parameter Object |
+| Primitive carrying domain meaning (a status string, a money float, an id as `str`) | Replace Primitive with a value type |
+| One class or module changed for unrelated reasons (divergent change) | Extract Class or split the module by reason to change |
+| One change forces small edits in many files (shotgun surgery) | Move the scattered logic into one owner |
+| A method that uses another object's data more than its own (feature envy) | Move Function to the data it reads |
+| Chains like `a.b().c().d()` reaching through objects | Hide Delegate, or ask the first object for the result |
+| Repeated `switch`/`if` on the same type code in several places | One map of key to handler, or polymorphism when behavior differs widely |
+| Copy-pasted block with small variations | Extract the shared part; keep the variation as a parameter |
+| Flag argument that switches the function between two behaviors | Split into two functions |
+| Mutable shared state updated from several call sites | Encapsulate behind one writer, or make the value immutable |
+| Comment explaining what the next lines do | Rename or extract until the comment is unnecessary |
 
 ## Over-engineering counter-check
 

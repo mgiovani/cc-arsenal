@@ -8,7 +8,8 @@
         "Does not create any Task-system entries (no TaskCreate/TaskUpdate calls, outputs/tasks.json is empty or absent) because the change touches only 2 files, below the 4-file/3-phase threshold",
         "Still runs Phase 0 discovery to find the project's real test/lint commands before editing, rather than assuming npm or make",
         "Reuses the existing theme CSS variable/token instead of hardcoding new color values",
-        "Runs the discovered test and lint commands before reporting completion, and the final summary's pass/fail status matches what those commands actually reported"
+        "Runs the discovered test and lint commands before reporting completion, and the final summary's pass/fail status matches what those commands actually reported",
+        "Loads code-guidelines (and the matching backend or frontend guidelines) before writing code, announces it with a \"Using code-guidelines\" line, and lets the project's own AGENTS.md or lint config win on any disagreement"
       ]
     },
     {

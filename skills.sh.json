@@ -27,10 +27,13 @@
     },
     {
       "title": "Build",
-      "description": "Feature work and bug fixes, plus refactors and test coverage for code you already have.",
+      "description": "Feature work and bug fixes, refactors and test coverage, plus the coding guidelines they follow.",
       "skills": [
+        "backend-guidelines",
         "clotho-research",
+        "code-guidelines",
         "fix-bug",
+        "frontend-guidelines",
         "implement-feature",
         "refactor",
         "test-suite"
@@ -69,11 +72,12 @@
     },
     {
       "title": "GitHub",
-      "description": "Pull requests and merges, then taking a project public.",
+      "description": "Issues and pull requests, merges, then taking a project public.",
       "skills": [
         "git-create-pr",
         "oss-launch",
-        "ship"
+        "ship",
+        "work-next-issue"
       ]
     },
     {

@@ -92,6 +92,8 @@ in every later phase.
 
 ## Phase 1: Bug Analysis & Reproduction
 
+Before writing any test or code, load the guideline skills that match the files you will touch: `code-guidelines` for any code. Add `backend-guidelines` for Python, API or database work and `frontend-guidelines` for UI work. Load them via the skill tool where available, otherwise read each skill's SKILL.md and the reference it routes to for this task. Announce it with a `Using code-guidelines to <purpose>` line. The project's own AGENTS.md or CLAUDE.md and lint config win wherever they disagree, and a skill that is not installed is skipped.
+
 **Goal**: understand the bug, locate it in code, reproduce it reliably.
 
 1. **Understand symptoms.** If given an issue ID, read it (`gh issue view`, `jira issue view`, etc.). Identify expected vs. actual behavior and any error messages.

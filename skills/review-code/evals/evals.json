@@ -10,7 +10,8 @@
         "Includes a line reading 'Estimated lines removable (static count, not a benchmark): ~N'",
         "Does not state or imply a percentage, runtime, token, or bundle-size saving anywhere in the report",
         "OE- findings default to Minor/Nit severity unless the complexity itself causes a reliability or maintainability failure",
-        "Every finding cites a file:line the agent actually read; no finding lacks a concrete file path and line number"
+        "Every finding cites a file:line the agent actually read; no finding lacks a concrete file path and line number",
+        "Loads the matching guideline skills, announces it with a \"Using code-guidelines\" line, and lets the project's own AGENTS.md or lint config win on any disagreement"
       ]
     },
     {

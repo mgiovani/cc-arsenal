@@ -1,0 +1,62 @@
+{
+  "skill": "frontend-guidelines",
+  "description": "Owner's React, TypeScript and Tailwind defaults: tokens, icon wrapper, layering, component folders, motion tokens, no suppressions, tooling",
+  "evals": [
+    {
+      "id": "confirm-delete-component",
+      "prompt": "Add a ConfirmDeleteProject dialog to our React + TypeScript + Tailwind app. It confirms deleting a project, has a trash icon, and the project is built from a shared ui/ folder with a Button primitive and an Icon component. There is no AGENTS.md. List the files you create and show the code.",
+      "assertions": [
+        "Creates a PascalCase component folder containing the component, a variants file, a stories file, a test file and an index.ts",
+        "Uses an alert dialog (role alertdialog or an AlertDialog primitive) because the action is irreversible, not a plain dialog or window.confirm",
+        "The confirm button label names the verb and the object (for example Delete project), and no button is labelled Yes, OK or Continue",
+        "Imports the trash icon through the project's Icon component and never imports the icon package directly in the dialog",
+        "Uses only semantic token classes for color and spacing: no hex, rgb, oklch, palette-step class such as red-500, and no arbitrary pixel value",
+        "The story sets an accessibility check to fail on violations (a11y test: error or an axe run in the test) and has a play function that asserts an outcome",
+        "Uses named exports, a typed props interface and type=button on buttons, with no default export and no eslint-disable or ts-ignore comment",
+        "Mentions or sets the danger or destructive role for the confirm action so it looks different from the cancel action"
+      ]
+    },
+    {
+      "id": "press-and-toast-motion",
+      "prompt": "Our Tailwind app has no animations yet. Add a press effect to Button, a hover highlight on table rows, and an entrance and exit for toast notifications. Give me the CSS and component changes.",
+      "assertions": [
+        "Defines duration and easing as named tokens (CSS custom properties or theme entries) and uses them, with no literal millisecond value or raw cubic-bezier inside component code",
+        "Uses a press scale of about 0.97 on :active",
+        "Never uses transition: all and names the transitioned properties",
+        "Gates the hover effect behind (hover: hover) and (pointer: fine), or declines hover motion for the dense table rows with a stated reason",
+        "The toast enters from about 0.95 scale or a percentage translate with opacity zero, never from scale(0), and the exit is shorter than the entrance",
+        "Keeps every routine duration at or under 300ms and uses no ease-in curve",
+        "Under prefers-reduced-motion removes transform and distance but keeps opacity or color transitions, rather than disabling every transition",
+        "Animates only transform and opacity for the toast and press effect"
+      ]
+    },
+    {
+      "id": "lint-and-layout-setup",
+      "prompt": "Set up linting and formatting for a new bun-based React + Vite + TypeScript + Tailwind frontend in a monorepo folder frontend/. Layers are routes, features, entities, ui and lib. We use Phosphor icons. Give me the config files and the scripts.",
+      "assertions": [
+        "Enforces the import direction routes, features, entities, ui, lib with dependency-cruiser or eslint-plugin-boundaries, with a default of disallow and no cycles",
+        "Bans direct imports of the icon package outside the Icon wrapper with a no-restricted-imports rule or a depcruise rule",
+        "Adds a lint rule against raw color values (hex, rgb, oklch) in className and style",
+        "Prettier config sets semi true, singleQuote true, trailingComma all, printWidth 100 and the Tailwind plugin with the functions cn, cx and tv",
+        "Uses bun commands (bun install --frozen-lockfile, bun run) and no npm, yarn or pnpm commands",
+        "Contains no eslint-disable comment and no ts-ignore, and does not set rules to off to get a pass",
+        "tsconfig enables strict, noUncheckedIndexedAccess and verbatimModuleSyntax, and a typecheck script uses tsc -b when project references are used",
+        "Defines one check script that chains typecheck, lint, format check, boundaries, build and test"
+      ]
+    },
+    {
+      "id": "templated-screen-review",
+      "prompt": "Review this dashboard screen and tell me whether it looks templated. Code: a hero h1 with className=\"bg-gradient-to-r from-violet-500 to-blue-500 bg-clip-text text-transparent\"; above it a small uppercase tracked span reading 01 / OVERVIEW; then three identical rounded-2xl shadow-lg hover:scale-105 cards each with a lucide icon in a tinted circle, a heading and a line of text; a KPI row of tiles each with a big number, a green +12% pill and a sparkline; a button with style={{transition: 'all 0.5s ease-in'}}; a footer chip that always says All systems healthy. The project has a DESIGN.md with semantic tokens, flat surfaces and a Phosphor Icon wrapper.",
+      "assertions": [
+        "Flags the gradient text and gives the reason (contrast depends on the gradient stop, emphasis should come from weight or size)",
+        "Flags transition: all and ease-in with the specific fix: named properties and an ease-out token, and a duration within the 300ms ceiling",
+        "Flags the lucide icon as a second icon set and says to use the project's Icon wrapper",
+        "Says the decorative eyebrow and 01 numbering carry no information, while noting an eyebrow is acceptable when it states a state or a risk",
+        "Flags the permanent healthy status chip because a healthy default should stay silent",
+        "Recommends setting KPIs as type without icon circles, pills or sparklines, and says color belongs on data",
+        "Treats the project's DESIGN.md tokens as the authority and does not impose one outside aesthetic such as editorial serif or glassmorphism",
+        "Frames each finding with why it reads as templated, and does not say a tell is banned unconditionally"
+      ]
+    }
+  ]
+}
