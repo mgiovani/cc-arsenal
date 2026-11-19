@@ -1,6 +1,6 @@
 # AGENTS.md
 
-This is the canonical, tool-agnostic guidance file for **ai-arsenal**. Any AGENTS.md-aware tool reads it natively, including Codex, Cursor, Copilot, Gemini CLI and OpenCode. Claude Code does not read this file directly; `CLAUDE.md` imports it via `@AGENTS.md` and adds Claude-Code-only content on top.
+This is the canonical, tool-agnostic guidance file for **ai-arsenal**. Any AGENTS.md-aware tool reads it natively, including Codex, Cursor, Copilot, Gemini CLI and OpenCode. Claude Code reads it too (2.1.277 or later), so the repository has no `CLAUDE.md`; the Claude-Code-only content is the [Claude Code](#claude-code) section at the end.
 
 ## Repository Architecture
 
@@ -9,7 +9,7 @@ ai-arsenal is a collection of **56 Agent Skills** ([agentskills.io](https://agen
 ### Core Components
 
 - **Skills** (`skills/`): 56 skills covering development, code review, documentation, git/GitHub, jira, browser automation, project planning, product specs, multi-agent orchestration, open-source launch prep, and skill discovery/creation/improvement
-- **Scripts** (`scripts/`): Python utilities for installation and configuration, plus code generation (Claude-Code-specific; see `CLAUDE.md`)
+- **Scripts** (`scripts/`): Python utilities for installation and configuration, plus code generation (Claude-Code-specific; see [Claude Code](#claude-code))
 - **Integrations** (`integrations/`): agent-CLI-specific tooling that doesn't fit the tool-agnostic `skills/` tier, one subdirectory per agent CLI. Today that's `integrations/claude-code/`, holding the statusline; future agent CLIs (Codex, Gemini CLI, ...) get sibling directories alongside it as their own tooling needs arise.
 
 ## Install in any agent
@@ -27,7 +27,7 @@ npx skills add mgiovani/ai-arsenal -a opencode
 npx skills add mgiovani/ai-arsenal -a antigravity
 ```
 
-Using Claude Code? See `CLAUDE.md` for the plugin marketplace install and plugin variants, plus other Claude-Code-only extras.
+Using Claude Code? See the [Claude Code](#claude-code) section for the plugin marketplace install and plugin variants, plus other Claude-Code-only extras.
 
 ## Portability convention
 
@@ -240,7 +240,7 @@ make validate-structure   # Validate repository structure
 make validate-plugins     # Validate plugin manifests
 ```
 
-Claude-Code-specific install/config commands (`make install`, `make dry-run`, `make configure`, statusline) live in `CLAUDE.md`.
+Claude-Code-specific install/config commands (`make install`, `make dry-run`, `make configure`, statusline) are in the [Claude Code](#claude-code) section.
 
 ## Contributing
 
@@ -259,7 +259,112 @@ See `CONTRIBUTING.md` for the full development setup.
 ai-arsenal/
 ├── skills/          # All 56 skills (canonical, tool-agnostic)
 │   └── <name>/          # SKILL.md + optional references/, scripts/, assets/, evals/
-├── scripts/         # Installation and utilities (see CLAUDE.md for Claude-Code-specific ones)
+├── scripts/         # Installation and utilities (Claude-Code-specific ones: see the Claude Code section)
 └── integrations/    # Agent-CLI-specific tooling, one subdirectory per agent CLI
     └── claude-code/     # Statusline
 ```
+
+## Claude Code
+
+Everything in this section applies to Claude Code only. Claude Code reads this file as project instructions (version 2.1.277 or later), so the repository has no `CLAUDE.md`.
+
+### Plugin System (Recommended for Claude Code)
+
+Register this repository as a Claude Code Plugin marketplace:
+```bash
+/plugin marketplace add mgiovani/ai-arsenal
+```
+
+Then, to install a specific plugin set:
+1. Select **Browse and install plugins**
+2. Select **ai-arsenal-marketplace**
+3. Select one of the variants (see the table below)
+4. Select **Install now**
+
+Alternatively, directly install via:
+```bash
+/plugin install ai-arsenal@ai-arsenal-marketplace
+```
+
+For local development, add a local marketplace instead:
+```bash
+/plugin marketplace add /path/to/ai-arsenal
+```
+
+**Benefits over `npx skills add`:** managed installation, automatic updates, easy enable/disable, no system-wide symlinks, plus the extras below (hooks and plugin variants) that only work inside Claude Code.
+
+**Plugin variants**: install the whole toolkit or a focused subset:
+
+| Plugin | Use Case |
+|--------|----------|
+| `ai-arsenal` | Complete toolkit: every skill |
+| `ai-arsenal-dev` | Development workflows |
+| `ai-arsenal-product` | Product specs: PRD, design spec and design tokens |
+| `ai-arsenal-review` | Code review and quality audits |
+| `ai-arsenal-docs` | Documentation generation |
+| `ai-arsenal-git` | Git/GitHub workflow automation |
+| `ai-arsenal-jira` | Jira CLI |
+| `ai-arsenal-skills` | Specialty model-invoked capabilities |
+
+Each variant's exact skill set is defined in [`.claude-plugin/marketplace.json`](.claude-plugin/marketplace.json), the single source of truth, so the list never drifts across docs. The `ai-arsenal` variant intentionally omits the `skills` field there: an unset `skills` means "auto-load every skill in the repo," so it never needs syncing with the others.
+
+#### Troubleshooting plugin updates
+
+Local directory marketplaces (`"source": "directory"`) do not support auto-update or version detection: Claude Code caches `marketplace.json` on first install and local file changes don't invalidate that cache. After creating new skills or bumping versions:
+```bash
+rm -rf ~/.claude/plugins/cache/ai-arsenal-marketplace/
+# Then in Claude Code: /plugin → Update now
+```
+Use a GitHub remote marketplace instead for automatic updates in production.
+
+#### Development Installation (Symlink Method)
+
+**Only for developing ai-arsenal itself.** Regular users should use the plugin system above.
+
+```bash
+uv sync --extra dev
+uv run python -m scripts.setup.install     # creates symlinks in ~/.claude
+uv run python -m scripts.setup.configure   # interactive: choose specific skills to symlink
+
+# equivalent Makefile targets
+make dry-run
+make install
+make configure
+```
+
+`make configure` never modifies `~/.claude/settings.json`: it only symlinks the files you select.
+
+#### Team Configuration
+
+For automatic marketplace + plugin installation across team members, add to `.claude/settings.json`:
+```json
+{
+  "extraKnownMarketplaces": {
+    "ai-arsenal": {
+      "source": { "source": "github", "repo": "mgiovani/ai-arsenal" }
+    }
+  },
+  "enabledPlugins": ["ai-arsenal"]
+}
+```
+When team members trust the repository folder, Claude Code automatically installs the marketplace and plugin.
+
+### Optional Features
+
+```bash
+# Statusline Management
+make install-statusline           # Install statusline (delegates to feature Makefile)
+make uninstall-statusline         # Uninstall statusline (delegates to feature Makefile)
+make -C integrations/claude-code/statusline help           # Show all statusline commands
+make -C integrations/claude-code/statusline status         # Show statusline configuration
+make -C integrations/claude-code/statusline test           # Test statusline
+make -C integrations/claude-code/statusline list-backups   # List backups
+```
+
+### Per-skill hooks
+
+Only `agent-browser` declares a `hooks` key in its SKILL.md frontmatter: a `Stop` hook that closes its browser session. This key is Claude-Code-only (other tools ignore it per the Portability convention above), so a skill must still work correctly with the hook absent; `agent-browser`'s body tells the agent to close the session itself.
+
+### Documentation Guidelines
+
+**No README files inside `skills/`**: Claude Code detects them as actual components. Put docs in `docs/` and let each skill's `SKILL.md` be its own native doc.

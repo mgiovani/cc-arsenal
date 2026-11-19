@@ -199,7 +199,7 @@ make install-statusline           # Track usage and costs
 <!-- gen:skills-readme end -->
 
 **Claude Code unlocks extras:**
-- 9 plugin variants (install just the category you need, see `CLAUDE.md`)
+- 9 plugin variants (install just the category you need, see the Claude Code section of `AGENTS.md`)
 - Per-skill hooks (e.g. auto-closing a browser session on stop)
 - Parallel subagent orchestration for review/team skills
 - Statusline (usage/cost tracking)
@@ -214,7 +214,7 @@ Every skill still works standalone in any Agent-Skills-compatible tool: the Clau
 - [Troubleshooting](docs/troubleshooting.md) - Common issues
 - [Changelog](CHANGELOG.md) - Version history
 - [AGENTS.md](AGENTS.md) - Canonical, tool-agnostic skill guidance
-- [CLAUDE.md](CLAUDE.md) - Claude-Code-specific additions
+- [AGENTS.md](AGENTS.md#claude-code) - Claude-Code-specific additions
 
 ## Who builds this
 
