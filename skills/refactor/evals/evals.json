@@ -28,7 +28,8 @@
       "assertions": [
         "Finds all callers via Grep before renaming, including dynamic or string-based references",
         "The old name is fully removed once all callers are migrated, rather than keeping both names indefinitely",
-        "Tests pass after each incremental step"
+        "Tests pass after each incremental step",
+        "The final response reports the test, lint and type-check results, naming any failing item instead of calling the refactor done"
       ]
     },
     {

@@ -18,7 +18,8 @@
         "Runs a coverage baseline first and prioritizes untested or critical code paths",
         "Skips trivial pass-through functions and pure getters/setters",
         "Includes tests for the token-expiration and invalid-signature paths rather than skipping security-relevant paths for convenience",
-        "Presents a test plan for approval before generating tests"
+        "Presents a test plan for approval before generating tests",
+        "After writing tests, compares coverage against the baseline and runs the lint command on the new test files"
       ]
     },
     {

@@ -197,7 +197,7 @@ Branching and committing, plus merging and tagging versions in your own reposito
 `/git-commit` (auto)
 Conventional commits with automated linting.
 - Conventional Commits format
-- Pre-commit linting hook
+- Pre-commit lint step
 - Multi-language linter support
 
 `/git-release` (auto)
