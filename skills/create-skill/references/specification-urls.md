@@ -54,7 +54,7 @@ Phase 0 of create-skill should:
 1. Fetch the agentskills.io specification directly with whatever web tool the harness offers (`WebFetch` in Claude Code) (no subagent, it's one small fetch)
 2. Fetch platform.claude.com best practices, falling back to bundled references above if it fails
 3. Hold results in context for Phases 1-5
-4. Never proceed on memory; if fetching is impossible, tell the user and use the bundled references
+4. If both fetches fail or no web tool exists, say so and continue from the bundled references
 
 Why fetch every time:
 - Specifications evolve (new frontmatter fields, tool options)

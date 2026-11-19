@@ -44,7 +44,7 @@ Source: https://code.claude.com/docs/en/skills, https://code.claude.com/docs/en/
 ## CC-CACHE
 Why: Cache hit rate drives cost directly: a 90% vs 96% hit rate was $1.62 vs $0.99 for the same task.
 Fix: Keep a session on one model/effort; avoid gaps past the TTL; API-key/cloud users set `promptCacheTtl: "1h"` (v2.1.242+) or `ENABLE_PROMPT_CACHING_1H=1`; check the "Prompt cache (main)" line in `/usage`.
-Tradeoff: A 1h cache write costs 2x a 5m write (1.25x); it only pays off if the session actually has a gap that long.
+Tradeoff: A 1h cache write costs 2x the input price versus 1.25x for a 5m write (about 1.6x); it only pays off if the session actually has a gap that long.
 Source: https://code.claude.com/docs/en/prompt-caching, https://claude.com/blog/what-a-task-costs-on-opus-5-5
 
 ## CC-REBUILD

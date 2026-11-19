@@ -88,7 +88,7 @@ The generated pipeline must meet these goals. Map each to the repo's own tooling
 - Builds what ships (app build, Docker image if a Dockerfile exists) and keeps the artifacts later jobs need.
 - Catches vulnerable dependencies and leaked secrets, plus static-analysis findings where the language has a standard tool. Scan the container image if one is built.
 - Caches dependency installs keyed on the lockfile.
-- Pins third-party actions, orbs and images to a SHA or exact tag, never `latest` or a moving branch.
+- Pins third-party actions, orbs and images to a major version tag (`@v4`) or exact tag, a SHA for actions from unverified publishers, never `latest` or a moving branch such as `@master`.
 - Grants least-privilege permissions: a read-only token by default on GitHub Actions, widened per job only where a step needs it.
 - Deploys only when `--deploy` is given or deployment config is detected: staging and production are separate, a health check follows the deploy, and the built artifact reference is threaded into the deploy step. The Build job must expose the image tag/digest it produced (job `outputs`, `GITHUB_OUTPUT`, an artifact file, etc.), and the deploy step must consume that same reference: rendering it into a task definition, `helm upgrade --set image.tag=<ref>`, `kubectl set image deployment/<name> <container>=<ref>`, or equivalent. Never emit a blind restart (`aws ecs update-service --force-new-deployment`, `kubectl rollout restart` with no image change) as the whole deploy step: if the target pins an image tag/digest, a blind restart just re-pulls the OLD image and ships nothing new.
 

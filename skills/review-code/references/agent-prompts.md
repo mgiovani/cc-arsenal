@@ -11,7 +11,6 @@ Detailed grep patterns and agent prompts for each review dimension. Load this re
 - [Agent 4 - Test Coverage Gaps](#agent-4---test-coverage-gaps)
 - [Agent 5 - Error Handling & Edge Cases](#agent-5---error-handling--edge-cases)
 - [Agent 6 - Simplicity & Over-engineering](#agent-6---simplicity--over-engineering)
-- [Review Best Practices by Audience](#review-best-practices-by-audience)
 
 ## Shared preamble
 
@@ -38,7 +37,6 @@ Use the file path relative to the repo root and a new-file line number. IDs coun
 - [Agent 4 - Test Coverage Gaps](#agent-4---test-coverage-gaps)
 - [Agent 5 - Error Handling & Edge Cases](#agent-5---error-handling--edge-cases)
 - [Agent 6 - Simplicity & Over-engineering](#agent-6---simplicity--over-engineering)
-- [Review Best Practices by Audience](#review-best-practices-by-audience)
 
 ## Agent 1 - Correctness & Logic
 
@@ -173,7 +171,7 @@ Return structured findings with file path, line numbers, severity, code snippet,
 Agent 3 - Code Style & Patterns Analysis:
 - prompt: "Scan for code style and pattern issues in [FILES_LIST]. If reviewing a PR/commit, focus analysis on changed lines while using surrounding code for context.
 
-**IMPORTANT**: Before flagging style issues, understand the project's existing conventions by reading configuration files (.eslintrc, .prettierrc, ruff.toml, pyproject.toml) and observing patterns in existing code. Only flag deviations from the project's own standards.
+Before flagging style issues, understand the project's existing conventions by reading configuration files (.eslintrc, .prettierrc, ruff.toml, pyproject.toml) and observing patterns in existing code. Only flag deviations from the project's own standards.
 
 **Style & Pattern Issues:**
 Use Grep to search for:
@@ -426,35 +424,3 @@ Report Addendum (Phase 4/5): add a sixth dimension, Simplicity & Over-engineerin
 > Estimated lines removable (static count, not a benchmark): ~N
 
 `N` is the sum of lines-removed across all `OE-` findings, counted from code actually read. Never state or imply a percentage, runtime, token, or bundle-size saving next to this number: no leaner version was built or measured. If a real, previously-measured benchmark exists for the flagged code, cite it instead of inventing a figure.
-
-## Review Best Practices by Audience
-
-### For code authors
-
-| Practice | Detail |
-|----------|--------|
-| Address Critical/Major first | fix issues that affect correctness and reliability |
-| Understand the why | learn the reasoning behind each finding before fixing |
-| Request re-review | run the skill again after fixes, it re-derives the current diff and re-scopes on its own |
-| Push back on Nits | not every suggestion needs to be accepted |
-| Add tests for bugs found | each correctness finding should have a regression test |
-
-### For reviewers
-
-| Practice | Detail |
-|----------|--------|
-| Validate findings | verify each finding is a genuine issue, not a false positive |
-| Consider context | some patterns are acceptable in specific contexts |
-| Prioritize | not every finding needs to block a PR |
-| Be constructive | focus on the code, not the author |
-| Acknowledge good work | highlight well-written code and patterns |
-
-### For tech leads
-
-| Practice | Detail |
-|----------|--------|
-| Track trends | monitor recurring issue types across reviews |
-| Update standards | use findings to improve coding guidelines |
-| Share learnings | use reviews as teaching opportunities |
-| Calibrate severity | ensure severity ratings match team standards |
-| Automate what you can | add linting rules for frequently caught patterns |

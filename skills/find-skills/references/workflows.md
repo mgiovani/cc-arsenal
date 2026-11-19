@@ -15,60 +15,7 @@ Patterns for finding, evaluating, installing, and managing skills from outside t
 
 ## Discovery patterns
 
-### By domain
-
-```bash
-# Frontend development
-npx skills find react
-npx skills find nextjs
-npx skills find tailwind
-npx skills find frontend
-
-# Backend development
-npx skills find api
-npx skills find database
-npx skills find authentication
-
-# DevOps and infrastructure
-npx skills find docker
-npx skills find kubernetes
-npx skills find ci-cd
-
-# Testing
-npx skills find testing
-npx skills find playwright
-npx skills find unit-test
-```
-
-### By task type
-
-```bash
-# Code quality
-npx skills find "code review"
-npx skills find linting
-npx skills find refactoring
-
-# Documentation
-npx skills find documentation
-npx skills find api-docs
-
-# Security
-npx skills find security
-npx skills find vulnerability
-```
-
-### Browse known repositories
-
-```bash
-# Vercel's official collection (React, Next.js, design patterns)
-npx skills add vercel-labs/agent-skills --list
-
-# Anthropic's example skills
-npx skills add anthropics/skills --list
-
-# Any GitHub user's skills
-npx skills add <username>/<repo> --list
-```
+Search with `npx skills find <keyword>` (quote multi-word queries), or browse a repo with `npx skills add <owner>/<repo> --list`.
 
 ---
 
@@ -172,7 +119,7 @@ npx skills add owner/repo --skill verified-skill -a claude-code
 
 ### Avoiding redundancy
 
-Run `ls skills/` in this repo before installing an external equivalent. cc-arsenal already has 20+ skills (browser automation, Jira, docs, git, review, testing, and more) and a hardcoded list here would only go stale as skills are added.
+Run `ls skills/` in this repo before installing an external equivalent. A hardcoded list here would only go stale as skills are added.
 
 ### Complementary skills
 

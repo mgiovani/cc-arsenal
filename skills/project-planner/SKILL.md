@@ -5,7 +5,9 @@ description: Break a large or ambiguous project into a dependency-ordered task
   task tool where available (TaskCreate in Claude Code). Trigger on "plan this
   project", "break this into tasks", "what's the dependency order",
   "create a task breakdown", or "map out the milestones for X". Planning
-  only, it does not implement code (use implement-feature for that) and it
+  only, it does not implement code (use implement-feature for that), it
+  does not run a decomposed task across parallel agents (use orchestrate), it
+  does not file tracker issues from an approved PRD (use prd-to-issues), and it
   does not diagram existing code (use docs-diagram for architecture diagrams
   of what already exists).
 metadata:

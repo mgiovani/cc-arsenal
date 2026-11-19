@@ -65,6 +65,8 @@ Rules for applying the chosen fixes:
 - `X-MCP-INLINE-SECRET`: name the file and server only, and tell the user to rotate the secret and reference it as `${VAR}`. Never print or move the value.
 - Session habits (`/clear`, `/compact`, model choice) are advice, not edits.
 
+After each edit, check the file still parses (`python3 -c 'import json,sys; json.load(open(sys.argv[1]))' <file>` for JSON, `python3 -c 'import tomllib,sys; tomllib.load(open(sys.argv[1],"rb"))' <file>` for TOML) and that `git diff` (or a diff against a copy made before editing) shows only the intended keys changed.
+
 Settings changes apply to new sessions. Do not re-run the collector to "verify" in the same session: its evidence comes from past sessions. Suggest re-running after a week or two of normal use to compare.
 
 ## Step 4: Close with habits

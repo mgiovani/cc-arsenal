@@ -61,12 +61,15 @@ done
 
 ### Bulk issue assignment
 
+This writes to Jira. Run the list line first and confirm the keys before running the loop.
+
 ```bash
 #!/usr/bin/env bash
 # Assign unassigned high priority tickets to team members
 
 # Get list of unassigned high priority tickets
 issues=$(jira issue list -ax -yHigh -s"To Do" --plain --columns key --no-headers)
+echo "$issues"
 
 # Team members
 team=("Alice" "Bob" "Charlie")
@@ -84,12 +87,15 @@ done
 
 ### Auto-label based on summary
 
+This writes to Jira. Run the list line first and confirm the issues before running the loop.
+
 ```bash
 #!/usr/bin/env bash
 # Auto-label issues based on keywords in summary
 
 # Get issues without labels
-issues=$(jira issue list --plain --columns key,summary --no-headers)
+issues=$(jira issue list -l~x --plain --columns key,summary --no-headers)
+echo "$issues"
 
 echo "$issues" | while IFS=$'\t' read -r key summary; do
   # Check for keywords and add labels

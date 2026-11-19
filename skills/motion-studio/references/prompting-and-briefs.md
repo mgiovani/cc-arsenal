@@ -6,7 +6,7 @@ Read this to turn a request into a brief the agent can execute: effort level, on
 
 The prompt is 10 percent of the video; the harness (render engine, sound, critique loop) is the other 90. Only an agent with a shell can render, listen and look at its own frames; a chat app can write an animation but not iterate on it. "One prompt" posts range from a 30-word sentence to a 9,500-character brief plus skills, keys and a 12-hour run; "one prompt" only counts human turns, "pure code" names the render path, "zero external assets" names the input boundary.
 
-Effort: Opus 5.5 defaults to medium and thinks before answering. Keep medium for tweaks and re-renders, raise to xhigh for a new film, and use max for launch pieces whose opening seconds must hook.
+Effort: keep the default for tweaks and re-renders, raise to xhigh for a new film, and use max for launch pieces whose opening seconds must hook.
 
 ## Ban the AI-video defaults
 

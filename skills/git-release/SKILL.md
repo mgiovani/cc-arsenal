@@ -261,7 +261,7 @@ When force flags conflict (e.g., `--major --minor`), use the highest: major > mi
 - Pre-release versions (e.g., `0.x.y`): Follow semver pre-1.0 rules, breaking changes bump minor, features bump minor, fixes bump patch
 - Monorepo: If multiple `package.json` files exist, only update the root one. Warn the user about other version files found
 - Dirty working tree: Abort with a clear message asking the user to commit or stash changes first
-- No remote: If `git push` fails due to no remote, skip push and GitHub release, warn the user
+- No remote: If `git push` fails due to no remote, apply the item 7 gate: stop, report that the local commit and tag exist, and skip the GitHub release
 - Tag already exists: If the computed tag already exists, abort and suggest a force flag or a different version
 - CHANGELOG write verification fails: If the re-read in Phase 3 step 6 shows a missing heading or empty sections, abort before the release commit, never commit a changelog write you haven't confirmed on disk
 

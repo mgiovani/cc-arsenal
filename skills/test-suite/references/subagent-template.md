@@ -118,7 +118,7 @@ One subagent per module group. Fill every bracket from Phase 0 discovery; leave 
 ```
 Generate comprehensive tests for [MODULE/FILES].
 
-Read these source files FIRST to understand the actual code:
+Read these source files first to understand the actual code:
 [LIST OF SOURCE FILES TO READ]
 
 Then read these existing test files for patterns to follow:
@@ -134,17 +134,17 @@ Project testing conventions (discovered in Phase 0):
 - Assertion style: [DESCRIBE]
 
 Requirements:
-1. Follow the EXACT test patterns from existing test files: same imports, fixtures, assertion style
+1. Follow the test patterns from existing test files exactly: same imports, fixtures, assertion style
 2. Cover public functions/methods: happy path, edge cases (empty/boundary/null), error paths, and branch coverage
 3. Mock external dependencies (databases, APIs, file system) appropriately
 4. Follow the Test Quality Principles in SKILL.md
 
 After writing tests:
-1. Run the test command to verify ALL tests pass
+1. Run the test command to verify every test passes
 2. Fix any failures before reporting completion
 3. Report: files created, test count, what is covered
 
-Do NOT commit - the main agent handles commits.
+Do not commit; the main agent handles commits.
 ```
 
 ## Model selection and parallelism

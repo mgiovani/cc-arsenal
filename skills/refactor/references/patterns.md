@@ -19,11 +19,6 @@
   - [Characterization test naming](#characterization-test-naming)
   - [When to abort a refactoring](#when-to-abort-a-refactoring)
   - [Red flags during refactoring](#red-flags-during-refactoring)
-- [Language-specific notes](#language-specific-notes)
-  - [Python](#python)
-  - [JavaScript/TypeScript](#javascripttypescript)
-  - [Go](#go)
-  - [Java/Kotlin](#javakotlin)
 - [Commit message examples](#commit-message-examples)
 
 ## Refactoring catalog
@@ -228,30 +223,6 @@ Stop and reassess if tests keep failing for reasons that aren't clear, or if the
 | A new test is needed for new behavior | Definitely not a refactoring: stop |
 | "While I'm here" changes creep in | Scope creep; resist fixing unrelated issues |
 | Performance assumptions are shifting | Verify benchmarks if the code is performance-critical |
-
-## Language-specific notes
-
-### Python
-- Use `pytest --tb=short` for quick feedback during incremental changes
-- `ruff check --fix` can handle import reordering after moves
-- Watch for `__all__` exports when moving public API
-- Decorators may mask the actual function signature
-
-### JavaScript/TypeScript
-- Use named exports to make rename refactoring safer
-- Watch for `default` exports (harder to track callers)
-- Bundle tree-shaking may be affected by code reorganization
-- TypeScript interfaces provide safety during structural changes
-
-### Go
-- Exported vs unexported (capitalization) makes API surface explicit
-- `go vet` and `staticcheck` catch many refactoring errors
-- Interface satisfaction is implicit: moving methods may break interface compliance
-
-### Java/Kotlin
-- IDE refactoring tools are mature, prefer them when available
-- Watch for reflection-based access (Spring annotations, serialization)
-- Sealed classes/interfaces limit the impact of hierarchy changes
 
 ## Commit message examples
 

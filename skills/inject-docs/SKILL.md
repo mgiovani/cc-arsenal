@@ -6,9 +6,9 @@ description: Inject compressed framework-specific best practices and docs into
   version-aware) and FastAPI (via a bundled best-practices template). Use when
   a user wants to add Next.js or FastAPI docs to CLAUDE.md/AGENTS.md, run the
   Vercel agents-md codemod, inject framework best practices for AI agents, or
-  improve AI agent performance on a Next.js or FastAPI project. This is the
-  only framework-doc-injection skill in this toolkit, don't look for a
-  Next.js-specific variant.
+  improve AI agent performance on a Next.js or FastAPI project. Not for writing
+  a custom project rule (use create-rule) or syncing project docs with the code
+  (use docs-update).
 metadata:
   summary: "Inject compressed framework-specific best practices and docs into CLAUDE.md/AGENTS.md"
   author: mgiovani
@@ -30,15 +30,15 @@ Inject compressed framework-specific best practices and documentation into the c
 
 ## Anti-hallucination guidelines
 
-**CRITICAL**:
+A wrong guess here writes the wrong framework's docs into the project's rules file, so check before acting:
 1. **Auto-detect the framework** before running anything - check project files to identify the framework
-2. **Do NOT assume tools are available** - verify Node.js/Python tooling exists based on framework
-3. **Do NOT claim success** until verifying the target file exists and contains actual content
+2. **Verify the tooling exists** (Node.js for Next.js, `uv` for FastAPI) instead of assuming it, or the command fails midway
+3. **Report success only after** the target file exists and contains the injected content, since an exit code alone can hide an empty write
 4. **Read actual output** - report what the commands say, not what is expected
 
 ## Implementation Workflow
 
-### Phase 0: Framework Detection & Validation (REQUIRED)
+### Phase 0: Framework Detection & Validation
 
 Before running anything, auto-detect the framework and verify prerequisites:
 
@@ -47,7 +47,7 @@ Before running anything, auto-detect the framework and verify prerequisites:
    - Check for `pyproject.toml` with `fastapi` dependency → FastAPI project
    - Check for `requirements.txt` containing `fastapi` → FastAPI project
    - If multiple frameworks detected, prioritize based on the user's request, or ask the user with the structured question tool where one exists (`AskUserQuestion`, `question`, `ask_user`); otherwise ask in chat and wait for the answer
-   - If no framework detected, **STOP** and inform the user: "Could not detect a supported framework (Next.js or FastAPI)."
+   - If no framework detected, stop and tell the user: "Could not detect a supported framework (Next.js or FastAPI)."
 
 2. **Detect framework version** (if applicable):
    - For Next.js: extract version from `package.json`

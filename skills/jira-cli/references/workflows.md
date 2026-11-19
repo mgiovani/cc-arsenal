@@ -207,8 +207,9 @@ jira issue list --updated-before -8w -s~Done
 # Find tickets missing labels or components
 jira issue list -l~x -C~x
 
-# Update stale tickets in bulk (interactive or scripted)
-for issue in $(jira issue list -ax --created-before -12w --plain --columns key --no-headers); do
+# Update stale tickets in bulk: list first, confirm the keys, then edit each
+jira issue list -ax --created-before -12w --plain --columns key --no-headers
+for issue in ISSUE-1 ISSUE-2; do  # the keys the user confirmed
   jira issue edit $issue -s"To Do" --label stale
 done
 ```
@@ -271,8 +272,9 @@ jira issue list --created today  # Created today
 ### Bulk operations
 
 ```bash
-# Add multiple issues to sprint
-jira sprint add SPRINT_ID $(jira issue list -s"Ready" --plain --columns key --no-headers | head -10 | tr '\n' ' ')
+# Add multiple issues to sprint: list first, then pass only the confirmed keys
+jira issue list -s"Ready" --plain --columns key --no-headers | head -10
+jira sprint add SPRINT_ID ISSUE-1 ISSUE-2
 
 # Batch assign to team members
 for issue in ISSUE-1 ISSUE-2 ISSUE-3; do

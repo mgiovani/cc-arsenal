@@ -57,7 +57,12 @@ the thinking already happened in the PRD.
    acceptance criteria and a line naming the PRD file. Copying the acceptance criteria
    unchanged matters, since rewording them is how a spec and its tickets drift apart.
 5. Once every issue exists and has an id, record dependencies. If one points at an
-   issue that was skipped in step 3, report that rather than guessing around it.
+   issue that was skipped in step 3, report that rather than guessing around it. With
+   `bd`, use `bd dep add` as above. With `gh`, which has no dependency graph, comment on
+   the child so the link is visible in the tracker:
+   ```bash
+   gh issue comment <child-number> --body "Depends on #<parent-number>"
+   ```
 6. Close with a report, tagging each requirement ID as created, skipped because it
    already existed, or blocked on a clarification.
 

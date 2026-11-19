@@ -21,7 +21,7 @@ The model cannot emit an MP4. It writes a program; a headless browser calls `win
 - Never put `will-change` on anything the camera scales; text turns blurry.
 - Open mid-action: frame 0 must not be empty, and for a loop the last frame must equal the first (cursor position and velocity included).
 
-Opus defaults to this zero-dependency route (one `index.html`, a seek function driven by Playwright, ffmpeg) and skips Remotion and HyperFrames even when installed. Name a framework explicitly if you want one (see `hyperframes.md`, `remotion.md`).
+This zero-dependency route (one `index.html`, a seek function driven by Playwright, ffmpeg) is the default; Remotion and HyperFrames are used only when named, even if installed (see `hyperframes.md`, `remotion.md`).
 
 ## Setup
 

@@ -32,7 +32,7 @@ key never gets created.
 
 ## Step 1: Detect the framework
 
-Look for these signals, in order, and stop at the first match:
+Within one app, look for these signals in order and stop at the first match:
 
 | Signal | Framework | Locale file layout |
 |---|---|---|
@@ -43,8 +43,8 @@ Look for these signals, in order, and stop at the first match:
 | `manage.py` + `locale/<lang>/LC_MESSAGES/*.po` | Django gettext | `.po` catalogs, source strings live in code |
 | `Gemfile` + `config/locales/*.yml` | Rails I18n | YAML keyed by locale at the top level |
 
-If two signals match (e.g. a monorepo with a Rails API and a Vue frontend), run this
-skill once per app, not once for the whole repo: their locale files don't overlap.
+If signals match in different apps (e.g. a monorepo with a Rails API and a Vue frontend),
+run this skill once per app, not once for the whole repo: their locale files don't overlap.
 
 Read `references/frameworks.md` for the exact default-locale detection and the
 flatten/diff one-liner for whichever framework you found. Every framework's diff

@@ -58,7 +58,7 @@ The Phase 0 scope gate below always runs, even on the skip path: it's a five-sec
 2. If the request is mixed-scope, touch no code for the behavior-changing half, not as a draft, not because "it's small anyway."
 3. If the split is unambiguous, proceed with the refactor half only and skip to Step 0b.
 4. If it's genuinely unclear which half the user wants (e.g. the request could be read as "rename only" or "rename plus feature, your call"), ask the user with the structured question tool where one exists (`AskUserQuestion`, `question`, `ask_user`), otherwise ask in chat and wait for the answer, before writing any code. Don't guess.
-5. Whichever path you took, the Phase 6 summary MUST name the deferred behavior-changing piece by name and point to `implement-feature` (or `fix-bug`). This is checked against the actual final message sent to the user, not against intent recorded earlier in the run: a run that does the refactor correctly but never says what it skipped has not passed this gate.
+5. Whichever path you took, the Phase 6 summary names the deferred behavior-changing piece by name and points to `implement-feature` (or `fix-bug`). This is checked against the actual final message sent to the user, not against intent recorded earlier in the run: a run that does the refactor correctly but never says what it skipped has not passed this gate.
 
 No mixed scope detected → proceed straight to Step 0b.
 

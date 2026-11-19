@@ -1,6 +1,6 @@
 ---
 name: codex-imagegen
-description: Generates images and polished raster art (logos, mascots, hero images, icons, characters, sprite sheets, illustrations, product mockups) by driving Codex CLI's $imagegen skill. This is the default image generator, use it for any request to generate or create an image or visual asset, including "generate an image", "create a hero image", "make a mascot", "design a logo", "draw an icon", "generate a sprite sheet", or "make an illustration". Requires the `codex` CLI installed and authenticated (ChatGPT auth). Not for architecture, flow, or sequence diagrams (use docs-diagram).
+description: Generates images and polished raster art (logos, mascots, hero images, icons, characters, sprite sheets, illustrations, product mockups) by driving Codex CLI's $imagegen skill. This is the default image generator, use it for any request to generate or create an image or visual asset, including "generate an image", "create a hero image", "make a mascot", "design a logo", "draw an icon", "generate a sprite sheet", or "make an illustration". Requires the `codex` CLI installed and authenticated (ChatGPT auth). Not for architecture, flow, or sequence diagrams (use docs-diagram), a cohesive mascot, hero and social-card art system for a whole project (use project-illustrator), or motion videos (use motion-studio).
 metadata:
   summary: "Polished raster art (logos, mascots, heroes, sprites, mockups) via Codex CLI's $imagegen"
   author: mgiovani
@@ -97,7 +97,7 @@ Codex can claim chroma removal succeeded while the key color is still visibly th
 
 - Chroma-key flow: the built-in `image_gen` tool has no native alpha, so the skill generates on a flat chroma-key background then strips it locally. **Never** pass `--despill`/`--spill-cleanup` on pink/magenta-family subject art: despill desaturates those colors toward gray.
 - ChatGPT-account auth rejects API-only models; if `-m gpt-6.2-sol` fails on an auth error, see [references/troubleshooting.md](references/troubleshooting.md).
-- Regenerating with the same output filenames is cheap; re-integrating a bad asset into the app isn't: favor a re-run over shipping a QC failure.
+- A re-run costs real credits and minutes, but shipping a bad asset costs more: re-run only the failed asset rather than the batch, and don't ship a QC failure.
 - If a chroma removal comes out visibly wrong, don't just report failure: the raw generation and the fix procedure are in [references/troubleshooting.md](references/troubleshooting.md) (load it when you actually hit this).
 
 ## Worked examples

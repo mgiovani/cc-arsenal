@@ -8,9 +8,10 @@ Quick validation script for agent skills.
 Validates a skill directory against the Agent Skills specification:
 - YAML frontmatter structure and required fields
 - Allowed frontmatter keys (rejects unknown keys)
-- Name format: kebab-case, ≤64 chars, no invalid hyphens
+- Name format: kebab-case, ≤64 chars, no invalid hyphens, equal to the directory name
 - Description: 50-1024 chars, no angle brackets
 - SKILL.md line count warning (>500 lines)
+- All-caps emphasis warning (MUST/NEVER/ALWAYS, bold CRITICAL/IMPORTANT) outside code fences
 - Directory structure (only scripts/, references/, assets/ subdirs)
 - Internal reference integrity (referenced files exist)
 - evals/evals.json schema (if present)
@@ -53,6 +54,7 @@ MAX_NAME_LENGTH = 64
 MAX_DESCRIPTION_LENGTH = 1024
 MIN_DESCRIPTION_LENGTH = 50
 WARN_LINE_COUNT = 500
+EMPHASIS = re.compile(r'\b(?:MUST|NEVER|ALWAYS)\b|\*\*(?:CRITICAL|IMPORTANT)\*\*')
 
 
 def validate_skill(skill_path: str | Path) -> tuple[bool, list[str], list[str]]:
@@ -83,6 +85,21 @@ def validate_skill(skill_path: str | Path) -> tuple[bool, list[str], list[str]]:
 
     fm_errors = _validate_frontmatter(frontmatter)
     errors.extend(fm_errors)
+
+    name = str(frontmatter.get('name', '')).strip()
+    dir_name = skill_path.resolve().name
+    if name and name != dir_name:
+        # A warning, not an error: generators validate a skill in a staging directory
+        warnings.append(f"Name '{name}' does not match the directory name '{dir_name}'")
+
+    prose = re.sub(r'```.*?```', '', content, flags=re.DOTALL)
+    prose = re.sub(r'`[^`\n]*`', '', prose)
+    shouting = sorted(set(EMPHASIS.findall(prose)))
+    if shouting:
+        warnings.append(
+            f'All-caps emphasis ({", ".join(shouting)}): state the reason instead; '
+            'newer models over-trigger on emphasis'
+        )
 
     # Line count warning
     line_count = content.count('\n')
@@ -330,11 +347,13 @@ def _validate_evals_schema(evals_file: Path) -> list[str]:
 
 
 if __name__ == '__main__':
-    if len(sys.argv) != EXPECTED_ARGS:
-        sys.stderr.write(f'Usage: {sys.argv[0]} <skill_path>\n')
+    args = [a for a in sys.argv[1:] if a != '--strict']
+    strict = len(args) != len(sys.argv) - 1
+    if len(args) != EXPECTED_ARGS - 1:
+        sys.stderr.write(f'Usage: {sys.argv[0]} [--strict] <skill_path>\n')
         sys.exit(1)
 
-    valid, errors, warnings = validate_skill(sys.argv[1])
+    valid, errors, warnings = validate_skill(args[0])
 
     for warning in warnings:
         sys.stderr.write(f'WARNING: {warning}\n')
@@ -343,7 +362,7 @@ if __name__ == '__main__':
         sys.stdout.write('OK: Skill is valid\n')
         if warnings:
             sys.stdout.write(f'({len(warnings)} warning(s))\n')
-        sys.exit(0)
+        sys.exit(1 if strict and warnings else 0)
     else:
         for error in errors:
             sys.stderr.write(f'ERROR: {error}\n')

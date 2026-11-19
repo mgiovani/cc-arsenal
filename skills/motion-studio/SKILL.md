@@ -27,7 +27,7 @@ Every video here is a program. Claude writes code that paints a frame for any mo
 | B. HyperFrames (HTML + GSAP, agent skills) | Web-page thinking, captions, voiceover, templates, Studio editing | `references/hyperframes.md` |
 | C. Remotion (React) | Teams already in React, series, data-driven templates | `references/remotion.md` |
 
-Opus defaults to route A (one `index.html`, Playwright, ffmpeg, zero dependencies) and skips Remotion and HyperFrames even when installed. If the user wants a framework, say so explicitly in the brief.
+Route A (one `index.html`, Playwright, ffmpeg, zero dependencies) is the default. Use Remotion or HyperFrames only when the user or brief names one, even if installed.
 
 HyperFrames setup (ask the user first; needs Node.js: `fnm install --lts` or `brew install node`): run `npx skills add heygen-com/hyperframes` and choose Core Skills; for CI or non-interactive refresh run `npx hyperframes skills update`. Start a fresh chat afterwards and ask it to use `/hyperframes`. HyperFrames needs no React or build step and is Apache 2.0; Remotion fits teams already writing React (components, design system, typed inputs).
 
@@ -50,7 +50,7 @@ HyperFrames setup (ask the user first; needs Node.js: `fnm install --lts` or `br
 - Motion: closed-form springs; a value with several targets sums one spring per change instead of restarting (`retarget()`); tab indicators stretch with the leading edge stiffer than the trailing edge; a loop's last frame equals its first, cursor velocity included.
 - Ban the AI-video defaults: a title centered on a gradient, fade-in on everything, labels in the corners or borders around the frame, glowing UI chrome, stock particle bursts. One display face, one UI face, one accent. Something new on screen every 2 to 4 seconds.
 - Sound: synthesize the score and SFX on the same timeline unless a track is supplied; state changes on beats, big moments on downbeats, SFX on hits; mix at -14 LUFS.
-- Effort (Opus 5.5 defaults to medium): keep medium for tweaks and re-renders, raise to xhigh for a new film, and use max for launch pieces whose opening seconds must hook.
+- Effort: keep the default for tweaks and re-renders, raise to xhigh for a new film, and use max for launch pieces whose opening seconds must hook.
 - Put house rules in the project `AGENTS.md` or `CLAUDE.md`, whichever exists, so every film inherits them. Keep one session per brand. API keys live in `.env`, never in a prompt.
 - Reframe type and UI per format; do not crop a 16:9 render to vertical.
 - Long films are iteration, not one shot. For long or multi-chapter films, write `docs/ANIMATION_GUIDE.md` first and have subagents (where the tool has them; otherwise do each chapter inline, in order) code each chapter in its own file behind it.

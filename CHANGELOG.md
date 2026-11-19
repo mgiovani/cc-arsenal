@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Every skill now works the same in Claude Code, Codex, OpenCode and Antigravity. Skills name a model tier with the Claude alias as the example, ask through whatever question tool the harness has, and state the inline fallback for subagents, task tracking, web access and plan mode. `$ARGUMENTS` placeholders are gone from skill bodies, and project rules are read from AGENTS.md or CLAUDE.md, whichever exists. AGENTS.md "Portability convention" records the wording.
 - CI runs `make validate-structure`, which now also runs `quick_validate.py` on every skill.
+- Prompt refresh: all 52 skills were audited against the authoring rubric and 35 got targeted fixes. Templates and reference commands now do what `SKILL.md` says, stale model IDs and versions are out of skill bodies, all-caps emphasis is replaced by the reason for the rule, generic filler is cut, and workflows that change files say how to verify the result.
+- `quick_validate.py` warns on all-caps emphasis and on a `name` that differs from the directory; `make validate-structure` fails on any warning. The rubric in `improve-skill` and `create-skill` carries the new rules.
 
 ### Removed
 - `refactor`, `test-suite`, `git-commit`: the Claude-Code-only frontmatter hooks are gone. Each skill now runs its own final checks in the body (quality gates, tests plus coverage plus lint, lint before commit), so it behaves the same in every agent CLI. `git-commit/scripts/pre-commit-lint.sh` is deleted with its hook.

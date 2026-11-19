@@ -48,10 +48,15 @@ Classify each variable:
 
 Read existing `.env.example` (if it exists):
 
+Save the scanned names to a `mktemp` file (one per line, sorted) and compare by key name only:
+
 ```bash
-# Variables in code but NOT in .env.example (missing)
-# Variables in .env.example but NOT in code (undocumented/stale)
-# Variables in both (up to date)
+code_vars=$(mktemp)   # fill with the scanned names, one per line
+ex() { grep -oE '^(export )?[A-Za-z_][A-Za-z0-9_]*=' .env.example | sed -E 's/^export //; s/=$//' | sort -u; }
+comm -23 "$code_vars" <(ex)   # in code, not in .env.example (missing)
+comm -13 "$code_vars" <(ex)   # in .env.example, not in code (stale)
+comm -12 "$code_vars" <(ex)   # in both (up to date)
+rm "$code_vars"
 ```
 
 Report:
@@ -80,6 +85,9 @@ JWT_SECRET=your_jwt_secret_here  # openssl rand -hex 32
 Full section-header style and rules (preserve existing entries, only add what's missing,
 never a real value), see `references/env-example-template.md`, load it when writing the
 actual file.
+
+Verify the result: re-run the Phase 3 comparison; the missing list must be empty. Then
+`grep -nE '=.*(sk_live|AKIA|xox[abp]-)' .env.example | cut -d: -f1` must print nothing.
 
 ### Phase 5: Validate .env (if `validate` subcommand or `.env` exists)
 

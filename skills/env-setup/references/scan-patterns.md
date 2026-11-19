@@ -12,14 +12,14 @@ grep -rhoE "process\.env\.[A-Z_][A-Z0-9_]*" --include="*.ts" --include="*.js" --
 
 Python:
 ```bash
-grep -rhoE 'os\.environ\[["'"'"'][A-Z_][A-Z0-9_]*|os\.getenv\(["'"'"'][A-Z_][A-Z0-9_]*' \
+grep -rhoE 'os\.environ(\.get\(|\[)["'"'"'][A-Z_][A-Z0-9_]*|os\.getenv\(["'"'"'][A-Z_][A-Z0-9_]*' \
   --include="*.py" . | grep -oE '[A-Z_][A-Z0-9_]*$' | sort -u
 ```
 
 Ruby:
 ```bash
 grep -rhoE 'ENV\[["'"'"'][A-Z_][A-Z0-9_]*["'"'"']\]' --include="*.rb" . \
-  | grep -oE 'ENV\["[^"]*"\]' | grep -oE '"[^"]+"' | tr -d '"' | sort -u
+  | grep -oE '["'"'"'][A-Z_][A-Z0-9_]*' | tr -d "\"'" | sort -u
 ```
 
 Rust:
