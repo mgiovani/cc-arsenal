@@ -1,6 +1,6 @@
 # AGENTS.md
 
-This is the canonical, tool-agnostic guidance file for **ai-arsenal**. Any AGENTS.md-aware tool reads it natively, including Codex, Cursor, Copilot, Gemini CLI and OpenCode. Claude Code gets it through `CLAUDE.md`, which holds only the `@AGENTS.md` import; the Claude-Code-only content is the [Claude Code](#claude-code) section at the end.
+This is the canonical, tool-agnostic guidance file for **ai-arsenal**. Any AGENTS.md-aware tool reads it natively, including Codex, Cursor, Copilot, Gemini CLI and OpenCode. Claude Code reads it too (2.1.277 or later), so the repository has no `CLAUDE.md`; the Claude-Code-only content is the [Claude Code](#claude-code) section at the end.
 
 ## Repository Architecture
 
@@ -266,7 +266,7 @@ ai-arsenal/
 
 ## Claude Code
 
-Everything in this section applies to Claude Code only. `CLAUDE.md` is one line, `@AGENTS.md`: Claude Code skips a repository's `AGENTS.md` whenever any `CLAUDE.md` applies, including one in a parent directory, so the import is what loads this file reliably. Put new content here, never in `CLAUDE.md`.
+Everything in this section applies to Claude Code only. Claude Code reads this file as project instructions (version 2.1.277 or later), so the repository has no `CLAUDE.md`.
 
 ### Plugin System (Recommended for Claude Code)
 

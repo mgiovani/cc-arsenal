@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI runs `make validate-structure`, which now also runs `quick_validate.py` on every skill.
 - Prompt refresh: all 52 skills were audited against the authoring rubric and 35 got targeted fixes. Templates and reference commands now do what `SKILL.md` says, stale model IDs and versions are out of skill bodies, all-caps emphasis is replaced by the reason for the rule, generic filler is cut, and workflows that change files say how to verify the result.
 - `quick_validate.py` warns on all-caps emphasis and on a `name` that differs from the directory; `make validate-structure` fails on any warning. The rubric in `improve-skill` and `create-skill` carries the new rules.
-- `CLAUDE.md` is now the single line `@AGENTS.md`: its Claude-Code-only content moved to the "Claude Code" section of `AGENTS.md`, so every agent reads one file.
+- `CLAUDE.md` is gone: its Claude-Code-only content is now the "Claude Code" section of `AGENTS.md`, which Claude Code 2.1.277 and later reads directly. If a parent directory of your clone holds a `CLAUDE.md`, Claude Code skips `AGENTS.md` by default; set the instruction-files option of its built-in AGENTS.md plugin to load both.
 - `make bump-version` now also bumps `pyproject.toml` and re-locks `uv.lock`.
 
 ### Added
