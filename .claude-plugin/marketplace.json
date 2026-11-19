@@ -44,7 +44,7 @@
     {
       "name": "cc-arsenal-dev",
       "source": "./",
-      "strict": false,
+      "strict": true,
       "description": "Development skills: feature implementation, bug fixing, testing, refactoring, CI/CD generation, framework documentation injection, project planning, image generation (Codex imagegen), database migrations, Docker setup, environment setup, visual regression checks, i18n checks, release shipping, and open-source launch prep",
       "version": "6.2.0",
       "author": {
@@ -90,7 +90,7 @@
     {
       "name": "cc-arsenal-product",
       "source": "./",
-      "strict": false,
+      "strict": true,
       "description": "Product and design skills: right-sized PRDs, design specs, durable design-token contracts, and cohesive project mascots, heroes, social cards, thumbnails, and illustrations",
       "version": "6.2.0",
       "author": {
@@ -125,7 +125,7 @@
     {
       "name": "cc-arsenal-review",
       "source": "./",
-      "strict": false,
+      "strict": true,
       "description": "Code review and quality skills: code review, security review, dependency audit, and performance analysis",
       "version": "6.2.0",
       "author": {
@@ -159,7 +159,7 @@
     {
       "name": "cc-arsenal-docs",
       "source": "./",
-      "strict": false,
+      "strict": true,
       "description": "Documentation skills: ADR, RFC, diagrams, init, check, and update",
       "version": "6.2.0",
       "author": {
@@ -190,7 +190,7 @@
     {
       "name": "cc-arsenal-git",
       "source": "./",
-      "strict": false,
+      "strict": true,
       "description": "Git and GitHub workflow skills: conventional commits, PR creation, release management, gitflow branching, branch syncing, and code-done-to-merged shipping",
       "version": "6.2.0",
       "author": {
@@ -223,7 +223,7 @@
     {
       "name": "cc-arsenal-jira",
       "source": "./",
-      "strict": false,
+      "strict": true,
       "description": "Jira CLI integration: raw jira-cli commands, JQL filtering, and scripting",
       "version": "6.2.0",
       "author": {
@@ -247,7 +247,7 @@
     {
       "name": "cc-arsenal-skills",
       "source": "./",
-      "strict": false,
+      "strict": true,
       "description": "Specialty skills: Browser automation (agent-browser), turning docs sites, PDFs, folders and YouTube videos into grounded agent skills (anything-to-skill), third-party skill discovery (find-skills), specification-driven skill creation with eval system and description optimization (create-skill v2.0), CLAUDE.md rule creation (create-rule), evidence-based improvement of existing skills (improve-skill), measured token-waste audits of AI coding setups (optimize-ai-setup), and model-tiered multi-agent orchestration (orchestrate)",
       "version": "6.2.0",
       "author": {

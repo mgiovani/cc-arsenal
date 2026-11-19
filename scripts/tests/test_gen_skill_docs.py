@@ -322,3 +322,11 @@ def test_check_mode_passes_once_generated(
 
     monkeypatch.setattr('sys.argv', ['gen_skill_docs.py', '--check'])
     gen_skill_docs.main()
+
+
+def test_every_variant_entry_is_strict() -> None:
+    # Claude Code refuses a non-strict entry that shares its source with plugin.json
+    plugins = json.loads(gen_skill_docs.MARKETPLACE_PATH.read_text())['plugins']
+    variants = [p for p in plugins if 'skills' in p]
+    assert variants
+    assert [p['name'] for p in variants if p.get('strict') is not True] == []
