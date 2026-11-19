@@ -8,7 +8,7 @@ fi
 readonly CONFIG_LOADED=1
 
 # Installs from before the v7 rename keep their config in the old directory
-if [[ ! -d "$HOME/.claude/ai-arsenal" && -d "$HOME/.claude/cc-arsenal" ]]; then
+if [[ ! -f "$HOME/.claude/ai-arsenal/statusline_config.json" && -f "$HOME/.claude/cc-arsenal/statusline_config.json" ]]; then
     readonly CONFIG_DIR="$HOME/.claude/cc-arsenal"
 else
     readonly CONFIG_DIR="$HOME/.claude/ai-arsenal"

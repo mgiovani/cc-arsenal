@@ -25,7 +25,7 @@ DISPLAY_MODES = {
 
 
 def load_config() -> dict:
-    # The first save after the v7 rename moves a pre-rename config to CONFIG_PATH
+    # The first save after the v7 rename writes a pre-rename config to CONFIG_PATH
     path = CONFIG_PATH if CONFIG_PATH.exists() else LEGACY_CONFIG_PATH
     if path.exists():
         try:

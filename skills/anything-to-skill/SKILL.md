@@ -7,7 +7,7 @@ metadata:
 
 # Anything to Skill
 
-Scripts do the heavy work: discover, fetch, convert, dedupe, structure, validate. The model spends tokens only on the final authoring pass, and only on a ~6-8k token brief, never on raw pages. Every input, whatever its type, becomes units in one workspace (`.ai-arsenal/a2s/<slug>/`) and is merged into one topic-based tree.
+Scripts do the heavy work: discover, fetch, convert, dedupe, structure, validate. The model spends tokens only on the final authoring pass, and only on a ~6-8k token brief, never on raw pages. Every input, whatever its type, becomes units in one workspace (`.ai-arsenal/a2s/<slug>/`, or `.cc-arsenal/a2s/<slug>/` where a project still has that older directory and no new one: use that path in the commands below) and is merged into one topic-based tree.
 
 `<skill-dir>` below is this skill's directory. Every script is run with `uv run <skill-dir>/scripts/<name>.py` and installs its own dependencies (PEP 723). Without `uv`, stop and ask the user to install it. Every script accepts `--slug <slug>` and prints JSON or short text. `--slug` is required as soon as more than one workspace exists (it may be omitted only with a single one); the command blocks below leave it out. On `a2s.py`, put it after the subcommand (`a2s.py status --slug pg`); before it, argparse rejects it.
 

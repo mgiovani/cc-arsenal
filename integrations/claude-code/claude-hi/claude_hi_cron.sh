@@ -5,6 +5,8 @@
 set -euo pipefail
 
 HI_SCRIPT="$HOME/.claude/ai-arsenal/claude-hi/send_hi.sh"
+# Matches cron entries from pre-rename installs too
+HI_CRON_PATTERN="/claude-hi/send_hi.sh"
 
 # Create the simple hi sender
 create_hi_sender() {
@@ -41,7 +43,7 @@ setup_cron() {
     local temp_cron=$(mktemp)
 
     # Add existing crontab (excluding old claude entries)
-    crontab -l 2>/dev/null | grep -v "/claude-hi/send_hi.sh" | grep -v "# Claude Hi Triggers" > "$temp_cron" || true
+    crontab -l 2>/dev/null | grep -v "$HI_CRON_PATTERN" | grep -v "# Claude Hi Triggers" > "$temp_cron" || true
 
     # Add our entries
     echo "" >> "$temp_cron"
@@ -59,7 +61,7 @@ setup_cron() {
 # Remove cron jobs
 remove_cron() {
     echo "Removing Claude 'hi' cron jobs..."
-    crontab -l 2>/dev/null | grep -v "/claude-hi/send_hi.sh" | grep -v "# Claude Hi Triggers" | crontab - || true
+    crontab -l 2>/dev/null | grep -v "$HI_CRON_PATTERN" | grep -v "# Claude Hi Triggers" | crontab - || true
     echo "✅ Removed all Claude 'hi' schedules"
 }
 
