@@ -149,7 +149,7 @@ validate-structure: ## Validate repository structure
 			errors=$$((errors + 1)); \
 		fi; \
 	done; \
-	for file in README.md CLAUDE.md; do \
+	for file in README.md AGENTS.md CLAUDE.md; do \
 		if [ ! -f "$$file" ]; then \
 			echo "$(RED)Missing file: $$file$(RESET)"; \
 			errors=$$((errors + 1)); \

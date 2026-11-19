@@ -310,7 +310,7 @@ Use this checklist:
 - [ ] Test coverage >90% for new code (`make coverage`)
 - [ ] Type checking passes (`make type-check`)
 - [ ] Linting passes (`make lint`)
-- [ ] Documentation updated (README, CLAUDE.md, docs/)
+- [ ] Documentation updated (README, AGENTS.md, docs/)
 - [ ] Commit messages follow conventional format
 - [ ] Branch is up to date with main
 - [ ] No merge conflicts
